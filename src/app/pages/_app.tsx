@@ -3,6 +3,8 @@ import DefaultLayout from '../components/layouts/DefaultLayout';
 // import { AppProps } from 'next/app';
 // import CustomLayout from '../components/layouts/CustomLayout';
 import HomePage from './home';
+import { store } from '../store/store';
+import { Provider } from 'react-redux';
 
 // type NextPageWithLayout = {
 //   layoutType?: string;
@@ -20,7 +22,7 @@ function App() {
     return <DefaultLayout>{page}</DefaultLayout>;
   };
 
-  return <>{getLayout(<HomePage />)}</>;
+  return <Provider store={store}>{getLayout(<HomePage />)} </Provider>;
 }
 
 export default App;
