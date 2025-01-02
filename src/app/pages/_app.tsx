@@ -5,6 +5,7 @@ import DefaultLayout from '../components/layouts/DefaultLayout';
 import HomePage from './home';
 import { store } from '../store/store';
 import { Provider } from 'react-redux';
+import ErrorBoundary from '../components/core/error/ErrorBoundary';
 
 // type NextPageWithLayout = {
 //   layoutType?: string;
@@ -22,7 +23,11 @@ function App() {
     return <DefaultLayout>{page}</DefaultLayout>;
   };
 
-  return <Provider store={store}>{getLayout(<HomePage />)} </Provider>;
+  return (
+    <Provider store={store}>
+      <ErrorBoundary>{getLayout(<HomePage />)}</ErrorBoundary>
+    </Provider>
+  );
 }
 
 export default App;
