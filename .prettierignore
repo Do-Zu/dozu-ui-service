@@ -1,0 +1,28 @@
+# Node.js modules
+node_modules/
+
+# Next.js build output
+.next/
+
+# Static files
+public/
+
+# Log files
+*.log
+
+# TypeScript and JavaScript declaration files
+*.d.ts
+
+# Build artifacts
+out/
+
+# Test snapshots
+*.snap
+
+# Next.js server-side rendered pages
+pages/api/
+
+# Local environment config files
+*.env
+
+build/
