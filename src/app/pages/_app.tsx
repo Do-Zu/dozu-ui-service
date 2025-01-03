@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactElement } from 'react';
 import DefaultLayout from '../components/layouts/DefaultLayout';
 // import { AppProps } from 'next/app';
