@@ -5,7 +5,7 @@ import { ReactElement } from 'react';
 // import CustomLayout from '../components/layouts/CustomLayout';
 import HomePage from './home';
 import { Provider } from 'react-redux';
-import ErrorBoundary from '@/core/ErrorBoundary';
+import ErrorBoundary from '@/core/error/ErrorBoundary';
 import { store } from '@/store/store';
 import DefaultLayout from '@/layouts/DefaultLayout';
 
