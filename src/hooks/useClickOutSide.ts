@@ -16,3 +16,16 @@ function useClickOutSide(handler: () => void) {
   return ref;
 }
 export default useClickOutSide;
+/**
+Great for closing modals or dropdowns when clicking outside.
+
+Example:
+const ref = useClickOutside(() => setDropdownOpen(false));
+
+return (
+  <div ref={ref}>
+    {dropdownOpen && <p>Dropdown Content</p>}
+  </div>
+);
+
+ */
