@@ -30,7 +30,7 @@ jobs:
         env:
           NODE_ENV: production
       - name: Upload build artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build-files
           path: |
@@ -42,11 +42,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: build-files
+
       - name: Deploy to remote host
         uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          source: '.next,package*.json'
+          target: '${{ secrets.PATH_PROJECT }}'
+
+      - name: Execute deployment
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -67,8 +77,8 @@ jobs:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
-          port: 22
           script: |
+            cd ${{ secrets.PATH_PROJECT }}
             pm2 status
             pm2 logs next-app --lines 50
             echo "Deployment completed successfully"
