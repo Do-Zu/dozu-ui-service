@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
           source: '.next,package*.json'
-          target: ${{ secrets.PATH_PROJECT }}
+          target: projects/dozu-ui-service
 
       - name: Execute deployment
         uses: appleboy/ssh-action@v1.0.0
