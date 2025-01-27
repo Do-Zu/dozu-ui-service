@@ -49,20 +49,18 @@ jobs:
       - name: Deploy to remote host
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: 192.168.1.100
+          host: 192.168.1.168
           username: per
           password: Phanminhvinh2003@
-          port: 22
           source: '.next,package*.json'
           target: /projects/dozu-ui-service
 
       - name: Execute deployment
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 192.168.1.100
+          host: 192.168.1.168
           username: per
           password: Phanminhvinh2003@
-          port: 22
           script: |
             cd ${{ secrets.PATH_PROJECT }}
             pm2 stop next-app || true
@@ -76,7 +74,7 @@ jobs:
       - name: Check deployment status
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 192.168.1.100
+          host: 192.168.1.168
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
           script: |
