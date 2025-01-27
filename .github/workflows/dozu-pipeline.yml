@@ -49,9 +49,9 @@ jobs:
       - name: Deploy to remote host
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
+          host: 14.175.154.178
+          username: per
+          password: Phanminhvinh2003@
           port: 2222
           source: '.next,package*.json'
           target: projects/dozu-ui-service
