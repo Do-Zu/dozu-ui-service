@@ -49,17 +49,17 @@ jobs:
       - name: Deploy to remote host
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: 14.175.154.178
+          host: 192.168.235.100
           username: per
           password: Phanminhvinh2003@
           port: 2222
           source: '.next,package*.json'
-          target: projects/dozu-ui-service
+          target: /projects/dozu-ui-service
 
       - name: Execute deployment
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 14.175.154.178
+          host: 192.168.235.100
           username: per
           password: Phanminhvinh2003@
           port: 2222
