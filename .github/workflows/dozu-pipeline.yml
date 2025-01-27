@@ -52,6 +52,7 @@ jobs:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
+          port: 2222
           source: '.next,package*.json'
           target: projects/dozu-ui-service
 
