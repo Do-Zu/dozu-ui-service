@@ -1,26 +1,28 @@
 import { useEffect, useState } from 'react';
-import { getRequest } from '../api/api';
+import { FetchOptions, METHOD } from './type';
+import { callApiAsync } from './helper';
 
-const useQuery = <T>(url: string) => {
+const useQuery = <T>(url: string, method?: METHOD, options?: FetchOptions) => {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const response = await getRequest<T>(url);
-        setData(response);
+        const response = await callApiAsync(url, method, options);
+        setData(response.data);
       } catch (err) {
-        setError('An error occurred while fetching data.');
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [url]);
+  }, [url, method, options]);
 
   return { data, loading, error };
 };
