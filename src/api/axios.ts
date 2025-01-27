@@ -6,8 +6,9 @@ const Axios = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
 // Request Interceptor
-Axios.interceptors.request.use(
+const requestInterceptor = Axios.interceptors.request.use(
   (config) => {
     // If the user is authenticated, attach the token to the request
     const token = localStorage.getItem('authToken'); // update position store access token
@@ -23,8 +24,9 @@ Axios.interceptors.request.use(
     return Promise.reject(error);
   },
 );
+
 // Response Interceptor
-Axios.interceptors.response.use(
+const responseInterceptor = Axios.interceptors.response.use(
   (response) => {
     // Optionally, log the response for debugging
     console.log('Response Received:', response);
@@ -66,10 +68,6 @@ Axios.interceptors.response.use(
 );
 
 export const clearInterceptors = () => {
-  const requestInterceptor = Axios.interceptors.request.use((config) => config);
-  const responseInterceptor = Axios.interceptors.response.use(
-    (response) => response,
-  );
   Axios.interceptors.request.eject(requestInterceptor);
   Axios.interceptors.response.eject(responseInterceptor);
 };
