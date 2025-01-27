@@ -59,9 +59,10 @@ jobs:
       - name: Execute deployment
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
+          host: 14.175.154.178
+          username: per
+          password: Phanminhvinh2003@
+          port: 2222
           script: |
             cd ${{ secrets.PATH_PROJECT }}
             pm2 stop next-app || true
