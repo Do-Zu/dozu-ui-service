@@ -16,7 +16,7 @@ jobs:
           node-version: '18'
           cache: 'npm'
       - run: |
-          npm ci --production
+          npm ci
           npm run build
       - uses: actions/upload-artifact@v4
         with:
