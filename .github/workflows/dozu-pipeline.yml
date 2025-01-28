@@ -47,13 +47,15 @@ jobs:
           name: build-files
 
       - name: Deploy to remote host
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@master
         with:
           host: 192.168.1.168
           username: github
           password: 123456
           source: '.next,package*.json'
           target: /projects/dozu-ui-service
+          timeout: 120s
+          overwrite: true
 
       - name: Execute deployment
         uses: appleboy/ssh-action@v1.0.0
