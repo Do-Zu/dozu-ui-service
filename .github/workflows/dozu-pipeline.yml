@@ -14,8 +14,8 @@ jobs:
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: 192.168.1.168
-          username: per
-          password: Phanminhvinh2003@
+          username: "per"
+          password: "Phanminhvinh2003@"
           port: 22
           script: |
             echo "System Health Check: $(date)"
