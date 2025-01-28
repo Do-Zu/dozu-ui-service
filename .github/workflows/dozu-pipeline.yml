@@ -25,21 +25,21 @@ jobs:
   #           .next
   #           package*.json
 
-  health-check:
-    #needs: build
+   health-check:
     runs-on: ubuntu-20.04
     steps:
-      - name: System Health Check
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
         with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
-          script: |
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: System Health Check
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST_IP }} '
             echo "System Health Check: $(date)"
             netstat -tulpn | grep :3000 || true
             df -h /
             free -m
+          '
 
   # backup:
   #   needs: health-check
