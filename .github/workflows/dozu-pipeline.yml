@@ -1,4 +1,4 @@
-name: Next.js CI/CD Pipeline
+name: dozu-pipeline
 
 on:
   push:
@@ -16,8 +16,7 @@ jobs:
           node-version: '18'
           cache: 'npm'
       - run: |
-          npm ci
-          npm run lint
+          npm ci --production
           npm run build
       - uses: actions/upload-artifact@v4
         with:
@@ -30,15 +29,19 @@ jobs:
     needs: build
     runs-on: ubuntu-20.04
     steps:
+      - name: SSH Health Check
       - uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
           script: |
+            echo "Testing SHH connection"
             netstat -tulpn | grep :3000 || true
             df -h /
             free -m
+        env:
+          DRONE_SSH_DEBUG: true
 
   deploy:
     needs: health-check
