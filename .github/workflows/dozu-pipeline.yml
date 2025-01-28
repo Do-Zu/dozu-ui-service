@@ -33,6 +33,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: System Health Check
+        timeout-minutes: 1
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST_IP }} '
             echo "System Health Check: $(date)"
