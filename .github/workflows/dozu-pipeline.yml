@@ -1,4 +1,4 @@
-name: dozu-pipeline
+name: Next.js CI/CD Pipeline
 
 on:
   push:
@@ -8,81 +8,71 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linting
-        run: npm run lint
-
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+      - run: |
+          npm ci
+          npm run lint
+          npm run build
+      - uses: actions/upload-artifact@v4
         with:
           name: build-files
           path: |
             .next
             package*.json
-  deploy:
-    name: Deploy
+
+  health-check:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          script: |
+            netstat -tulpn | grep :3000 || true
+            df -h /
+            free -m
+
+  deploy:
+    needs: health-check
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/download-artifact@v4
         with:
           name: build-files
-
-      - name: Deploy to remote host
-        uses: appleboy/ssh-action@v1.0.0
+      - uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 192.168.1.168
-          username: vinhpm
-          password: 123456
-          source: '.next,package*.json'
-          target: /projects/dozu-ui-service
-          timeout: 120s
-          overwrite: true
-
-      - name: Execute deployment
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          timeout: 120s
-          host: 192.168.1.168
-          username: vinhpm
-          password: 123456
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
           script: |
-            cd ${{ secrets.PATH_PROJECT }}
+            mkdir -p /projects/dozu-ui-service
+            cd /projects/dozu-ui-service
             pm2 stop next-app || true
+            rsync -avz --delete $GITHUB_WORKSPACE/.next .
+            rsync -avz $GITHUB_WORKSPACE/package*.json .
             npm install --production
             pm2 start npm --name "next-app" -- start -- -p 3000
-  logs:
-    name: Logs
+            pm2 save
+
+  verify:
     needs: deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
-      - name: Check deployment status
-        uses: appleboy/ssh-action@v1.0.0
+      - uses: appleboy/ssh-action@v1.0.0
         with:
-          timeout: 120s
-          host: 192.168.1.168
-          username: vinhpm
-          password: 123456
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
           script: |
-            cd ${{ secrets.PATH_PROJECT }}
+            cd /projects/dozu-ui-service
+            curl -f http://localhost:3000 || exit 1
             pm2 status
-            pm2 logs next-app --lines 50
-            echo "Deployment completed successfully"
+            pm2 logs next-app --lines 20
