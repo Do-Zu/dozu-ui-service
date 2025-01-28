@@ -47,21 +47,57 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-files
-      - uses: appleboy/ssh-action@v1.0.0
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
+          timeout: 60s
           script: |
-            mkdir -p /projects/dozu-ui-service
-            cd /projects/dozu-ui-service
+            # Configuration
+            DEPLOY_DIR="/projects/productions/dozu-ui-service"
+            BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
+
+            # Deployment logging
+            exec 1> >(tee -a "${DEPLOY_DIR}/deploy.log")
+            exec 2>&1
+            echo "Starting deployment at $(date)"
+
+            # Directory handling
+            if [ -d "$DEPLOY_DIR" ]; then
+              echo "Backing up existing deployment"
+              cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+            else
+              echo "Creating new deployment directory"
+              mkdir -p "$DEPLOY_DIR"
+            fi
+
+            # Navigate to directory
+            cd "$DEPLOY_DIR" || {
+              echo "Failed to change to deployment directory"
+              exit 1
+            }
+
+            # Stop existing service
+            echo "Stopping existing service"
             pm2 stop next-app || true
-            rsync -avz --delete $GITHUB_WORKSPACE/.next .
-            rsync -avz $GITHUB_WORKSPACE/package*.json .
-            npm install --production
+
+            # Deploy new version
+            echo "Deploying new version"
+            rsync -avz --delete "$GITHUB_WORKSPACE/.next" .
+            rsync -avz "$GITHUB_WORKSPACE/package*.json" .
+
+            # Install dependencies
+            echo "Installing dependencies"
+            npm ci --production --no-audit --no-fund
+
+            # Start service
+            echo "Starting service"
             pm2 start npm --name "next-app" -- start -- -p 3000
             pm2 save
 
+            echo "Deployment completed at $(date)"
   verify:
     needs: deploy
     runs-on: ubuntu-20.04
