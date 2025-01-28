@@ -17,12 +17,15 @@ jobs:
           ssh_user: "per"
           password: "Phanminhvinh2003@"
           ssh_private_key: ${SSH_PRIVATE_KEY}
-          port: 22
-          script: |
-            echo "System Health Check: $(date)"
-            netstat -tulpn | grep :3000 || true
-            df -h /
-            free -m
+          source_file_path: './build/app.jar' # Artifact from an upstream job
+          destination_path: '/var/www/app/' # Ensure the remote server has this directory
+          execute_remote_script: 'yes' # Enable this for the following parameters to take effect
+          copy_script: 'yes' # If disabled, the deploy_script must already exist on the remote server
+          source_script: 'scripts/deploy.sh' # Ensure this file exists in your repository
+          deploy_script: '/var/www/scripts/deploy.sh' # This file will be overwritten each time if copy_script is enabled
+          service_name: 'my-app' # Can be hardcoded or use an upstream variable
+          service_version: ${{ steps.meta.outputs.version }} # Populate from upstream variable if needed by your deploy script
+          
   
   #  build:
   #   runs-on: ubuntu-20.04
