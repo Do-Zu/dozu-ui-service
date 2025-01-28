@@ -7,26 +7,7 @@ on:
     branches: [develop, feature/merge]
 
 jobs:
-  health-check:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: System Health Check
-        uses: falling42/ssh-deploy@v0.2.1
-        with:
-          ssh_host: 192.168.1.168
-          ssh_user: 'root'
-          ssh_private_key: ${SSH_PRIVATE_KEY}
-          source_file_path: './build/app.jar' # Artifact from an upstream job
-          destination_path: '/var/www/app/' # Ensure the remote server has this directory
-          execute_remote_script: 'yes' # Enable this for the following parameters to take effect
-          copy_script: 'yes' # If disabled, the deploy_script must already exist on the remote server
-          source_script: 'scripts/deploy.sh' # Ensure this file exists in your repository
-          deploy_script: '/var/www/scripts/deploy.sh' # This file will be overwritten each time if copy_script is enabled
-          service_name: 'my-app' # Can be hardcoded or use an upstream variable
-          service_version: ${{ steps.meta.outputs.version }} # Populate from upstream variable if needed by your deploy script
-          
-  
-  #  build:
+  # build:
   #   runs-on: ubuntu-20.04
   #   steps:
   #     - uses: actions/checkout@v4
@@ -43,6 +24,22 @@ jobs:
   #         path: |
   #           .next
   #           package*.json
+
+  health-check:
+    #needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: System Health Check
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          script: |
+            echo "System Health Check: $(date)"
+            netstat -tulpn | grep :3000 || true
+            df -h /
+            free -m
 
   # backup:
   #   needs: health-check
