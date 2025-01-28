@@ -14,8 +14,7 @@ jobs:
         uses: falling42/ssh-deploy@v0.2.1
         with:
           ssh_host: 192.168.1.168
-          ssh_user: "per"
-          password: "Phanminhvinh2003@"
+          ssh_user: 'root'
           ssh_private_key: ${SSH_PRIVATE_KEY}
           source_file_path: './build/app.jar' # Artifact from an upstream job
           destination_path: '/var/www/app/' # Ensure the remote server has this directory
