@@ -32,9 +32,9 @@ jobs:
       - name: System Health Check
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
+          host: 192.168.1.168
+          username: per
+          password: Phanminhvinh2003@
           script: |
             echo "System Health Check: $(date)"
             netstat -tulpn | grep :3000 || true
