@@ -35,7 +35,7 @@ jobs:
       - name: System Health Check
         timeout-minutes: 1
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ DEPLOY_USER }}@${{ secrets.HOST_IP }} '
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.HOST_IP }} '
             echo "System Health Check: $(date)"
             netstat -tulpn | grep :3000 || true
             df -h /
