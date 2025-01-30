@@ -1,31 +1,28 @@
-name: Next.js CI/CD Pipeline
+name: CI/CD pipeline Dev environment
 
 on:
   push:
-    branches: [develop, feature/merge]
+    branches: [develop]
   pull_request:
-    branches: [develop, feature/merge]
+    branches: [develop]
+
+env:
+  DEPLOY_DIR: /projects/productions/dozu-ui-service
+  APP_PORT: 3000
+  NODE_VERSION: '18'
+  PM2_APP_NAME: next-app
 
 jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
-
-      - name: Clear npm Cache
-        run: npm cache clean --force
-
-      - name: Install Dependencies
-        run: npm ci --no-audit --progress=false
-
-      - name: Build Project
-        run: npm run build
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm cache clean --force
+      - run: npm ci --no-audit --progress=false
+      - run: npm run build
         env:
           NODE_ENV: production
 
@@ -35,63 +32,42 @@ jobs:
     steps:
       - name: Backup Deployment
         run: |
-          DEPLOY_DIR="/projects/productions/dozu-ui-service"
-          BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
-
-          echo "Starting deployment..."
-
-          # Backup
-          if [ -d "$DEPLOY_DIR" ]; then
+          BACKUP_DIR="${{ env.DEPLOY_DIR }}_backup_$(date +%Y%m%d_%H%M%S)"
+          if [ -d "${{ env.DEPLOY_DIR }}" ]; then
             echo "Backing up current deployment..."
-            rsync -a --delete "$DEPLOY_DIR/" "$BACKUP_DIR/"
+            rsync -a --delete "${{ env.DEPLOY_DIR }}/" "$BACKUP_DIR/"
           fi
 
   deploy:
-    needs: build
+    needs: backup
     runs-on: self-hosted
     steps:
       - name: Deploy Application
         run: |
-          DEPLOY_DIR="/projects/productions/dozu-ui-service"
-          BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
-
-          echo "Starting deployment..."
-
-          mkdir -p "$DEPLOY_DIR"
-          rsync -a --delete .next "$DEPLOY_DIR/"
-          cp package*.json "$DEPLOY_DIR/"
-
-          echo "Installing dependencies..."
-          cd "$DEPLOY_DIR"
+          mkdir -p "${{ env.DEPLOY_DIR }}"
+          rsync -a --delete .next "${{ env.DEPLOY_DIR }}/"
+          cp package*.json "${{ env.DEPLOY_DIR }}/"
+          cd "${{ env.DEPLOY_DIR }}"
           npm ci --omit=dev
-
-          echo "Restarting application"
-          cd "$DEPLOY_DIR"
-          pm2 stop next-app || true
-          pm2 start npm --name "next-app" -- start -- -p 3000
+          pm2 stop ${{ env.PM2_APP_NAME }} || true
+          pm2 start npm --name "${{ env.PM2_APP_NAME }}" -- start -- -p ${{ env.APP_PORT }}
           pm2 save
 
   logs:
     needs: deploy
     runs-on: self-hosted
     steps:
-      - name: Verify Deployment Status
+      - name: Verify Deployment
         run: |
-          cd /projects/productions/dozu-ui-service
-
-          # Check if PM2 process is running
-          if ! pm2 describe next-app | grep -q "online"; then
+          cd ${{ env.DEPLOY_DIR }}
+          if ! pm2 describe ${{ env.PM2_APP_NAME }} | grep -q "online"; then
             echo "❌ Application failed to start"
-            pm2 logs next-app --lines 20
+            pm2 logs ${{ env.PM2_APP_NAME }} --lines 20
             exit 1
           fi
-
-          # Check if application responds
-          if ! curl -f http://localhost:3000 > /dev/null 2>&1; then
+          if ! curl -f http://localhost:${{ env.APP_PORT }} > /dev/null 2>&1; then
             echo "❌ Application is not responding"
-            pm2 logs next-app --lines 20
+            pm2 logs ${{ env.PM2_APP_NAME }} --lines 20
             exit 1
           fi
-
           echo "✅ Deployment successful"
-          echo "Pipeline completed successfully"
