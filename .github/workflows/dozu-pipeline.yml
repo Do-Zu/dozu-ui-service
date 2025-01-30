@@ -28,17 +28,17 @@ jobs:
         run: |
           DEPLOY_DIR="/projects/productions/dozu-ui-service"
           BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
-          
+
           # Backup
           if [ -d "$DEPLOY_DIR" ]; then
             cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
           fi
-          
+
           # Deploy
           mkdir -p "$DEPLOY_DIR"
           cp -r .next "$DEPLOY_DIR/"
           cp package*.json "$DEPLOY_DIR/"
-          
+
           # Install & Start
           cd "$DEPLOY_DIR"
           npm ci --production
@@ -50,8 +50,25 @@ jobs:
     needs: deploy
     runs-on: self-hosted
     steps:
-      - name: Check Deployment
+      - name: Verify Deployment Status
         run: |
           cd /projects/productions/dozu-ui-service
-          pm2 status
-          pm2 logs next-app --lines 20
+
+          # Check if PM2 process is running
+          if ! pm2 describe next-app | grep -q "online"; then
+            echo "❌ Application failed to start"
+            pm2 logs next-app --lines 20
+            exit 1
+          fi
+
+          # Check if application responds
+          if ! curl -f http://localhost:3000 > /dev/null 2>&1; then
+            echo "❌ Application is not responding"
+            pm2 logs next-app --lines 20
+            exit 1
+          fi
+
+          echo "✅ Deployment successful"
+          echo "Application logs:"
+          pm2 logs next-app --lines 10
+          echo "Pipeline completed successfully"
