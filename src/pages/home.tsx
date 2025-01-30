@@ -5,6 +5,7 @@ import { NextPage } from 'next';
 const HomePage: NextPage = () => {
   return (
     <>
+      <div>Testing Pipeline</div>
       <Button>shacdn</Button>
       <DataTableDemo />
     </>
