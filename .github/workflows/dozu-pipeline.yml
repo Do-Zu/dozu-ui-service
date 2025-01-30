@@ -29,6 +29,23 @@ jobs:
         env:
           NODE_ENV: production
 
+  backup:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Backup Deployment
+        run: |
+          DEPLOY_DIR="/projects/productions/dozu-ui-service"
+          BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
+
+          echo "Starting deployment..."
+
+          # Backup
+          if [ -d "$DEPLOY_DIR" ]; then
+            echo "Backing up current deployment..."
+            rsync -a --delete "$DEPLOY_DIR/" "$BACKUP_DIR/"
+          fi
+
   deploy:
     needs: build
     runs-on: self-hosted
@@ -38,19 +55,18 @@ jobs:
           DEPLOY_DIR="/projects/productions/dozu-ui-service"
           BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
 
-          # Backup
-          if [ -d "$DEPLOY_DIR" ]; then
-            cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
-          fi
+          echo "Starting deployment..."
 
-          # Deploy
           mkdir -p "$DEPLOY_DIR"
-          cp -r .next "$DEPLOY_DIR/"
+          rsync -a --delete .next "$DEPLOY_DIR/"
           cp package*.json "$DEPLOY_DIR/"
 
-          # Install & Start
+          echo "Installing dependencies..."
           cd "$DEPLOY_DIR"
           npm ci --omit=dev
+
+          echo "Restarting application"
+          cd "$DEPLOY_DIR"
           pm2 stop next-app || true
           pm2 start npm --name "next-app" -- start -- -p 3000
           pm2 save
