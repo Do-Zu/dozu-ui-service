@@ -1,10 +1,19 @@
 name: CI/CD pipeline production environment
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        required: true
+        default: 'Staging'
+        type: choice
+        options:
+          - Staging
+          - Release
+          - Production
 
 env:
   DEPLOY_DIR: /projects/productions/dozu-ui-service
