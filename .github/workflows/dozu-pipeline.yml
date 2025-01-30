@@ -1,4 +1,4 @@
-name: dozu-pipeline
+name: Next.js CI/CD Pipeline
 
 on:
   push:
@@ -8,77 +8,90 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Clear npm Cache
+        run: npm cache clean --force
 
-      - name: Run linting
-        run: npm run lint
+      - name: Install Dependencies
+        run: npm ci --no-audit --progress=false
 
-      - name: Build application
+      - name: Build Project
         run: npm run build
         env:
           NODE_ENV: production
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-files
-          path: |
-            .next
-            package*.json
-  deploy:
-    name: Deploy
+
+  backup:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-files
+      - name: Backup Deployment
+        run: |
+          DEPLOY_DIR="/projects/productions/dozu-ui-service"
+          BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
 
-      - name: Deploy to remote host
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
-          source: '.next,package*.json'
-          target: '${{ secrets.PATH_PROJECT }}'
+          echo "Starting deployment..."
 
-      - name: Execute deployment
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
-          script: |
-            cd ${{ secrets.PATH_PROJECT }}
-            pm2 stop next-app || true
-            npm install --production
-            pm2 start npm --name "next-app" -- start -- -p ${{ secrets.PORT }}
+          # Backup
+          if [ -d "$DEPLOY_DIR" ]; then
+            echo "Backing up current deployment..."
+            rsync -a --delete "$DEPLOY_DIR/" "$BACKUP_DIR/"
+          fi
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Deploy Application
+        run: |
+          DEPLOY_DIR="/projects/productions/dozu-ui-service"
+          BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
+
+          echo "Starting deployment..."
+
+          mkdir -p "$DEPLOY_DIR"
+          rsync -a --delete .next "$DEPLOY_DIR/"
+          cp package*.json "$DEPLOY_DIR/"
+
+          echo "Installing dependencies..."
+          cd "$DEPLOY_DIR"
+          npm ci --omit=dev
+
+          echo "Restarting application"
+          cd "$DEPLOY_DIR"
+          pm2 stop next-app || true
+          pm2 start npm --name "next-app" -- start -- -p 3000
+          pm2 save
+
   logs:
-    name: Logs
     needs: deploy
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Check deployment status
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
-          script: |
-            cd ${{ secrets.PATH_PROJECT }}
-            pm2 status
-            pm2 logs next-app --lines 50
-            echo "Deployment completed successfully"
+      - name: Verify Deployment Status
+        run: |
+          cd /projects/productions/dozu-ui-service
+
+          # Check if PM2 process is running
+          if ! pm2 describe next-app | grep -q "online"; then
+            echo "❌ Application failed to start"
+            pm2 logs next-app --lines 20
+            exit 1
+          fi
+
+          # Check if application responds
+          if ! curl -f http://localhost:3000 > /dev/null 2>&1; then
+            echo "❌ Application is not responding"
+            pm2 logs next-app --lines 20
+            exit 1
+          fi
+
+          echo "✅ Deployment successful"
+          echo "Pipeline completed successfully"
