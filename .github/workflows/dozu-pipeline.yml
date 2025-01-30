@@ -22,7 +22,10 @@ jobs:
         run: npm cache clean --force
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci --no-audit --progress=false
+
+      - name: Build Project
+        run: npm run build
         env:
           NODE_ENV: production
 
