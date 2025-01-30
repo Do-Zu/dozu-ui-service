@@ -7,94 +7,51 @@ on:
     branches: [develop, feature/merge]
 
 jobs:
-  # build:
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '18'
-  #         cache: 'npm'
-  #     - run: |
-  #         npm ci
-  #         npm run build
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: build-files
-  #         path: |
-  #           .next
-  #           package*.json
-
-  health-check:
-    runs-on: ubuntu-20.04
+  build:
+    runs-on: self-hosted
     steps:
-      - name: System Health Check
-        uses: appleboy/ssh-action@v1.0.0
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.HOST_IP }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
-          script: |
-            echo "System Health Check: $(date)"
-            netstat -tulpn | grep :3000 || true
-            df -h /
-            free -m
+          node-version: '18'
+          cache: 'npm'
+      - run: |
+          npm ci
+          npm run build
 
-  # backup:
-  #   needs: health-check
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - name: Backup Existing Deployment
-  #       uses: appleboy/ssh-action@v1.0.0
-  #       with:
-  #         host: ${{ secrets.HOST_IP }}
-  #         username: ${{ secrets.DEPLOY_USER }}
-  #         password: ${{ secrets.DEPLOY_PASSWORD }}
-  #         script: |
-  #           DEPLOY_DIR="/projects/productions/dozu-ui-service"
-  #           BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
-  #           if [ -d "$DEPLOY_DIR" ]; then
-  #             cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
-  #             echo "Backup created at $BACKUP_DIR"
-  #           fi
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Deploy Application
+        run: |
+          DEPLOY_DIR="/projects/productions/dozu-ui-service"
+          BACKUP_DIR="${DEPLOY_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
+          
+          # Backup
+          if [ -d "$DEPLOY_DIR" ]; then
+            cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+          fi
+          
+          # Deploy
+          mkdir -p "$DEPLOY_DIR"
+          cp -r .next "$DEPLOY_DIR/"
+          cp package*.json "$DEPLOY_DIR/"
+          
+          # Install & Start
+          cd "$DEPLOY_DIR"
+          npm ci --production
+          pm2 stop next-app || true
+          pm2 start npm --name "next-app" -- start -- -p 3000
+          pm2 save
 
-  # deploy:
-  #   needs: backup
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - uses: actions/download-artifact@v4
-  #       with:
-  #         name: build-files
-  #     - name: Deploy Application
-  #       uses: appleboy/ssh-action@v1.0.0
-  #       with:
-  #         host: ${{ secrets.HOST_IP }}
-  #         username: ${{ secrets.DEPLOY_USER }}
-  #         password: ${{ secrets.DEPLOY_PASSWORD }}
-  #         script: |
-  #           cd /projects/productions/dozu-ui-service
-  #           pm2 stop next-app || true
-  #           rm -rf .next
-  #           rsync -avz --delete "$GITHUB_WORKSPACE/.next" .
-  #           rsync -avz "$GITHUB_WORKSPACE/package*.json" .
-  #           npm ci --production
-  #           pm2 start npm --name "next-app" -- start -- -p 3000
-  #           pm2 save
-
-  # logs:
-  #   needs: deploy
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - name: Verify Deployment
-  #       uses: appleboy/ssh-action@v1.0.0
-  #       with:
-  #         host: ${{ secrets.HOST_IP }}
-  #         username: ${{ secrets.DEPLOY_USER }}
-  #         password: ${{ secrets.DEPLOY_PASSWORD }}
-  #         script: |
-  #           cd /projects/productions/dozu-ui-service
-  #           echo "Deployment Status:"
-  #           pm2 status
-  #           echo "Application Logs:"
-  #           pm2 logs next-app --lines 20
-  #           curl -f http://localhost:3000 || exit 1
+  logs:
+    needs: deploy
+    runs-on: self-hosted
+    steps:
+      - name: Check Deployment
+        run: |
+          cd /projects/productions/dozu-ui-service
+          pm2 status
+          pm2 logs next-app --lines 20
