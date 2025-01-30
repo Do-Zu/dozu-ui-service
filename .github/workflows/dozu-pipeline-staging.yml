@@ -16,7 +16,6 @@ on:
           - Staging
           - Releases
           - Production
-
 env:
   DEPLOY_DIR: /projects/staging/dozu-ui
   APP_PORT: 3111
