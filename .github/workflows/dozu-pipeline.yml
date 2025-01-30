@@ -11,14 +11,25 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-      - run: |
-          npm ci
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Configure npm cache
+        run: |
+          mkdir -p ~/.npm
+          npm config set cache ~/.npm --global
+
+      - name: Install and Build
+        run: |
+          npm ci --prefer-offline
           npm run build
+        env:
+          NODE_ENV: production
 
   deploy:
     needs: build
