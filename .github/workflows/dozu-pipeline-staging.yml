@@ -1,17 +1,17 @@
-name: CI/CD pipeline production environment
+name: CI/CD pipeline dev and test features environment
 
 on:
   push:
-    branches: [main]
+    branches: [feature/merge]
   pull_request:
-    branches: [main]
+    branches: [feature/merge]
 
 env:
-  DEPLOY_DIR: /projects/productions/dozu-ui-service
-  APP_PORT: 3000
+  DEPLOY_DIR: /projects/staging/dozu-ui
+  APP_PORT: 3111
   NODE_VERSION: '18'
   PM2_APP_NAME: next-app
-  NODE_ENV: production
+  NODE_ENV: stage
 
 jobs:
   build:
@@ -27,20 +27,8 @@ jobs:
         env:
           NODE_ENV: ${{ env.NODE_ENV }}
 
-  backup:
-    needs: build
-    runs-on: self-hosted
-    steps:
-      - name: Backup Deployment
-        run: |
-          BACKUP_DIR="${{ env.DEPLOY_DIR }}_backup_$(date +%Y%m%d_%H%M%S)"
-          if [ -d "${{ env.DEPLOY_DIR }}" ]; then
-            echo "Backing up current deployment..."
-            rsync -a --delete "${{ env.DEPLOY_DIR }}/" "$BACKUP_DIR/"
-          fi
-
   deploy:
-    needs: backup
+    needs: build
     runs-on: self-hosted
     steps:
       - name: Deploy Application
