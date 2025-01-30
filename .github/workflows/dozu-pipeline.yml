@@ -53,7 +53,7 @@ jobs:
           pm2 start npm --name "${{ env.PM2_APP_NAME }}" -- start -- -p ${{ env.APP_PORT }}
           pm2 save
 
-  logs:
+  verify:
     needs: deploy
     runs-on: self-hosted
     steps:
