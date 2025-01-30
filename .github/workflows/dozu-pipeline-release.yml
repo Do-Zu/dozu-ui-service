@@ -5,6 +5,17 @@ on:
     branches: [develop]
   pull_request:
     branches: [develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - Staging
+          - Release
+          - Production
 
 env:
   DEPLOY_DIR: /projects/releases/dozu-ui

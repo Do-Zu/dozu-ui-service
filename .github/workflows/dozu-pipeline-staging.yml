@@ -13,9 +13,9 @@ on:
         default: 'staging'
         type: choice
         options:
-          - staging
-          - release
-          - production
+          - Staging
+          - Release
+          - Production
 
 env:
   DEPLOY_DIR: /projects/staging/dozu-ui
