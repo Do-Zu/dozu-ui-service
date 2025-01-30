@@ -28,7 +28,7 @@ COPY --from=builder /app/package.json ./package.json
 #COPY --from=builder /app/public ./public
 
 #Install dependecies for product
-RUN npm install --production
+#RUN npm install --production
 
 # Expose the port the app runs on
 EXPOSE 3000
