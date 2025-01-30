@@ -94,7 +94,4 @@ jobs:
           fi
 
           echo "✅ Deployment successful"
-          echo "Application logs:"
-          pm2 logs next-app --lines 10
           echo "Pipeline completed successfully"
-          exit 1
