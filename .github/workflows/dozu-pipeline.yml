@@ -35,7 +35,8 @@ jobs:
       - name: System Health Check
         timeout-minutes: 1
         run: |
-          ssh -o StrictHostKeyChecking=no github@192.168.1.168 '
+          ssh -o StrictHostKeyChecking=no github@192.168.1.168
+          '
             echo "System Health Check: $(date)"
             netstat -tulpn | grep :3000 || true
             df -h /
