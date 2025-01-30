@@ -14,7 +14,7 @@ on:
         type: choice
         options:
           - Staging
-          - Release
+          - Releases
           - Production
 
 env:
