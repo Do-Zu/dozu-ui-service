@@ -1,16 +1,17 @@
-name: CI/CD pipeline Dev environment
+name: CI/CD pipeline production environment
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
   pull_request:
-    branches: [develop]
+    branches: [main]
 
 env:
   DEPLOY_DIR: /projects/productions/dozu-ui-service
   APP_PORT: 3000
   NODE_VERSION: '18'
   PM2_APP_NAME: next-app
+  NODE_ENV: production
 
 jobs:
   build:
@@ -24,7 +25,7 @@ jobs:
       - run: npm ci --no-audit --progress=false
       - run: npm run build
         env:
-          NODE_ENV: production
+          NODE_ENV: ${{ env.NODE_ENV }}
 
   backup:
     needs: build
