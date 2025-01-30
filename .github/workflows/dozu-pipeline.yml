@@ -1,4 +1,4 @@
-name: dozu pipeline
+name: Next.js CI/CD Pipeline
 
 on:
   push:
@@ -10,7 +10,9 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -18,15 +20,18 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Configure npm cache
-        run: |
-          mkdir -p ~/.npm
-          npm config set cache ~/.npm --global
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-      - name: Install and Build
+      - name: Install Dependencies and Build
         run: |
-          npm ci --prefer-offline
-          npm run build
+          npm install --prefer-offline --no-audit --progress=false
+          npm run build -- --max_old_space_size=4096
         env:
           NODE_ENV: production
 
