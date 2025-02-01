@@ -2,6 +2,9 @@ name: CI/CD pipeline production environment
 
 on:
   pull_request:
+    paths:
+      - 'src/**'
+      - 'package.json'
     branches: [main]
   workflow_dispatch:
     inputs:
