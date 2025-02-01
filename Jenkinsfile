@@ -22,7 +22,7 @@ pipeline {
         NODE_VERSION = '18'
 
         DEPLOY_CONFIG = [
-            production: [
+            'production': [
                 dir: "${DEPLOY_BASE}/production/dozu-ui",
                 port: '3000',
                 pm2_name: 'next-app-prod',
@@ -30,7 +30,7 @@ pipeline {
                 node_env: 'production',
                 allowedBranches: ['main']
             ],
-            stage: [
+            'stage': [
                 dir: "${DEPLOY_BASE}/staging/dozu-ui",
                 port: '3111',
                 pm2_name: 'next-app-stage',
@@ -38,7 +38,7 @@ pipeline {
                 node_env: 'stage',
                 allowedBranches: ['feature/merge']
             ],
-            release: [
+            'release': [
                 dir: "${DEPLOY_BASE}/release/dozu-ui",
                 port: '3222',
                 pm2_name: 'next-app-release',
@@ -46,14 +46,14 @@ pipeline {
                 node_env: 'release',
                 allowedBranches: ['develop']
             ],
-            test-pipeline: [
+            'test-pipeline': [
                 dir: "${DEPLOY_BASE}/test-pipeline/dozu-ui",
                 port: '3334',
                 pm2_name: 'next-app-test-pipeline',
                 branch: 'feature/pipeline',
                 node_env: 'test',
                 allowedBranches: ['feature/pipeline']
-            ]
+            ],
         ]
 
         DEPLOY_DIR = "${DEPLOY_CONFIG[params.ENVIRONMENT].dir}"
@@ -124,7 +124,7 @@ pipeline {
                         echo "Reload failed, forcing restart..."
                         pm2 delete ${PM2_APP_NAME}
                         pm2 start npm --name "${PM2_APP_NAME}" -- start -- -p ${APP_PORT}
-                    }
+            }
                 else
                     echo "Starting new ${PM2_APP_NAME}..."
                     pm2 start npm --name "${PM2_APP_NAME}" -- start -- -p ${APP_PORT}
@@ -136,8 +136,8 @@ pipeline {
                 # Verify the process is running
                 pm2 describe ${PM2_APP_NAME} || exit 1
                 '''
-            }
         }
+    }
 
         stage('Verify Deployment') {
             steps {
@@ -156,5 +156,5 @@ pipeline {
                 '''
             }
         }
-    }
+}
 }
