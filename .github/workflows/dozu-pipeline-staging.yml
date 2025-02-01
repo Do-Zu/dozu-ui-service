@@ -2,8 +2,20 @@ name: CI/CD pipeline dev and test features environment
 
 on:
   push:
+    tags:
+      - 'v*.*.*'
+      - 'release-*.*.*'
+      - 'hotfix-*.*.*'
+      - 'feature-*.*.*'
+      - 'bugfix-*.*.*'
+    paths:
+      - 'src/**'
+      - 'package.json'
     branches: [feature/merge]
   pull_request:
+    paths:
+      - 'src/**'
+      - 'package.json'
     branches: [feature/merge]
   workflow_dispatch:
     inputs:
