@@ -8,9 +8,7 @@ on:
       - 'hotfix-*.*.*'
       - 'feature-*.*.*'
       - 'bugfix-*.*.*'
-    paths:
-      - 'src/**'
-      - 'package.json'
+      - 'dev-*.*.*'
     branches: [feature/merge]
   pull_request:
     paths:
@@ -36,11 +34,11 @@ env:
   PM2_APP_NAME: dozu-ui-app-staging
   NODE_ENV: stage
   EC2_USER: ubuntu
-  EC2_HOST: "${{ secrets.EC2_HOST }}" 
-  SSH_KEY: "${{ secrets.EC2_SSH_KEY }}"
-  SSH_OPTIONS: "-o StrictHostKeyChecking=no"
+  EC2_HOST: '${{ secrets.EC2_HOST }}'
+  SSH_KEY: '${{ secrets.EC2_SSH_KEY }}'
+  SSH_OPTIONS: '-o StrictHostKeyChecking=no'
 
-jobs: 
+jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
@@ -48,8 +46,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm cache clean --force
-      - run: npm ci --no-audit --progress=false 
+      - run: npm ci --no-audit --progress=false
       - run: npm run build
         env:
           NODE_ENV: ${{ env.NODE_ENV }}
@@ -78,14 +75,19 @@ jobs:
           scp $SSH_OPTIONS -i private_key.pem build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
       - name: Deploy Application on EC2
         run: |
-         
           ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
           set -e
+          pm2 delete ${{ env.PM2_APP_NAME }} || true
+
+          rm -rf ${{ env.DEPLOY_DIR }}/*
           mkdir -p "${{ env.DEPLOY_DIR }}"
+
           tar -xzf /tmp/build.tar.gz -C "${{ env.DEPLOY_DIR }}"
+
           cd "${{ env.DEPLOY_DIR }}"
-          npm ci --omit=dev
+          npm ci --omit=dev --progress=false --production
           pm2 stop ${{ env.PM2_APP_NAME }} || true
           pm2 start npm --name "${{ env.PM2_APP_NAME }}" -- start -- -p ${{ env.APP_PORT }}
           pm2 save
+          rm /tmp/build.tar.gz
           EOF
