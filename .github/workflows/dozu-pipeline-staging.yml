@@ -9,6 +9,9 @@ on:
       - 'feature-*.*.*'
       - 'bugfix-*.*.*'
       - 'dev-*.*.*'
+    paths:
+      - 'src/**'
+      - 'package.json'
     branches: [feature/merge]
   pull_request:
     paths:
@@ -73,21 +76,40 @@ jobs:
       - name: Transfer build to EC2
         run: |
           scp $SSH_OPTIONS -i private_key.pem build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
-      - name: Deploy Application on EC2
-        run: |
-          ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-          set -e
-          pm2 delete ${{ env.PM2_APP_NAME }} || true
-
-          rm -rf ${{ env.DEPLOY_DIR }}/*
-          mkdir -p "${{ env.DEPLOY_DIR }}"
-
-          tar -xzf /tmp/build.tar.gz -C "${{ env.DEPLOY_DIR }}"
-
-          cd "${{ env.DEPLOY_DIR }}"
-          npm ci --omit=dev --progress=false --production
-          pm2 stop ${{ env.PM2_APP_NAME }} || true
-          pm2 start npm --name "${{ env.PM2_APP_NAME }}" -- start -- -p ${{ env.APP_PORT }}
-          pm2 save
-          rm /tmp/build.tar.gz
-          EOF
+          - name: Deploy Application on EC2
+          run: |
+              ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
+              set -e
+              
+              # Set Node memory limit
+              export NODE_OPTIONS="--max-old-space-size=512"
+            
+              # Create new directory
+              mkdir -p "${{ env.DEPLOY_DIR }}"
+              
+              # Extract build files with memory optimization
+              cd "${{ env.DEPLOY_DIR }}"
+              tar xzf /tmp/build.tar.gz
+              
+              # Clear npm cache and install with memory optimization
+              npm cache clean --force
+              npm ci --omit=dev --progress=false --production --no-audit --no-fund
+              
+              # Stop old process
+              pm2 delete ${{ env.PM2_APP_NAME }} || true
+              
+              # Start with memory limits
+              pm2 start npm --name "${{ env.PM2_APP_NAME }}" \
+                --node-args="--max-old-space-size=512" \
+                --max-memory-restart 450M \
+                -- start -- -p ${{ env.APP_PORT }}
+              
+              # Save PM2 config
+              pm2 save --force
+              
+              # Cleanup
+              rm /tmp/build.tar.gz
+              
+              # Clear system cache
+              sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+              EOF
