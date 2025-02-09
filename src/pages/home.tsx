@@ -7,7 +7,7 @@ const HomePage: NextPage = () => {
     <>
       <div>
         Testing Pipeline Staging feature/merge with Github Action pipeline
-        optimized pipeline
+        optimized pipeline v1
       </div>
       <Button>shacdn</Button>
       <DataTableDemo />
