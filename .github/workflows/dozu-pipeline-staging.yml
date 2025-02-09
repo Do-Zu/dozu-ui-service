@@ -28,10 +28,6 @@ on:
         type: choice
         options:
           - Staging
-      branch:
-        description: 'Select the branch to deploy'
-        required: true
-        default: 'feature/merge'
 
 env:
   DEPLOY_DIR: /projects/staging/dozu-ui
