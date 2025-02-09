@@ -2,15 +2,15 @@ name: CI/CD pipeline dev and test features environment
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
-      - 'release-*.*.*'
-      - 'hotfix-*.*.*'
-      - 'feature-*.*.*'
-      - 'bugfix-*.*.*'
-    paths:
-      - 'src/**'
-      - 'package.json'
+    # tags:
+    #   - 'v*.*.*'
+    #   - 'release-*.*.*'
+    #   - 'hotfix-*.*.*'
+    #   - 'feature-*.*.*'
+    #   - 'bugfix-*.*.*'
+    # paths:
+    #   - 'src/**'
+    #   - 'package.json'
     branches: [feature/merge]
   pull_request:
     paths:
@@ -36,7 +36,7 @@ env:
   PM2_APP_NAME: next-app-staging
   NODE_ENV: stage
   EC2_USER: ubuntu
-  EC2_HOST: "${{ secrets.EC2_HOST }}"
+  EC2_HOST: ec2-18-141-160-216.ap-southeast-1.compute.amazonaws.com
   SSH_KEY: "${{ secrets.EC2_SSH_KEY }}"
   SSH_OPTIONS: "-o StrictHostKeyChecking=no"
 
