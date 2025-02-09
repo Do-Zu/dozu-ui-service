@@ -12,11 +12,6 @@ on:
   #     - 'src/**'
   #     - 'package.json'
   #   branches: [develop]
-  pull_request:
-    paths:
-      - 'src/**'
-      - 'package.json'
-    branches: [develop]
   workflow_dispatch:
     inputs:
       environment:
@@ -34,7 +29,7 @@ env:
   APP_PORT: 3222
   NODE_VERSION: '18'
   PM2_APP_NAME: dozu-ui-app-release
-  NODE_ENV: development
+  NODE_ENV: dev
   EC2_USER: ubuntu
   EC2_HOST: '${{ secrets.EC2_HOST }}'
   SSH_KEY: '${{ secrets.EC2_SSH_KEY }}'
