@@ -33,7 +33,7 @@ env:
   DEPLOY_DIR: /projects/staging/dozu-ui
   APP_PORT: 3111
   NODE_VERSION: '18'
-  PM2_APP_NAME: next-app
+  PM2_APP_NAME: dozu-ui-app-staging
   NODE_ENV: stage
   EC2_USER: ubuntu
   EC2_HOST: ec2-47-129-31-84.ap-southeast-1.compute.amazonaws.com
