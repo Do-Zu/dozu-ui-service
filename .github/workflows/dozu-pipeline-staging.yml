@@ -33,7 +33,7 @@ env:
   DEPLOY_DIR: /projects/staging/dozu-ui
   APP_PORT: 3111
   NODE_VERSION: '18'
-  PM2_APP_NAME: next-app-staging
+  PM2_APP_NAME: next-app
   NODE_ENV: stage
   EC2_USER: ubuntu
   EC2_HOST: ec2-18-141-160-216.ap-southeast-1.compute.amazonaws.com
@@ -41,13 +41,24 @@ env:
   SSH_OPTIONS: "-o StrictHostKeyChecking=no"
 
 jobs:
+  verify-ssh:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check SSH Connection to EC2
+        run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST "echo '✅ SSH Connection Successful'"
+  
   build:
+    needs: verify-ssh
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - run: npm cache clean --force
       - run: npm ci --no-audit --progress=false 
       - run: npm run build
         env:
@@ -64,16 +75,21 @@ jobs:
     needs: build
     runs-on: ubuntu-22.04
     steps:
+      - name: Verify SSH Connection Before Deployment
+        run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST "echo '✅ SSH Connection Successful'"
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
       - name: Transfer build to EC2
         run: |
-          scp $SSH_OPTIONS -i "$SSH_KEY" build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
+          scp $SSH_OPTIONS -i private_key.pem build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
       - name: Deploy Application on EC2
         run: |
-          ssh -i "${{ secrets.EC2_SSH_KEY }}" $EC2_USER@$EC2_HOST << 'EOF'
+          ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
           set -e
           mkdir -p "${{ env.DEPLOY_DIR }}"
           tar -xzf /tmp/build.tar.gz -C "${{ env.DEPLOY_DIR }}"
@@ -90,7 +106,7 @@ jobs:
     steps:
       - name: Verify Deployment
         run: |
-          ssh $SSH_OPTIONS -i "$SSH_KEY" $EC2_USER@$EC2_HOST << 'EOF'
+          ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
           set -e
           if ! pm2 describe ${{ env.PM2_APP_NAME }} | grep -q "online"; then
             echo "❌ Application failed to start"
