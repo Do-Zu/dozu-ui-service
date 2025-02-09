@@ -73,7 +73,7 @@ jobs:
           scp $SSH_OPTIONS -i "$SSH_KEY" build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
       - name: Deploy Application on EC2
         run: |
-          ssh $SSH_OPTIONS -i "$SSH_KEY" $EC2_USER@$EC2_HOST << 'EOF'
+          ssh -i "${{ secrets.EC2_SSH_KEY }}" $EC2_USER@$EC2_HOST << 'EOF'
           set -e
           mkdir -p "${{ env.DEPLOY_DIR }}"
           tar -xzf /tmp/build.tar.gz -C "${{ env.DEPLOY_DIR }}"
