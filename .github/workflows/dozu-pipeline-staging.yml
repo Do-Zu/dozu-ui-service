@@ -69,13 +69,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
+      - name: Add Key
+        run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
       - name: Transfer build to EC2
         run: |
           scp $SSH_OPTIONS -i private_key.pem build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
       - name: Deploy Application on EC2
         run: |
-          echo "$SSH_KEY" > private_key.pem
-          chmod 600 private_key.pem
+         
           ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
           set -e
           mkdir -p "${{ env.DEPLOY_DIR }}"
