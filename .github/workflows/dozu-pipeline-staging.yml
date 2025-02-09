@@ -40,16 +40,7 @@ env:
   SSH_KEY: "${{ secrets.EC2_SSH_KEY }}"
   SSH_OPTIONS: "-o StrictHostKeyChecking=no"
 
-jobs:
-  verify-ssh:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Check SSH Connection to EC2
-        run: |
-          echo "$SSH_KEY" > private_key.pem
-          chmod 600 private_key.pem
-  #         ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST "echo '✅ SSH Connection Successful'"
-  
+jobs: 
   build:
     runs-on: ubuntu-22.04
     steps:
@@ -83,6 +74,8 @@ jobs:
           scp $SSH_OPTIONS -i private_key.pem build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
       - name: Deploy Application on EC2
         run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
           ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
           set -e
           mkdir -p "${{ env.DEPLOY_DIR }}"
