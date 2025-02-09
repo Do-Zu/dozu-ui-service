@@ -2,15 +2,15 @@ name: CI/CD pipeline dev and test features environment
 
 on:
   push:
-    # tags:
-    #   - 'v*.*.*'
-    #   - 'release-*.*.*'
-    #   - 'hotfix-*.*.*'
-    #   - 'feature-*.*.*'
-    #   - 'bugfix-*.*.*'
-    # paths:
-    #   - 'src/**'
-    #   - 'package.json'
+    tags:
+      - 'v*.*.*'
+      - 'release-*.*.*'
+      - 'hotfix-*.*.*'
+      - 'feature-*.*.*'
+      - 'bugfix-*.*.*'
+    paths:
+      - 'src/**'
+      - 'package.json'
     branches: [feature/merge]
   pull_request:
     paths:
@@ -36,7 +36,7 @@ env:
   PM2_APP_NAME: dozu-ui-app-staging
   NODE_ENV: stage
   EC2_USER: ubuntu
-  EC2_HOST: ec2-18-141-24-183.ap-southeast-1.compute.amazonaws.com
+  EC2_HOST: "${{ secrets.EC2_HOST }}" 
   SSH_KEY: "${{ secrets.EC2_SSH_KEY }}"
   SSH_OPTIONS: "-o StrictHostKeyChecking=no"
 
@@ -89,24 +89,3 @@ jobs:
           pm2 start npm --name "${{ env.PM2_APP_NAME }}" -- start -- -p ${{ env.APP_PORT }}
           pm2 save
           EOF
-
-  # verify:
-  #   needs: deploy
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - name: Verify Deployment
-  #       run: |
-  #         ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-  #         set -e
-  #         if ! pm2 describe ${{ env.PM2_APP_NAME }} | grep -q "online"; then
-  #           echo "❌ Application failed to start"
-  #           pm2 logs ${{ env.PM2_APP_NAME }} --lines 20
-  #           exit 1
-  #         fi
-  #         if ! curl -f http://localhost:${{ env.APP_PORT }} > /dev/null 2>&1; then
-  #           echo "❌ Application is not responding"
-  #           pm2 logs ${{ env.PM2_APP_NAME }} --lines 20
-  #           exit 1
-  #         fi
-  #         echo "✅ Deployment successful"
-  #         EOF
