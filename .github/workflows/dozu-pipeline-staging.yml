@@ -41,13 +41,13 @@ env:
   SSH_OPTIONS: "-o StrictHostKeyChecking=no"
 
 jobs:
-  # verify-ssh:
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - name: Check SSH Connection to EC2
-  #       run: |
-  #         echo "$SSH_KEY" > private_key.pem
-  #         chmod 600 private_key.pem
+  verify-ssh:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check SSH Connection to EC2
+        run: |
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
   #         ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST "echo '✅ SSH Connection Successful'"
   
   build:
