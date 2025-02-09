@@ -19,17 +19,15 @@ on:
     paths:
       - 'src/**'
       - 'package.json'
-  # workflow_dispatch:
-  #   inputs:
-  #     environment:
-  #       description: 'Select the environment to deploy'
-  #       required: true
-  #       default: 'Staging'
-  #       type: choice
-  #       options:
-  #         - Staging
-  #         - Releases
-  #         - Production
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        required: true
+        default: 'Staging'
+        type: choice
+        options:
+          - Staging
 
 env:
   DEPLOY_DIR: /projects/staging/dozu-ui
