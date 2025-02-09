@@ -36,7 +36,7 @@ env:
   PM2_APP_NAME: next-app
   NODE_ENV: stage
   EC2_USER: ubuntu
-  EC2_HOST: ec2-18-141-160-216.ap-southeast-1.compute.amazonaws.com
+  EC2_HOST: ec2-47-129-31-84.ap-southeast-1.compute.amazonaws.com
   SSH_KEY: "${{ secrets.EC2_SSH_KEY }}"
   SSH_OPTIONS: "-o StrictHostKeyChecking=no"
 
