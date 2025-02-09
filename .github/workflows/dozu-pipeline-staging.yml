@@ -2,12 +2,12 @@ name: CI/CD pipeline dev and test features environment
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
-      - 'release-*.*.*'
-      - 'hotfix-*.*.*'
-      - 'feature-*.*.*'
-      - 'bugfix-*.*.*'
+    # tags:
+    #   - 'v*.*.*'
+    #   - 'release-*.*.*'
+    #   - 'hotfix-*.*.*'
+    #   - 'feature-*.*.*'
+    #   - 'bugfix-*.*.*'
     paths:
       - 'src/**'
       - 'package.json'
@@ -17,17 +17,17 @@ on:
       - 'src/**'
       - 'package.json'
     branches: [feature/merge]
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Select the environment to deploy'
-        required: true
-        default: 'Staging'
-        type: choice
-        options:
-          - Staging
-          - Releases
-          - Production
+  # workflow_dispatch:
+  #   inputs:
+  #     environment:
+  #       description: 'Select the environment to deploy'
+  #       required: true
+  #       default: 'Staging'
+  #       type: choice
+  #       options:
+  #         - Staging
+  #         - Releases
+  #         - Production
 
 env:
   DEPLOY_DIR: /projects/staging/dozu-ui
