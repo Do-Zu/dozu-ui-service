@@ -76,8 +76,8 @@ jobs:
       - name: Transfer build to EC2
         run: |
           scp $SSH_OPTIONS -i private_key.pem build.tar.gz $EC2_USER@$EC2_HOST:/tmp/build.tar.gz
-          - name: Deploy Application on EC2
-          run: |
+      - name: Deploy Application on EC2
+        run: |
               ssh $SSH_OPTIONS -i private_key.pem $EC2_USER@$EC2_HOST << 'EOF'
               set -e
               
