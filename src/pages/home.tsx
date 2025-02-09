@@ -6,8 +6,8 @@ const HomePage: NextPage = () => {
   return (
     <>
       <div>
-        Testing Pipeline Staging feature/merge with Github Action pipeline Tag
-        v1.0.0(T)
+        Testing Pipeline Staging feature/merge with Github Action pipeline
+        optimized pipeline
       </div>
       <Button>shacdn</Button>
       <DataTableDemo />
