@@ -14,21 +14,20 @@ on:
       - 'package.json'
     branches: [feature/merge]
   pull_request:
+    types: [closed]
+    branches: [feature/merge]
     paths:
       - 'src/**'
       - 'package.json'
-    branches: [feature/merge]
-  # workflow_dispatch:
-  #   inputs:
-  #     environment:
-  #       description: 'Select the environment to deploy'
-  #       required: true
-  #       default: 'Staging'
-  #       type: choice
-  #       options:
-  #         - Staging
-  #         - Releases
-  #         - Production
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        required: true
+        default: 'Staging'
+        type: choice
+        options:
+          - Staging
 
 env:
   DEPLOY_DIR: /projects/staging/dozu-ui
@@ -43,6 +42,7 @@ env:
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
