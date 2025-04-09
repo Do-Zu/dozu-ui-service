@@ -6,7 +6,7 @@ import { ReactElement } from 'react';
 import HomePage from './home';
 import { Provider } from 'react-redux';
 import ErrorBoundary from '@/core/error/ErrorBoundary';
-import { store } from '@/store/store';
+import { store } from '@/stores/store';
 import DefaultLayout from '@/layouts/DefaultLayout';
 
 // type NextPageWithLayout = {
