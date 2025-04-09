@@ -1,0 +1,10 @@
+{
+    "LocaleSwitcher": {
+      "label": "Select Language",
+      "locale": "{locale} Language"
+    },
+    "home": {
+      "welcome": "Welcome to the homepage"
+    }
+  }
+  
