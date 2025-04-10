@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import ThemeToggle from '@/components/theme/ThemeToggle';
+import ThemeToggle from '@/components/toolbar/ThemeToggle';
 
 interface IHeaderProps {
   isLoggedIn?: boolean;

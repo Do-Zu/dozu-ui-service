@@ -1,24 +1,34 @@
-import {NextIntlClientProvider, hasLocale} from 'next-intl';
-import {notFound} from 'next/navigation';
-import {routing} from '@/i18n/routing';
- 
+import { notFound } from 'next/navigation';
+import { hasLocale } from 'next-intl';
+import { routing } from '@/i18n/routing';
+import Providers from './Providers';
+
+
 export default async function LocaleLayout({
   children,
   params
 }: {
   children: React.ReactNode;
-  params: Promise<{locale: string}>;
+  params: { locale: string };
 }) {
-  // Ensure that the incoming `locale` is valid
-  const {locale} = await params;
+  const { locale } = params;
+
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
- 
+
+  // Load & merge tất cả file JSON trong folder messages/[locale]/
+  const messages = {
+    ...(await import(`../../../messages/${locale}/common.json`)).default,
+    ...(await import(`../../../messages/${locale}/home.json`)).default
+  };
+
   return (
     <html lang={locale}>
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <Providers locale={locale} messages={messages}>
+          {children}
+        </Providers>
       </body>
     </html>
   );
