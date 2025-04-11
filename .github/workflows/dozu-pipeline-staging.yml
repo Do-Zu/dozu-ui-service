@@ -13,12 +13,12 @@ on:
       - 'src/**'
       - 'package.json'
     branches: [feature/merge]
-  pull_request:
-    types: [closed]
-    branches: [feature/merge]
-    paths:
-      - 'src/**'
-      - 'package.json'
+  # pull_request:
+  #   types: [closed]
+  #   branches: [feature/merge]
+  #   paths:
+  #     - 'src/**'
+  #     - 'package.json'
   workflow_dispatch:
     inputs:
       environment:
