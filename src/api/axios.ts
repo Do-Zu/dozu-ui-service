@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const Axios = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -29,7 +30,7 @@ const requestInterceptor = Axios.interceptors.request.use(
 const responseInterceptor = Axios.interceptors.response.use(
   (response) => {
     // Optionally, log the response for debugging
-    console.log('Response Received:', response);
+    // console.log('Response Received:', response);
 
     // You can transform the response here if needed, e.g., formatting data globally
     // For example, you can transform all response data to lowercase if required
@@ -47,10 +48,7 @@ const responseInterceptor = Axios.interceptors.response.use(
       } else if (error.response.status === 500) {
         console.error('Server error occurred. Please try again later.');
       } else {
-        console.error(
-          'API Error:',
-          error.response.data.message || error.message,
-        );
+        console.error('API Error:', error.response.data.message || error.message);
       }
     } else if (error.request) {
       // Network Error (Request was made, but no response received)
