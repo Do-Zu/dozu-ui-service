@@ -3,6 +3,7 @@
 import React from 'react';
 import Profile from './_components/Profile'; // Import Profile component
 
+
 const AboutPage: React.FC = () => {
   return (
     <div>
