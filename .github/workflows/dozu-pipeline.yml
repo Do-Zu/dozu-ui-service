@@ -31,7 +31,6 @@ on:
         type: boolean
 
 env:
-  DEPLOY_DIR: /projects/productions/dozu-ui-service
   NODE_VERSION: '20'
   PM2_APP_NAME: next-app
   NODE_ENV: production
@@ -50,11 +49,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: npm install --no-audit --progress=false
+        run: npm ci --include=dev
       - name: Lint code
         run: npm run lint
-        env:
-          NODE_ENV: ${{ env.NODE_ENV }}
 
   vercel-deploy:
     needs: validate
