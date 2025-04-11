@@ -5,11 +5,7 @@ module.exports = {
     es6: true,
   },
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
-  ignorePatterns: [
-    'node_modules/*',
-    'public/mockServiceWorker.js',
-    'generators/*',
-  ],
+  ignorePatterns: ['node_modules/*', 'public/mockServiceWorker.js', 'generators/*'],
   extends: ['eslint:recommended', 'next/core-web-vitals'],
   overrides: [
     {
@@ -37,7 +33,6 @@ module.exports = {
         'plugin:jsx-a11y/recommended',
         'plugin:prettier/recommended',
         'plugin:testing-library/react',
-        'plugin:jest-dom/recommended',
         'plugin:tailwindcss/recommended',
         'plugin:vitest/legacy-recommended',
       ],
@@ -58,15 +53,7 @@ module.exports = {
         'import/order': [
           'error',
           {
-            groups: [
-              'builtin',
-              'external',
-              'internal',
-              'parent',
-              'sibling',
-              'index',
-              'object',
-            ],
+            groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object'],
             'newlines-between': 'always',
             alphabetize: { order: 'asc', caseInsensitive: true },
           },
@@ -103,7 +90,7 @@ module.exports = {
           {
             selector: 'enumMember',
             format: ['UPPER_CASE'],
-          }
+          },
         ],
       },
     },
