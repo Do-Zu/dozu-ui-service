@@ -1,12 +1,13 @@
+import React from 'react';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import Providers from './Providers';
-
+import '../../styles/globals.css';
 
 export default async function LocaleLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
   params: { locale: string };
@@ -20,7 +21,7 @@ export default async function LocaleLayout({
   // Load & merge tất cả file JSON trong folder messages/[locale]/
   const messages = {
     ...(await import(`../../../messages/${locale}/common.json`)).default,
-    ...(await import(`../../../messages/${locale}/home.json`)).default
+    ...(await import(`../../../messages/${locale}/home.json`)).default,
   };
 
   return (
