@@ -29,12 +29,10 @@ module.exports = {
         'plugin:import/typescript',
         'plugin:@typescript-eslint/recommended',
         'plugin:react/recommended',
-        'plugin:react-hooks/recommended',
         'plugin:jsx-a11y/recommended',
         'plugin:prettier/recommended',
         'plugin:testing-library/react',
         'plugin:tailwindcss/recommended',
-        'plugin:vitest/legacy-recommended',
       ],
       rules: {
         '@next/next/no-img-element': 'off',
