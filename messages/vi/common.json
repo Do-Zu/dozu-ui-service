@@ -1,0 +1,10 @@
+{
+    "LocaleSwitcher": {
+      "label": "Chọn Ngôn Ngữ",
+      "locale": "Tiếng {locale}"
+    },
+    "home": {
+      "welcome": "Chào mừng đến với trang chủ"
+    }
+  }
+  
