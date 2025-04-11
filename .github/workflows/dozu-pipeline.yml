@@ -36,6 +36,8 @@ env:
   NODE_ENV: production
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NEXT_PUBLIC_APP_NAME: ${{ github.event.inputs.environment == 'Production' && 'DOZU_PRODUCTION' || 'DOZU_DEVELOPMENT' }}
+  NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
 jobs:
   # validate:
@@ -61,7 +63,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch_to_deploy }}
-
+      - name: Setup Environment Variables
+        run: |
+          echo "NEXT_PUBLIC_APP_NAME=${{ env.NEXT_PUBLIC_APP_NAME }}" >> .env.production
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env.production
+          echo "NODE_ENV=production" >> .env.production
       - name: Setup Vercel CLI
         run: npm install -g vercel
 
