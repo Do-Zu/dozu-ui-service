@@ -29,12 +29,10 @@ module.exports = {
         'plugin:import/typescript',
         'plugin:@typescript-eslint/recommended',
         'plugin:react/recommended',
-        'plugin:react-hooks/recommended',
         'plugin:jsx-a11y/recommended',
         'plugin:prettier/recommended',
         'plugin:testing-library/react',
         'plugin:tailwindcss/recommended',
-        'plugin:vitest/legacy-recommended',
       ],
       rules: {
         '@next/next/no-img-element': 'off',
@@ -112,8 +110,7 @@ module.exports = {
         'check-file/folder-naming-convention': [
           'error',
           {
-            '!(src/app)/**/*': 'KEBAB_CASE',
-            '!(**/__tests__)/**/*': 'KEBAB_CASE',
+            'src/!(app)/**/': 'KEBAB_CASE',
           },
         ],
       },
