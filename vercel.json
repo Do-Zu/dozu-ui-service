@@ -2,9 +2,9 @@
   "git": {
     "deploymentEnabled": {
       "main": false,
-      "development": false,
+      "develop": false,
       "preview": false,
-      "feature-merge": false
+      "feature/merge": false
     }
   }
 }
