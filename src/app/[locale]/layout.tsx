@@ -2,7 +2,10 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
+import { Toaster } from '@/components/ui/toaster';
 import Providers from './Providers';
+import ErrorBoundary from '@/core/ErrorBoundary';
+
 import '../../styles/globals.css';
 
 export default async function LocaleLayout({
@@ -25,11 +28,14 @@ export default async function LocaleLayout({
   };
 
   return (
-    <html lang={locale}>
-      <body>
-        <Providers locale={locale} messages={messages}>
-          {children}
-        </Providers>
+    <html lang={locale} suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground transition-colors">
+        <ErrorBoundary>
+          <Providers locale={locale} messages={messages}>
+            {children}
+            <Toaster />
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );

@@ -1,11 +1,13 @@
 // src/stores/store.ts
 import { configureStore } from '@reduxjs/toolkit';
 import bookSlice from './features/book/bookSlice'; // Slice quản lý thông tin book
+import contentExtractionReducer from './features/content-extraction/contentExtractionSlice'; // Import the content extraction reducer
 
 // Cấu hình Redux Store
 export const store = configureStore({
   reducer: {
     book: bookSlice, // Thêm bookSlice vào store
+    contentExtraction: contentExtractionReducer, // Add content extraction reducer to store
   },
   devTools: process.env.NODE_ENV !== 'production', // Bật Redux DevTools khi ở môi trường development
 });
