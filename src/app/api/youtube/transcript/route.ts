@@ -13,8 +13,6 @@ export async function GET(request: Request) {
     const response = await axios.get(`https://www.youtube.com/watch?v=${videoId}`, {
       headers: {
         'Accept-Language': 'en-US,en;q=0.5',
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
       },
     });
 
@@ -32,11 +30,20 @@ export async function GET(request: Request) {
 
     const playerResponse = JSON.parse(playerResponseMatch[1]);
 
+    // Check if videoDetails exists
+    if (!playerResponse.videoDetails) {
+      console.error('Missing videoDetails in player response');
+      return NextResponse.json(
+        { error: 'Unable to retrieve video details from YouTube' },
+        { status: 500 },
+      );
+    }
+
     const metadata = {
-      title: playerResponse.videoDetails.title,
-      duration: playerResponse.videoDetails.lengthSeconds,
-      author: playerResponse.videoDetails.author,
-      views: playerResponse.videoDetails.viewCount,
+      title: playerResponse.videoDetails.title || 'Unknown Title',
+      duration: playerResponse.videoDetails.lengthSeconds || '0',
+      author: playerResponse.videoDetails.author || 'Unknown Author',
+      views: playerResponse.videoDetails.viewCount || '0',
       thumbnailUrl: playerResponse.videoDetails.thumbnail?.thumbnails?.pop()?.url || '',
       playbackTracking: playerResponse.playbackTracking,
     };
