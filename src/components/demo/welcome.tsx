@@ -13,6 +13,7 @@ import {
 import { AlertCircle, Book, Code, FileText, GitFork, Server } from 'lucide-react';
 
 import axios from '@/api/axios';
+import { Button } from '../ui/button';
 
 interface ApiResponse {
   data: any[];
@@ -377,6 +378,17 @@ const WelcomeDemo: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      <Button
+        className="mt-t4"
+        onClick={async () => {
+          const rs = await axios.post('/demo', { action: 'access' });
+          if (rs.status === 200) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
+      >
+        Access
+      </Button>
     </div>
   );
 };
