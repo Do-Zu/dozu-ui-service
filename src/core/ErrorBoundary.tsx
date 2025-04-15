@@ -1,4 +1,6 @@
 'use client';
+import { ToastAction } from '@/components/ui/toast';
+import { toast } from '@/hooks/use-toast';
 import React, { Component, ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
@@ -32,8 +34,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   render() {
     if (this.state.hasError) {
-      // Display a fallback UI (Error message)
-      return <h1>Something went wrong: {this.state.errorMessage}</h1>;
+      toast({
+        title: 'Something went wrong',
+        description: this.state.errorMessage,
+        variant: 'destructive',
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
     }
 
     return this.props.children;
