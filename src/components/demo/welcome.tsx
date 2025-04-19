@@ -14,6 +14,7 @@ import { AlertCircle, Book, Code, FileText, GitFork, Server } from 'lucide-react
 
 import axios from '@/api/axios';
 import { Button } from '../ui/button';
+import useFetch from '@/hooks/useFetch';
 
 interface ApiResponse {
   data: any[];
@@ -62,26 +63,28 @@ interface ApiResponse {
 }
 
 const WelcomeDemo: React.FC = () => {
-  const [apiData, setApiData] = useState<ApiResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [apiData, setApiData] = useState<ApiResponse | null>(null);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get('/demo');
+  //     console.log('Data fetched successfully:', response.data);
+  //     setApiData(response.data?.data);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //     setError('Failed to load developer guide');
+  //     setLoading(false);
+  //   }
+  // };
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('/demo');
-      console.log('Data fetched successfully:', response.data);
-      setApiData(response.data?.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Failed to load developer guide');
-      setLoading(false);
-    }
-  };
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const param = '/demo';
+  const { data: apiData, error, loading, refetch } = useFetch<ApiResponse>(param);
 
   if (loading) {
     return (
@@ -98,10 +101,7 @@ const WelcomeDemo: React.FC = () => {
         <h2 className="text-2xl font-bold">Error Loading Developer Guide</h2>
         <p>{error}</p>
         <button
-          onClick={() => {
-            setLoading(true);
-            fetchData();
-          }}
+          onClick={() => refetch()}
           className="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary/90"
         >
           Try Again
