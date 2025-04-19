@@ -1,6 +1,6 @@
 export interface FetchOptions {
     headers?: Record<string, string>;
-    body?: string;
+    body?: unknown;
   }
 export interface Param {
   headers?: Record<string, string>;
