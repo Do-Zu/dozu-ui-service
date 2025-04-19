@@ -18,7 +18,6 @@ import { z } from 'zod';
  */
 function useFetch<T, Z = T>(
   param: string | (() => Promise<unknown>),
-  method?: METHOD,
   schema?: z.ZodType<Z>,
   options?: FetchOptions,
 ) {
@@ -34,7 +33,7 @@ function useFetch<T, Z = T>(
       let rawData: unknown;
 
       if (typeof param === 'string') {
-        const result = await callApiAsync(param, method, options);
+        const result = await callApiAsync(param, 'GET', options);
         rawData = result.data;
       } else if (typeof param === 'function') {
         rawData = await param();
@@ -64,7 +63,7 @@ function useFetch<T, Z = T>(
     } finally {
       setLoading(false);
     }
-  }, [param, schema, method, options]);
+  }, [param, schema, options]);
 
   useEffect(() => {
     fetchData();
