@@ -3,6 +3,13 @@ import { FetchOptions, METHOD } from './type';
 import { useCallback, useState } from 'react';
 import { callApiAsync } from './helper';
 
+interface IResultPost<TReq = unknown, TRes = unknown> {
+  loading: boolean;
+  data: TRes | null;
+  error: string | null;
+  reset: () => void;
+  execute: (payload: TReq) => Promise<TRes | null>;
+}
 /**
  * Custom hook for sending data to an API with Zod validation for request and response
  *
@@ -24,7 +31,7 @@ function usePost<TReq = unknown, TRes = unknown>(
   requestSchema?: z.ZodType<TReq>,
   responseSchema?: z.ZodType<TRes>,
   options?: Omit<FetchOptions, 'params' | 'body'>,
-) {
+): IResultPost<TReq, TRes> {
   const [data, setData] = useState<TRes | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
