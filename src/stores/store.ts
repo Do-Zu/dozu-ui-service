@@ -1,17 +1,18 @@
 // src/stores/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import bookSlice from './features/book/bookSlice'; // Slice quản lý thông tin book
-import contentExtractionReducer from './features/content-extraction/contentExtractionSlice'; // Import the content extraction reducer
+import bookSlice from './features/book/bookSlice';
+import contentExtractionReducer from './features/content-extraction/contentExtractionSlice';
+import importDialogReducer from './features/import-dialog/importDialogSlice';
 
 // Cấu hình Redux Store
 export const store = configureStore({
   reducer: {
-    book: bookSlice, // Thêm bookSlice vào store
-    contentExtraction: contentExtractionReducer, // Add content extraction reducer to store
+    book: bookSlice,
+    contentExtraction: contentExtractionReducer,
+    importDialog: importDialogReducer,
   },
-  devTools: process.env.NODE_ENV !== 'production', // Bật Redux DevTools khi ở môi trường development
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
-// Các type cần thiết cho app
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

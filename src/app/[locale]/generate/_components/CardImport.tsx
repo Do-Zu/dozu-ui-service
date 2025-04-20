@@ -107,12 +107,6 @@ const CardImport: React.FC<CardImportProps> = ({
     return true;
   };
 
-  const handleGenerateProcess = async () => {
-    return await execute({
-      content: textContent,
-    });
-  };
-
   const renderStepContent = () => {
     switch (step) {
       case 1:
@@ -214,7 +208,7 @@ const CardImport: React.FC<CardImportProps> = ({
       case 2:
         return <ContentDetailView />;
       case 3:
-        <ProcessGenerate isGenerating={loading} generationFunction={handleGenerateProcess} />;
+        <></>;
       // return (
       //   <div className="space-y-6">
       //     <div className=" p-4 rounded-lg border border-gray-200">
@@ -268,6 +262,7 @@ const CardImport: React.FC<CardImportProps> = ({
         return null;
     }
   };
+  if (loading) return <ProcessGenerate isGenerating={loading} />;
 
   return (
     <Card className="max-w-[80vw] max-h-[85vh] overflow-auto mx-auto my-auto">
