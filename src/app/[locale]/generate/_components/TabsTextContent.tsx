@@ -225,10 +225,7 @@ const TabContent: React.FC = () => {
             placeholder="Paste or type your content here..."
             className="min-h-[200px]"
             value={textContent}
-            onChange={(e) => {
-              dispatch(setTextContent(e.target.value));
-              handleTextChange(e);
-            }}
+            onChange={handleTextChange}
           />
           <div className="flex justify-between items-center">
             <p className="text-xs">
