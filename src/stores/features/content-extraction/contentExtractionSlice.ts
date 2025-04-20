@@ -1,10 +1,16 @@
+import { reduceTokenInput } from '@/app/[locale]/generate/helper/reduceTokenInput';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Types
 interface VideoInfo {
   title: string;
   thumbnailUrl: string;
+}
+
+export interface TranscriptSegment {
+  text: string;
+  startTime: number;
+  duration: number;
 }
 
 export interface ContentExtractionState {
@@ -17,6 +23,7 @@ export interface ContentExtractionState {
   contentType: 'youtube' | 'website' | null;
   activeTab: string;
   textContent: string;
+  transcriptSegments: TranscriptSegment[];
 }
 
 const initialState: ContentExtractionState = {
@@ -29,6 +36,7 @@ const initialState: ContentExtractionState = {
   contentType: null,
   activeTab: 'url',
   textContent: '',
+  transcriptSegments: [],
 };
 
 // Extract YouTube video ID from various YouTube URL formats
@@ -61,8 +69,11 @@ export const extractYouTubeTranscript = createAsyncThunk(
         throw new Error(data.error || 'Failed to fetch transcript');
       }
 
+      const optimizeText = reduceTokenInput(data.transcript).text;
+
       return {
-        transcript: data.transcript,
+        transcript: optimizeText,
+        transcriptSegments: data.transcriptSegments || [],
         metadata: {
           title: data.metadata.title,
           thumbnailUrl: data.metadata.thumbnailUrl,
@@ -112,11 +123,15 @@ const contentExtractionSlice = createSlice({
     setTextContent: (state, action: PayloadAction<string>) => {
       state.textContent = action.payload;
     },
+    setExtractionContent: (state, action: PayloadAction<string>) => {
+      state.extractedContent = action.payload;
+    },
     resetExtractionState: (state) => {
       state.extractedContent = '';
       state.error = null;
       state.videoInfo = null;
       state.contentType = null;
+      state.transcriptSegments = [];
     },
   },
   extraReducers: (builder) => {
@@ -128,10 +143,11 @@ const contentExtractionSlice = createSlice({
       })
       .addCase(extractYouTubeTranscript.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.extractedContent = action.payload.transcript;
+        state.extractedContent = action.payload?.transcript;
         state.videoInfo = action.payload.metadata;
         state.contentType = 'youtube';
         state.textContent = action.payload.transcript;
+        state.transcriptSegments = action.payload.transcriptSegments || [];
       })
       .addCase(extractYouTubeTranscript.rejected, (state, action) => {
         state.isLoading = false;
@@ -155,7 +171,13 @@ const contentExtractionSlice = createSlice({
   },
 });
 
-export const { setInputUrl, setContentView, setActiveTab, setTextContent, resetExtractionState } =
-  contentExtractionSlice.actions;
+export const {
+  setInputUrl,
+  setContentView,
+  setActiveTab,
+  setTextContent,
+  resetExtractionState,
+  setExtractionContent,
+} = contentExtractionSlice.actions;
 
 export default contentExtractionSlice.reducer;

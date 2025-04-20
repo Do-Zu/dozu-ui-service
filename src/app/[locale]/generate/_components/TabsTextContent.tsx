@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FileText, Link, Loader2, Copy } from 'lucide-react';
+import { FileText, Link, Loader2, Copy, ExternalLink } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,11 +20,15 @@ import {
   extractYouTubeVideoId,
   extractYouTubeTranscript,
   extractWebsiteContent,
+  setExtractionContent,
 } from '@/stores/features/content-extraction/contentExtractionSlice';
+import { useRouter } from 'next/navigation';
+import { setStep } from '@/stores/features/import-dialog/importDialogSlice';
+import { reduceTokenInput } from '../helper/reduceTokenInput';
 
 const TabContent: React.FC = () => {
-  // Use Redux state and dispatch
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const {
     activeTab,
     inputUrl,
@@ -37,15 +41,14 @@ const TabContent: React.FC = () => {
     textContent,
   } = useAppSelector((state) => state.contentExtraction);
 
-  // Determine if URL is a YouTube URL
+  // State to control view switching
+  const [showDetailView, setShowDetailView] = useState(false);
   const isYouTubeUrl = (url: string): boolean => {
     return extractYouTubeVideoId(url) !== null;
   };
 
-  // Handle content extraction based on URL type
   const handleExtractContent = useCallback(async () => {
     if (!inputUrl.trim()) {
-      // Handle empty URL case
       return;
     }
 
@@ -65,7 +68,6 @@ const TabContent: React.FC = () => {
     }
   }, [dispatch, inputUrl]);
 
-  // Handle copying content to clipboard
   const copyToClipboard = (content: string) => {
     if (!content) return;
 
@@ -90,6 +92,59 @@ const TabContent: React.FC = () => {
     dispatch(setTextContent(e.target.value));
   };
 
+  const handleUrlOnPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    dispatch(resetExtractionState());
+    e.preventDefault();
+    const pastedUrl = e.clipboardData.getData('text').trim();
+    const urlPattern =
+      /^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6})\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+
+    // Regex pattern to validate URLs
+    // This pattern checks for a valid URL format, including http/https and domain name
+    if (!pastedUrl || !urlPattern.test(pastedUrl)) {
+      return;
+    }
+
+    dispatch(setInputUrl(pastedUrl));
+
+    if (isYouTubeUrl(pastedUrl)) {
+      const videoId = extractYouTubeVideoId(pastedUrl);
+      if (videoId) {
+        dispatch(extractYouTubeTranscript(videoId));
+      }
+    } else {
+      dispatch(extractWebsiteContent(pastedUrl));
+    }
+  };
+
+  const handleChangeInputUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setInputUrl(e.target.value));
+  };
+
+  const handleViewDetails = () => {
+    setShowDetailView(true);
+  };
+
+  useEffect(() => {
+    if (extractionError) {
+      toast({
+        title: 'Extraction Error',
+        description: extractionError,
+        variant: 'destructive',
+      });
+    }
+  }, [extractionError, dispatch]);
+
+  const onCompleteProcess = () => {
+    dispatch(setStep(2));
+  };
+
+  useEffect(() => {
+    if (extractedContent && !isLoading && !extractionError) {
+      onCompleteProcess();
+    }
+  }, [isLoading, extractionError]);
+
   return (
     <Tabs value={activeTab} onValueChange={(value) => dispatch(setActiveTab(value))}>
       <TabsList className="grid grid-cols-2 w-full">
@@ -108,10 +163,12 @@ const TabContent: React.FC = () => {
           <CardContent className="space-y-4 mt-4">
             <div className="flex gap-3">
               <Input
+                type="text"
                 placeholder="Enter YouTube URL or website URL (e.g., https://youtube.com/... or https://example.com)"
                 value={inputUrl}
-                onChange={(e) => dispatch(setInputUrl(e.target.value))}
+                onChange={handleChangeInputUrl}
                 className="flex-1"
+                onPaste={handleUrlOnPaste}
                 disabled={isLoading}
               />
               <Button
@@ -133,12 +190,6 @@ const TabContent: React.FC = () => {
               </Button>
             </div>
 
-            {extractionError && (
-              <Alert variant="destructive">
-                <AlertDescription>{extractionError}</AlertDescription>
-              </Alert>
-            )}
-
             {videoInfo && contentType === 'youtube' && (
               <div className="flex gap-4 p-4 bg-gray-50 rounded-lg">
                 {videoInfo.thumbnailUrl && (
@@ -157,43 +208,11 @@ const TabContent: React.FC = () => {
 
             {extractedContent && (
               <div className="mt-6">
-                <h3 className="text-lg font-medium mb-2">
-                  {contentType === 'youtube' ? 'YouTube Transcript:' : 'Extracted Content:'}
-                </h3>
-                <Tabs
-                  value={contentView}
-                  onValueChange={(value) =>
-                    dispatch(setContentView(value as 'preview' | 'markdown'))
-                  }
-                  className="w-full"
-                >
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="preview">Preview</TabsTrigger>
-                    <TabsTrigger value="markdown">Markdown</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="preview" className="mt-2">
-                    <MarkdownContent content={extractedContent} className="min-h-[300px]" />
-                  </TabsContent>
-
-                  <TabsContent value="markdown" className="mt-2">
-                    <div className="border rounded-md relative">
-                      <Textarea
-                        value={extractedContent}
-                        readOnly
-                        className="min-h-[300px] font-mono text-sm"
-                      />
-                      <Button
-                        size="sm"
-                        className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-800"
-                        onClick={() => copyToClipboard(extractedContent)}
-                      >
-                        <Copy className="h-3.5 w-3.5 mr-1" />
-                        Copy
-                      </Button>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-medium">
+                    {contentType === 'youtube' ? 'YouTube Transcript:' : 'Extracted Content:'}
+                  </h3>
+                </div>
               </div>
             )}
           </CardContent>
@@ -206,14 +225,25 @@ const TabContent: React.FC = () => {
             placeholder="Paste or type your content here..."
             className="min-h-[200px]"
             value={textContent}
-            onChange={(e) => {
-              dispatch(setTextContent(e.target.value));
-              handleTextChange(e);
-            }}
+            onChange={handleTextChange}
           />
-          <p className="text-xs">
-            Tip: You can paste text from any source, including websites, documents, or notes.
-          </p>
+          <div className="flex justify-between items-center">
+            <p className="text-xs">
+              Tip: You can paste text from any source, including websites, documents, or notes.
+            </p>
+
+            {/* Show View Details button for text content too */}
+            {textContent.trim() && !showDetailView && (
+              <Button
+                onClick={handleViewDetails}
+                variant="outline"
+                className="flex items-center gap-1 text-blue-600 hover:bg-blue-50"
+              >
+                <ExternalLink className="h-4 w-4" />
+                View Full Details
+              </Button>
+            )}
+          </div>
         </div>
       </TabsContent>
     </Tabs>

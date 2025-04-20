@@ -28,7 +28,11 @@ export async function POST(req: NextRequest) {
     // Format as markdown
     const markdownContent = formatAsMarkdown(textContent, url);
 
-    return NextResponse.json({ content: markdownContent });
+    return NextResponse.json({
+      content: markdownContent,
+      html: html, // Adding the raw HTML content
+      url: url,
+    });
   } catch (error: any) {
     console.error('Error fetching website content:', error.message);
     return NextResponse.json({ error: 'Failed to fetch website content' }, { status: 500 });

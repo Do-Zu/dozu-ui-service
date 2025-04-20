@@ -27,7 +27,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Could not retrieve video information' }, { status: 404 });
     }
 
-    // Extract basic metadata
     const metadata = {
       title: info.basic_info.title || 'Unknown Title',
       duration: info.basic_info.duration || '0',
@@ -37,7 +36,6 @@ export async function GET(request: Request) {
     };
 
     try {
-      // Get transcript data
       const transcriptData = await info.getTranscript();
 
       if (!transcriptData || !transcriptData.transcript?.content?.body?.initial_segments) {
@@ -47,23 +45,27 @@ export async function GET(request: Request) {
         );
       }
 
-      // Extract transcript text from segments
       const transcriptSegments = transcriptData.transcript.content.body.initial_segments.map(
-        (segment: any) => segment.snippet.text,
+        (segment: any) => ({
+          text: segment.snippet.text,
+          startTime: segment.start_ms ? Math.floor(segment.start_ms / 1000) : 0,
+          duration: segment.duration_ms ? Math.floor(segment.duration_ms / 1000) : 0,
+        }),
       );
 
-      // Join all segments into a single text
-      const parsedTranscript = transcriptSegments
+      // Still provide a full transcript for backward compatibility
+      const fullTranscript = transcriptSegments
+        .map((segment) => segment.text)
         .join(' ')
-        // Remove invalid characters
         .replace(/[\u200B-\u200D\uFEFF]/g, '')
-        // Replace any whitespace with a single space
         .replace(/\s+/g, ' ');
 
       return NextResponse.json({
         success: true,
-        transcript: parsedTranscript,
+        transcript: fullTranscript,
+        transcriptSegments: transcriptSegments,
         metadata,
+        info: info.basic_info,
       });
     } catch (transcriptError) {
       console.error('Error fetching transcript data:', transcriptError);

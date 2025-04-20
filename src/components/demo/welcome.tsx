@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -112,11 +112,8 @@ const WelcomeDemo: React.FC = () => {
 
   if (!apiData) return null;
 
-  console.log({ apiData });
-
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
-      {/* Header */}
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight">{apiData?.project?.name}</h1>
         <p className="mt-2 text-lg text-muted-foreground">{apiData?.project?.description}</p>
