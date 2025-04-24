@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAppSelector, useAppDispatch } from '@/stores/hooks';
 import { incrementFloor, decrementFloor } from '@/stores/features/book/bookSlice';
-import WelcomeDemo from '@/components/demo/welcome';
+import AnimationLoading from '@/components/animations/AnimationLoading';
+import NotFoundPage from '@/app/[locale]/not-found';
 
 export default function HomePage() {
   const t = useTranslations('HomePage');
@@ -15,8 +16,9 @@ export default function HomePage() {
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">{t('title')}</h1>
 
-      <WelcomeDemo />
-
+      <NotFoundPage/>
+      {/* <AnimationLoading/> */}
+      
       <p className="text-lg">Current floor: {floor}</p>
 
       <div className="flex gap-4">

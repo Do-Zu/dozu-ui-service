@@ -5,4 +5,4 @@ const nextConfig = {
   env: {}, // Thêm các biến môi trường nếu cần
 };
 
-module.exports = nextConfig; // Không cần dùng createNextIntlPlugin nữa
+module.exports = nextConfig; 

@@ -1,46 +1,47 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createNavigation } from 'next-intl/navigation';  // Import createNavigation
-import { routing } from '@/i18n/routing'; // Import routing từ file cấu hình của bạn
+import { createNavigation } from 'next-intl/navigation'; // Import createNavigation từ next-intl/navigation
+import { routing } from '@/i18n/routing'; // Import routing của bạn
+import path from 'path';
 
-// Khởi tạo navigation với routing
-const { usePathname, getPathname, redirect } = createNavigation(routing); // Thêm 'routing' vào đây
+const { usePathname, getPathname, redirect } = createNavigation(routing);
 
 const LanguageSwitcher = () => {
-  const pathname = usePathname(); // Lấy pathname hiện tại
-  console.log({ pathname });
+  const pathname = usePathname(); // Lấy pathname từ createNavigation
+  const [selectedLocale, setSelectedLocale] = useState('en');
+  const [isClient, setIsClient] = useState(false); // Kiểm tra môi trường client
 
-  const [selectedLocale, setSelectedLocale] = useState('en'); // Mặc định là 'en'
-  const [isClient, setIsClient] = useState(false);
-
+  // Kiểm tra client-side
   useEffect(() => {
     setIsClient(true); // Đảm bảo code chỉ chạy trên client
   }, []);
 
-  const handleChangeLanguage = (locale: string) => {
+  const handleChangeLanguage = (locale: 'en' | 'vi') => {
     setSelectedLocale(locale); // Cập nhật locale trong state
-    console.log({ locale });
 
-    // Truyền tham số đúng cho getPathname
-    const updatedPathname = getPathname({
-      href: { pathname },  // Đảm bảo 'href' là đối tượng có 'pathname' và không có query
-      locale
-    });
-
-    console.log({ updatedPathname });
-
-    // Dùng redirect để thay đổi URL và locale
-    redirect({ href: updatedPathname, locale });
+    // Chỉ gọi redirect khi ở client
+    if (isClient) {
+      const updatedPathname = getPathname({ href: { pathname }, locale });
+      console.log({updatedPathname})
+      redirect({ href: updatedPathname, locale });
+    }
   };
 
   if (!isClient) {
-    return null; // Hiển thị loading spinner nếu cần
+    return null; // Hoặc bạn có thể hiển thị một loading spinner khi chưa có client-side
   }
 
   return (
     <div>
-      <select value={selectedLocale} onChange={(e) => handleChangeLanguage(e.target.value)}>
+      <select value={selectedLocale} onChange={(e) => {
+        const locale = e.target.value;
+        if (locale === 'en' || locale === 'vi') {
+          handleChangeLanguage(locale);
+        } else {
+          console.error(`Invalid locale: ${locale}`);
+        }
+      }}>
         <option value="en">English</option>
         <option value="vi">Tiếng Việt</option>
       </select>
