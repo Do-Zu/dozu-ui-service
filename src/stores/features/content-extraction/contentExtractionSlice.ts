@@ -113,7 +113,7 @@ const contentExtractionSlice = createSlice({
       state.inputUrl = action.payload;
     },
 
-    setActiveTab: (state, action: PayloadAction<'url' | 'text'>) => {
+    setActiveTab: (state, action: PayloadAction<string>) => {
       state.activeTab = action.payload;
     },
     setTextContent: (state, action: PayloadAction<string>) => {
