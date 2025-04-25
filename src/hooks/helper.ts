@@ -19,6 +19,7 @@ export const callApiAsync = async <T = any>(
       method,
       url: url.startsWith('/') ? url : `/${url}`,
       headers: options?.headers,
+      signal: options?.signal,
     };
 
     if (method === 'GET' && options && 'params' in options) {
