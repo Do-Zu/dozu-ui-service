@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { FetchOptions, METHOD } from './type';
 import { useCallback, useState } from 'react';
 import { callApiAsync } from './helper';
+import { toast } from './use-toast';
 
 interface IResultPost<TReq = unknown, TRes = unknown> {
   loading: boolean;
@@ -31,6 +32,8 @@ function usePost<TReq = unknown, TRes = unknown>(
   requestSchema?: z.ZodType<TReq>,
   responseSchema?: z.ZodType<TRes>,
   options?: Omit<FetchOptions, 'params' | 'body'>,
+  onMessageError?: () => void,
+  onMessageSuccess?: () => void,
 ): IResultPost<TReq, TRes> {
   const [data, setData] = useState<TRes | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -140,11 +143,18 @@ function usePost<TReq = unknown, TRes = unknown>(
             body: validatedRequestData,
           });
         }
+        
+        if (onMessageSuccess) {
+          onMessageSuccess();
+        }
 
         // Validate response data if schema is provided
         return validateResponse(responseData);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Unknown error');
+        if (onMessageError) {
+          onMessageError();
+        }
         return null;
       } finally {
         setLoading(false);
