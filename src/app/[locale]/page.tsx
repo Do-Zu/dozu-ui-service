@@ -6,6 +6,7 @@ import { useAppSelector, useAppDispatch } from '@/stores/hooks';
 import { incrementFloor, decrementFloor } from '@/stores/features/book/bookSlice';
 import AnimationLoading from '@/components/animations/AnimationLoading';
 import NotFoundPage from '@/app/[locale]/not-found';
+import ErrorPageFallback from '@/components/errors/ErrorPageFallback'
 
 export default function HomePage() {
   const t = useTranslations('HomePage');
