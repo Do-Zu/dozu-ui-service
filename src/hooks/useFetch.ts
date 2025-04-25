@@ -33,8 +33,9 @@ function useFetch<T, Z = T>(
       abortControllerRef.current.abort();
     }
 
-    // Create a new abort controller for this request
-    abortControllerRef.current = new AbortController();
+    // Create a new abort controller for this request and store it in a local variable
+    const currentController = new AbortController();
+    abortControllerRef.current = currentController;
 
     try {
       setLoading(true);
@@ -74,8 +75,8 @@ function useFetch<T, Z = T>(
       }
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
-      // Don't update loading state if the request was aborted
-      if (!abortControllerRef.current?.signal.aborted) {
+      // Check the signal from our local controller variable
+      if (!currentController.signal.aborted) {
         setLoading(false);
       }
     }
