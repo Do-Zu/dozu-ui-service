@@ -8,14 +8,18 @@ interface ProcessGenerateProps {
   isGenerating: boolean;
   onComplete?: (result: any) => void;
   className?: string;
+  progressInitial?: number;
+  status?: string;
 }
 
 const ProcessGenerate: React.FC<ProcessGenerateProps> = ({
   isGenerating,
   onComplete,
   className = '',
+  progressInitial = 0,
+  status = 'processing',
 }) => {
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(progressInitial);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [currentMessage, setCurrentMessage] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);

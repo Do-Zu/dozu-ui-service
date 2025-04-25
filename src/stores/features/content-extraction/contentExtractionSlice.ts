@@ -18,7 +18,6 @@ export interface ContentExtractionState {
   extractedContent: string;
   isLoading: boolean;
   error: string | null;
-  contentView: 'preview' | 'markdown';
   videoInfo: VideoInfo | null;
   contentType: 'youtube' | 'website' | null;
   activeTab: string;
@@ -31,7 +30,6 @@ const initialState: ContentExtractionState = {
   extractedContent: '',
   isLoading: false,
   error: null,
-  contentView: 'preview',
   videoInfo: null,
   contentType: null,
   activeTab: 'url',
@@ -114,10 +112,8 @@ const contentExtractionSlice = createSlice({
     setInputUrl: (state, action: PayloadAction<string>) => {
       state.inputUrl = action.payload;
     },
-    setContentView: (state, action: PayloadAction<'preview' | 'markdown'>) => {
-      state.contentView = action.payload;
-    },
-    setActiveTab: (state, action: PayloadAction<string>) => {
+
+    setActiveTab: (state, action: PayloadAction<'url' | 'text'>) => {
       state.activeTab = action.payload;
     },
     setTextContent: (state, action: PayloadAction<string>) => {
@@ -131,6 +127,7 @@ const contentExtractionSlice = createSlice({
       state.error = null;
       state.videoInfo = null;
       state.contentType = null;
+      state.textContent = '';
       state.transcriptSegments = [];
     },
   },
@@ -146,7 +143,7 @@ const contentExtractionSlice = createSlice({
         state.extractedContent = action.payload?.transcript;
         state.videoInfo = action.payload.metadata;
         state.contentType = 'youtube';
-        state.textContent = action.payload.transcript;
+        // state.textContent = action.payload.transcript;
         state.transcriptSegments = action.payload.transcriptSegments || [];
       })
       .addCase(extractYouTubeTranscript.rejected, (state, action) => {
@@ -173,7 +170,6 @@ const contentExtractionSlice = createSlice({
 
 export const {
   setInputUrl,
-  setContentView,
   setActiveTab,
   setTextContent,
   resetExtractionState,
