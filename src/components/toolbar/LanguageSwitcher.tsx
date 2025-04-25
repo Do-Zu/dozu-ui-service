@@ -1,51 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createNavigation } from 'next-intl/navigation'; // Import createNavigation từ next-intl/navigation
-import { routing } from '@/i18n/routing'; // Import routing của bạn
-import path from 'path';
-
-const { usePathname, getPathname, redirect } = createNavigation(routing);
+import { useRouter, usePathname } from 'next/navigation';
+import { useTransition } from 'react';
 
 const LanguageSwitcher = () => {
-  const pathname = usePathname(); // Lấy pathname từ createNavigation
-  const [selectedLocale, setSelectedLocale] = useState('en');
-  const [isClient, setIsClient] = useState(false); // Kiểm tra môi trường client
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
-  // Kiểm tra client-side
-  useEffect(() => {
-    setIsClient(true); // Đảm bảo code chỉ chạy trên client
-  }, []);
+  const changeLocale = (locale: string) => {
+    const segments = pathname.split('/');
+    segments[1] = locale; // Giả sử locale là phần đầu tiên sau "/"
+    const newPath = segments.join('/');
 
-  const handleChangeLanguage = (locale: 'en' | 'vi') => {
-    setSelectedLocale(locale); // Cập nhật locale trong state
-
-    // Chỉ gọi redirect khi ở client
-    if (isClient) {
-      const updatedPathname = getPathname({ href: { pathname }, locale });
-      console.log({updatedPathname})
-      redirect({ href: updatedPathname, locale });
-    }
+    startTransition(() => {
+      router.push(newPath);
+    });
   };
 
-  if (!isClient) {
-    return null; // Hoặc bạn có thể hiển thị một loading spinner khi chưa có client-side
-  }
-
   return (
-    <div>
-      <select value={selectedLocale} onChange={(e) => {
-        const locale = e.target.value;
-        if (locale === 'en' || locale === 'vi') {
-          handleChangeLanguage(locale);
-        } else {
-          console.error(`Invalid locale: ${locale}`);
-        }
-      }}>
-        <option value="en">English</option>
-        <option value="vi">Tiếng Việt</option>
-      </select>
-    </div>
+    <select
+      onChange={(e) => changeLocale(e.target.value)}
+      className="border rounded px-2 py-1 bg-background text-foreground"
+      defaultValue={pathname.split('/')[1]}
+    >
+      <option value="en">English</option>
+      <option value="vi">Tiếng Việt</option>
+    </select>
   );
 };
 

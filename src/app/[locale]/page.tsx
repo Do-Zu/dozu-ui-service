@@ -1,45 +1,58 @@
-'use client';
+'use client'
 
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
-import { useAppSelector, useAppDispatch } from '@/stores/hooks';
-import { incrementFloor, decrementFloor } from '@/stores/features/book/bookSlice';
-import AnimationLoading from '@/components/animations/AnimationLoading';
-import NotFoundPage from '@/app/[locale]/not-found';
-import ErrorPageFallback from '@/components/errors/ErrorPageFallback'
+import { Link } from '@/i18n/navigation'
+import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
-  const t = useTranslations('HomePage');
-  const floor = useAppSelector((state) => state.book.floor);
-  const dispatch = useAppDispatch();
-
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">{t('title')}</h1>
+    <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16">
+      {/* Hero Section */}
+      <section className="text-center max-w-3xl space-y-6">
+        <h1 className="text-5xl font-extrabold leading-tight tracking-tight">
+          Hệ sinh thái học tập cá nhân hóa <br />
+          <span className="text-primary">dành cho bạn</span>
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Tổng hợp bài học, quiz, flashcard, gói nhớ, AI gợi ý lộ trình học tích hợp theo phong cách học riêng của bạn.
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+          <Link href="/quiz">
+            <Button className="px-6 py-3 text-lg">Bắt đầu ngay</Button>
+          </Link>
+          <Link href="/about">
+            <Button variant="outline" className="px-6 py-3 text-lg">
+              Tìm hiểu thêm
+            </Button>
+          </Link>
+        </div>
+      </section>
 
-      <NotFoundPage/>
-      {/* <AnimationLoading/> */}
-      
-      <p className="text-lg">Current floor: {floor}</p>
+      {/* Feature Preview */}
+      <section className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center max-w-5xl w-full">
+        <div className="bg-card rounded-xl p-6 shadow-sm">
+          <h3 className="text-xl font-semibold mb-2">Quiz & Gói nhớ</h3>
+          <p className="text-sm text-muted-foreground">
+            Luyện tập kiến thức bằng cách chơi quiz vui nhộn, nhớ nhanh và đúng.
+          </p>
+        </div>
+        <div className="bg-card rounded-xl p-6 shadow-sm">
+          <h3 className="text-xl font-semibold mb-2">Flashcard & nhận diện</h3>
+          <p className="text-sm text-muted-foreground">
+            Flashcard minh hoạ và gợi ý bằng AI để nhớ dễ dàng hơn.
+          </p>
+        </div>
+        <div className="bg-card rounded-xl p-6 shadow-sm">
+          <h3 className="text-xl font-semibold mb-2">Lộ trình cá nhân</h3>
+          <p className="text-sm text-muted-foreground">
+            Phân tích thói quen học tập để tối ưu hóa hiệu quả, hướng dẫn bởi AI.
+          </p>
+        </div>
+      </section>
 
-      <div className="flex gap-4">
-        <button
-          onClick={() => dispatch(incrementFloor())}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          +
-        </button>
-        <button
-          onClick={() => dispatch(decrementFloor())}
-          className="px-4 py-2 bg-red-500 text-white rounded"
-        >
-          -
-        </button>
-      </div>
-
-      <Link href="/about" className="text-blue-600 underline">
-        {t('about')}
-      </Link>
-    </div>
+      {/* Footer */}
+      <footer className="mt-20 text-sm text-muted-foreground text-center">
+        © 2025 Dozu UI. Thiết kế và phát triển bởi sinh viên FPT.
+      </footer>
+    </main>
   );
 }

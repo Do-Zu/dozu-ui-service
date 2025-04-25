@@ -5,7 +5,7 @@ import { routing } from '@/i18n/routing';
 import Providers from '../Providers';
 import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/core/ErrorBoundary';
-import '../../styles/globals.css';
+import Navbar from '@/components/toolbar/Navbar';
 
 export default async function LocaleLayout({
   children,
@@ -31,6 +31,7 @@ export default async function LocaleLayout({
       <body className="min-h-screen bg-background text-foreground transition-colors">
         <ErrorBoundary>
           <Providers locale={locale} messages={messages}>
+            <Navbar />
             {children}
             <Toaster />
           </Providers>
