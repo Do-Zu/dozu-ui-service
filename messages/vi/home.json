@@ -2,5 +2,9 @@
   "HomePage": {
     "title": "Chào",
     "about": "Về chúng tôi"
+  },
+
+  "profile" : {
+    "name": "Tên"
   }
 }
