@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, BookOpen, FileText, Lightbulb, Check } from 'lucide-react';
+import { Sparkles, BookOpen, FileText, Lightbulb, Check, Gamepad2, Map } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { setSelectedMethod } from '@/stores/features/import-dialog/importDialogSlice';
 
@@ -13,6 +13,38 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
 
   const handleMethodSelection = (method: string) => {
     dispatch(setSelectedMethod(method));
+  };
+
+  // Method icon mapping
+  const getMethodIcon = (method: string) => {
+    switch (method) {
+      case 'flashcards':
+        return <BookOpen className="h-5 w-5" />;
+      case 'quiz':
+        return <Lightbulb className="h-5 w-5" />;
+      case 'gamification':
+        return <Gamepad2 className="h-5 w-5" />;
+      case 'mind map':
+        return <Map className="h-5 w-5" />;
+      default:
+        return <FileText className="h-5 w-5" />;
+    }
+  };
+
+  // Method description mapping
+  const getMethodDescription = (method: string) => {
+    switch (method) {
+      case 'flashcards':
+        return 'Perfect for memorization and quick review';
+      case 'quiz':
+        return 'Great for testing your knowledge';
+      case 'gamification':
+        return 'Learn through interactive game-based activities';
+      case 'mind map':
+        return 'Visual organization to connect ideas and concepts';
+      default:
+        return 'Ideal for detailed study and reference';
+    }
   };
 
   return (
@@ -41,16 +73,10 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {method === 'flashcards' && <BookOpen className="h-5 w-5" />}
-                {method === 'notes' && <FileText className="h-5 w-5" />}
-                {method === 'quiz' && <Lightbulb className="h-5 w-5" />}
+                {getMethodIcon(method)}
                 <div>
                   <h4 className="font-medium capitalize">{method}</h4>
-                  <p className="text-sm">
-                    {method === 'flashcards' && 'Perfect for memorization and quick review'}
-                    {method === 'notes' && 'Ideal for detailed study and reference'}
-                    {method === 'quiz' && 'Great for testing your knowledge'}
-                  </p>
+                  <p className="text-sm">{getMethodDescription(method)}</p>
                 </div>
               </div>
               <div

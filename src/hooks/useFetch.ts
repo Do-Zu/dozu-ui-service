@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { FetchOptions, METHOD } from './type';
 import { callApiAsync } from './helper';
 import { z } from 'zod';
@@ -25,7 +25,18 @@ function useFetch<T, Z = T>(
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const fetchData = useCallback(async () => {
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create a new abort controller for this request and store it in a local variable
+    const currentController = new AbortController();
+    abortControllerRef.current = currentController;
+
     try {
       setLoading(true);
       setError(null);
@@ -59,14 +70,27 @@ function useFetch<T, Z = T>(
         setData(rawData as Z);
       }
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
-      setLoading(false);
+      // Check the signal from our local controller variable
+      if (!currentController.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, [param, schema, options]);
 
   useEffect(() => {
     fetchData();
+
+    return () => {
+      // Cancel any pending requests
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchData]);
 
   return { data, loading, error, refetch: fetchData };

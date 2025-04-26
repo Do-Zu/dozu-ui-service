@@ -222,8 +222,7 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
     // For very large files, use chunked upload
     if (file.size > CHUNK_SIZE) {
       const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-      const fileId = `${file.name}-${Date.now()}`; // Unique ID for this upload
-
+      const fileId = `${file.name}-${Date.now()}`;
       try {
         // 1. Initialize upload session with metadata
         await fetch('/api/content/upload/init', {
