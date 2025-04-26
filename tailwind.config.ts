@@ -11,6 +11,22 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './index.html',
   ],
+  //THÊM SAFELIST 
+  safelist: [
+    'bg-[var(--tw-color-bg)]',
+    'text-[var(--tw-color-fg)]',
+    'border-[var(--tw-color-border)]',
+    'text-[var(--tw-color-muted-foreground)]',
+    'bg-[var(--tw-color-muted)]',
+    'text-[var(--tw-color-primary)]',
+    'bg-[var(--tw-color-primary)]',
+  ],
+  // safelist: [
+  //   {
+  //     pattern: /^(bg|text|border)-\[var\(--tw-color-[a-z\-]+\)\]$/,
+  //   },
+  // ],
+  
   theme: {
     container: {
       center: true,
