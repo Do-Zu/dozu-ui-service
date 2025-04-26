@@ -16,7 +16,6 @@ interface ContentDetailViewProps {
   onBack?: () => void;
 }
 
-// Helper function to format seconds into MM:SS
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -60,7 +59,6 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
       });
   };
 
-  // Function to navigate to a specific time in the YouTube video
   const navigateToTime = (timeInSeconds: number) => {
     if (contentType === 'youtube' && inputUrl) {
       const videoId = extractYoutubeVideoId(inputUrl);
@@ -76,7 +74,6 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
     return match && match[7].length === 11 ? match[7] : null;
   };
 
-  // Extract YouTube video ID for embedding
   const getYoutubeEmbedUrl = (url: string): string => {
     const videoId = extractYoutubeVideoId(url);
     return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
@@ -86,13 +83,12 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
     if (importMethod === 'text' && (textContent.trim().length > 0 || activeTab === 'text')) {
       return false;
     }
-
     return true;
   };
 
   const renderLeftSide = () =>
     isDisplayPreviewLeftSide() && (
-      <Card className="w-full ">
+      <Card className="w-full">
         <CardHeader>
           {contentType === 'youtube' && transcriptSegments.length > 0 && (
             <Tabs
@@ -126,6 +122,7 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
           )}
 
           {contentType === 'website' && <WebsiteView />}
+
           <div className="relative">
             <div className="max-h-[10em] h-auto overflow-y-auto p-4 rounded-md scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
               {contentType === 'youtube' &&
@@ -133,18 +130,18 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
               activeTranscriptView === 'segments' ? (
                 <div>
                   {transcriptSegments.map((segment, index) => (
-                    <div key={index} className="group p-2 hover:bg-gray-100 rounded">
+                    <div key={index} className="group p-2 hover:bg-muted rounded">
                       <div className="flex items-start gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="mt-0.5  hover:text-blue-600"
+                          className="mt-0.5 hover:text-primary"
                           onClick={() => navigateToTime(segment.startTime)}
                         >
                           <Clock className="h-3 w-3 mr-1" />
                           {formatTime(segment.startTime)}
                         </Button>
-                        <p className="">{segment.text}</p>
+                        <p>{segment.text}</p>
                       </div>
                     </div>
                   ))}
@@ -152,12 +149,14 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
               ) : extractedContent ? (
                 <MarkdownContent content={extractedContent} className="prose max-w-none" />
               ) : (
-                <p className="text-gray-500">No content available</p>
+                <p className="text-muted-foreground">No content available</p>
               )}
             </div>
+
+            {/* Chỉ giữ lại 1 nút Copy chuẩn đẹp */}
             <Button
               size="sm"
-              className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-800"
+              className="absolute top-2 right-2 bg-muted hover:bg-muted"
               onClick={() => copyToClipboard(extractedContent)}
             >
               <Copy className="h-3.5 w-3.5 mr-1" />
@@ -173,9 +172,7 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
       <div
         className={`grid grid-cols-1 ${isDisplayPreviewLeftSide() ? 'md:grid-cols-2' : ''} gap-6`}
       >
-        {/* Left column: Content */}
         {renderLeftSide()}
-        {/* Right column: Select Method */}
         <SelectMethod />
       </div>
     </div>

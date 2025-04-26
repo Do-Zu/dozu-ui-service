@@ -23,14 +23,14 @@ export function MarkdownContent({ content, className = '' }: MarkdownContentProp
     //   // Convert links
     //   .replace(
     //     /\[([^\]]+)\]\(([^)]+)\)/gim,
-    //     '<a href="$2" class="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>',
+    //     '<a href="$2" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">$1</a>',
     //   )
     //   // Convert bold text
     //   .replace(/\*\*([^*]+)\*\*/gim, '<strong>$1</strong>')
     //   // Convert italic text
     //   .replace(/\*([^*]+)\*/gim, '<em>$1</em>')
     //   // Convert horizontal rules
-    //   .replace(/^---$/gim, '<hr class="my-4 border-t border-gray-300" />')
+    //   .replace(/^---$/gim, '<hr class="my-4 border-t border-border" />')
     //   // Convert paragraphs (double newlines)
     //   .replace(/\n\n/gim, '</p><p class="my-2">');
 

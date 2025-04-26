@@ -188,7 +188,7 @@ const TabContent: React.FC = () => {
             </div>
 
             {videoInfo && contentType === 'youtube' && (
-              <div className="flex gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex gap-4 p-4 bg-muted rounded-lg">
                 {videoInfo.thumbnailUrl && (
                   <img
                     src={videoInfo.thumbnailUrl}
@@ -198,7 +198,7 @@ const TabContent: React.FC = () => {
                 )}
                 <div>
                   <h3 className="font-medium text-lg">{videoInfo.title}</h3>
-                  <p className="text-sm text-gray-500">YouTube transcript extracted successfully</p>
+                  <p className="text-sm text-muted-foreground">YouTube transcript extracted successfully</p>
                 </div>
               </div>
             )}
@@ -234,7 +234,7 @@ const TabContent: React.FC = () => {
               <Button
                 onClick={handleViewDetails}
                 variant="outline"
-                className="flex items-center gap-1 text-blue-600 hover:bg-blue-50"
+                className="flex items-center gap-1 text-primary hover:bg-blue-50"
               >
                 <ExternalLink className="h-4 w-4" />
                 View Full Details

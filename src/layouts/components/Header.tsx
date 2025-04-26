@@ -23,7 +23,7 @@ const header: React.FC<IHeaderProps> = () => {
   }, [isLoggedIn, username]);
 
   return (
-    <header className="p-5 bg-gray-800 dark:bg-gray-900 text-white transition-colors">
+    <header className="p-5 bg-muted dark:bg-muted text-foreground transition-colors">
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="text-2xl font-semibold">{title}</h1>
         <div className="flex items-center gap-4">
@@ -31,24 +31,24 @@ const header: React.FC<IHeaderProps> = () => {
           <nav>
             <ul className="list-none flex gap-6">
               <li>
-                <a href="/" className="hover:text-gray-400 dark:hover:text-gray-300">
+                <a href="/" className="hover:text-muted-foreground dark:hover:text-muted-foreground">
                   Home
                 </a>
               </li>
               <li>
-                <a href="/about" className="hover:text-gray-400 dark:hover:text-gray-300">
+                <a href="/about" className="hover:text-muted-foreground dark:hover:text-muted-foreground">
                   About
                 </a>
               </li>
               {isLoggedIn ? (
                 <li>
-                  <a href="/profile" className="hover:text-gray-400 dark:hover:text-gray-300">
+                  <a href="/profile" className="hover:text-muted-foreground dark:hover:text-muted-foreground">
                     Profile
                   </a>
                 </li>
               ) : (
                 <li>
-                  <a href="/login" className="hover:text-gray-400 dark:hover:text-gray-300">
+                  <a href="/login" className="hover:text-muted-foreground dark:hover:text-muted-foreground">
                     Login
                   </a>
                 </li>
