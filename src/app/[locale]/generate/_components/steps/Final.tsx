@@ -1,63 +1,58 @@
-import { File } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { useAppSelector } from '@/stores/hooks';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import FlashcardViewer from './FlashcardViewer';
+import { ISseData } from '../CardImport';
 
-interface FinalStepProps {
-  importMethod: 'text' | 'file';
-  textContent: string;
-  files: Array<{ name: string; size?: number; type?: string }>;
-  selectedMethod: string;
+interface FlashcardItem {
+  q: string;
+  a: string;
 }
+interface FinalProps {
+  sseData: ISseData | null;
+}
+const Final: React.FC<FinalProps> = ({ sseData }) => {
+  const [flashcards, setFlashcards] = useState<FlashcardItem[]>([]);
+  const [selectedTab, setSelectedTab] = useState('flashcards');
 
-const Final = () => {
-  const { importMethod, files, selectedMethod } = useAppSelector((state) => state.importDialog);
-  const { textContent } = useAppSelector((state) => state.contentExtraction);
+  useEffect(() => {
+    if (sseData?.data?.content) {
+      setFlashcards(sseData.data.content);
+    }
+  }, [sseData]);
 
   return (
-    <div className="space-y-6">
-      <div className="p-4 rounded-lg border border-gray-200">
-        <h3 className="font-medium mb-3">Content Preview</h3>
-        <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto">
-          {importMethod === 'text' ? (
-            <p className="text-sm">{textContent}</p>
+    <div className="space-y-4">
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+        <TabsList className="w-full">
+          <TabsTrigger value="flashcards" className="flex-1">
+            Flashcards
+          </TabsTrigger>
+          <TabsTrigger value="rawData" className="flex-1">
+            Raw Data
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="flashcards" className="pt-4">
+          {flashcards.length > 0 ? (
+            <FlashcardViewer flashcards={flashcards} />
           ) : (
-            <ul className="space-y-1">
-              {files.map((file, index) => (
-                <li key={index} className="text-sm flex items-center">
-                  <File className="h-4 w-4 mr-2" />
-                  {file.name}
-                </li>
-              ))}
-            </ul>
+            <div className="text-center py-10 text-gray-500">
+              No flashcard data available. Please wait for generation to complete.
+            </div>
           )}
-        </div>
-      </div>
+        </TabsContent>
 
-      <div className="space-y-3">
-        <h3 className="font-medium">
-          Learning Method: <span className="capitalize">{selectedMethod}</span>
-        </h3>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Title</label>
-            <Input
-              placeholder="Enter a title for your content"
-              defaultValue={files.length > 0 ? files[0].name.split('.')[0] : 'New Learning Content'}
-            />
+        <TabsContent value="rawData" className="pt-4">
+          <div className="border rounded-md p-4 max-h-[500px] overflow-auto">
+            <pre className="text-sm whitespace-pre-wrap">
+              {sseData ? JSON.stringify(sseData, null, 2) : 'No data available'}
+            </pre>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Category</label>
-            <Input placeholder="Optional category" />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Description</label>
-          <Textarea placeholder="Add a description (optional)" className="min-h-[80px]" />
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
