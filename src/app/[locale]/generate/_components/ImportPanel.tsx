@@ -147,22 +147,22 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
       case 'txt':
       case 'doc':
       case 'docx':
-        return <FileText className="h-5 w-5 text-gray-500" />;
+        return <FileText className="h-5 w-5 text-muted-foreground" />;
       case 'jpg':
       case 'jpeg':
       case 'png':
       case 'gif':
-        return <FileImage className="h-5 w-5 text-gray-500" />;
+        return <FileImage className="h-5 w-5 text-muted-foreground" />;
       case 'mp3':
       case 'wav':
       case 'ogg':
-        return <FileAudio className="h-5 w-5 text-gray-500" />;
+        return <FileAudio className="h-5 w-5 text-muted-foreground" />;
       case 'mp4':
       case 'mov':
       case 'avi':
-        return <FileVideo className="h-5 w-5 text-gray-500" />;
+        return <FileVideo className="h-5 w-5 text-muted-foreground" />;
       default:
-        return <File className="h-5 w-5 text-gray-500" />;
+        return <File className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -306,7 +306,7 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
           (activeTab === 'files' && selectedFiles.length === 0) ||
           (activeTab === 'text' && !importText.trim())
         }
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 flex items-center justify-center gap-2"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-foreground py-2 flex items-center justify-center gap-2"
       >
         {isGenerating ? (
           <>
@@ -320,16 +320,16 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
           </>
         )}
       </Button>
-      <p className="text-xs text-gray-500 text-center mt-2">
+      <p className="text-xs text-muted-foreground text-center mt-2">
         Start processing your content to generate AI results
       </p>
     </div>
   );
 
   return (
-    <Card className="w-full max-w-[1200px] mx-auto bg-gray-50">
+    <Card className="w-full max-w-[1200px] mx-auto bg-muted">
       <CardHeader>
-        <CardTitle className="text-xl text-gray-800">Import Learning Content</CardTitle>
+        <CardTitle className="text-xl text-muted-foreground">Import Learning Content</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex gap-4 mb-4">
@@ -337,8 +337,8 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
             variant={activeTab === 'files' ? 'default' : 'outline'}
             onClick={() => setActiveTab('files')}
             className={cn(
-              'flex-1 bg-gray-700 hover:bg-gray-800',
-              activeTab !== 'files' && 'bg-transparent text-gray-700 hover:bg-gray-200',
+              'flex-1 bg-muted hover:bg-muted',
+              activeTab !== 'files' && 'bg-transparent text-muted-foreground hover:bg-muted',
             )}
           >
             <Upload className="mr-2 h-4 w-4" />
@@ -348,8 +348,8 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
             variant={activeTab === 'text' ? 'default' : 'outline'}
             onClick={() => setActiveTab('text')}
             className={cn(
-              'flex-1 bg-gray-700 hover:bg-gray-800',
-              activeTab !== 'text' && 'bg-transparent text-gray-700 hover:bg-gray-200',
+              'flex-1 bg-muted hover:bg-muted',
+              activeTab !== 'text' && 'bg-transparent text-muted-foreground hover:bg-muted',
             )}
           >
             <FileText className="mr-2 h-4 w-4" />
@@ -358,13 +358,13 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm flex items-start">
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-destructive text-sm flex items-start">
             <Info className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
             <span>{error}</span>
             <Button
               variant="ghost"
               size="sm"
-              className="ml-auto p-0 h-5 w-5 text-red-500 hover:bg-red-100"
+              className="ml-auto p-0 h-5 w-5 text-destructive hover:bg-destructive"
               onClick={() => setError(null)}
             >
               <X className="h-4 w-4" />
@@ -376,7 +376,7 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
           <div
             className={cn(
               'border-2 border-dashed rounded-lg p-8 transition-colors',
-              dragActive ? 'border-gray-500 bg-gray-100' : 'border-gray-300',
+              dragActive ? 'border-border bg-muted' : 'border-border',
               isProcessing && 'opacity-50 pointer-events-none',
             )}
             onDragEnter={handleDrag}
@@ -385,14 +385,14 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
             onDrop={handleDrop}
           >
             <div className="flex flex-col items-center justify-center text-center">
-              <Upload className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-700 mb-1">
+              <Upload className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium text-muted-foreground mb-1">
                 Drag and drop your files here
               </h3>
-              <p className="text-sm text-gray-500 mb-4">or click to browse from your computer</p>
+              <p className="text-sm text-muted-foreground mb-4">or click to browse from your computer</p>
               <Button
                 variant="outline"
-                className="bg-white hover:bg-gray-100"
+                className="bg-background hover:bg-muted"
                 disabled={isProcessing}
               >
                 <label className="cursor-pointer">
@@ -407,33 +407,33 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
                   />
                 </label>
               </Button>
-              <p className="mt-4 text-xs text-gray-500">
+              <p className="mt-4 text-xs text-muted-foreground">
                 Supported formats: {supportedFileTypes.join(', ')} (Max: {maxFileSize}MB)
               </p>
             </div>
 
             {selectedFiles.length > 0 && (
               <div className="mt-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Files:</h4>
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Selected Files:</h4>
                 <ul className="space-y-2">
                   {selectedFiles.map((file, index) => (
                     <li
                       key={`${file.name}-${index}`}
-                      className="flex items-center justify-between p-2 bg-white rounded border border-gray-200"
+                      className="flex items-center justify-between p-2 bg-background rounded border border-border"
                     >
                       <div className="flex items-center">
                         {getFileIcon(file.name)}
-                        <span className="ml-2 text-sm text-gray-700 truncate max-w-[300px]">
+                        <span className="ml-2 text-sm text-muted-foreground truncate max-w-[300px]">
                           {file.name}
                         </span>
-                        <span className="ml-2 text-xs text-gray-500">
+                        <span className="ml-2 text-xs text-muted-foreground">
                           ({(file.size / (1024 * 1024)).toFixed(2)} MB)
                         </span>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-gray-500 hover:text-red-500 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-red-50"
                         onClick={() => handleRemoveFile(index)}
                         disabled={isProcessing}
                       >
@@ -447,7 +447,7 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
 
             {isProcessing && (
               <div className="mt-6">
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <div className="flex justify-between text-sm text-muted-foreground mb-1">
                   <span>Processing files...</span>
                   <span>{processingProgress}%</span>
                 </div>
@@ -458,7 +458,7 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
         ) : (
           <div className="border rounded-lg p-4">
             <textarea
-              className="w-full h-40 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none bg-white"
+              className="w-full h-40 p-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none bg-background"
               placeholder="Paste your text content here..."
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
@@ -468,7 +468,7 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
               <Button
                 onClick={handleTextImport}
                 disabled={isProcessing || !importText.trim()}
-                className="bg-gray-700 hover:bg-gray-800"
+                className="bg-muted hover:bg-muted"
               >
                 <Check className="mr-2 h-4 w-4" />
                 Import Text
@@ -477,7 +477,7 @@ const ImportPanel: React.FC<ImportPanelProps> = ({
 
             {isProcessing && (
               <div className="mt-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <div className="flex justify-between text-sm text-muted-foreground mb-1">
                   <span>Processing text...</span>
                   <span>{processingProgress}%</span>
                 </div>

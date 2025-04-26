@@ -16,7 +16,7 @@ const Final = () => {
 
   return (
     <div className="space-y-6">
-      <div className="p-4 rounded-lg border border-gray-200">
+      <div className="p-4 rounded-lg border border-border">
         <h3 className="font-medium mb-3">Content Preview</h3>
         <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto">
           {importMethod === 'text' ? (
