@@ -2,15 +2,17 @@
 
 import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const t = useTranslations('home');
+
   return (
     <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-6 py-16">
       {/* Hero Section */}
       <section className="text-center max-w-3xl space-y-6">
         <h1 className="text-5xl font-extrabold leading-tight tracking-tight">
-          Hệ sinh thái học tập cá nhân hóa <br />
-          <span className="text-primary">dành cho bạn</span>
+         {t('welcome')} <br />
         </h1>
         <p className="text-muted-foreground text-lg">
           Tổng hợp bài học, quiz, flashcard, gói nhớ, AI gợi ý lộ trình học tích hợp theo phong cách học riêng của bạn.
@@ -51,7 +53,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="mt-20 text-sm text-muted-foreground text-center">
-        © 2025 Dozu UI. Thiết kế và phát triển bởi sinh viên FPT.
+        © 2025 Dozu. Thiết kế và phát triển bởi sinh viên FPT.
       </footer>
     </main>
   );

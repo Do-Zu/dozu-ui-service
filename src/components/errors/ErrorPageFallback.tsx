@@ -1,4 +1,3 @@
-// components/common/ErrorPageFallback.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -24,11 +23,11 @@ export default function ErrorPageFallback({ error, reset }: ErrorPageFallbackPro
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center px-6 py-12 bg-background">
-      <div className="w-60 h-60 mb-8">
+      <div className="w-60 h-60 mb-8 flex items-center justify-center">
         {animationData ? (
           <Lottie animationData={animationData} loop autoPlay />
         ) : (
-          <p className="text-sm text-muted-foreground">Đang tải animation...</p>
+          <div className="w-10 h-10 border-4 border-dashed rounded-full animate-spin border-primary" />
         )}
       </div>
 
