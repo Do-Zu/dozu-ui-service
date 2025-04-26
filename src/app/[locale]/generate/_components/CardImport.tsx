@@ -411,9 +411,7 @@ const CardImport: React.FC<CardImportProps> = ({
               <TabsContent value="media" className="mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div
-
-                    className="border-2 border-dashed border-border rounded-lg p-6 text-center  transition-colors cursor-pointer"
-
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors cursor-pointer"
                     onClick={() => document.getElementById('audio-upload')?.click()}
                     onDragOver={handleDragOver}
                     onDragEnter={handleDragEnter}
@@ -433,9 +431,7 @@ const CardImport: React.FC<CardImportProps> = ({
                   </div>
 
                   <div
-
-                    className="border-2 border-dashed border-border rounded-lg p-6 text-center  transition-colors cursor-pointer"
-
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors cursor-pointer"
                     onClick={() => document.getElementById('video-upload')?.click()}
                     onDragOver={handleDragOver}
                     onDragEnter={handleDragEnter}
@@ -454,9 +450,6 @@ const CardImport: React.FC<CardImportProps> = ({
                     <p className="text-xs">MP4, MOV, AVI files (max {MAX_MEDIA_SIZE_MB}MB)</p>
                   </div>
                 </div>
-
-                <p className="text-xs text-muted-foreground mt-4">
-
                 {files.length > 0 && importMethod === 'media' && (
                   <div className="mt-4">
                     <h4 className="text-sm font-medium mb-2">Selected file:</h4>
