@@ -36,7 +36,6 @@ export function useEventSource<T>(url: string | null, options: EventSourceOption
 
     eventSource.onmessage = (event) => {
       try {
-        console.log({ event });
         const parsedData = JSON.parse(event.data);
         setData(parsedData);
         if (options.onMessage) options.onMessage(event);
