@@ -1,4 +1,3 @@
-// app/[locale]/quiz/page.tsx
 import dynamic from 'next/dynamic'
 
 const SurveyQuiz = dynamic(() => import('@/components/demo/SurveyQuiz'), { ssr: false })

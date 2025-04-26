@@ -1,0 +1,73 @@
+    :root {
+      /* Base colors (Light mode) */
+      --color-background: 0 0% 100%;
+      --color-foreground: 224 71.4% 4.1%;
+  
+      --color-primary: 220.9 39.3% 11%;
+      --color-primary-foreground: 210 20% 98%;
+  
+      --color-secondary: 220 14.3% 95.9%;
+      --color-secondary-foreground: 220.9 39.3% 11%;
+  
+      --color-muted: 220 14.3% 95.9%;
+      --color-muted-foreground: 220 8.9% 46.1%;
+  
+      --color-accent: 220 14.3% 95.9%;
+      --color-accent-foreground: 220.9 39.3% 11%;
+  
+      --color-destructive: 0 84.2% 60.2%;
+      --color-destructive-foreground: 210 20% 98%;
+  
+      --color-border: 220 13% 91%;
+      --color-input: 220 13% 91%;
+      --color-ring: 224 71.4% 4.1%;
+  
+      --radius: 0.5rem;
+  
+      /* Chart tokens */
+      --color-chart-1: 12 76% 61%;
+      --color-chart-2: 173 58% 39%;
+      --color-chart-3: 197 37% 24%;
+      --color-chart-4: 43 74% 66%;
+      --color-chart-5: 27 87% 67%;
+  
+      /* Tailwind bindings */
+      --tw-color-bg: hsl(var(--color-background));
+      --tw-color-fg: hsl(var(--color-foreground));
+      --tw-color-border: hsl(var(--color-border));
+      --tw-color-primary: hsl(var(--color-primary));
+      --tw-color-muted: hsl(var(--color-muted));
+      --tw-color-destructive: hsl(var(--color-destructive));
+    }
+  
+    .dark {
+      --color-background: 224 71.4% 4.1%;
+      --color-foreground: 210 20% 98%;
+  
+      --color-primary: 210 20% 98%;
+      --color-primary-foreground: 220.9 39.3% 11%;
+  
+      --color-secondary: 215 27.9% 16.9%;
+      --color-secondary-foreground: 210 20% 98%;
+  
+      --color-muted: 215 27.9% 16.9%;
+      --color-muted-foreground: 217.9 10.6% 64.9%;
+  
+      --color-accent: 215 27.9% 16.9%;
+      --color-accent-foreground: 210 20% 98%;
+  
+      --color-destructive: 0 62.8% 30.6%;
+      --color-destructive-foreground: 210 20% 98%;
+  
+      --color-border: 215 27.9% 16.9%;
+      --color-input: 215 27.9% 16.9%;
+      --color-ring: 216 12.2% 83.9%;
+  
+      --color-chart-1: 220 70% 50%;
+      --color-chart-2: 160 60% 45%;
+      --color-chart-3: 30 80% 55%;
+      --color-chart-4: 280 65% 60%;
+      --color-chart-5: 340 75% 55%;
+    }
+  
+  

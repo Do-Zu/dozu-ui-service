@@ -27,8 +27,6 @@ export default async function LocaleLayout({
   };
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground transition-colors">
         <ErrorBoundary>
           <Providers locale={locale} messages={messages}>
             <Navbar />
@@ -36,7 +34,5 @@ export default async function LocaleLayout({
             <Toaster />
           </Providers>
         </ErrorBoundary>
-      </body>
-    </html>
   );
 }

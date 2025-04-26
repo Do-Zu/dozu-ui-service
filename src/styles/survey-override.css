@@ -2,54 +2,53 @@
 
 /* Vùng chính */
 :root.dark .sv_main {
-    background-color: hsl(var(--card)) !important;
-    color: hsl(var(--foreground)) !important;
-  }
-  
-  /* Tiêu đề quiz, page title */
-  :root.dark .sv_q_title,
-  :root.dark .sv_p_title,
-  :root.dark .sv_header__text,
-  :root.dark .sv-title {
-    color: hsl(var(--foreground)) !important;
-  }
-  
-  /* Input, textarea */
-  :root.dark input,
-  :root.dark textarea,
-  :root.dark .sv_q_text_root {
-    color: hsl(var(--foreground)) !important;
-    background-color: hsl(var(--card)) !important;
-    border-color: hsl(var(--border)) !important;
-  }
-  
-  /* Nút submit */
-  :root.dark .sv-btn {
-    background-color: hsl(160 84.2% 39.4%) !important;
-    color: hsl(var(--background)) !important;
-    border: none;
-    border-radius: 0.5rem;
-  }
-  
-  /* Thanh progress và trang */
-  :root.dark .sv-progress__bar,
-  :root.dark .sv-progress__text {
-    background-color: hsl(var(--foreground)) !important;
-    color: hsl(var(--background)) !important;
-  }
-  
-  /* Radio/checkbox label */
-  :root.dark .sv-selectbase__item,
-  :root.dark .sv-string-viewer,
-  :root.dark .sv-item__control-label,
-  :root.dark .sv-radio__label {
-    color: hsl(var(--foreground)) !important;
-    opacity: 1 !important;
-  }
-  
-  /* Padding/margin bổ sung nếu cần */
-  :root.dark .sv-container-modern {
-    padding: 1rem;
-    border-radius: 0.75rem;
-  }
-  
+  background-color: hsl(var(--color-background)) !important;
+  color: hsl(var(--color-foreground)) !important;
+}
+
+/* Tiêu đề quiz, page title */
+:root.dark .sv_q_title,
+:root.dark .sv_p_title,
+:root.dark .sv_header__text,
+:root.dark .sv-title {
+  color: hsl(var(--color-foreground)) !important;
+}
+
+/* Input, textarea */
+:root.dark input,
+:root.dark textarea,
+:root.dark .sv_q_text_root {
+  color: hsl(var(--color-foreground)) !important;
+  background-color: hsl(var(--color-background)) !important;
+  border-color: hsl(var(--color-border)) !important;
+}
+
+/* Nút submit */
+:root.dark .sv-btn {
+  background-color: hsl(160 84.2% 39.4%) !important; /* Xanh Emerald Tailwind */
+  color: hsl(var(--color-background)) !important;
+  border: none;
+  border-radius: 0.5rem;
+}
+
+/* Thanh progress và trang */
+:root.dark .sv-progress__bar,
+:root.dark .sv-progress__text {
+  background-color: hsl(var(--color-foreground)) !important;
+  color: hsl(var(--color-background)) !important;
+}
+
+/* Radio/checkbox label */
+:root.dark .sv-selectbase__item,
+:root.dark .sv-string-viewer,
+:root.dark .sv-item__control-label,
+:root.dark .sv-radio__label {
+  color: hsl(var(--color-foreground)) !important;
+  opacity: 1 !important;
+}
+
+/* Padding/margin bổ sung */
+:root.dark .sv-container-modern {
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
