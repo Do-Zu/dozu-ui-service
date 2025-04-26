@@ -33,8 +33,8 @@ export default function ErrorPageFallback({ error, reset }: ErrorPageFallbackPro
 
       <div className="max-w-md">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <AlertTriangle className="text-red-500 w-6 h-6" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-red-600">
+          <AlertTriangle className="text-destructive w-6 h-6" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-destructive">
             Có lỗi xảy ra trong hệ thống
           </h1>
         </div>
@@ -44,15 +44,15 @@ export default function ErrorPageFallback({ error, reset }: ErrorPageFallbackPro
           Vui lòng thử lại hoặc quay về trang chủ.
         </p>
 
-        <div className="bg-gray-100 text-left text-sm rounded-md p-4 text-gray-800 shadow-inner mb-8">
-          <strong className="block font-medium text-red-500 mb-1">Chi tiết kỹ thuật:</strong>
+        <div className="bg-muted text-left text-sm rounded-md p-4 text-muted-foreground shadow-inner mb-8">
+          <strong className="block font-medium text-destructive mb-1">Chi tiết kỹ thuật:</strong>
           <code className="block whitespace-pre-wrap break-words">{error.message}</code>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={reset}
-            className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-md shadow hover:bg-red-700 transition"
+            className="inline-flex items-center justify-center gap-2 bg-red-600 text-foreground px-5 py-2.5 rounded-md shadow hover:bg-red-700 transition"
           >
             <RotateCcw size={18} />
             Thử lại

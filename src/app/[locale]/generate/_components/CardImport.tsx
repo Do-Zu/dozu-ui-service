@@ -180,7 +180,7 @@ const CardImport: React.FC<CardImportProps> = ({
               <TabsContent value="media" className="mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center  transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-border rounded-lg p-6 text-center  transition-colors cursor-pointer"
                     onClick={() => document.getElementById('audio-upload')?.click()}
                   >
                     <input id="audio-upload" type="file" className="hidden" accept="audio/*" />
@@ -190,7 +190,7 @@ const CardImport: React.FC<CardImportProps> = ({
                   </div>
 
                   <div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center  transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-border rounded-lg p-6 text-center  transition-colors cursor-pointer"
                     onClick={() => document.getElementById('video-upload')?.click()}
                   >
                     <input id="video-upload" type="file" className="hidden" accept="video/*" />
@@ -199,7 +199,7 @@ const CardImport: React.FC<CardImportProps> = ({
                     <p className="text-xs ">MP4, MOV, AVI files</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mt-4">
+                <p className="text-xs text-muted-foreground mt-4">
                   Note: Audio and video content will be processed to extract learning material.
                 </p>
               </TabsContent>

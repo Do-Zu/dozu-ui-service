@@ -136,12 +136,12 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
                 activeTranscriptView === 'segments' ? (
                   <div>
                     {transcriptSegments.map((segment, index) => (
-                      <div key={index} className="group p-2 hover:bg-gray-100 rounded">
+                      <div key={index} className="group p-2 hover:bg-muted rounded">
                         <div className="flex items-start gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="mt-0.5  hover:text-blue-600"
+                            className="mt-0.5  hover:text-primary"
                             onClick={() => navigateToTime(segment.startTime)}
                           >
                             <Clock className="h-3 w-3 mr-1" />
@@ -155,12 +155,12 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
                 ) : extractedContent ? (
                   <MarkdownContent content={extractedContent} className="prose max-w-none" />
                 ) : (
-                  <p className="text-gray-500">No content available</p>
+                  <p className="text-muted-foreground">No content available</p>
                 )}
               </div>
               <Button
                 size="sm"
-                className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-800"
+                className="absolute top-2 right-2 bg-muted hover:bg-muted"
                 onClick={() => copyToClipboard(extractedContent)}
               >
                 <Copy className="h-3.5 w-3.5 mr-1" />

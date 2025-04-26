@@ -19,12 +19,12 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
     <div className="space-y-6">
       <div className="p-4 rounded-lg border">
         <div className="flex items-start gap-3">
-          <div className="bg-blue-100 p-2 rounded-full">
-            <Sparkles className="h-5 w-5 text-blue-600" />
+          <div className="bg-primary p-2 rounded-full">
+            <Sparkles className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h3 className="font-medium mb-1">AI Content Analysis</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               We've analyzed your content and identified the following learning methods that would
               work best:
             </p>
@@ -36,7 +36,7 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
         {suggestedMethods.map((method) => (
           <div
             key={method}
-            className={`p-4 rounded-lg border ${selectedMethod === method ? 'border-gray-800 bg-gray-50' : 'border-gray-200'} cursor-pointer transition-all`}
+            className={`p-4 rounded-lg border ${selectedMethod === method ? 'border-border bg-muted' : 'border-border'} cursor-pointer transition-all`}
             onClick={() => handleMethodSelection(method)}
           >
             <div className="flex items-center justify-between">
@@ -54,9 +54,9 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
                 </div>
               </div>
               <div
-                className={`w-5 h-5 rounded-full border ${selectedMethod === method ? 'bg-gray-800 border-gray-800' : 'border-gray-300'} flex items-center justify-center`}
+                className={`w-5 h-5 rounded-full border ${selectedMethod === method ? 'bg-muted border-border' : 'border-border'} flex items-center justify-center`}
               >
-                {selectedMethod === method && <Check className="h-3 w-3 text-white" />}
+                {selectedMethod === method && <Check className="h-3 w-3 text-foreground" />}
               </div>
             </div>
           </div>
