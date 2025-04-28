@@ -7,27 +7,10 @@ const config: Config = {
   darkMode: ['class'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/**/*.{js,ts,jsx,tsx,mdx,css}', 
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './index.html',
   ],
-  //THÊM SAFELIST 
-  safelist: [
-    'bg-[var(--tw-color-bg)]',
-    'text-[var(--tw-color-fg)]',
-    'border-[var(--tw-color-border)]',
-    'text-[var(--tw-color-muted-foreground)]',
-    'bg-[var(--tw-color-muted)]',
-    'text-[var(--tw-color-primary)]',
-    'bg-[var(--tw-color-primary)]',
-  ],
-  // safelist: [
-  //   {
-  //     pattern: /^(bg|text|border)-\[var\(--tw-color-[a-z\-]+\)\]$/,
-  //   },
-  // ],
-  
   theme: {
     container: {
       center: true,
