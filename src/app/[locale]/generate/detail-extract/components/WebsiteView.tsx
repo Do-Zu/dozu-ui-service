@@ -33,14 +33,14 @@ const WebsiteView: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="p-4 bg-gray-50 rounded-md">
+      <div className="p-4 bg-muted rounded-md">
         <h3 className="font-medium text-lg mb-2">Source Website</h3>
-        <p className="text-gray-800">
+        <p className="text-muted-foreground">
           <a
             href={inputUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-blue-600 hover:underline"
+            className="flex items-center gap-1 text-primary hover:underline"
           >
             {extractDomain(inputUrl)} <ExternalLink className="h-3 w-3" />
           </a>
@@ -59,8 +59,8 @@ const WebsiteView: React.FC = () => {
         ) : useProxy ? (
           <div className="relative w-full h-full">
             {loading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-70 z-10">
-                <RefreshCw className="h-8 w-8 text-blue-600 animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center bg-muted bg-opacity-70 z-10">
+                <RefreshCw className="h-8 w-8 text-primary animate-spin" />
               </div>
             )}
             <iframe
@@ -72,16 +72,16 @@ const WebsiteView: React.FC = () => {
             ></iframe>
           </div>
         ) : (
-          <div className="w-full h-full rounded-md border flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+          <div className="w-full h-full rounded-md border flex flex-col items-center justify-center bg-muted p-6 text-center">
             <AlertCircle className="h-12 w-12 text-amber-500 mb-4" />
             <h3 className="text-lg font-medium mb-2">Website cannot be displayed directly</h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               This website has security settings that prevent it from being displayed in an iframe.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={handleUseProxy}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 bg-blue-600 text-foreground px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
               >
                 Use Proxy View <RefreshCw className="h-4 w-4" />
               </button>
@@ -89,7 +89,7 @@ const WebsiteView: React.FC = () => {
                 href={inputUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 border border-gray-300 bg-white px-4 py-2 rounded-md hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 border border-border bg-background px-4 py-2 rounded-md hover:bg-muted transition-colors"
               >
                 Open Website <ExternalLink className="h-4 w-4" />
               </a>

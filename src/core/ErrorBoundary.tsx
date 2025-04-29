@@ -1,48 +1,51 @@
-'use client';
-import { ToastAction } from '@/components/ui/toast';
-import { toast } from '@/hooks/use-toast';
-import React, { Component, ReactNode } from 'react';
+'use client'
+
+import React, { Component, ReactNode } from 'react'
+import ErrorPageFallback from '@/components/errors/ErrorPageFallback'
 
 interface ErrorBoundaryProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 interface ErrorBoundaryState {
-  hasError: boolean;
-  errorMessage: string;
+  hasError: boolean
+  error: Error | null
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
-    super(props);
+    super(props)
     this.state = {
       hasError: false,
-      errorMessage: '',
-    };
+      error: null,
+    }
   }
 
   static getDerivedStateFromError(error: Error) {
-    // Update state to display fallback UI
-    return { hasError: true, errorMessage: error.message };
+    return { hasError: true, error }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log the error to an external service or logging system
-    console.error('Error occurred:', error);
-    console.error('Error info:', errorInfo);
+    console.error('Error caught by ErrorBoundary:', error)
+    console.error('Error info:', errorInfo)
+  }
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: null })
   }
 
   render() {
-    if (this.state.hasError) {
-      toast({
-        title: 'Something went wrong',
-        description: this.state.errorMessage,
-        variant: 'destructive',
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
-      });
+    if (this.state.hasError && this.state.error) {
+      return (
+        <ErrorPageFallback
+          error={this.state.error}
+          reset={this.handleReset}
+        />
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }
-export default ErrorBoundary;
+
+export default ErrorBoundary

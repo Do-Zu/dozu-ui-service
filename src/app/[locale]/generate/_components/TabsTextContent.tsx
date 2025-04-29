@@ -14,17 +14,14 @@ import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import {
   setInputUrl,
   setActiveTab,
-  setContentView,
   setTextContent,
   resetExtractionState,
   extractYouTubeVideoId,
   extractYouTubeTranscript,
   extractWebsiteContent,
-  setExtractionContent,
 } from '@/stores/features/content-extraction/contentExtractionSlice';
 import { useRouter } from 'next/navigation';
 import { setStep } from '@/stores/features/import-dialog/importDialogSlice';
-import { reduceTokenInput } from '../helper/reduceTokenInput';
 
 const TabContent: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -35,11 +32,11 @@ const TabContent: React.FC = () => {
     extractedContent,
     isLoading,
     error: extractionError,
-    contentView,
     videoInfo,
     contentType,
     textContent,
   } = useAppSelector((state) => state.contentExtraction);
+  const { step } = useAppSelector((state) => state.importDialog);
 
   // State to control view switching
   const [showDetailView, setShowDetailView] = useState(false);
@@ -68,25 +65,25 @@ const TabContent: React.FC = () => {
     }
   }, [dispatch, inputUrl]);
 
-  const copyToClipboard = (content: string) => {
-    if (!content) return;
+  // const copyToClipboard = (content: string) => {
+  //   if (!content) return;
 
-    navigator.clipboard
-      .writeText(content)
-      .then(() => {
-        toast({
-          title: 'Copied to clipboard',
-          description: 'The content has been copied to your clipboard',
-        });
-      })
-      .catch(() => {
-        toast({
-          title: 'Failed to copy',
-          description: 'Could not copy to clipboard',
-          variant: 'destructive',
-        });
-      });
-  };
+  //   navigator.clipboard
+  //     .writeText(content)
+  //     .then(() => {
+  //       toast({
+  //         title: 'Copied to clipboard',
+  //         description: 'The content has been copied to your clipboard',
+  //       });
+  //     })
+  //     .catch(() => {
+  //       toast({
+  //         title: 'Failed to copy',
+  //         description: 'Could not copy to clipboard',
+  //         variant: 'destructive',
+  //       });
+  //     });
+  // };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     dispatch(setTextContent(e.target.value));
@@ -136,7 +133,7 @@ const TabContent: React.FC = () => {
   }, [extractionError, dispatch]);
 
   const onCompleteProcess = () => {
-    dispatch(setStep(2));
+    if (step === 1) dispatch(setStep(2));
   };
 
   useEffect(() => {
@@ -191,7 +188,7 @@ const TabContent: React.FC = () => {
             </div>
 
             {videoInfo && contentType === 'youtube' && (
-              <div className="flex gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex gap-4 p-4 bg-muted rounded-lg">
                 {videoInfo.thumbnailUrl && (
                   <img
                     src={videoInfo.thumbnailUrl}
@@ -201,7 +198,7 @@ const TabContent: React.FC = () => {
                 )}
                 <div>
                   <h3 className="font-medium text-lg">{videoInfo.title}</h3>
-                  <p className="text-sm text-gray-500">YouTube transcript extracted successfully</p>
+                  <p className="text-sm text-muted-foreground">YouTube transcript extracted successfully</p>
                 </div>
               </div>
             )}
@@ -237,7 +234,7 @@ const TabContent: React.FC = () => {
               <Button
                 onClick={handleViewDetails}
                 variant="outline"
-                className="flex items-center gap-1 text-blue-600 hover:bg-blue-50"
+                className="flex items-center gap-1 text-primary hover:bg-blue-50"
               >
                 <ExternalLink className="h-4 w-4" />
                 View Full Details

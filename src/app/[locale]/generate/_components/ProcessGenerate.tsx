@@ -8,14 +8,18 @@ interface ProcessGenerateProps {
   isGenerating: boolean;
   onComplete?: (result: any) => void;
   className?: string;
+  progressInitial?: number;
+  status?: string;
 }
 
 const ProcessGenerate: React.FC<ProcessGenerateProps> = ({
   isGenerating,
   onComplete,
   className = '',
+  progressInitial = 0,
+  status = 'processing',
 }) => {
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(progressInitial);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [currentMessage, setCurrentMessage] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -43,9 +47,9 @@ const ProcessGenerate: React.FC<ProcessGenerateProps> = ({
       // Simulate progress - faster at first, then slower
       progressInterval = setInterval(() => {
         setProgress((prev) => {
-          // Fast progress until 90%, then slow down
-          const increment = prev < 30 ? 5 : prev < 60 ? 3 : prev < 90 ? 1 : 0.5;
-          const next = Math.min(prev + increment, 95);
+          // Fast progress until 95%, then slow down
+          const increment = prev < 30 ? 5 : prev < 60 ? 3 : prev < 95 ? 1 : 0.5;
+          const next = Math.min(prev + increment, 99);
 
           // Update time remaining estimate
           if (startTime) {
