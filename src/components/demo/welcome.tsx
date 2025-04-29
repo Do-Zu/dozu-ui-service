@@ -102,7 +102,7 @@ const WelcomeDemo: React.FC = () => {
         <p>{error}</p>
         <button
           onClick={() => refetch()}
-          className="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary/90"
+          className="rounded-md bg-primary px-4 py-2 text-foreground hover:bg-primary/90"
         >
           Try Again
         </button>
@@ -152,7 +152,7 @@ const WelcomeDemo: React.FC = () => {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="rounded-lg border p-4">
                     <div className="flex items-center gap-2">
-                      <Book className="h-5 w-5 text-blue-500" />
+                      <Book className="h-5 w-5 text-primary" />
                       <h4 className="font-medium">API Documentation</h4>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">
@@ -161,7 +161,7 @@ const WelcomeDemo: React.FC = () => {
                   </div>
                   <div className="rounded-lg border p-4">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-green-500" />
+                      <FileText className="h-5 w-5 text-accent" />
                       <h4 className="font-medium">README</h4>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">

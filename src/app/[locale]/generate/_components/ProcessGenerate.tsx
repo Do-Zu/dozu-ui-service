@@ -47,9 +47,9 @@ const ProcessGenerate: React.FC<ProcessGenerateProps> = ({
       // Simulate progress - faster at first, then slower
       progressInterval = setInterval(() => {
         setProgress((prev) => {
-          // Fast progress until 90%, then slow down
-          const increment = prev < 30 ? 5 : prev < 60 ? 3 : prev < 90 ? 1 : 0.5;
-          const next = Math.min(prev + increment, 95);
+          // Fast progress until 95%, then slow down
+          const increment = prev < 30 ? 5 : prev < 60 ? 3 : prev < 95 ? 1 : 0.5;
+          const next = Math.min(prev + increment, 99);
 
           // Update time remaining estimate
           if (startTime) {

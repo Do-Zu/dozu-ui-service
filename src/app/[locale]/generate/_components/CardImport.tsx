@@ -40,6 +40,17 @@ import {
   ALLOWED_VIDEO_TYPES,
 } from '../helper/validate';
 
+export interface ISseData {
+  jobId: string;
+  timestamp: string;
+  status: string;
+  data?: {
+    content: Array<{ q: string; a: string }>;
+    rawText: string;
+    timestamp: string;
+  };
+}
+
 interface CardImportProps {
   onOpenChange?: (open: boolean) => void;
   onComplete?: (data: any) => void;
@@ -237,15 +248,18 @@ const CardImport: React.FC<CardImportProps> = ({
     data: apiResponse,
     error: apiPostContentError,
     execute,
-  } = usePost<unknown, ApiResponsePubGenContent>('/generate/v3/text/llm/flashcards', 'POST');
+  } = usePost<unknown, ApiResponsePubGenContent>('/generate/v3/text/llm', 'POST');
 
   // Setup SSE connection when jobId is available
-  const { data: sseData, status: sseStatus } = useEventSource(
+  const { data: sseData, status: sseStatus } = useEventSource<ISseData>(
     jobId ? `/event/generate/job/${jobId}` : null,
     {
       onMessage: (event) => {
         try {
           const eventData = JSON.parse(event.data);
+
+          console.log({ sseStatus: eventData.status });
+
           setGenerationStatus(eventData.status);
           setGenerationProgress(eventData.progress || 0);
 
@@ -263,13 +277,6 @@ const CardImport: React.FC<CardImportProps> = ({
         } catch (error) {
           console.error('Error processing SSE event:', error);
         }
-      },
-      onError: () => {
-        toast({
-          title: 'Connection Error',
-          description: 'Lost connection to the server. Please try again.',
-          variant: 'destructive',
-        });
       },
     },
   );
@@ -301,9 +308,15 @@ const CardImport: React.FC<CardImportProps> = ({
       dispatch(setStep(2));
     } else if (step === 2) {
       await handleRequestGenContent();
-      dispatch(setStep(3));
+      if (apiPostContentError && !loading) {
+        return;
+      }
+      if (apiPostContentError === 'completed') {
+        dispatch(setStep(3));
+      }
     }
   };
+
   const handleBackPreviousStep = () => {
     if (step == 2) {
       dispatch(resetExtractionState());
@@ -487,7 +500,7 @@ const CardImport: React.FC<CardImportProps> = ({
       case 2:
         return <ContentDetailView />;
       case 3:
-        return <Final />;
+        return <Final sseData={sseData} />;
 
       default:
         return null;
@@ -516,7 +529,7 @@ const CardImport: React.FC<CardImportProps> = ({
     console.log({ sseData });
   }, [sseData]);
 
-  if (loading || (jobId && generationStatus && generationStatus !== 'completed')) {
+  if (jobId && generationStatus && generationStatus !== 'completed') {
     return <ProcessGenerate isGenerating={true} status={sseStatus} />;
   }
 
