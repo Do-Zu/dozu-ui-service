@@ -25,6 +25,7 @@ export default async function LocaleLayout({
   const messages = {
     ...(await import(`../../../messages/${locale}/common.json`)).default,
     ...(await import(`../../../messages/${locale}/home.json`)).default,
+    ...(await import(`../../../messages/${locale}/login.json`)).default,
   };
 
   return (

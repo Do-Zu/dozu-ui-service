@@ -1,0 +1,12 @@
+{
+  "LoginPage": {
+    "title": "Welcome Back",
+    "loginText": "Login to your account",
+    "email": "Email",
+    "password": "Password",
+    "loginButtonText": "Login",
+    "noAccountPrompt": "Don't have an account?",
+    "signUpButtonText": "Sign up",
+    "loginGoogleButtonText":"Login with Google"
+  }
+}
