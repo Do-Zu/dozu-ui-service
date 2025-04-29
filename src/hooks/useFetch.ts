@@ -18,6 +18,7 @@ import { z } from 'zod';
  */
 function useFetch<T, Z = T>(
   param: string | (() => Promise<unknown>),
+  selector?: Function, // selector param, a callback to select param from server response data, currently not apply if param === 'function'
   schema?: z.ZodType<Z>,
   options?: FetchOptions,
 ) {
@@ -35,6 +36,7 @@ function useFetch<T, Z = T>(
       if (typeof param === 'string') {
         const result = await callApiAsync(param, 'GET', options);
         rawData = result.data;
+        if(selector) rawData = selector(rawData); // apply in here to select customized param
       } else if (typeof param === 'function') {
         rawData = await param();
       } else {
@@ -69,7 +71,7 @@ function useFetch<T, Z = T>(
     fetchData();
   }, [fetchData]);
 
-  return { data, loading, error, refetch: fetchData };
+  return { data, setData, loading, error, refetch: fetchData };
 }
 
 export default useFetch;
