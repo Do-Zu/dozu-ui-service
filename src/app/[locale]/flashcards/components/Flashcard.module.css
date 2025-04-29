@@ -1,0 +1,15 @@
+.container {
+    background-color: #fff;
+    width: 55%;
+    height: 70%;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.text {
+    font-size: 28px;
+    font-weight: 500;
+    margin: auto;
+}
+
