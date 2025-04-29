@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { FileText, Link, Video, Upload, File, Mic } from 'lucide-react';
 import { setActiveTab } from '@/stores/features/content-extraction/contentExtractionSlice';
 import { setImportMethod } from '@/stores/features/import-dialog/importDialogSlice';
-import TabContent from '../TabsTextContent';
+import TabContent from '../import/components/TextUrlContentTab';
 
 interface SelectMethodImportProps {
   className?: string;

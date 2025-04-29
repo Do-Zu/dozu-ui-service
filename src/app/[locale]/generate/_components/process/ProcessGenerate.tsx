@@ -133,64 +133,6 @@ const ProcessGenerate: React.FC<ProcessGenerateProps> = ({
       </CardContent>
 
       <style jsx>{`
-        .progress-pulse {
-          position: absolute;
-          top: 0;
-          width: 8px;
-          height: 10px;
-          border-radius: 4px;
-          background-color: #60a5fa;
-          transform: translateX(-50%);
-          filter: blur(2px);
-          box-shadow: 0 0 8px 2px rgba(96, 165, 250, 0.7);
-          animation: pulsate 2s infinite;
-        }
-
-        @keyframes pulsate {
-          0% {
-            opacity: 0.6;
-            box-shadow: 0 0 5px 2px rgba(96, 165, 250, 0.4);
-          }
-          50% {
-            opacity: 1;
-            box-shadow: 0 0 12px 4px rgba(96, 165, 250, 0.8);
-          }
-          100% {
-            opacity: 0.6;
-            box-shadow: 0 0 5px 2px rgba(96, 165, 250, 0.4);
-          }
-        }
-
-        .facts-carousel {
-          position: relative;
-          overflow: hidden;
-          height: 50px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .fact-item {
-          animation: fadeInOut 4s ease-in-out;
-          text-align: center;
-          padding: 0 10px;
-        }
-
-        @keyframes fadeInOut {
-          0% {
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            opacity: 0;
-          }
-        }
-
         .processing-dot-container {
           display: flex;
           gap: 3px;

@@ -1,6 +1,6 @@
 // Add these constants at the top of the file
 const MAX_FILE_SIZE_MB = 4; // 4MB for documents
-const MAX_MEDIA_SIZE_MB = 500; // 50MB for audio/video
+const MAX_MEDIA_SIZE_MB = 50; // 50MB for audio/video
 const MAX_TEXT_LENGTH = 5000; // 5000 tokens (approximate)
 const ALLOWED_FILE_TYPES = ['.pdf', '.doc', '.docx', '.txt'];
 const ALLOWED_AUDIO_TYPES = ['.mp3', '.wav', '.m4a'];

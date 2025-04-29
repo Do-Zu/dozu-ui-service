@@ -5,11 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FileText, Link, Loader2, Copy, ExternalLink } from 'lucide-react';
+import { FileText, Link, Loader2, ExternalLink } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { MarkdownContent } from '@/components/customs/markdown-content';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import {
   setInputUrl,
@@ -20,12 +18,10 @@ import {
   extractYouTubeTranscript,
   extractWebsiteContent,
 } from '@/stores/features/content-extraction/contentExtractionSlice';
-import { useRouter } from 'next/navigation';
 import { setStep } from '@/stores/features/import-dialog/importDialogSlice';
 
 const TabContent: React.FC = () => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const {
     activeTab,
     inputUrl,
@@ -36,6 +32,7 @@ const TabContent: React.FC = () => {
     contentType,
     textContent,
   } = useAppSelector((state) => state.contentExtraction);
+
   const { step } = useAppSelector((state) => state.importDialog);
 
   // State to control view switching
@@ -64,26 +61,6 @@ const TabContent: React.FC = () => {
       console.error('Error during extraction:', err);
     }
   }, [dispatch, inputUrl]);
-
-  // const copyToClipboard = (content: string) => {
-  //   if (!content) return;
-
-  //   navigator.clipboard
-  //     .writeText(content)
-  //     .then(() => {
-  //       toast({
-  //         title: 'Copied to clipboard',
-  //         description: 'The content has been copied to your clipboard',
-  //       });
-  //     })
-  //     .catch(() => {
-  //       toast({
-  //         title: 'Failed to copy',
-  //         description: 'Could not copy to clipboard',
-  //         variant: 'destructive',
-  //       });
-  //     });
-  // };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     dispatch(setTextContent(e.target.value));
@@ -198,7 +175,9 @@ const TabContent: React.FC = () => {
                 )}
                 <div>
                   <h3 className="font-medium text-lg">{videoInfo.title}</h3>
-                  <p className="text-sm text-muted-foreground">YouTube transcript extracted successfully</p>
+                  <p className="text-sm text-muted-foreground">
+                    YouTube transcript extracted successfully
+                  </p>
                 </div>
               </div>
             )}
