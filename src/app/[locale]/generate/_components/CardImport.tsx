@@ -21,6 +21,7 @@ import { setStep } from '@/stores/features/import-dialog/importDialogSlice';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import ProcessGenerate from './process/ProcessGenerate';
 import Final from './steps/Final';
+import { compressContent } from '../helper/compress';
 
 export interface ISseData {
   jobId: string;
@@ -101,19 +102,20 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   const handleRequestGenContent = async () => {
     let content = '';
 
+    // TEMPORARY: for send text content
     if (importMethod === 'file') {
-      //TODO for send file
-    }
-
-    //TODO: for send video or mp3
-
-    if (importMethod === 'text') {
+      content = textContent;
+    } else if (importMethod === 'media') {
+      //TODO: for send video or radio or video content
+    } else if (importMethod === 'text') {
       if (activeTab === 'url') content = extractedContent;
       if (activeTab === 'text') content = textContent;
     }
 
+    const compressedContent = compressContent(content);
+
     await execute({
-      content,
+      content: compressedContent,
       method: importMethod,
       type: selectedMethod,
     });
@@ -178,8 +180,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   useEffect(() => {
     if (apiPostContentError) {
       toast({
-        title: 'Post Fail',
-        description: 'Upload Content Fail. Please try again.',
+        description: apiPostContentError,
         variant: 'destructive',
       });
     }
@@ -189,7 +190,28 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     console.log({ sseData });
   }, [sseData]);
 
-  if (jobId && generationStatus && generationStatus !== 'completed') {
+  useEffect(() => {
+    if (sseStatus === 'error' || sseStatus === 'timeout') {
+      if (step !== 1) {
+        toast({
+          title: sseStatus === 'timeout' ? 'Connection Timeout' : 'Connection Error',
+          description:
+            sseStatus === 'timeout'
+              ? 'The generation process timed out. Please try again with a smaller file.'
+              : 'There was an error with the generation process. Please try again.',
+          variant: 'destructive',
+        });
+        dispatch(setStep(1));
+      }
+    }
+  }, [sseStatus, dispatch, step]);
+
+  if (
+    jobId &&
+    generationStatus &&
+    !['completed', 'failed', 'timeout', 'error'].includes(generationStatus) &&
+    !['error', 'timeout', 'closed'].includes(sseStatus)
+  ) {
     return <ProcessGenerate isGenerating={true} status={sseStatus} />;
   }
 

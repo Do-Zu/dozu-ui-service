@@ -80,9 +80,14 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
   };
 
   const isDisplayPreviewLeftSide = (): boolean => {
-    if (importMethod === 'text' && (textContent.trim().length > 0 || activeTab === 'text')) {
+    if (activeTab !== 'text') {
       return false;
     }
+
+    if (importMethod === 'text' && textContent.trim().length > 0) {
+      return false;
+    }
+
     return true;
   };
 
@@ -153,7 +158,6 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
               )}
             </div>
 
-            {/* Chỉ giữ lại 1 nút Copy chuẩn đẹp */}
             <Button
               size="sm"
               className="absolute top-2 right-2 bg-muted hover:bg-muted"
