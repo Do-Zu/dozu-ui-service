@@ -9,12 +9,12 @@ interface EventSourceOptions {
   onTimeout?: () => void;
 }
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
-const DEFAULT_TIMEOUT_MS = 30000;
+const DEFAULT_TIMEOUT_MS = 60000 * 2; // 2 minutes
 
 export function useEventSource<T>(url: string | null, options: EventSourceOptions = {}) {
   const [data, setData] = useState<T | null>(null);
   const [status, setStatus] = useState<
-    'idle' | 'connecting' | 'open' | 'closed' | 'error' | 'timeout'
+    'idle' | 'connecting' | 'open' | 'closed' | 'error' | 'timeout' | 'completed'
   >('idle');
 
   useEffect(() => {
@@ -42,16 +42,34 @@ export function useEventSource<T>(url: string | null, options: EventSourceOption
     };
 
     eventSource.onerror = (error) => {
-      setStatus('error');
-      if (options.onError) options.onError(error);
+      console.error('EventSource error:', error);
+      setStatus('closed');
       eventSource.close();
       clearTimeout(timeoutId);
     };
 
     eventSource.onmessage = (event) => {
       try {
+        console.log('Received SSE data:', event);
+
         const parsedData = JSON.parse(event.data);
-        setData(parsedData);
+
+        if (parsedData) {
+          setData(parsedData);
+        }
+
+        if (parsedData?.status === 'completed') {
+          setStatus('completed');
+          clearTimeout(timeoutId);
+          setTimeout(() => {
+            eventSource.close();
+          }, 1000);
+        } else if (parsedData?.status === 'error') {
+          setStatus('error');
+          clearTimeout(timeoutId);
+          eventSource.close();
+        }
+
         if (options.onMessage) options.onMessage(event);
       } catch (error) {
         console.error('Failed to parse SSE data:', error);

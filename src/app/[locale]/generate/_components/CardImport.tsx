@@ -28,8 +28,8 @@ export interface ISseData {
   timestamp: string;
   status: string;
   data?: {
-    content: Array<{ q: string; a: string }>;
-    rawText: string;
+    data: Array<{ q: string; a: string }>;
+    text: string;
     timestamp: string;
   };
 }
@@ -54,8 +54,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   );
 
   const [jobId, setJobId] = useState<string | undefined>();
-  const [generationStatus, setGenerationStatus] = useState<string | null>(null);
-  const [generationProgress, setGenerationProgress] = useState<number>(0);
 
   const { step, importMethod, files, selectedMethod, isProcessing } = useAppSelector(
     (state) => state.importDialog,
@@ -71,32 +69,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   // Setup SSE connection when jobId is available
   const { data: sseData, status: sseStatus } = useEventSource<ISseData>(
     jobId ? `/event/generate/job/${jobId}` : null,
-    {
-      onMessage: (event) => {
-        try {
-          const eventData = JSON.parse(event.data);
-
-          console.log({ sseStatus: eventData.status });
-
-          setGenerationStatus(eventData.status);
-          setGenerationProgress(eventData.progress || 0);
-
-          // When generation is complete, move to the final step
-          if (eventData.status === 'completed') {
-            dispatch(setStep(3));
-            onComplete(eventData.result);
-          } else if (eventData.status === 'failed') {
-            toast({
-              title: 'Generation Failed',
-              description: eventData.error || 'Something went wrong generating your content.',
-              variant: 'destructive',
-            });
-          }
-        } catch (error) {
-          console.error('Error processing SSE event:', error);
-        }
-      },
-    },
   );
 
   const handleRequestGenContent = async () => {
@@ -187,31 +159,29 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   }, [apiPostContentError]);
 
   useEffect(() => {
-    console.log({ sseData });
-  }, [sseData]);
+    console.log({ sseData, sseStatus });
 
-  useEffect(() => {
-    if (sseStatus === 'error' || sseStatus === 'timeout') {
-      if (step !== 1) {
-        toast({
-          title: sseStatus === 'timeout' ? 'Connection Timeout' : 'Connection Error',
-          description:
-            sseStatus === 'timeout'
-              ? 'The generation process timed out. Please try again with a smaller file.'
-              : 'There was an error with the generation process. Please try again.',
-          variant: 'destructive',
-        });
-        dispatch(setStep(1));
-      }
+    if (sseStatus === 'timeout' || sseStatus === 'error') {
+      toast({
+        description:
+          sseStatus === 'timeout'
+            ? 'The generation process timed out. Please try again with a smaller file.'
+            : 'There was an error with the generation process. Please try again.',
+        variant: 'destructive',
+      });
+    } else if (sseData && sseStatus === 'completed') {
+      console.log({ sseData });
+
+      dispatch(setStep(3));
+
+      toast({
+        description: 'Your content has been successfully generated.',
+        variant: 'default',
+      });
     }
-  }, [sseStatus, dispatch, step]);
+  }, [sseData, sseStatus]);
 
-  if (
-    jobId &&
-    generationStatus &&
-    !['completed', 'failed', 'timeout', 'error'].includes(generationStatus) &&
-    !['error', 'timeout', 'closed'].includes(sseStatus)
-  ) {
+  if (jobId && sseStatus === 'open') {
     return <ProcessGenerate isGenerating={true} status={sseStatus} />;
   }
 
