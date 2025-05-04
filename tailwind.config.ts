@@ -1,33 +1,16 @@
+import typography from '@tailwindcss/typography';
 import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';
 import tailwindcssAnimate from 'tailwindcss-animate';
-import typography from '@tailwindcss/typography';
 
 const config: Config = {
   darkMode: ['class'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/**/*.{js,ts,jsx,tsx,mdx,css}', 
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './index.html',
   ],
-  //THÊM SAFELIST 
-  safelist: [
-    'bg-[var(--tw-color-bg)]',
-    'text-[var(--tw-color-fg)]',
-    'border-[var(--tw-color-border)]',
-    'text-[var(--tw-color-muted-foreground)]',
-    'bg-[var(--tw-color-muted)]',
-    'text-[var(--tw-color-primary)]',
-    'bg-[var(--tw-color-primary)]',
-  ],
-  // safelist: [
-  //   {
-  //     pattern: /^(bg|text|border)-\[var\(--tw-color-[a-z\-]+\)\]$/,
-  //   },
-  // ],
-  
   theme: {
     container: {
       center: true,
@@ -81,6 +64,17 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        // Override default gray/white/black to prevent color breaking
+        gray: {
+          100: 'hsl(var(--muted))',
+          500: 'hsl(var(--muted-foreground))',
+          900: 'hsl(var(--foreground))',
+        },
+        white: 'hsl(var(--background))',
+        black: 'hsl(var(--foreground))',
+        red: {
+          500: 'hsl(var(--destructive))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -89,20 +83,12 @@ const config: Config = {
       },
       keyframes: {
         'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
         },
       },
       animation: {
