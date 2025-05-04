@@ -11,6 +11,7 @@ import { ArrowLeft, Copy, ExternalLink, Clock } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import WebsiteView from './WebsiteView';
 import SelectMethod from '../../_components/steps/SelectMethod';
+import { useCardImportSelector } from '../../hooks/useReduxStore';
 
 interface ContentDetailViewProps {
   onBack?: () => void;
@@ -32,9 +33,9 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
     transcriptSegments,
     activeTab,
     textContent,
-  } = useAppSelector((state) => state.contentExtraction);
+  } = useCardImportSelector((state) => state.contentExtraction);
 
-  const { importMethod } = useAppSelector((state) => state.importDialog);
+  const { importMethod } = useCardImportSelector((state) => state.importDialog);
 
   const router = useRouter();
   const [activeTranscriptView, setActiveTranscriptView] = useState<'full' | 'segments'>('segments');

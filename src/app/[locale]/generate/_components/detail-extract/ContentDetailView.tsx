@@ -1,16 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MarkdownContent } from '@/components/customs/markdown-content';
-import { useAppSelector } from '@/stores/hooks';
-import { ArrowLeft, Copy, ExternalLink, Clock } from 'lucide-react';
+import { Copy, Clock } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import WebsiteView from './WebsiteView';
 import SelectMethod from '../steps/SelectMethod';
+import { useCardImportSelector } from '../../hooks/useReduxStore';
 
 interface ContentDetailViewProps {
   onBack?: () => void;
@@ -33,11 +32,10 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ onBack }) => {
     transcriptSegments,
     activeTab,
     textContent,
-  } = useAppSelector((state) => state.contentExtraction);
+  } = useCardImportSelector((state) => state.contentExtraction);
 
-  const { importMethod } = useAppSelector((state) => state.importDialog);
+  const { importMethod } = useCardImportSelector((state) => state.importDialog);
 
-  const router = useRouter();
   const [activeTranscriptView, setActiveTranscriptView] = useState<'full' | 'segments'>('segments');
 
   const copyToClipboard = (content: string) => {

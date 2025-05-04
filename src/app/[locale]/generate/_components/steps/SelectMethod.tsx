@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { Sparkles, BookOpen, FileText, Lightbulb, Check, Gamepad2, Map } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { setSelectedMethod } from '@/stores/features/import-dialog/importDialogSlice';
+import { useCardImportSelector, useCardImportDispatch } from '../../hooks/useReduxStore';
+import { setSelectedMethod } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 
 interface SelectMethodProps {}
 
 const SelectMethod: React.FC<SelectMethodProps> = () => {
-  const dispatch = useAppDispatch();
-  const { suggestedMethods, selectedMethod } = useAppSelector((state) => state.importDialog);
+  const dispatch = useCardImportDispatch();
+  const { suggestedMethods, selectedMethod } = useCardImportSelector((state) => state.importDialog);
 
   const handleMethodSelection = (method: string) => {
     dispatch(setSelectedMethod(method));

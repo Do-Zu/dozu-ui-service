@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAppSelector } from '@/stores/hooks';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FlashcardViewer from './FlashcardViewer';
 import { ISseData } from '../CardImport';

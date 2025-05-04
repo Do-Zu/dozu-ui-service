@@ -2,8 +2,11 @@
 
 import React, { memo } from 'react';
 import { Mic, Video, X } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { setFiles, setImportMethod } from '@/stores/features/import-dialog/importDialogSlice';
+import { useCardImportSelector, useCardImportDispatch } from '../../../hooks/useReduxStore';
+import {
+  setFiles,
+  setImportMethod,
+} from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import { toast } from '@/hooks/use-toast';
 import {
   ALLOWED_AUDIO_TYPES,
@@ -14,8 +17,8 @@ import {
 } from '../../../helper/validate';
 
 const MediaTab: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { importMethod, files } = useAppSelector((state) => state.importDialog);
+  const dispatch = useCardImportDispatch();
+  const { importMethod, files } = useCardImportSelector((state) => state.importDialog);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();

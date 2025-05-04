@@ -2,8 +2,7 @@
 
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { Upload, X, File, Loader2 } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { setFiles } from '@/stores/features/import-dialog/importDialogSlice';
+import { setFiles } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import { toast } from '@/hooks/use-toast';
 import {
   ALLOWED_FILE_TYPES,
@@ -12,6 +11,7 @@ import {
   validateFileType,
 } from '../../../helper/validate';
 import useReaderFile from '../../../hooks/useReaderFile';
+import { useCardImportSelector, useCardImportDispatch } from '../../../hooks/useReduxStore';
 
 interface FileUploadAreaProps {
   files: File[];
@@ -136,8 +136,8 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
 };
 
 const FileTab: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { importMethod, files } = useAppSelector((state) => state.importDialog);
+  const dispatch = useCardImportDispatch();
+  const { files } = useCardImportSelector((state) => state.importDialog);
 
   const { text, loading: isLoadingExtractFile, error: errorExtractFile } = useReaderFile();
 

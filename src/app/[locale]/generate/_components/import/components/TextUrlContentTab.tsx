@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { FileText, Link, Loader2, ExternalLink } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
+import { useCardImportSelector, useCardImportDispatch } from '../../../hooks/useReduxStore';
 import {
   setInputUrl,
   setActiveTab,
@@ -17,11 +17,11 @@ import {
   extractYouTubeVideoId,
   extractYouTubeTranscript,
   extractWebsiteContent,
-} from '@/stores/features/content-extraction/contentExtractionSlice';
-import { setStep } from '@/stores/features/import-dialog/importDialogSlice';
+} from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
+import { setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 
 const TabContent: React.FC = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useCardImportDispatch();
   const {
     activeTab,
     inputUrl,
@@ -31,9 +31,9 @@ const TabContent: React.FC = () => {
     videoInfo,
     contentType,
     textContent,
-  } = useAppSelector((state) => state.contentExtraction);
+  } = useCardImportSelector((state) => state.contentExtraction);
 
-  const { step } = useAppSelector((state) => state.importDialog);
+  const { step } = useCardImportSelector((state) => state.importDialog);
 
   // State to control view switching
   const [showDetailView, setShowDetailView] = useState(false);

@@ -1,16 +1,16 @@
 import { memo } from 'react';
-import { setImportMethod } from '@/stores/features/import-dialog/importDialogSlice';
+import { useCardImportSelector, useCardImportDispatch } from '../../hooks/useReduxStore';
+import { setImportMethod } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { FileText, Link, Video } from 'lucide-react';
 import TabContent from './components/TextUrlContentTab';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import FileTab from './components/FileTab';
 import MediaTab from './components/MediaTab';
 
 const Import: React.FC = memo(() => {
-  const dispatch = useAppDispatch();
+  const dispatch = useCardImportDispatch();
 
-  const { importMethod } = useAppSelector((state) => state.importDialog);
+  const { importMethod } = useCardImportSelector((state) => state.importDialog);
 
   return (
     <Tabs

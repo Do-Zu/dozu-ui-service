@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { useEventSource } from '@/hooks/useEventSource';
 import {
   Card,
@@ -16,8 +16,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Import from './import/Import';
-import { resetExtractionState } from '@/stores/features/content-extraction/contentExtractionSlice';
-import { setStep } from '@/stores/features/import-dialog/importDialogSlice';
+import { resetExtractionState } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
+import { setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import ProcessGenerate from './process/ProcessGenerate';
 import Final from './steps/Final';
@@ -48,16 +48,15 @@ interface ApiResponsePubGenContent {
 }
 
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
-  const dispatch = useAppDispatch();
-  const { textContent, extractedContent, activeTab } = useAppSelector(
+  const dispatch = useCardImportDispatch();
+  const { textContent, extractedContent, activeTab } = useCardImportSelector(
     (state) => state.contentExtraction,
+  );
+  const { step, importMethod, files, selectedMethod, isProcessing } = useCardImportSelector(
+    (state) => state.importDialog,
   );
 
   const [jobId, setJobId] = useState<string | undefined>();
-
-  const { step, importMethod, files, selectedMethod, isProcessing } = useAppSelector(
-    (state) => state.importDialog,
-  );
 
   const {
     loading,
@@ -110,7 +109,10 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
 
   const handleBackPreviousStep = () => {
     if (step == 2) {
+      // Reset content(web/url/text) extraction state when go back to step 2
       dispatch(resetExtractionState());
+      // Reset files when go back to step 1
+      dispatch(setFiles([]));
     }
     dispatch(setStep(step - 1));
   };
@@ -126,6 +128,20 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     }
     return true;
   };
+
+  // // Handle confirmation to leave
+  // const handleConfirmLeave = useCallback(() => {
+  //   setPreventNavigation(false);
+  //   setShowNavigationAlert(false);
+  //   setTimeout(() => {
+  //     window.history.back();
+  //   }, 0);
+  // }, [router]);
+
+  // // Handle cancellation of leaving
+  // const handleCancelLeave = useCallback(() => {
+  //   setShowNavigationAlert(false);
+  // }, []);
 
   const renderStepContent = () => {
     switch (step) {
@@ -178,6 +194,10 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         description: 'Your content has been successfully generated.',
         variant: 'default',
       });
+    }
+
+    if (sseData && ['error', 'completed', 'timeout'].includes(sseData.status)) {
+      setJobId(undefined);
     }
   }, [sseData, sseStatus]);
 

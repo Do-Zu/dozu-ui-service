@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { FileText, Link, Video, Upload, File, Mic } from 'lucide-react';
-import { setActiveTab } from '@/stores/features/content-extraction/contentExtractionSlice';
-import { setImportMethod } from '@/stores/features/import-dialog/importDialogSlice';
+import { setActiveTab } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
+import { setImportMethod } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import TabContent from '../import/components/TextUrlContentTab';
 
 interface SelectMethodImportProps {

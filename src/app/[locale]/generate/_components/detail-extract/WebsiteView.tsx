@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
-import { useAppSelector } from '@/stores/hooks';
 import { ExternalLink, AlertCircle, RefreshCw } from 'lucide-react';
+import { useCardImportSelector } from '../../hooks/useReduxStore';
 
 const WebsiteView: React.FC = () => {
-  const { inputUrl } = useAppSelector((state) => state.contentExtraction);
+  const { inputUrl } = useCardImportSelector((state) => state.contentExtraction);
   const [iframeError, setIframeError] = useState(false);
   const [useProxy, setUseProxy] = useState(false);
   const [loading, setLoading] = useState(false);

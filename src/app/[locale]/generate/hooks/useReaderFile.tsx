@@ -6,16 +6,16 @@ import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDFDocumentProxy, TextItem, TextContent } from 'pdfjs-dist/types/src/display/api';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { setTextContent } from '@/stores/features/content-extraction/contentExtractionSlice';
-import { setFiles, setStep } from '@/stores/features/import-dialog/importDialogSlice';
+import { useCardImportSelector, useCardImportDispatch } from './useReduxStore';
+import { setTextContent } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
+import { setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const useReaderFile = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useCardImportDispatch();
 
-  const { files } = useAppSelector((state) => state.importDialog);
+  const { files } = useCardImportSelector((state) => state.importDialog);
 
   const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,7 +38,43 @@ const useReaderFile = () => {
   //   loadPdfLibrary();
   // }, []);
 
-  const handleExtractDocxToText = useCallback(() => {}, []);
+  const handleExtractDocxToText = useCallback(() => {
+    const file = files?.[0];
+    if (!file) {
+      setError('No DOCX file selected');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setText(null);
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      try {
+        const mammoth = await import('mammoth');
+        const arrayBuffer = e.target?.result as ArrayBuffer;
+        if (!arrayBuffer) {
+          setError('Error reading file: Empty content');
+          console.error('Empty content from DOCX file');
+          return;
+        }
+
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        // The raw text content
+        const content = result.value;
+        if (!content) {
+          setError('Error extracting text: Empty content');
+          return;
+        }
+        setText(content);
+      } catch (err) {
+        setError(`Error processing DOCX file`);
+      } finally {
+        setLoading(false);
+      }
+    };
+  }, [files]);
 
   const handleExtractTxtToText = useCallback(() => {
     const file = files?.[0];
