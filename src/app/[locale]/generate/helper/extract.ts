@@ -1,4 +1,4 @@
-import { FlashcardItem } from '../_components/steps/Final';
+import { FlashcardItem } from '../components/steps/Final';
 
 export const extractFlashcardsFromText = (textContent: string): FlashcardItem[] => {
   try {

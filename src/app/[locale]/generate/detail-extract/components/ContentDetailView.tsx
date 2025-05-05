@@ -10,7 +10,7 @@ import { useAppSelector } from '@/stores/hooks';
 import { ArrowLeft, Copy, ExternalLink, Clock } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import WebsiteView from './WebsiteView';
-import SelectMethod from '../../_components/steps/SelectMethod';
+import SelectMethod from '../../components/steps/SelectMethod';
 import { useCardImportSelector } from '../../hooks/useReduxStore';
 
 interface ContentDetailViewProps {
