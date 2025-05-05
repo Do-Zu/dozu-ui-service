@@ -1,0 +1,69 @@
+.container {
+    height: 100vh;
+    background-color: #F3F4F6;
+}
+
+.circle-button {
+    width: 50px; 
+    height: 50px;
+    border-radius: 50%; 
+    border: none; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    font-size: 24px; 
+    cursor: pointer;
+}
+  
+.circle-button.x {
+    background-color: #ffebee; 
+    color: #f44336; 
+}
+  
+.circle-button.check {
+    background-color: #e8f5e9;
+    color: #4caf50; 
+}
+
+.cardContainer {
+    display: flex;
+    width: 55%;
+    height: 70%;
+    perspective: 1000px;
+}
+
+.card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+.front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    backface-visibility: hidden;
+
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    font-weight: 400;
+
+    padding: 20px;
+}
+
+.front {
+    transform: rotateX(0deg);
+}
+
+.back {
+    transform: rotateX(180deg);
+}
+
+.card.flip {
+    transform: rotateX(180deg);
+}
