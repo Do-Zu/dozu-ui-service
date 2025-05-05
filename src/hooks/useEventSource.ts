@@ -24,6 +24,9 @@ export function useEventSource<T>(url: string | null, options: EventSourceOption
     }
 
     setStatus('connecting');
+
+    console.log('Connecting to SSE:', `${BASE_URL}${url}`);
+
     const eventSource = new EventSource(`${BASE_URL}${url}`, {
       withCredentials: options?.withCredentials || false,
     });
