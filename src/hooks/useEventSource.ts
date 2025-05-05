@@ -8,8 +8,8 @@ interface EventSourceOptions {
   timeoutMs?: number;
   onTimeout?: () => void;
 }
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
-const DEFAULT_TIMEOUT_MS = 60000 * 2; // 2 minutes
+const BASE_URL = `${process.env.NEXT_API_STREAM_SSE_URL}/api`;
+const DEFAULT_TIMEOUT_MS = 60000; // 1 minutes
 
 export function useEventSource<T>(url: string | null, options: EventSourceOptions = {}) {
   const [data, setData] = useState<T | null>(null);
