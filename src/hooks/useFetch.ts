@@ -8,7 +8,7 @@ import { z } from 'zod';
  *
  * @param param - Either a URL string to fetch from, or a function that returns a Promise
  * @param schema - Optional Zod schema to validate and parse the response data
- * @param method - The HTTP method to use for the request (GET, POST, etc.)
+ * @param selector - Selector param, a callback to select param from server response data, currently not apply if param === 'function'
  * @param options - Additional options for the API call (headers, body, etc.)
  * @returns {Object} An object containing:
  *   - data: The fetched and validated data or null if not yet loaded
@@ -18,7 +18,7 @@ import { z } from 'zod';
  */
 function useFetch<T, Z = T>(
   param: string | (() => Promise<unknown>),
-  selector?: Function, // selector param, a callback to select param from server response data, currently not apply if param === 'function'
+  selector?: Function,
   schema?: z.ZodType<Z>,
   options?: FetchOptions,
 ) {
@@ -47,12 +47,14 @@ function useFetch<T, Z = T>(
       if (typeof param === 'string') {
         const result = await callApiAsync(param, 'GET', options);
         rawData = result.data;
-        if(selector) rawData = selector(rawData); // apply in here to select customized param
       } else if (typeof param === 'function') {
         rawData = await param();
       } else {
         throw new Error('Invalid parameter: must be a URL string or a function');
       }
+
+      // apply in here to select customized param
+      if (selector && rawData) rawData = selector(rawData);
 
       // Apply Zod validation if schema is provided
       if (schema) {
