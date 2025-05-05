@@ -118,6 +118,7 @@ const Page = () => {
         
     }, [flashcardsExisted]);
 
+    // fix, useEffect is not necessary
     useEffect(() => {
         if(!flashcards) return;
         if(flashcardsCount === flashcardsJump) return;

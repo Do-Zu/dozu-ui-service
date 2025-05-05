@@ -1,11 +1,7 @@
-import { Edit, Trash2 } from 'lucide-react'
-import styles from './Flashcard.module.css'
+// import { fromUnixTime } from 'date-fns'
+// import styles from './Flashcard.module.css'
 
-import { useEffect, useState } from "react"
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import axios from 'axios'
+// import { useEffect, useRef, useState } from "react"
 
 export interface IFlashcard {
     flashcardId: number
@@ -14,84 +10,91 @@ export interface IFlashcard {
     back: string
 }
 
-type IFlashcardUpdated = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'>;
+// function Flashcard(
+//     { 
+//         style, 
+//         flashcard, 
+//         isInitialFront = true, 
+//         autoPlayEnabled = false, 
+//         autoPlaySpeed = 3,
+//         handleNextFlashcardCallback,
+//         isFront = true,
+//         handleFlip
+//     } :
+//     { 
+//         style?: React.CSSProperties, 
+//         flashcard: IFlashcard, 
+//         isInitialFront?: boolean, 
+//         autoPlayEnabled: boolean, 
+//         autoPlaySpeed: number,
+//         handleNextFlashcardCallback: Function,
+//         isFront: boolean,
+//         handleFlip: Function
+//     }
+// ) {
 
-function Flashcard(
-    { flashcard, initialStatus, style } : { flashcard: IFlashcard, initialStatus?: 'front' | 'back', style?: React.CSSProperties }
-) {
+//     const [isMounted, setIsMounted] = useState<boolean>(false);
+//     const containerRef = useRef<HTMLDivElement>(null);
+//     const cardRef = useRef<HTMLDivElement>(null);
 
-    const [status, setStatus] = useState<'front' | 'back'>(() => initialStatus ? initialStatus : 'front');
-    const [front, setFront] = useState<string>(flashcard.front);
-    const [back, setBack] = useState<string>(flashcard.back);
-    
-    useEffect(() => {
-        if(initialStatus) setStatus(initialStatus);
-    }, [initialStatus]);
+//     useEffect(() => {
+//         setIsMounted(true);
+//         if(cardRef.current) {
+//             cardRef.current.style.transform = 'rotateX(0deg)';
+//             cardRef.current.style.transition = 'transform 0.6s';
+//         }
+//     }, []);
 
-    function handleFlip() {
-        setStatus(prevStatus => {
-            return prevStatus === 'front' ? 'back' : 'front';
-        })
-    }
+//     useEffect(() => {
+//         console.log(`Change isFront, isFront: ${isFront}`);
+//         if(!isMounted) return;
+//         if(cardRef.current) {
+//              cardRef.current.style.transform = !isFront ? 'rotateX(180deg)': 'rotateX(0deg)';
+//         }
+//     }, [isFront]);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+//     // đợi 3s -> lật mặt sau (nếu đang front) -> đợi 3s -> next flashcard
 
-    const openModal = () => setIsModalOpen(true);
-  
-    const closeModal = () => setIsModalOpen(false);
+//     useEffect(() => {
+//         if(!autoPlayEnabled) return;
+//         console.log('isFront: ', isFront);
+//         let timer1, timer2: any;
+//         timer1 = setTimeout(() => {
+//             handleFlip();
+//             timer2 = setTimeout(() => {
+//                 if(cardRef.current) {
+//                     cardRef.current.style.transition = 'none';
+//                     cardRef.current.style.transform = 'rotateX(0deg)';
+//                 }
 
-    async function handleSave() {
-        const flashcardUpdated: IFlashcardUpdated = { flashcardId: flashcard.flashcardId, front, back };
-        try {
-            const dataResponse = await axios.put('/flashcards', { flashcardUpdated });
-            console.log(dataResponse);
-        } catch(err) {
-            console.log(err);
-        } 
-    }
+//                 handleNextFlashcardCallback();
 
-    function handleDelete() {
+//                 setTimeout(() => {
+//                     if(cardRef.current) cardRef.current.style.transition = 'transform 0.6s';
+//                 }, 100);
+//             }, autoPlaySpeed)
+//         }, autoPlaySpeed);
 
-    }
+//         return () => {
+//             clearTimeout(timer1);
+//             clearTimeout(timer2);
+//         }
+//     }, [flashcard, autoPlayEnabled, autoPlaySpeed]);
 
-    return (
-        <div className={styles.container} style={style} onClick={handleFlip}>
-            <div style={{ display: 'flex', flexDirection: 'row', padding: 20, justifyContent: 'flex-end', gap: 10 }}>
-                {/* <Edit style={{ cursor: 'pointer'}} onClick={openModal} />
-                <Trash2 style={{ cursor: 'pointer'}} onClick={handleDelete} /> */}
-            </div>
-            <div className={styles.text}>{status === 'front' ? flashcard.front : flashcard.back}</div>
+//     return (
+//         <div className={styles.container} ref={containerRef} onClick={() => handleFlip()}>
+//             <div className={styles.card} ref={cardRef}>
+//                 <div className={styles.front}>
+//                     {flashcard.front}
+//                 </div>
 
-            {isModalOpen && (
-                <div
-                className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
-                onClick={closeModal} 
-                >
-                <div
-                    className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <h2 className="text-xl font-bold mb-4">Edit Flashcard</h2>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <Textarea value={front} onChange={(event) => setFront(event.target.value)}/>
-                        <Textarea value={back} onChange={(event) => setBack(event.target.value)}/>
-                    </div>
+//                 <div className={styles.back}>
+//                     {flashcard.back}
+//                 </div>
+//             </div>
+            
+//         </div>
+//     )
+// }
 
-                    <div className="flex justify-end gap-4" style={{ marginTop: 10 }}>
-                        <Button onClick={handleSave}>
-                            Save
-                        </Button>
-
-                        <Button onClick={closeModal} style={{ backgroundColor: 'red' }}>
-                            Cancel
-                        </Button>
-                    </div>
-                </div>
-                </div>
-            )}
-        </div>
-    )
-}
-
-export default Flashcard;
+// export default Flashcard;
