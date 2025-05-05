@@ -38,7 +38,7 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   NEXT_PUBLIC_APP_NAME: ${{ github.event.inputs.environment == 'Production' && 'DOZU_PRODUCTION' || 'DOZU_DEVELOPMENT' }}
   NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-  NEXT_API_STREAM_SSE_URL: ${{secrets.NEXT_API_STREAM_SSE_URL}}
+  NEXT_PUBLIC_API_STREAM_SSE_URL: ${{ secrets.NEXT_PUBLIC_API_STREAM_SSE_URL }}
 jobs:
   # validate:
   #   runs-on: ubuntu-latest
@@ -68,7 +68,7 @@ jobs:
           echo "NODE_ENV=production" >> .env.production
           echo "NEXT_PUBLIC_APP_NAME=${{ env.NEXT_PUBLIC_APP_NAME }}" >> .env.production
           echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env.production
-          echo "NEXT_API_STREAM_SSE_URL=${{ secrets.NEXT_API_STREAM_SSE_URL }}" >> .env.production
+          echo "NEXT_PUBLIC_API_STREAM_SSE_URL=${{ secrets.NEXT_PUBLIC_API_STREAM_SSE_URL }}" >> .env.production
       - name: Setup Vercel CLI
         run: npm install -g vercel
 
