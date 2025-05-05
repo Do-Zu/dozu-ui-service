@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
 // Dynamically import CardImport with no SSR
-const CardImport = dynamic(() => import('./_components/CardImport'), {
+const CardImport = dynamic(() => import('./components/CardImport'), {
   ssr: false,
   loading: () => (
     <div className="flex justify-center items-center h-screen">
