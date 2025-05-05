@@ -1,4 +1,4 @@
-import { reduceTokenInput } from '@/app/[locale]/generate/helper/reduceTokenInput';
+import { reduceTokenInput } from '../../helper/reduceTokenInput';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 

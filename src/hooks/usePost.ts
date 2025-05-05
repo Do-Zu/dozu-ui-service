@@ -3,6 +3,7 @@ import { FetchOptions, METHOD } from './type';
 import { useCallback, useState } from 'react';
 import { callApiAsync } from './helper';
 import { toast } from './use-toast';
+import { AxiosError } from 'axios';
 
 interface IResultPost<TReq = unknown, TRes = unknown> {
   loading: boolean;
@@ -143,7 +144,7 @@ function usePost<TReq = unknown, TRes = unknown>(
             body: validatedRequestData,
           });
         }
-        
+
         if (onMessageSuccess) {
           onMessageSuccess();
         }
@@ -151,7 +152,16 @@ function usePost<TReq = unknown, TRes = unknown>(
         // Validate response data if schema is provided
         return validateResponse(responseData);
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Unknown error');
+        if (error instanceof AxiosError) {
+          if (error.response?.data) {
+            setError(error?.response?.data?.message);
+          } else {
+            setError(error.message);
+          }
+        } else {
+          setError('Server error!');
+        }
+
         if (onMessageError) {
           onMessageError();
         }
