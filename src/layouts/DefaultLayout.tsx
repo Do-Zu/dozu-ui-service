@@ -4,14 +4,22 @@ import Footer from './components/Footer';
 
 interface LayoutProps {
   children: ReactNode;
+  className?: string;
+  isDisplayHeader?: boolean;
+  isDisplayFooter?: boolean;
 }
 
-const DefaultLayout: React.FC<LayoutProps> = ({ children }) => {
+const DefaultLayout: React.FC<LayoutProps> = ({
+  children,
+  className = '',
+  isDisplayHeader = true,
+  isDisplayFooter = true,
+}) => {
   return (
     <div className="flex flex-col min-h-screen bg-background dark:bg-muted transition-colors">
-      <Header />
-      <main className="flex-grow py-8 px-4 md:px-6 lg:px-8">{children}</main>
-      <Footer />
+      {isDisplayHeader && <Header className="h-[var(--header-height)] min-h-16 flex-shrink-0" />}
+      <main className={`flex-grow h-[var(--main-height)] ${className}`}>{children}</main>
+      {isDisplayFooter && <Footer className="h-[var(--footer-height)] flex-shrink-0" />}
     </div>
   );
 };
