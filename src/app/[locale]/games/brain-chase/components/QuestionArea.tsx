@@ -1,31 +1,87 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
+import { toast } from '@/hooks/use-toast';
+import { useBrainChase } from '../context/brainChaseContext';
 
 interface QuestionAreaProps {
   question: string;
-  timeRemaining: number;
-  timeLimit: number;
-  errorsRemaining: number;
-  score: number;
-  totalQuestions: number;
   currentQuestionNumber: number;
-  gameActive: boolean;
 }
 
-const QuestionArea = ({
-  question = '',
-  timeRemaining = 30,
-  timeLimit = 30,
-  errorsRemaining = 2,
-  score = 0,
-  totalQuestions = 5,
-  currentQuestionNumber = 1,
-  gameActive = false,
-}: QuestionAreaProps) => {
-  // Calculate time progress percentage
-  const timeProgress = (timeRemaining / timeLimit) * 100;
+const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionAreaProps) => {
+  const {
+    gameActive,
+    gamePaused,
+    showSettings,
+    score,
+    errorsRemaining,
+    settings,
+    currentQuestionIndex,
+    handleNextQuestion,
+  } = useBrainChase();
+
+  const [timeRemaining, setTimeRemaining] = useState(settings.timeLimit);
+  const [timeProgress, setTimeProgress] = useState(0);
+  const totalQuestions = Math.min(settings.questionCount, 5);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setTimeRemaining(settings.timeLimit);
+  }, [settings.timeLimit]);
+
+  const handleTimeoutQuestion = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+
+    // Reset time states
+    setTimeRemaining(settings.timeLimit);
+    setTimeProgress(0);
+
+    // Only start a new timer if the game is active and not paused
+    if (!gameActive || gamePaused || showSettings) return;
+
+    const startTime = Date.now();
+    const totalDuration = settings.timeLimit * 1000;
+
+    timerIntervalRef.current = setInterval(() => {
+      // Calculate remaining time based on elapsed time
+      const elapsedMs = Date.now() - startTime;
+      const remainingSecs = Math.max(0, Math.ceil(totalDuration - elapsedMs) / 1000);
+
+      setTimeRemaining(remainingSecs);
+      setTimeProgress((elapsedMs / totalDuration) * 100);
+
+      if (remainingSecs <= 0) {
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+          timerIntervalRef.current = null;
+        }
+
+        toast({
+          description: 'Time is up!',
+          color: '#ccc',
+        });
+
+        handleNextQuestion();
+      }
+    }, 100);
+  };
+
+  useEffect(() => {
+    // Start/restart timer when question changes
+    handleTimeoutQuestion();
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    };
+  }, [currentQuestionIndex, settings.timeLimit, gameActive, gamePaused, showSettings]);
 
   return (
     <div className="w-full h-full bg-background border-t border-border p-4 flex flex-col justify-between">
@@ -49,7 +105,7 @@ const QuestionArea = ({
 
           <div className="mt-2">
             <div className="flex justify-between text-xs mb-1">
-              <span>Time remaining: {timeRemaining}s</span>
+              <span>{timeRemaining.toFixed(0)}s</span>
             </div>
             <Progress value={timeProgress} className="h-2" />
           </div>

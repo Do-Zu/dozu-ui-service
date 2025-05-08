@@ -1,36 +1,51 @@
 'use client';
 
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useBrainChase } from '../context/brainChaseContext';
+import { toast } from '@/hooks/use-toast';
 
 interface AnswerBoxProps {
   id: string;
   text: string;
   isCorrect: boolean;
-  speed?: number; // Speed multiplier
   gameAreaBounds?: { width: number; height: number } | null;
-  position?: { x: number; y: number };
-  isPaused?: boolean;
-  onSelect: (id: string, isCorrect: boolean) => void;
-  onMeasure: (id: string, width: number, height: number) => void;
 }
+interface Position {
+  x: number;
+  y: number;
+}
+const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: AnswerBoxProps) => {
+  const {
+    onCorrectAnswer,
+    onIncorrectAnswer,
+    settings,
+    gameActive: isGameActive,
+    gamePaused: isGamePaused,
+    showSettings: isShowSettings,
+  } = useBrainChase();
 
-const AnswerBox = ({
-  id,
-  text,
-  isCorrect = false,
-  speed = 1,
-  onSelect = () => {},
-  gameAreaBounds = null,
-  isPaused = false,
-}: AnswerBoxProps) => {
   const boxRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [velocity, setVelocity] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [velocity, setVelocity] = useState<Position>({ x: 0, y: 0 });
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [isClicked, setIsClicked] = useState(false);
 
   const animationFrameIdRef = useRef<number>();
-  // Initialize position and velocity
+
+  //Speed multiplier based on game speed setting
+  const speedMultiplier = useMemo(() => {
+    const choices = {
+      slow: 0.5,
+      medium: 1,
+      fast: 2,
+    };
+    return choices[settings.speed];
+  }, [settings.speed]);
+
+  /**
+   * Initialize position and velocity
+   */
   useEffect(() => {
     if (!boxRef.current || !gameAreaBounds) return;
 
@@ -48,8 +63,8 @@ const AnswerBox = ({
     setPosition({ x: randomX, y: randomY });
 
     // Set random initial velocity
-    const baseSpeed = 4;
-    const adjustedSpeed = baseSpeed * speed;
+    const baseSpeed = 3;
+    const adjustedSpeed = baseSpeed * speedMultiplier;
 
     // Random Velocity X value between  -baseSpeed and baseSpeed pixels
     const randomVelocityX = (Math.random() * 2 - 1) * adjustedSpeed;
@@ -57,11 +72,13 @@ const AnswerBox = ({
     const randomVelocityY = (Math.random() * 2 - 1) * adjustedSpeed;
 
     setVelocity({ x: randomVelocityX, y: randomVelocityY });
-  }, [gameAreaBounds, speed]);
+  }, [gameAreaBounds, settings.speed]);
 
-  // Animation loop for movement
+  /**
+   *  Animation loop for movement
+   */
   useEffect(() => {
-    if (!gameAreaBounds || isPaused) return;
+    if (!gameAreaBounds || isGamePaused || isShowSettings) return;
 
     const updatePosition = () => {
       setPosition((prevPosition) => {
@@ -100,19 +117,42 @@ const AnswerBox = ({
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [velocity, gameAreaBounds, dimensions, isPaused]);
+  }, [velocity, gameAreaBounds, dimensions, isGamePaused, isShowSettings]);
 
-  const handleClick = () => {
-    onSelect(id, isCorrect);
+  const handleAnswerClick = () => {
+    if (!isGameActive || isGamePaused || isShowSettings) return;
+
+    setIsClicked(true);
+
+    if (isCorrect) {
+      toast({
+        title: 'Correct Answer',
+      });
+      onCorrectAnswer();
+    } else {
+      toast({
+        description: 'Incorrect Answer',
+        variant: 'destructive',
+      });
+      onIncorrectAnswer();
+    }
   };
+
+  if (isClicked && !isCorrect) return null;
 
   return (
     <div
       ref={boxRef}
       className={cn(
-        'absolute flex items-center justify-center p-4 rounded-lg shadow-md cursor-pointer select-none transition-colors',
+        'absolute flex items-center justify-center p-4 rounded-lg shadow-md cursor-pointer select-none transition-colors hover:scale-50',
         'border-2',
-        isCorrect ? 'bg-white' : 'bg-white', // Both same for now, will be revealed only when selected
+        'hover:shadow-lg',
+        !isCorrect && isClicked ? 'border-red-400' : 'border-green-500',
+        isCorrect && isClicked ? 'border-green-500' : 'border-gray-300',
+        isGamePaused ? 'pointer-events-none' : 'pointer-events-auto',
+        isShowSettings ? 'pointer-events-none' : 'pointer-events-auto',
+        isClicked ? 'opacity-50' : 'opacity-100',
+        isGamePaused ? 'opacity-50' : 'opacity-100',
       )}
       style={{
         left: `${position.x}px`,
@@ -123,7 +163,7 @@ const AnswerBox = ({
         transform: `translate(0, 0)`, // For smoother animation
         willChange: 'transform, left, top', // Performance optimization
       }}
-      onClick={handleClick}
+      onClick={handleAnswerClick}
     >
       <p className="text-center font-medium text-sm md:text-base">{text}</p>
     </div>
