@@ -1,3 +1,6 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/naming-convention */
 import typography from '@tailwindcss/typography';
 import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';
@@ -98,11 +101,31 @@ const config: Config = {
           '80%': { transform: 'translate(2px, -2px) scale(1.2)' },
           '100%': { transform: 'translate(0) scale(1.5)' },
         },
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-out-down': {
+          '0%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(10px)' },
+        },
+        'slide-in-right': {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        'slide-out-left': {
+          '0%': { transform: 'translateX(0)', opacity: '1' },
+          '100%': { transform: 'translateX(-100%)', opacity: '0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         vibrate: 'vibrate 0.5s linear infinite',
+        'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+        'fade-out-down': 'fade-out-down 0.5s ease-out forwards',
+        'slide-in-right': 'slide-in-right 0.5s ease-out forwards',
+        'slide-out-left': 'slide-out-left 0.5s ease-out forwards',
       },
     },
   },

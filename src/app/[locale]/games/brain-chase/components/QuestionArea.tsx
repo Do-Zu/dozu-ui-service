@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { useBrainChase } from '../context/brainChaseContext';
+import { cn } from '@/lib/utils';
 
 interface QuestionAreaProps {
   question: string;
@@ -61,11 +62,6 @@ const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionArea
           timerIntervalRef.current = null;
         }
 
-        toast({
-          description: 'Time is up!',
-          color: '#ccc',
-        });
-
         handleNextQuestion();
       }
     }, 100);
@@ -99,8 +95,8 @@ const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionArea
             </div>
           </div>
 
-          <div className="flex-grow flex items-center justify-center">
-            <h2 className="text-xl font-semibold text-center">{question}</h2>
+          <div className="flex-grow flex items-center justify-center opacity-5 animate-fade-in-up">
+            <h2 className={cn('text-xl font-semibold text-center')}>{question}</h2>
           </div>
 
           <div className="mt-2">

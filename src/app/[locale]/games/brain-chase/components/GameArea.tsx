@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AnswerBox from './AnswerBox';
 import { useBrainChase } from '../context/brainChaseContext';
+import { cn } from '@/lib/utils';
 
 export default function GameArea() {
   const { formattedAnswers: answers } = useBrainChase();
@@ -37,15 +38,23 @@ export default function GameArea() {
       ref={containerRef}
       className="relative w-full h-full bg-background overflow-hidden border-b border-border"
     >
-      {answers.map((answer) => {
+      {answers.map((answer, index) => {
         return (
-          <AnswerBox
+          <div
             key={answer.id}
-            id={answer.id}
-            text={answer.text}
-            isCorrect={answer.isCorrect}
-            gameAreaBounds={containerSize}
-          />
+            className={cn('opacity-0', `animate-fade-in-up`)}
+            style={{
+              animationDelay: `${index * 100}ms`,
+              animationFillMode: 'forwards',
+            }}
+          >
+            <AnswerBox
+              id={answer.id}
+              text={answer.text}
+              isCorrect={answer.isCorrect}
+              gameAreaBounds={containerSize}
+            />
+          </div>
         );
       })}
     </div>

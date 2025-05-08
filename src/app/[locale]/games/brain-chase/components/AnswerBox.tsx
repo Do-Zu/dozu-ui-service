@@ -3,7 +3,6 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useBrainChase } from '../context/brainChaseContext';
-import { toast } from '@/hooks/use-toast';
 
 interface AnswerBoxProps {
   id: string;
@@ -15,6 +14,9 @@ interface Position {
   x: number;
   y: number;
 }
+
+const BASE_SPEED = 2;
+
 const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: AnswerBoxProps) => {
   const {
     onCorrectAnswer,
@@ -63,8 +65,8 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
     setPosition({ x: randomX, y: randomY });
 
     // Set random initial velocity
-    const baseSpeed = 3;
-    const adjustedSpeed = baseSpeed * speedMultiplier;
+
+    const adjustedSpeed = BASE_SPEED * speedMultiplier;
 
     // Random Velocity X value between  -baseSpeed and baseSpeed pixels
     const randomVelocityX = (Math.random() * 2 - 1) * adjustedSpeed;
@@ -142,9 +144,9 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
     <div
       ref={boxRef}
       className={cn(
-        'absolute flex items-center justify-center p-4 rounded-lg shadow-md cursor-pointer select-none transition-color hover:scale-50',
+        'absolute flex items-center justify-center p-4 rounded-lg shadow-md cursor-pointer select-none transition-color',
         'border-2',
-        'hover:shadow-lg',
+        'hover:shadow-lg hover:opacity-75 hover:scale-110',
         isCorrect && isClicked ? 'border-green-500 text-green-600' : 'border-gray-300',
         !isCorrect && isClicked ? 'border-red-600 text-red-500' : '',
         isGamePaused || isShowSettings
@@ -168,4 +170,4 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
   );
 };
 
-export default AnswerBox;
+export default memo(AnswerBox);
