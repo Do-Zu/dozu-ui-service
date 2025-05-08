@@ -19,13 +19,6 @@ export interface IQuestion {
   correctAnswerIdx: number;
 }
 
-export interface SettingValues {
-  speed: 'slow' | 'medium' | 'fast';
-  questionCount: number;
-  timeLimit: number;
-  errorAllowance: number;
-}
-
 // Sample questions - moved from page.tsx
 const sampleQuestions: IQuestion[] = [
   {
@@ -67,19 +60,21 @@ const sampleQuestions: IQuestion[] = [
   },
 ];
 
-export const DEFAULT_SETTINGS: SettingValues = {
+export const DEFAULT_SETTINGS: GameSettings = {
   speed: 'medium', // slow, medium, fast
   questionCount: 5, // 5, 10, 20, unlimited
   timeLimit: 10, // 5-60 seconds
-  errorAllowance: 2, // 1, 2, or 3
+  errorAllowance: 2, // 1, 2, or 3,
+  shuffleQuestions: true,
 };
 
 // Interface for game settings
-interface GameSettings {
+export interface GameSettings {
   speed: 'slow' | 'medium' | 'fast';
   questionCount: number;
   timeLimit: number;
   errorAllowance: number;
+  shuffleQuestions: boolean;
 }
 
 // Interface for the context value
@@ -131,7 +126,7 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
 
   //TODO : shuffled after get from db or setting is setting on
   useEffect(() => {
-    if (gameActive) generateShuffledQuestions();
+    if (gameActive && settings.shuffleQuestions) generateShuffledQuestions();
   }, [gameActive, sampleQuestions]);
 
   /**
@@ -200,7 +195,11 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
 
   //
   const handleShuffledQuestionGame = () => {
-    generateShuffledQuestions();
+    if (settings.shuffleQuestions) {
+      generateShuffledQuestions();
+    } else {
+      setQuestions([...sampleQuestions]);
+    }
     resetStateGame();
   };
 

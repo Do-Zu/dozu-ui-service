@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { DEFAULT_SETTINGS, SettingValues, useBrainChase } from '../context/brainChaseContext';
+import { DEFAULT_SETTINGS, GameSettings, useBrainChase } from '../context/brainChaseContext';
+import { Switch } from '@/components/ui/switch';
 
 export interface SettingProps {
   onOpenChange?: (open: boolean) => void;
@@ -28,7 +29,7 @@ export default function Setting({ onOpenChange }: SettingProps) {
     showSettings: isOpen,
   } = useBrainChase();
 
-  const [settings, setSettings] = useState<SettingValues>(settingInitial);
+  const [settings, setSettings] = useState<GameSettings>(settingInitial);
 
   const handleOpenChange = (newOpen: boolean) => {
     setShowSettings(newOpen);
@@ -169,6 +170,15 @@ export default function Setting({ onOpenChange }: SettingProps) {
               </div>
             </RadioGroup>
           </div>
+        </div>
+
+        <div className="space-y-3 mt-4">
+          <h3 className="font-medium  text-sm">Shuffle Questions</h3>
+          <Switch
+            checked={settings.shuffleQuestions}
+            onCheckedChange={(checked) => setSettings({ ...settings, shuffleQuestions: checked })}
+            aria-label="Toggle question shuffling"
+          />
         </div>
 
         <div className="mt-8 flex justify-end space-x-4">
