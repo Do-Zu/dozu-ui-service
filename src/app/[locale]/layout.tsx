@@ -3,9 +3,6 @@ import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import Providers from '../Providers';
-import { Toaster } from '@/components/ui/toaster';
-import ErrorBoundary from '@/core/ErrorBoundary';
-import Navbar from '@/components/toolbar/Navbar';
 
 export default async function LocaleLayout({
   children,
@@ -27,12 +24,8 @@ export default async function LocaleLayout({
   };
 
   return (
-        <ErrorBoundary>
-          <Providers locale={locale} messages={messages}>
-            <Navbar />
-            {children}
-            <Toaster />
-          </Providers>
-        </ErrorBoundary>
+    <Providers locale={locale} messages={messages}>
+      {children}
+    </Providers>
   );
 }
