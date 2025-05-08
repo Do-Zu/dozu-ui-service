@@ -1,6 +1,10 @@
 'use client';
 
-import AnimationLoading from '@/components/animations/AnimationLoading';
+import dynamic from 'next/dynamic';
+
+const AnimationLoading = dynamic(() => import('@/components/animations/AnimationLoading'), {
+  ssr: false,
+});
 
 export default function LoadingPage() {
   return (
