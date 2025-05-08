@@ -6,6 +6,7 @@ import GameArea from './components/GameArea';
 import QuestionArea from './components/QuestionArea';
 import Setting from './components/Setting';
 import { BrainChaseProvider, useBrainChase } from './context/brainChaseContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 function BrainChaseGame() {
   const {
@@ -44,30 +45,65 @@ function BrainChaseGame() {
         {/* Game controls */}
         {gameActive && (
           <div className="absolute top-4 right-4 flex gap-2">
-            <Button variant="outline" size="icon" onClick={() => togglePause()}>
-              {gamePaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-            </Button>
-            <Button variant="outline" size="icon" onClick={handleShuffledQuestionGame}>
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={() => togglePause()}>
+                    {gamePaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
+                  {gamePaused ? 'Resume Game' : 'Pause Game'}
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={handleShuffledQuestionGame}>
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
+                  Shuffle Questions
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
 
         <div className="absolute top-4 left-4 flex items-center gap-2">
           {gameActive && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="hover:text-red-300 transition-colors"
-              onClick={resetGame}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="hover:text-red-300 transition-colors"
+                    onClick={resetGame}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
+                  Exit Game
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
 
-          <Button variant="outline" size="icon" onClick={() => setShowSettings()}>
-            <Settings className="h-4 w-4" />
-          </Button>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={() => setShowSettings()}>
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
+                Game Settings
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
