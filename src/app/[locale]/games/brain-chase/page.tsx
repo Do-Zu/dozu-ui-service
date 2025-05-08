@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Settings, Play, Pause, RefreshCw } from 'lucide-react';
+import { Settings, Play, Pause, RefreshCw, ArrowLeft } from 'lucide-react';
 import GameArea from './components/GameArea';
 import QuestionArea from './components/QuestionArea';
 import Setting from './components/Setting';
@@ -53,14 +53,22 @@ function BrainChaseGame() {
           </div>
         )}
 
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute top-4 left-4"
-          onClick={() => setShowSettings()}
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
+        <div className="absolute top-4 left-4 flex items-center gap-2">
+          {gameActive && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="hover:text-red-300 transition-colors"
+              onClick={resetGame}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          )}
+
+          <Button variant="outline" size="icon" onClick={() => setShowSettings()}>
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Question area (10% height) */}
