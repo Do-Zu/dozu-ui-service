@@ -19,6 +19,7 @@ function BrainChaseGame() {
     setShowSettings,
     startGame,
     resetGame,
+    handleShuffledQuestionGame,
   } = useBrainChase();
 
   return (
@@ -46,7 +47,7 @@ function BrainChaseGame() {
             <Button variant="outline" size="icon" onClick={() => togglePause()}>
               {gamePaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" size="icon" onClick={resetGame}>
+            <Button variant="outline" size="icon" onClick={handleShuffledQuestionGame}>
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>

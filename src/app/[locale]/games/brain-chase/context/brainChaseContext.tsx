@@ -1,6 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+  useEffect,
+  useCallback,
+} from 'react';
 import useToggle from '@/hooks/useToggle';
 
 // Interface for questions
@@ -98,6 +106,7 @@ interface BrainChaseContextType {
   // Actions
   startGame: () => void;
   resetGame: () => void;
+  handleShuffledQuestionGame: () => void;
   togglePause: () => void;
   onCorrectAnswer: () => void;
   onIncorrectAnswer: () => void;
@@ -115,17 +124,26 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
   const [score, setScore] = useState(0);
   const [errorsRemaining, setErrorsRemaining] = useState(2);
   const [showSettings, setShowSettings] = useToggle<boolean>(false);
+  const [questions, setQuestions] = useState<IQuestion[]>(sampleQuestions);
 
   // Game settings with defaults
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS);
+
+  //TODO : shuffled after get from db or setting is setting on
+  useEffect(() => {
+    if (gameActive) generateShuffledQuestions();
+  }, [gameActive, sampleQuestions]);
 
   /**
    * @description Shuffle questions
    *
    */
-  const handleShuffledQuestions = (questions: IQuestion[]) => {
+  const generateShuffledQuestions = () => {
     const length = questions.length;
     const shuffledQuestions = [...questions];
+
+    const tempFirstCurrentQuestion = questions[0];
+
     for (let index = length - 1; index > 0; index--) {
       const randomIndex = Math.floor(Math.random() * (index + 1));
       [shuffledQuestions[index], shuffledQuestions[randomIndex]] = [
@@ -133,21 +151,24 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
         shuffledQuestions[index],
       ];
     }
-    return shuffledQuestions;
-  };
 
-  // Shuffle questions when the game starts or settings change
-  const shuffledQuestions = useMemo(() => {
-    return handleShuffledQuestions(sampleQuestions);
-  }, [sampleQuestions]);
+    if (tempFirstCurrentQuestion.question === shuffledQuestions[0].question) {
+      [shuffledQuestions[0], shuffledQuestions[length - 1]] = [
+        shuffledQuestions[length - 1],
+        shuffledQuestions[0],
+      ];
+    }
+
+    setQuestions(shuffledQuestions);
+  };
 
   // Format answers for the current question
   const formattedAnswers = useMemo(() => {
-    if (currentQuestionIndex >= shuffledQuestions.length) {
+    if (currentQuestionIndex >= questions.length) {
       return [];
     }
 
-    const currentQ = shuffledQuestions[currentQuestionIndex];
+    const currentQ = questions[currentQuestionIndex];
     const correctIndex = currentQ.correctAnswerIdx;
 
     return currentQ.answers.map((answerText, index) => ({
@@ -155,30 +176,38 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
       text: answerText,
       isCorrect: index === correctIndex,
     }));
-  }, [currentQuestionIndex, shuffledQuestions]);
+  }, [currentQuestionIndex, questions]);
 
   // Get current question
   const currentQuestion = useMemo(() => {
-    if (currentQuestionIndex >= shuffledQuestions.length) {
+    if (currentQuestionIndex >= questions.length) {
       return '';
     }
-    return shuffledQuestions[currentQuestionIndex].question;
-  }, [shuffledQuestions, currentQuestionIndex]);
+    return questions[currentQuestionIndex].question;
+  }, [questions, currentQuestionIndex]);
 
-  // Start game
-  const startGame = () => {
-    setGameActive(true);
+  const resetStateGame = useCallback(() => {
     setCurrentQuestionIndex(0);
     setScore(0);
     setErrorsRemaining(settings.errorAllowance);
+  }, [settings.errorAllowance]);
+
+  // Start game
+  const startGame = () => {
+    resetStateGame();
+    setGameActive(true);
+  };
+
+  //
+  const handleShuffledQuestionGame = () => {
+    generateShuffledQuestions();
+    resetStateGame();
   };
 
   // Reset game
   const resetGame = () => {
     setGameActive(false);
-    setCurrentQuestionIndex(0);
-    setScore(0);
-    setErrorsRemaining(settings.errorAllowance);
+    resetStateGame();
   };
 
   // Handle correct answer
@@ -232,6 +261,7 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
     settings,
     startGame,
     resetGame,
+    handleShuffledQuestionGame,
     togglePause,
     onCorrectAnswer,
     onIncorrectAnswer,
