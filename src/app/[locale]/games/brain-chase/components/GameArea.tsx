@@ -15,9 +15,20 @@ export default function GameArea() {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const container = containerRef.current;
-    const rect = container.getBoundingClientRect();
-    setContainerSize({ width: rect.width, height: rect.height });
+    const updateContainerSize = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      setContainerSize({ width: rect.width, height: rect.height });
+    };
+
+    // Initial size calculation
+    updateContainerSize();
+
+    // Small delay to ensure proper rendering after component mount
+    const initialResizeTimer = setTimeout(updateContainerSize, 100);
+    return () => clearTimeout(initialResizeTimer);
   }, []);
 
   // Handle window resize
@@ -34,10 +45,7 @@ export default function GameArea() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-full bg-background overflow-hidden border-b border-border"
-    >
+    <div ref={containerRef} className="relative w-full h-full bg-background overflow-hidden">
       {answers.map((answer, index) => {
         return (
           <div

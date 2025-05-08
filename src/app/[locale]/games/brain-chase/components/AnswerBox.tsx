@@ -59,16 +59,19 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
     const maxX = gameAreaBounds.width - boxRect.width;
     const maxY = gameAreaBounds.height - boxRect.height;
 
-    const randomX = Math.floor(Math.random() * maxX);
-    const randomY = Math.floor(Math.random() * maxY);
+    // Ensure we stay within bounds even if maxX or maxY are negative
+    const safeMaxX = Math.max(0, maxX);
+    const safeMaxY = Math.max(0, maxY);
+
+    const randomX = Math.floor(Math.random() * safeMaxX);
+    const randomY = Math.floor(Math.random() * safeMaxY);
 
     setPosition({ x: randomX, y: randomY });
 
     // Set random initial velocity
-
     const adjustedSpeed = BASE_SPEED * speedMultiplier;
 
-    // Random Velocity X value between  -baseSpeed and baseSpeed pixels
+    // Random Velocity X value between -baseSpeed and baseSpeed pixels
     const randomVelocityX = (Math.random() * 2 - 1) * adjustedSpeed;
     // Random Velocity Y value between -baseSpeed and baseSpeed pixels
     const randomVelocityY = (Math.random() * 2 - 1) * adjustedSpeed;
@@ -90,7 +93,7 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
         let newVelocityX = velocity.x;
         let newVelocityY = velocity.y;
 
-        // Bounce off walls
+        // Bounce off walls - ensure we stay in bounds
         if (newX <= 0 || newX >= gameAreaBounds.width - dimensions.width) {
           newVelocityX = -velocity.x;
           newX = Math.max(0, Math.min(newX, gameAreaBounds.width - dimensions.width));
@@ -140,32 +143,47 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
     }, 300);
   };
 
+  // Dynamically calculate size based on game area
+  const getResponsiveSizes = () => {
+    if (!gameAreaBounds) return {};
+
+    // Scale sizes based on game area dimensions
+    const minWidth = Math.min(120, gameAreaBounds.width * 0.25);
+    const maxWidth = Math.min(180, gameAreaBounds.width * 0.35);
+    const minHeight = Math.min(60, gameAreaBounds.height * 0.1);
+
+    return {
+      minWidth: `${minWidth}px`,
+      maxWidth: `${maxWidth}px`,
+      minHeight: `${minHeight}px`,
+    };
+  };
+
   return (
     <div
       ref={boxRef}
       className={cn(
-        'absolute flex items-center justify-center p-4 rounded-lg shadow-md cursor-pointer select-none transition-color',
+        'absolute flex items-center justify-center p-3 rounded-lg shadow-md cursor-pointer select-none transition-colors',
         'border-2',
-        'hover:shadow-lg hover:opacity-75 hover:scale-110',
+        'hover:shadow-lg hover:opacity-90',
         isCorrect && isClicked ? 'border-green-500 text-green-600' : 'border-gray-300',
         !isCorrect && isClicked ? 'border-red-600 text-red-500' : '',
         isGamePaused || isShowSettings
           ? 'pointer-events-none opacity-50'
           : 'pointer-events-auto opacity-100',
-        isClicked ? ['animate-vibrate scale-150', 'opacity-0 transition-opacity duration-700'] : '',
+        isClicked ? ['animate-vibrate scale-125', 'opacity-0 transition-opacity duration-700'] : '',
       )}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        minWidth: '120px',
-        minHeight: '60px',
-        maxWidth: '200px',
+        ...getResponsiveSizes(),
         transform: isClicked ? `translate(0, 0) scale(1.5)` : `translate(0, 0)`,
         willChange: 'transform, left, top, opacity',
+        backgroundColor: 'var(--background)',
       }}
       onClick={handleAnswerClick}
     >
-      <p className="text-center font-medium text-sm md:text-base">{text}</p>
+      <p className="text-center font-medium text-xs md:text-sm lg:text-base">{text}</p>
     </div>
   );
 };

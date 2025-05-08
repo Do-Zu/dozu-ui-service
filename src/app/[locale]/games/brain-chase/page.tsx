@@ -24,15 +24,15 @@ function BrainChaseGame() {
   } = useBrainChase();
 
   return (
-    <div className="flex flex-col h-[80vh] bg-background">
-      {/* Game area (90% height) */}
+    <div className="flex flex-col h-[90%] bg-background">
+      {/* Game area */}
       <div className="flex-grow relative h-[90%]">
         {gameActive ? (
           <GameArea />
         ) : (
           <div className="flex flex-col items-center justify-center h-full bg-muted/20">
-            <h1 className="text-4xl font-bold mb-8">Knowledge Game</h1>
-            <p className="text-xl mb-8">
+            <h1 className="text-4xl font-bold mb-4">Knowledge Game</h1>
+            <p className="text-xl mb-6">
               Select the correct answers as they float across the screen!
             </p>
             <Button size="lg" onClick={startGame} className="flex items-center gap-2">
@@ -107,8 +107,8 @@ function BrainChaseGame() {
         </div>
       </div>
 
-      {/* Question area (10% height) */}
-      <div className="h-[10%]">
+      {/* Question area */}
+      <div className="flex items-center justify-center bg-muted/10 px-4 h-[10%]">
         <QuestionArea
           question={gameActive ? currentQuestion : ''}
           currentQuestionNumber={currentQuestionIndex + 1}
@@ -121,7 +121,7 @@ function BrainChaseGame() {
       {/* Game over modal */}
       {!gameActive && score > 0 && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background p-8 rounded-lg max-w-md w-full">
+          <div className="bg-background p-6 rounded-lg max-w-md w-full">
             <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
             <p className="mb-4">
               Your score: {score} out of {Math.min(settings.questionCount, 5)}
@@ -141,8 +141,10 @@ function BrainChaseGame() {
 
 export default function Page() {
   return (
-    <BrainChaseProvider>
-      <BrainChaseGame />
-    </BrainChaseProvider>
+    <div className="h-full w-full">
+      <BrainChaseProvider>
+        <BrainChaseGame />
+      </BrainChaseProvider>
+    </div>
   );
 }
