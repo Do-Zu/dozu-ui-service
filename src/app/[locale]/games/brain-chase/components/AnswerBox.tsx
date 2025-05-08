@@ -122,37 +122,35 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
   const handleAnswerClick = () => {
     if (!isGameActive || isGamePaused || isShowSettings) return;
 
+    if (animationFrameIdRef.current) {
+      cancelAnimationFrame(animationFrameIdRef.current);
+      animationFrameIdRef.current = undefined;
+    }
+
     setIsClicked(true);
 
-    if (isCorrect) {
-      toast({
-        title: 'Correct Answer',
-      });
-      onCorrectAnswer();
-    } else {
-      toast({
-        description: 'Incorrect Answer',
-        variant: 'destructive',
-      });
-      onIncorrectAnswer();
-    }
+    setTimeout(() => {
+      if (isCorrect) {
+        onCorrectAnswer();
+      } else {
+        onIncorrectAnswer();
+      }
+    }, 300);
   };
-
-  if (isClicked && !isCorrect) return null;
 
   return (
     <div
       ref={boxRef}
       className={cn(
-        'absolute flex items-center justify-center p-4 rounded-lg shadow-md cursor-pointer select-none transition-colors hover:scale-50',
+        'absolute flex items-center justify-center p-4 rounded-lg shadow-md cursor-pointer select-none transition-color hover:scale-50',
         'border-2',
         'hover:shadow-lg',
-        !isCorrect && isClicked ? 'border-red-400' : 'border-green-500',
-        isCorrect && isClicked ? 'border-green-500' : 'border-gray-300',
-        isGamePaused ? 'pointer-events-none' : 'pointer-events-auto',
-        isShowSettings ? 'pointer-events-none' : 'pointer-events-auto',
-        isClicked ? 'opacity-50' : 'opacity-100',
-        isGamePaused ? 'opacity-50' : 'opacity-100',
+        isCorrect && isClicked ? 'border-green-500 text-green-600' : 'border-gray-300',
+        !isCorrect && isClicked ? 'border-red-600 text-red-500' : '',
+        isGamePaused || isShowSettings
+          ? 'pointer-events-none opacity-50'
+          : 'pointer-events-auto opacity-100',
+        isClicked ? ['animate-vibrate scale-150', 'opacity-0 transition-opacity duration-700'] : '',
       )}
       style={{
         left: `${position.x}px`,
@@ -160,8 +158,8 @@ const AnswerBox = ({ id, text, isCorrect = false, gameAreaBounds = null }: Answe
         minWidth: '120px',
         minHeight: '60px',
         maxWidth: '200px',
-        transform: `translate(0, 0)`, // For smoother animation
-        willChange: 'transform, left, top', // Performance optimization
+        transform: isClicked ? `translate(0, 0) scale(1.5)` : `translate(0, 0)`,
+        willChange: 'transform, left, top, opacity',
       }}
       onClick={handleAnswerClick}
     >
