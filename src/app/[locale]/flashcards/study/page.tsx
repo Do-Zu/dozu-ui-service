@@ -1,21 +1,26 @@
 'use client'
 
 import useFetch from "@/hooks/useFetch";
-import { IFlashcard } from "../components/Flashcard";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Flashcard, { IFlashcard } from "../components/Flashcard";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import styles from './page.module.css';
-import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, CheckCircle, Clock, Pause, Play, RotateCcw, Settings, Shuffle, SquarePen, XCircle } from "lucide-react";
+import { Angry, BookOpen, ChartNoAxesCombined, CircleAlert, Frown, Laugh, Smile, ThumbsUp } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { putRequest } from "@/api/api";
+import StudyControls from "../components/StudyControls";
 import { Switch } from "@/components/ui/switch";
-
-import { Slider } from "../components/ui/slider";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import BackButton from "../components/BackButton";
 
 const initialAutoPlaySpeed = 3;
+
+type TrackingOption = {
+    icon: any, 
+    label: string,
+    qualityResponse: 0 | 1 | 2 | 3 | 4 | 5
+}
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * (max + 1));
@@ -54,7 +59,7 @@ export default function Page() {
 
     const { 
         data: flashcards, 
-        setData: setFlashcardData, 
+        setData: setFlashcardsData, 
         loading: flashcardLoading, 
         error: flashcardError 
     } 
@@ -63,7 +68,12 @@ export default function Page() {
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
 
     const [isInitialFront, setIsInitialFront] = useState<boolean>(true);
-    const [isFront, setIsFront] = useState<boolean>(isInitialFront);
+    // const [isFront, setIsFront] = useState<boolean>(isInitialFront);
+    const isFrontRef = useRef<boolean>(true);
+
+    // useEffect(() => {
+    //     isFrontRef.current = isFront;
+    // }, [isFront]);
 
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [autoPlayEnabled, setAutoPlayEnabled] = useState<boolean>(false);
@@ -73,8 +83,39 @@ export default function Page() {
 
     const currentFlashcardIndexRef = useRef<number>(0);
 
+    const trackingOptions: TrackingOption[] = [
+        { icon: <Angry size={24} fill="red"/>, label: 'Fail', qualityResponse: 0 },
+        { icon: <Frown size={24} fill="#F6C908"/>, label: 'Incorrect', qualityResponse: 1 },
+        { icon: <CircleAlert size={24} fill="#FFCC4D"/>, label: 'Easy miss', qualityResponse: 2 },
+        { icon: <ThumbsUp size={24} fill="blue" />, label: 'Hard', qualityResponse: 3 },
+        { icon: <Smile size={24} fill="yellow"/>, label: 'Good', qualityResponse: 4 },
+        { icon: <Laugh size={24} fill="yellow"/>, label: 'Easy', qualityResponse: 5 },
+    ]
+
+    const [trackingProgressEnabled, setTrackingProgressEnabled] = useState<boolean>(false);
+    const [shouldTrackCurrentFlashcard, setShouldTrackCurrentFlashcard] = useState<boolean>(false);
+
+    useEffect(() => {
+        function handleKeyDown(event: KeyboardEvent) {
+            const { key } = event;
+            if(key === 'ArrowLeft') handleClickBackFlashcard();
+            else if(key === 'ArrowRight') handleClickNextFlashcard();
+            // tìm cách để handle vụ ko lấy thấy được giá trị mới nhất của state isFront khi ko bỏ isFront vào dependencies
+            else if(key === 'ArrowUp' || key === 'ArrowDown' || key === ' ') {
+                handleManualFlip();
+            } 
+        }
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [flashcards, currentFlashcardIndex]);
+ 
     useEffect(() => {
         currentFlashcardIndexRef.current = currentFlashcardIndex;
+        setShouldTrackCurrentFlashcard(false);
     }, [currentFlashcardIndex]);
     
     const flashcardsShuffled = useMemo(() => {
@@ -92,6 +133,7 @@ export default function Page() {
 
     const currentFlashcard = getCurrentFlashcard();
 
+    const flashcardContainerRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -102,8 +144,10 @@ export default function Page() {
     }, [flashcards]);
 
     function handleClickBackFlashcard() {
-        if(!isFront) {
-            setIsFront(true);
+        // chỉnh state isFront thành isFrontRef để ko phụ thuộc vào isFront
+        if(!isFrontRef.current) {
+            // setIsFront(true);
+            isFrontRef.current = true;
             if(cardRef.current) {
                 cardRef.current.style.transition = 'none';
                 cardRef.current.style.transform = 'rotateX(0deg)';
@@ -112,7 +156,7 @@ export default function Page() {
 
                 setTimeout(() => {
                     if(cardRef.current) cardRef.current.style.transition = 'transform 0.6s';
-                }, 1000);
+                }, 100);
             }
         } else {
             handleBackFlashcard();
@@ -120,8 +164,10 @@ export default function Page() {
     }
 
     function handleClickNextFlashcard() {
-        if(!isFront) {
-            setIsFront(true);
+        // chỉnh state isFront thành isFrontRef để ko phụ thuộc vào isFront
+        if(!isFrontRef.current) {
+            // setIsFront(true);
+            isFrontRef.current = true;
             if(cardRef.current) {
                 cardRef.current.style.transition = 'none';
                 cardRef.current.style.transform = 'rotateX(0deg)';
@@ -130,7 +176,7 @@ export default function Page() {
 
                 setTimeout(() => {
                     if(cardRef.current) cardRef.current.style.transition = 'transform 0.6s';
-                }, 1000);
+                }, 100);
             }
         } else {
             handleNextFlashcard();
@@ -142,7 +188,6 @@ export default function Page() {
     }
 
     function handleNextFlashcard() {
-        console.log(currentFlashcardIndex);
         if(flashcards && currentFlashcardIndex < flashcards.length - 1) setCurrentFlashcardIndex(prevIndex => prevIndex + 1);
     }
  
@@ -153,14 +198,19 @@ export default function Page() {
     }
 
     // không thể lật flashcard khi đang auto
-    function handleNormalFlip() {
+    function handleManualFlip() {
+        if(isFrontRef.current) {
+            setShouldTrackCurrentFlashcard(true);
+        }
+
         if(cardRef.current && !autoPlayEnabled) {
-            cardRef.current.style.transform = isFront ? 'rotateX(180deg)': 'rotateX(0deg)';
-            setIsFront(prev => !prev);
+            cardRef.current.style.transform = isFrontRef.current ? 'rotateX(180deg)': 'rotateX(0deg)';
+            // setIsFront(prev => !prev);
+            isFrontRef.current = !isFrontRef.current;
         }
     }
 
-    function handleClickEdit() {
+    function handleClickEditFlashcards() {
         router.push(`/en/flashcards/edit?topicId=${topicId}`);
     }
 
@@ -171,12 +221,12 @@ export default function Page() {
     // ver2
 
     function handleAutoNextFlashcard() {
-        console.log(currentFlashcardIndexRef);
         if(currentFlashcardIndexRef.current < flashcards!.length - 1) setCurrentFlashcardIndex(prev => prev + 1);
     }
 
     function initTask() {
-        if(isFront) handleAutoFlip();
+        // if(isFront) handleAutoFlip();
+        if(isFrontRef.current) handleAutoFlip();
     
         return setTimeout(() => {
             if(cardRef.current) {
@@ -232,19 +282,53 @@ export default function Page() {
             intervalId = setInterval(() => {
                 repeatedTimerId = repeatTask();
             }, autoPlaySpeed * 1000 * 2);
-        }, isFront ? autoPlaySpeed * 1000 : 0);
+        }, isFrontRef.current ? autoPlaySpeed * 1000 : 0);
         // }, autoPlaySpeed * 1000);
 
         return () => {
             if(cardRef.current) {
-                setIsFront(cardRef.current.style.transform === 'rotateX(0deg)');
+                // setIsFront(cardRef.current.style.transform === 'rotateX(0deg)');
+                isFrontRef.current = cardRef.current.style.transform === 'rotateX(0deg)';
             }
             clearTimeout(mainTimerId);
             clearTimeout(initialTimerId);
             clearInterval(intervalId);
             clearTimeout(repeatedTimerId);
         }
-    }, [isFront, autoPlayEnabled, autoPlaySpeed]);
+    }, [autoPlayEnabled, autoPlaySpeed]);
+
+    function isDateEarlier(date1: Date, date2: Date) {
+        if(date1.getFullYear() !== date2.getFullYear()) return date1.getFullYear() < date2.getFullYear();
+        if(date1.getMonth() !== date2.getMonth()) return date1.getMonth() < date2.getMonth();
+        return date1.getDate() < date2.getDate();
+    }
+
+    function isFlashcardReviewedEarlier(nextReview: string) {
+        let currentDate = new Date(Date.now());
+        let nextReviewDate = new Date(nextReview);
+        return isDateEarlier(nextReviewDate, currentDate);
+    }
+
+    function handleClickPracticeFlashcards() {
+        router.push(`/en/flashcards/practice`);
+    }
+
+    async function handleClickPutToPractice() {
+        if(!currentFlashcard) return;
+        try {
+            const data = await putRequest<{}, { data: { flashcardUpdated: { status: 'new' | 'practice' } } }>(`/flashcards/${currentFlashcard.flashcardId}/put-to-practice`, {});
+            console.log(data);
+            const { flashcardUpdated } = data.data;
+            console.log(flashcardUpdated);
+            const flashcardsUpdated = flashcards!.map((flashcard) => {
+                return flashcard.flashcardId === currentFlashcard.flashcardId ? {...flashcard, status: flashcardUpdated.status} : flashcard
+            })
+            console.log(flashcardsUpdated);
+            setFlashcardsData(flashcardsUpdated);
+        } catch(err) {
+            console.log(err);
+        }
+    }
 
     if(flashcardLoading === true || !flashcards || !currentFlashcard) {
         return (
@@ -258,284 +342,112 @@ export default function Page() {
         )
     }
 
-    function renderProgressSection(style: string) {
-        if(!flashcards) return null;
-        const progress = parseInt((currentFlashcardIndex / (flashcards.length - 1) * 100).toFixed(0));
-        return (
-            <div className={style}>
-                <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">
-                    Card {currentFlashcardIndex + 1} of {flashcards.length}
-                </span>
-                <span className="text-sm text-gray-600">{progress}% Complete</span>
-                </div>
-                <Progress value={progress} className="h-2" />
-            </div>
-        )
-    }
-
-    function renderToolTipSection(style: string) {
-        return (
-            <div className={style}>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-10 w-10 rounded-full"
-                            onClick={handleClickBackFlashcard}
-                        >
-                            <ArrowLeft className="h-5 w-5" />
-                        </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>Previous card</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-12 w-12 rounded-full bg-red-50 hover:bg-red-100 border-red-200"
-                        >
-                            <XCircle className="h-6 w-6 text-red-500" />
-                        </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>Mark as unknown</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-14 w-14 rounded-full bg-gray-200 hover:bg-gray-300"
-                            onClick={() => setIsPlaying(!isPlaying)}
-                        >
-                            {isPlaying ? <Pause className="h-7 w-7" /> : <Play className="h-7 w-7" />}
-                        </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>{isPlaying ? "Pause" : "Play"} study session</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-12 w-12 rounded-full bg-green-50 hover:bg-green-100 border-green-200"
-                        >
-                            <CheckCircle className="h-6 w-6 text-green-500" />
-                        </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>Mark as known</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-10 w-10 rounded-full"
-                            onClick={handleClickNextFlashcard}
-                        >
-                            <ArrowRight className="h-5 w-5" />
-                        </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>Next card</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-        )
-    }
-
-    function renderAutoPlaySection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <Clock size={16}/>
-                    <Label className="text-sm text-gray-600">Auto-play</Label>
-                </div>
-                <Switch checked={autoPlayEnabled} onCheckedChange={() => setAutoPlayEnabled(!autoPlayEnabled)} />
-            </div>
-        )
-    }
-
-    function renderShuffleSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <Shuffle size={16}/>
-                    <Label className="text-sm text-gray-600">Shuffle</Label>
-                </div>
-                <Switch checked={shuffleEnabled} onCheckedChange={() => setShuffleEnabled(!shuffleEnabled)} />
-            </div>
-        )
-    }
-
-    function renderEditSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row-items-center gap-2">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant='ghost'
-                                    size='sm'
-                                    className='h-8 px-2 text-gray-600'
-                                    onClick={handleClickEdit}
-                                >
-                                    <SquarePen className="h-4 w-4 mr-1"/>
-                                    <span className="text-sm text-gray-600">Edit</span>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                            <p>Edit Flashcards</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-            </div>
-        )
-    }
-
-    function renderResetProgressSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    {/* <RotateCcw size={16} onClick={handleResetProgress}/>
-                    <Label className="text-gray-600" style={{ fontSize: 12 }}>Reset Progress</Label> */}
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleResetProgress}
-                                    className="h-8 px-2 text-gray-600"
-                                    // disabled={autoPlayEnabled}
-                                >
-                                    <RotateCcw className="h-4 w-4 mr-1" />
-                                    <span className="text-gray-600">Reset Progress</span>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                            <p>Reset study session</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-                <Settings/>
-            </div>
-        )
-    }
-
-    function renderAutoPlaySpeedSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <Clock size={16}/>
-                    <Label className="text-sm text-gray-600">Speed: {autoPlaySpeed}s</Label>
-                </div>
-                <div>
-                    <Slider
-                        min={1}
-                        max={5}
-                        step={1}
-                        value={[autoPlaySpeed]}
-                        onValueChange={(value) => setAutoPlaySpeed(value[0])}
-                    />
-                </div>
-            </div>
-        )
-    }
-
     function renderFlashcardButtonsSection(style: string) {
+        const buttonStyle = 'w-[50px] h-[50px] rounded-full border-none flex justify-center items-center text-[24px] cursor-pointer';
         return (
             <div className={style}>
-                <button onClick={handleClickBackFlashcard} className={`${styles['circle-button']} ${styles.x}`}>X</button>
-                <div>{currentFlashcardIndex + 1} / { flashcards!.length} </div>
-                <button onClick={handleClickNextFlashcard} className={`${styles['circle-button']} ${styles.check}`}>✓</button>
-            </div>
-        )
-    }
+                <div className="col-start-2 col-end-3 flex flex-row gap-4 items-center">
+                    <button 
+                        onClick={handleClickBackFlashcard} 
+                        className={`${buttonStyle} bg-[#ffebee] text-[#f44336]`}
+                    > 
+                        X
+                    </button>
 
-    function renderMainFlashcardSection() {
-        if(!currentFlashcard) return;
-        return (
-            <div className={styles.cardContainer} onClick={() => handleNormalFlip()}>
-                <div className={styles.card} ref={cardRef}>
-                    <div className={styles.front}>
-                        {currentFlashcard.front}
-                    </div>
-    
-                    <div className={styles.back}>
-                        {currentFlashcard.back}
-                    </div>
+                    <div>{currentFlashcardIndex + 1} / { flashcards!.length} </div>
+
+                    <button 
+                        onClick={handleClickNextFlashcard} 
+                        className={`${buttonStyle} bg-[#e8f5e9] text-[#4caf50]`}
+                    >
+                        ✓
+                    </button>
                 </div>
+
+                {/* if status is 'new', put to practice */}
+                {currentFlashcard?.status === 'new' ? 
+                    <Button className="w-[75%]" onClick={handleClickPutToPractice}>
+                        Put to Practice
+                    </Button> : null
+                }
             </div>
         )
     }
 
+    function renderPracticeSection() {
+        return (
+            <div className="flex flex-row">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant='ghost'
+                                size='sm'
+                                className='h-8 px-2 text-gray-600 p-0'
+                                onClick={handleClickPracticeFlashcards}
+                            >
+                                <BookOpen className="h-4 w-4 mr-1"/>
+                                <span className="text-sm text-gray-600">Practice</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Practice Flashcards</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+        )
+    }
+
+    console.log(flashcards);
+    // console.log(isFlashcardReviewedEarlier(('2023-05-06'))); // yyyy-mm-dd
     return (
-        <div style={{ display: 'flex', height: '90vh', backgroundColor: '#F3F4F6' }}>
-            <div style={{ display: 'flex', flex: 1, flexDirection: 'column', margin: 5, marginBottom: 0, padding: 20 }}>
-                <div style={{ backgroundColor: '#fff', padding: 10 }}>Back Study Concepts</div>
-                <div style={{ flex: 1, backgroundColor: '#F9FAFB', padding: 20 }} className="grid grid-cols-11 gap-5">
+        <div className="flex bg-[#F3F4F6] h-[90vh]">
+            <div className="flex flex-1 flex-col m-1.25 mb-0 p-5">
+                <div className="bg-[#fff] p-2.5">
+                    <BackButton/>
+                </div>
+                <div className="flex flex-1 bg-[#F9FAFB] p-5 grid grid-cols-11 gap-5">
 
                     {/* Main Flashcard Section */}
-                    <div style={{ backgroundColor: '#F3F4F6' }} className="col-span-8 flex flex-col justify-center items-center">
+                    <div className="bg-[#F3F4F6] col-span-8 flex flex-col items-center justify-center">
                         
-                        {renderMainFlashcardSection()}
-                        {renderFlashcardButtonsSection('flex flex-row gap-4 items-center mt-4')}
+                        {/* {renderMainFlashcardSection()} */}
+                        <Flashcard 
+                            style="flex w-[55%] h-[70%] mt-4" 
+                            cardContainerRef={flashcardContainerRef} 
+                            cardRef={cardRef}
+                            handleManualFlip={handleManualFlip}
+                            flashcard={currentFlashcard}
+                        />
+
+                        {renderFlashcardButtonsSection('grid grid-cols-3 mt-4 gap-4')}
+                        {/* {renderFlashcardButtonsSection('grid grid-cols-3 flex flex-row gap-4 mt-4 items-center')} */}
+                        {/* {shouldTrackCurrentFlashcard && isFlashcardReviewedEarlier(currentFlashcard.nextReview) ? 
+                            renderTrackingOptionsSection('') : renderFlashcardButtonsSection('flex flex-row gap-4 items-center mt-4')
+                        } */}
+
                     </div>
 
                     {/* Study Control Section */}
-                    <div style={{ backgroundColor: '#F3F4F6' }} className="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6">
-
-                        {renderProgressSection('')}
-                        {renderToolTipSection('flex justify-center items-center gap-4')}
-
-                        <div className="grid grid-cols-12 gap-3">
-
-                            {renderAutoPlaySection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-                            {renderResetProgressSection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-
-                            <div className="col-span-6">
-                                {renderAutoPlaySpeedSection('flex flex-col gap-2')}
-                            </div>
-
-                            <div className="col-span-6">
-                                {/* Hi */}
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-12 gap-3">
-                            {renderShuffleSection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-                            {renderEditSection('col-span-6')}
-                        </div>
-
-                    </div>
+                    <StudyControls 
+                        style="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6 bg-[#F3F4F6]"
+                        currentFlashcardIndex={currentFlashcardIndex} 
+                        flashcardsLength={flashcards.length}
+                        handleClickBackFlashcard={handleClickBackFlashcard}
+                        handleClickNextFlashcard={handleClickNextFlashcard}
+                        isPlaying={isPlaying}
+                        handleClickIsPlaying={() => setIsPlaying(!isPlaying)}
+                        autoPlayEnabled={autoPlayEnabled}
+                        handleOnChangeAutoPlayEnabled={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                        handleResetProgress={handleResetProgress}
+                        autoPlaySpeed={autoPlaySpeed}
+                        handleOnChangeAutoPlaySpeed={(value) => setAutoPlaySpeed(value[0])}
+                        shuffleEnabled={shuffleEnabled}
+                        handleOnChangeShuffleEnabled={() => setShuffleEnabled(!shuffleEnabled)}
+                        handleClickEditFlashcards={handleClickEditFlashcards}
+                        CustomElement={renderPracticeSection()}
+                    />
                 </div>
             </div>
         </div>

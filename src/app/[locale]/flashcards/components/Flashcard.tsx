@@ -1,100 +1,46 @@
-// import { fromUnixTime } from 'date-fns'
-// import styles from './Flashcard.module.css'
-
-// import { useEffect, useRef, useState } from "react"
+import React from "react"
 
 export interface IFlashcard {
     flashcardId: number
     topicId: number
     front: string
-    back: string
+    back: string,
+    status: 'new' | 'practice',
+    // nextReview: string // todo: nextReview có vẻ ko cần, loại field này khỏi data API trả về 
 }
 
-// function Flashcard(
-//     { 
-//         style, 
-//         flashcard, 
-//         isInitialFront = true, 
-//         autoPlayEnabled = false, 
-//         autoPlaySpeed = 3,
-//         handleNextFlashcardCallback,
-//         isFront = true,
-//         handleFlip
-//     } :
-//     { 
-//         style?: React.CSSProperties, 
-//         flashcard: IFlashcard, 
-//         isInitialFront?: boolean, 
-//         autoPlayEnabled: boolean, 
-//         autoPlaySpeed: number,
-//         handleNextFlashcardCallback: Function,
-//         isFront: boolean,
-//         handleFlip: Function
-//     }
-// ) {
+interface Props {
+    style?: string
+    handleManualFlip?: Function
+    cardContainerRef: React.RefObject<HTMLDivElement>
+    cardRef: React.RefObject<HTMLDivElement>
+    flashcard: IFlashcard
+}
 
-//     const [isMounted, setIsMounted] = useState<boolean>(false);
-//     const containerRef = useRef<HTMLDivElement>(null);
-//     const cardRef = useRef<HTMLDivElement>(null);
+export default function Flashcard(props: Props) {
+    const { style, handleManualFlip = () => {}, cardContainerRef, cardRef, flashcard } = props;
+    return (
+        <div className={style} onClick={() => handleManualFlip()} ref={cardContainerRef}>
+            <div 
+                className='relative w-full h-full' 
+                style={{ transformStyle: 'preserve-3d' }} 
+                ref={cardRef}
+            >
+                <div 
+                    className='absolute w-full h-full rounded-lg bg-white flex justify-center items-center text-[28px] font-normal p-5' 
+                    style={{ transform: 'rotateX(0deg)', backfaceVisibility: 'hidden' }}
+                >
+                    {flashcard.front}
+                </div>
 
-//     useEffect(() => {
-//         setIsMounted(true);
-//         if(cardRef.current) {
-//             cardRef.current.style.transform = 'rotateX(0deg)';
-//             cardRef.current.style.transition = 'transform 0.6s';
-//         }
-//     }, []);
+                <div 
+                    className='absolute w-full h-full rounded-lg bg-white flex justify-center items-center text-[28px] font-normal p-5' 
+                    style={{ transform: 'rotateX(180deg)', backfaceVisibility: 'hidden' }}
+                >
+                    {flashcard.back}
+                </div>
+            </div>
+        </div>
+    )
 
-//     useEffect(() => {
-//         console.log(`Change isFront, isFront: ${isFront}`);
-//         if(!isMounted) return;
-//         if(cardRef.current) {
-//              cardRef.current.style.transform = !isFront ? 'rotateX(180deg)': 'rotateX(0deg)';
-//         }
-//     }, [isFront]);
-
-//     // đợi 3s -> lật mặt sau (nếu đang front) -> đợi 3s -> next flashcard
-
-//     useEffect(() => {
-//         if(!autoPlayEnabled) return;
-//         console.log('isFront: ', isFront);
-//         let timer1, timer2: any;
-//         timer1 = setTimeout(() => {
-//             handleFlip();
-//             timer2 = setTimeout(() => {
-//                 if(cardRef.current) {
-//                     cardRef.current.style.transition = 'none';
-//                     cardRef.current.style.transform = 'rotateX(0deg)';
-//                 }
-
-//                 handleNextFlashcardCallback();
-
-//                 setTimeout(() => {
-//                     if(cardRef.current) cardRef.current.style.transition = 'transform 0.6s';
-//                 }, 100);
-//             }, autoPlaySpeed)
-//         }, autoPlaySpeed);
-
-//         return () => {
-//             clearTimeout(timer1);
-//             clearTimeout(timer2);
-//         }
-//     }, [flashcard, autoPlayEnabled, autoPlaySpeed]);
-
-//     return (
-//         <div className={styles.container} ref={containerRef} onClick={() => handleFlip()}>
-//             <div className={styles.card} ref={cardRef}>
-//                 <div className={styles.front}>
-//                     {flashcard.front}
-//                 </div>
-
-//                 <div className={styles.back}>
-//                     {flashcard.back}
-//                 </div>
-//             </div>
-            
-//         </div>
-//     )
-// }
-
-// export default Flashcard;
+}
