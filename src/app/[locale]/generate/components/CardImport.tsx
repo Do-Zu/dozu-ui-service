@@ -195,10 +195,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         variant: 'default',
       });
     }
-
-    if (sseData && ['error', 'completed', 'timeout'].includes(sseData.status)) {
-      setJobId(undefined);
-    }
   }, [sseData, sseStatus]);
 
   if (jobId && sseStatus === 'open') {
