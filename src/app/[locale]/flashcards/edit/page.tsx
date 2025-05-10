@@ -9,6 +9,7 @@ import { ArrowBigLeft, Edit, Import, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IFlashcard } from "../components/Flashcard";
 import useFetch from "@/hooks/useFetch";
+import BackButton from "../components/BackButton";
 
 interface IBasicFlashcard {
     id: number
@@ -264,37 +265,34 @@ const Page = () => {
 
     // console.log(flashcards);
     return (
-        <div style={{ padding: '30px 70px', backgroundColor: '#F9FAFB' }}>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: 15 }}>
-                    <Button onClick={handleClickBack} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <ArrowBigLeft/>
-                        <div style={{ fontSize: 14 }}>Back</div>
-                    </Button>
-                    <div style={{ color: '#1F2937', fontSize: 24, fontWeight: 'bold' }}>My Flashcards</div>
+        <div className="px-[4rem] py-7 bg-[#F9FAFB]">
+            <div className="flex flex-row justify-between">
+                <div className="flex flex-row gap-4 items-center">
+                    <BackButton/>
+                    <div className="text-[#1F2937] text-[1.7rem] font-bold">My Flashcards</div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: 15 }}>
-                    <Button style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Import style={{ alignSelf: 'center' }} size={24}/> 
-                        <div style={{ fontSize: 14 }}>Import</div>
+                <div className="flex flex-row gap-4">
+                    <Button className="flex flex-row items-center">
+                        <Import size={24}/> 
+                        <div className="text-base">Import</div>
                     </Button>
 
-                    <Button onClick={handleSave} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Save style={{ alignSelf: 'center' }} size={24}/> 
-                        <div style={{ fontSize: 14 }}>Save</div>
+                    <Button onClick={handleSave} className="flex flex-row items-center">
+                        <Save size={24}/> 
+                        <div className="text-base">Save</div>
                     </Button>
                 </div>
             </div>
             
-            <div className="grid grid-cols-12 gap-8 flex flex-col" style={{ marginTop: 30 }}>
+            <div className="grid grid-cols-12 gap-8 flex flex-col mt-7">
 
                 {flashcards?.map((flashcard, index) => {
                     if(flashcard.serverInfo?.isDeleted) return null;
                     return (
-                        <div key={flashcard.id} style={{ borderRadius: 12 }} className="col-span-4 bg-white p-8 text-center gap-4 flex flex-col gap-4">
+                        <div key={flashcard.id} className="col-span-4 bg-white p-8 text-center gap-4 flex flex-col gap-4 rounded-xl">
                             <div className="flex flex-rol gap-4 justify-end">
-                                <Edit size={20} style={{ cursor: 'pointer' }}/>
-                                <Trash2 size={20} style={{ cursor: 'pointer' }} onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}/>
+                                <Edit size={20} className="cursor-pointer"/>
+                                <Trash2 size={20} className="cursor-pointer" onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}/>
                             </div>
                             <div className="flex flex-col gap-4">
                                 <Textarea 
