@@ -1,10 +1,11 @@
 // Add these constants at the top of the file
 const MAX_FILE_SIZE_MB = 4; // 4MB for documents
-const MAX_MEDIA_SIZE_MB = 500; // 50MB for audio/video
+const MAX_MEDIA_SIZE_MB = 50; // 50MB for audio/video
 const MAX_TEXT_LENGTH = 5000; // 5000 tokens (approximate)
 const ALLOWED_FILE_TYPES = ['.pdf', '.doc', '.docx', '.txt'];
 const ALLOWED_AUDIO_TYPES = ['.mp3', '.wav', '.m4a'];
 const ALLOWED_VIDEO_TYPES = ['.mp4', '.mov', '.avi'];
+const MAX_CONTENT_SIZE_KB = 256;
 
 const validateFileSize = (file: File, isMedia = false): boolean => {
   const maxSizeMB = isMedia ? MAX_MEDIA_SIZE_MB : MAX_FILE_SIZE_MB;
@@ -36,6 +37,7 @@ export {
   MAX_FILE_SIZE_MB,
   MAX_MEDIA_SIZE_MB,
   MAX_TEXT_LENGTH,
+  MAX_CONTENT_SIZE_KB,
   validateFileSize,
   validateFileType,
   validateMediaType,

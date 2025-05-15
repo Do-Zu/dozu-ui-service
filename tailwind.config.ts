@@ -1,7 +1,10 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/naming-convention */
+import typography from '@tailwindcss/typography';
 import type { Config } from 'tailwindcss';
 import defaultTheme from 'tailwindcss/defaultTheme';
 import tailwindcssAnimate from 'tailwindcss-animate';
-import typography from '@tailwindcss/typography';
 
 const config: Config = {
   darkMode: ['class'],
@@ -64,6 +67,17 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        // Override default gray/white/black to prevent color breaking
+        gray: {
+          100: 'hsl(var(--muted))',
+          500: 'hsl(var(--muted-foreground))',
+          900: 'hsl(var(--foreground))',
+        },
+        white: 'hsl(var(--background))',
+        black: 'hsl(var(--foreground))',
+        red: {
+          500: 'hsl(var(--destructive))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -72,25 +86,46 @@ const config: Config = {
       },
       keyframes: {
         'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+        vibrate: {
+          '0%': { transform: 'translate(0) scale(0.5)' },
+          '20%': { transform: 'translate(-2px, 2px) scale(1.2)' },
+          '40%': { transform: 'translate(-2px, -2px) scale(1.2)' },
+          '60%': { transform: 'translate(2px, 2px) scale(1.2)' },
+          '80%': { transform: 'translate(2px, -2px) scale(1.2)' },
+          '100%': { transform: 'translate(0) scale(1.5)' },
+        },
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-out-down': {
+          '0%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(10px)' },
+        },
+        'slide-in-right': {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        'slide-out-left': {
+          '0%': { transform: 'translateX(0)', opacity: '1' },
+          '100%': { transform: 'translateX(-100%)', opacity: '0' },
         },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        vibrate: 'vibrate 0.5s linear infinite',
+        'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+        'fade-out-down': 'fade-out-down 0.5s ease-out forwards',
+        'slide-in-right': 'slide-in-right 0.5s ease-out forwards',
+        'slide-out-left': 'slide-out-left 0.5s ease-out forwards',
       },
     },
   },
