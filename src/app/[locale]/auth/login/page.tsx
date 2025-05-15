@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
-// import { motion } from "framer-motion"
 
 import React, { useState } from 'react';
 import useFetch from '@/hooks/useFetch';
 import { callApiAsync } from '@/hooks/helper';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { updateAccessToken } from '@/stores/features/auth/authSlice';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { setCredentials } from '@/stores/features/auth/authSlice';
+import { jwtDecode } from 'jwt-decode';
 
 interface ApiResponse {
   data: any[];
@@ -59,10 +62,10 @@ interface ApiResponse {
   };
 }
 
-const googleOAuthURL =
-  'https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/userinfo.profile&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:3333/api/auth/google&client_id=960283004591-j93njbhcdi2etnm4t4mqjddk6im52cn4.apps.googleusercontent.com'; //todo:change to using .env
+const googleOAuthURL = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_URL || ''; //todo: replace with actual error tolerant code
 
 const AuthPage: React.FC = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const accessToken = useAppSelector((state) => state.auth.accessToken);
@@ -70,18 +73,38 @@ const AuthPage: React.FC = () => {
 
   const t = useTranslations('LoginPage');
   const param = '/auth/login';
-  const { data: apiData, error, loading, refetch } = useFetch<ApiResponse>(param);
-  const login = async () => {
-    const options: any = {};
-    options.body = {
-      username: email,
-      password: password,
-    };
-    const response = await callApiAsync('/auth/login', 'POST', options); //todo:changes to useQuery
-    dispatch(updateAccessToken(response.data.accessToken));
-  };
 
-  console.log(accessToken);
+  const login = async () => {
+    const options: any = {
+      body: {
+        username: email,
+        password: password,
+      },
+    };
+
+    try {
+      const response = await callApiAsync('/auth/login', 'POST', options); //todo:changes to useQuery
+      const { accessToken } = response.data;
+
+      // Decode access token to extract userId
+      const decoded: any = jwtDecode(accessToken);
+      const userId = decoded.user.userId;
+      const username = decoded.user.username;
+
+      dispatch(
+        setCredentials({
+          accessToken,
+          username,
+          userId,
+        }),
+      );
+
+      router.push('/');
+    } catch (error) {
+      console.error('Login failed:', error);
+      // TODO: Show error to user via toast or inline message
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-muted px-4">
@@ -139,9 +162,9 @@ const AuthPage: React.FC = () => {
 
           <div className="text-center text-sm text-muted-foreground">
             {t('noAccountPrompt')}{' '}
-            <a href="#" className="underline">
+            <Link href="/auth/register" className="underline">
               {t('signUpButtonText')}
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>
