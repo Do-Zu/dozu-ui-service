@@ -1,4 +1,6 @@
-import NotFoundView from "@/components/errors/NotFoundView"
-export default function NotFoundPage () {
-    return (<NotFoundView/>) ;
+'use client';
+
+import NotFoundView from '@/components/errors/NotFoundView';
+export default function NotFoundPage() {
+  return <NotFoundView />;
 }

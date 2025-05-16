@@ -1,3 +1,5 @@
+'use client';
+
 import ErrorBoundary from '@/core/ErrorBoundary';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { Toaster } from '@/components/ui/toaster';
