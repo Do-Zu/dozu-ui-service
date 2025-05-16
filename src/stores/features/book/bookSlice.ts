@@ -23,7 +23,7 @@ export const bookSlice = createSlice({
     },
     decrementFloor: (state) => {
       state.floor -= 1;
-    },
+    }, 
     updateUnit: (state, action: PayloadAction<string>) => {
       state.unit = action.payload;
     },
