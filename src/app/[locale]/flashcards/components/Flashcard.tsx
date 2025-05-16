@@ -5,8 +5,7 @@ export interface IFlashcard {
     topicId: number
     front: string
     back: string,
-    status: 'new' | 'practice',
-    // nextReview: string // todo: nextReview có vẻ ko cần, loại field này khỏi data API trả về 
+    // status: string,
 }
 
 interface Props {

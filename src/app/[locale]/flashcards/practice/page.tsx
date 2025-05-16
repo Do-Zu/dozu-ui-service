@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import useFetch from "@/hooks/useFetch";
 import { Button } from "@/components/ui/button";
 import { putRequest } from "@/api/api";
-import { useRouter } from "next/navigation";
 import BackButton from "../components/BackButton";
 
 type TrackingOption = {
@@ -35,11 +34,11 @@ interface IQualityResponseNextReviewInterval {
 interface IFlashcardExtended extends IFlashcard {
     topicName: string
     qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[]
+    status?: string | null
+    nextReview?: string | null
 }
 
 export default function Page() {
-
-    const router = useRouter();
     const flashcardSelector = (data: { flashcards: IFlashcardExtended[] }) => data.flashcards;
 
     const { 
@@ -132,18 +131,12 @@ export default function Page() {
     async function handleClickTrackingOption(qualityResponse: 0 | 1 | 2 | 3 | 4 | 5) {
         if(!flashcards || !currentFlashcard) return;
         try {
-            const data = await putRequest(`/flashcards/${currentFlashcard.flashcardId}/track`, {qualityResponse});
-            // console.log(data);
+            await putRequest(`/flashcards/${currentFlashcard.flashcardId}/track`, {qualityResponse});
             const flashcardsFiltered = flashcards.slice(1);
-            // console.log(flashcardsFiltered);
             setFlashcardData(flashcardsFiltered);
         } catch(err) {
             console.log(err);
         }
-    }
-
-    function handleClickBack() {
-        router.back();
     }
 
     if(flashcardLoading === true || flashcards === null || flashcards === undefined) {
@@ -164,14 +157,14 @@ export default function Page() {
         )
     }
 
-    console.log('Flashcards: ', flashcards);
+    // console.log('Flashcards: ', flashcards);
     return (
         <div className="flex bg-[#F3F4F6] h-[95vh]">
             <div className="flex flex-1 flex-col m-1.25 mb-0 p-5">
                 <div className="bg-[#fff] p-2.5">
-                    <BackButton  />
+                    <BackButton />
                 </div>
-                <div className="flex flex-1 bg-[#F9FAFB] p-5 grid grid-cols-11 gap-5">
+                <div className="flex-1 bg-[#F9FAFB] p-5 grid grid-cols-11 gap-5">
                     <div className="bg-[#F3F4F6] col-span-11 flex flex-col items-center">
                         <div className="w-[50%] flex flex-row justify-between mt-6">
                             <div className="text-gray-500">Topic: 
