@@ -1,12 +1,14 @@
 'use client'
 
 import useFetch from "@/hooks/useFetch";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BackButton from "../flashcards/components/BackButton";
 import { Book, CirclePlus, SquarePen, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { deleteRequest } from "@/api/api";
+import { deleteRequest, getRequest } from "@/api/api";
+import axios from "axios";
+import Axios from "@/api/axios";
 
 export interface ITopic {
     topicId: number
@@ -23,32 +25,40 @@ const Page = () => {
     const userId = 2;
     const router = useRouter();
 
+    // const topicsSelector = useCallback(( data: { topics: IBasicTopic[] }) => data.topics, []);
+    // const {
+    //     data: topics,
+    //     setData: setTopics,
+    //     error: topicsError,
+    //     loading: topicsLoading
+    // } = useFetch<IBasicTopic[]>(`/topics?userId=${userId}`, topicsSelector);
+
+    // if(topicsLoading || !topics) {
+    //     return <div>Loading...</div>
+    // }
+
+    // if(topicsError) {
+    //     return <div>Error: { topicsError } </div>
+    // }
+
+    // if(topics.length === 0) {
+    //     return <div>No Topics available</div>
+    // }
+
+    const [topics, setTopics] = useState<IBasicTopic[]>();
+
     useEffect(() => {
-        console.log('Mount /topics');
-        return () => {
-            console.log('Unmount /topics');
+        async function fetchTopics() {
+            try {
+                const data = await Axios.get('/topics');
+                console.log(data);
+                // setTopics(data.topics);
+            } catch(err) {
+                console.log(err);
+            }
         }
+        fetchTopics();
     }, []);
-
-    const topicsSelector = useCallback(( data: { topics: IBasicTopic[] }) => data.topics, []);
-    const {
-        data: topics,
-        setData: setTopics,
-        error: topicsError,
-        loading: topicsLoading
-    } = useFetch<IBasicTopic[]>(`/topics?userId=${userId}`, topicsSelector);
-
-    if(topicsLoading || !topics) {
-        return <div>Loading...</div>
-    }
-
-    if(topicsError) {
-        return <div>Error: { topicsError } </div>
-    }
-
-    if(topics.length === 0) {
-        return <div>No Topics available</div>
-    }
 
     function handleClickStudy(topicId: number) {
         router.push(`/flashcards/study?topicId=${topicId}`);
@@ -78,7 +88,7 @@ const Page = () => {
         return descriptionFormatted;
     }
 
-    // console.log(topics);
+    console.log(topics);
     return (
         // <div className="px-[4rem] py-7 bg-[#F9FAFB]">
         <div>

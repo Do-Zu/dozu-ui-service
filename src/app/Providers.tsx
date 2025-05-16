@@ -16,12 +16,12 @@ export default function Providers({ children, locale, messages }: ProvidersProps
   const storeRef = useRef(store);
 
   return (
-    <ReduxProvider store={storeRef.current}>
+    // <ReduxProvider store={storeRef.current}>
       <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Ho_Chi_Minh" >
         <ThemeProvider>
           {children}
         </ThemeProvider>
       </NextIntlClientProvider>
-    </ReduxProvider>
+    // </ReduxProvider>
   );
 }
