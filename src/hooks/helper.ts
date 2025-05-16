@@ -1,6 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import Axios from '@/api/axios';
 import { FetchOptions, METHOD, Param } from './type';
+import { addTimezoneInfo } from '../utils/date/apiDateUtils';
 
 /**
  * Makes an API call using the configured Axios instance
@@ -29,7 +30,8 @@ export const callApiAsync = async <T = any>(
         case 'POST':
         case 'PUT':
         case 'DELETE':
-          config.data = options?.body;
+          // Add timezone information to the request body for write operations
+          config.data = addTimezoneInfo(options.body);
           break;
       }
     }
