@@ -2,6 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
+import { getMessages } from '@/i18n/messages';
 import Providers from '../Providers';
 
 export default async function LocaleLayout({
@@ -17,10 +18,8 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const messages = {
-    ...(await import(`../../../messages/${locale}/common.json`)).default,
-    ...(await import(`../../../messages/${locale}/home.json`)).default,
-  };
+  // Load messages from the centralized message loader
+  const messages = await getMessages(locale);
 
   return (
     <Providers locale={locale} messages={messages}>
