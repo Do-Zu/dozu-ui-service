@@ -1,0 +1,12 @@
+{
+  "LoginPage": {
+    "title": "Chào mừng trở lại",
+    "loginText": "Đăng nhập vào tài khoản của bạn",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "loginButtonText": "Đăng nhập",
+    "noAccountPrompt": "Không có tài khoản?",
+    "signUpButtonText": "Đăng ký",
+     "loginGoogleButtonText":"Đăng nhập bằng Google"
+  }
+}
