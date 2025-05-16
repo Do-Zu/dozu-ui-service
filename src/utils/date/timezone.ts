@@ -1,4 +1,4 @@
-interface IFormatDateSend {
+export interface IFormatDateSend {
   timestamp: string;
   timezone: string;
 }
