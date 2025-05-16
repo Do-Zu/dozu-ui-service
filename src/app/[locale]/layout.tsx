@@ -33,12 +33,8 @@ export default async function LocaleLayout({
   };
 
   return (
-    <ErrorBoundary>
-      <Providers locale={locale} messages={messages}>
-        <Navbar />
-        {children}
-        <Toaster />
-      </Providers>
-    </ErrorBoundary>
+    <Providers locale={locale} messages={messages}>
+      {children}
+    </Providers>
   );
 }
