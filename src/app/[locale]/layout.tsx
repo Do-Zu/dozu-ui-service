@@ -17,7 +17,6 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // Load & merge tất cả file JSON trong folder messages/[locale]/
   const messages = {
     ...(await import(`../../../messages/${locale}/common.json`)).default,
     ...(await import(`../../../messages/${locale}/home.json`)).default,
