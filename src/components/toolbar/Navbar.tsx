@@ -6,14 +6,45 @@ import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { useSearchParams } from 'next/navigation';
-import { logout, updateAccessToken } from '@/stores/features/auth/authSlice';
+import { logout, setCredentials, updateAccessToken } from '@/stores/features/auth/authSlice';
 import { useEffect } from 'react';
 import usePost from '@/hooks/usePost';
 import { useRouter } from 'next/router';
+import Axios from '@/api/axios';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    const refreshToken = async () => {
+      try {
+        const result = await Axios.post(
+          '/auth/refresh-token',
+          {},
+          {
+            withCredentials: true,
+          },
+        );
+        // Handle success (e.g., store new token)
+        const decoded: any = jwtDecode(result.data.data.accessToken);
+        const userId = decoded.user.userId;
+        const username = decoded.user.username;
+
+        dispatch(
+          setCredentials({
+            accessToken: result.data.data.accessToken,
+            userId,
+            username,
+          }),
+        );
+      } catch (error) {
+        console.error('Failed to refresh token', error);
+        // Optional: redirect to login
+      }
+    };
+    refreshToken();
+  }, []);
   //receives token on redirect from backend in case of 3rd party logins (google)
   //todo: change to more secure method
   const searchParams = useSearchParams();
@@ -27,8 +58,6 @@ export default function Navbar() {
     }
   }, []);
 
-
-
   const handleLogout = async () => {
     try {
       await execute({}); // Assumes this calls /auth/logout and clears the cookie
@@ -37,7 +66,7 @@ export default function Navbar() {
       // router.push('/auth/login'); //todo:router not working
     } catch (error) {
       console.error('Logout failed:', error);
-      //todo:catch error 
+      //todo:catch error
     }
   };
 
@@ -57,25 +86,25 @@ export default function Navbar() {
         Dozu
       </Link>
 
-        {/* Right side controls */}
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <LanguageSwitcher />
-          {accessToken ? (
-            <>
-              <Button disabled={loading} className="w-full" onClick={handleLogout}>
-                Logout
-              </Button>
-              <Link href="/onboarding">
-                <Button className="w-full">Survey</Button>
-              </Link>
-            </>
-          ) : (
-            <Link href="/auth/login">
-              <Button className="w-full">Login</Button>
+      {/* Right side controls */}
+      <div className="flex items-center gap-4">
+        <ThemeToggle />
+        <LanguageSwitcher />
+        {accessToken ? (
+          <>
+            <Button disabled={loading} className="w-full" onClick={handleLogout}>
+              Logout
+            </Button>
+            <Link href="/onboarding">
+              <Button className="w-full">Survey</Button>
             </Link>
-          )}
-        </div>
+          </>
+        ) : (
+          <Link href="/auth/login">
+            <Button className="w-full">Login</Button>
+          </Link>
+        )}
       </div>
+    </div>
   );
 }
