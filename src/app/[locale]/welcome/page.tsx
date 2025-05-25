@@ -4,26 +4,28 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, Brain, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const WelcomePage: React.FC = () => {
   const [activeSection, setActiveSection] = useState<number>(0);
+  const t = useTranslations('welcome');
 
   const sections = [
     {
-      title: 'Personalized Learning',
-      description: 'Customize your learning experience based on your preferences and goals.',
+      title: t('sections.personalizedLearning.title'),
+      description: t('sections.personalizedLearning.description'),
       icon: <BookOpen className="h-10 w-10 text-white" />,
       color: '#003554',
     },
     {
-      title: 'Smart Scheduling',
-      description: 'Plan your study sessions efficiently with our intelligent scheduling system.',
+      title: t('sections.smartScheduling.title'),
+      description: t('sections.smartScheduling.description'),
       icon: <Calendar className="h-10 w-10 text-white" />,
       color: '#003566',
     },
     {
-      title: 'Adaptive Methods',
-      description: 'Learn with methods that adapt to your progress and learning style.',
+      title: t('sections.adaptiveMethods.title'),
+      description: t('sections.adaptiveMethods.description'),
       icon: <Brain className="h-10 w-10 text-white" />,
       color: '#001d3d',
     },
@@ -59,12 +61,8 @@ const WelcomePage: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            Welcome to Your Learning Journey
-          </h1>
-          <p className="text-xl text-[#a3c9e0] max-w-3xl mx-auto">
-            Discover a smarter way to learn with personalized methods and efficient scheduling
-          </p>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">{t('title')}</h1>
+          <p className="text-xl text-[#a3c9e0] max-w-3xl mx-auto">{t('subtitle')}</p>
         </motion.div>
 
         <motion.div
@@ -96,14 +94,15 @@ const WelcomePage: React.FC = () => {
           transition={{ delay: 0.8, duration: 0.5 }}
           className="text-center"
         >
+          {' '}
           <Button
             size="lg"
             className="bg-white hover:bg-[#a3c9e0] text-[#003554] font-semibold px-8 py-6 rounded-full transition-all duration-300 transform hover:scale-105"
           >
-            Get Started
+            {t('cta.button')}
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <p className="text-[#a3c9e0] mt-4">Your personalized learning experience awaits</p>
+          <p className="text-[#a3c9e0] mt-4">{t('cta.subtitle')}</p>
         </motion.div>
       </div>
 
@@ -113,7 +112,7 @@ const WelcomePage: React.FC = () => {
         transition={{ delay: 1, duration: 0.5 }}
         className="py-6 text-center text-[#a3c9e0] bg-[#00294a] bg-opacity-50"
       >
-        <p>© Learning Platform • Personalized Learning Made Simple</p>
+        <p>© {t('footer')}</p>
       </motion.div>
     </div>
   );
