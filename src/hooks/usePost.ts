@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { FetchOptions, METHOD } from './type';
 import { useCallback, useState } from 'react';
 import { callApiAsync } from './helper';
-import { toast } from './use-toast';
 import { AxiosError } from 'axios';
 
 interface IResultPost<TReq = unknown, TRes = unknown> {
@@ -12,6 +11,7 @@ interface IResultPost<TReq = unknown, TRes = unknown> {
   reset: () => void;
   execute: (payload: TReq) => Promise<TRes | null>;
 }
+
 /**
  * Custom hook for sending data to an API with Zod validation for request and response
  *
@@ -137,8 +137,10 @@ function usePost<TReq = unknown, TRes = unknown>(
         let responseData: unknown;
 
         if (typeof param === 'function') {
+          // For function-based calls, we don't modify the payload as the function should handle that
           responseData = await callWithFunctionFormat(validatedRequestData);
         } else {
+          // For URL-based calls, we use the callApiAsync which now adds timezone information
           responseData = await callApiAsync(param.toString(), method, {
             ...options,
             body: validatedRequestData,

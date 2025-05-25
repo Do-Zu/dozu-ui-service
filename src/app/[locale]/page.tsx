@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { Link } from '@/i18n/navigation'
-import { Button } from '@/components/ui/button'
+import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 
 export default async function HomePage() {
@@ -12,10 +12,11 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="text-center max-w-3xl space-y-6">
         <h1 className="text-5xl font-extrabold leading-tight tracking-tight">
-         {t('welcome')} <br />
+          {t('welcome')} <br />
         </h1>
         <p className="text-muted-foreground text-lg">
-          Tổng hợp bài học, quiz, flashcard, gói nhớ, AI gợi ý lộ trình học tích hợp theo phong cách học riêng của bạn.
+          Tổng hợp bài học, quiz, flashcard, gói nhớ, AI gợi ý lộ trình học tích hợp theo phong cách
+          học riêng của bạn.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
           <Link href="/quiz">
