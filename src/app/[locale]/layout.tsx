@@ -4,6 +4,7 @@ import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { getMessages } from '@/i18n/messages';
 import Providers from '../Providers';
+import DefaultLayout from '@/layouts/DefaultLayout';
 
 export default async function LocaleLayout({
   children,
@@ -18,12 +19,11 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // Load messages from the centralized message loader
   const messages = await getMessages(locale);
 
   return (
     <Providers locale={locale} messages={messages}>
-      {children}
+      <DefaultLayout>{children}</DefaultLayout>
     </Providers>
   );
 }
