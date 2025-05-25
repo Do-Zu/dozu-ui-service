@@ -14,19 +14,19 @@ const WelcomePage: React.FC = () => {
     {
       title: t('sections.personalizedLearning.title'),
       description: t('sections.personalizedLearning.description'),
-      icon: <BookOpen className="h-10 w-10 text-white" />,
+      icon: <BookOpen className="h-10 w-10 " />,
       color: '#003554',
     },
     {
       title: t('sections.smartScheduling.title'),
       description: t('sections.smartScheduling.description'),
-      icon: <Calendar className="h-10 w-10 text-white" />,
+      icon: <Calendar className="h-10 w-10 " />,
       color: '#003566',
     },
     {
       title: t('sections.adaptiveMethods.title'),
       description: t('sections.adaptiveMethods.description'),
-      icon: <Brain className="h-10 w-10 text-white" />,
+      icon: <Brain className="h-10 w-10 " />,
       color: '#001d3d',
     },
   ];
@@ -51,9 +51,11 @@ const WelcomePage: React.FC = () => {
       },
     },
   };
-
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#003554] to-[#001d3d]">
+    <div
+      className="min-h-screen flex flex-col bg-gradient-to-br from-[#003554] to-[#001d3d] [&_*]:text-opacity-100"
+      style={{ color: 'white' }}
+    >
       <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-7xl mx-auto w-full">
         <motion.div
           initial={{ y: -50, opacity: 0 }}
@@ -61,7 +63,7 @@ const WelcomePage: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">{t('title')}</h1>
+          <h1 className="text-4xl md:text-6xl font-bold  mb-4">{t('title')}</h1>
           <p className="text-xl text-[#a3c9e0] max-w-3xl mx-auto">{t('subtitle')}</p>
         </motion.div>
 
@@ -79,10 +81,11 @@ const WelcomePage: React.FC = () => {
               style={{ backgroundColor: section.color }}
               onClick={() => setActiveSection(index)}
             >
-              <div className="bg-opacity-20 bg-white rounded-full p-4 inline-block mb-4">
+              {' '}
+              <div className="dark: bg-opacity-20 rounded-full p-4 inline-block mb-4">
                 {section.icon}
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">{section.title}</h2>
+              <h2 className="text-2xl font-semibold  mb-2">{section.title}</h2>
               <p className="text-[#a3c9e0]">{section.description}</p>
             </motion.div>
           ))}
@@ -98,6 +101,7 @@ const WelcomePage: React.FC = () => {
           <Button
             size="lg"
             className="bg-white hover:bg-[#a3c9e0] text-[#003554] font-semibold px-8 py-6 rounded-full transition-all duration-300 transform hover:scale-105"
+            style={{ backgroundColor: 'white', color: '#003554' }}
           >
             {t('cta.button')}
             <ArrowRight className="ml-2 h-5 w-5" />
