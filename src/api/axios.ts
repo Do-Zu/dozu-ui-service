@@ -11,6 +11,8 @@ const Axios = axios.create({
   },
 });
 
+Axios.defaults.withCredentials = true;
+
 // Request Interceptor
 const requestInterceptor = Axios.interceptors.request.use(
   (config) => {
