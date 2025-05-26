@@ -17,13 +17,6 @@ interface IBasicFlashcard {
     back: string
 }
 
-interface IFlashcardReturned {
-    topicId: number,
-    flashcardId: number,
-    front: string,
-    back: string
-}
-
 interface IFlashcardServer {
     flashcardId: number
     topicId: number
@@ -34,8 +27,6 @@ interface IFlashcardServer {
 interface IHardFlashcard extends IBasicFlashcard {
     serverInfo?: IFlashcardServer
 }
-
-// const test: IHardFlashcard = { id: 1, front: 'one', back: 'một', serverInfo: { flashcardId: 1, topicId: 1, isUpdated: false, isDeleted: false } }
 
 type IFlashcardAdded = Pick<IFlashcard, 'front' | 'back'>; 
 type IFlashcardUpdated = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'>;
@@ -59,7 +50,6 @@ function createInitialFlashcard(id: number) : IBasicFlashcard {
 }
 
 function createInitialFlashcards(count: number): IBasicFlashcard[] {
-    console.log('createInitialFlashcards');
     const initialFlashcards : IBasicFlashcard[] = [];
     for(let i = 0; i < count; ++i) {
         initialFlashcards.push(createInitialFlashcard(i));
@@ -78,14 +68,14 @@ const Page = () => {
     const searchParamsClient = useSearchParams();
     const topicId = searchParamsClient.get('topicId')!;
 
-    const flashcardSelector = useCallback((data: { flashcards: IFlashcard[] }) => data.flashcards, []);
+    const flashcardsSelector = useCallback((data: { flashcards: IFlashcard[] }) => data.flashcards, []);
     const { 
         data: flashcardsExisted, 
         // setData: setFlashcardsExisted, 
-        loading: flashcardLoading, 
-        error: flashcardError 
+        loading: flashcardsLoading, 
+        error: flashcardsError 
     } 
-        = useFetch<IFlashcard[]>(`/flashcards?topicId=${topicId}`, flashcardSelector);
+        = useFetch<IFlashcard[]>(`/flashcards?topicId=${topicId}`, flashcardsSelector);
 
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
     const [flashcards, setFlashcards] = useState<IHardFlashcard[] | null>();
@@ -196,7 +186,6 @@ const Page = () => {
                 front: flashcard.front.trim(), back: flashcard.back.trim()
             }
         })
-        console.log(flashcardsFormatted);
 
         let flashcardsAdded : IFlashcardAdded[];
         let flashcardsUpdated : IFlashcardUpdated[]
@@ -244,23 +233,19 @@ const Page = () => {
         let dataSubmit : FlashcardsSubmit = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
 
         try {
-            const responseData = await postRequest(`/flashcards/batch?topicId=${topicId}`, dataSubmit);
+            await postRequest(`/flashcards/batch?topicId=${topicId}`, dataSubmit);
             router.push(`/en/flashcards/study?topicId=${topicId}`);
         } catch(err) {
             console.log(err);
         }
     }
 
-    function handleClickBack() {
-        router.back();
-    }
-
-    if(flashcardLoading) {
+    if(flashcardsLoading) {
         return <div>Loading...</div>
     }
 
-    if(flashcardError) {
-        return <div>Error: { flashcardError } </div>
+    if(flashcardsError) {
+        return <div>Error: { flashcardsError } </div>
     }
 
     // console.log(flashcards);
@@ -284,12 +269,12 @@ const Page = () => {
                 </div>
             </div>
             
-            <div className="grid grid-cols-12 gap-8 flex flex-col mt-7">
+            <div className="grid grid-cols-12 gap-8 flex-col mt-7">
 
                 {flashcards?.map((flashcard, index) => {
                     if(flashcard.serverInfo?.isDeleted) return null;
                     return (
-                        <div key={flashcard.id} className="col-span-4 bg-white p-8 text-center gap-4 flex flex-col gap-4 rounded-xl">
+                        <div key={flashcard.id} className="col-span-4 bg-white p-8 text-center flex flex-col gap-4 rounded-xl">
                             <div className="flex flex-rol gap-4 justify-end">
                                 <Edit size={20} className="cursor-pointer"/>
                                 <Trash2 size={20} className="cursor-pointer" onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}/>

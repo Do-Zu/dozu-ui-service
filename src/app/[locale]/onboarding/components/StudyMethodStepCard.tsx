@@ -2,6 +2,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Settings2 } from 'lucide-react';
 
+interface StudyMethodStepCardProps {
+  studyMethods: string[];
+  proceed: () => void;
+  goBack: () => void;
+  addStudyMethod: (studyMethod: string) => void;
+  removeStudyMethod: (studyMethod: string) => void;
+}
+
 const choices = [
   {
     label: 'Flashcards',
@@ -13,7 +21,7 @@ const choices = [
   },
 ];
 
-const StudyMethodStepCard: React.FC = ({
+const StudyMethodStepCard: React.FC<StudyMethodStepCardProps> = ({
   studyMethods,
   proceed,
   goBack,

@@ -6,15 +6,44 @@ import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { useSearchParams } from 'next/navigation';
-import { logout, updateAccessToken } from '@/stores/features/auth/authSlice';
+import { logout, setCredentials, updateAccessToken } from '@/stores/features/auth/authSlice';
 import { useEffect } from 'react';
 import usePost from '@/hooks/usePost';
-import { useRouter } from 'next/router';
-import { SidebarTrigger } from '../ui/sidebar';
+import Axios from '@/api/axios';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    const refreshToken = async () => {
+      try {
+        const result = await Axios.post(
+          '/auth/refresh-token',
+          {},
+          {
+            withCredentials: true,
+          },
+        );
+        // Handle success (e.g., store new token)
+        const decoded: any = jwtDecode(result.data.data.accessToken);
+        const userId = decoded.user.userId;
+        const username = decoded.user.username;
+
+        dispatch(
+          setCredentials({
+            accessToken: result.data.data.accessToken,
+            userId,
+            username,
+          }),
+        );
+      } catch (error) {
+        console.error('Failed to refresh token', error);
+        // Optional: redirect to login
+      }
+    };
+    refreshToken();
+  }, []);
   //receives token on redirect from backend in case of 3rd party logins (google)
   //todo: change to more secure method
   const searchParams = useSearchParams();
