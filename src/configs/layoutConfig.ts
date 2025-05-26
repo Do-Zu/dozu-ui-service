@@ -12,6 +12,11 @@ export const layoutConfigs: PageLayoutConfig[] = [
     isDisplayHeader: false,
     isDisplayFooter: false,
   },
+  {
+    pathPattern: /^(\/[^\/]+)?\/onboarding(\/.*)?$/,
+    isDisplayHeader: false,
+    isDisplayFooter: false,
+  },
 ];
 
 // Default configuration if no specific pattern matches.
