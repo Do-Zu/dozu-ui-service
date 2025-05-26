@@ -56,7 +56,7 @@ const ContentCard = ({
   };
 
   return (
-    <Card className="w-[280px] h-[220px] overflow-hidden transition-all duration-200 hover:shadow-md bg-gray-50">
+    <Card className=" overflow-hidden transition-all duration-200 hover:shadow-md bg-gray-50">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-medium text-gray-800 truncate">{title}</CardTitle>

@@ -51,12 +51,13 @@ export default function Navbar() {
   const accessToken = useAppSelector((state) => state.auth.accessToken);
 
   return (
-    <div className="max-w-7xl mx-auto flex p-2 justify-between items-center h-full bg-background/95 backdrop-blur-md border-b border-muted dark:border-muted/50">
-      <SidebarTrigger />
-      {/* Logo or Home Link */}
-      <Link href="/" className="text-lg font-bold text-primary">
-        Dozu
-      </Link>
+    <div className="flex items-center justify-between h-full bg-background/95 backdrop-blur-md border-b border-muted dark:border-muted/50 px-4">
+      <div className="flex items-center gap-4">
+        {/* Logo or Home Link */}
+        <Link href="/" className="text-lg font-bold text-primary">
+          Dozu
+        </Link>
+      </div>
 
       {/* Right side controls */}
       <div className="flex items-center gap-4">
@@ -64,16 +65,16 @@ export default function Navbar() {
         <LanguageSwitcher />
         {accessToken ? (
           <>
-            <Button disabled={loading} className="w-full" onClick={handleLogout}>
+            <Button disabled={loading} onClick={handleLogout}>
               Logout
             </Button>
             <Link href="/onboarding">
-              <Button className="w-full">Survey</Button>
+              <Button>Survey</Button>
             </Link>
           </>
         ) : (
           <Link href="/auth/login">
-            <Button className="w-full">Login</Button>
+            <Button>Login</Button>
           </Link>
         )}
       </div>
