@@ -10,6 +10,7 @@ import { logout, updateAccessToken } from '@/stores/features/auth/authSlice';
 import { useEffect } from 'react';
 import usePost from '@/hooks/usePost';
 import { useRouter } from 'next/router';
+import { SidebarTrigger } from '../ui/sidebar';
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
@@ -20,14 +21,13 @@ export default function Navbar() {
   //? router not mounted
   // const router = useRouter();
 
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token');
+
   useEffect(() => {
     if (token) {
       dispatch(updateAccessToken(token));
     }
   }, []);
-
-
 
   const handleLogout = async () => {
     try {
@@ -37,7 +37,7 @@ export default function Navbar() {
       // router.push('/auth/login'); //todo:router not working
     } catch (error) {
       console.error('Logout failed:', error);
-      //todo:catch error 
+      //todo:catch error
     }
   };
 
@@ -52,31 +52,31 @@ export default function Navbar() {
 
   return (
     <div className="max-w-7xl mx-auto flex p-2 justify-between items-center h-full bg-background/95 backdrop-blur-md border-b border-muted dark:border-muted/50">
+      <SidebarTrigger />
       {/* Logo or Home Link */}
       <Link href="/" className="text-lg font-bold text-primary">
         Dozu
       </Link>
 
-        {/* Right side controls */}
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <LanguageSwitcher />
-          {accessToken ? (
-            <>
-              <Button disabled={loading} className="w-full" onClick={handleLogout}>
-                Logout
-              </Button>
-              <Link href="/onboarding">
-                <Button className="w-full">Survey</Button>
-              </Link>
-            </>
-          ) : (
-            <Link href="/auth/login">
-              <Button className="w-full">Login</Button>
+      {/* Right side controls */}
+      <div className="flex items-center gap-4">
+        <ThemeToggle />
+        <LanguageSwitcher />
+        {accessToken ? (
+          <>
+            <Button disabled={loading} className="w-full" onClick={handleLogout}>
+              Logout
+            </Button>
+            <Link href="/onboarding">
+              <Button className="w-full">Survey</Button>
             </Link>
-          )}
-        </div>
+          </>
+        ) : (
+          <Link href="/auth/login">
+            <Button className="w-full">Login</Button>
+          </Link>
+        )}
       </div>
-
+    </div>
   );
 }
