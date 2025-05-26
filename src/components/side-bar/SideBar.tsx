@@ -41,19 +41,14 @@ const items = [
     icon: BookOpen,
   },
   {
-    title: 'Flashcards',
-    url: '/flashcards',
+    title: 'Process',
+    url: '/process',
     icon: Brain,
   },
   {
-    title: 'Quiz',
-    url: '/quiz',
+    title: 'Schedule',
+    url: '/schedule',
     icon: FileQuestion,
-  },
-  {
-    title: 'Games',
-    url: '/games',
-    icon: Gamepad2,
   },
 ];
 
