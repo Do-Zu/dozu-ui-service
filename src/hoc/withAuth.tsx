@@ -1,5 +1,6 @@
 import LoadingPage from '@/app/loading';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { ROUTES } from '@/utils/constants/routes';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useCallback } from 'react';
 
@@ -9,7 +10,7 @@ interface WithAuthOptions {
   redirectTo?: string;
 }
 
-const DEFAULT_REDIRECT = '/login';
+const DEFAULT_REDIRECT = ROUTES.LOGIN;
 const DEFAULT_UNAUTHORIZED = '/unauthorized';
 
 export function withAuth<P extends object>(
