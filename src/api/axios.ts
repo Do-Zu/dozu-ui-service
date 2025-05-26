@@ -1,5 +1,8 @@
+
 import axios from 'axios';
 import { store } from '@/stores/store'; // Import the store
+
+
 
 const Axios = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -7,6 +10,7 @@ const Axios = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
 Axios.defaults.withCredentials = true;
 
 // Request Interceptor
