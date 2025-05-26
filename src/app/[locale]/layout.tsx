@@ -22,10 +22,9 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages(locale);
-
   return (
     <Providers locale={locale} messages={messages}>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <AppSidebar />
         <SidebarInset>
           <DefaultLayout>{children}</DefaultLayout>
