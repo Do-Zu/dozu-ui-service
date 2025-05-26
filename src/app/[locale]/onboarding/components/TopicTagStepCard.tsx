@@ -2,14 +2,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
 
-interface TopicTagStepCardProps {
-  interestedTopicTags: string[];
-  proceed: () => void;
-  goBack: () => void;
-  addTopicTag: (tag: string) => void;
-  removeTopicTag: (tag: string) => void;
-}
-
 const popularTopicTags = [
   'Web Development',
   'Data Science',
@@ -20,7 +12,7 @@ const popularTopicTags = [
   'Business Strategy',
   'Personal Finance',
 ];
-const TopicTagStepCard: React.FC<TopicTagStepCardProps> = ({
+const TopicTagStepCard: React.FC = ({
   interestedTopicTags,
   proceed,
   goBack,

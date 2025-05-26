@@ -56,7 +56,7 @@ const WelcomePage: React.FC = () => {
     setCurrentStep(currentStep + 1);
   };
 
-  const steps: JSX.Element[] = [
+  const steps = [
     <WelcomeStepCard proceed={proceed} />,
     <TopicTagStepCard
       interestedTopicTags={interestedTopicTags}

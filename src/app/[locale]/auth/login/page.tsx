@@ -15,7 +15,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { setCredentials } from '@/stores/features/auth/authSlice';
 import { jwtDecode } from 'jwt-decode';
-import Axios from '@/api/axios';
 
 interface ApiResponse {
   data: any[];
@@ -84,12 +83,8 @@ const AuthPage: React.FC = () => {
     };
 
     try {
-      // const response = await callApiAsync('/auth/login', 'POST', options); //todo:changes to useQuery
-      const response = await Axios.post('/auth/login', options.body, {
-        withCredentials: true,
-      });
-
-      const { accessToken } = response.data.data;
+      const response = await callApiAsync('/auth/login', 'POST', options); //todo:changes to useQuery
+      const { accessToken } = response.data;
 
       // Decode access token to extract userId
       const decoded: any = jwtDecode(accessToken);

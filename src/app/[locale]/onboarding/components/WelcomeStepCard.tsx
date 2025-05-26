@@ -2,11 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
 
-interface WelcomeStepCardProps {
-  proceed: () => void;
-}
-
-const WelcomeStepCard: React.FC<WelcomeStepCardProps> = ({ proceed }) => {
+const WelcomeStepCard: React.FC = ({ proceed }) => {
   return (
     <Card className="rounded-2xl shadow-lg">
       <CardContent className="p-6">

@@ -16,10 +16,6 @@ import BackButton from "../components/BackButton";
 
 const initialAutoPlaySpeed = 3;
 
-interface IFlashcardWithStatus extends IFlashcard {
-    status: string
-}
-
 type TrackingOption = {
     icon: any, 
     label: string,
@@ -44,7 +40,7 @@ function getRandomArray(num: number) {
     return result;
 }
 
-function getFlashcardsShuffled(flashcards: IFlashcardWithStatus[]) : IFlashcardWithStatus[] {
+function getFlashcardsShuffled(flashcards: IFlashcard[]) : IFlashcard[] {
     const flashcardsRandom = [];
     const arrayRandom = getRandomArray(flashcards.length);
     for (const indexRandom of arrayRandom) {
@@ -59,7 +55,7 @@ export default function Page() {
     const searchParamsClient = useSearchParams();
     const topicId = searchParamsClient.get('topicId')!;
 
-    const flashcardSelector = (data: { flashcards: IFlashcardWithStatus[] }) => data.flashcards;
+    const flashcardSelector = (data: { flashcards: IFlashcard[] }) => data.flashcards;
 
     const { 
         data: flashcards, 
@@ -67,7 +63,7 @@ export default function Page() {
         loading: flashcardLoading, 
         error: flashcardError 
     } 
-        = useFetch<IFlashcardWithStatus[]>(`/flashcards?topicId=${topicId}`, flashcardSelector);
+        = useFetch<IFlashcard[]>(`/flashcards?topicId=${topicId}`, flashcardSelector);
 
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
 
@@ -321,25 +317,22 @@ export default function Page() {
         if(!currentFlashcard) return;
         try {
             const data = await putRequest<{}, { data: { flashcardUpdated: { status: 'new' | 'practice' } } }>(`/flashcards/${currentFlashcard.flashcardId}/put-to-practice`, {});
+            console.log(data);
             const { flashcardUpdated } = data.data;
+            console.log(flashcardUpdated);
             const flashcardsUpdated = flashcards!.map((flashcard) => {
                 return flashcard.flashcardId === currentFlashcard.flashcardId ? {...flashcard, status: flashcardUpdated.status} : flashcard
             })
+            console.log(flashcardsUpdated);
             setFlashcardsData(flashcardsUpdated);
         } catch(err) {
             console.log(err);
         }
     }
 
-    if(flashcardLoading === true || flashcards === null || flashcards === undefined) {
+    if(flashcardLoading === true || !flashcards || !currentFlashcard) {
         return (
             <div>Loading flashcards...</div>
-        )
-    }
-
-    if(flashcards.length === 0 || !currentFlashcard) {
-        return (
-            <div>No Flashcards to study</div>
         )
     }
 
@@ -406,7 +399,7 @@ export default function Page() {
         )
     }
 
-    // console.log(flashcards);
+    console.log(flashcards);
     // console.log(isFlashcardReviewedEarlier(('2023-05-06'))); // yyyy-mm-dd
     return (
         <div className="flex bg-[#F3F4F6] h-[90vh]">
@@ -414,7 +407,7 @@ export default function Page() {
                 <div className="bg-[#fff] p-2.5">
                     <BackButton/>
                 </div>
-                <div className="flex-1 bg-[#F9FAFB] p-5 grid grid-cols-11 gap-5">
+                <div className="flex flex-1 bg-[#F9FAFB] p-5 grid grid-cols-11 gap-5">
 
                     {/* Main Flashcard Section */}
                     <div className="bg-[#F3F4F6] col-span-8 flex flex-col items-center justify-center">
