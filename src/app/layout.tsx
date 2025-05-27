@@ -5,6 +5,7 @@ import ErrorBoundary from '@/core/ErrorBoundary';
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '@/stores/store';
 import { ThemeProvider } from '@/lib/providers/theme';
+import DefaultLayout from '@/layouts/DefaultLayout';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
 import '../styles/globals.css';
@@ -17,9 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ReduxProvider store={storeRef.current}>
           <ErrorBoundary>
             <ReduxProvider store={store}>
-              <AuthProvider>
-                <ThemeProvider>{children}</ThemeProvider>
-              </AuthProvider>
+              <ThemeProvider>
+                <AuthProvider>
+                  <DefaultLayout>{children}</DefaultLayout>
+                </AuthProvider>
+              </ThemeProvider>
             </ReduxProvider>
             <Toaster />
           </ErrorBoundary>
