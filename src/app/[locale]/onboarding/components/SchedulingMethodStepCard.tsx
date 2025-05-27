@@ -3,6 +3,12 @@ import { Button } from '@/components/ui/button';
 
 import { CalendarRange } from 'lucide-react';
 
+interface SchedulingMethodStepCardProps {
+
+  goBack: () => void;
+
+}
+
 const choices = [
   {
     label: '15 minutes per day',
@@ -27,7 +33,7 @@ const choices = [
   },
 ];
 
-const SchedulingMethodStepCard: React.FC = ({  goBack }) => {
+const SchedulingMethodStepCard: React.FC<SchedulingMethodStepCardProps> = ({  goBack }) => {
   return (
     <Card className="rounded-2xl shadow-lg">
       <CardContent className="p-6">
