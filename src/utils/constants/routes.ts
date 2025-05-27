@@ -1,11 +1,45 @@
 export const ROUTES = Object.freeze({
-  HOME: '/',
+  HOME: '/home',
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
-  GENERATE: '/generate',
+  WELCOME: '/welcome',
   ONBOARDING: '/onboarding',
+  GENERATE: '/generate',
   FLASHCARD: '/flashcard',
   FLASHCARD_CREATE: '/flashcard/create',
   FLASHCARD_EDIT: '/flashcard/edit/:id',
   FLASHCARD_VIEW: '/flashcard/view/:id',
+  UNAUTHORIZED: '/unauthorized',
 });
+
+// Route groups for easier management
+export const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.REGISTER] as const;
+export const GUEST_ROUTES = [ROUTES.WELCOME] as const;
+export const PROTECTED_ROUTES = [
+  ROUTES.GENERATE,
+  ROUTES.FLASHCARD,
+  ROUTES.FLASHCARD_CREATE,
+] as const;
+export const ONBOARDING_ROUTES = [ROUTES.ONBOARDING] as const;
+
+// Route access levels
+export const ROUTE_ACCESS = {
+  PUBLIC: 'public',
+  GUEST_ONLY: 'guest_only',
+  AUTHENTICATED: 'authenticated',
+  NEW_USER: 'new_user',
+  ONBOARDED: 'onboarded',
+} as const;
+
+// Route configuration with access levels
+export const ROUTE_CONFIG = {
+  [ROUTES.HOME]: ROUTE_ACCESS.PUBLIC,
+  [ROUTES.LOGIN]: ROUTE_ACCESS.GUEST_ONLY,
+  [ROUTES.REGISTER]: ROUTE_ACCESS.GUEST_ONLY,
+  [ROUTES.WELCOME]: ROUTE_ACCESS.NEW_USER,
+  [ROUTES.ONBOARDING]: ROUTE_ACCESS.AUTHENTICATED,
+  [ROUTES.GENERATE]: ROUTE_ACCESS.ONBOARDED,
+  [ROUTES.FLASHCARD]: ROUTE_ACCESS.ONBOARDED,
+  [ROUTES.FLASHCARD_CREATE]: ROUTE_ACCESS.ONBOARDED,
+  [ROUTES.UNAUTHORIZED]: ROUTE_ACCESS.PUBLIC,
+} as const;

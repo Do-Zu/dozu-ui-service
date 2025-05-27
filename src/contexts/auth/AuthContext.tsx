@@ -9,30 +9,27 @@ import {
   useMemo,
   useCallback,
 } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  roles: string[];
-  permissions: string[];
-}
+import { User, UserType } from '@/types/auth';
+import { getUserType } from '@/utils/auth/redirectService';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  //   login: (email: string, password: string) => Promise<void>;
-  //   logout: () => Promise<void>;
+  isNewUser: boolean;
+  hasCompletedOnboarding: boolean;
+  userType: UserType;
   hasRole: (role: string) => boolean;
   hasPermission: (permission: string) => boolean;
+  updateUser: (userData: Partial<User>) => void;
+  markOnboardingComplete: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const checkAuthStatus = useCallback(async () => {
     try {
@@ -75,16 +72,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user?.permissions],
   );
 
-  const contextValue = useMemo(
-    () => ({
+  const updateUser = useCallback((userData: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updatedUser = { ...prev, ...userData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
+  }, []);
+
+  const markOnboardingComplete = useCallback(() => {
+    updateUser({
+      hasCompletedOnboarding: true,
+      isNewUser: false,
+      onboardingStep: undefined,
+    });
+  }, [updateUser]);
+
+  const contextValue = useMemo(() => {
+    const isAuthenticated = !!user;
+    const userType = getUserType(isAuthenticated, user);
+    const isNewUser = userType === 'new_user';
+    const hasCompletedOnboarding = user?.hasCompletedOnboarding ?? false;
+
+    return {
       user,
       isLoading,
-      isAuthenticated: !!user,
+      isAuthenticated,
+      isNewUser,
+      hasCompletedOnboarding,
+      userType,
       hasRole,
       hasPermission,
-    }),
-    [user, isLoading, hasRole, hasPermission],
-  );
+      updateUser,
+      markOnboardingComplete,
+    };
+  }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete]);
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
