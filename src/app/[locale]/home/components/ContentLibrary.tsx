@@ -146,7 +146,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     });
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto p-6 bg-gray-100">
+    <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 className="text-2xl font-semibold text-gray-800">Content Library</h2>
         <Button onClick={onCreateContent} className="bg-gray-800 hover:bg-gray-900">

@@ -32,16 +32,6 @@ const ContentCard = ({
   onEdit = () => {},
   onDelete = () => {},
 }: ContentCardProps) => {
-  const formatDate = (dateString: string) => {
-    if (dateString.includes('ago')) return dateString;
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(date);
-  };
-
   const getContentTypeLabel = (type: string) => {
     switch (type) {
       case 'flashcards':
@@ -56,13 +46,16 @@ const ContentCard = ({
   };
 
   return (
-    <Card className=" overflow-hidden transition-all duration-200 hover:shadow-md bg-gray-50">
+    <Card
+      onClick={() => onStudy(id)}
+      className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50"
+    >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-medium text-gray-800 truncate">{title}</CardTitle>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
                 <MoreVertical className="h-4 w-4 text-gray-500" />
               </Button>
             </DropdownMenuTrigger>
@@ -88,18 +81,12 @@ const ContentCard = ({
           <div className="text-gray-500 text-sm">{getContentTypeLabel(contentType)} Preview</div>
         </div>
         <div className="flex justify-between text-xs text-gray-500">
-          <span>Created: {formatDate(createdAt)}</span>
+          <div className="text-xs text-gray-500">
+            {lastStudied ? `Last studied: ${lastStudied}` : 'Not studied yet'}
+          </div>
           <span>{itemCount} items</span>
         </div>
       </CardContent>
-      <CardFooter className="pt-2 pb-4 flex justify-between">
-        <div className="text-xs text-gray-500">
-          {lastStudied ? `Last studied: ${lastStudied}` : 'Not studied yet'}
-        </div>
-        <Button size="sm" onClick={() => onStudy(id)} className="bg-gray-700 hover:bg-gray-800">
-          Study
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
