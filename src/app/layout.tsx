@@ -19,9 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ErrorBoundary>
             <ReduxProvider store={store}>
               <ThemeProvider>
-                <AuthProvider>
-                  <RouteGuard>{children}</RouteGuard>
-                </AuthProvider>
+                <AuthProvider>{children}</AuthProvider>
               </ThemeProvider>
             </ReduxProvider>
             <Toaster />
