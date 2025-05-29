@@ -49,7 +49,7 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="max-w-[60%] mx-auto my-4 grid grid-cols-1 md:grid-cols-3 gap-10">
       {actionCards.map((card) => {
         const IconComponent = card.icon;
         return (
@@ -64,10 +64,10 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
                   <IconComponent className="h-6 w-6 text-white" />
                 </div>
               </div>
-              <CardTitle className="text-xl font-semibold text-gray-800">{card.title}</CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-800">{card.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-4">{card.description}</p>
+              <p className="text-gray-600 mb-4 text-xs">{card.description}</p>
             </CardContent>
           </Card>
         );
