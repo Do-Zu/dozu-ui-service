@@ -40,16 +40,16 @@ const items = [
     url: '/home',
     icon: BookOpen,
   },
-  {
-    title: 'Process',
-    url: '/process',
-    icon: Brain,
-  },
-  {
-    title: 'Schedule',
-    url: '/schedule',
-    icon: FileQuestion,
-  },
+  // {
+  //   title: 'Process',
+  //   url: '/process',
+  //   icon: Brain,
+  // },
+  // {
+  //   title: 'Schedule',
+  //   url: '/schedule',
+  //   icon: FileQuestion,
+  // },
 ];
 
 const secondaryItems = [
@@ -129,7 +129,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <div className="p-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-          © 2025 Dozu
+          © Dozu
         </div>
       </SidebarFooter>
     </Sidebar>
