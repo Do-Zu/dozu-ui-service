@@ -1,14 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, Brain, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/constants/routes';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 const WelcomePage: React.FC = () => {
+  const { isNewGuest, setIsNewGuest } = useAuth();
   const [activeSection, setActiveSection] = useState<number>(0);
   const t = useTranslations('welcome');
+  const router = useRouter();
+  const handleNavigateNextPage = () => {
+    // Get current locale from pathname
+
+    router.push(ROUTES.HOME);
+  };
 
   const sections = [
     {
@@ -51,6 +61,11 @@ const WelcomePage: React.FC = () => {
       },
     },
   };
+
+  useEffect(() => {
+    setIsNewGuest(false);
+  }, []);
+
   return (
     <div
       className="min-h-screen flex flex-col bg-gradient-to-br from-[#003554] to-[#001d3d] [&_*]:text-opacity-100"
@@ -81,7 +96,6 @@ const WelcomePage: React.FC = () => {
               style={{ backgroundColor: section.color }}
               onClick={() => setActiveSection(index)}
             >
-              {' '}
               <div className="dark: bg-opacity-20 rounded-full p-4 inline-block mb-4">
                 {section.icon}
               </div>
@@ -102,6 +116,7 @@ const WelcomePage: React.FC = () => {
             size="lg"
             className="bg-white hover:bg-[#a3c9e0] text-[#003554] font-semibold px-8 py-6 rounded-full transition-all duration-300 transform hover:scale-105"
             style={{ backgroundColor: 'white', color: '#003554' }}
+            onClick={handleNavigateNextPage}
           >
             {t('cta.button')}
             <ArrowRight className="ml-2 h-5 w-5" />
