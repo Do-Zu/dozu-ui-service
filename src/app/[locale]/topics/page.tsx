@@ -104,7 +104,7 @@ const Page = () => {
             </div>
 
             <div className="grid grid-cols-12 gap-8 flex-col mt-7">
-                {topics.map((topic) => {
+                {topics?.map((topic) => {
                     return (
                         <div className="col-span-3 bg-white rounded-lg p-4" key={topic.topicId}>
                             <div className="flex flex-row items-center justify-between">
@@ -120,8 +120,7 @@ const Page = () => {
                                 <div className="text-muted-foreground text-sm">Last review: 14/05/2025</div>
                                 <div className="text-muted-foreground text-sm">{topic.flashcardsCount} Flashcards</div>
                             </div>
-                        </div>
-                        
+                        </div>  
                     )
                 })}
             </div>
