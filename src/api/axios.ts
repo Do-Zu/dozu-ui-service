@@ -1,4 +1,8 @@
+
 import axios from 'axios';
+import { store } from '@/stores/store'; // Import the store
+
+
 
 const Axios = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -11,7 +15,11 @@ const Axios = axios.create({
 const requestInterceptor = Axios.interceptors.request.use(
   (config) => {
     // If the user is authenticated, attach the token to the request
-    const token = localStorage.getItem('authToken'); // update position store access token
+    // const token = localStorage.getItem('authToken'); // update position store access token
+    const state = store.getState(); // Access current Redux state
+    const token = state.auth.accessToken;
+    console.log('token', token);
+
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
