@@ -66,6 +66,10 @@ const Page = () => {
     let router = useRouter();
 
     const searchParamsClient = useSearchParams();
+    if(!searchParamsClient) {
+        return <div>Loading or invalid context...</div>
+    }
+
     const topicId = searchParamsClient.get('topicId')!;
 
     const flashcardsSelector = useCallback((data: { flashcards: IFlashcard[] }) => data.flashcards, []);
