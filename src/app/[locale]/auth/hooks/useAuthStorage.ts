@@ -33,24 +33,21 @@ export function useAuthStorage() {
     [setUserData],
   );
 
-  // Mark onboarding as complete
   const markOnboardingComplete = useCallback(() => {
-    updateUser({ hasCompletedOnboarding: true });
+    updateUser({ hasCompletedOnboarding: true, isNewUser: false });
   }, [updateUser]);
 
-  // Update last login time
   const updateLastLogin = useCallback(() => {
     updateUser({ lastLoginAt: new Date().toISOString() });
   }, [updateUser]);
 
-  // Clear all auth data
   const clearAuthData = useCallback(() => {
     removeUser();
     removeLoginStatus();
   }, [removeUser, removeLoginStatus]);
 
   const isAuthenticated = useCallback(() => {
-    return isLoggedIn && user !== null;
+    return !!isLoggedIn && user !== null;
   }, [isLoggedIn, user]);
 
   return {

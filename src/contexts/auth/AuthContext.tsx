@@ -9,19 +9,22 @@ import {
   useMemo,
   useCallback,
 } from 'react';
+
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { SESSION_STORAGE_KEY } from '@/utils/constants/storage';
+import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 
 interface AuthContextType {
-  user: User | null;
+  user: User | null | undefined;
   isLoading: boolean;
   isAuthenticated: boolean;
   isNewUser: boolean;
   isNewGuest: boolean | undefined;
   hasCompletedOnboarding: boolean;
   userType: UserType;
+  setAuthData: (userData: User) => void;
   hasRole: (role: string) => boolean;
   hasPermission: (permission: string) => boolean;
   updateUser: (userData: Partial<User>) => void;
@@ -33,8 +36,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const {
+    isLoggedIn,
+    isAuthenticated,
+    user,
+    setAuthData,
+    updateUser,
+    clearAuthData,
+    markOnboardingComplete,
+  } = useAuthStorage();
+
   const [isNewGuest, setIsNewGuest, removeSessionNewGuest] = useSessionStorage<boolean>(
     SESSION_STORAGE_KEY.NEW_GUEST,
     true,
@@ -43,21 +56,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuthStatus = useCallback(async () => {
     try {
       setIsLoading(true);
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
 
       if (!isLoggedIn) {
-        setUser(null);
+        clearAuthData();
         return;
       }
 
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        const parsedUser = JSON.parse(userData) as User;
-        setUser(parsedUser);
+      if (!user) {
+        //TODO: Refresh user data from API or session
       }
     } catch (error) {
       console.error('Error checking authentication status:', error);
-      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -81,25 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user?.permissions],
   );
 
-  const updateUser = useCallback((userData: Partial<User>) => {
-    setUser((prev) => {
-      if (!prev) return null;
-      const updatedUser = { ...prev, ...userData };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      return updatedUser;
-    });
-  }, []);
-
-  const markOnboardingComplete = useCallback(() => {
-    updateUser({
-      hasCompletedOnboarding: true,
-      isNewUser: false,
-      onboardingStep: undefined,
-    });
-  }, [updateUser]);
-
   const contextValue = useMemo(() => {
-    const isAuthenticated = !!user;
     const userType = getUserType(isAuthenticated, user);
     const isNewUser = userType === 'new_user';
     const hasCompletedOnboarding = user?.hasCompletedOnboarding ?? false;
@@ -112,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasCompletedOnboarding,
       userType,
       isNewGuest,
+      setAuthData,
       removeSessionNewGuest,
       setIsNewGuest,
       hasRole,

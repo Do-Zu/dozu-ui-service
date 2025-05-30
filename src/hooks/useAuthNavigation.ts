@@ -9,7 +9,9 @@ import {
   getPostRegistrationRedirect,
   RedirectService,
 } from '@/utils/auth/redirectService';
+
 import { ROUTES } from '@/utils/constants/routes';
+import { User } from '@/types/auth';
 
 /**
  * Custom hook for handling authentication-related navigation
@@ -68,9 +70,9 @@ export function useAuthNavigation() {
    * @param user - The authenticated user object
    */
   const handlePostLogin = useCallback(
-    (user: any) => {
+    (user: User, redirectTo?: string) => {
       try {
-        const redirectPath = getPostLoginRedirect(user);
+        const redirectPath = getPostLoginRedirect(user, redirectTo);
         navigate(redirectPath);
       } catch (error) {
         console.error('Post-login navigation error:', error);
@@ -87,7 +89,7 @@ export function useAuthNavigation() {
    * @param user - The newly registered user object
    */
   const handlePostRegistration = useCallback(
-    (user: any) => {
+    (user: User) => {
       try {
         const redirectPath = getPostRegistrationRedirect(user);
         navigate(redirectPath);
