@@ -4,17 +4,13 @@ import { User, UserType, RedirectConfig } from '@/types/auth';
 /**
  * Determines the user type based on authentication status and onboarding completion
  */
-export function getUserType(isAuthenticated: boolean, user: User | null): UserType {
+export function getUserType(isAuthenticated: boolean, user: User | null | undefined): UserType {
   if (!isAuthenticated || !user) {
     return 'guest';
   }
 
   // Check if user is new (registered today or never logged in)
-  const isNewUser =
-    user.isNewUser ||
-    (!user.lastLoginAt &&
-      user.createdAt &&
-      new Date(user.createdAt).toDateString() === new Date().toDateString());
+  const isNewUser = user.isNewUser || !user.lastLoginAt;
 
   if (isNewUser) {
     return 'new_user';
@@ -62,9 +58,6 @@ export function canAccessRoute(
     case ROUTE_ACCESS.AUTHENTICATED:
       return isAuthenticated;
 
-    case ROUTE_ACCESS.NEW_USER:
-      return userType === ROUTE_ACCESS.NEW_USER;
-
     case ROUTE_ACCESS.ONBOARDED:
       return userType === 'onboarded_user';
 
@@ -88,10 +81,6 @@ export function getRedirectDestination(
   // Handle specific redirect cases
   switch (userType) {
     case 'guest':
-      // Guests trying to access protected routes go to welcome
-      if (pathname.startsWith('/auth/')) {
-        return null; // Let them access auth routes
-      }
       return ROUTES.WELCOME;
 
     case 'new_user':
@@ -135,7 +124,7 @@ export function getRedirectDestination(
 /**
  * Handles post-login redirect logic
  */
-export function getPostLoginRedirect(user: User): string {
+export function getPostLoginRedirect(user: User, redirectTo?: string): string {
   const userType = getUserType(true, user);
 
   switch (userType) {
@@ -144,7 +133,7 @@ export function getPostLoginRedirect(user: User): string {
     case 'returning_user':
       return ROUTES.ONBOARDING;
     case 'onboarded_user':
-      return ROUTES.HOME;
+      return redirectTo ?? ROUTES.HOME;
     default:
       return ROUTES.HOME;
   }
