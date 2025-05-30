@@ -16,52 +16,12 @@ import { useRouter } from 'next/navigation';
 import { setCredentials } from '@/stores/features/auth/authSlice';
 import { jwtDecode } from 'jwt-decode';
 import Axios from '@/api/axios';
-
-interface ApiResponse {
-  data: any[];
-  project: {
-    name: string;
-    version: string;
-    description: string;
-  };
-  architecture: {
-    pattern: string;
-    features: string[];
-  };
-  development: {
-    setup: string;
-    commands: {
-      dev: string;
-      build: string;
-      start: string;
-      lint: string;
-      typecheck: string;
-    };
-  };
-  apiGuide: {
-    folderStructure: Record<string, string>;
-    routingGuide: string;
-    errorHandling: string;
-    responseFormat: string;
-    securityBestPractices: string[];
-    exampleEndpoint: {
-      path: string;
-      method: string;
-      controller: string;
-      service: string;
-      repository: string;
-    };
-  };
-  deploymentOptions: {
-    vercel: string;
-    docker: string;
-    traditional: string;
-  };
-  documentation: {
-    swagger: string;
-    readme: string;
-  };
-}
+import { toast } from '@/hooks/use-toast';
+import { ROUTES } from '@/utils/constants/routes';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import { User } from '@/types/auth';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { useSearchParams } from 'next/navigation';
 
 const googleOAuthURL = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_URL || ''; //todo: replace with actual error tolerant code
 
@@ -72,8 +32,28 @@ const AuthPage: React.FC = () => {
   const accessToken = useAppSelector((state) => state.auth.accessToken);
   const dispatch = useAppDispatch();
 
+  const { handlePostLogin } = useAuthNavigation();
+
   const t = useTranslations('LoginPage');
   const param = '/auth/login';
+
+  const searchParams = useSearchParams();
+
+  const { setAuthData } = useAuth();
+
+  const handleSuccessfulLogin = (user: User) => {
+    setAuthData(user);
+
+    // Get the redirect parameter from URL
+    const redirectTo = searchParams?.get('redirect');
+
+    if (redirectTo) {
+      const decodedPath = decodeURIComponent(redirectTo);
+      handlePostLogin(user, decodedPath);
+    } else {
+      handlePostLogin(user);
+    }
+  };
 
   const login = async () => {
     const options: any = {
@@ -91,23 +71,31 @@ const AuthPage: React.FC = () => {
 
       const { accessToken } = response.data.data;
 
-      // Decode access token to extract userId
-      const decoded: any = jwtDecode(accessToken);
-      const userId = decoded.user.userId;
-      const username = decoded.user.username;
+      //[Q&A]: shouldn't decode access token at client side
+      // const decoded: any = jwtDecode(accessToken);
+      // const userId = decoded.user.userId;
+      // const username = decoded.user.username;
 
-      dispatch(
-        setCredentials({
-          accessToken,
-          username,
-          userId,
-        }),
-      );
+      //TODO: replace sample user data after loggin for real
+      const userData = {
+        id: '1',
+        email: 'v@gmail.com',
+        name: 'pernist',
+        roles: ['user'],
+        permissions: [],
+        isNewUser: false,
+        hasCompletedOnboarding: false,
+        lastLoginAt: new Date().toISOString(),
+        accessToken,
+      };
 
-      router.push('/');
+      handleSuccessfulLogin(userData);
     } catch (error) {
-      console.error('Login failed:', error);
-      // TODO: Show error to user via toast or inline message
+      toast({
+        description: t('loginErrorMessage'),
+        variant: 'destructive',
+      });
+      router.push(ROUTES.HOME);
     }
   };
 
