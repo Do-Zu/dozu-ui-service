@@ -5,24 +5,19 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, Brain, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/utils/constants/routes';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 
 const WelcomePage: React.FC = () => {
-  const { setIsNewGuest, hasCompletedOnboarding, isAuthenticated } = useAuth();
+  const { updateUser } = useAuth();
+  const { handleWelcomeComplete } = useAuthNavigation();
+
   const [activeSection, setActiveSection] = useState<number>(0);
+
   const t = useTranslations('welcome');
-  const router = useRouter();
 
   const handleNavigateNextPage = () => {
-    // Get current locale from pathname
-
-    if (!hasCompletedOnboarding && isAuthenticated) {
-      router.push(ROUTES.ONBOARDING);
-    } else {
-      router.push(ROUTES.HOME);
-    }
+    handleWelcomeComplete();
   };
 
   const sections = [
@@ -68,7 +63,7 @@ const WelcomePage: React.FC = () => {
   };
 
   useEffect(() => {
-    setIsNewGuest(false);
+    updateUser({ isNewUser: true });
   }, []);
 
   return (

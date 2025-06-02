@@ -5,7 +5,6 @@ import WelcomeStepCard from './components/WelcomeStepCard';
 import TopicTagStepCard from './components/TopicTagStepCard';
 import StudyDurationStepCard from './components/StudyDurationStepCard';
 import StudyMethodStepCard from './components/StudyMethodStepCard';
-import SchedulingMethodStepCard from './components/SchedulingMethodStepCard';
 import OnboardingCompleteCard from './components/OnboardingCompleteCard';
 import usePost from '@/hooks/usePost';
 import { useRouter } from 'next/navigation';
@@ -13,9 +12,11 @@ import { ROUTES } from '@/utils/constants/routes';
 import LoadingPage from '@/app/loading';
 import AuthSkeleton from '@/components/ui/auth-skeleton';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 
 const WelcomePage: React.FC = () => {
-  const { markOnboardingComplete } = useAuth();
+  const { handleOnboardingComplete } = useAuthNavigation();
+
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [interestedTopicTags, setInterestedTopicTags] = useState<string[]>([]);
@@ -43,6 +44,7 @@ const WelcomePage: React.FC = () => {
   const addStudyMethod = (studyMethod: string) => {
     setStudyMethods(studyMethods.concat(studyMethod));
   };
+
   const removeStudyMethod = (studyMethod: string) => {
     setStudyMethods(studyMethods.filter((a) => a !== studyMethod));
   };
@@ -59,16 +61,9 @@ const WelcomePage: React.FC = () => {
     error: apiPostContentError,
     execute,
   } = usePost<any, any>('/onboarding/onboarding-result', 'POST');
-
   const finishSurvey = async () => {
-    const result = await execute(body);
-
-    //TODO: check if result is successful and handle accordingly
-    if (result) {
-      markOnboardingComplete();
-    }
-
-    router.push(ROUTES.HOME);
+    await execute(body);
+    handleOnboardingComplete();
   };
 
   const steps: JSX.Element[] = [
@@ -95,7 +90,6 @@ const WelcomePage: React.FC = () => {
     />,
 
     <OnboardingCompleteCard />,
-    // <SchedulingMethodStepCard goBack={goBack} />,
   ];
 
   if (loading) {
