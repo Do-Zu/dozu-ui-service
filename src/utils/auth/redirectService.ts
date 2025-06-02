@@ -59,7 +59,7 @@ export function canAccessRoute(
       return isAuthenticated;
 
     case ROUTE_ACCESS.ONBOARDED:
-      return userType === 'onboarded_user';
+      return isAuthenticated && userType === 'onboarded_user';
 
     default:
       return false;
@@ -74,7 +74,9 @@ export function getRedirectDestination(
   userType: UserType,
   isAuthenticated: boolean,
 ): string | null {
-  if (canAccessRoute(pathname, userType, isAuthenticated)) {
+  const accessRoute = canAccessRoute(pathname, userType, isAuthenticated);
+
+  if (accessRoute) {
     return null; // No redirect needed
   }
 
@@ -88,9 +90,7 @@ export function getRedirectDestination(
       if (pathname === ROUTES.ONBOARDING || pathname === ROUTES.HOME) {
         return ROUTES.WELCOME;
       }
-      if (pathname.startsWith('/auth/')) {
-        return ROUTES.WELCOME; // Redirect logged-in users away from auth
-      }
+
       break;
 
     case 'returning_user':
@@ -98,7 +98,7 @@ export function getRedirectDestination(
       if (pathname === ROUTES.WELCOME) {
         return ROUTES.HOME; // Prevent access to welcome
       }
-      if (pathname.startsWith('/auth/')) {
+      if (isAuthRoute(pathname)) {
         return ROUTES.HOME; // Redirect logged-in users away from auth
       }
       // For other protected routes, they need to complete onboarding first
@@ -112,7 +112,8 @@ export function getRedirectDestination(
       if (pathname === ROUTES.WELCOME || pathname === ROUTES.ONBOARDING) {
         return ROUTES.HOME;
       }
-      if (pathname.startsWith('/auth/')) {
+
+      if (isAuthRoute(pathname)) {
         return ROUTES.HOME; // Redirect logged-in users away from auth
       }
       break;
@@ -122,18 +123,23 @@ export function getRedirectDestination(
 }
 
 /**
- * Handles post-login redirect logic
+ * Handles post-login redirect logic with redirect chain support
  */
 export function getPostLoginRedirect(user: User, redirectTo?: string): string {
   const userType = getUserType(true, user);
 
+  // For onboarded users, go directly to destination or home
+  if (userType === 'onboarded_user') {
+    return redirectTo ?? ROUTES.HOME;
+  }
+
+  // For other users, we need to set up a redirect chain
+  // The actual redirect will be handled by RedirectChainService
   switch (userType) {
     case 'new_user':
-      return ROUTES.WELCOME;
+      return ROUTES.WELCOME; // First step in the chain
     case 'returning_user':
-      return ROUTES.ONBOARDING;
-    case 'onboarded_user':
-      return redirectTo ?? ROUTES.HOME;
+      return ROUTES.ONBOARDING; // First step in the chain
     default:
       return ROUTES.HOME;
   }

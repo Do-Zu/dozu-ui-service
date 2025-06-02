@@ -11,24 +11,28 @@ import { useEffect, Suspense } from 'react';
 import usePost from '@/hooks/usePost';
 import Axios from '@/api/axios';
 import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
+import { ROUTES } from '@/utils/constants/routes';
 
 function TokenHandler() {
-  const dispatch = useAppDispatch();
-  const searchParams = useSearchParams();
+  // const dispatch = useAppDispatch();
+  // const searchParams = useSearchParams();
 
-  const token = searchParams?.get('token');
+  // const token = searchParams?.get('token');
 
-  useEffect(() => {
-    if (token) {
-      dispatch(updateAccessToken(token));
-    }
-  }, [token, dispatch]);
+  // useEffect(() => {
+  //   if (token) {
+  //     dispatch(updateAccessToken(token));
+  //   }
+  // }, [token, dispatch]);
 
   return null;
 }
 
 export default function Navbar() {
   const dispatch = useAppDispatch();
+  const { isAuthenticated, clearAuthData } = useAuth();
 
   useEffect(() => {
     const refreshToken = async () => {
@@ -64,6 +68,8 @@ export default function Navbar() {
     try {
       await execute({}); // Assumes this calls /auth/logout and clears the cookie
 
+      clearAuthData();
+
       dispatch(logout());
       // router.push('/auth/login'); //todo:router not working
     } catch (error) {
@@ -92,17 +98,14 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <LanguageSwitcher />
-          {accessToken ? (
+          {isAuthenticated ? (
             <>
               <Button disabled={loading} className="w-full" onClick={handleLogout}>
                 Logout
               </Button>
-              <Link href="/onboarding">
-                <Button className="w-full">Survey</Button>
-              </Link>
             </>
           ) : (
-            <Link href="/auth/login">
+            <Link href={ROUTES.LOGIN}>
               <Button className="w-full">Login</Button>
             </Link>
           )}

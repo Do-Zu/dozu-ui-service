@@ -14,8 +14,9 @@ import { setCredentials } from '@/stores/features/auth/authSlice';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { jwtDecode } from 'jwt-decode';
+import { withRouteGuard } from '@/components/guards/RouteGuard';
 
-export default function RegisterPage() {
+const RegisterPage = () => {
   const router = useRouter();
 
   const t = useTranslations('RegisterPage');
@@ -138,4 +139,6 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-}
+};
+
+export default withRouteGuard(RegisterPage);

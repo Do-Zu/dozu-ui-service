@@ -20,17 +20,14 @@ interface AuthContextType {
   user: User | null | undefined;
   isLoading: boolean;
   isAuthenticated: boolean;
-  isNewUser: boolean;
-  isNewGuest: boolean | undefined;
   hasCompletedOnboarding: boolean;
   userType: UserType;
   setAuthData: (userData: User) => void;
+  clearAuthData: () => void;
   hasRole: (role: string) => boolean;
   hasPermission: (permission: string) => boolean;
   updateUser: (userData: Partial<User>) => void;
   markOnboardingComplete: () => void;
-  removeSessionNewGuest: () => void;
-  setIsNewGuest: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,11 +44,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearAuthData,
     markOnboardingComplete,
   } = useAuthStorage();
-
-  const [isNewGuest, setIsNewGuest, removeSessionNewGuest] = useSessionStorage<boolean>(
-    SESSION_STORAGE_KEY.NEW_GUEST,
-    true,
-  );
 
   const checkAuthStatus = useCallback(async () => {
     try {
@@ -102,10 +94,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isNewUser,
       hasCompletedOnboarding,
       userType,
-      isNewGuest,
       setAuthData,
-      removeSessionNewGuest,
-      setIsNewGuest,
+      clearAuthData,
       hasRole,
       hasPermission,
       updateUser,

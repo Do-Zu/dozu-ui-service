@@ -19,10 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ErrorBoundary>
             <ReduxProvider store={store}>
               <ThemeProvider>
-                <AuthProvider>
-                  {/* <RouteGuard></RouteGuard> TODO: update RouteGuard to work with routing auth for type user */}
-                  {children}
-                </AuthProvider>
+                <AuthProvider>{children}</AuthProvider>
               </ThemeProvider>
             </ReduxProvider>
             <Toaster />

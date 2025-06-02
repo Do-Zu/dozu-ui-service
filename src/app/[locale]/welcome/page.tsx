@@ -5,19 +5,21 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Calendar, Brain, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/utils/constants/routes';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import { withRouteGuard } from '@/components/guards/RouteGuard';
 
 const WelcomePage: React.FC = () => {
-  const { isNewGuest, setIsNewGuest } = useAuth();
-  const [activeSection, setActiveSection] = useState<number>(0);
-  const t = useTranslations('welcome');
-  const router = useRouter();
-  const handleNavigateNextPage = () => {
-    // Get current locale from pathname
+  
+  const { updateUser, user } = useAuth();
+  const { handleWelcomeComplete } = useAuthNavigation();
 
-    router.push(ROUTES.HOME);
+  const [activeSection, setActiveSection] = useState<number>(0);
+
+  const t = useTranslations('welcome');
+
+  const handleNavigateNextPage = () => {
+    handleWelcomeComplete();
   };
 
   const sections = [
@@ -63,7 +65,7 @@ const WelcomePage: React.FC = () => {
   };
 
   useEffect(() => {
-    setIsNewGuest(false);
+    updateUser({ isNewUser: false });
   }, []);
 
   return (
@@ -137,4 +139,4 @@ const WelcomePage: React.FC = () => {
   );
 };
 
-export default WelcomePage;
+export default withRouteGuard(WelcomePage);
