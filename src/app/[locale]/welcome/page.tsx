@@ -10,14 +10,19 @@ import { ROUTES } from '@/utils/constants/routes';
 import { useAuth } from '@/contexts/auth/AuthContext';
 
 const WelcomePage: React.FC = () => {
-  const { isNewGuest, setIsNewGuest } = useAuth();
+  const { setIsNewGuest, hasCompletedOnboarding, isAuthenticated } = useAuth();
   const [activeSection, setActiveSection] = useState<number>(0);
   const t = useTranslations('welcome');
   const router = useRouter();
+
   const handleNavigateNextPage = () => {
     // Get current locale from pathname
 
-    router.push(ROUTES.HOME);
+    if (!hasCompletedOnboarding && isAuthenticated) {
+      router.push(ROUTES.ONBOARDING);
+    } else {
+      router.push(ROUTES.HOME);
+    }
   };
 
   const sections = [

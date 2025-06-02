@@ -12,8 +12,10 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import LoadingPage from '@/app/loading';
 import AuthSkeleton from '@/components/ui/auth-skeleton';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 const WelcomePage: React.FC = () => {
+  const { markOnboardingComplete } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [interestedTopicTags, setInterestedTopicTags] = useState<string[]>([]);
@@ -60,6 +62,12 @@ const WelcomePage: React.FC = () => {
 
   const finishSurvey = async () => {
     const result = await execute(body);
+
+    //TODO: check if result is successful and handle accordingly
+    if (result) {
+      markOnboardingComplete();
+    }
+
     router.push(ROUTES.HOME);
   };
 
