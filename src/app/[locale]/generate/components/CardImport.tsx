@@ -202,7 +202,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   }
 
   return (
-    <Card className="max-w-[80vw] max-h-[85vh] overflow-auto mx-auto my-auto">
+    <Card className="max-w-[80vw] max-h-[85vh] overflow-auto mx-auto my-auto my-4">
       <CardHeader>
         <CardTitle className="text-xl font-semibold ">
           {step === 1 && 'Import Learning Content'}

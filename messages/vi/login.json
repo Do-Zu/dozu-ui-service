@@ -7,6 +7,10 @@
     "loginButtonText": "Đăng nhập",
     "noAccountPrompt": "Không có tài khoản?",
     "signUpButtonText": "Đăng ký",
-     "loginGoogleButtonText":"Đăng nhập bằng Google"
+    "loginGoogleButtonText": "Đăng nhập bằng Google",
+    "loginSuccessMessage": "Đăng nhập thành công!",
+    "loginErrorMessage": "Đăng nhập không thành công. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
+    "forgotPasswordText": "Quên mật khẩu?",
+    "forgotPasswordButtonText": "Khôi phục mật khẩu"
   }
 }
