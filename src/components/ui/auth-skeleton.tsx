@@ -76,7 +76,7 @@ export default function AuthSkeleton({ className = '' }: AuthSkeletonProps) {
 
         {/* Loading Text */}
         <motion.div variants={itemVariants} className="space-y-4">
-          <p className="text-gray-600 dark:text-gray-400">{dots}</p>
+          <p className="text-gray-600 dark:text-gray-400">.{dots}</p>
         </motion.div>
 
         {/* Progress Indicator */}
