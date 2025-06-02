@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
+import { withAuth } from '@/hoc/withAuth';
 
 // Dynamically import CardImport with no SSR
 const CardImport = dynamic(() => import('./components/CardImport'), {
@@ -14,6 +15,8 @@ const CardImport = dynamic(() => import('./components/CardImport'), {
   ),
 });
 
+const AuthComponent = withAuth(CardImport);
+
 export default function HomePage() {
   return (
     <Suspense
@@ -23,7 +26,7 @@ export default function HomePage() {
         </div>
       }
     >
-      <CardImport />
+      <AuthComponent />
     </Suspense>
   );
 }

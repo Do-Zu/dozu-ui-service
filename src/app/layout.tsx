@@ -1,12 +1,14 @@
-'use client'
+'use client';
 
+import { useRef } from 'react';
 import ErrorBoundary from '@/core/ErrorBoundary';
-import DefaultLayout from '@/layouts/DefaultLayout';
+import { Provider as ReduxProvider } from 'react-redux';
+import { store } from '@/stores/store';
+import { ThemeProvider } from '@/lib/providers/theme';
+import { AuthProvider } from '@/contexts/auth/AuthContext';
+import { RouteGuard } from '@/components/guards/RouteGuard';
 import { Toaster } from '@/components/ui/toaster';
 import '../styles/globals.css';
-import { store } from '@/stores/store';
-import { useRef } from 'react';
-import { Provider as ReduxProvider } from 'react-redux';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const storeRef = useRef(store);
@@ -14,10 +16,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body>
         <ReduxProvider store={storeRef.current}>
-        <ErrorBoundary>
-          <DefaultLayout>{children}</DefaultLayout>
-          <Toaster />
-        </ErrorBoundary>
+          <ErrorBoundary>
+            <ReduxProvider store={store}>
+              <ThemeProvider>
+                <AuthProvider>
+                  {/* <RouteGuard></RouteGuard> TODO: update RouteGuard to work with routing auth for type user */}
+                  {children}
+                </AuthProvider>
+              </ThemeProvider>
+            </ReduxProvider>
+            <Toaster />
+          </ErrorBoundary>
         </ReduxProvider>
       </body>
     </html>

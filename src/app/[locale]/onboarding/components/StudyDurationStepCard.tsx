@@ -3,6 +3,13 @@ import { Button } from '@/components/ui/button';
 
 import { Clock } from 'lucide-react';
 
+interface StudyDurationStepCardProps {
+  proceed: () => void;
+  goBack: () => void;
+  studyDuration: number;
+  setStudyDuration: (studyDuration: number) => void;
+}
+
 const choices = [
   {
     label: '15 minutes per day',
@@ -27,7 +34,12 @@ const choices = [
   },
 ];
 
-const StudyDurationStepCard: React.FC = ({ studyDuration, proceed, goBack, setStudyDuration }) => {
+const StudyDurationStepCard: React.FC<StudyDurationStepCardProps> = ({
+  studyDuration,
+  proceed,
+  goBack,
+  setStudyDuration,
+}) => {
   return (
     <Card className="rounded-2xl shadow-lg">
       <CardContent className="p-6">

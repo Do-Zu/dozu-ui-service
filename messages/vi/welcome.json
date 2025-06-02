@@ -1,0 +1,25 @@
+{
+  "welcome": {
+    "title": "Chào Mừng Đến Với Hành Trình Học Tập Của Bạn",
+    "subtitle": "Khám phá cách học thông minh hơn với phương pháp cá nhân hóa và lịch trình hiệu quả",
+    "sections": {
+      "personalizedLearning": {
+        "title": "Học Tập Cá Nhân Hóa",
+        "description": "Tùy chỉnh trải nghiệm học tập của bạn dựa trên sở thích và mục tiêu cá nhân."
+      },
+      "smartScheduling": {
+        "title": "Lịch Trình Thông Minh",
+        "description": "Lên kế hoạch cho các buổi học một cách hiệu quả với hệ thống lịch trình thông minh."
+      },
+      "adaptiveMethods": {
+        "title": "Phương Pháp Thích Ứng",
+        "description": "Học với các phương pháp thích ứng theo tiến độ và phong cách học tập của bạn."
+      }
+    },
+    "cta": {
+      "button": "Bắt Đầu",
+      "subtitle": "Trải nghiệm học tập cá nhân hóa đang chờ đợi bạn"
+    },
+    "footer": "Nền Tảng Học Tập • Học Tập Cá Nhân Hóa Đơn Giản"
+  }
+}

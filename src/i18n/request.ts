@@ -5,18 +5,18 @@ import { routing } from './routing';
 export default getRequestConfig(async ({ requestLocale }) => {
   // Typically corresponds to the `[locale]` segment
   const requested = await requestLocale;
-  const locale = hasLocale(routing.locales, requested)
-    ? requested
-    : routing.defaultLocale;
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
 
-  // Nạp các tệp tin JSON cho các namespace (common, profile, navigation, v.v.)
   const commonMessages = (await import(`../../messages/${locale}/common.json`)).default;
   const homeMessages = (await import(`../../messages/${locale}/home.json`)).default;
+  const welcomeMessages = (await import(`../../messages/${locale}/welcome.json`)).default;
+  const loginMessages = (await import(`../../messages/${locale}/login.json`)).default;
 
-  // Hợp nhất tất cả thông điệp lại với nhau
   const messages = {
     ...commonMessages,
     ...homeMessages,
+    ...welcomeMessages,
+    ...loginMessages,
   };
 
   return {

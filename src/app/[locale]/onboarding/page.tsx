@@ -8,8 +8,13 @@ import StudyMethodStepCard from './components/StudyMethodStepCard';
 import SchedulingMethodStepCard from './components/SchedulingMethodStepCard';
 import OnboardingCompleteCard from './components/OnboardingCompleteCard';
 import usePost from '@/hooks/usePost';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/constants/routes';
+import LoadingPage from '@/app/loading';
+import AuthSkeleton from '@/components/ui/auth-skeleton';
 
 const WelcomePage: React.FC = () => {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [interestedTopicTags, setInterestedTopicTags] = useState<string[]>([]);
   const [studyDuration, setStudyDuration] = useState(15);
@@ -27,6 +32,7 @@ const WelcomePage: React.FC = () => {
   const addTopicTag = (topicTag: string) => {
     setInterestedTopicTags(interestedTopicTags.concat(topicTag));
   };
+
   const removeTopicTag = (topicTag: string) => {
     setInterestedTopicTags(interestedTopicTags.filter((a) => a !== topicTag));
   };
@@ -44,6 +50,7 @@ const WelcomePage: React.FC = () => {
     studyDuration: studyDuration,
     studyMethods: studyMethods,
   };
+
   const {
     loading,
     data: apiResponse,
@@ -53,10 +60,10 @@ const WelcomePage: React.FC = () => {
 
   const finishSurvey = async () => {
     const result = await execute(body);
-    setCurrentStep(currentStep + 1);
+    router.push(ROUTES.HOME);
   };
 
-  const steps = [
+  const steps: JSX.Element[] = [
     <WelcomeStepCard proceed={proceed} />,
     <TopicTagStepCard
       interestedTopicTags={interestedTopicTags}
@@ -78,9 +85,18 @@ const WelcomePage: React.FC = () => {
       addStudyMethod={addStudyMethod}
       removeStudyMethod={removeStudyMethod}
     />,
+
     <OnboardingCompleteCard />,
     // <SchedulingMethodStepCard goBack={goBack} />,
   ];
+
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (!loading && (apiResponse || apiPostContentError)) {
+    return <AuthSkeleton />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted p-4">
