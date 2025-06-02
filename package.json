@@ -47,7 +47,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dotenv": "^16.5.0",
-    "framer-motion": "^12.12.2",
+    "framer-motion": "^12.15.0",
     "i": "^0.3.7",
     "jwt-decode": "^4.0.0",
     "lottie-react": "^2.4.1",

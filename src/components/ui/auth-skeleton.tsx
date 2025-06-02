@@ -76,7 +76,7 @@ export default function AuthSkeleton({ className = '' }: AuthSkeletonProps) {
 
         {/* Loading Text */}
         <motion.div variants={itemVariants} className="space-y-4">
-          <p className="text-gray-600 dark:text-gray-400">Authentication status{dots}</p>
+          <p className="text-gray-600 dark:text-gray-400">{dots}</p>
         </motion.div>
 
         {/* Progress Indicator */}
@@ -94,7 +94,6 @@ export default function AuthSkeleton({ className = '' }: AuthSkeletonProps) {
             />
           </div>
 
-          {/* Status Steps */}
           <div className="flex justify-center space-x-6 text-sm">
             <motion.div
               variants={itemVariants}
@@ -114,7 +113,6 @@ export default function AuthSkeleton({ className = '' }: AuthSkeletonProps) {
           </div>
         </motion.div>
 
-        {/* Subtle Background Animation */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
             className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-10"
