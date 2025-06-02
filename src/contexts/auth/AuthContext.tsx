@@ -23,6 +23,7 @@ interface AuthContextType {
   hasCompletedOnboarding: boolean;
   userType: UserType;
   setAuthData: (userData: User) => void;
+  clearAuthData: () => void;
   hasRole: (role: string) => boolean;
   hasPermission: (permission: string) => boolean;
   updateUser: (userData: Partial<User>) => void;
@@ -94,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasCompletedOnboarding,
       userType,
       setAuthData,
+      clearAuthData,
       hasRole,
       hasPermission,
       updateUser,

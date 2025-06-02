@@ -7,17 +7,13 @@ import StudyDurationStepCard from './components/StudyDurationStepCard';
 import StudyMethodStepCard from './components/StudyMethodStepCard';
 import OnboardingCompleteCard from './components/OnboardingCompleteCard';
 import usePost from '@/hooks/usePost';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/utils/constants/routes';
 import LoadingPage from '@/app/loading';
 import AuthSkeleton from '@/components/ui/auth-skeleton';
-import { useAuth } from '@/contexts/auth/AuthContext';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 
-const WelcomePage: React.FC = () => {
+const OnBoardingPage: React.FC = () => {
   const { handleOnboardingComplete } = useAuthNavigation();
 
-  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [interestedTopicTags, setInterestedTopicTags] = useState<string[]>([]);
   const [studyDuration, setStudyDuration] = useState(15);
@@ -107,4 +103,4 @@ const WelcomePage: React.FC = () => {
   );
 };
 
-export default WelcomePage;
+export default OnBoardingPage;

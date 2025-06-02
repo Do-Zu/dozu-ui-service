@@ -22,6 +22,7 @@ import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { User } from '@/types/auth';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useSearchParams } from 'next/navigation';
+import { withRouteGuard } from '@/components/guards/RouteGuard';
 
 const googleOAuthURL = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_URL || ''; //todo: replace with actual error tolerant code
 
@@ -49,8 +50,10 @@ const AuthPage: React.FC = () => {
 
     if (redirectTo) {
       const decodedPath = decodeURIComponent(redirectTo);
+      // The handlePostLogin will now create a redirect chain if needed
       handlePostLogin(user, decodedPath);
     } else {
+      // No specific redirect, let the system determine the flow
       handlePostLogin(user);
     }
   };
@@ -76,7 +79,7 @@ const AuthPage: React.FC = () => {
       // const userId = decoded.user.userId;
       // const username = decoded.user.username;
 
-      //TODO: replace sample user data after loggin for real
+      //TODO: replace sample user data after login for real
       const userData = {
         id: '1',
         email: 'v@gmail.com',
@@ -165,4 +168,4 @@ const AuthPage: React.FC = () => {
   );
 };
 
-export default AuthPage;
+export default withRouteGuard(AuthPage);

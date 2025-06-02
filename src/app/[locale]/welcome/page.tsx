@@ -7,9 +7,11 @@ import { BookOpen, Calendar, Brain, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import { withRouteGuard } from '@/components/guards/RouteGuard';
 
 const WelcomePage: React.FC = () => {
-  const { updateUser } = useAuth();
+  
+  const { updateUser, user } = useAuth();
   const { handleWelcomeComplete } = useAuthNavigation();
 
   const [activeSection, setActiveSection] = useState<number>(0);
@@ -63,7 +65,7 @@ const WelcomePage: React.FC = () => {
   };
 
   useEffect(() => {
-    updateUser({ isNewUser: true });
+    updateUser({ isNewUser: false });
   }, []);
 
   return (
@@ -137,4 +139,4 @@ const WelcomePage: React.FC = () => {
   );
 };
 
-export default WelcomePage;
+export default withRouteGuard(WelcomePage);
