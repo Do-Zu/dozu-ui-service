@@ -122,18 +122,23 @@ export function getRedirectDestination(
 }
 
 /**
- * Handles post-login redirect logic
+ * Handles post-login redirect logic with redirect chain support
  */
 export function getPostLoginRedirect(user: User, redirectTo?: string): string {
   const userType = getUserType(true, user);
 
+  // For onboarded users, go directly to destination or home
+  if (userType === 'onboarded_user') {
+    return redirectTo ?? ROUTES.HOME;
+  }
+
+  // For other users, we need to set up a redirect chain
+  // The actual redirect will be handled by RedirectChainService
   switch (userType) {
     case 'new_user':
-      return ROUTES.WELCOME;
+      return ROUTES.WELCOME; // First step in the chain
     case 'returning_user':
-      return ROUTES.ONBOARDING;
-    case 'onboarded_user':
-      return redirectTo ?? ROUTES.HOME;
+      return ROUTES.ONBOARDING; // First step in the chain
     default:
       return ROUTES.HOME;
   }
