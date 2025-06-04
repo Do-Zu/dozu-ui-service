@@ -1,6 +1,18 @@
 {
-    "HomePage": {
-      "title": "Hello world!",
-      "about": "Go to the about page"
+  "home": {
+    "coreActionCards": {
+      "schedule": {
+        "title": "View Schedule",
+        "description": "Manage your learning timeline and track progress across all topics."
+      },
+      "library": {
+        "title": "Manage Library",
+        "description": "Organize your learning materials, flashcards, and study content."
+      },
+      "generate": {
+        "title": "Generate Content",
+        "description": "Create new learning materials with AI-powered content generation."
+      }
     }
   }
+}

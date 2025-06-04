@@ -1,10 +1,18 @@
 {
-  "HomePage": {
-    "title": "Chào",
-    "about": "Về chúng tôi"
-  },
-
-  "profile" : {
-    "name": "Tên"
+  "home": {
+    "coreActionCards": {
+      "schedule": {
+        "title": "Xem Lịch Trình",
+        "description": "Quản lý lịch trình học tập và theo dõi tiến độ trên tất cả các chủ đề."
+      },
+      "library": {
+        "title": "Quản Lý Thư Viện",
+        "description": "Sắp xếp tài liệu học tập, thẻ ghi nhớ và nội dung nghiên cứu của bạn."
+      },
+      "generate": {
+        "title": "Tạo Nội Dung",
+        "description": "Tạo tài liệu học tập mới với khả năng tạo nội dung được hỗ trợ bởi AI."
+      }
+    }
   }
 }
