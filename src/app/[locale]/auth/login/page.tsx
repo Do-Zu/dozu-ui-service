@@ -22,8 +22,12 @@ import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { User } from '@/types/auth';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useSearchParams } from 'next/navigation';
+import { withRouteGuard } from '@/components/guards/RouteGuard';
 
-const googleOAuthURL = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_URL || ''; //todo: replace with actual error tolerant code
+const googleGoogleRedirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
+const googleOAuthClientId = process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID;
+const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&include_granted_scopes=true&response_type=code
+&redirect_uri=${googleGoogleRedirectUri}&client_id=${googleOAuthClientId}`;
 
 const AuthPage: React.FC = () => {
   const router = useRouter();
@@ -49,8 +53,10 @@ const AuthPage: React.FC = () => {
 
     if (redirectTo) {
       const decodedPath = decodeURIComponent(redirectTo);
+      // The handlePostLogin will now create a redirect chain if needed
       handlePostLogin(user, decodedPath);
     } else {
+      // No specific redirect, let the system determine the flow
       handlePostLogin(user);
     }
   };
@@ -76,7 +82,7 @@ const AuthPage: React.FC = () => {
       // const userId = decoded.user.userId;
       // const username = decoded.user.username;
 
-      //TODO: replace sample user data after loggin for real
+      //TODO: replace sample user data after login for real
       const userData = {
         id: '1',
         email: 'v@gmail.com',
@@ -165,4 +171,4 @@ const AuthPage: React.FC = () => {
   );
 };
 
-export default AuthPage;
+export default withRouteGuard(AuthPage);

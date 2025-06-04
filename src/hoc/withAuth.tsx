@@ -40,12 +40,10 @@ export function withAuth<P extends object>(
       if (isLoading) return;
 
       if (!isAuthenticated) {
-        const redirectPath = redirectTo ?? DEFAULT_REDIRECT;
-
         // Encode the current pathname to redirect back after login
         const redirectBackPath = encodeURIComponent(pathname ?? DEFAULT_REDIRECT_BACK);
 
-        router.push(`${redirectPath}?redirect=${redirectBackPath}`);
+        router.push(`${redirectTo}?redirect=${redirectBackPath}`);
 
         return;
       }

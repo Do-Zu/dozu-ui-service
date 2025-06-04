@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import AuthSkeleton from '@/components/ui/auth-skeleton';
 
 function HomePage() {
-  const { isAuthenticated, isNewGuest } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -15,7 +15,7 @@ function HomePage() {
     // Get current locale from pathname
     const locale = pathname?.split('/')[1] || 'en';
 
-    if (isAuthenticated || !isNewGuest) {
+    if (isAuthenticated || user?.isNewUser) {
       router.push(`/${locale}${ROUTES.HOME}`);
     } else {
       router.push(`/${locale}${ROUTES.WELCOME}`);

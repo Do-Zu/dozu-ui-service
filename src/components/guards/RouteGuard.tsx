@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, Suspense, useState } from 'react';
 import { RedirectService } from '@/utils/auth/redirectService';
 import LoadingPage from '@/app/loading';
 
@@ -19,9 +19,15 @@ export function RouteGuard({ children, fallback }: RouteGuardProps) {
   const { isLoading, isAuthenticated, userType } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Ensure hydration is complete before making routing decisions
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!isHydrated || isLoading) return;
 
     if (pathname == null) {
       console.error('RouteGuard: pathname is null or undefined');
@@ -40,14 +46,12 @@ export function RouteGuard({ children, fallback }: RouteGuardProps) {
     );
 
     if (shouldRedirect && destination) {
-      console.log(
-        `RouteGuard: Redirecting ${userType} from ${pathWithoutLocale} to ${destination}`,
-      );
       router.replace(`/${locale}${destination}`);
     }
-  }, [isLoading, isAuthenticated, userType, pathname, router]);
+  }, [isHydrated, isLoading, isAuthenticated, userType, pathname, router]);
 
-  if (isLoading) {
+  // Show loading during hydration
+  if (!isHydrated || isLoading) {
     return fallback || <LoadingPage />;
   }
 
@@ -66,7 +70,7 @@ export function RouteGuard({ children, fallback }: RouteGuardProps) {
     return fallback || <LoadingPage />;
   }
 
-  return <>{children}</>;
+  return <Suspense fallback={fallback || <LoadingPage />}>{children}</Suspense>;
 }
 
 /**

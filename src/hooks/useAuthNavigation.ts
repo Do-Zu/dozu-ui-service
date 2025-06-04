@@ -9,6 +9,7 @@ import {
   getPostRegistrationRedirect,
   RedirectService,
 } from '@/utils/auth/redirectService';
+import { RedirectChainService } from '@/utils/auth/redirectChainService';
 
 import { ROUTES } from '@/utils/constants/routes';
 import { User } from '@/types/auth';
@@ -18,7 +19,7 @@ import { User } from '@/types/auth';
  * Provides locale-aware navigation and authentication flow management
  */
 export function useAuthNavigation() {
-  const { isAuthenticated, userType, markOnboardingComplete } = useAuth();
+  const { isAuthenticated, userType, markOnboardingComplete, hasCompletedOnboarding } = useAuth();
 
   const router = useRouter();
   const pathname = usePathname();
@@ -63,21 +64,28 @@ export function useAuthNavigation() {
   );
 
   // ==================== AUTHENTICATION FLOW HANDLERS ====================
-
   /**
    * Handles navigation after successful login
-   * Determines the appropriate redirect path based on user properties
+   * Sets up redirect chain for users who need intermediate steps
    * @param user - The authenticated user object
+   * @param redirectTo - Optional final destination after completing all steps
    */
   const handlePostLogin = useCallback(
     (user: User, redirectTo?: string) => {
       try {
-        const redirectPath = getPostLoginRedirect(user, redirectTo);
-        navigate(redirectPath);
+        // Create redirect chain for users who need intermediate steps
+        const chain = RedirectChainService.createPostLoginChain(user, redirectTo);
+
+        // Get the first step or final destination
+        const firstStep = RedirectChainService.getNextStep();
+        const destination = firstStep || chain.finalDestination;
+
+        navigate(destination);
       } catch (error) {
         console.error('Post-login navigation error:', error);
-        // Fallback to home page
-        navigateToHome();
+        // Fallback to simple redirect
+        const fallbackPath = getPostLoginRedirect(user, redirectTo);
+        navigate(fallbackPath);
       }
     },
     [navigate],
@@ -101,19 +109,83 @@ export function useAuthNavigation() {
     },
     [navigate],
   );
-
   /**
    * Handles completion of the onboarding process
-   * Marks onboarding as complete and redirects to home
+   * Marks onboarding as complete and redirects to next step or final destination
    */
   const handleOnboardingComplete = useCallback(() => {
     try {
       markOnboardingComplete();
-      navigate(ROUTES.HOME);
+
+      // Check if we're in a redirect chain
+      const nextDestination = RedirectChainService.handlePageCompletion(ROUTES.ONBOARDING);
+
+      if (nextDestination) {
+        navigate(nextDestination);
+      } else {
+        // Fallback to home if no chain
+        navigate(ROUTES.HOME);
+      }
     } catch (error) {
       console.error('Onboarding completion error:', error);
+      navigate(ROUTES.HOME);
     }
   }, [markOnboardingComplete, navigate]);
+
+  /**
+   * Handles completion of welcome page
+   * Advances to next step in redirect chain
+   */
+  const handleWelcomeComplete = useCallback(() => {
+    try {
+      const nextDestination = RedirectChainService.handlePageCompletion(ROUTES.WELCOME);
+
+      if (nextDestination) {
+        navigate(nextDestination);
+      } else {
+        // If not in a chain, determine next step based on user state
+        if (!hasCompletedOnboarding && isAuthenticated) {
+          navigate(ROUTES.ONBOARDING);
+        } else {
+          navigate(ROUTES.HOME);
+        }
+      }
+    } catch (error) {
+      console.error('Welcome completion error:', error);
+      navigate(ROUTES.HOME);
+    }
+  }, [navigate, hasCompletedOnboarding, isAuthenticated]);
+
+  /**
+   * Skips the current step in redirect chain
+   */
+  const skipCurrentStep = useCallback(() => {
+    try {
+      const nextDestination = RedirectChainService.skipCurrentStep();
+
+      if (nextDestination) {
+        navigate(nextDestination);
+      } else {
+        navigate(ROUTES.HOME);
+      }
+    } catch (error) {
+      console.error('Skip step error:', error);
+      navigate(ROUTES.HOME);
+    }
+  }, [navigate]);
+
+  /**
+   * Forces completion of redirect chain (emergency exit)
+   */
+  const forceCompleteRedirectChain = useCallback(() => {
+    try {
+      const destination = RedirectChainService.forceComplete();
+      navigate(destination);
+    } catch (error) {
+      console.error('Force complete error:', error);
+      navigate(ROUTES.HOME);
+    }
+  }, [navigate]);
 
   // ==================== NAVIGATION HELPERS ====================
 
@@ -259,6 +331,11 @@ export function useAuthNavigation() {
     handlePostLogin,
     handlePostRegistration,
     handleOnboardingComplete,
+    handleWelcomeComplete,
+
+    // Redirect chain management
+    skipCurrentStep,
+    forceCompleteRedirectChain,
 
     // Route access control
     canAccessRoute,
