@@ -1,32 +1,33 @@
 'use client';
 
 import React from 'react';
+import { useState } from 'react';
 import SubjectListInput from '@/components/schedule/SubjectListInput';
 import FreeTimeSelector from '@/components/schedule/FreeTimeSelector';
 import PrioritySelector from '@/components/schedule/PrioritySelector';
 import StudyPreference from '@/components/schedule/StudyPreference';
-// import DeadlinePicker from '@/components/schedule/DeadlinePicker'; // Uncomment nếu đã có
 
 type Props = {
-  onComplete: (data: any) => void;
+  onComplete: () => void;
+};
+
+type SubjectPriority = {
+  subject: string;
+  importance: number;
+  difficulty: 'Dễ' | 'Trung bình' | 'Khó';
 };
 
 export default function SetupForm({ onComplete }: Props) {
+
+  const [subjects, setSubjects] = useState<SubjectPriority[]>([]);
+
+  const handleSubjectChange = (newSubjects: SubjectPriority[]) => {
+    setSubjects(newSubjects); // Cập nhật danh sách môn học
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-
-    const mockSchedule = {
-      subject: 'Toán',
-      slots: [
-        {
-          title: 'Toán - Luyện tập',
-          start: new Date(),
-          end: new Date(new Date().getTime() + 60 * 60 * 1000),
-        },
-      ],
-    };
-
-    onComplete(mockSchedule); // Gọi callback để chuyển sang bước preview
+    onComplete(); // Gọi callback để chuyển sang bước preview
   };
 
   return (
@@ -34,7 +35,7 @@ export default function SetupForm({ onComplete }: Props) {
       <section>
         <h2 className="text-xl font-semibold mb-2">Danh sách môn học</h2>
         <p className="text-sm text-gray-500 mb-4">Nhập các môn học bạn muốn lên lịch</p>
-        <SubjectListInput />
+        <SubjectListInput subjects={subjects} onSubjectChange={handleSubjectChange} />
       </section>
 
       <section>
@@ -43,16 +44,10 @@ export default function SetupForm({ onComplete }: Props) {
         <FreeTimeSelector />
       </section>
 
-      {/* <section>
-        <h2 className="text-xl font-semibold mb-2">Ngày kiểm tra / Deadline</h2>
-        <p className="text-sm text-gray-500 mb-4">Nhập deadline nếu có để hệ thống ưu tiên môn học</p>
-        <DeadlinePicker />
-      </section> */}
-
       <section>
         <h2 className="text-xl font-semibold mb-2">Mức độ ưu tiên</h2>
         <p className="text-sm text-gray-500 mb-4">Đánh giá tầm quan trọng và độ khó của từng môn</p>
-        <PrioritySelector />
+        <PrioritySelector subjects={subjects} />
       </section>
 
       <section>

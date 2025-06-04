@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 
 const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-const hours = Array.from({ length: 24 }, (_, i) => i); // 0 - 23
+const hours = Array.from({ length: 24 }, (_, i) => i);
 
 export default function FreeTimeSelector() {
   const [freeTime, setFreeTime] = useState<boolean[][]>(
@@ -31,7 +31,7 @@ export default function FreeTimeSelector() {
         <tbody>
           {days.map((day, dayIndex) => (
             <tr key={day}>
-              <td className="border p-2 bg-gray-50 font-medium">{day}</td>
+              <td className="border p-2 font-medium">{day}</td>
               {hours.map((hour) => (
                 <td
                   key={hour}

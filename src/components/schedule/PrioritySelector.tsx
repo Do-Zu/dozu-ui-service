@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 
 interface SubjectPriority {
   subject: string;
@@ -8,25 +9,33 @@ interface SubjectPriority {
   difficulty: 'Dễ' | 'Trung bình' | 'Khó';
 }
 
-export default function PrioritySelector() {
-  const [subjects, setSubjects] = useState<SubjectPriority[]>([
-    { subject: 'Toán', importance: 3, difficulty: 'Trung bình' },
-    { subject: 'Văn', importance: 4, difficulty: 'Khó' },
-  ]);
+type PrioritySelectorProps = {
+  subjects: SubjectPriority[]; // Dữ liệu này sẽ nhận từ props
+};
+
+export default function PrioritySelector({ subjects: initialSubjects }: PrioritySelectorProps) {
+  const [subjectList, setSubjectList] = useState<SubjectPriority[]>(initialSubjects);
+  
+  useEffect(() => {
+    setSubjectList(initialSubjects);
+  }, [initialSubjects]); 
 
   const handleChange = (index: number, field: keyof SubjectPriority, value: any) => {
-    const newSubjects = [...subjects];
-    newSubjects[index][field] = value as SubjectPriority[typeof field];
-    setSubjects(newSubjects);
-  };
-
-  const handleAdd = () => {
-    setSubjects([...subjects, { subject: '', importance: 3, difficulty: 'Trung bình' }]);
+    const newSubjects = [...subjectList];
+    if (field === 'subject' && typeof value === 'string') {
+      newSubjects[index][field] = value;
+    } else if (field === 'importance' && typeof value === 'number') {
+      newSubjects[index][field] = value;
+    } else if (field === 'difficulty' && (value === 'Dễ' || value === 'Trung bình' || value === 'Khó')) {
+      newSubjects[index][field] = value;
+    }
+    setSubjectList(newSubjects);
   };
 
   return (
     <div className="space-y-4">
-      {subjects.map((subject, index) => (
+      {subjectList.map((subject, index) => (
+        subject.subject &&
         <div key={index} className="border p-4 rounded shadow-sm space-y-2">
           <input
             type="text"
@@ -62,14 +71,6 @@ export default function PrioritySelector() {
           </div>
         </div>
       ))}
-
-      <button
-        type="button"
-        onClick={handleAdd}
-        className="text-blue-600 hover:underline text-sm"
-      >
-        + Thêm môn
-      </button>
     </div>
   );
 }

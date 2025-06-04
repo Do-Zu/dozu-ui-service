@@ -2,22 +2,33 @@
 
 import React, { useState } from 'react';
 
-export default function SubjectListInput() {
-  const [subjects, setSubjects] = useState<string[]>(['']);
+interface SubjectListInputProps {
+  subjects: {
+    subject: string;
+    importance: number;
+    difficulty: 'Dễ' | 'Trung bình' | 'Khó'; //fix tạm nếu có enum thì khác
+  }[];
+  onSubjectChange: (subjects: any[]) => void;
+}
 
-  const handleChange = (index: number, value: string) => {
+export default function SubjectListInput({ subjects, onSubjectChange }: SubjectListInputProps) {
+
+  const handleChange = (index: number, field: keyof typeof subjects[0], value: string) => {
     const newSubjects = [...subjects];
-    newSubjects[index] = value;
-    setSubjects(newSubjects);
+    newSubjects[index] = { ...newSubjects[index], [field]: value }; 
+    onSubjectChange(newSubjects); // Cập nhật state ở parent component
   };
 
   const handleAdd = () => {
-    setSubjects([...subjects, '']);
+    onSubjectChange([
+      ...subjects,
+      { subject: '', importance: 3, difficulty: 'Trung bình' }, // Thêm môn học mới, mặc định khi thêm thì độ khó và importance sẽ setup sẵn 
+    ]);
   };
 
   const handleRemove = (index: number) => {
     const newSubjects = subjects.filter((_, i) => i !== index);
-    setSubjects(newSubjects);
+    onSubjectChange(newSubjects); 
   };
 
   return (
@@ -26,8 +37,8 @@ export default function SubjectListInput() {
         <div key={index} className="flex items-center gap-2">
           <input
             type="text"
-            value={subject}
-            onChange={(e) => handleChange(index, e.target.value)}
+            value={subject.subject}
+            onChange={(e) => handleChange(index, 'subject', e.target.value)} 
             className="flex-1 border border-gray-300 rounded px-3 py-2"
             placeholder="Tên môn học..."
           />
