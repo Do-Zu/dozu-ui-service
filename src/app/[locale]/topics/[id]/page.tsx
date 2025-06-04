@@ -54,11 +54,16 @@ const Page = () => {
   }
 
   async function handleOnSaveChanges() {
+    if(!name) {
+      alert("Name can't be blank");
+      return;
+    }
     try {
       const topicName = name,
         topicDescription = description ? description : '';
       const dataSubmitted = { topicName, topicDescription };
       await putRequest(`/topics/${topicId}`, dataSubmitted);
+      router.push('/home');
     } catch (err) {
       console.log(err);
     }
