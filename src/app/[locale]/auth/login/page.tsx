@@ -7,14 +7,12 @@ import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 
 import React, { useState } from 'react';
-import useFetch from '@/hooks/useFetch';
-import { callApiAsync } from '@/hooks/helper';
+
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { updateAccessToken } from '@/stores/features/auth/authSlice';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { setCredentials } from '@/stores/features/auth/authSlice';
-import { jwtDecode } from 'jwt-decode';
+
 import Axios from '@/api/axios';
 import { toast } from '@/hooks/use-toast';
 import { ROUTES } from '@/utils/constants/routes';
@@ -30,7 +28,7 @@ const AuthPage: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const accessToken = useAppSelector((state) => state.auth.accessToken);
+
   const dispatch = useAppDispatch();
 
   const { handlePostLogin } = useAuthNavigation();
