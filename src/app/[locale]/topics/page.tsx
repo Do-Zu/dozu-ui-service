@@ -1,38 +1,23 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import BackButton from '../flashcards/components/BackButton';
 import { Book, CirclePlus, SquarePen, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { deleteRequest, getRequest } from '@/api/api';
-import axios from 'axios';
-import Axios from '@/api/axios';
-
-export interface ITopic {
-  topicId: number;
-  userId: number;
-  name: string;
-  description: string | null;
-  createdAt: Date;
-}
-
-export type IBasicTopic = Pick<ITopic, 'topicId' | 'name' | 'description'> & {
-  flashcardsCount?: number;
-};
+import { deleteRequest } from '@/api/api';
+import { ITopicsForUserReturned } from './topic.type';
 
 const Page = () => {
-  const userId = 2;
   const router = useRouter();
 
-  const topicsSelector = useCallback((data: { topics: IBasicTopic[] }) => data.topics, []);
   const {
     data: topics,
     setData: setTopics,
     error: topicsError,
     loading: topicsLoading,
-  } = useFetch<IBasicTopic[]>(`/topics?userId=${userId}`, topicsSelector);
+  } = useFetch<ITopicsForUserReturned>('/topics');
 
   if (topicsLoading || !topics) {
     return <div>Loading...</div>;
@@ -45,21 +30,6 @@ const Page = () => {
   if (topics.length === 0) {
     return <div>No Topics available</div>;
   }
-
-  // const [topics, setTopics] = useState<IBasicTopic[]>();
-
-  // useEffect(() => {
-  //     async function fetchTopics() {
-  //         try {
-  //             const data = await Axios.get('/topics');
-  //             console.log(data);
-  //             setTopics(data.data.topics);
-  //         } catch(err) {
-  //             console.log(err);
-  //         }
-  //     }
-  //     fetchTopics();
-  // }, []);
 
   function handleClickStudy(topicId: number) {
     router.push(`/flashcards/study?topicId=${topicId}`);
