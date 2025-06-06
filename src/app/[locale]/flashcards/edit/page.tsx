@@ -3,15 +3,15 @@
 import { postRequest } from '@/api/api';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { ArrowBigLeft, Edit, Import, Save, Trash2 } from 'lucide-react';
+import { Edit, Import, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { IFlashcard } from '../components/Flashcard';
+import { IFlashcardAdded, IFlashcardBasic, IFlashcardDeleted, IFlashcardUpdated } from '../flashcard.type'; 
 import useFetch from '@/hooks/useFetch';
 import BackButton from '../components/BackButton';
 
-interface IBasicFlashcard {
+interface IFlashcard {
   id: number;
   front: string;
   back: string;
@@ -24,18 +24,14 @@ interface IFlashcardServer {
   isDeleted: boolean;
 }
 
-interface IHardFlashcard extends IBasicFlashcard {
+interface IFlashcardWithServer extends IFlashcard {
   serverInfo?: IFlashcardServer;
 }
 
-interface IRawFlashcard {
-  flashcards: IFlashcard[];
+interface IFlashcardsWithTopicName {
+  flashcards: IFlashcardBasic[];
   topicName: string;
 }
-
-type IFlashcardAdded = Pick<IFlashcard, 'front' | 'back'>;
-type IFlashcardUpdated = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'>;
-type IFlashcardDeleted = number;
 
 interface FlashcardsSubmit {
   flashcardsAdded?: IFlashcardAdded[];
@@ -50,19 +46,19 @@ function isEmptyArray(array: any[]): boolean {
   return array.length === 0;
 }
 
-function createInitialFlashcard(id: number): IBasicFlashcard {
+function createInitialFlashcard(id: number): IFlashcard {
   return { id, front: '', back: '' };
 }
 
-function createInitialFlashcards(count: number): IBasicFlashcard[] {
-  const initialFlashcards: IBasicFlashcard[] = [];
+function createInitialFlashcards(count: number): IFlashcard[] {
+  const initialFlashcards: IFlashcard[] = [];
   for (let i = 0; i < count; ++i) {
     initialFlashcards.push(createInitialFlashcard(i));
   }
   return initialFlashcards;
 }
 
-function getFlashcardType(flashcard: IHardFlashcard): 'client' | 'server' {
+function getFlashcardType(flashcard: IFlashcardWithServer): 'client' | 'server' {
   return flashcard.serverInfo ? 'server' : 'client';
 }
 
@@ -76,22 +72,20 @@ const Page = () => {
 
   const topicId = searchParamsClient.get('topicId')!;
 
-  // const flashcardsSelector = useCallback((data: { flashcards: IFlashcard[] }) => data.flashcards, []);
   const {
     data: flashcardsExisted,
     // setData: setFlashcardsExisted,
     loading: flashcardsLoading,
     error: flashcardsError,
-  } = useFetch<IRawFlashcard>(`/flashcards?topicId=${topicId}`);
-  console.log(flashcardsExisted);
+  } = useFetch<IFlashcardsWithTopicName>(`/flashcards?topicId=${topicId}`); // done check type
 
   const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
-  const [flashcards, setFlashcards] = useState<IHardFlashcard[] | null>();
+  const [flashcards, setFlashcards] = useState<IFlashcardWithServer[] | null>();
 
   useEffect(() => {
     if (!flashcardsExisted) return;
 
-    let initialFlashcards: IHardFlashcard[];
+    let initialFlashcards: IFlashcardWithServer[];
     if (isEmptyArray(flashcardsExisted.flashcards)) {
       initialFlashcards = createInitialFlashcards(initialFlashcardsCount);
     } else {
@@ -135,7 +129,7 @@ const Page = () => {
     flashcard: { order: number; text: string },
   ) {
     if (!flashcards) return;
-    let newFlashcards: IHardFlashcard[] = flashcards;
+    let newFlashcards: IFlashcardWithServer[] = flashcards;
     let { order, text } = flashcard;
 
     if (type === 'client') {
@@ -181,7 +175,7 @@ const Page = () => {
 
   function handleDeleteFlashcard(type: 'client' | 'server', flashcardId: number) {
     if (!flashcards) return;
-    let newFlashcards: IHardFlashcard[] = flashcards;
+    let newFlashcards: IFlashcardWithServer[] = flashcards;
 
     if (type === 'client') {
       newFlashcards = flashcards.filter((flashcard) => flashcard.id !== flashcardId);
