@@ -1,18 +1,19 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Flashcard, { IFlashcard } from '../components/Flashcard';
+import Flashcard from '../components/Flashcard';
 import { Angry, ArrowBigLeft, CircleAlert, Eye, Frown, Laugh, Smile, ThumbsUp } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import useFetch from '@/hooks/useFetch';
 import { Button } from '@/components/ui/button';
 import { putRequest } from '@/api/api';
 import BackButton from '../components/BackButton';
+import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../flashcard.type';
 
 type TrackingOption = {
   icon: any;
   label: string;
-  qualityResponse: 0 | 1 | 2 | 3 | 4 | 5;
+  qualityResponse: IQualityResponse;
 };
 
 const trackingOptions: TrackingOption[] = [
@@ -24,28 +25,18 @@ const trackingOptions: TrackingOption[] = [
   { icon: <Laugh size={24} fill="yellow" />, label: 'Easy', qualityResponse: 5 },
 ];
 
-const userId = 2;
-
-interface IQualityResponseNextReviewInterval {
-  qualityResponse: 0 | 1 | 2 | 3 | 4 | 5;
-  nextReviewInterval: number;
-}
-
-interface IFlashcardExtended extends IFlashcard {
-  topicName: string;
-  qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
-  nextReview?: string | null;
-}
+export type IFlashcard = Pick<
+  IFlashcardFull,
+  'flashcardId' | 'front' | 'back' | 'topicName'
+> & { qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[] };
 
 export default function Page() {
-  const flashcardSelector = (data: { flashcards: IFlashcardExtended[] }) => data.flashcards;
-
   const {
     data: flashcards,
     setData: setFlashcardData,
     loading: flashcardLoading,
     error: flashcardError,
-  } = useFetch<IFlashcardExtended[]>(`/flashcards/practice?userId=${userId}`, flashcardSelector);
+  } = useFetch<IFlashcard[]>('/flashcards/practice');
 
   const currentFlashcard = flashcards ? flashcards[0] : null;
 
