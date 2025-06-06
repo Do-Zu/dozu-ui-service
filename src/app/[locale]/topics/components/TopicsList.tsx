@@ -1,37 +1,22 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
-import { useCallback, useEffect, useState } from 'react';
-import { Book, CirclePlus, SquarePen, Trash2 } from 'lucide-react';
+import { Book, SquarePen, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { deleteRequest, getRequest } from '@/api/api';
-import axios from 'axios';
-import Axios from '@/api/axios';
+import { deleteRequest } from '@/api/api';
 import { DeleteAlertingModal } from './DeleteAlertingDialog';
-
-export interface ITopic {
-  topicId: number;
-  userId: number;
-  name: string;
-  description: string | null;
-  createdAt: Date;
-}
-
-export type IBasicTopic = Pick<ITopic, 'topicId' | 'name' | 'description'> & {
-  flashcardsCount?: number;
-};
+import { ITopicsForUserReturned } from '../topic.type';
 
 const TopicsList = () => {
   const router = useRouter();
 
-  const topicsSelector = useCallback((data: { topics: IBasicTopic[] }) => data.topics, []);
   const {
     data: topics,
     setData: setTopics,
     error: topicsError,
     loading: topicsLoading,
-  } = useFetch<IBasicTopic[]>('/topics', topicsSelector);
+  } = useFetch<ITopicsForUserReturned>('/topics');
 
   if (topicsLoading || !topics) {
     return <div>Loading...</div>;
@@ -41,7 +26,7 @@ const TopicsList = () => {
     return <div>Error: {topicsError} </div>;
   }
 
-  if (topics.length === 0) {
+  if (topics?.length === 0) {
     return <div>No Topics available</div>;
   }
 
