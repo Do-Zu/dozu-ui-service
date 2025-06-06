@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import ContentCard from './ContentCard';
+import TopicsList from '../../topics/components/TopicsList';
+import { useRouter } from 'next/navigation';
 
 interface ContentLibraryProps {
   contentSets?: ContentSet[];
@@ -102,6 +104,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
   onEditContent = () => {},
   onDeleteContent = () => {},
 }) => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
@@ -145,11 +148,15 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
       return 0;
     });
 
+    function handleClickCreate() {
+      router.push('/topics/create');
+    }
+
   return (
     <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 className="text-2xl font-semibold text-gray-800">Content Library</h2>
-        <Button onClick={onCreateContent} className="bg-gray-800 hover:bg-gray-900">
+        <Button onClick={handleClickCreate} className="bg-gray-800 hover:bg-gray-900">
           <Plus className="mr-2 h-4 w-4" /> Create New Content
         </Button>
       </div>
@@ -202,7 +209,8 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
-          {renderContentGrid(filteredContent)}
+          {/* {renderContentGrid(filteredContent)} */}
+          <TopicsList/>
         </TabsContent>
         <TabsContent value="flashcards" className="mt-6">
           {renderContentGrid(filteredContent)}
