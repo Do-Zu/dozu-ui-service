@@ -1,19 +1,12 @@
 import React from 'react';
-
-export interface IFlashcard {
-  flashcardId: number;
-  topicId: number;
-  front: string;
-  back: string;
-  status: string;
-}
+import { IFlashcardBasic } from '../flashcard.type';
 
 interface Props {
   style?: string;
   handleManualFlip?: Function;
   cardContainerRef: React.RefObject<HTMLDivElement>;
   cardRef: React.RefObject<HTMLDivElement>;
-  flashcard: IFlashcard;
+  flashcard: Pick<IFlashcardBasic, 'front' | 'back'>;
 }
 
 export default function Flashcard(props: Props) {
