@@ -1,7 +1,7 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
-import Flashcard, { IFlashcard } from '../components/Flashcard';
+import Flashcard from '../components/Flashcard';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
@@ -22,18 +22,12 @@ import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import BackButton from '../components/BackButton';
+import { IFlashcardBasic, IFlashcardStatus } from '../flashcard.type';
 
 const initialAutoPlaySpeed = 3;
 
-interface IFlashcardWithStatus extends IFlashcard {
-  status: string;
-}
-
-type TrackingOption = {
-  icon: any;
-  label: string;
-  qualityResponse: 0 | 1 | 2 | 3 | 4 | 5;
-};
+export type IFlashcardForTopic = (Omit<IFlashcardBasic, 'topicId'> & { status: IFlashcardStatus });
+export type IFlashcardsForTopicReturned = IFlashcardForTopic[];
 
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * (max + 1));
@@ -53,7 +47,7 @@ function getRandomArray(num: number) {
   return result;
 }
 
-function getFlashcardsShuffled(flashcards: IFlashcardWithStatus[]): IFlashcardWithStatus[] {
+function getFlashcardsShuffled(flashcards: IFlashcardsForTopicReturned): IFlashcardsForTopicReturned {
   const flashcardsRandom = [];
   const arrayRandom = getRandomArray(flashcards.length);
   for (const indexRandom of arrayRandom) {
@@ -67,14 +61,14 @@ export default function Page() {
   const searchParamsClient = useSearchParams();
   const topicId = searchParamsClient?.get('topicId')!;
 
-  const flashcardSelector = (data: { flashcards: IFlashcardWithStatus[] }) => data.flashcards;
+  const flashcardSelector = (data: { flashcards: IFlashcardsForTopicReturned[] }) => data.flashcards;
 
   const {
     data: flashcards,
     setData: setFlashcardsData,
     loading: flashcardLoading,
     error: flashcardError,
-  } = useFetch<IFlashcardWithStatus[]>(`/flashcards?topicId=${topicId}`, flashcardSelector);
+  } = useFetch<IFlashcardsForTopicReturned>(`/flashcards?topicId=${topicId}`, flashcardSelector);
 
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
 
@@ -93,18 +87,6 @@ export default function Page() {
   const [shuffleEnabled, setShuffleEnabled] = useState<boolean>(false);
 
   const currentFlashcardIndexRef = useRef<number>(0);
-
-  const trackingOptions: TrackingOption[] = [
-    { icon: <Angry size={24} fill="red" />, label: 'Fail', qualityResponse: 0 },
-    { icon: <Frown size={24} fill="#F6C908" />, label: 'Incorrect', qualityResponse: 1 },
-    { icon: <CircleAlert size={24} fill="#FFCC4D" />, label: 'Easy miss', qualityResponse: 2 },
-    { icon: <ThumbsUp size={24} fill="blue" />, label: 'Hard', qualityResponse: 3 },
-    { icon: <Smile size={24} fill="yellow" />, label: 'Good', qualityResponse: 4 },
-    { icon: <Laugh size={24} fill="yellow" />, label: 'Easy', qualityResponse: 5 },
-  ];
-
-  const [trackingProgressEnabled, setTrackingProgressEnabled] = useState<boolean>(false);
-  const [shouldTrackCurrentFlashcard, setShouldTrackCurrentFlashcard] = useState<boolean>(false);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -126,7 +108,7 @@ export default function Page() {
 
   useEffect(() => {
     currentFlashcardIndexRef.current = currentFlashcardIndex;
-    setShouldTrackCurrentFlashcard(false);
+    // setShouldTrackCurrentFlashcard(false);
   }, [currentFlashcardIndex]);
 
   const flashcardsShuffled = useMemo(() => {
@@ -134,7 +116,7 @@ export default function Page() {
     return null;
   }, [shuffleEnabled]);
 
-  function getCurrentFlashcard() {
+  function getCurrentFlashcard() : IFlashcardForTopic | null {
     if (shuffleEnabled) {
       return flashcardsShuffled ? flashcardsShuffled[currentFlashcardIndex] : null;
     } else {
@@ -211,9 +193,9 @@ export default function Page() {
 
   // không thể lật flashcard khi đang auto
   function handleManualFlip() {
-    if (isFrontRef.current) {
-      setShouldTrackCurrentFlashcard(true);
-    }
+    // if (isFrontRef.current) {
+    //   setShouldTrackCurrentFlashcard(true);
+    // }
 
     if (cardRef.current && !autoPlayEnabled) {
       cardRef.current.style.transform = isFrontRef.current ? 'rotateX(180deg)' : 'rotateX(0deg)';
@@ -223,7 +205,7 @@ export default function Page() {
   }
 
   function handleClickEditFlashcards() {
-    router.push(`/en/flashcards/edit?topicId=${topicId}`);
+    router.push(`/flashcards/edit?topicId=${topicId}`);
   }
 
   function handleResetProgress() {
@@ -316,35 +298,20 @@ export default function Page() {
     };
   }, [autoPlayEnabled, autoPlaySpeed]);
 
-  function isDateEarlier(date1: Date, date2: Date) {
-    if (date1.getFullYear() !== date2.getFullYear())
-      return date1.getFullYear() < date2.getFullYear();
-    if (date1.getMonth() !== date2.getMonth()) return date1.getMonth() < date2.getMonth();
-    return date1.getDate() < date2.getDate();
-  }
-
-  function isFlashcardReviewedEarlier(nextReview: string) {
-    let currentDate = new Date(Date.now());
-    let nextReviewDate = new Date(nextReview);
-    return isDateEarlier(nextReviewDate, currentDate);
-  }
-
   function handleClickPracticeFlashcards() {
-    router.push(`/en/flashcards/practice`);
+    router.push('/flashcards/practice');
   }
 
   async function handleClickPutToPractice() {
     if (!currentFlashcard) return;
     try {
-      const data = await putRequest<
-        {},
-        { data: { flashcardUpdated: { status: 'new' | 'practice' } } }
-      >(`/flashcards/${currentFlashcard.flashcardId}/put-to-practice`, {});
-      const { flashcardUpdated } = data.data;
-      const flashcardsUpdated = flashcards!.map((flashcard) => {
-        return flashcard.flashcardId === currentFlashcard.flashcardId
-          ? { ...flashcard, status: flashcardUpdated.status }
-          : flashcard;
+      await putRequest<
+        {}, {}
+      >(`/flashcards/${currentFlashcard.flashcardId}/put-to-learning`, {});
+      const flashcardsUpdated : IFlashcardsForTopicReturned = flashcards!.map((flashcard) => {
+        return (flashcard.flashcardId === currentFlashcard.flashcardId
+          ? { ...flashcard, status: 'learning' }
+          : flashcard);
       });
       setFlashcardsData(flashcardsUpdated);
     } catch (err) {
@@ -424,8 +391,6 @@ export default function Page() {
     );
   }
 
-  // console.log(flashcards);
-  // console.log(isFlashcardReviewedEarlier(('2023-05-06'))); // yyyy-mm-dd
   return (
     <div className="flex bg-[#F3F4F6] h-[90vh]">
       <div className="flex flex-1 flex-col m-1.25 mb-0 p-5">
@@ -445,10 +410,6 @@ export default function Page() {
             />
 
             {renderFlashcardButtonsSection('grid grid-cols-3 mt-4 gap-4')}
-            {/* {renderFlashcardButtonsSection('grid grid-cols-3 flex flex-row gap-4 mt-4 items-center')} */}
-            {/* {shouldTrackCurrentFlashcard && isFlashcardReviewedEarlier(currentFlashcard.nextReview) ? 
-                            renderTrackingOptionsSection('') : renderFlashcardButtonsSection('flex flex-row gap-4 items-center mt-4')
-                        } */}
           </div>
 
           {/* Study Control Section */}
