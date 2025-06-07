@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Library, Sparkles, LucideIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
 
 interface CoreActionCardsProps {}
@@ -19,6 +20,8 @@ interface ActionCard {
 const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
   const router = useRouter();
 
+  const t = useTranslations('home.coreActionCards');
+
   const handleRedirectGenerate = () => {
     router.push(ROUTES.GENERATE);
   };
@@ -27,25 +30,25 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
     () => [
       {
         id: 'schedule',
-        title: 'View Schedule',
-        description: 'Manage your learning timeline and track progress across all topics.',
+        title: t('schedule.title'),
+        description: t('schedule.description'),
         icon: Calendar,
       },
       {
         id: 'library',
-        title: 'Manage Library',
-        description: 'Organize your learning materials, flashcards, and study content.',
+        title: t('library.title'),
+        description: t('library.description'),
         icon: Library,
       },
       {
         id: 'generate',
-        title: 'Generate Content',
-        description: 'Create new learning materials with AI-powered content generation.',
+        title: t('generate.title'),
+        description: t('generate.description'),
         icon: Sparkles,
         onClick: handleRedirectGenerate,
       },
     ],
-    [],
+    [t],
   );
 
   return (
