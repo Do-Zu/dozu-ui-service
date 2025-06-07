@@ -7,10 +7,9 @@ import EventCard from '@/components/ui/event-card';
 import {
   Locale,
   addDays,
-  addMonths,
   addWeeks,
-  addYears,
   differenceInMinutes,
+  endOfWeek,
   format,
   getMonth,
   isSameDay,
@@ -22,9 +21,7 @@ import {
   startOfMonth,
   startOfWeek,
   subDays,
-  subMonths,
   subWeeks,
-  subYears,
 } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
 import {
@@ -33,10 +30,19 @@ import {
   forwardRef,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import usePost from '@/hooks/usePost';
+import { generateSchedule } from '@/app/[locale]/schedule/services/schedule.service';
+import { toast } from '@/hooks/use-toast';
+import { getISOTime } from '@/utils';
+import {
+  type ScheduleGenerateRequest,
+  type ScheduleGenerateResponse,
+} from '@/app/[locale]/schedule/types/schedule.type';
 
 const monthEventVariants = cva('size-2 rounded-full', {
   variants: {
@@ -72,6 +78,8 @@ type View = 'day' | 'week' | 'month' | 'year';
 
 type ContextType = {
   view: View;
+  isLoading: boolean;
+  error: string | null;
   setView: (view: View) => void;
   date: Date;
   setDate: (date: Date) => void;
@@ -80,6 +88,8 @@ type ContextType = {
   setEvents: (date: CalendarEvent[]) => void;
   onChangeView?: (view: View) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  handleChangeWeek: (type: 'next' | 'previous') => void;
+  handleGetGenerateScheduleEvent: (date: Date) => Promise<void>;
   enableHotkeys?: boolean;
   today: Date;
 };
@@ -110,7 +120,7 @@ const Calendar = ({
   defaultDate = new Date(),
   locale = enUS,
   enableHotkeys = true,
-  view: _defaultMode = 'month',
+  view: _defaultMode = 'week',
   onEventClick,
   events: defaultEvents = [],
   onChangeView,
@@ -118,6 +128,13 @@ const Calendar = ({
   const [view, setView] = useState<View>(_defaultMode);
   const [date, setDate] = useState(defaultDate);
   const [events, setEvents] = useState<CalendarEvent[]>(defaultEvents);
+
+  const {
+    loading,
+    execute,
+    error,
+    data: response,
+  } = usePost<ScheduleGenerateRequest, ScheduleGenerateResponse>(generateSchedule, 'POST');
 
   const changeView = (view: View) => {
     setView(view);
@@ -140,9 +157,70 @@ const Calendar = ({
     enabled: enableHotkeys,
   });
 
+  const handleGetGenerateScheduleEvent = async (date: Date) => {
+    const startDateOfWeek = startOfWeek(date, { weekStartsOn: 1 });
+    const endDateOfWeek = endOfWeek(date, { weekStartsOn: 1 });
+
+    const request: ScheduleGenerateRequest = {
+      fromDate: getISOTime(startDateOfWeek),
+      toDate: getISOTime(endDateOfWeek),
+    };
+
+    await execute(request);
+  };
+
+  const handleResponseGetSchedule = useCallback(() => {
+    if (response) {
+      const { data, code } = response;
+
+      if (code !== 200) {
+        toast({
+          description: 'Failed to fetch schedule data.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (data && data?.schedules) {
+        const dataEvents = Object.values(data.schedules).flatMap((day) => {
+          return day.map(
+            (event, index) =>
+              ({
+                id: `${event.topicId}:${event.type}:${index}`,
+                start: new Date(event.startTime),
+                end: new Date(event.endTime),
+                title: event.title,
+                color: 'blue',
+              }) as CalendarEvent,
+          );
+        });
+
+        setEvents(dataEvents);
+      }
+    }
+  }, [response]);
+
+  const handleChangeWeek = useCallback(
+    async (type: 'next' | 'previous') => {
+      const dateNextWeek = type === 'next' ? addWeeks(date, 1) : subWeeks(date, 1);
+      await handleGetGenerateScheduleEvent(dateNextWeek);
+
+      setDate(dateNextWeek);
+    },
+    [date],
+  );
+
+  useEffect(() => {
+    if (response) {
+      handleResponseGetSchedule();
+    }
+  }, [response]);
+
   return (
     <Context.Provider
       value={{
+        isLoading: loading,
+        error,
         view,
         setView,
         date,
@@ -152,6 +230,8 @@ const Calendar = ({
         locale,
         enableHotkeys,
         onEventClick,
+        handleChangeWeek,
+        handleGetGenerateScheduleEvent,
         onChangeView,
         today: new Date(),
       }}
@@ -207,7 +287,6 @@ const EventGroup = ({ events, hour }: { events: CalendarEvent[]; hour: Date }) =
               }}
             >
               <EventCard event={{ ...event, color: event.color ?? undefined }} />
-
             </div>
           );
         })}
@@ -238,7 +317,7 @@ const CalendarWeekView = () => {
   const { view, date, locale, events } = useCalendar();
 
   const weekDates = useMemo(() => {
-    const start = startOfWeek(date, { weekStartsOn: 0 });
+    const start = startOfWeek(date, { weekStartsOn: 1 });
     const weekDates = [];
 
     for (let i = 0; i < 7; i++) {
@@ -253,7 +332,7 @@ const CalendarWeekView = () => {
   const headerDays = useMemo(() => {
     const daysOfWeek = [];
     for (let i = 0; i < 7; i++) {
-      const result = addDays(startOfWeek(date, { weekStartsOn: 0 }), i);
+      const result = addDays(startOfWeek(date, { weekStartsOn: 1 }), i);
       daysOfWeek.push(result);
     }
     return daysOfWeek;
@@ -436,17 +515,13 @@ const CalendarYearView = () => {
 
 const CalendarNextTrigger = forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
   ({ children, onClick, ...props }, ref) => {
-    const { date, setDate, view, enableHotkeys } = useCalendar();
+    const { date, setDate, view, enableHotkeys, handleChangeWeek } = useCalendar();
 
     const next = useCallback(() => {
       if (view === 'day') {
         setDate(addDays(date, 1));
       } else if (view === 'week') {
-        setDate(addWeeks(date, 1));
-      } else if (view === 'month') {
-        setDate(addMonths(date, 1));
-      } else if (view === 'year') {
-        setDate(addYears(date, 1));
+        handleChangeWeek('next');
       }
     }, [date, view, setDate]);
 
@@ -474,7 +549,7 @@ CalendarNextTrigger.displayName = 'CalendarNextTrigger';
 
 const CalendarPrevTrigger = forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
   ({ children, onClick, ...props }, ref) => {
-    const { date, setDate, view, enableHotkeys } = useCalendar();
+    const { date, setDate, view, enableHotkeys, handleChangeWeek } = useCalendar();
 
     useHotkeys('ArrowLeft', () => prev(), {
       enabled: enableHotkeys,
@@ -484,11 +559,7 @@ const CalendarPrevTrigger = forwardRef<HTMLButtonElement, React.HTMLAttributes<H
       if (view === 'day') {
         setDate(subDays(date, 1));
       } else if (view === 'week') {
-        setDate(subWeeks(date, 1));
-      } else if (view === 'month') {
-        setDate(subMonths(date, 1));
-      } else if (view === 'year') {
-        setDate(subYears(date, 1));
+        handleChangeWeek('previous');
       }
     }, [date, view, setDate]);
 

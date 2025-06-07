@@ -1,90 +1,63 @@
 import {
-  Calendar,
   CalendarCurrentDate,
   CalendarDayView,
-  CalendarMonthView,
   CalendarNextTrigger,
   CalendarPrevTrigger,
   CalendarTodayTrigger,
   CalendarViewTrigger,
   CalendarWeekView,
-  CalendarYearView,
+  useCalendar,
 } from '@/components/ui/full-calendar';
-import { addHours } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect } from 'react';
+
+import LoadingPage from '@/app/loading';
 
 export default function CalendarView() {
+  const { date, isLoading, handleGetGenerateScheduleEvent } = useCalendar();
+
+  useEffect(() => {
+    handleGetGenerateScheduleEvent(date);
+  }, []);
+
+  if (isLoading) {
+    //TODO: change loading to skeleton
+    return <LoadingPage />;
+  }
+
   return (
-    <Calendar
-      events={[
-        {
-          id: '1',
-          start: new Date(),
-          end: addHours(new Date(), 2),
-          title: '  Toán',
-          color: 'pink',
-        },
-        {
-          id: '2',
-          start: addHours(new Date(), 1.5),
-          end: addHours(new Date(), 3),
-          title: 'Văn',
-          color: 'blue',
-        }
-      ]}
-    >
-      <div className="h-dvh p-14 flex flex-col">
-        <div className="flex px-6 items-center gap-2 mb-6">
-          <CalendarViewTrigger
-            className="aria-[current=true]:bg-accent"
-            view="day"
-          >
-            Day
-          </CalendarViewTrigger>
-          <CalendarViewTrigger
-            view="week"
-            className="aria-[current=true]:bg-accent"
-          >
-            Week
-          </CalendarViewTrigger>
-          <CalendarViewTrigger
-            view="month"
-            className="aria-[current=true]:bg-accent"
-          >
-            Month
-          </CalendarViewTrigger>
-          <CalendarViewTrigger
-            view="year"
-            className="aria-[current=true]:bg-accent"
-          >
-            Year
-          </CalendarViewTrigger>
+    <div className="h-dvh p-14 flex flex-col">
+      <div className="flex px-6 items-center gap-2 mb-6">
+        <CalendarViewTrigger className="aria-[current=true]:bg-accent" view="day">
+          Day
+        </CalendarViewTrigger>
+        <CalendarViewTrigger view="week" className="aria-[current=true]:bg-accent">
+          Week
+        </CalendarViewTrigger>
 
-          <span className="flex-1" />
+        <span className="flex-1" />
 
-          <CalendarCurrentDate />
+        <CalendarCurrentDate />
 
-          <CalendarPrevTrigger>
-            <ChevronLeft size={20} />
-            <span className="sr-only">Previous</span>
-          </CalendarPrevTrigger>
+        <CalendarPrevTrigger>
+          <ChevronLeft size={20} />
+          <span className="sr-only">Previous</span>
+        </CalendarPrevTrigger>
 
-          <CalendarTodayTrigger>Today</CalendarTodayTrigger>
+        <CalendarTodayTrigger>Today</CalendarTodayTrigger>
 
-          <CalendarNextTrigger>
-            <ChevronRight size={20} />
-            <span className="sr-only">Next</span>
-          </CalendarNextTrigger>
-
-        </div>
-
-        <div className="flex-1 px-6 overflow-hidden">
-          <CalendarDayView />
-          <CalendarWeekView />
-          <CalendarMonthView />
-          <CalendarYearView />
-        </div>
+        <CalendarNextTrigger>
+          <ChevronRight size={20} />
+          <span className="sr-only">Next</span>
+        </CalendarNextTrigger>
       </div>
-    </Calendar>
+
+      <div className="flex-1 px-6 overflow-hidden">
+        <CalendarDayView />
+        <CalendarWeekView />
+        {/* <CalendarMonthView />
+        <CalendarYearView /> */}
+      </div>
+    </div>
   );
 }
