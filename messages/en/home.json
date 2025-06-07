@@ -13,6 +13,14 @@
         "title": "Generate Content",
         "description": "Create new learning materials with AI-powered content generation."
       }
+    },
+    "currentProcessLearning": {
+      "title": "Current Learning",
+      "subtitle": "Based on your timeline schedule",
+      "module": "Module",
+      "progress": "Progress",
+      "remaining": "remaining",
+      "continueButton": "Continue Learning"
     }
   }
 }
