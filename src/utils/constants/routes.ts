@@ -11,6 +11,8 @@ export const ROUTES = Object.freeze({
   FLASHCARD_EDIT: '/flashcard/edit/:id',
   FLASHCARD_VIEW: '/flashcard/view/:id',
   UNAUTHORIZED: '/unauthorized',
+  SCHEDULE: '/schedule',
+  LIBRARY: '/library',
 });
 
 // Route groups for easier management

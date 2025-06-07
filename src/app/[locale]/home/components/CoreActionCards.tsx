@@ -26,6 +26,14 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
     router.push(ROUTES.GENERATE);
   };
 
+  const handleRedirectSchedule = () => {
+    router.push(ROUTES.SCHEDULE);
+  };
+
+  const handleRedirectLibrary = () => {
+    router.push(ROUTES.LIBRARY);
+  };
+
   const actionCards: ActionCard[] = useMemo(
     () => [
       {
@@ -33,12 +41,14 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
         title: t('schedule.title'),
         description: t('schedule.description'),
         icon: Calendar,
+        onClick: handleRedirectSchedule,
       },
       {
         id: 'library',
         title: t('library.title'),
         description: t('library.description'),
         icon: Library,
+        onClick: handleRedirectLibrary,
       },
       {
         id: 'generate',
