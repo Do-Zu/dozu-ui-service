@@ -1,9 +1,9 @@
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { DialogFooter} from '@/components/ui/dialog';
+import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import EditDialog from '@/app/[locale]/schedule/_components/EditDialog';
+import EditDialog from '@/app/[locale]/schedule/components/EditDialog';
 
 type EventCardProps = {
   event: {
@@ -21,8 +21,8 @@ const EventCard = ({ event }: EventCardProps) => {
 
   // Mở dialog khi bấm vào nút Edit
   const handleEditClick = () => {
-    setEditingEvent(event); 
-    setEditDialogOpen(true); 
+    setEditingEvent(event);
+    setEditDialogOpen(true);
   };
 
   return (
@@ -41,9 +41,9 @@ const EventCard = ({ event }: EventCardProps) => {
             </p>
             <p className="text-xs">Event description</p>
             <DialogFooter>
-            <Button onClick={handleEditClick} variant="outline" className="text-sm text-blue-600">
-              Edit
-            </Button>
+              <Button onClick={handleEditClick} variant="outline" className="text-sm text-blue-600">
+                Edit
+              </Button>
             </DialogFooter>
           </div>
         </HoverCardContent>
