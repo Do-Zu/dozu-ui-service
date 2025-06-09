@@ -27,7 +27,6 @@ import { withRouteGuard } from '@/components/guards/RouteGuard';
 const googleOAuthURL = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_URL || ''; //todo: replace with actual error tolerant code
 
 const AuthPage: React.FC = () => {
-  console.log(googleOAuthURL);
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
