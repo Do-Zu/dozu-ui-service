@@ -30,6 +30,7 @@ const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=https
 &redirect_uri=${googleGoogleRedirectUri}&client_id=${googleOAuthClientId}`;
 
 const AuthPage: React.FC = () => {
+  console.log(googleOAuthURL);
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
