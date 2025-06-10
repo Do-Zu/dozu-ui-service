@@ -17,6 +17,7 @@ import '@xyflow/react/dist/style.css';
 import { useCallback } from 'react';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import SimpleFloatingEdge from '../components/SimpleFloatingEdge';
+import FloatingEdge from '../components/FloatingEdge';
 
 const initialNodes = [
   {
@@ -38,8 +39,12 @@ const nodeTypes = {
   'custom-react-flow-node': CustomReactFlowNode,
 };
 
+// const edgeTypes = {
+//   floating: SimpleFloatingEdge,
+// };
+
 const edgeTypes = {
-  floating: SimpleFloatingEdge,
+  floating: FloatingEdge,
 };
 
 const defaultEdgeOptions = {

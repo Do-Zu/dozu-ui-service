@@ -1,5 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Handle, NodeToolbar, Position, useNodesState, useReactFlow } from '@xyflow/react';
+import {
+  Handle,
+  NodeToolbar,
+  Position,
+  useEdges,
+  useNodesState,
+  useReactFlow,
+} from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
 
 const initialNodes = [
@@ -14,6 +21,7 @@ const initialNodes = [
 const CustomReactFlowNode = ({ data }) => {
   console.log(data);
   const { screenToFlowPosition, setNodes, setEdges } = useReactFlow();
+  const edges = useEdges();
   // const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 
   const addNode = () => {
@@ -28,9 +36,23 @@ const CustomReactFlowNode = ({ data }) => {
     setNodes((nds) => nds.concat(newNode));
     setEdges((eds) => eds.concat({ id: `${id}-${data.nodeId}`, source: data.nodeId, target: id }));
   };
+  const deleteNode = (id) => {
+    edges.forEach((edge) => {
+      if (edge.source === id) {
+        deleteNode(edge.target);
+      }
+    });
+    setNodes((nds) => nds.filter((node) => node.id !== id));
+    setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
+    console.log(edges);
+  };
 
   const handleAddChild = () => {
     addNode();
+  };
+
+  const handleDelete = () => {
+    deleteNode(data.nodeId);
   };
 
   return (
@@ -50,26 +72,26 @@ const CustomReactFlowNode = ({ data }) => {
         position={Position.Right}
         type="source"
       />
-     
+
       <Handle
         className="w-full h-full bg-blue-500 absolute top-0 left-0 rounded-none transform-none border-none opacity-0"
         position={Position.Left}
         type="target"
         isConnectableStart={false}
       />
-       <Handle
+      <Handle
         className="w-full h-full bg-blue-500 absolute top-0 left-0 rounded-none transform-none border-none opacity-0"
         position={Position.Bottom}
         type="target"
         isConnectableStart={false}
       />
-       <Handle
+      <Handle
         className="w-full h-full bg-blue-500 absolute top-0 left-0 rounded-none transform-none border-none opacity-0"
         position={Position.Right}
         type="target"
         isConnectableStart={false}
       />
-       <Handle
+      <Handle
         className="w-full h-full bg-blue-500 absolute top-0 left-0 rounded-none transform-none border-none opacity-0"
         position={Position.Top}
         type="target"
@@ -78,7 +100,7 @@ const CustomReactFlowNode = ({ data }) => {
       <NodeToolbar isVisible={data.forceToolbarVisible || undefined} position={Position.Bottom}>
         <Button onClick={handleAddChild}>Add child</Button>
         {/* <Button>copy</Button> */}
-        <Button>Delete</Button>
+        <Button onClick={handleDelete}>Delete</Button>
       </NodeToolbar>
       <div>{data?.label}</div>
     </div>
