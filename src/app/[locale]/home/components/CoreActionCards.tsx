@@ -14,16 +14,15 @@ interface ActionCard {
   title: string;
   description: string;
   icon: LucideIcon;
-  onClick?: () => void;
+  route ?: string; 
 }
 
 const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
+  const t = useTranslations('home.coreActionCards');
   const router = useRouter();
 
-  const t = useTranslations('home.coreActionCards');
-
-  const handleRedirectGenerate = () => {
-    router.push(ROUTES.GENERATE);
+  const handleRedirect = (route?: string) => {
+      route && router.push(route);
   };
 
   const handleRedirectSchedule = () => {
@@ -41,7 +40,7 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
         title: t('schedule.title'),
         description: t('schedule.description'),
         icon: Calendar,
-        onClick: handleRedirectSchedule,
+        route: ROUTES.SCHEDULE, 
       },
       {
         id: 'library',
@@ -55,7 +54,7 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
         title: t('generate.title'),
         description: t('generate.description'),
         icon: Sparkles,
-        onClick: handleRedirectGenerate,
+        route: ROUTES.GENERATE, 
       },
     ],
     [t],
@@ -68,7 +67,7 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
         return (
           <Card
             key={card.id}
-            onClick={card.onClick}
+            onClick={() => handleRedirect(card.route)}
             className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200"
           >
             <CardHeader className="pb-4">
