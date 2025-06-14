@@ -6,7 +6,6 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '@/stores/store';
 import { ThemeProvider } from '@/lib/providers/theme';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
-import { RouteGuard } from '@/components/guards/RouteGuard';
 import { Toaster } from '@/components/ui/toaster';
 import '../styles/globals.css';
 
