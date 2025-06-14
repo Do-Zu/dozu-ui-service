@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import sanitizeHtml from 'sanitize-html';
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,27 +44,14 @@ export async function POST(req: NextRequest) {
  * Extract readable text content from HTML
  */
 function extractTextFromHtml(html: string): string {
-  // Remove script and style tags and their content
-  let text = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ');
-  text = text.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ');
-
-  // Replace HTML tags with line breaks or spaces
-  text = text.replace(/<(br|p|div|h[1-6]|li)[^>]*>/gi, '\n');
-  text = text.replace(/<\/?(span|a|strong|b|i|em)[^>]*>/gi, ' ');
-
-  // Remove all remaining HTML tags
-  text = text.replace(/<[^>]+>/g, ' ');
-
-  // Decode HTML entities
-  text = text.replace(/&nbsp;/g, ' ');
-  text = text.replace(/&amp;/g, '&');
-  text = text.replace(/&lt;/g, '<');
-  text = text.replace(/&gt;/g, '>');
-  text = text.replace(/&quot;/g, '"');
-  text = text.replace(/&#39;/g, "'");
+  // Use sanitize-html to remove unwanted tags and extract text content
+  const sanitizedHtml = sanitizeHtml(html, {
+    allowedTags: [], // Remove all tags
+    allowedAttributes: {}, // Remove all attributes
+  });
 
   // Remove excessive whitespace
-  text = text.replace(/\s+/g, ' ');
+  const text = sanitizedHtml.replace(/\s+/g, ' ').trim();
 
   // Split by line breaks and filter empty lines
   const lines = text
