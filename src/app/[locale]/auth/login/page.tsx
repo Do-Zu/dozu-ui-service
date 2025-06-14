@@ -31,7 +31,7 @@ const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=https
 
 const AuthPage: React.FC = () => {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const accessToken = useAppSelector((state) => state.auth.accessToken);
   const dispatch = useAppDispatch();
@@ -64,7 +64,7 @@ const AuthPage: React.FC = () => {
   const login = async () => {
     const options: any = {
       body: {
-        username: email,
+        username: username,
         password: password,
       },
     };
@@ -101,7 +101,6 @@ const AuthPage: React.FC = () => {
         description: t('loginErrorMessage'),
         variant: 'destructive',
       });
-      router.push(ROUTES.HOME);
     }
   };
 
@@ -116,15 +115,15 @@ const AuthPage: React.FC = () => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}</Label>
+              <Label htmlFor="username">{t('username')}</Label>
               <Input
-                id="email"
+                id="username"
                 // type="email"
-                placeholder="you@example.com"
+                placeholder="you123"
                 required
-                value={email}
+                value={username}
                 onChange={(e) => {
-                  setEmail(e.target.value);
+                  setUsername(e.target.value);
                 }}
               />
             </div>
