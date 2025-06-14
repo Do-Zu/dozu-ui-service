@@ -22,12 +22,12 @@ export default function SetupForm({ onComplete }: Props) {
   const [subjects, setSubjects] = useState<SubjectPriority[]>([]);
 
   const handleSubjectChange = (newSubjects: SubjectPriority[]) => {
-    setSubjects(newSubjects); 
+    setSubjects(newSubjects); // Cập nhật danh sách môn học
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    onComplete(); 
+    onComplete(); // Gọi callback để chuyển sang bước preview
   };
 
   return (
@@ -58,7 +58,7 @@ export default function SetupForm({ onComplete }: Props) {
 
       <div className="text-right">
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Submit
+          Tạo lịch học
         </button>
       </div>
     </form>

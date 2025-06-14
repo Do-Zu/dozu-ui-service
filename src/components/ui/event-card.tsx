@@ -17,9 +17,9 @@ type EventCardProps = {
 
 const EventCard = ({ event }: EventCardProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState(event); 
+  const [editingEvent, setEditingEvent] = useState(event); // Lưu trạng thái sự kiện đang chỉnh sửa
 
-
+  // Mở dialog khi bấm vào nút Edit
   const handleEditClick = () => {
     setEditingEvent(event);
     setEditDialogOpen(true);
@@ -49,12 +49,12 @@ const EventCard = ({ event }: EventCardProps) => {
         </HoverCardContent>
       </HoverCard>
 
-      {/* Show Dialog edit */}
+      {/* Hiển thị Dialog edit */}
       {editDialogOpen && (
         <EditDialog
           isOpen={editDialogOpen}
           onClose={() => setEditDialogOpen(false)}
-          event={editingEvent} 
+          event={editingEvent} // Truyền event edit vào dialog
           onSave={(updatedEvent) => {
             console.log('Đã lưu sự kiện:', updatedEvent);
             setEditDialogOpen(false);
