@@ -6,13 +6,12 @@ export const ROUTES = Object.freeze({
   WELCOME: '/welcome',
   ONBOARDING: '/onboarding',
   GENERATE: '/generate',
-  SCHEDULE: '/schedule',
   FLASHCARD: '/flashcard',
   FLASHCARD_CREATE: '/flashcard/create',
   FLASHCARD_EDIT: '/flashcard/edit/:id',
   FLASHCARD_VIEW: '/flashcard/view/:id',
-  SETTING_SCHEDULE_SETUP: '/setting/schedule-setup',
   UNAUTHORIZED: '/unauthorized',
+  SCHEDULE: '/schedule',
   LIBRARY: '/library',
 });
 
@@ -21,7 +20,6 @@ export const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.REGISTER] as const;
 export const GUEST_ROUTES = [ROUTES.WELCOME] as const;
 export const PROTECTED_ROUTES = [
   ROUTES.GENERATE,
-  ROUTES.SCHEDULE,
   ROUTES.FLASHCARD,
   ROUTES.FLASHCARD_CREATE,
 ] as const;
@@ -46,6 +44,5 @@ export const ROUTE_CONFIG = {
   [ROUTES.GENERATE]: ROUTE_ACCESS.ONBOARDED,
   [ROUTES.FLASHCARD]: ROUTE_ACCESS.ONBOARDED,
   [ROUTES.FLASHCARD_CREATE]: ROUTE_ACCESS.ONBOARDED,
-  [ROUTES.SCHEDULE]: ROUTE_ACCESS.ONBOARDED,
   [ROUTES.UNAUTHORIZED]: ROUTE_ACCESS.PUBLIC,
 } as const;

@@ -10,7 +10,7 @@ interface SubjectPriority {
 }
 
 type PrioritySelectorProps = {
-  subjects: SubjectPriority[]; 
+  subjects: SubjectPriority[]; // Dữ liệu này sẽ nhận từ props
 };
 
 export default function PrioritySelector({ subjects: initialSubjects }: PrioritySelectorProps) {
