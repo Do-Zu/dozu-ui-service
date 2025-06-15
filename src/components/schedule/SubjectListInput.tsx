@@ -6,7 +6,7 @@ interface SubjectListInputProps {
   subjects: {
     subject: string;
     importance: number;
-    difficulty: 'Dễ' | 'Trung bình' | 'Khó'; //fix tạm nếu có enum thì khác
+    difficulty: 'Dễ' | 'Trung bình' | 'Khó'; 
   }[];
   onSubjectChange: (subjects: any[]) => void;
 }
@@ -16,13 +16,13 @@ export default function SubjectListInput({ subjects, onSubjectChange }: SubjectL
   const handleChange = (index: number, field: keyof typeof subjects[0], value: string) => {
     const newSubjects = [...subjects];
     newSubjects[index] = { ...newSubjects[index], [field]: value }; 
-    onSubjectChange(newSubjects); // Cập nhật state ở parent component
+    onSubjectChange(newSubjects); 
   };
 
   const handleAdd = () => {
     onSubjectChange([
       ...subjects,
-      { subject: '', importance: 3, difficulty: 'Trung bình' }, // Thêm môn học mới, mặc định khi thêm thì độ khó và importance sẽ setup sẵn 
+      { subject: '', importance: 3, difficulty: 'Trung bình' }, 
     ]);
   };
 
