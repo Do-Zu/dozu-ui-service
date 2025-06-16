@@ -118,7 +118,6 @@ const AuthPage: React.FC = () => {
         description: t('loginErrorMessage'),
         variant: 'destructive',
       });
-      router.push(ROUTES.HOME);
     }
     setIsLoading(false);
   };
