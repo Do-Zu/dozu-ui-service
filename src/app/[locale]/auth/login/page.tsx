@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -30,7 +30,7 @@ const AuthPage: React.FC = () => {
   // const search = searchParams.get('search')
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const { handlePostLogin } = useAuthNavigation();
@@ -42,6 +42,23 @@ const AuthPage: React.FC = () => {
   const code = searchParams.get('code');
 
   const { setAuthData } = useAuth();
+  useEffect(() => {
+    const options: any = {
+      body: {
+        code: code,
+      },
+    };
+    const loginGoogle = async () => {
+      const response = await Axios.post('/auth/google', options.body, {
+        withCredentials: true,
+      });
+      const userData = response.data.data;
+      handleSuccessfulLogin(userData);
+    };
+    if (code) {
+      loginGoogle(); //login if there is a code in url query (redirect from google oauth)
+    }
+  }, []);
 
   const handleSuccessfulLogin = (user: User) => {
     setAuthData(user);
@@ -62,7 +79,7 @@ const AuthPage: React.FC = () => {
   const login = async () => {
     const options: any = {
       body: {
-        username: email,
+        username: username,
         password: password,
       },
     };
@@ -117,15 +134,15 @@ const AuthPage: React.FC = () => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}USERNAME ACTUALLY</Label>
+              <Label htmlFor="username">{t('username')}</Label>
               <Input
-                id="email"
+                id="username"
                 // type="email"
-                placeholder="you@example.com"
+                placeholder="username"
                 required
-                value={email}
+                value={username}
                 onChange={(e) => {
-                  setEmail(e.target.value);
+                  setUsername(e.target.value);
                 }}
               />
             </div>
