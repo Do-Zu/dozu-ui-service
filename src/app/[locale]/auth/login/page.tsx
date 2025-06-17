@@ -6,15 +6,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 
-import React, { useState } from 'react';
-import useFetch from '@/hooks/useFetch';
-import { callApiAsync } from '@/hooks/helper';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { updateAccessToken } from '@/stores/features/auth/authSlice';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { setCredentials } from '@/stores/features/auth/authSlice';
-import { jwtDecode } from 'jwt-decode';
+
 import Axios from '@/api/axios';
 import { toast } from '@/hooks/use-toast';
 import { ROUTES } from '@/utils/constants/routes';
@@ -30,11 +25,13 @@ const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=https
 &redirect_uri=${googleGoogleRedirectUri}&client_id=${googleOAuthClientId}`;
 
 const AuthPage: React.FC = () => {
+  // const searchParams = useSearchParams();
+
+  // const search = searchParams.get('search')
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const accessToken = useAppSelector((state) => state.auth.accessToken);
-  const dispatch = useAppDispatch();
 
   const { handlePostLogin } = useAuthNavigation();
 
@@ -42,8 +39,26 @@ const AuthPage: React.FC = () => {
   const param = '/auth/login';
 
   const searchParams = useSearchParams();
+  const code = searchParams.get('code');
 
   const { setAuthData } = useAuth();
+  useEffect(() => {
+    const options: any = {
+      body: {
+        code: code,
+      },
+    };
+    const loginGoogle = async () => {
+      const response = await Axios.post('/auth/google', options.body, {
+        withCredentials: true,
+      });
+      const userData = response.data.data;
+      handleSuccessfulLogin(userData);
+    };
+    if (code) {
+      loginGoogle(); //login if there is a code in url query (redirect from google oauth)
+    }
+  }, []);
 
   const handleSuccessfulLogin = (user: User) => {
     setAuthData(user);
@@ -70,12 +85,11 @@ const AuthPage: React.FC = () => {
     };
 
     try {
+      setIsLoading(true);
       // const response = await callApiAsync('/auth/login', 'POST', options); //todo:changes to useQuery
       const response = await Axios.post('/auth/login', options.body, {
         withCredentials: true,
       });
-
-      const { accessToken } = response.data.data;
 
       //[Q&A]: shouldn't decode access token at client side
       // const decoded: any = jwtDecode(accessToken);
@@ -83,17 +97,20 @@ const AuthPage: React.FC = () => {
       // const username = decoded.user.username;
 
       //TODO: replace sample user data after login for real
-      const userData = {
-        id: '1',
-        email: 'v@gmail.com',
-        name: 'pernist',
-        roles: ['user'],
-        permissions: [],
-        isNewUser: false,
-        hasCompletedOnboarding: false,
-        lastLoginAt: new Date().toISOString(),
-        accessToken,
-      };
+
+      const userData = response.data.data;
+      //follows this structure
+      // const userData = {
+      //   id: '1',
+      //   email: 'v@gmail.com',
+      //   name: 'pernist',
+      //   roles: ['user'],
+      //   permissions: [],
+      //   isNewUser: false,
+      //   hasCompletedOnboarding: false,
+      //   lastLoginAt: new Date().toISOString(),
+      //   accessToken,
+      // };
 
       handleSuccessfulLogin(userData);
     } catch (error) {
@@ -102,6 +119,7 @@ const AuthPage: React.FC = () => {
         variant: 'destructive',
       });
     }
+    setIsLoading(false);
   };
 
   return (
@@ -119,7 +137,7 @@ const AuthPage: React.FC = () => {
               <Input
                 id="username"
                 // type="email"
-                placeholder="you123"
+                placeholder="username"
                 required
                 value={username}
                 onChange={(e) => {
@@ -142,6 +160,7 @@ const AuthPage: React.FC = () => {
             </div>
           </div>
           <Button
+            disabled={isLoading}
             className="w-full"
             onClick={() => {
               login();
@@ -150,6 +169,7 @@ const AuthPage: React.FC = () => {
             {t('loginButtonText')}
           </Button>
           <Button
+            disabled={isLoading}
             className="w-full"
             onClick={() => {
               window.location.href = googleOAuthURL;

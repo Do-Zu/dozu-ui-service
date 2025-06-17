@@ -14,12 +14,12 @@ Axios.defaults.withCredentials = true;
 const requestInterceptor = Axios.interceptors.request.use(
   (config) => {
     // If the user is authenticated, attach the token to the request
-    // const token = localStorage.getItem('authToken'); // update position store access token
-    const state = store.getState(); // Access current Redux state
-    const token = state.auth.accessToken;
+    const userString = localStorage.getItem('user');//get user object saved in localStorage
 
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+    if (userString) {
+      const userObject = JSON.parse(userString);
+      const accessToken = userObject?.accessToken;
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
     return config;
