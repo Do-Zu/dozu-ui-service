@@ -7,10 +7,8 @@ import { BookOpen, Calendar, Brain, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
-import { withRouteGuard } from '@/components/guards/RouteGuard';
 
 const WelcomePage: React.FC = () => {
-  
   const { updateUser, user } = useAuth();
   const { handleWelcomeComplete } = useAuthNavigation();
 
@@ -139,4 +137,4 @@ const WelcomePage: React.FC = () => {
   );
 };
 
-export default withRouteGuard(WelcomePage);
+export default WelcomePage;
