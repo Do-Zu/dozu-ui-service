@@ -6,10 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 
-import React, { useState } from 'react';
-
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -28,11 +25,13 @@ const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=https
 &redirect_uri=${googleGoogleRedirectUri}&client_id=${googleOAuthClientId}`;
 
 const AuthPage: React.FC = () => {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // const searchParams = useSearchParams();
 
-  const dispatch = useAppDispatch();
+  // const search = searchParams.get('search')
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const { handlePostLogin } = useAuthNavigation();
 
@@ -40,8 +39,26 @@ const AuthPage: React.FC = () => {
   const param = '/auth/login';
 
   const searchParams = useSearchParams();
+  const code = searchParams.get('code');
 
   const { setAuthData } = useAuth();
+  useEffect(() => {
+    const options: any = {
+      body: {
+        code: code,
+      },
+    };
+    const loginGoogle = async () => {
+      const response = await Axios.post('/auth/google', options.body, {
+        withCredentials: true,
+      });
+      const userData = response.data.data;
+      handleSuccessfulLogin(userData);
+    };
+    if (code) {
+      loginGoogle(); //login if there is a code in url query (redirect from google oauth)
+    }
+  }, []);
 
   const handleSuccessfulLogin = (user: User) => {
     setAuthData(user);
@@ -62,18 +79,17 @@ const AuthPage: React.FC = () => {
   const login = async () => {
     const options: any = {
       body: {
-        username: email,
+        username: username,
         password: password,
       },
     };
 
     try {
+      setIsLoading(true);
       // const response = await callApiAsync('/auth/login', 'POST', options); //todo:changes to useQuery
       const response = await Axios.post('/auth/login', options.body, {
         withCredentials: true,
       });
-
-      const { accessToken } = response.data.data;
 
       //[Q&A]: shouldn't decode access token at client side
       // const decoded: any = jwtDecode(accessToken);
@@ -81,17 +97,20 @@ const AuthPage: React.FC = () => {
       // const username = decoded.user.username;
 
       //TODO: replace sample user data after login for real
-      const userData = {
-        id: '1',
-        email: 'v@gmail.com',
-        name: 'pernist',
-        roles: ['user'],
-        permissions: [],
-        isNewUser: false,
-        hasCompletedOnboarding: false,
-        lastLoginAt: new Date().toISOString(),
-        accessToken,
-      };
+
+      const userData = response.data.data;
+      //follows this structure
+      // const userData = {
+      //   id: '1',
+      //   email: 'v@gmail.com',
+      //   name: 'pernist',
+      //   roles: ['user'],
+      //   permissions: [],
+      //   isNewUser: false,
+      //   hasCompletedOnboarding: false,
+      //   lastLoginAt: new Date().toISOString(),
+      //   accessToken,
+      // };
 
       handleSuccessfulLogin(userData);
     } catch (error) {
@@ -99,8 +118,8 @@ const AuthPage: React.FC = () => {
         description: t('loginErrorMessage'),
         variant: 'destructive',
       });
-      router.push(ROUTES.HOME);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -114,15 +133,15 @@ const AuthPage: React.FC = () => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}</Label>
+              <Label htmlFor="username">{t('username')}</Label>
               <Input
-                id="email"
+                id="username"
                 // type="email"
-                placeholder="you@example.com"
+                placeholder="username"
                 required
-                value={email}
+                value={username}
                 onChange={(e) => {
-                  setEmail(e.target.value);
+                  setUsername(e.target.value);
                 }}
               />
             </div>
@@ -141,6 +160,7 @@ const AuthPage: React.FC = () => {
             </div>
           </div>
           <Button
+            disabled={isLoading}
             className="w-full"
             onClick={() => {
               login();
@@ -149,6 +169,7 @@ const AuthPage: React.FC = () => {
             {t('loginButtonText')}
           </Button>
           <Button
+            disabled={isLoading}
             className="w-full"
             onClick={() => {
               window.location.href = googleOAuthURL;

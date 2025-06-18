@@ -27,6 +27,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { ROUTES } from '@/utils/constants/routes';
 
 // Menu items.
 const items = [
@@ -65,7 +66,7 @@ const secondaryItems = [
   },
   {
     title: 'Settings',
-    url: '#',
+    url: ROUTES.SETTING_SCHEDULE_SETUP,
     icon: Settings,
   },
 ];
