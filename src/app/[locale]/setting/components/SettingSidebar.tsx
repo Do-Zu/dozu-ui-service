@@ -5,8 +5,8 @@ import { ROUTES } from '@/utils/constants/routes';
 
 const SettingSidebar = () => {
   const router = useRouter();
-  const pathname = usePathname(); 
-  const cleanPathname = pathname.split('/').slice(2).join('/'); 
+  const pathname = usePathname();
+  const cleanPathname = pathname?.split('/').slice(2).join('/');
 
   const menuItems = [
     { title: 'Profile', path: '/setting/profile' }, //demo
@@ -14,7 +14,7 @@ const SettingSidebar = () => {
   ];
 
   const handleClick = (path: string) => {
-    router.push(path); 
+    router.push(path);
   };
 
   return (
