@@ -1,7 +1,7 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
-import { Book, SquarePen, Trash2 } from 'lucide-react';
+import { Book, Spline, SquarePen, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { deleteRequest } from '@/api/api';
@@ -39,7 +39,11 @@ const TopicsList = () => {
   }
 
   function handleClickTitle(topicId: number) {
-    router.push(`flashcards/edit?topicId=${topicId}`)
+    router.push(`flashcards/edit?topicId=${topicId}`);
+  }
+
+  function handleClickMindmap(topicId: number) {
+    router.push(`mindmap/${topicId}`);
   }
 
   async function handleClickDelete(topicId: number) {
@@ -59,23 +63,21 @@ const TopicsList = () => {
   }
 
   function renderDeleteTopicAlertingDialog(topicId: number, topicName: string) {
-    const trigger = 
-      <Trash2
-        size={20}
-        className="cursor-pointer"
-      />
+    const trigger = <Trash2 size={20} className="cursor-pointer" />;
     return (
-      <DeleteAlertingModal 
+      <DeleteAlertingModal
         trigger={trigger}
         title={`Delete topic ${topicName}`}
         description={'This action will delete all items related to this topic. Still delete?'}
         body={
           <div className="flex justify-end">
-            <Button variant='destructive' onClick={() => handleClickDelete(topicId)}>Delete</Button>
+            <Button variant="destructive" onClick={() => handleClickDelete(topicId)}>
+              Delete
+            </Button>
           </div>
         }
       />
-    )
+    );
   }
 
   return (
@@ -85,7 +87,10 @@ const TopicsList = () => {
           return (
             <div className="col-span-3 bg-white rounded-lg p-4" key={topic.topicId}>
               <div className="flex flex-row items-center justify-between">
-                <a className="text-xl font-medium cursor-pointer hover:text-blue-600 hover:underline" onClick={() => handleClickTitle(topic.topicId)}>
+                <a
+                  className="text-xl font-medium cursor-pointer hover:text-blue-600 hover:underline"
+                  onClick={() => handleClickTitle(topic.topicId)}
+                >
                   {topic.name}
                 </a>
                 <div className="flex flex-row gap-2">
@@ -98,6 +103,11 @@ const TopicsList = () => {
                     size={20}
                     className="cursor-pointer"
                     onClick={() => handleClickEdit(topic.topicId)}
+                  />
+                  <Spline
+                    size={20}
+                    className="cursor-pointer"
+                    onClick={() => handleClickMindmap(topic.topicId)}
                   />
                   {renderDeleteTopicAlertingDialog(topic.topicId, topic.name)}
                 </div>

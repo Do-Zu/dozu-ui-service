@@ -1,42 +1,33 @@
 import { Button } from '@/components/ui/button';
-import {
-  Handle,
-  NodeToolbar,
-  Position,
-  useEdges,
-  useNodesState,
-  useReactFlow,
-} from '@xyflow/react';
+import { Input } from '@/components/ui/input';
+import { Handle, Node, NodeProps, NodeToolbar, Position, useEdges, useReactFlow } from '@xyflow/react';
+import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { CustomNodeData } from '../mindmap.type';
 
-const initialNodes = [
-  // {
-  //   id: "1",
-  //   type: "input",
-  //   data: { label: "Mind Map" },
-  //   position: { x: 0, y: 0 },
-  // },
-];
 
-const CustomReactFlowNode = ({ data }) => {
-  console.log(data);
-  const { screenToFlowPosition, setNodes, setEdges } = useReactFlow();
+
+const CustomReactFlowNode = ({ data }:{data:CustomNodeData}) => {
+  const [editing, setEditing] = useState(false);
+  const [label, setLabel] = useState(data.label);
+  const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
   const edges = useEdges();
   // const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 
   const addNode = () => {
     const id = uuidv4();
-    const newNode = {
+    const newNode:Node = {
       id: id,
       type: 'custom-react-flow-node',
       position: screenToFlowPosition({ x: 0, y: 0 }),
       data: { nodeId: id, label: `Empty node` },
       origin: [0.5, 0.0],
     };
-    setNodes((nds) => nds.concat(newNode));
+    
+    setNodes((nds) => nds.concat([newNode]));
     setEdges((eds) => eds.concat({ id: `${id}-${data.nodeId}`, source: data.nodeId, target: id }));
   };
-  const deleteNode = (id) => {
+  const deleteNode = (id: string) => {
     edges.forEach((edge) => {
       if (edge.source === id) {
         deleteNode(edge.target);
@@ -53,6 +44,28 @@ const CustomReactFlowNode = ({ data }) => {
 
   const handleDelete = () => {
     deleteNode(data.nodeId);
+  };
+
+  const handleEditStart = () => {
+    setEditing(true);
+  };
+
+  const handleComplete = () => {
+    const nodes = getNodes();
+    console.log(nodes);
+    const result = nodes.map((node) => {
+      if (node.data.nodeId === data.nodeId) {
+        node.data.label = label;
+        return node;
+      } else {
+        return node;
+      }
+    });
+    setEditing(false);
+  };
+
+  const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLabel(e.target.value);
   };
 
   return (
@@ -100,9 +113,21 @@ const CustomReactFlowNode = ({ data }) => {
       <NodeToolbar isVisible={data.forceToolbarVisible || undefined} position={Position.Bottom}>
         <Button onClick={handleAddChild}>Add child</Button>
         {/* <Button>copy</Button> */}
-        <Button onClick={handleDelete}>Delete</Button>
+
+        {editing ? (
+          <Button disabled={data.isRoot} onClick={handleComplete}>
+            Finish
+          </Button>
+        ) : (
+          <Button disabled={data.isRoot} onClick={handleEditStart}>
+            Edit
+          </Button>
+        )}
+        <Button disabled={data.isRoot} onClick={handleDelete}>
+          Delete
+        </Button>
       </NodeToolbar>
-      <div>{data?.label}</div>
+      {editing ? <Input value={label} onChange={onChangeLabel} /> : <div>{data?.label}</div>}
     </div>
   );
 };
