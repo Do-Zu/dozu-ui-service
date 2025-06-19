@@ -1,5 +1,6 @@
 import LoadingPage from '@/app/loading';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { RedirectChainService } from '@/utils/auth/redirectChainService';
 import { ROUTES } from '@/utils/constants/routes';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useMemo, useCallback } from 'react';
@@ -40,11 +41,12 @@ export function withAuth<P extends object>(
       if (isLoading) return;
 
       if (!isAuthenticated) {
+        const redirectToUrl = pathname ?? DEFAULT_REDIRECT_BACK;
         // Encode the current pathname to redirect back after login
-        const redirectBackPath = encodeURIComponent(pathname ?? DEFAULT_REDIRECT_BACK);
+        const redirectBackPath = encodeURIComponent(redirectToUrl);
 
         router.push(`${redirectTo}?redirect=${redirectBackPath}`);
-
+        RedirectChainService.storeOriginalDestination(redirectToUrl);
         return;
       }
 

@@ -13,6 +13,38 @@
         "title": "Tạo Nội Dung",
         "description": "Tạo tài liệu học tập mới với khả năng tạo nội dung được hỗ trợ bởi AI."
       }
+    },
+    "currentProcessLearning": {
+      "title": "Học Tập Hiện Tại",
+      "subtitle": "Dựa trên lịch trình thời khóa biểu của bạn",
+      "module": "Mô-đun",
+      "progress": "Tiến độ",
+      "remaining": "còn lại",
+      "continueButton": "Tiếp Tục Học Tập"
+    },
+    "contentLibrary": {
+      "title": "Thư Viện Nội Dung",
+      "createNewContent": "Tạo Nội Dung Mới",
+      "searchPlaceholder": "Tìm kiếm nội dung...",
+      "sortBy": "Sắp xếp theo:",
+      "sortOptions": {
+        "newest": "Mới Nhất Trước",
+        "oldest": "Cũ Nhất Trước",
+        "titleAsc": "Tiêu Đề (A-Z)",
+        "titleDesc": "Tiêu Đề (Z-A)",
+        "recentlyStudied": "Học Gần Đây"
+      },
+      "tabs": {
+        "all": "Tất Cả Nội Dung",
+        "flashcards": "Thẻ Ghi Nhớ",
+        "notes": "Ghi Chú",
+        "quizzes": "Câu Hỏi"
+      },
+      "noContent": {
+        "title": "Không tìm thấy nội dung",
+        "searchMessage": "Không có kết quả cho \"{query}\". Hãy thử từ khóa khác.",
+        "emptyMessage": "Bạn chưa có nội dung nào trong danh mục này."
+      }
     }
   }
 }

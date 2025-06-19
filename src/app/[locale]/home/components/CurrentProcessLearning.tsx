@@ -1,8 +1,11 @@
+'use client';
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Target, Clock, Calendar, Play } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface CurrentLearning {
   topic: string;
@@ -26,6 +29,8 @@ const currentLearning = {
 };
 
 const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
+  const t = useTranslations('home.currentProcessLearning');
+
   //TODO: implement continue learning functionality
   const onContinueLearning = (type: 'current' | 'next') => {
     alert(`Continue learning: ${type} session`);
@@ -38,10 +43,10 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
           <div className="flex items-center gap-2">
             <div className="p-1 bg-white/20 rounded-lg">
               <Target className="h-4 w-4" />
-            </div>
+            </div>{' '}
             <div>
-              <CardTitle className="text-lg font-bold">Current Learning</CardTitle>
-              <p className="text-gray-300 text-sm">Based on your timeline schedule</p>
+              <CardTitle className="text-lg font-bold">{t('title')}</CardTitle>
+              <p className="text-gray-300 text-sm">{t('subtitle')}</p>
             </div>
           </div>
           <Badge className="bg-white/20 text-white border-white/30 text-sm">
@@ -54,12 +59,13 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
           <div className="space-y-2">
             <div>
               <h3 className="text-base font-semibold mb-0.5">{currentLearning.topic}</h3>
-              <p className="text-gray-300 text-sm">Module: {currentLearning.module}</p>
+              <p className="text-gray-300 text-sm">
+                {t('module')}: {currentLearning.module}
+              </p>
             </div>
-
             <div className="space-y-1">
               <div className="flex justify-between text-xs">
-                <span>Progress</span>
+                <span>{t('progress')}</span>
                 <span>{currentLearning.progress}%</span>
               </div>
               <div className="w-full bg-white/20 rounded-full h-1.5">
@@ -73,7 +79,9 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
             <div className="flex items-center gap-3 text-xs">
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                <span>{currentLearning.timeRemaining} remaining</span>
+                <span>
+                  {currentLearning.timeRemaining} {t('remaining')}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
@@ -83,13 +91,14 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
           </div>
 
           <div className="flex items-center justify-center lg:justify-end">
+            {' '}
             <Button
               onClick={() => onContinueLearning('current')}
               size="default"
               className="bg-white text-gray-800 hover:bg-gray-100 font-semibold px-6 py-2"
             >
               <Play className="mr-1.5 h-3.5 w-3.5" />
-              Continue Learning
+              {t('continueButton')}
             </Button>
           </div>
         </div>

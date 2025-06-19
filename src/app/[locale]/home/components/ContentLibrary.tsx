@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Search, Filter, Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useTranslations } from 'next-intl';
 import ContentCard from './ContentCard';
+import TopicsList from '../../topics/components/TopicsList';
+import { useRouter } from 'next/navigation';
 
 interface ContentLibraryProps {
   contentSets?: ContentSet[];
@@ -102,6 +107,8 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
   onEditContent = () => {},
   onDeleteContent = () => {},
 }) => {
+  const router = useRouter();
+  const t = useTranslations('home.contentLibrary');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
@@ -145,20 +152,23 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
       return 0;
     });
 
+  function handleClickCreate() {
+    router.push('/topics/create');
+  }
+
   return (
     <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h2 className="text-2xl font-semibold text-gray-800">Content Library</h2>
-        <Button onClick={onCreateContent} className="bg-gray-800 hover:bg-gray-900">
-          <Plus className="mr-2 h-4 w-4" /> Create New Content
+        <h2 className="text-2xl font-semibold text-gray-800">{t('title')}</h2>
+        <Button onClick={handleClickCreate} className="bg-gray-800 hover:bg-gray-900">
+          <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
         </Button>
       </div>
-
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="relative w-full md:w-[300px]">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />{' '}
           <Input
-            placeholder="Search content..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -168,41 +178,40 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="flex items-center gap-2">
             <Filter className="text-gray-500 h-4 w-4" />
-            <span className="text-sm text-gray-600">Sort by:</span>
+            <span className="text-sm text-gray-600">{t('sortBy')}</span>
           </div>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder={t('sortBy')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="title-asc">Title (A-Z)</SelectItem>
-              <SelectItem value="title-desc">Title (Z-A)</SelectItem>
-              <SelectItem value="recently-studied">Recently Studied</SelectItem>
+              <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
+              <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
+              <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
+              <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
+              <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
-
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="w-full md:w-auto bg-gray-200">
           <TabsTrigger value="all" className="flex-1 md:flex-none">
-            All Content
+            {t('tabs.all')}
           </TabsTrigger>
           <TabsTrigger value="flashcards" className="flex-1 md:flex-none">
-            Flashcards
+            {t('tabs.flashcards')}
           </TabsTrigger>
           <TabsTrigger value="notes" className="flex-1 md:flex-none">
-            Notes
+            {t('tabs.notes')}
           </TabsTrigger>
           <TabsTrigger value="quizzes" className="flex-1 md:flex-none">
-            Quizzes
+            {t('tabs.quizzes')}
           </TabsTrigger>
         </TabsList>
-
         <TabsContent value="all" className="mt-6">
-          {renderContentGrid(filteredContent)}
+          {/* {renderContentGrid(filteredContent)} */}
+          <TopicsList />
         </TabsContent>
         <TabsContent value="flashcards" className="mt-6">
           {renderContentGrid(filteredContent)}
@@ -214,18 +223,17 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
           {renderContentGrid(filteredContent)}
         </TabsContent>
       </Tabs>
-
       {filteredContent.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 rounded-lg border border-gray-200">
           <BookOpen className="h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-700 mb-2">No content found</h3>
+          <h3 className="text-lg font-medium text-gray-700 mb-2">{t('noContent.title')}</h3>
           <p className="text-gray-500 text-center mb-6">
             {searchQuery
-              ? `No results found for "${searchQuery}". Try a different search term.`
-              : "You don't have any content in this category yet."}
+              ? t('noContent.searchMessage', { query: searchQuery })
+              : t('noContent.emptyMessage')}
           </p>
           <Button onClick={onCreateContent} className="bg-gray-700 hover:bg-gray-800">
-            <Plus className="mr-2 h-4 w-4" /> Create New Content
+            <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
           </Button>
         </div>
       )}
