@@ -18,7 +18,8 @@ export interface RedirectChain {
  */
 export class RedirectChainService {
   private static readonly REDIRECT_CHAIN_KEY = 'auth_redirect_chain';
-
+  private static readonly DEFAULT_FINAL_DESTINATION = ROUTES.HOME;
+  private static readonly REDIRECT_DESTINATION_KEY = 'auth_redirect_destination';
   /**
    * Gets the required intermediate pages for a user type
    */
@@ -41,13 +42,14 @@ export class RedirectChainService {
   static createPostLoginChain(user: User, originalDestination?: string): RedirectChain {
     const userType = getUserType(true, user);
     const requiredSteps = this.getRequiredSteps(userType);
-    const finalDestination = originalDestination || ROUTES.HOME;
+    const originalDestinationFromStorage = sessionStorage.getItem(this.REDIRECT_DESTINATION_KEY);
+    const finalDestination = originalDestinationFromStorage ?? (originalDestination || ROUTES.HOME);
 
     const chain: RedirectChain = {
       steps: requiredSteps,
       currentStepIndex: 0,
       finalDestination,
-      originalDestination: originalDestination || '',
+      originalDestination: finalDestination,
     };
 
     // Store the chain in sessionStorage for persistence across page reloads
@@ -66,6 +68,16 @@ export class RedirectChainService {
     } catch (error) {
       console.error('Error reading redirect chain:', error);
       return null;
+    }
+  }
+  /**
+   * Clears the redirect chain from sessionStorage
+   */
+  static storeOriginalDestination(originalDestination: string): void {
+    try {
+      sessionStorage.setItem(this.REDIRECT_DESTINATION_KEY, originalDestination);
+    } catch (error) {
+      console.error('Error storing original destination:', error);
     }
   }
 
