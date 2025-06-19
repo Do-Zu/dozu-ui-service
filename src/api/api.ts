@@ -1,29 +1,30 @@
 import Axios from './axios';
 import { addTimezoneInfo } from '../utils/date/apiDateUtils';
+import { ApiResponse } from './type';
 
-export const getRequest = async <T>(url: string): Promise<T> => {
+export const getRequest = async <T, R>(url: string): Promise<ApiResponse<R>> => {
   try {
     const response = await Axios.get<T>(url);
+    return response.data as ApiResponse<R>;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const postRequest = async <T, R>(url: string, data: T): Promise<ApiResponse<R>> => {
+  try {
+    const enhancedData = addTimezoneInfo(data);
+    const response = await Axios.post<ApiResponse<R>>(url, enhancedData);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const postRequest = async <T, R>(url: string, data: T): Promise<R> => {
+export const putRequest = async <T, R>(url: string, data: T): Promise<ApiResponse<R>> => {
   try {
     const enhancedData = addTimezoneInfo(data);
-    const response = await Axios.post<R>(url, enhancedData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const putRequest = async <T, R>(url: string, data: T): Promise<R> => {
-  try {
-    const enhancedData = addTimezoneInfo(data);
-    const response = await Axios.put<R>(url, enhancedData);
+    const response = await Axios.put<ApiResponse<R>>(url, enhancedData);
     return response.data;
   } catch (error) {
     throw error;
