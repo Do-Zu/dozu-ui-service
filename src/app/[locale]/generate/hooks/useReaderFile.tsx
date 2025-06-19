@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-
+import mammoth from 'mammoth';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDFDocumentProxy, TextItem, TextContent } from 'pdfjs-dist/types/src/display/api';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -52,7 +52,6 @@ const useReaderFile = () => {
 
         reader.onload = async (e) => {
             try {
-                const mammoth = await import('mammoth');
                 const arrayBuffer = e.target?.result as ArrayBuffer;
                 if (!arrayBuffer) {
                     setError('Error reading file: Empty content');
@@ -74,6 +73,13 @@ const useReaderFile = () => {
                 setLoading(false);
             }
         };
+        reader.onerror = (e) => {
+            setError('Error reading DOCX file');
+            setLoading(false);
+            setText(null);
+        };
+
+        reader.readAsArrayBuffer(file);
     }, [files]);
 
     const handleExtractTxtToText = useCallback(() => {
