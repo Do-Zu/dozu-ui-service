@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
@@ -22,13 +22,19 @@ import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import ProcessGenerate from './process/ProcessGenerate';
 import Final from './steps/Final';
 import { compressContent } from '../helper/compress';
+import FlashcardEditor, { handleConvertToFlashcardsSubmitted, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
+import { Input } from '@/components/ui/input';
+import { postRequest } from '@/api/api';
+import { useRouter } from 'next/navigation';
+
+export type IFlashcardsFromSSE = { q: string; a: string }[];
 
 export interface ISseData {
   jobId: string;
   timestamp: string;
   status: string;
   data?: {
-    data: Array<{ q: string; a: string }>;
+    data: IFlashcardsFromSSE;
     text: string;
     timestamp: string;
   };
@@ -47,8 +53,16 @@ interface ApiResponsePubGenContent {
   };
 }
 
+const sampleData = [
+  { q: 'Hello', a: 'Xin chào' },
+  { q: 'Thank you', a: 'Cảm ơn' },
+  { q: 'Sorry', a: 'Xin lỗi' },
+];
+
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
+  const router = useRouter();
   const dispatch = useCardImportDispatch();
+
   const { textContent, extractedContent, activeTab } = useCardImportSelector(
     (state) => state.contentExtraction,
   );
@@ -57,6 +71,16 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   );
 
   const [jobId, setJobId] = useState<string | undefined>();
+  const [name, setName] = useState<string>();
+  const [description, setDescription] = useState<string>();
+
+  function handleOnChangeName(event: ChangeEvent<HTMLInputElement>) {
+    setName(event.target.value);
+  }
+
+  function handleOnChangeDescription(event: ChangeEvent<HTMLInputElement>) {
+    setDescription(event.target.value);
+  }
 
   const {
     loading,
@@ -94,13 +118,15 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
 
   const handleContinue = async () => {
     if (step === 1) {
-      if (!isStepValid()) return;
-      dispatch(setStep(2));
+      dispatch(setStep(3)); // WARNING: remove this code before commit
+      // if (!isStepValid()) return;
+      // dispatch(setStep(2));
     } else if (step === 2) {
-      await handleRequestGenContent();
-      if (apiPostContentError && !loading) {
-        return;
-      }
+      dispatch(setStep(3)); // WARNING: remove this code before commit
+      // await handleRequestGenContent();
+      // if (apiPostContentError && !loading) {
+      //   return;
+      // }
       if (apiPostContentError === 'completed') {
         dispatch(setStep(3));
       }
@@ -143,6 +169,35 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
   //   setShowNavigationAlert(false);
   // }, []);
 
+  // !!! todo: check this function, for using parent and children states at the same time
+  const handleOnClickSave = async (flashcards: IFlashcardWithServer[]) => {
+    // phase 1: create topic
+    if (!name) {
+      alert("Name can't be blank");
+      return;
+    }
+
+    const topicSubmitted = { topicName: name, topicDescription: description };
+    let topicId : number;
+    try {
+      const dataResponsed = await postRequest<any, { data: { topicId: number } }>('/topics', topicSubmitted);
+      topicId = dataResponsed.data.topicId;
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+
+    // phase 2: insert flashcards generated to topic created
+    let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(flashcards);
+
+    try {
+      await postRequest(`/flashcards/batch?topicId=${topicId}`, flashcardsSubmitted);
+      router.push('/home');
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const renderStepContent = () => {
     switch (step) {
       case 1:
@@ -150,7 +205,29 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
       case 2:
         return <ContentDetailView />;
       case 3:
-        return <Final sseData={sseData} />;
+        return (
+          <div>
+
+            <div className='flex flex-col gap-4 mb-4'>
+              <div className="flex flex-col gap-2">
+                <div className="text-primary text-base font-normal">Name</div>
+                <Input value={name} onChange={handleOnChangeName} />
+              </div>
+        
+              <div className="flex flex-col gap-2">
+                <div className="text-primary text-base font-normal">Description</div>
+                <Input value={description ? description : ''} onChange={handleOnChangeDescription} />
+              </div>
+            </div>
+
+            <FlashcardEditor 
+              type="generative" 
+              flashcardsProp={sampleData}
+              shouldShowBackButton={false}
+              handleOnClickSave={handleOnClickSave}
+            />
+          </div>
+        )
 
       default:
         return null;
