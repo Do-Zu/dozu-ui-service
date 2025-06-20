@@ -16,6 +16,10 @@ import { useTranslations } from 'next-intl';
 import ContentCard from './ContentCard';
 import TopicsList from '../../topics/components/TopicsList';
 import { useRouter } from 'next/navigation';
+import { TopicModal } from '../../topics/components/TopicModal';
+import { TopicCreatedForm } from '../../topics/components/TopicCreatedForm';
+import useFetch from '@/hooks/useFetch';
+import { ITopicForUser, ITopicsForUserReturned } from '../../topics/topic.type';
 
 interface ContentLibraryProps {
   contentSets?: ContentSet[];
@@ -113,6 +117,41 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
   const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
 
+  // topic states to manage Create New Content 
+  const {
+    data: topics,
+    setData: setTopics,
+    error: topicsError,
+    loading: topicsLoading,
+  } = useFetch<ITopicsForUserReturned>('/topics');
+  const [topicName, setTopicName] = useState<string>('');
+  const [topicDescription, setTopicDescription] = useState<string>('');
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
+  const handleRenderTopicsSection = () => {
+    if (topicsLoading || !topics) {
+      return <div>Loading...</div>;
+    }
+    if (topicsError) {
+      return <div>Error: {topicsError} </div>;
+    }
+    if (topics?.length === 0) {
+      return <div>No Topics available</div>;
+    }
+    return <TopicsList topics={topics} setTopics={setTopics} />
+  }
+
+  const handleCloseCreateModal = () => {
+    setTopicName('');
+    setTopicDescription('');
+    setIsTopicModalOpen(false);
+  }
+
+  // todo: check this function
+  const setTopicsCallback = (topic: ITopicForUser) => {
+    if(topics === null) return;
+    setTopics([ ...topics, topic ]);
+  }
+
   // Filter content based on search query, active tab, and sort
   const filteredContent = contentSets
     .filter((content) => {
@@ -152,17 +191,31 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
       return 0;
     });
 
-  function handleClickCreate() {
-    router.push('/topics/create');
-  }
-
   return (
     <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 className="text-2xl font-semibold text-gray-800">{t('title')}</h2>
-        <Button onClick={handleClickCreate} className="bg-gray-800 hover:bg-gray-900">
-          <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
-        </Button>
+        <TopicModal
+          trigger={
+            <Button className="bg-gray-800 hover:bg-gray-900">
+              <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
+            </Button>
+          }
+          title={t('createNewContent')}
+          body={
+            // todo: pass handleOnClickCreate to this component
+            <TopicCreatedForm
+              name={topicName}
+              setName={setTopicName}
+              description={topicDescription}
+              setDescription={setTopicDescription}
+              handleCloseModal={handleCloseCreateModal}
+              setTopics={setTopicsCallback}
+            />
+          }
+          isOpen={isTopicModalOpen}
+          setIsOpen={setIsTopicModalOpen}
+        />
       </div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="relative w-full md:w-[300px]">
@@ -211,7 +264,9 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
         </TabsList>
         <TabsContent value="all" className="mt-6">
           {/* {renderContentGrid(filteredContent)} */}
-          <TopicsList />
+          {/* todo: change TopicsList, fetch topics in this component, pass topics prop to TopicsList component */}
+          {/* todo: if else to check loading or error  */}
+          { handleRenderTopicsSection() }
         </TabsContent>
         <TabsContent value="flashcards" className="mt-6">
           {renderContentGrid(filteredContent)}
