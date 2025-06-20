@@ -33,7 +33,7 @@ interface IFlashcardsWithTopicName {
   topicName: string;
 }
 
-interface FlashcardsSubmit {
+interface FlashcardsSubmitted {
   flashcardsAdded?: IFlashcardAdded[];
   flashcardsUpdated?: IFlashcardUpdated[];
   flashcardsDeleted?: IFlashcardDeleted[];
@@ -255,7 +255,7 @@ const Page = () => {
     )
       return;
 
-    let dataSubmit: FlashcardsSubmit = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
+    let dataSubmit: FlashcardsSubmitted = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
 
     try {
       await postRequest(`/flashcards/batch?topicId=${topicId}`, dataSubmit);
