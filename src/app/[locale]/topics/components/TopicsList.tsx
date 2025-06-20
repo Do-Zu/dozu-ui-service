@@ -6,43 +6,56 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { deleteRequest } from '@/api/api';
 import { DeleteAlertingModal } from './DeleteAlertingDialog';
-import { ITopicsForUserReturned } from '../topic.type';
+import { ITopicForUser, ITopicsForUserReturned } from '../topic.type';
+import { TopicModal } from './TopicModal';
+import { useEffect, useState } from 'react';
+import { TopicUpdatedForm } from './TopicUpdatedForm';
 
-const TopicsList = () => {
+interface Props {
+  topics: ITopicsForUserReturned
+  setTopics: (topics: ITopicsForUserReturned) => void
+}
+
+const TopicsList = ({ topics, setTopics }: Props) => {
   const router = useRouter();
 
-  const {
-    data: topics,
-    setData: setTopics,
-    error: topicsError,
-    loading: topicsLoading,
-  } = useFetch<ITopicsForUserReturned>('/topics');
+  // const {
+  //   data: topics,
+  //   setData: setTopics,
+  //   error: topicsError,
+  //   loading: topicsLoading,
+  // } = useFetch<ITopicsForUserReturned>('/topics');
 
-  if (topicsLoading || !topics) {
-    return <div>Loading...</div>;
-  }
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
+  const [topicEditedName, setTopicEditedName] = useState<string>('');
+  const [topicEditedDescription, setTopicEditedDescription] = useState<string | undefined | null>();
 
-  if (topicsError) {
-    return <div>Error: {topicsError} </div>;
-  }
+  // if (topicsLoading || !topics) {
+  //   return <div>Loading...</div>;
+  // }
 
-  if (topics?.length === 0) {
-    return <div>No Topics available</div>;
-  }
+  // if (topicsError) {
+  //   return <div>Error: {topicsError} </div>;
+  // }
 
-  function handleClickStudy(topicId: number) {
+  // if (topics?.length === 0) {
+  //   return <div>No Topics available</div>;
+  // }
+
+  function handleOnClickStudy(topicId: number) {
     router.push(`/flashcards/study?topicId=${topicId}`);
   }
 
-  function handleClickEdit(topicId: number) {
-    router.push(`/topics/${topicId}`);
+  function handleOnClickEdit(name: string, description: string | null) {
+    setTopicEditedName(name);
+    setTopicEditedDescription(description);
   }
 
-  function handleClickTitle(topicId: number) {
+  function handleOnClickTitle(topicId: number) {
     router.push(`flashcards/edit?topicId=${topicId}`)
   }
 
-  async function handleClickDelete(topicId: number) {
+  async function handleOnClickDelete(topicId: number) {
     try {
       await deleteRequest(`/topics/${topicId}`);
       const topicsFiltered = topics!.filter((topic) => topic.topicId !== topicId);
@@ -58,6 +71,16 @@ const TopicsList = () => {
     return descriptionFormatted;
   }
 
+  // todo: check this function
+  const setTopicsCallback = (topic: ITopicForUser) => {
+    if(topics === null) return;
+    const topicsUpdated = topics.map(e => {
+      if(e.topicId === topic.topicId) return { ...e, name: topic.name, description: topic.description };
+      return e;
+    })
+    setTopics(topicsUpdated);
+  }
+
   function renderDeleteTopicAlertingDialog(topicId: number, topicName: string) {
     const trigger = 
       <Trash2
@@ -71,7 +94,7 @@ const TopicsList = () => {
         description={'This action will delete all items related to this topic. Still delete?'}
         body={
           <div className="flex justify-end">
-            <Button variant='destructive' onClick={() => handleClickDelete(topicId)}>Delete</Button>
+            <Button variant='destructive' onClick={() => handleOnClickDelete(topicId)}>Delete</Button>
           </div>
         }
       />
@@ -85,20 +108,40 @@ const TopicsList = () => {
           return (
             <div className="col-span-3 bg-white rounded-lg p-4" key={topic.topicId}>
               <div className="flex flex-row items-center justify-between">
-                <a className="text-xl font-medium cursor-pointer hover:text-blue-600 hover:underline" onClick={() => handleClickTitle(topic.topicId)}>
+                <a className="text-xl font-medium cursor-pointer hover:text-blue-600 hover:underline" onClick={() => handleOnClickTitle(topic.topicId)}>
                   {topic.name}
                 </a>
                 <div className="flex flex-row gap-2">
                   <Book
                     size={20}
                     className="cursor-pointer"
-                    onClick={() => handleClickStudy(topic.topicId)}
+                    onClick={() => handleOnClickStudy(topic.topicId)}
                   />
-                  <SquarePen
-                    size={20}
-                    className="cursor-pointer"
-                    onClick={() => handleClickEdit(topic.topicId)}
+
+                  <TopicModal
+                    trigger={
+                      <SquarePen
+                        size={20}
+                        className="cursor-pointer"
+                        onClick={() => handleOnClickEdit(topic.name, topic.description)} // todo: is this a bad code?
+                      />
+                    } 
+                    title='Edit Topic'
+                    body={
+                      <TopicUpdatedForm
+                        topicId={topic.topicId}
+                        name={topicEditedName}
+                        description={topicEditedDescription}
+                        setName={setTopicEditedName}
+                        setDescription={setTopicEditedDescription}
+                        handleCloseModal={() => setIsTopicModalOpen(false)}
+                        setTopics={setTopicsCallback}
+                      />
+                    }
+                    isOpen={isTopicModalOpen}
+                    setIsOpen={setIsTopicModalOpen}
                   />
+
                   {renderDeleteTopicAlertingDialog(topic.topicId, topic.name)}
                 </div>
               </div>
