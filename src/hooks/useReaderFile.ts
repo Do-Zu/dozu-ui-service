@@ -3,28 +3,30 @@
 import { useState, useCallback, useEffect } from 'react';
 import mammoth from 'mammoth';
 import {
-    PDFDocumentProxy,
     TextItem,
     TextContent,
     DocumentInitParameters,
     TypedArray,
     PDFDocumentLoadingTask,
 } from 'pdfjs-dist/types/src/display/api';
-import { useCardImportSelector, useCardImportDispatch } from './useReduxStore';
-import { setTextContent } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
-import { setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 
-const useReaderFile = () => {
-    const dispatch = useCardImportDispatch();
-
-    const { files } = useCardImportSelector((state) => state.importDialog);
-
+const useReaderFile = (fileInit?: File) => {
+    const [file, setFile] = useState<File | undefined>(fileInit);
     const [text, setText] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [getDocument, setGetDocument] = useState<
         ((src?: string | URL | TypedArray | ArrayBuffer | DocumentInitParameters) => PDFDocumentLoadingTask) | null
     >(null);
+
+    useEffect(() => {
+        if (fileInit !== file) {
+            setFile(fileInit);
+            setText(null);
+            setError(null);
+            setLoading(false);
+        }
+    }, [fileInit, file]);
 
     // Lazy load PDF library only when needed
     const loadPdfLibrary = useCallback(async () => {
@@ -43,8 +45,6 @@ const useReaderFile = () => {
     }, [getDocument]);
 
     const handleExtractDocxToText = useCallback(() => {
-        const file = files?.[0];
-
         if (!file) {
             setError('No DOCX file selected');
             return;
@@ -59,9 +59,16 @@ const useReaderFile = () => {
         reader.onload = async (e) => {
             try {
                 const arrayBuffer = e.target?.result as ArrayBuffer;
+
                 if (!arrayBuffer) {
                     setError('Error reading file: Empty content');
                     console.error('Empty content from DOCX file');
+                    return;
+                }
+
+                //page of file must be less than 100 page
+                if (arrayBuffer.byteLength > 20 * 1024 * 1024) {
+                    setError('File too large. Over 100 MB.'); // 20 MB limit
                     return;
                 }
 
@@ -79,6 +86,7 @@ const useReaderFile = () => {
                 setLoading(false);
             }
         };
+
         reader.onerror = (e) => {
             setError('Error reading DOCX file');
             setLoading(false);
@@ -86,11 +94,9 @@ const useReaderFile = () => {
         };
 
         reader.readAsArrayBuffer(file);
-    }, [files]);
+    }, [file]);
 
     const handleExtractTxtToText = useCallback(() => {
-        const file = files?.[0];
-
         if (!file) {
             setError('No text file selected');
             return;
@@ -129,7 +135,7 @@ const useReaderFile = () => {
         };
 
         try {
-            // Read file as text - this is the appropriate method for .txt files
+            // Read file as text - this is the appropriate method for .txt file
             reader.readAsText(file);
         } catch (err) {
             console.error('Error initiating file read:', err);
@@ -137,14 +143,12 @@ const useReaderFile = () => {
         } finally {
             setLoading(false);
         }
-    }, [files, dispatch]);
+    }, [file]);
 
     /**
      * Extracts text from a PDF file using pdfjs-dist.
      */
     const handleExtractPdfToText = useCallback(async () => {
-        const file = files?.[0];
-
         if (!file) {
             setError('No PDF file selected');
             return;
@@ -177,13 +181,11 @@ const useReaderFile = () => {
 
                 if (!pdf) {
                     setError('Error loading PDF document.');
-                    dispatch(setFiles([]));
                     return;
                 }
 
                 if (pdf.numPages > 100) {
                     setError('File too large. Over 100 pages.');
-                    dispatch(setFiles([]));
                     return;
                 }
 
@@ -197,8 +199,9 @@ const useReaderFile = () => {
 
                     // Extract text from each item
                     textItems.forEach((item: TextItem) => {
-                        fullText += item.str + ' ';
+                        fullText += item.str;
                     });
+                    fullText += `\n Page ${i} \n`;
                 }
 
                 setText(fullText.trim());
@@ -215,51 +218,61 @@ const useReaderFile = () => {
             setLoading(false);
             setText(null);
         };
-
         reader.readAsArrayBuffer(file);
-    }, [files, loadPdfLibrary, dispatch]);
+    }, [file, loadPdfLibrary]);
 
     const handleFileChange = useCallback(() => {
-        if (!files || files.length === 0) {
+        if (!file) {
+            setText(null);
+            setError(null);
             return;
         }
 
-        if (files?.[0]) {
-            const file = files[0];
-
-            console.log('Type file', file.type);
-
-            if (file.type === 'application/pdf') {
-                handleExtractPdfToText();
-            } else if (file.type === 'text/plain') {
-                handleExtractTxtToText();
-            } else if (
-                file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-                file.type === 'application/msword' ||
-                file.type === 'application/docx'
-            ) {
-                handleExtractDocxToText();
-            } else {
-                setError('Unsupported file type. Please select a PDF, TXT, or DOCX file.');
-                setLoading(false);
-            }
+        // Skip processing if already processing or already have text for this file
+        if (loading) {
+            return;
         }
-    }, [files, handleExtractPdfToText, handleExtractTxtToText, handleExtractDocxToText]);
 
+        console.log('Processing file:', file.name, 'Type:', file.type);
+
+        if (file.type === 'application/pdf') {
+            handleExtractPdfToText();
+        } else if (file.type === 'text/plain') {
+            handleExtractTxtToText();
+        } else if (
+            file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+            file.type === 'application/msword' ||
+            file.type === 'application/docx'
+        ) {
+            handleExtractDocxToText();
+        } else {
+            setError('Unsupported file type. Please select a PDF, TXT, or DOCX file.');
+            setLoading(false);
+        }
+    }, [file, loading, handleExtractPdfToText, handleExtractTxtToText, handleExtractDocxToText]);
+
+    // Process file when file changes
     useEffect(() => {
-        if (files.length > 0) {
+        if (file && !loading && !text && !error) {
             handleFileChange();
         }
-    }, [files]);
+    }, [file, handleFileChange, text, error]);
 
-    useEffect(() => {
-        if (!loading && text && !error) {
-            dispatch(setTextContent(text));
-            dispatch(setStep(2));
-        }
-    }, [text, loading]);
-
-    return { text, loading, error };
+    return {
+        text,
+        loading,
+        error,
+        file,
+        // Additional utilities
+        hasFile: !!file,
+        isProcessing: loading,
+        hasError: !!error,
+        hasText: !!text && !error,
+        // File info
+        fileName: file?.name,
+        fileSize: file?.size,
+        fileType: file?.type,
+    };
 };
 
 export default useReaderFile;
