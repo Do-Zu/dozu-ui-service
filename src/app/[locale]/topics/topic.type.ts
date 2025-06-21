@@ -2,7 +2,7 @@ export interface ITopic {
     topicId: number
     userId: number
     name: string
-    description: string | null
+    description: string
     createdAt: Date
 }
 

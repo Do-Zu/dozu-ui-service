@@ -13,6 +13,11 @@ export interface IFlashcardBasic {
     back: string
 }
 
+export interface IFlashcard {
+    front: string
+    back: string
+}
+
 export type IFlashcardAdded = Pick<IFlashcardBasic, 'front' | 'back'>;
 export type IFlashcardUpdated = Pick<IFlashcardBasic, 'flashcardId' | 'front' | 'back'>;
 export type IFlashcardDeleted = number
