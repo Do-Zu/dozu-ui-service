@@ -51,12 +51,6 @@ interface ApiResponsePubGenContent {
     };
 }
 
-// const sampleData = [
-//     { q: 'Hello', a: 'Xin chào' },
-//     { q: 'Thank you', a: 'Cảm ơn' },
-//     { q: 'Sorry', a: 'Xin lỗi' },
-// ];
-
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     const router = useRouter();
     const dispatch = useCardImportDispatch();
