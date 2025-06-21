@@ -11,7 +11,7 @@ interface ReportFooterProps {
 export function ReportFooter({ onExportPdf, onPrint, onShare, onExport }: ReportFooterProps) {
   return (
     <div className="flex items-center justify-between p-4 border-t">
-      <span className="text-sm text-gray-500">Report generated on June 8, 2025</span>
+      <span className="text-sm text-gray-500">Report generated on June 21, 2025</span>
       <div className="flex items-center space-x-3">
         <button
           onClick={onExportPdf}

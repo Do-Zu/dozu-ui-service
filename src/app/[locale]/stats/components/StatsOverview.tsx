@@ -1,74 +1,13 @@
-import { BarChart, Clock, Target } from 'lucide-react';
+import { Users, FileText, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { KeyMetricCard } from './KeyMetricCard';
 import { DailyStudyChart } from './DailyStudyChart';
 import { LearningMethodsChart } from './LearningMethodsChart';
-import { useDashboardStatistics, useLearningMethodsDistribution } from '@/hooks/useProgress';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { dashboardMockData, learningMethodsMockData } from './mockData';
 
 export function StatsOverview() {
-  const { data: dashboardData, loading: dashboardLoading, error: dashboardError } = useDashboardStatistics();
-  const { data: learningMethodsData, loading: methodsLoading, error: methodsError } = useLearningMethodsDistribution();
-  const router = useRouter();
-
-  const handleLogin = () => {
-    router.push('/auth/login');
-  };
-
-  if (dashboardLoading || methodsLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1, 2].map((i) => (
-            <Skeleton key={i} className="h-64 w-full" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (dashboardError || methodsError) {
-    const isAuthError = dashboardError === 'Authentication required' || methodsError === 'Authentication required';
-    
-    return (
-      <div className="space-y-8">
-        {isAuthError ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="space-y-4">
-                <div className="text-6xl">🔐</div>
-                <h3 className="text-xl font-semibold">Authentication Required</h3>
-                <p className="text-muted-foreground">
-                  You need to be logged in to view your learning statistics.
-                </p>
-                <Button onClick={handleLogin}>
-                  Go to Login
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-red-500">Failed to load statistics data</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {dashboardError || methodsError}
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (!dashboardData || !learningMethodsData) {
-    return null;
-  }
+  const dashboardData = dashboardMockData;
+  const learningMethodsData = learningMethodsMockData;
 
   const { totalStudyHours, averageDailyStudy, completedTopics, weeklyComparison, dailyStudyHours } = dashboardData;
   const percentChange = weeklyComparison.percentageChange;
@@ -87,7 +26,7 @@ export function StatsOverview() {
           title="Total Study Hours"
           value={totalStudyHours}
           unit="hours"
-          change={`${percentChange >= 0 ? '+' : ''}${percentChange}% from previous week`}
+          change={`+${percentChange}% from previous week`}
           icon={Clock}
         />
 
@@ -96,15 +35,15 @@ export function StatsOverview() {
           value={averageDailyStudy}
           unit="hours/day"
           topText="Top 15% of all users"
-          icon={Target}
+          icon={Users}
         />
 
         <KeyMetricCard
-          title="Completed Topics"
+          title="Completed Items"
           value={completedTopics}
           unit="items"
-          change={`+${percentChange}% from previous week`}
-          icon={BarChart}
+          change={'+8 items from previous week'}
+          icon={FileText}
         />
       </div>
 

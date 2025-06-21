@@ -1,12 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { useProgressStatistics } from '@/hooks/useProgress';
-import { Skeleton } from '@/components/ui/skeleton';
+// import { useProgressStatistics } from '@/hooks/useProgress';
+// import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, CheckCircle, Clock, Target } from 'lucide-react';
+import { progressStatisticsMockData } from './mockData';
 
 export function ProgressStatistics() {
-  const { data: stats, loading, error } = useProgressStatistics();
+  // const { data: stats, loading, error } = useProgressStatistics();
+  const stats = progressStatisticsMockData;
 
+  /*
   if (loading) {
     return (
       <Card>
@@ -37,6 +40,7 @@ export function ProgressStatistics() {
       </Card>
     );
   }
+  */
 
   if (!stats) {
     return null;

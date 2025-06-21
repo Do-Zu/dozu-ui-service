@@ -1,11 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useWeeklyComparison } from '@/hooks/useProgress';
-import { Skeleton } from '@/components/ui/skeleton';
+// import { useWeeklyComparison } from '@/hooks/useProgress';
+// import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { weeklyComparisonMockData } from './mockData';
 
 export function WeeklyComparison() {
-  const { data: comparison, loading, error } = useWeeklyComparison();
+  // const { data: comparison, loading, error } = useWeeklyComparison();
+  const comparison = weeklyComparisonMockData;
 
+  /*
   if (loading) {
     return (
       <Card>
@@ -29,6 +32,7 @@ export function WeeklyComparison() {
       </Card>
     );
   }
+  */
 
   if (!comparison) {
     return null;

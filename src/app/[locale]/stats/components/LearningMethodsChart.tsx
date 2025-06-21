@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { useLearningMethodsDistribution } from '@/hooks/useProgress';
-import { Skeleton } from '@/components/ui/skeleton';
+// import { useLearningMethodsDistribution } from '@/hooks/useProgress';
+// import { Skeleton } from '@/components/ui/skeleton';
 
 interface LearningMethods {
   [key: string]: number;
@@ -11,15 +11,12 @@ interface LearningMethodsChartProps {
 }
 
 export function LearningMethodsChart({ methods }: LearningMethodsChartProps) {
-  const { data: apiMethods, loading, error } = useLearningMethodsDistribution();
+  // const { data: apiMethods, loading, error } = useLearningMethodsDistribution();
   
   // Use provided methods or fetch from API
-  const chartMethods = methods || (apiMethods ? 
-    apiMethods.reduce((acc, item) => {
-      acc[item.method.toLowerCase()] = item.percentage;
-      return acc;
-    }, {} as Record<string, number>) : null);
+  const chartMethods = methods;
   
+  /*
   if (loading && !methods) {
     return (
       <div className="grid grid-cols-2 gap-4">
@@ -44,6 +41,7 @@ export function LearningMethodsChart({ methods }: LearningMethodsChartProps) {
       </div>
     );
   }
+  */
 
   if (!chartMethods || Object.keys(chartMethods).length === 0) {
     return (
