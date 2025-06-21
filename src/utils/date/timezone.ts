@@ -89,7 +89,7 @@ export function getTimestampWithClientOffset(date: Date = new Date()): IFormatDa
  * @param date - Date object to convert (defaults to current time)
  * @returns ISO 8601 string in UTC
  */
-export function convertToUTCISOString(date: Date = new Date()): string {
+export function getISOTime(date: Date = new Date()): string {
   return date.toISOString();
 }
 

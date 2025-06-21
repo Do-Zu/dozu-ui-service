@@ -39,6 +39,8 @@ env:
   NEXT_PUBLIC_APP_NAME: ${{ github.event.inputs.environment == 'Production' && 'DOZU_PRODUCTION' || 'DOZU_DEVELOPMENT' }}
   NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
   NEXT_PUBLIC_API_STREAM_SSE_URL: ${{ secrets.NEXT_PUBLIC_API_STREAM_SSE_URL }}
+  NEXT_PUBLIC_GOOGLE_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_GOOGLE_REDIRECT_URI }}
+  NEXT_PUBLIC_OAUTH_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_OAUTH_CLIENT_ID }}
 jobs:
   # validate:
   #   runs-on: ubuntu-latest
@@ -69,6 +71,8 @@ jobs:
           echo "NEXT_PUBLIC_APP_NAME=${{ env.NEXT_PUBLIC_APP_NAME }}" >> .env.production
           echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env.production
           echo "NEXT_PUBLIC_API_STREAM_SSE_URL=${{ secrets.NEXT_PUBLIC_API_STREAM_SSE_URL }}" >> .env.production
+          echo "NEXT_PUBLIC_GOOGLE_REDIRECT_URI=${{ secrets.NEXT_PUBLIC_GOOGLE_REDIRECT_URI }}" >> .env.production
+          echo "NEXT_PUBLIC_OAUTH_CLIENT_ID=${{ secrets.NEXT_PUBLIC_OAUTH_CLIENT_ID }}" >> .env.production
       - name: Setup Vercel CLI
         run: npm install -g vercel
 

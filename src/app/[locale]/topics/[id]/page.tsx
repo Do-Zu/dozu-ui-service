@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import useFetch from '@/hooks/useFetch';
 import { useParams, useRouter } from 'next/navigation';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { IBasicTopic } from '../page';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { putRequest } from '@/api/api';
 import BackButton from '../../flashcards/components/BackButton';
 import { Textarea } from '@/components/ui/textarea';
+import { ITopicBasic } from '../topic.type';
 
 const Page = () => {
   const router = useRouter();
@@ -16,14 +16,13 @@ const Page = () => {
   if (!params?.id) return <div>No topic id is provided</div>;
 
   const { id: topicId } = params;
-  const topicSelector = useCallback((data: { topic: IBasicTopic }) => data.topic, []);
 
   const {
     data: topic,
     setData,
     loading: topicLoading,
     error: topicError,
-  } = useFetch<IBasicTopic>(`/topics/${topicId}`, topicSelector);
+  } = useFetch<ITopicBasic>(`/topics/${topicId}`);
 
   const [name, setName] = useState<string | undefined>();
   const [description, setDescription] = useState<string | undefined | null>();
@@ -54,11 +53,16 @@ const Page = () => {
   }
 
   async function handleOnSaveChanges() {
+    if(!name) {
+      alert("Name can't be blank");
+      return;
+    }
     try {
       const topicName = name,
         topicDescription = description ? description : '';
       const dataSubmitted = { topicName, topicDescription };
       await putRequest(`/topics/${topicId}`, dataSubmitted);
+      router.push('/home');
     } catch (err) {
       console.log(err);
     }

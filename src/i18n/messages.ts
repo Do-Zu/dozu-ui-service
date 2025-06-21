@@ -14,13 +14,13 @@ export async function getMessages(locale: string) {
   // Load base/common messages that are needed across the application
 
   //-----------------------------SPREAD MESSAGES-------------------------------//
-
   const messages = {
     ...(await import(`../../messages/${locale}/common.json`)).default,
     ...(await import(`../../messages/${locale}/home.json`)).default,
     ...(await import(`../../messages/${locale}/login.json`)).default,
     ...(await import(`../../messages/${locale}/registerPage.json`)).default,
     ...(await import(`../../messages/${locale}/verifyEmailPage.json`)).default,
+    ...(await import(`../../messages/${locale}/welcome.json`)).default,
   };
 
   // You can dynamically load additional message files based on routes/features

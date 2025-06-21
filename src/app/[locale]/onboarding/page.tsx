@@ -5,11 +5,15 @@ import WelcomeStepCard from './components/WelcomeStepCard';
 import TopicTagStepCard from './components/TopicTagStepCard';
 import StudyDurationStepCard from './components/StudyDurationStepCard';
 import StudyMethodStepCard from './components/StudyMethodStepCard';
-import SchedulingMethodStepCard from './components/SchedulingMethodStepCard';
 import OnboardingCompleteCard from './components/OnboardingCompleteCard';
 import usePost from '@/hooks/usePost';
+import LoadingPage from '@/app/loading';
+import AuthSkeleton from '@/components/ui/auth-skeleton';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 
-const WelcomePage: React.FC = () => {
+const OnBoardingPage: React.FC = () => {
+  const { handleOnboardingComplete } = useAuthNavigation();
+
   const [currentStep, setCurrentStep] = useState(0);
   const [interestedTopicTags, setInterestedTopicTags] = useState<string[]>([]);
   const [studyDuration, setStudyDuration] = useState(15);
@@ -27,6 +31,7 @@ const WelcomePage: React.FC = () => {
   const addTopicTag = (topicTag: string) => {
     setInterestedTopicTags(interestedTopicTags.concat(topicTag));
   };
+
   const removeTopicTag = (topicTag: string) => {
     setInterestedTopicTags(interestedTopicTags.filter((a) => a !== topicTag));
   };
@@ -35,6 +40,7 @@ const WelcomePage: React.FC = () => {
   const addStudyMethod = (studyMethod: string) => {
     setStudyMethods(studyMethods.concat(studyMethod));
   };
+
   const removeStudyMethod = (studyMethod: string) => {
     setStudyMethods(studyMethods.filter((a) => a !== studyMethod));
   };
@@ -44,16 +50,16 @@ const WelcomePage: React.FC = () => {
     studyDuration: studyDuration,
     studyMethods: studyMethods,
   };
+
   const {
     loading,
     data: apiResponse,
     error: apiPostContentError,
     execute,
   } = usePost<any, any>('/onboarding/onboarding-result', 'POST');
-
   const finishSurvey = async () => {
-    const result = await execute(body);
-    setCurrentStep(currentStep + 1);
+    await execute(body);
+    handleOnboardingComplete();
   };
 
   const steps: JSX.Element[] = [
@@ -78,9 +84,17 @@ const WelcomePage: React.FC = () => {
       addStudyMethod={addStudyMethod}
       removeStudyMethod={removeStudyMethod}
     />,
+
     <OnboardingCompleteCard />,
-    // <SchedulingMethodStepCard goBack={goBack} />,
   ];
+
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (!loading && (apiResponse || apiPostContentError)) {
+    return <AuthSkeleton />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted p-4">
@@ -89,4 +103,4 @@ const WelcomePage: React.FC = () => {
   );
 };
 
-export default WelcomePage;
+export default OnBoardingPage;

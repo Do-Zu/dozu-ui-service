@@ -67,16 +67,25 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
-        // Override default gray/white/black to prevent color breaking
         gray: {
-          100: 'hsl(var(--muted))',
-          500: 'hsl(var(--muted-foreground))',
-          900: 'hsl(var(--foreground))',
+          '100': 'hsl(var(--muted))',
+          '500': 'hsl(var(--muted-foreground))',
+          '900': 'hsl(var(--foreground))',
         },
         white: 'hsl(var(--background))',
         black: 'hsl(var(--foreground))',
         red: {
-          500: 'hsl(var(--destructive))',
+          '500': 'hsl(var(--destructive))',
+        },
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-background))',
+          foreground: 'hsl(var(--sidebar-foreground))',
+          primary: 'hsl(var(--sidebar-primary))',
+          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+          accent: 'hsl(var(--sidebar-accent))',
+          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+          border: 'hsl(var(--sidebar-border))',
+          ring: 'hsl(var(--sidebar-ring))',
         },
       },
       borderRadius: {
@@ -86,36 +95,80 @@ const config: Config = {
       },
       keyframes: {
         'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
         },
         'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
         },
         vibrate: {
-          '0%': { transform: 'translate(0) scale(0.5)' },
-          '20%': { transform: 'translate(-2px, 2px) scale(1.2)' },
-          '40%': { transform: 'translate(-2px, -2px) scale(1.2)' },
-          '60%': { transform: 'translate(2px, 2px) scale(1.2)' },
-          '80%': { transform: 'translate(2px, -2px) scale(1.2)' },
-          '100%': { transform: 'translate(0) scale(1.5)' },
+          '0%': {
+            transform: 'translate(0) scale(0.5)',
+          },
+          '20%': {
+            transform: 'translate(-2px, 2px) scale(1.2)',
+          },
+          '40%': {
+            transform: 'translate(-2px, -2px) scale(1.2)',
+          },
+          '60%': {
+            transform: 'translate(2px, 2px) scale(1.2)',
+          },
+          '80%': {
+            transform: 'translate(2px, -2px) scale(1.2)',
+          },
+          '100%': {
+            transform: 'translate(0) scale(1.5)',
+          },
         },
         'fade-in-up': {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(10px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
         },
         'fade-out-down': {
-          '0%': { opacity: '1', transform: 'translateY(0)' },
-          '100%': { opacity: '0', transform: 'translateY(10px)' },
+          '0%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+          '100%': {
+            opacity: '0',
+            transform: 'translateY(10px)',
+          },
         },
         'slide-in-right': {
-          '0%': { transform: 'translateX(100%)', opacity: '0' },
-          '100%': { transform: 'translateX(0)', opacity: '1' },
+          '0%': {
+            transform: 'translateX(100%)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
         },
         'slide-out-left': {
-          '0%': { transform: 'translateX(0)', opacity: '1' },
-          '100%': { transform: 'translateX(-100%)', opacity: '0' },
+          '0%': {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translateX(-100%)',
+            opacity: '0',
+          },
         },
       },
       animation: {
