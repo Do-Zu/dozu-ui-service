@@ -336,7 +336,6 @@ export const DialogImportFileGenerative: React.FC<FileUploadDialogProps> = ({
                 );
 
                 try {
-                    let uploadResult = true;
                     const uploadResult = await uploadService.uploadFile(file, (progress) => {
                         setUploadProgress((prev) => {
                             const newMap = new Map(prev);
