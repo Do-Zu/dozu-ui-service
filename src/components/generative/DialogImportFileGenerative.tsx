@@ -337,23 +337,19 @@ export const DialogImportFileGenerative: React.FC<FileUploadDialogProps> = ({
 
                 try {
                     let uploadResult = true;
-                    // const uploadResult = await uploadService.uploadFile(file, (progress) => {
-                    //     setUploadProgress((prev) => {
-                    //         const newMap = new Map(prev);
-                    //         newMap.set(fileItem.id, progress);
-                    //         return newMap;
-                    //     });
-                    //     // Update file item with progress
-                    //     setFiles((prevFiles) =>
-                    //         prevFiles.map((f) => (f.id === fileItem.id ? { ...f, uploadProgress: progress } : f)),
-                    //     );
-                    // });
+                    const uploadResult = await uploadService.uploadFile(file, (progress) => {
+                        setUploadProgress((prev) => {
+                            const newMap = new Map(prev);
+                            newMap.set(fileItem.id, progress);
+                            return newMap;
+                        });
+                        // Update file item with progress
+                        setFiles((prevFiles) =>
+                            prevFiles.map((f) => (f.id === fileItem.id ? { ...f, uploadProgress: progress } : f)),
+                        );
+                    });
 
-                    if (!uploadResult) {
-                        throw new Error('Upload failed');
-                    }
-
-                    //uploadResults.push(uploadResult);
+                    uploadResults.push(uploadResult);
 
                     setFiles((prev) =>
                         prev.map((f) =>
