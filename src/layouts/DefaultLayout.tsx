@@ -24,6 +24,10 @@ const DefaultLayout: React.FC<LayoutProps> = ({
   isDisplayFooter: explicitFooter,
 }) => {
   const pathname = usePathname();
+  
+    if (pathname.includes('/admin')) {
+    return <>{children}</>;
+  }
 
   const configSettings = getLayoutSettings(pathname);
 
