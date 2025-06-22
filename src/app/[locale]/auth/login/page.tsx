@@ -6,188 +6,151 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-
-import Axios from '@/api/axios';
-import { toast } from '@/hooks/use-toast';
-import { ROUTES } from '@/utils/constants/routes';
-import { useAuthNavigation } from '@/hooks/useAuthNavigation';
-import { User } from '@/types/auth';
-import { useAuth } from '@/contexts/auth/AuthContext';
 import { useSearchParams } from 'next/navigation';
 import { withRouteGuard } from '@/components/guards/RouteGuard';
 
-const googleGoogleRedirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
-const googleOAuthClientId = process.env.NEXT_PUBLIC_OAUTH_CLIENT_ID;
-const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&include_granted_scopes=true&response_type=code
-&redirect_uri=${googleGoogleRedirectUri}&client_id=${googleOAuthClientId}`;
+import { useLogin } from '../hooks/useLogin';
+import { useGoogleAuth } from '../hooks/useGoogleAuth';
+import LoadingPage from '@/app/loading';
 
 const AuthPage: React.FC = () => {
-  // const searchParams = useSearchParams();
-
-  // const search = searchParams.get('search')
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const { handlePostLogin } = useAuthNavigation();
+  const [credentials, setCredentials] = useState({
+    username: '',
+    password: '',
+  });
 
   const t = useTranslations('LoginPage');
-  const param = '/auth/login';
 
-  const searchParams = useSearchParams();
-  const code = searchParams.get('code');
+  const { login, isLoading: isLoginLoading } = useLogin();
+  const { googleAuthUrl, isLoading: isGoogleLoading } = useGoogleAuth();
 
-  const { setAuthData } = useAuth();
-  useEffect(() => {
-    const options: any = {
-      body: {
-        code: code,
-      },
+  const handleInputChange =
+    (field: 'username' | 'password') => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCredentials((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
     };
-    const loginGoogle = async () => {
-      const response = await Axios.post('/auth/google', options.body, {
-        withCredentials: true,
-      });
-      const userData = response.data.data;
-      handleSuccessfulLogin(userData);
-    };
-    if (code) {
-      loginGoogle(); //login if there is a code in url query (redirect from google oauth)
-    }
-  }, []);
 
-  const handleSuccessfulLogin = (user: User) => {
-    setAuthData(user);
-
-    // Get the redirect parameter from URL
-    const redirectTo = searchParams?.get('redirect');
-
-    if (redirectTo) {
-      const decodedPath = decodeURIComponent(redirectTo);
-      // The handlePostLogin will now create a redirect chain if needed
-      handlePostLogin(user, decodedPath);
-    } else {
-      // No specific redirect, let the system determine the flow
-      handlePostLogin(user);
-    }
+  const handleLogin = () => {
+    login(credentials);
   };
 
-  const login = async () => {
-    const options: any = {
-      body: {
-        username: username,
-        password: password,
-      },
-    };
-
-    try {
-      setIsLoading(true);
-      // const response = await callApiAsync('/auth/login', 'POST', options); //todo:changes to useQuery
-      const response = await Axios.post('/auth/login', options.body, {
-        withCredentials: true,
-      });
-
-      //[Q&A]: shouldn't decode access token at client side
-      // const decoded: any = jwtDecode(accessToken);
-      // const userId = decoded.user.userId;
-      // const username = decoded.user.username;
-
-      //TODO: replace sample user data after login for real
-
-      const userData = response.data.data;
-      //follows this structure
-      // const userData = {
-      //   id: '1',
-      //   email: 'v@gmail.com',
-      //   name: 'pernist',
-      //   roles: ['user'],
-      //   permissions: [],
-      //   isNewUser: false,
-      //   hasCompletedOnboarding: false,
-      //   lastLoginAt: new Date().toISOString(),
-      //   accessToken,
-      // };
-
-      handleSuccessfulLogin(userData);
-    } catch (error) {
-      toast({
-        description: t('loginErrorMessage'),
-        variant: 'destructive',
-      });
-    }
-    setIsLoading(false);
+  const handleGoogleLogin = () => {
+    window.location.href = googleAuthUrl;
   };
+
+  const isLoading = isLoginLoading || isGoogleLoading;
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-muted px-4">
       <Card className="rounded-2xl shadow-md">
         <CardContent className="p-6 space-y-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold">{t('title')}</h1>
-            <p className="text-muted-foreground text-sm">{t('loginText')}</p>
-          </div>
+          <LoginHeader title={t('title')} subtitle={t('loginText')} />
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">{t('username')}</Label>
-              <Input
-                id="username"
-                // type="email"
-                placeholder="username"
-                required
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t('password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-              />
-            </div>
-          </div>
-          <Button
-            disabled={isLoading}
-            className="w-full"
-            onClick={() => {
-              login();
+          <LoginForm
+            credentials={credentials}
+            onInputChange={handleInputChange}
+            onSubmit={handleLogin}
+            onGoogleLogin={handleGoogleLogin}
+            isLoading={isLoading}
+            translations={{
+              username: t('username'),
+              password: t('password'),
+              loginButton: t('loginButtonText'),
+              googleButton: t('loginGoogleButtonText'),
             }}
-          >
-            {t('loginButtonText')}
-          </Button>
-          <Button
-            disabled={isLoading}
-            className="w-full"
-            onClick={() => {
-              window.location.href = googleOAuthURL;
-            }}
-          >
-            {t('loginGoogleButtonText')}
-          </Button>
+          />
 
-          <div className="text-center text-sm text-muted-foreground">
-            {t('noAccountPrompt')}{' '}
-            <Link href="/auth/register" className="underline">
-              {t('signUpButtonText')}
-            </Link>
-          </div>
+          <LoginFooter noAccountText={t('noAccountPrompt')} signUpText={t('signUpButtonText')} />
         </CardContent>
       </Card>
     </div>
   );
 };
+
+const LoginHeader: React.FC<{ title: string; subtitle: string }> = ({ title, subtitle }) => (
+  <div className="text-center">
+    <h1 className="text-2xl font-semibold">{title}</h1>
+    <p className="text-muted-foreground text-sm">{subtitle}</p>
+  </div>
+);
+
+interface LoginFormProps {
+  credentials: { username: string; password: string };
+  onInputChange: (
+    field: 'username' | 'password',
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: () => void;
+  onGoogleLogin: () => void;
+  isLoading: boolean;
+  translations: {
+    username: string;
+    password: string;
+    loginButton: string;
+    googleButton: string;
+  };
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({
+  credentials,
+  onInputChange,
+  onSubmit,
+  onGoogleLogin,
+  isLoading,
+  translations,
+}) => (
+  <>
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="username">{translations.username}</Label>
+        <Input
+          id="username"
+          placeholder="username"
+          required
+          value={credentials.username}
+          onChange={onInputChange('username')}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="password">{translations.password}</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="••••••••"
+          required
+          value={credentials.password}
+          onChange={onInputChange('password')}
+        />
+      </div>
+    </div>
+
+    <Button disabled={isLoading} className="w-full" onClick={onSubmit}>
+      {translations.loginButton}
+    </Button>
+
+    <Button disabled={isLoading} className="w-full" onClick={onGoogleLogin}>
+      {translations.googleButton}
+    </Button>
+  </>
+);
+
+const LoginFooter: React.FC<{ noAccountText: string; signUpText: string }> = ({
+  noAccountText,
+  signUpText,
+}) => (
+  <div className="text-center text-sm text-muted-foreground">
+    {noAccountText}{' '}
+    <Link href="/auth/register" className="underline">
+      {signUpText}
+    </Link>
+  </div>
+);
 
 export default withRouteGuard(AuthPage);
