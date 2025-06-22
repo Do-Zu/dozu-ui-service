@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/lib/providers/theme';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
 import '../styles/globals.css';
+import { ReactFlowProvider } from '@xyflow/react';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const storeRef = useRef(store);
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ErrorBoundary>
             <ReduxProvider store={store}>
               <ThemeProvider>
-                <AuthProvider>{children}</AuthProvider>
+                <ReactFlowProvider>
+                  <AuthProvider>{children}</AuthProvider>
+                </ReactFlowProvider>
               </ThemeProvider>
             </ReduxProvider>
             <Toaster />

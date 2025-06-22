@@ -14,7 +14,9 @@ type EdgeData = {
     target: string;
 };
 
+//!!temp type fix, remove/fix later
 export type MindmapData = {
     nodes: NodeData[];
     edges: EdgeData[];
+    mindmap:any
 };

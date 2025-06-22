@@ -12,12 +12,15 @@ import { STATUS_CODE } from '@/utils/constants/http';
 import { MindmapData } from '../models/MindmapGeneratedResponseInterface';
 import { IGenerateMindmapRequest } from '../models/GenerateMindmapRequestInterface';
 import MindmapGeneratingSkeleton from '@/components/generative/MindmapGeneratingSkeleton';
+import GenerateMindmapCard from '../../mindmap/components/GenerateMindmapCard';
 
 export default function Page() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
+    const [mindmapData, setMindmapData] = useState({});
 
     const { text, loading, error, hasFile, fileName, fileSize, fileType } = useReaderFile(selectedFile);
+    const [topicName, setTopicName] = useState('');
 
     const handleGenerate = async (request: IGenerateMindmapRequest) => {
         try {
@@ -31,6 +34,7 @@ export default function Page() {
             }
 
             console.log(data);
+            setMindmapData(data.mindmap);
         } catch (error) {
             toast({
                 description: error instanceof Error ? error.message : 'An unexpected error occurred.',
@@ -38,6 +42,7 @@ export default function Page() {
             });
         }
     };
+
 
     const { loading: isGenerating, data, error: errorGenerate, execute } = usePost(handleGenerate);
 
@@ -102,12 +107,10 @@ export default function Page() {
         <div className="p-6">
             <div className="max-w-2xl mx-auto space-y-6">
                 <h2 className="text-2xl font-bold text-center">File Upload Demo</h2>
-
                 <Button onClick={() => setIsDialogOpen(true)} className="w-full" size="lg" disabled={loading}>
                     <Upload className="mr-2 h-4 w-4" />
                     {selectedFile ? 'Change File' : 'Upload Files'}
                 </Button>
-
                 {/* {hasFile && selectedFile && (
                     <div className="border rounded-lg p-4 space-y-3">
                         <div className="flex items-center justify-between">
@@ -142,7 +145,11 @@ export default function Page() {
                         )}
                     </div>
                 )} */}
-
+                {selectedFile && !isGenerating ? (
+                    <GenerateMindmapCard mindmapData={mindmapData} topicName={topicName} setTopicName={setTopicName} />
+                ) : (
+                    ''
+                )}
                 <DialogImportFileGenerative
                     open={isDialogOpen}
                     onOpenChange={setIsDialogOpen}

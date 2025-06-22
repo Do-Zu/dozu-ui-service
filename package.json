@@ -50,6 +50,7 @@
     "@reduxjs/toolkit": "^2.5.0",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/react-table": "^8.20.6",
+    "@xyflow/react": "^12.6.4",
     "axios": "^1.7.9",
     "chart.js": "^4.4.9",
     "class-variance-authority": "^0.7.1",
@@ -83,6 +84,7 @@
     "survey-react-ui": "1.12.39",
     "tailwind-merge": "^2.6.0",
     "tailwind-variants": "^0.3.0",
+    "uuid": "^11.1.0",
     "youtubei.js": "^13.3.0",
     "zod": "^3.24.2"
   },
