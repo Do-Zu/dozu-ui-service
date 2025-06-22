@@ -40,12 +40,12 @@ function ActionButtons({ user, refetch }: { user: UserBasic; refetch: () => void
     );
 
     const handleToggleActive = async () => {
-        const res = await toggleActive({});
+        const res = (await toggleActive({})) as { message?: string };
         if (res?.message) toast({ description: res.message, variant: 'default' });
     };
     const handleToggleRole = async () => {
         const newRole = user.role === 'admin' ? 'user' : 'admin';
-        const res = await updateRole({ role: newRole });
+        const res = (await updateRole({ role: newRole })) as { message?: string };
         if (res?.message) {
             toast({ description: res.message });
         }
