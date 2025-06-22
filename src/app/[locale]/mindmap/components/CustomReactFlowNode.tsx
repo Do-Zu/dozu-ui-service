@@ -1,13 +1,24 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Handle, Node, NodeProps, NodeToolbar, Position, useEdges, useReactFlow } from '@xyflow/react';
+import {
+  Handle,
+  Node,
+  NodeProps,
+  NodeToolbar,
+  Position,
+  useEdges,
+  useReactFlow,
+} from '@xyflow/react';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomNodeData } from '../mindmap.type';
+import Axios from '@/api/axios';
+import { useParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 
+const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
+  const router = data.router;
 
-
-const CustomReactFlowNode = ({ data }:{data:CustomNodeData}) => {
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(data.label);
   const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
@@ -16,14 +27,14 @@ const CustomReactFlowNode = ({ data }:{data:CustomNodeData}) => {
 
   const addNode = () => {
     const id = uuidv4();
-    const newNode:Node = {
+    const newNode: Node = {
       id: id,
       type: 'custom-react-flow-node',
       position: screenToFlowPosition({ x: 0, y: 0 }),
       data: { nodeId: id, label: `Empty node` },
       origin: [0.5, 0.0],
     };
-    
+
     setNodes((nds) => nds.concat([newNode]));
     setEdges((eds) => eds.concat({ id: `${id}-${data.nodeId}`, source: data.nodeId, target: id }));
   };
@@ -40,6 +51,14 @@ const CustomReactFlowNode = ({ data }:{data:CustomNodeData}) => {
 
   const handleAddChild = () => {
     addNode();
+  };
+
+  const handleAddFlashcards = async () => {
+    if (!router) {
+      console.log('Error - router undefined');
+    } else {
+      router.push(`/mindmap/add-flashcard?topicId=${data.topicId}&nodeId=${data.nodeId}`);
+    }
   };
 
   const handleDelete = () => {
@@ -66,6 +85,14 @@ const CustomReactFlowNode = ({ data }:{data:CustomNodeData}) => {
 
   const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLabel(e.target.value);
+  };
+
+  const handleViewLinkedFlashcards = () => {
+    if (!router) {
+      console.log('Error - router undefined');
+    } else {
+      router.push(`/mindmap/nodes/${data.nodeId}/flashcard`);
+    }
   };
 
   return (
@@ -112,7 +139,8 @@ const CustomReactFlowNode = ({ data }:{data:CustomNodeData}) => {
       />
       <NodeToolbar isVisible={data.forceToolbarVisible || undefined} position={Position.Bottom}>
         <Button onClick={handleAddChild}>Add child</Button>
-        {/* <Button>copy</Button> */}
+        <Button onClick={handleAddFlashcards}>Add flashcards</Button>
+        <Button onClick={handleViewLinkedFlashcards}>View linked flashcards</Button>
 
         {editing ? (
           <Button disabled={data.isRoot} onClick={handleComplete}>

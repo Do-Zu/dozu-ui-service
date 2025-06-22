@@ -20,14 +20,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Edge } from '../mindmap.type';
 
-const initialNodes = [
-  {
-    id: '1',
-    type: 'custom-react-flow-node',
-    position: { x: 0, y: 0 },
-    data: { nodeId: '1', label: '1', isRoot: true },
-  },
-];
 const initialEdges: Edge[] = [];
 
 const defaultEdgeOptions = {
@@ -43,17 +35,28 @@ const edgeTypes = {
 };
 
 const MindmapPage = () => {
+  const router = useRouter();
+  const params = useParams();
+  const topicId = params.id;
+  console.log('topicId', topicId);
   const [isLoading, setIsLoading] = useState(false);
+
+  const initialNodes = [
+    {
+      id: '1',
+      type: 'custom-react-flow-node',
+      position: { x: 0, y: 0 },
+      data: { nodeId: '1', label: '1', isRoot: true, topicId: topicId, router: router },
+    },
+  ];
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const params = useParams();
-  const router = useRouter();
-  const topicId = params.id;
 
   if (!params?.id) return <div>No topic id is provided</div>;
 
   useEffect(() => {
     const getTopic = async () => {
+      console.log('router', router);
       const result = await Axios.get(`/topics/${params.id}`);
       console.log(result.data.data);
       const id = uuidv4();
@@ -62,7 +65,13 @@ const MindmapPage = () => {
           id: id,
           type: 'custom-react-flow-node',
           position: { x: 0, y: 0 },
-          data: { nodeId: id, label: result.data.data.name, isRoot: true },
+          data: {
+            nodeId: id,
+            label: result.data.data.name,
+            isRoot: true,
+            topicId: topicId, //remove
+            router: router, //remove
+          },
         },
       ]);
     };
@@ -71,6 +80,13 @@ const MindmapPage = () => {
         const result = await Axios.get(`/mindmap/${params.id}`);
         console.log(result.data.data.resultMindmap.mindmapData);
         const mindmapData = result.data.data.resultMindmap.mindmapData;
+        mindmapData.nodes = mindmapData.nodes.map((node: any) => {
+          return {
+            ...node,
+            data: { ...node.data, topicId: topicId, router: router },
+          };
+        });
+        console.log(mindmapData.nodes);
         setNodes(mindmapData.nodes);
         setEdges(mindmapData.edges);
       } catch (e) {
