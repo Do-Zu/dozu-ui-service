@@ -29,6 +29,8 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { ROUTES } from '@/utils/constants/routes';
+import { useAuth } from '@/contexts/auth/AuthContext'; 
+import { ShieldCheck } from 'lucide-react';
 
 // Menu items.
 const items = [
@@ -79,6 +81,7 @@ const secondaryItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { hasRole } = useAuth();
 
   return (
     <Sidebar collapsible="icon">
@@ -133,6 +136,29 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+    {hasRole('admin') && (
+    <SidebarGroup>
+      <SidebarGroupLabel>Admin</SidebarGroupLabel>
+         <SidebarGroupContent>
+           <SidebarMenu>
+             <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith('/admin')}
+                tooltip="Admin Panel"
+              >
+              <Link href="/admin">
+               <ShieldCheck />
+               <span>Admin Panel</span>
+              </Link>
+           </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+)}
+
 
       <SidebarFooter>
         <div className="p-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
