@@ -75,7 +75,7 @@ const TopicsList = ({ topics, setTopics }: Props) => {
                 description={'This action will delete all items related to this topic. Still delete?'}
                 body={
                     <div className="flex justify-end">
-                        <Button variant="destructive" onClick={() => handleClickDelete(topicId)}>
+                        <Button variant="destructive" onClick={() => handleOnClickDelete(topicId)}>
                             Delete
                         </Button>
                     </div>
