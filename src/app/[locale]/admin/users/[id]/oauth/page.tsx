@@ -30,7 +30,7 @@ export default function OAuthPage() {
     data: AuthAccount[];
   }>(`/admin/users/${userId}/auth-accounts`);
 
-  const accounts = response || [];
+  const accounts = response?.data ?? [];
 
 
   if (loading) return <Skeleton className="w-full h-[200px]" />;

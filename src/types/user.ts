@@ -4,4 +4,5 @@ export interface UserBasic {
   email: string;
   role: 'admin' | 'user';
   isActive: boolean;
+  createdAt: string;
 }

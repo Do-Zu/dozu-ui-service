@@ -32,6 +32,7 @@ function AdminUsersPage() {
                         email: user.email,
                         role: user.role,
                         isActive: user.isActive,
+                        createdAt: user.createdAt,
                     }),
                 );
                 setUsers(mapped);
