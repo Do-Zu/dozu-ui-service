@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { progressService, IProgressCreate, IProgressUpdate, IProgressQuery } from '@/services/progress/progress.service';
-import { IProgress, IProgressStatistics, IDashboardStatistics } from '@/types/progress';
+import {
+  IProgress,
+  IProgressStatistics,
+  IDashboardStatistics,
+  IDailyStudyRecord,
+  ContentType,
+  ProgressStatus,
+} from '@/types/progress';
 
 // Query keys
 export const progressKeys = {
@@ -216,7 +223,7 @@ export const useDailyStudyRecords = (days: number = 7) => {
 };
 
 export const useLearningMethodsDistribution = () => {
-  const [data, setData] = useState<Array<{ method: string; count: number }>>([]);
+  const [data, setData] = useState<Array<{ method: ContentType; count: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
