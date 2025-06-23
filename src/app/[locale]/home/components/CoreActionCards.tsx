@@ -80,7 +80,7 @@ const CoreActionCards: React.FC<CoreActionCardsProps> = () => {
                             <CardTitle className="text-sm font-semibold ">{card.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-gray-600 mb-4 text-xs">{card.description}</p>
+                            <p className="text-gray-600 dark:text-muted-foreground mb-4 text-xs">{card.description}</p>
                         </CardContent>
                     </Card>
                 );
