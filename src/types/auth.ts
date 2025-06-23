@@ -9,6 +9,7 @@ export interface User {
   onboardingStep?: number;
   createdAt?: string;
   lastLoginAt?: string;
+  accessToken?: string;
 }
 
 export interface AuthState {

@@ -7,8 +7,13 @@ const ALLOWED_AUDIO_TYPES = ['.mp3', '.wav', '.m4a'];
 const ALLOWED_VIDEO_TYPES = ['.mp4', '.mov', '.avi'];
 const MAX_CONTENT_SIZE_KB = 256;
 
-const validateFileSize = (file: File, isMedia = false): boolean => {
-  const maxSizeMB = isMedia ? MAX_MEDIA_SIZE_MB : MAX_FILE_SIZE_MB;
+const validateFileSize = (
+  file: File,
+  isMedia = false,
+  maxSizeFile = MAX_FILE_SIZE_MB,
+  maxFileMedia = MAX_MEDIA_SIZE_MB,
+): boolean => {
+  const maxSizeMB = isMedia ? maxSizeFile : maxFileMedia;
   const fileSizeMB = file.size / (1024 * 1024);
   return fileSizeMB <= maxSizeMB;
 };

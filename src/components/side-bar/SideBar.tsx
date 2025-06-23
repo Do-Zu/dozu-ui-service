@@ -10,6 +10,7 @@ import {
   Gamepad2,
   FileQuestion,
   Brain,
+  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,6 +28,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { ROUTES } from '@/utils/constants/routes';
 
 // Menu items.
 const items = [
@@ -39,6 +41,11 @@ const items = [
     title: 'Library',
     url: '/home',
     icon: BookOpen,
+  },
+  {
+    title: 'Progress',
+    url: '/progress',
+    icon: BarChart3,
   },
   // {
   //   title: 'Process',
@@ -65,7 +72,7 @@ const secondaryItems = [
   },
   {
     title: 'Settings',
-    url: '#',
+    url: ROUTES.SETTING_SCHEDULE_SETUP,
     icon: Settings,
   },
 ];
