@@ -1,12 +1,12 @@
 import React from 'react';
 import { Loader2, Brain, FileText, Zap } from 'lucide-react';
 
-interface MindmapGeneratingSkeletonProps {
+interface GeneratingSkeletonProps {
     fileName?: string;
     progress?: number;
 }
 
-const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ fileName, progress = 0 }) => {
+const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progress = 0 }) => {
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-2xl max-w-md w-full">
@@ -17,7 +17,7 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
                             <Brain className="h-8 w-8 text-white" />
                         </div>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Generating Mindmap</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Generating</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                         Analyzing your content and creating a visual mindmap
                     </p>
@@ -58,7 +58,7 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
                     </div>
                 </div>
 
-                <div className="mb-4">
+                {/* <div className="mb-4">
                     <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
                         <span>Progress</span>
                         <span>{Math.min(progress, 100)}%</span>
@@ -69,7 +69,7 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
                             style={{ width: `${Math.min(progress, 100)}%` }}
                         ></div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Animated Dots */}
                 <div className="text-center">
@@ -94,4 +94,4 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
     );
 };
 
-export default MindmapGeneratingSkeleton;
+export default GeneratingSkeleton;
