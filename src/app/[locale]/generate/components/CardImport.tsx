@@ -13,7 +13,6 @@ import { resetExtractionState } from '@/app/[locale]/generate/stores/features/co
 import { resetImportDialog, setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import ProcessGenerate from './process/ProcessGenerate';
-import Final from './steps/Final';
 import { compressContent } from '../helper/compress';
 import FlashcardEditor, {
     handleConvertToFlashcardsSubmitted,
@@ -24,6 +23,7 @@ import { postRequest } from '@/api/api';
 import { useRouter } from 'next/navigation';
 import { TopicModal } from '../../topics/components/TopicModal';
 import { handleCreateTopic, TopicCreatedForm } from '../../topics/components/TopicCreatedForm';
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 
 export type IFlashcardsFromSSE = { q: string; a: string }[];
 
@@ -32,7 +32,7 @@ export interface ISseData {
     timestamp: string;
     status: string;
     data?: {
-        data: IFlashcardsFromSSE;
+        data: object[];
         text: string;
         timestamp: string;
     };
@@ -48,6 +48,11 @@ interface ApiResponsePubGenContent {
     message: string;
     data?: {
         jobId: string;
+        status?: string;
+        data?: object[];
+    };
+    sse: {
+        event: string;
     };
 }
 
@@ -234,8 +239,8 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
 
     useEffect(() => {
         if (apiResponse) {
-            console.log('api res for pub', { apiResponse });
-            const jobId = apiResponse.data?.jobId;
+            const { data, sse } = apiResponse;
+            const jobId = data?.jobId;
             setJobId(jobId);
         }
     }, [apiResponse]);
@@ -250,7 +255,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     }, [apiPostContentError]);
 
     useEffect(() => {
-        console.log({ sseData, sseStatus });
+        // console.log({ sseData, sseStatus });
 
         if (sseStatus === 'timeout' || sseStatus === 'error') {
             toast({
@@ -268,7 +273,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
                 setFlashcardsGenerated(
                     handleConvertToFlashcardsEdited({
                         type: 'generative',
-                        flashcardsProp: sseData.data.data,
+                        flashcardsProp: sseData.data.data as IFlashcardsFromSSE,
                     }),
                 );
             dispatch(setStep(3));
@@ -280,23 +285,18 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         }
     }, [sseData, sseStatus]);
 
-    if (jobId && sseStatus === 'open') {
-        return <ProcessGenerate isGenerating={true} status={sseStatus} />;
+    if ((jobId && sseStatus === 'open') || loading) {
+        return <GeneratingSkeleton />;
     }
 
     return (
-        <Card className="max-w-[80vw] max-h-[85vh] overflow-auto mx-auto my-auto my-4">
+        <Card className="max-w-[80vw] max-h-[90vh] overflow-auto mx-auto my-4">
             <CardHeader>
                 <CardTitle className="text-xl font-semibold ">
                     {step === 1 && 'Import Learning Content'}
                     {step === 2 && 'Suggested Learning Methods'}
                     {step === 3 && 'Customize Learning Content'}
                 </CardTitle>
-                <CardDescription>
-                    {step === 1 && 'Upload or paste content to create learning materials.'}
-                    {step === 2 && 'Choose the best learning method for your content.'}
-                    {step === 3 && 'Customize your learning content before finalizing.'}
-                </CardDescription>
             </CardHeader>
 
             <CardContent className="">{renderStepContent()}</CardContent>

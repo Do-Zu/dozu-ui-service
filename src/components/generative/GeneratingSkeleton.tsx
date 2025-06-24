@@ -54,23 +54,9 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                         <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
                             <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                         </div>
-                        <span className="text-sm text-gray-400 dark:text-gray-500">Creating visual mindmap</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500">Creating visual</span>
                     </div>
                 </div>
-
-                {/* <div className="mb-4">
-                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        <span>Progress</span>
-                        <span>{Math.min(progress, 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300 ease-out"
-                            style={{ width: `${Math.min(progress, 100)}%` }}
-                        ></div>
-                    </div>
-                </div> */}
-
                 {/* Animated Dots */}
                 <div className="text-center">
                     <div className="inline-flex space-x-1">

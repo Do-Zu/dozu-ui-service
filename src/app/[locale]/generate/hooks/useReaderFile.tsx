@@ -20,6 +20,7 @@ const useReaderFile = () => {
     const { files } = useCardImportSelector((state) => state.importDialog);
 
     const [text, setText] = useState<string | null>(null);
+    const [numPages, setNumPages] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [getDocument, setGetDocument] = useState<
@@ -176,10 +177,8 @@ const useReaderFile = () => {
                     return;
                 }
 
-                if (pdf.numPages > 100) {
-                    setError('File too large. Over 100 pages.');
-                    dispatch(setFiles([]));
-                    return;
+                if (pdf.numPages > 0) {
+                    setNumPages(pdf.numPages);
                 }
 
                 let fullText = '';
@@ -253,7 +252,7 @@ const useReaderFile = () => {
         }
     }, [text, loading]);
 
-    return { text, loading, error };
+    return { text, numPages, loading, error };
 };
 
 export default useReaderFile;
