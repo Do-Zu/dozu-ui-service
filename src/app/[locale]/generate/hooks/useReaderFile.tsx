@@ -61,7 +61,6 @@ const useReaderFile = () => {
                 const arrayBuffer = e.target?.result as ArrayBuffer;
                 if (!arrayBuffer) {
                     setError('Error reading file: Empty content');
-                    console.error('Empty content from DOCX file');
                     return;
                 }
 
@@ -107,14 +106,12 @@ const useReaderFile = () => {
                 const content = e.target?.result as string;
                 if (!content) {
                     setError('Error reading file: Empty content');
-                    console.error('Empty content from text file');
                     return;
                 }
 
-                console.log(`Text file loaded successfully, ${content.length} characters`);
+                // console.log(`Text file loaded successfully, ${content.length} characters`);
                 setText(content);
             } catch (err) {
-                console.error('Error processing text file:', err);
                 setError(`Error processing text file: ${err instanceof Error ? err.message : 'Unknown error'}`);
             } finally {
                 setLoading(false);
@@ -122,7 +119,6 @@ const useReaderFile = () => {
         };
 
         reader.onerror = (e) => {
-            console.error('FileReader error:', e);
             setError('Error reading text file');
             setLoading(false);
             setText(null);
@@ -132,7 +128,6 @@ const useReaderFile = () => {
             // Read file as text - this is the appropriate method for .txt files
             reader.readAsText(file);
         } catch (err) {
-            console.error('Error initiating file read:', err);
             setError(`Failed to read text file: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } finally {
             setLoading(false);
@@ -203,7 +198,6 @@ const useReaderFile = () => {
 
                 setText(fullText.trim());
             } catch (error) {
-                console.error('Error reading PDF:', error);
                 setError('Error reading file pdf.');
             } finally {
                 setLoading(false);
