@@ -111,7 +111,7 @@ const formatFileSize = (bytes: number): string => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-export const DialogImportFileGenerative: React.FC<FileUploadDialogProps> = ({
+export const DialogImportFile: React.FC<FileUploadDialogProps> = ({
     open,
     onOpenChange,
     onFilesSelected,
@@ -598,4 +598,4 @@ export const DialogImportFileGenerative: React.FC<FileUploadDialogProps> = ({
     );
 };
 
-export default DialogImportFileGenerative;
+export default DialogImportFile;

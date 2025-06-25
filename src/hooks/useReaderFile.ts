@@ -13,6 +13,7 @@ import {
 const useReaderFile = (fileInit?: File) => {
     const [file, setFile] = useState<File | undefined>(fileInit);
     const [text, setText] = useState<string | null>(null);
+    const [numPages, setNumPages] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [getDocument, setGetDocument] = useState<
@@ -67,8 +68,8 @@ const useReaderFile = (fileInit?: File) => {
                 }
 
                 //page of file must be less than 100 page
-                if (arrayBuffer.byteLength > 20 * 1024 * 1024) {
-                    setError('File too large. Over 100 MB.'); // 20 MB limit
+                if (arrayBuffer.byteLength > 6 * 1024 * 1024) {
+                    setError('File too large. Over 100 MB.'); // 6 MB limit
                     return;
                 }
 
@@ -184,9 +185,8 @@ const useReaderFile = (fileInit?: File) => {
                     return;
                 }
 
-                if (pdf.numPages > 100) {
-                    setError('File too large. Over 100 pages.');
-                    return;
+                if (pdf?.numPages) {
+                    setNumPages(pdf.numPages);
                 }
 
                 let fullText = '';
@@ -260,6 +260,7 @@ const useReaderFile = (fileInit?: File) => {
 
     return {
         text,
+        numPages,
         loading,
         error,
         file,
