@@ -19,7 +19,7 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Generating</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Analyzing your content and creating a visual mindmap
+                        Analyzing your content and creating a preview
                     </p>
                 </div>
 

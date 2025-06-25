@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { Edit, Import, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IFlashcardAdded, IFlashcardBasic, IFlashcardDeleted, IFlashcardUpdated } from '../flashcard.type';
-import { IFlashcardsFromSSE } from '../../generate/components/CardImport';
+import { IFlashcardsFromSSE, IGenerateFlashcardItem } from '../../generate/components/CardImport';
 import BackButton from './BackButton';
 import { toast } from '@/hooks/use-toast';
 
@@ -170,7 +170,7 @@ export function handleConvertToFlashcardsEdited(
             }
         }
     } else {
-        initialFlashcards = flashcardsProp.map((flashcard, index) => {
+        initialFlashcards = flashcardsProp?.map((flashcard: IGenerateFlashcardItem, index: number) => {
             return {
                 id: index,
                 front: flashcard.q,

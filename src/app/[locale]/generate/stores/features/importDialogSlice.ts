@@ -15,7 +15,7 @@ const initialState: ImportDialogState = {
     importMethod: 'file',
     files: [],
     isProcessing: false,
-    suggestedMethods: ['flashcards', 'quiz', 'mind map'],
+    suggestedMethods: ['flashcards', 'quiz', 'mindmap'],
     selectedMethod: 'flashcards',
 };
 

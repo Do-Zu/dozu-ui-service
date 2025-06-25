@@ -22,9 +22,7 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
                 return <BookOpen className="h-5 w-5" />;
             case 'quiz':
                 return <Lightbulb className="h-5 w-5" />;
-            // case 'gamification':
-            //   return <Gamepad2 className="h-5 w-5" />;
-            case 'mind map':
+            case 'mindmap':
                 return <Map className="h-5 w-5" />;
             default:
                 return <FileText className="h-5 w-5" />;
@@ -38,9 +36,7 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
                 return 'Perfect for memorization and quick review';
             case 'quiz':
                 return 'Great for testing your knowledge';
-            // case 'gamification':
-            //   return 'Learn through interactive game-based activities';
-            case 'mind map':
+            case 'mindmap':
                 return 'Visual organization to connect ideas and concepts';
             default:
                 return 'Ideal for detailed study and reference';
