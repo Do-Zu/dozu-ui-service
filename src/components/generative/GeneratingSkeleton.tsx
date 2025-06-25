@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Loader2, Brain, FileText, Zap } from 'lucide-react';
 
 interface GeneratingSkeletonProps {
@@ -7,6 +7,24 @@ interface GeneratingSkeletonProps {
 }
 
 const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progress = 0 }) => {
+    const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+    const messages = [
+        'Analyzing your content...',
+        'Processing data...',
+        'Building content...',
+        'Reviewing quality...',
+        'Almost done, please wait...',
+    ];
+
+    useEffect(() => {
+        const messageInterval = setInterval(() => {
+            setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+        }, 4000);
+
+        return () => clearInterval(messageInterval);
+    }, [messages.length]);
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-2xl max-w-md w-full">
@@ -17,7 +35,7 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                             <Brain className="h-8 w-8 text-white" />
                         </div>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Generating</h3>
+                    <h3 className="text-xl font-semibold text-gray-900  mb-2">Generating</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                         Analyzing your content and creating a preview
                     </p>
@@ -45,8 +63,8 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                         <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <Loader2 className="h-3 w-3 text-white animate-spin" />
                         </div>
-                        <span className="text-sm text-gray-900 dark:text-white font-medium">
-                            Analyzing and structuring content
+                        <span className="text-sm text-gray-900 dark:to-blue-600 font-medium">
+                            {messages[currentMessageIndex]}
                         </span>
                     </div>
 
