@@ -25,8 +25,8 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { uploadService, UploadProgress } from '@/services/upload/upload.service';
-import { UploadProgressComponent } from './UploadProgressComponent';
-import { UploadFileResponse } from './types';
+import { UploadFileResponse } from '../generative/types';
+import UploadProgressComponent from '../generative/UploadProgressComponent';
 
 // File validation constants
 const MAX_FILE_SIZE_MB = 50;
