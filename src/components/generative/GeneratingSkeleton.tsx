@@ -1,12 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Loader2, Brain, FileText, Zap } from 'lucide-react';
 
-interface MindmapGeneratingSkeletonProps {
+interface GeneratingSkeletonProps {
     fileName?: string;
     progress?: number;
 }
 
-const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ fileName, progress = 0 }) => {
+const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progress = 0 }) => {
+    const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+    const messages = [
+        'Analyzing your content...',
+        'Processing data...',
+        'Building content...',
+        'Reviewing quality...',
+        'Almost done, please wait...',
+    ];
+
+    useEffect(() => {
+        const messageInterval = setInterval(() => {
+            setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+        }, 4000);
+
+        return () => clearInterval(messageInterval);
+    }, [messages.length]);
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-2xl max-w-md w-full">
@@ -17,9 +35,9 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
                             <Brain className="h-8 w-8 text-white" />
                         </div>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Generating Mindmap</h3>
+                    <h3 className="text-xl font-semibold text-gray-900  mb-2">Generating</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Analyzing your content and creating a visual mindmap
+                        Analyzing your content and creating a preview
                     </p>
                 </div>
 
@@ -45,8 +63,8 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
                         <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <Loader2 className="h-3 w-3 text-white animate-spin" />
                         </div>
-                        <span className="text-sm text-gray-900 dark:text-white font-medium">
-                            Analyzing and structuring content
+                        <span className="text-sm text-gray-900 dark:to-blue-600 font-medium">
+                            {messages[currentMessageIndex]}
                         </span>
                     </div>
 
@@ -54,23 +72,9 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
                         <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
                             <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                         </div>
-                        <span className="text-sm text-gray-400 dark:text-gray-500">Creating visual mindmap</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500">Creating visual</span>
                     </div>
                 </div>
-
-                <div className="mb-4">
-                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        <span>Progress</span>
-                        <span>{Math.min(progress, 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300 ease-out"
-                            style={{ width: `${Math.min(progress, 100)}%` }}
-                        ></div>
-                    </div>
-                </div>
-
                 {/* Animated Dots */}
                 <div className="text-center">
                     <div className="inline-flex space-x-1">
@@ -94,4 +98,4 @@ const MindmapGeneratingSkeleton: React.FC<MindmapGeneratingSkeletonProps> = ({ f
     );
 };
 
-export default MindmapGeneratingSkeleton;
+export default GeneratingSkeleton;

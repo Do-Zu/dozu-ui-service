@@ -25,8 +25,8 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { uploadService, UploadProgress } from '@/services/upload/upload.service';
-import { UploadProgressComponent } from './UploadProgressComponent';
-import { UploadFileResponse } from './types';
+import { UploadFileResponse } from '../generative/types';
+import UploadProgressComponent from '../generative/UploadProgressComponent';
 
 // File validation constants
 const MAX_FILE_SIZE_MB = 50;
@@ -111,7 +111,7 @@ const formatFileSize = (bytes: number): string => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-export const DialogImportFileGenerative: React.FC<FileUploadDialogProps> = ({
+export const DialogImportFile: React.FC<FileUploadDialogProps> = ({
     open,
     onOpenChange,
     onFilesSelected,
@@ -598,4 +598,4 @@ export const DialogImportFileGenerative: React.FC<FileUploadDialogProps> = ({
     );
 };
 
-export default DialogImportFileGenerative;
+export default DialogImportFile;
