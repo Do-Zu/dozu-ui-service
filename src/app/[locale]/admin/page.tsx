@@ -7,7 +7,8 @@ import { UserSignupChart } from './components/Chart';
 import { RecentActivity } from './components/RecentActivity';
 import { useEffect, useState } from 'react';
 import { getRequest } from '@/api/api';
-import { UserBasic } from '@/types/user';
+import { UserBasic, GetUsersQuery } from '@/types/user';
+import { toast } from '@/hooks/use-toast';
 
 export default function AdminDashboardPage() {
   const [users, setUsers] = useState<UserBasic[]>([]);
@@ -15,10 +16,14 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getRequest<unknown, UserBasic[]>('/admin/users');
+        const response = await getRequest<GetUsersQuery, UserBasic[]>('/admin/users');
         setUsers(response.data ?? []);
       } catch (error) {
-        console.error('Failed to fetch user data', error);
+        toast({
+        variant: 'destructive',
+        title: 'Failed to fetch users',
+        description: 'Something went wrong while loading users.',
+        });
       }
     };
 

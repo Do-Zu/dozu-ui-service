@@ -6,3 +6,12 @@ export interface UserBasic {
   isActive: boolean;
   createdAt: string;
 }
+
+export interface GetUsersQuery {
+  role?: 'admin' | 'user';
+  isActive?: boolean;
+  isVerified?: boolean;
+  hasCompletedOnboarding?: boolean;
+}
+
+

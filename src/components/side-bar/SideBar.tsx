@@ -145,7 +145,7 @@ export function AppSidebar() {
              <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith('/admin')}
+                isActive={pathname ? pathname.startsWith('/admin') : false}
                 tooltip="Admin Panel"
               >
               <Link href="/admin">
