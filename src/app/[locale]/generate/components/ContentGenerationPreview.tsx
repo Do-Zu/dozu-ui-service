@@ -6,7 +6,7 @@ import { TopicCreatedForm } from '../../topics/components/TopicCreatedForm';
 import { ISseData } from '../types';
 import { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { detectContentType } from '../utils/contentTypeDetector';
-import ContentRenderer from './ContentRenderer';
+import ContentRenderer from './ContentRender';
 
 export type ContentType = 'flashcard' | 'quiz' | 'mindmap';
 

@@ -5,13 +5,13 @@ import FlashcardEditor, { IFlashcardWithServer } from '../../flashcards/componen
 import { GeneratedContent } from './ContentGenerationPreview';
 import { CONTENT_TYPE_GENERATE } from '../types';
 
-interface ContentRendererProps {
+interface ContentRenderProps {
     content: GeneratedContent;
     dataGenerated: object[] | null;
     setDataGenerated: (dataGenerated: object[] | null) => void;
 }
 
-const ContentRenderer: React.FC<ContentRendererProps> = ({ content, dataGenerated, setDataGenerated }) => {
+const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, setDataGenerated }) => {
     const renderContent = () => {
         switch (content.type) {
             case CONTENT_TYPE_GENERATE.FLASH_CARD:
@@ -92,4 +92,4 @@ const MindmapRenderer: React.FC<MindmapRendererProps> = ({ data }) => {
     );
 };
 
-export default ContentRenderer;
+export default ContentRender;

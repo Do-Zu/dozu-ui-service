@@ -58,7 +58,7 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
     };
 
     const handleOnClickSave = async () => {
-        const contentData = contentType === 'flashcard' ? dataGenerated : sseData?.data?.data;
+        const contentData = dataGenerated;
 
         if (!contentData) {
             toast({
