@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { ChangeEvent } from 'react';
 import { ITopicForUser } from '../topic.type';
 import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 export async function handleCreateTopic({
     name,
@@ -26,6 +27,8 @@ export async function handleCreateTopic({
         data = await postRequest<any, ITopicForUser>('/topics', dataSubmitted);
         data.data['flashcardsCount'] = 0;
     } catch (err) {
+        // toast...
+        // err.message err.response.data
         throw err;
     }
     return data.data;
@@ -50,6 +53,9 @@ export const TopicCreatedForm = ({
     setTopics,
     handleOnClickCreate,
 }: Props) => {
+    const topicT = useTranslations('topic');
+    const t = useTranslations('topic.createdForm');
+
     function handleOnChangeName(event: ChangeEvent<HTMLInputElement>) {
         setName(event.target.value);
     }
@@ -80,12 +86,16 @@ export const TopicCreatedForm = ({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-                <div className="text-primary text-base font-normal">Name</div>
+                <div className="text-primary text-base font-normal">
+                    {topicT('name')}     
+                </div>
                 <Input value={name} onChange={handleOnChangeName} />
             </div>
 
             <div className="flex flex-col gap-2">
-                <div className="text-primary text-base font-normal">Description</div>
+                <div className="text-primary text-base font-normal">
+                    {topicT('description')}
+                </div>
                 <Input value={description ? description : ''} onChange={handleOnChangeDescription} />
             </div>
 
@@ -94,7 +104,7 @@ export const TopicCreatedForm = ({
                     className="text-base"
                     onClick={handleOnClickCreate ? handleOnClickCreate : handleDefaultOnClickCreate}
                 >
-                    Create
+                    {t('createButton')}
                 </Button>
             </div>
         </div>
