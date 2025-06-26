@@ -12,10 +12,10 @@ interface IHeaderProps {
 const Header: React.FC<IHeaderProps> = ({ className = '' }) => {
     return (
         <header
-            className={`sticky top-0 z-[10000] w-full backdrop-blur ${className}`}
+            className={`sticky top-0 w-full backdrop-blur ${className}`}
             style={{
                 height: 'var(--header-height)',
-                zIndex: 10000,
+                zIndex: 100,
             }}
         >
             <Navbar />
