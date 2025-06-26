@@ -25,7 +25,7 @@ export default function OAuthPage() {
     error,
   } = useFetch<AuthAccount[]>(`/admin/users/${userId}/auth-accounts`);
 
-  const accounts = response?.data ?? [];
+  const accounts = response ?? [];
 
 
   if (loading) return <Skeleton className="w-full h-[200px]" />;
