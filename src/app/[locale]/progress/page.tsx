@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ProgressDashboard, ProgressManager } from '@/app/[locale]/progress/components';
+import { ProgressDashboard } from '@/app/[locale]/progress/components';
 import { withAuth } from '@/hoc/withAuth';
 
 function ProgressPage() {
@@ -20,7 +20,7 @@ function ProgressPage() {
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="dashboard">{t('dashboard')}</TabsTrigger>
             <TabsTrigger value="manage">{t('manage')}</TabsTrigger>
@@ -33,7 +33,8 @@ function ProgressPage() {
           <TabsContent value="manage" className="space-y-4">
             <ProgressManager />
           </TabsContent>
-        </Tabs>
+        </Tabs> */}
+        <ProgressDashboard/>
       </div>
     </div>
   );
