@@ -107,7 +107,7 @@ export function FlashcardPractice({
                                 <span> {topicName}</span>
                             </div>
                             <div className="text-foreground">
-                                <span>{total}</span>
+                                <span>{total} </span>
                                 {flashcardT('flashcardsRemaining')}
                             </div>
                         </div>
