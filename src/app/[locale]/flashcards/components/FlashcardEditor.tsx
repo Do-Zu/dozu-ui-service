@@ -11,6 +11,7 @@ import { IFlashcardAdded, IFlashcardBasic, IFlashcardDeleted, IFlashcardUpdated 
 import { IFlashcardsFromSSE } from '../../generate/components/CardImport';
 import BackButton from './BackButton';
 import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface IFlashcard {
     id: number;
@@ -191,6 +192,7 @@ const FlashcardEditor = ({
     setFlashcards,
     topic,
 }: Props) => {
+    const t = useTranslations('flashcard.edit');
     const router = useRouter();
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
 
@@ -305,24 +307,28 @@ const FlashcardEditor = ({
     }
 
     return (
-        <div className="px-[4rem] py-7 bg-[#F9FAFB]">
+        <div className="px-[4rem] py-7 bg-muted">
             <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-4 items-center">
                     {shouldShowBackButton ? <BackButton /> : null}
-                    <div className="text-[#1F2937] text-[1.7rem] font-bold">
+                    <div className="text-primary text-[1.7rem] font-bold">
                         {topic ? topic.name : 'Flashcards Generated'}
                     </div>
                 </div>
                 <div className="flex flex-row gap-4">
                     <Button className="flex flex-row items-center">
                         <Import size={24} />
-                        <div className="text-base">Import</div>
+                        <div className="text-base">
+                            {t('import')}
+                        </div>
                     </Button>
 
                     {shouldShowSaveButton ? (
                         <Button onClick={handleOnClickSave} className="flex flex-row items-center">
                             <Save size={24} />
-                            <div className="text-base">Save</div>
+                            <div className="text-base">
+                                {t('save')}
+                            </div>
                         </Button>
                     ) : null}
                 </div>
@@ -373,7 +379,7 @@ const FlashcardEditor = ({
                 })}
 
                 <div className="col-span-12 flex justify-center">
-                    <Button onClick={handleAddFlashcardsCount}>+ Add Cards</Button>
+                    <Button onClick={handleAddFlashcardsCount}>+ {t('addCards')}</Button>
                 </div>
             </div>
         </div>
