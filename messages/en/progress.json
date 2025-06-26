@@ -1,0 +1,21 @@
+{
+  "title": "Learning Progress",
+  "subtitle": "Track your learning journey and manage your progress",
+  "dashboard": "Dashboard",
+  "totalContents": "Total Contents",
+  "completed": "Completed",
+  "inProgress": "In Progress",
+  "averageScore": "Average Score",
+  "studyOverview": "Study Overview",
+  "learningProgress": "Your learning progress this week",
+  "totalStudyHours": "Total Study Hours",
+  "completedTopics": "Completed Topics",
+  "weeklyChange": "Weekly Change",
+  "learningMethods": "Learning Methods",
+  "distribution": "Distribution of your learning activities",
+  "dailyStudyHours": "Daily Study Hours (Last 7 Days)",
+  "studyTimeDistribution": "Your study time distribution",
+  "achievements": "Achievements",
+  "learningMilestones": "Your learning milestones",
+  "topicsCompleted": "Topics Completed"
+}

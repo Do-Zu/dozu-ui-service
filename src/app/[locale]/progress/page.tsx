@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ProgressDashboard, ProgressManager } from '@/app/[locale]/progress/components';
+import { ProgressDashboard } from '@/app/[locale]/progress/components';
 import { withAuth } from '@/hoc/withAuth';
 
 function ProgressPage() {

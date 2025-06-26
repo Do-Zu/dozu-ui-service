@@ -24,8 +24,6 @@ interface DailyStudyBarChartProps {
 }
 
 export default function DailyStudyBarChart({ data }: DailyStudyBarChartProps) {
-  // Debug log to check data
-  console.log('DailyStudyBarChart received data:', data);
 
   if (!data || data.length === 0) {
     return (
