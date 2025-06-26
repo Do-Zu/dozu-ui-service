@@ -4,9 +4,10 @@ export interface ITopic {
     name: string
     description: string
     createdAt: Date
+    imageUrl?: string
 }
 
-export type ITopicBasic = Pick<ITopic, 'topicId' | 'name' | 'description'>;
+export type ITopicBasic = Pick<ITopic, 'topicId' | 'name' | 'description' | 'imageUrl'>;
 export type ITopicAdded = Pick<ITopic, 'userId' | 'name' | 'description'>;
 export type ITopicUpdated = Pick<ITopic, 'name' | 'description'>;
 
