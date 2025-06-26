@@ -6,35 +6,89 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Target, Clock, Calendar, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import useFetch from '@/hooks/useFetch';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
+import { toast } from '@/hooks/use-toast';
 
 interface CurrentLearning {
-    topic: string;
-    module: string;
-    progress: number;
-    timeRemaining: string;
-    nextSession: string;
-    difficulty: string;
+    topicName?: string;
+    description: string | null;
+    progress?: number;
+    itemRemaining?: number;
+    nextSession?: string;
+    type?: string;
 }
 
 interface CurrentProcessLearningProps {}
 
-// TODO: change sample data by data fetching
-const currentLearning = {
-    topic: 'Advanced JavaScript Concepts',
-    module: 'Closures and Scope',
-    progress: 65,
-    timeRemaining: '25 min',
-    nextSession: 'Today, 3:00 PM',
-    difficulty: 'Advanced',
-};
+interface ITopic {
+    topicId: number;
+    userId: number;
+    name: string;
+    description: string | null;
+    createdAt: Date;
+}
+type ITopicBasic = Pick<ITopic, 'topicId' | 'name' | 'description'>;
+
+interface ICurrentLearningProgressResponse {
+    topic: ITopicBasic;
+    progress: {
+        totalItems: number;
+        completedItems: number;
+        remain: number;
+        percentComplete: number;
+        type: 'flashcard' | 'question';
+    };
+}
 
 const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     const t = useTranslations('home.currentProcessLearning');
+    const router = useRouter();
+    const { data, loading, error } = useFetch<ICurrentLearningProgressResponse>('/tracking/current-learning');
+    const { topic, progress } = data as ICurrentLearningProgressResponse;
 
-    //TODO: implement continue learning functionality
-    const onContinueLearning = (type: 'current' | 'next') => {
-        alert(`Continue learning: ${type} session`);
+    const currentLearning: CurrentLearning = {
+        topicName: topic?.name ?? 'N/A',
+        description: topic?.description,
+        progress: progress?.percentComplete,
+        itemRemaining: progress?.remain,
+        nextSession: 'N/A',
+        type: progress?.type,
     };
+
+    const onContinueLearning = (type: 'current' | 'next') => {
+        if (!topic?.topicId) {
+            toast({
+                description: t('error.noTopicFound'),
+            });
+            return;
+        }
+        //TODO: change correct path based on type
+        router.push(`/${currentLearning.type}/learning/${topic?.topicId}`);
+    };
+
+    if (loading) {
+        return (
+            <Card className="max-w-[80%] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
+                <CardContent className="text-center text-slate-200">
+                    <Skeleton className="h-6 w-1/2 mb-4" />
+                    <Skeleton className="h-4 w-3/4 mb-2" />
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (!loading && error) {
+        return (
+            <Card className="max-w-[80%] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
+                <CardContent className="text-center text-white">
+                    <p>{t('error')}</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <Card className="max-w-[80%] mx-auto mt-2 mb-8  bg-slate-500  dark:bg-gray-700 border-0 shadow-xl">
             <CardHeader className="pb-3">
@@ -48,27 +102,29 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             <p className="text-slate-400 dark:text-gray-300 text-sm">{t('subtitle')}</p>
                         </div>
                     </div>
-                    <Badge className=" text-sm">{currentLearning.difficulty}</Badge>
+                    <Badge className=" text-sm">{currentLearning?.type || 'N/A'}</Badge>
                 </div>
             </CardHeader>
             <CardContent className="pt-0">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     <div className="space-y-2">
                         <div>
-                            <h3 className="text-base text-slate-200 font-semibold mb-0.5 ">{currentLearning.topic}</h3>
+                            <h3 className="text-base text-slate-200 font-semibold mb-0.5 ">
+                                {currentLearning?.topicName}
+                            </h3>
                             <p className="text-slate-200 dark:text-gray-300 text-sm">
-                                {t('module')}: {currentLearning.module}
+                                {t('description')}: {currentLearning?.description}
                             </p>
                         </div>
                         <div className="space-y-1">
                             <div className="flex justify-between text-xs text-white dark:text-gray-200">
                                 <span>{t('progress')}</span>
-                                <span>{currentLearning.progress}%</span>
+                                <span>{currentLearning?.progress}%</span>
                             </div>
                             <div className="w-full bg-white/20 dark:bg-gray-600/30 rounded-full h-1.5">
                                 <div
                                     className="bg-white dark:bg-blue-400 rounded-full h-1.5 transition-all duration-300"
-                                    style={{ width: `${currentLearning.progress}%` }}
+                                    style={{ width: `${currentLearning?.progress}%` }}
                                 ></div>
                             </div>
                         </div>
@@ -76,12 +132,12 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             <div className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 <span>
-                                    {currentLearning.timeRemaining} {t('remaining')}
+                                    {currentLearning?.itemRemaining} {t('remaining')}
                                 </span>
                             </div>
                             <div className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                <span>{currentLearning.nextSession}</span>
+                                <span>{currentLearning?.nextSession}</span>
                             </div>
                         </div>
                     </div>
