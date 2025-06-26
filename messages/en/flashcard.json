@@ -1,0 +1,33 @@
+{
+    "flashcard": {
+        "edit": {
+            "import": "Import",
+            "save": "Save",
+            "addCards": "Add Cards"
+        },
+        "study": {
+            "card": "Card",
+            "of": "of",
+            "complete": "complete",
+            "autoPlay": "Auto-play",
+            "resetProgress": "Reset Progress",
+            "speed": "Speed",
+            "shuffle": "Shuffle",
+            "backFirst": "Back First",
+            "edit": "Edit",
+            "practice": "Practice"
+        },
+        "practice": {
+            "responseOptions": {
+                "blackout": "Blackout",
+                "wrong": "Wrong",
+                "wrongEasy": "Wrong (Easy)",
+                "hard": "Hard",
+                "good": "Good",
+                "perfect": "Perfect"
+            },
+            "showAnswer": "Show answwer",
+            "flashcardsRemaining": "flashcards remaining"
+        }
+    }
+}
