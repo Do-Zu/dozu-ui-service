@@ -1,6 +1,7 @@
 'use client';
 
-import { Book, SquarePen, Trash2 } from 'lucide-react';
+import useFetch from '@/hooks/useFetch';
+import { Book, Spline, SquarePen, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { deleteRequest } from '@/api/api';
@@ -33,6 +34,10 @@ const TopicsList = ({ topics, setTopics }: Props) => {
 
     function handleOnClickTitle(topicId: number) {
         router.push(`flashcards/edit?topicId=${topicId}`);
+    }
+
+    function handleClickMindmap(topicId: number) {
+        router.push(`mindmap/${topicId}`);
     }
 
     async function handleOnClickDelete(topicId: number) {
@@ -97,8 +102,12 @@ const TopicsList = ({ topics, setTopics }: Props) => {
                                         size={20}
                                         className="cursor-pointer"
                                         onClick={() => handleOnClickStudy(topic.topicId)}
+                                    />{' '}
+                                    <Spline
+                                  
+                                        className="cursor-pointer"
+                                        onClick={() => handleClickMindmap(topic.topicId)}
                                     />
-
                                     <TopicModal
                                         trigger={
                                             <SquarePen
@@ -122,7 +131,6 @@ const TopicsList = ({ topics, setTopics }: Props) => {
                                         isOpen={isTopicModalOpen}
                                         setIsOpen={setIsTopicModalOpen}
                                     />
-
                                     {renderDeleteTopicAlertingDialog(topic.topicId, topic.name)}
                                 </div>
                             </div>

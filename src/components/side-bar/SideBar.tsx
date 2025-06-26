@@ -10,6 +10,7 @@ import {
   Gamepad2,
   FileQuestion,
   Brain,
+  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -40,6 +41,11 @@ const items = [
     title: 'Library',
     url: '/home',
     icon: BookOpen,
+  },
+  {
+    title: 'Progress',
+    url: '/progress',
+    icon: BarChart3,
   },
   // {
   //   title: 'Process',
