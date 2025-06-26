@@ -5,13 +5,14 @@ import Flashcard from '../components/Flashcard';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { BookOpen } from 'lucide-react';
+import { ArrowBigLeft, ArrowLeft, ArrowRight, BookOpen } from 'lucide-react';
 import StudyControls from '../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import BackButton from '../components/BackButton';
 import { IFlashcardBasic, IFlashcardStatus } from '../flashcard.type';
 import { putRequest } from '@/api/api';
+import { useTranslations } from 'next-intl';
 
 const initialAutoPlaySpeed = 3;
 
@@ -46,6 +47,7 @@ function getFlashcardsShuffled(flashcards: IFlashcardsForTopicReturned): IFlashc
 }
 
 export default function Page() {
+    const t = useTranslations('flashcard.study');
     const router = useRouter();
     const searchParamsClient = useSearchParams();
     const topicId = searchParamsClient?.get('topicId')!;
@@ -318,22 +320,30 @@ export default function Page() {
     }
 
     function renderFlashcardButtonsSection(style: string) {
-        const buttonStyle =
-            'w-[50px] h-[50px] rounded-full border-none flex justify-center items-center text-[24px] cursor-pointer';
         return (
             <div className={style}>
                 <div className="col-start-2 col-end-3 flex flex-row gap-4 items-center">
-                    <button onClick={handleClickBackFlashcard} className={`${buttonStyle} bg-[#ffebee] text-[#f44336]`}>
-                        X
-                    </button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-12 w-12 rounded-full"
+                        onClick={handleClickBackFlashcard}
+                    >
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
 
-                    <div>
+                    <div className='text-base'>
                         {currentFlashcardIndex + 1} / {flashcards!.length}{' '}
                     </div>
 
-                    <button onClick={handleClickNextFlashcard} className={`${buttonStyle} bg-[#e8f5e9] text-[#4caf50]`}>
-                        ✓
-                    </button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-12 w-12 rounded-full"
+                        onClick={handleClickNextFlashcard}
+                    >
+                        <ArrowRight className="h-5 w-5" />
+                    </Button>
                 </div>
 
                 {/* if status is 'new', put to practice */}
@@ -355,11 +365,11 @@ export default function Page() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 px-2 text-gray-600 p-0"
+                                className="h-8 px-2"
                                 onClick={handleClickPracticeFlashcards}
                             >
                                 <BookOpen className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-gray-600">Practice</span>
+                                <span className="text-sm text-muted-foreground">{t('practice')}</span>
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -372,17 +382,17 @@ export default function Page() {
     }
 
     return (
-        <div className="flex bg-[#F3F4F6] h-[90vh]">
+        <div className="flex bg-gray-100 dark:bg-gray-950 h-[90vh]">
             <div className="flex flex-1 flex-col m-1.25 mb-0 p-5">
-                <div className="bg-[#fff] p-2.5">
+                <div className="bg-white dark:bg-gray-800 p-2.5">
                     <BackButton />
                 </div>
-                <div className="flex-1 bg-[#F9FAFB] p-5 grid grid-cols-11 gap-5">
+                <div className="flex-1 bg-gray-50 dark:bg-gray-900 p-5 grid grid-cols-11 gap-5">
                     {/* Main Flashcard Section */}
-                    <div className="bg-[#F3F4F6] col-span-8 flex flex-col items-center justify-center">
+                    <div className="bg-gray-100 dark:bg-gray-950 col-span-8 flex flex-col items-center justify-center">
                         {/* {renderMainFlashcardSection()} */}
                         <Flashcard
-                            style="flex w-[55%] h-[70%] mt-4"
+                            style="flex w-[55%] h-[70%] mt-4 "
                             cardContainerRef={flashcardContainerRef}
                             cardRef={cardRef}
                             handleManualFlip={handleManualFlip}
@@ -394,13 +404,13 @@ export default function Page() {
 
                     {/* Study Control Section */}
                     <StudyControls
-                        style="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6 bg-[#F3F4F6]"
+                        style="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6 bg-gray-100 dark:bg-gray-950 overflow-hidden"
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcards.length}
-                        handleClickBackFlashcard={handleClickBackFlashcard}
-                        handleClickNextFlashcard={handleClickNextFlashcard}
-                        isPlaying={isPlaying}
-                        handleClickIsPlaying={() => setIsPlaying(!isPlaying)}
+                        // handleClickBackFlashcard={handleClickBackFlashcard}
+                        // handleClickNextFlashcard={handleClickNextFlashcard}
+                        // isPlaying={isPlaying}
+                        // handleClickIsPlaying={() => setIsPlaying(!isPlaying)}
                         autoPlayEnabled={autoPlayEnabled}
                         handleOnChangeAutoPlayEnabled={() => setAutoPlayEnabled(!autoPlayEnabled)}
                         handleResetProgress={handleResetProgress}
