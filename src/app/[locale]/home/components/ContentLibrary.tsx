@@ -113,6 +113,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     const [sortBy, setSortBy] = useState('newest');
 
     // topic states to manage Create New Content
+    const topicCreatedTranslation = useTranslations('topic.createdForm'); 
     const {
         data: topics,
         setData: setTopics,
@@ -132,7 +133,13 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
         if (topics?.length === 0) {
             return <div>No Topics available</div>;
         }
-        return <TopicsList topics={topics} setTopics={setTopics} />;
+        // return <TopicsList topics={topics} setTopics={setTopics} />;
+        return (
+            <TopicsList 
+                topics={topics}
+                setTopics={setTopics}
+            />
+        )
     };
 
     const handleCloseCreateModal = () => {
@@ -196,7 +203,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                             <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
                         </Button>
                     }
-                    title={t('createNewContent')}
+                    title={topicCreatedTranslation('title')}
                     body={
                         <TopicCreatedForm
                             name={topicName}
