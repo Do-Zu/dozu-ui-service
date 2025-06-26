@@ -2,6 +2,20 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  FileText, 
+  Printer, 
+  Share2, 
+  Download,
+  ChevronDown 
+} from 'lucide-react';
 import { 
   useProgressStatistics, 
   useDashboardStatistics, 
@@ -44,14 +58,14 @@ const ProgressDashboard: React.FC = () => {
         return 'bg-blue-500';
       case ContentType.FLASHCARD:
         return 'bg-green-500';
-      case ContentType.VIDEO:
-        return 'bg-purple-500';
-      case ContentType.ARTICLE:
-        return 'bg-orange-500';
-      case ContentType.COURSE:
-        return 'bg-indigo-500';
-      case ContentType.LESSON:
-        return 'bg-pink-500';
+      // case ContentType.VIDEO:
+      //   return 'bg-purple-500';
+      // case ContentType.ARTICLE:
+      //   return 'bg-orange-500';
+      // case ContentType.COURSE:
+      //   return 'bg-indigo-500';
+      // case ContentType.LESSON:
+        // return 'bg-pink-500';
       default:
         return 'bg-gray-500';
     }
@@ -141,37 +155,114 @@ const ProgressDashboard: React.FC = () => {
       )}
 
       {/* Daily Study Chart */}
-      {dailyStudy && dailyStudy.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Daily Study Hours (Last 7 Days)</CardTitle>
-            <CardDescription>Your study time distribution</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DailyStudyBarChart data={dailyStudy || []} />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Completed Topics */}
-      {/* {completedTopics && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Achievements</CardTitle>
-            <CardDescription>Your learning milestones</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-green-600 mb-2">
-                {completedTopics.completedTopics}
-              </div>
-              <div className="text-gray-600">Topics Completed</div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Daily Study Hours (Last 7 Days)</CardTitle>
+          <CardDescription>Your study time distribution</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {dailyStudyLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-sm text-gray-500">Loading chart data...</div>
             </div>
-          </CardContent>
-        </Card>
-      )} */}
+          ) : (
+            <DailyStudyBarChart data={dailyStudy || []} />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Report Footer */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Report generated on {new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {/* Export Format Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    PDF
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('excel')}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('csv')}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Print Button */}
+              <Button variant="outline" onClick={handlePrint} className="gap-2">
+                <Printer className="h-4 w-4" />
+                Print
+              </Button>
+
+              {/* Share Button */}
+              <Button variant="outline" onClick={handleShare} className="gap-2">
+                <Share2 className="h-4 w-4" />
+                Share
+              </Button>
+
+              {/* Export Button */}
+              <Button onClick={() => handleExport('pdf')} className="gap-2">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
     </div>
   );
+
+  // Handler functions
+  function handleExport(format: 'pdf' | 'excel' | 'csv') {
+    // TODO: Implement export functionality
+    console.log(`Exporting as ${format}...`);
+    // You can implement actual export logic here
+    // For example, using libraries like jsPDF, xlsx, etc.
+  }
+
+  function handlePrint() {
+    // TODO: Implement print functionality
+    console.log('Printing report...');
+    window.print();
+  }
+
+  function handleShare() {
+    // TODO: Implement share functionality
+    console.log('Sharing report...');
+    if (navigator.share) {
+      navigator.share({
+        title: 'Learning Progress Report',
+        text: 'Check out my learning progress!',
+        url: window.location.href,
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      // You might want to show a toast notification here
+    }
+  }
 };
 
 export default ProgressDashboard; 
