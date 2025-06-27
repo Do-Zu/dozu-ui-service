@@ -2,6 +2,7 @@ import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
 import { handleCreateTopic } from '../../topics/components/TopicCreatedForm';
 import { ContentType } from '../components/ContentGenerationPreview';
+import Axios from '@/api/axios';
 
 export interface CreateContentParams {
     topicName: string;
@@ -97,7 +98,16 @@ export class ContentCreationService {
      */
     private static async saveMindmap(topicId: string | number, mindmapData: any): Promise<void> {
         // TODO: Implement mindmap API endpoint
-        console.log('Saving mindmap for topic:', topicId, mindmapData);
-        throw new Error('Mindmap saving not implemented yet');
+        if (!mindmapData) {
+            throw new Error('No mindmap data provided');
+        }
+        const options: any = {
+            body: {
+                title: 'a', //temp value
+                nodes: mindmapData.nodes,
+                edges: mindmapData.edges,
+            },
+        };
+        const response = await Axios.post(`/mindmap/${topicId}`, options.body);
     }
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE } from '../types';
-import { handleConvertToFlashcardsEdited } from '../../flashcards/components/FlashcardEditor';
+import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { detectContentType, getContentTypeDisplayName } from '../utils/contentTypeDetector';
 import { ContentType } from '../components/ContentGenerationPreview';
 import { toast } from '@/hooks/use-toast';
@@ -50,6 +50,8 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
                 type: 'generative',
                 flashcardsProp: data as IFlashcardsFromSSE,
             });
+        } else if (contentType === CONTENT_TYPE_GENERATE.MIND_MAP) {
+            return data;
         }
 
         //TODO: Add parsing logic for other content types

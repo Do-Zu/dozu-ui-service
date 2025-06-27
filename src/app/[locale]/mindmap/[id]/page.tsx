@@ -1,26 +1,17 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '@xyflow/react/dist/style.css';
 import { useParams, useRouter } from 'next/navigation';
 import Axios from '@/api/axios';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FloatingEdge from '../components/FloatingEdge';
 import { v4 as uuidv4 } from 'uuid';
-import {
-    addEdge,
-    Background,
-    BackgroundVariant,
-    Controls,
-    Panel,
-    ReactFlow,
-    useEdgesState,
-    useNodesState,
-} from '@xyflow/react';
+import { Background, BackgroundVariant, Controls, Panel, ReactFlow, useEdgesState, useNodesState } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
-import { Edge } from '../mindmap.type';
+import { CustomEdge } from '../mindmap.type';
 
-const initialEdges: Edge[] = [];
+const initialEdges: CustomEdge[] = [];
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -115,11 +106,8 @@ const MindmapPage = () => {
         setIsLoading(false);
     };
 
-    // const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
-
     return (
         <div className="w-full h-full">
-            {/* <ReactFlowProvider> */}
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -135,11 +123,10 @@ const MindmapPage = () => {
                         Save mind map
                     </Button>
                 </Panel>
-                <Panel position="top-left">React Flow Mind Map</Panel>
+                {/* <Panel position="top-left">React Flow Mind Map</Panel> */}
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
-            {/* </ReactFlowProvider> */}
         </div>
     );
 };
