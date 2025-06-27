@@ -4,7 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Clock, Calendar, Play } from 'lucide-react';
+import { Target, Calendar, Play, AlignEndHorizontal } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import useFetch from '@/hooks/useFetch';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,34 +46,69 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     const t = useTranslations('home.currentProcessLearning');
     const router = useRouter();
     const { data, loading, error } = useFetch<ICurrentLearningProgressResponse>('/tracking/current-learning');
-    const { topic, progress } = data as ICurrentLearningProgressResponse;
 
-    const currentLearning: CurrentLearning = {
-        topicName: topic?.name ?? 'N/A',
-        description: topic?.description,
-        progress: progress?.percentComplete,
-        itemRemaining: progress?.remain,
-        nextSession: 'N/A',
-        type: progress?.type,
+    const adapterDataCurrentLearning = (data: ICurrentLearningProgressResponse | null): CurrentLearning => {
+        if (!data) {
+            return {
+                topicName: 'N/A',
+                description: null,
+                progress: 0,
+                itemRemaining: 0,
+                nextSession: 'N/A',
+            };
+        }
+
+        const { topic, progress } = data as ICurrentLearningProgressResponse;
+
+        return {
+            topicName: topic?.name ?? 'N/A',
+            description: topic?.description,
+            progress: progress?.percentComplete,
+            itemRemaining: progress?.remain,
+            nextSession: 'N/A',
+            type: progress?.type,
+        };
     };
 
+    const currentLearning = adapterDataCurrentLearning(data);
+
     const onContinueLearning = (type: 'current' | 'next') => {
-        if (!topic?.topicId) {
+        const topicId = data?.topic?.topicId;
+        if (!topicId) {
             toast({
                 description: t('error.noTopicFound'),
             });
             return;
         }
         //TODO: change correct path based on type
-        router.push(`/${currentLearning.type}/learning/${topic?.topicId}`);
+        router.push(`/${currentLearning.type}/learning/${topicId}`);
     };
 
     if (loading) {
         return (
-            <Card className="max-w-[80%] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
+            <Card className="max-w-[60%] min-w-[40%] h-[200px] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
+                <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="p-1 bg-white/20 dark:bg-blue-400/20 rounded-lg">
+                                <Skeleton className="h-6 w-6 rounded-full" />{' '}
+                            </div>
+
+                            <div>
+                                <CardTitle className="text-slate-200 text-lg font-bold mb-4 ">
+                                    <Skeleton className="h-6 w-40" />
+                                </CardTitle>
+                                <Skeleton className="h-4 w-3/4 mb-2 p-1" />
+                            </div>
+                        </div>
+
+                        <Skeleton className="h-4 w-1/6 mb-2 p-1" />
+                    </div>
+                </CardHeader>
                 <CardContent className="text-center text-slate-200">
-                    <Skeleton className="h-6 w-1/2 mb-4" />
-                    <Skeleton className="h-4 w-3/4 mb-2" />
+                    <Skeleton className="h-6 w-1/2 mb-4 p-1" />
+                    <Skeleton className="h-4 w-3/4 mb-2 p-1" />
+                    <Skeleton className="h-4 w-1/4  " />
                 </CardContent>
             </Card>
         );
@@ -81,7 +116,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
 
     if (!loading && error) {
         return (
-            <Card className="max-w-[80%] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
+            <Card className="max-w-[80%] min-w-[40%] h-[200px] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
                 <CardContent className="text-center text-white">
                     <p>{t('error')}</p>
                 </CardContent>
@@ -90,7 +125,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     }
 
     return (
-        <Card className="max-w-[80%] mx-auto mt-2 mb-8  bg-slate-500  dark:bg-gray-700 border-0 shadow-xl">
+        <Card className="max-w-[80%] min-w-[40%] mx-auto mt-2 mb-8  bg-slate-500  dark:bg-gray-700 border-0 shadow-xl">
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -112,9 +147,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             <h3 className="text-base text-slate-200 font-semibold mb-0.5 ">
                                 {currentLearning?.topicName}
                             </h3>
-                            <p className="text-slate-200 dark:text-gray-300 text-sm">
-                                {t('description')}: {currentLearning?.description}
-                            </p>
+                            <p className="text-slate-200 dark:text-gray-300 text-sm">{currentLearning?.description}</p>
                         </div>
                         <div className="space-y-1">
                             <div className="flex justify-between text-xs text-white dark:text-gray-200">
@@ -130,7 +163,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                         </div>
                         <div className="flex items-center gap-3 text-xs text-white dark:text-gray-200">
                             <div className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
+                                <AlignEndHorizontal className="h-3 w-3" />
                                 <span>
                                     {currentLearning?.itemRemaining} {t('remaining')}
                                 </span>

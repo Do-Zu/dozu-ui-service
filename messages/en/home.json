@@ -17,7 +17,7 @@
         "currentProcessLearning": {
             "title": "Current Learning",
             "subtitle": "Based on your timeline schedule",
-            "module": "Module",
+            "description": "Description",
             "progress": "Progress",
             "remaining": "remaining",
             "continueButton": "Continue Learning",
