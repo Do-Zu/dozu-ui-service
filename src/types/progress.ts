@@ -13,12 +13,12 @@ export interface IProgress {
 }
 
 export enum ContentType {
-  COURSE = 'course',
-  LESSON = 'lesson',
+  // COURSE = 'course',
+  // LESSON = 'lesson',
   QUIZ = 'quiz',
   FLASHCARD = 'flashcard',
-  VIDEO = 'video',
-  ARTICLE = 'article'
+  // VIDEO = 'video',
+  // ARTICLE = 'article'
 }
 
 export enum ProgressStatus {
