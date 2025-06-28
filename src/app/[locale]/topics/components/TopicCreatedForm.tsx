@@ -40,7 +40,7 @@ interface Props {
     description: string;
     setDescription: (description: string) => void;
     handleCloseModal?: () => void;
-    setTopics?: (topic: ITopicForUser) => void;
+    addTopic?: (topic: ITopicForUser) => void;
     handleOnClickCreate?: (...args: any) => void;
 }
 
@@ -50,7 +50,7 @@ export const TopicCreatedForm = ({
     description,
     setDescription,
     handleCloseModal,
-    setTopics,
+    addTopic,
     handleOnClickCreate,
 }: Props) => {
     const topicT = useTranslations('topic');
@@ -78,7 +78,7 @@ export const TopicCreatedForm = ({
                 title: 'Create New Content successfully',
                 variant: 'default',
             });
-            setTopics?.(topic);
+            addTopic?.(topic);
         }
         handleCloseModal?.();
     }
@@ -86,16 +86,12 @@ export const TopicCreatedForm = ({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-                <div className="text-primary text-base font-normal">
-                    {topicT('name')}     
-                </div>
+                <div className="text-primary text-base font-normal">{topicT('name')}</div>
                 <Input value={name} onChange={handleOnChangeName} />
             </div>
 
             <div className="flex flex-col gap-2">
-                <div className="text-primary text-base font-normal">
-                    {topicT('description')}
-                </div>
+                <div className="text-primary text-base font-normal">{topicT('description')}</div>
                 <Input value={description ? description : ''} onChange={handleOnChangeDescription} />
             </div>
 
