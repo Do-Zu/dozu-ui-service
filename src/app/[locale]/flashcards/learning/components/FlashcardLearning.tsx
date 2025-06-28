@@ -30,7 +30,7 @@ interface Props {
     handleOnClickTrackingOption: (qualityResponse: IQualityResponse) => void
 }
 
-export function FlashcardPractice({
+export function FlashcardLearning({
     topicName,
     flashcard,
     total,
@@ -41,7 +41,7 @@ export function FlashcardPractice({
     handleOnClickTrackingOption 
 }: Props) {
     const topicT = useTranslations('topic');
-    const flashcardT = useTranslations('flashcard.practice');
+    const flashcardT = useTranslations('flashcard.learning');
 
     const trackingOptions: TrackingOption[] = [
         { icon: <Angry size={24} fill="red" />, label: flashcardT('responseOptions.blackout'), qualityResponse: 0 },

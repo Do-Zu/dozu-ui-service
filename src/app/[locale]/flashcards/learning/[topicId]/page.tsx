@@ -3,21 +3,27 @@
 import { useEffect, useRef, useState } from 'react';
 import useFetch from '@/hooks/useFetch';
 import { putRequest } from '@/api/api';
-import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../flashcard.type';
+import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../../flashcard.type';
 import LoadingPage from '@/app/loading';
-import { FlashcardPractice } from '../practice/components/FlashcardPractice';
+import { FlashcardLearning } from '../components/FlashcardLearning';
+import { useParams } from 'next/navigation';
 
 export type IFlashcard = Pick<IFlashcardFull, 'flashcardId' | 'front' | 'back' | 'topicName'> & {
     qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
 };
 
 export default function Page() {
+    const params = useParams();
+    if (!params?.topicId) return <div>No topic id is provided</div>;
+
+    const { topicId } = params;
+
     const {
         data: flashcards,
         setData: setFlashcardsData,
         loading: flashcardLoading,
         error: flashcardError,
-    } = useFetch<IFlashcard[]>('/flashcards/practice');
+    } = useFetch<IFlashcard[]>(`/flashcards/learning/${topicId}`);
 
     const currentFlashcard = flashcards ? flashcards[0] : null;
 
@@ -74,11 +80,11 @@ export default function Page() {
     }
 
     if (flashcardLoading === true || flashcards === null || flashcards === undefined) {
-        return <LoadingPage />
+        return <LoadingPage />;
     }
 
     if (flashcards.length === 0 || !currentFlashcard) {
-        return <div>Nothing to Practice</div>;
+        return <div>Nothing to Learn</div>;
     }
 
     if (flashcardError) {
@@ -86,7 +92,7 @@ export default function Page() {
     }
 
     return (
-        <FlashcardPractice
+        <FlashcardLearning
             topicName={currentFlashcard.topicName}
             total={flashcards.length}
             flashcardContainerRef={flashcardContainerRef}

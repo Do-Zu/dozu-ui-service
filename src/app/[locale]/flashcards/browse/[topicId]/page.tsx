@@ -1,18 +1,18 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
-import Flashcard from '../components/Flashcard';
+import Flashcard from '../../components/Flashcard';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
-import { ArrowBigLeft, ArrowLeft, ArrowRight, BookOpen } from 'lucide-react';
-import StudyControls from '../components/StudyControls';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowRight, BookOpen } from 'lucide-react';
+import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import BackButton from '../components/BackButton';
-import { IFlashcardBasic, IFlashcardStatus } from '../flashcard.type';
+import BackButton from '../../components/BackButton';
+import { IFlashcardBasic, IFlashcardStatus } from '../../flashcard.type';
 import { putRequest } from '@/api/api';
 import { useTranslations } from 'next-intl';
+import { ROUTES } from '@/utils/constants/routes';
 
 const initialAutoPlaySpeed = 3;
 
@@ -49,8 +49,10 @@ function getFlashcardsShuffled(flashcards: IFlashcardsForTopicReturned): IFlashc
 export default function Page() {
     const t = useTranslations('flashcard.study');
     const router = useRouter();
-    const searchParamsClient = useSearchParams();
-    const topicId = searchParamsClient?.get('topicId')!;
+    const params = useParams();
+    if (!params?.topicId) return <div>No topic id is provided</div>;
+
+    const { topicId } = params as { topicId : string };
 
     const flashcardsSelector = (data: { flashcards: IFlashcardsForTopicReturned[] }) => data.flashcards;
 
@@ -196,7 +198,7 @@ export default function Page() {
     }
 
     function handleClickEditFlashcards() {
-        router.push(`/flashcards/edit?topicId=${topicId}`);
+        router.push(ROUTES.FLASHCARDS_EDIT(topicId));
     }
 
     function handleResetProgress() {
@@ -288,11 +290,11 @@ export default function Page() {
         };
     }, [autoPlayEnabled, autoPlaySpeed]);
 
-    function handleClickPracticeFlashcards() {
-        router.push('/flashcards/practice');
+    function handleOnClickLearning() {
+        router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
-    async function handleClickPutToPractice() {
+    async function handleOnClickPutToLearning() {
         if (!currentFlashcard) return;
         try {
             await putRequest<{}, {}>(`/flashcards/${currentFlashcard.flashcardId}/put-to-learning`, {});
@@ -346,17 +348,17 @@ export default function Page() {
                     </Button>
                 </div>
 
-                {/* if status is 'new', put to practice */}
+                {/* if status is 'new', put to learning */}
                 {currentFlashcard?.status === 'new' ? (
-                    <Button className="w-[75%]" onClick={handleClickPutToPractice}>
-                        Put to Practice
+                    <Button className="w-[75%]" onClick={handleOnClickPutToLearning}>
+                        Put to Learning
                     </Button>
                 ) : null}
             </div>
         );
     }
 
-    function renderPracticeSection() {
+    function renderLearningSection() {
         return (
             <div className="flex flex-row">
                 <TooltipProvider>
@@ -366,14 +368,14 @@ export default function Page() {
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 px-2"
-                                onClick={handleClickPracticeFlashcards}
+                                onClick={handleOnClickLearning}
                             >
                                 <BookOpen className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-muted-foreground">{t('practice')}</span>
+                                <span className="text-sm text-muted-foreground">{t('learning')}</span>
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p>Practice Flashcards</p>
+                            <p>Learn Flashcards</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -419,7 +421,7 @@ export default function Page() {
                         shuffleEnabled={shuffleEnabled}
                         handleOnChangeShuffleEnabled={() => setShuffleEnabled(!shuffleEnabled)}
                         handleClickEditFlashcards={handleClickEditFlashcards}
-                        CustomElement={renderPracticeSection()}
+                        CustomElement={renderLearningSection()}
                     />
                 </div>
             </div>
