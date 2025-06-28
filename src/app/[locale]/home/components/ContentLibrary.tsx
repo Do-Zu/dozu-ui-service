@@ -113,7 +113,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     const [sortBy, setSortBy] = useState('newest');
 
     // topic states to manage Create New Content
-    const topicCreatedTranslation = useTranslations('topic.createdForm'); 
+    const topicCreatedTranslation = useTranslations('topic.createdForm');
     const {
         data: topics,
         setData: setTopics,
@@ -134,12 +134,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
             return <div>No Topics available</div>;
         }
         // return <TopicsList topics={topics} setTopics={setTopics} />;
-        return (
-            <TopicsList 
-                topics={topics}
-                setTopics={setTopics}
-            />
-        )
+        return <TopicsList topics={topics} setTopics={setTopics} />;
     };
 
     const handleCloseCreateModal = () => {
@@ -149,7 +144,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     };
 
     // todo-ka: check this function
-    const setTopicsCallback = (topic: ITopicForUser) => {
+    const addTopic = (topic: ITopicForUser) => {
         if (topics === null) return;
         setTopics([...topics, topic]);
     };
@@ -196,11 +191,11 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     return (
         <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <h2 className="text-2xl font-semibold text-gray-800">{t('title')}</h2>
+                <h2 className="text-2xl font-semibold">{t('title')}</h2>
                 <TopicModal
                     trigger={
-                        <Button className="bg-gray-800 hover:bg-gray-900">
-                            <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
+                        <Button className="bg-background text-foreground">
+                            <Plus className="mr-2 h-4 w-4" />{t('createNewContent')}
                         </Button>
                     }
                     title={topicCreatedTranslation('title')}
@@ -211,7 +206,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                             description={topicDescription}
                             setDescription={setTopicDescription}
                             handleCloseModal={handleCloseCreateModal}
-                            setTopics={setTopicsCallback}
+                            addTopic={addTopic}
                         />
                     }
                     isOpen={isTopicModalOpen}
@@ -248,7 +243,9 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                     </Select>
                 </div>
             </div>
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+            {handleRenderTopicsSection()}
+            {/* TODO: UNKNOWN */}
+            {/* <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
                 <TabsList className="w-full md:w-auto bg-gray-200">
                     <TabsTrigger value="all" className="flex-1 md:flex-none">
                         {t('tabs.all')}
@@ -264,7 +261,6 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="all" className="mt-6">
-                    {/* {renderContentGrid(filteredContent)} */}
                     {handleRenderTopicsSection()}
                 </TabsContent>
                 <TabsContent value="flashcards" className="mt-6">
@@ -276,7 +272,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                 <TabsContent value="quizzes" className="mt-6">
                     {renderContentGrid(filteredContent)}
                 </TabsContent>
-            </Tabs>
+            </Tabs> */}
             {filteredContent.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 rounded-lg border border-gray-200">
                     <BookOpen className="h-12 w-12 text-gray-400 mb-4" />
@@ -286,7 +282,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                             ? t('noContent.searchMessage', { query: searchQuery })
                             : t('noContent.emptyMessage')}
                     </p>
-                    <Button onClick={onCreateContent} className="bg-gray-700 hover:bg-gray-800">
+                    <Button onClick={onCreateContent} className="bg-background text-foreground">
                         <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
                     </Button>
                 </div>
