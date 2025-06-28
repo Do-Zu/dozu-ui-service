@@ -12,6 +12,7 @@ import { IFlashcardsFromSSE, IGenerateFlashcardItem } from '../../generate/types
 import BackButton from './BackButton';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface IFlashcard {
     id: number;
@@ -295,7 +296,7 @@ const FlashcardEditor = ({
                 title: 'Edit Flashcards successfully',
                 variant: 'default',
             });
-            router.push('/home');
+            router.push(ROUTES.HOME);
         } catch (err) {
             console.log(err);
             return;
