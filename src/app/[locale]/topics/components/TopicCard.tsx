@@ -28,11 +28,12 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { DeleteAlertingModal } from './DeleteAlertingDialog';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface FlashcardsProp {
     handleOnClickEdit: (name: string, description: string) => void;
     handleOnClickStudy: (topicId: number) => void;
-    handleOnClickPractice: (topicId: number) => void;
+    handleOnClickLearning: (topicId: number) => void;
 }
 
 interface Props {
@@ -88,11 +89,19 @@ export function TopicCard({
     }
 
     function handleOnSelectEditFlashcard() {
-        router.push(`flashcards/edit?topicId=${topicId}`);
+        router.push(ROUTES.FLASHCARDS_EDIT(topicId));
     }
 
-    function handleOnSelectStudy() {
-        router.push(`/flashcards/study?topicId=${topicId}`);
+    function handleOnSelectBrowse() {
+        router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
+    }
+
+    function handleOnSelectLearning() {
+        router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
+    }
+
+    function handleOnClickMindmap() {
+        router.push(`mindmap/${topicId}`);
     }
 
     return (
@@ -116,15 +125,15 @@ export function TopicCard({
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnSelectEditFlashcard}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit</span>
+                                        <span>{topicT('edit')}</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onSelect={handleOnSelectStudy}>
+                                    <DropdownMenuItem onSelect={handleOnSelectBrowse}>
+                                        <BookOpen className="mr-2 h-4 w-4" />
+                                        <span>{topicT('browse')}</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={handleOnSelectLearning}>
                                         <GraduationCap className="mr-2 h-4 w-4" />
-                                        <span>Study</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <Repeat className="mr-2 h-4 w-4" />
-                                        <span>Practice</span>
+                                        <span>{topicT('learning')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -136,13 +145,9 @@ export function TopicCard({
                                     <span>Mind Map</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={handleOnClickMindmap}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>Delete</span>
+                                        <span>{topicT('edit')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -156,11 +161,11 @@ export function TopicCard({
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>Edit</span>
+                                        <span>{topicT('edit')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
                                         <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>Delete</span>
+                                        <span>{topicT('delete')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -218,9 +223,11 @@ export function TopicCard({
                         <div className="text-gray-500 dark:text-slate-500 text-lg">Preview</div>
                     )}
                 </div>
-                <div className="flex justify-between text-xs text-foreground">
+                <div className="flex justify-between text-xs text-foreground items-center">
                     <div className="text-xs">{lastStudied ? `Last studied: ${lastStudied}` : 'Not studied yet'}</div>
-                    <span>{5} items</span>
+                    <span>
+                        <span className="font-bold text-lg">{topic.flashcardsDueToday}</span> flashcards due today
+                    </span>
                 </div>
             </CardContent>
         </Card>
