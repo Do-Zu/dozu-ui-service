@@ -15,7 +15,7 @@ const Header: React.FC<IHeaderProps> = ({ className = '' }) => {
             className={`sticky top-0 w-full backdrop-blur ${className}`}
             style={{
                 height: 'var(--header-height)',
-                zIndex: 100,
+                zIndex: 50,
             }}
         >
             <Navbar />
