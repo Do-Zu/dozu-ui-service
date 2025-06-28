@@ -15,9 +15,9 @@
             "shuffle": "Xáo thẻ",
             "backFirst": "Mặt sau",
             "edit": "Chỉnh sửa",
-            "practice": "Thực hành"
+            "learning": "Thực hành"
         },
-        "practice": {
+        "learning": {
             "responseOptions": {
                 "blackout": "Quên hẳn",
                 "wrong": "Sai",

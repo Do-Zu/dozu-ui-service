@@ -21,6 +21,8 @@
         },
         "edit": "Edit",
         "delete": "Delete",
+        "browse": "Browse",
+        "learning": "Learning",
         "name": "Name",
         "description": "Description",
         "nameBlankAlert": "Name must not be blank"

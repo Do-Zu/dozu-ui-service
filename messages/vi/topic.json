@@ -16,6 +16,8 @@
         },
         "edit": "Chỉnh sửa",
         "delete": "Xóa",
+        "browse": "Lướt",
+        "learning": "Học tập",
         "name": "Tên",
         "description": "Mô tả",
         "blankNameAlert": "Tên không thể trống"
