@@ -18,76 +18,40 @@ import {
     GraduationCap,
     Layers,
     MoreVertical,
-    Repeat,
     Trash2,
 } from 'lucide-react';
 import Image from 'next/image';
-import { TopicModal } from './TopicModal';
-import { TopicUpdatedForm } from './TopicUpdatedForm';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
-import { DeleteAlertingModal } from './DeleteAlertingDialog';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
-
-interface FlashcardsProp {
-    handleOnClickEdit: (name: string, description: string) => void;
-    handleOnClickStudy: (topicId: number) => void;
-    handleOnClickLearning: (topicId: number) => void;
-}
+import { format } from 'date-fns';
 
 interface Props {
     topic: ITopicForUser;
-    updateTopics: (topic: ITopicForUser) => void;
-    handleOnClickTitle?: (topicId: number) => void;
-    handleOnClickEdit?: (name: string, description: string) => void;
-    handleOnClickDelete: (topicId: number) => void;
-    flashcards?: FlashcardsProp;
-
-    isTopicUpdatedModalOpen: boolean;
-    setIsTopicUpdatedModalOpen: (value: boolean) => void;
-
-    isTopicDeletedModalOpen: boolean;
-    setIsTopicDeletedModalOpen: (value: boolean) => void;
+    onSelectEditTopic: ({ topicId, name, description } : { topicId: number, name: string, description: string }) => void;
+    onSelectDeleteTopic: ({ topicId, name } : { topicId: number, name: string }) => void;
 }
 const lastStudied = '1 day ago';
 
 export function TopicCard({
     topic,
-    handleOnClickTitle,
-    handleOnClickEdit,
-    handleOnClickDelete,
-    updateTopics,
-    isTopicUpdatedModalOpen,
-    setIsTopicUpdatedModalOpen,
-    isTopicDeletedModalOpen,
-    setIsTopicDeletedModalOpen,
+    onSelectEditTopic,
+    onSelectDeleteTopic
 }: Props) {
     const router = useRouter();
 
     const { topicId, name, description, imageUrl } = topic;
     const topicT = useTranslations('topic');
-    const updatedFormT = useTranslations('topic.updatedForm');
-    const deletedFormT = useTranslations('topic.deletedForm');
-
-    // update topic states
-    const [topicEditedName, setTopicEditedName] = useState<string>('');
-    const [topicEditedDescription, setTopicEditedDescription] = useState<string>('');
 
     function handleOnSelectEditTopic() {
-        setTopicEditedName(name);
-        setTopicEditedDescription(description);
-        setTimeout(() => {
-            setIsTopicUpdatedModalOpen(true);
-        }, 50);
+        onSelectEditTopic({topicId, name, description});
     }
 
     function handleOnSelectDeleteTopic() {
-        setTimeout(() => {
-            setIsTopicDeletedModalOpen(true);
-        }, 50);
+        onSelectDeleteTopic({ topicId, name });
     }
 
+    // todo-ka: cân nhắc bỏ ở cha
     function handleOnSelectEditFlashcard() {
         router.push(ROUTES.FLASHCARDS_EDIT(topicId));
     }
@@ -181,37 +145,6 @@ export function TopicCard({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-
-                    <TopicModal
-                        title={updatedFormT('title')}
-                        body={
-                            <TopicUpdatedForm
-                                topicId={topicId}
-                                name={topicEditedName}
-                                description={topicEditedDescription}
-                                setName={setTopicEditedName}
-                                setDescription={setTopicEditedDescription}
-                                handleCloseModal={() => setIsTopicUpdatedModalOpen(false)}
-                                updateTopics={updateTopics}
-                            />
-                        }
-                        isOpen={isTopicUpdatedModalOpen}
-                        setIsOpen={setIsTopicUpdatedModalOpen}
-                    />
-
-                    <DeleteAlertingModal
-                        title={deletedFormT('title', { name })}
-                        description={deletedFormT('description')}
-                        body={
-                            <div className="flex justify-end">
-                                <Button variant="destructive" onClick={() => handleOnClickDelete(topicId)}>
-                                    {deletedFormT('deleteButton')}
-                                </Button>
-                            </div>
-                        }
-                        isOpen={isTopicDeletedModalOpen}
-                        setIsOpen={setIsTopicDeletedModalOpen}
-                    />
                 </div>
             </CardHeader>
 
@@ -223,11 +156,24 @@ export function TopicCard({
                         <div className="text-gray-500 dark:text-slate-500 text-lg">Preview</div>
                     )}
                 </div>
-                <div className="flex justify-between text-xs text-foreground items-center">
-                    <div className="text-xs">{lastStudied ? `Last studied: ${lastStudied}` : 'Not studied yet'}</div>
-                    <span>
-                        <span className="font-bold text-lg">{topic.flashcardsDueToday}</span> flashcards due today
-                    </span>
+                <div className="flex flex-col text-xs text-foreground justify-between">
+                    <div className='flex flex-row justify-between items-center'>
+                        <div>
+                            Created At: <span className="font-bold text-sm">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
+                        </div>
+                        <div>
+                            <span className="font-bold text-sm">{topic.flashcardsNew}</span> new flashcards
+                        </div>
+                    </div>
+
+                    <div className='flex flex-row justify-between items-center'>
+                        <div>
+                            Last studied: <span className="font-bold text-sm">{lastStudied}</span>
+                        </div>
+                        <div>
+                            <span className="font-bold text-sm">{topic.flashcardsDueToday}</span> flashcards due today
+                        </div>
+                    </div>
                 </div>
             </CardContent>
         </Card>
