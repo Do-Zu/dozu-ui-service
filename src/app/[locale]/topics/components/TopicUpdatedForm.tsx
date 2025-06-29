@@ -7,22 +7,22 @@ import { useTranslations } from 'next-intl';
 import { toast } from '@/hooks/use-toast';
 
 interface Props {
+    topicId: number;
     name: string;
     setName: (name: string) => void;
     description: string;
     setDescription: (description: string) => void;
     handleCloseModal?: () => void;
-    topicId: number;
     updateTopics: (topic: ITopicForUser) => void;
 }
 
 export const TopicUpdatedForm = ({
+    topicId,
     name,
     setName,
     description,
     setDescription,
     handleCloseModal,
-    topicId,
     updateTopics,
 }: Props) => {
     const topicT = useTranslations('topic');
@@ -36,6 +36,7 @@ export const TopicUpdatedForm = ({
         setDescription(event.target.value);
     }
 
+    // todo-ka: cân nhắc đẩy sang parent component
     async function handleOnClickSave() {
         if (!name) {
             toast({
@@ -51,8 +52,15 @@ export const TopicUpdatedForm = ({
             const data = await putRequest<any, ITopicForUser>(`/topics/${topicId}`, dataSubmitted);
             updateTopics(data.data);
             handleCloseModal?.();
+            toast({
+                title: 'Update Topic successfully!',
+                variant: 'default'
+            })
         } catch (err) {
-            console.log(err);
+            toast({
+                title: 'Update Topic failed, please try again',
+                variant: 'destructive'
+            })
         }
     }
 
