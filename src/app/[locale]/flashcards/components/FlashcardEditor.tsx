@@ -341,7 +341,7 @@ const FlashcardEditor = ({
                     return (
                         <div
                             key={flashcard.id}
-                            className="col-span-4 bg-white p-8 text-center flex flex-col gap-4 rounded-xl"
+                            className="col-span-4 bg-white p-8 text-center flex flex-col gap-4 rounded-xl border-2 dark:border-white"
                         >
                             <div className="flex flex-rol gap-4 justify-end">
                                 <Edit size={20} className="cursor-pointer" />
