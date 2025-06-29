@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Filter, Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,6 +99,8 @@ const sampleContentSets: ContentSet[] = [
     },
 ];
 
+type TopicFilteringAction = 'newest' | 'oldest' | 'title-asc' | 'title-desc' | 'recently-studied' | 'flashcards-due-today'; 
+
 const ContentLibrary: React.FC<ContentLibraryProps> = ({
     contentSets = sampleContentSets,
     onCreateContent = () => {},
@@ -110,7 +112,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     const t = useTranslations('home.contentLibrary');
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('all');
-    const [sortBy, setSortBy] = useState('newest');
+    const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
     // topic states to manage Create New Content
     const topicCreatedTranslation = useTranslations('topic.createdForm');
@@ -123,8 +125,37 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     const [topicName, setTopicName] = useState<string>('');
     const [topicDescription, setTopicDescription] = useState<string>('');
     const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
+
+    const [topicsFiltered, setTopicsFiltered] = useState<ITopicsForUserReturned>();
+
+    useEffect(() => {   
+        if(!topics) {
+            return;
+        } 
+        const topicsCopied = [...topics];
+        const topicsFiltered = topicsCopied.sort((a, b) => {
+            if(sortBy === 'title-asc') {
+                return a.name.localeCompare(b.name, 'vi')
+            } else if(sortBy === 'title-desc') {
+                return b.name.localeCompare(a.name, 'vi')
+            } else if(sortBy === 'newest') {
+                if(a.createdAt === b.createdAt) return 0;
+                return a.createdAt! > b.createdAt! ? 1 : -1
+            } else if(sortBy === 'oldest') {
+                if(a.createdAt === b.createdAt) return 0;
+                return a.createdAt! < b.createdAt! ? 1 : -1
+            } else if(sortBy === 'flashcards-due-today') {
+                return b.flashcardsDueToday! - a.flashcardsDueToday!
+            } else {
+                return 0
+            }
+        })
+        // console.log(topicsFiltered);
+        setTopicsFiltered(topicsFiltered);
+    }, [topics, sortBy]);
+
     const handleRenderTopicsSection = () => {
-        if (topicsLoading || !topics) {
+        if (topicsLoading || !topics || !topicsFiltered) {
             return <LoadingPage />;
         }
         if (topicsError) {
@@ -133,8 +164,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
         if (topics?.length === 0) {
             return <div>No Topics available</div>;
         }
-        // return <TopicsList topics={topics} setTopics={setTopics} />;
-        return <TopicsList topics={topics} setTopics={setTopics} />;
+        return <TopicsList topics={topicsFiltered} setTopics={setTopics} />; // todo-ka: cân nhắc setTopicsFiltered ngay khi nhận response từ API thay vì useEffect topics
     };
 
     const handleCloseCreateModal = () => {
@@ -146,7 +176,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     // todo-ka: check this function
     const addTopic = (topic: ITopicForUser) => {
         if (topics === null) return;
-        setTopics([...topics, topic]);
+        setTopics([...topics, { ...topic, flashcardsCount: 0, flashcardsDueToday: 0, flashcardsNew: 0 }]);
     };
 
     // Filter content based on search query, active tab, and sort
@@ -229,7 +259,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                         <Filter className="text-gray-500 h-4 w-4" />
                         <span className="text-sm text-gray-600">{t('sortBy')}</span>
                     </div>
-                    <Select value={sortBy} onValueChange={setSortBy}>
+                    <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder={t('sortBy')} />
                         </SelectTrigger>
@@ -239,6 +269,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                             <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
                             <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
                             <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
+                            <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
