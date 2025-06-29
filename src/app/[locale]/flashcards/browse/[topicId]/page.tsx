@@ -294,21 +294,6 @@ export default function Page() {
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
-    async function handleOnClickPutToLearning() {
-        if (!currentFlashcard) return;
-        try {
-            await putRequest<{}, {}>(`/flashcards/${currentFlashcard.flashcardId}/put-to-learning`, {});
-            const flashcardsUpdated: IFlashcardsForTopicReturned = flashcards!.map((flashcard) => {
-                return flashcard.flashcardId === currentFlashcard.flashcardId
-                    ? { ...flashcard, status: 'learning' }
-                    : flashcard;
-            });
-            setFlashcardsData(flashcardsUpdated);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
     if (flashcardLoading === true || flashcards === null || flashcards === undefined) {
         return <div>Loading flashcards...</div>;
     }
@@ -347,13 +332,6 @@ export default function Page() {
                         <ArrowRight className="h-5 w-5" />
                     </Button>
                 </div>
-
-                {/* if status is 'new', put to learning */}
-                {currentFlashcard?.status === 'new' ? (
-                    <Button className="w-[75%]" onClick={handleOnClickPutToLearning}>
-                        Put to Learning
-                    </Button>
-                ) : null}
             </div>
         );
     }
