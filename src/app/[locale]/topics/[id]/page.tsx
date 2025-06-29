@@ -9,13 +9,14 @@ import { putRequest } from '@/api/api';
 import BackButton from '../../flashcards/components/BackButton';
 import { Textarea } from '@/components/ui/textarea';
 import { ITopicBasic } from '../topic.type';
+import { ROUTES } from '@/utils/constants/routes';
 
 const Page = () => {
   const router = useRouter();
   const params = useParams();
   if (!params?.id) return <div>No topic id is provided</div>;
 
-  const { id: topicId } = params;
+  const { id: topicId } = params as { id : string };
 
   const {
     data: topic,
@@ -62,14 +63,14 @@ const Page = () => {
         topicDescription = description ? description : '';
       const dataSubmitted = { topicName, topicDescription };
       await putRequest(`/topics/${topicId}`, dataSubmitted);
-      router.push('/home');
+      router.push(ROUTES.HOME);
     } catch (err) {
       console.log(err);
     }
   }
 
   function handleClickEditFlashcards() {
-    router.push(`/flashcards/edit?topicId=${topicId!}`);
+    router.push(ROUTES.FLASHCARDS_EDIT(topicId));
   }
 
   return (
