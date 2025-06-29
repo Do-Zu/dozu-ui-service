@@ -29,6 +29,10 @@ export async function handleCreateTopic({
     } catch (err) {
         // toast...
         // err.message err.response.data
+        toast({
+            title: 'Create Topic failed, please try again',
+            variant: 'destructive'
+        })
         throw err;
     }
     return data.data;
