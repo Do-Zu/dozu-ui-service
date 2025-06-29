@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { IFlashcard } from '../../flashcards/practice/page';
+import { IFlashcard } from '../../flashcards/learning/page';
 import { CheckedState } from '@radix-ui/react-checkbox';
 
 export interface Flashcard {
