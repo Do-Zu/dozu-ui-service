@@ -7,6 +7,7 @@ import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } 
 import LoadingPage from '@/app/loading';
 import { FlashcardLearning } from '../components/FlashcardLearning';
 import { useParams } from 'next/navigation';
+import { toast } from '@/hooks/use-toast';
 
 export type IFlashcard = Pick<IFlashcardFull, 'flashcardId' | 'front' | 'back' | 'topicName'> & {
     qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
@@ -75,7 +76,10 @@ export default function Page() {
             const flashcardsFiltered = flashcards.slice(1);
             setFlashcardsData(flashcardsFiltered);
         } catch (err) {
-            console.log(err);
+            toast({
+                title: 'Tracking failed, please try again',
+                variant: 'destructive'
+            })
         }
     }
 
