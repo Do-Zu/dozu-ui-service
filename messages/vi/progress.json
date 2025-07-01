@@ -1,0 +1,21 @@
+{
+  "title": "Tiến trình học tập",
+  "subtitle": "Theo dõi hành trình học tập và quản lý tiến trình của bạn",
+  "dashboard": "Bảng tổng quan",
+  "totalContents": "Tổng số nội dung",
+  "completed": "Hoàn thành",
+  "inProgress": "Đang học",
+  "averageScore": "Điểm trung bình",
+  "studyOverview": "Tổng quan học tập",
+  "learningProgress": "Tiến trình học tập của bạn trong tuần này",
+  "totalStudyHours": "Tổng số giờ học",
+  "completedTopics": "Chủ đề đã hoàn thành",
+  "weeklyChange": "Thay đổi trong tuần",
+  "learningMethods": "Phương pháp học",
+  "distribution": "Phân bố hoạt động học tập của bạn",
+  "dailyStudyHours": "Giờ học mỗi ngày (7 ngày gần nhất)",
+  "studyTimeDistribution": "Phân bố thời gian học của bạn",
+  "achievements": "Thành tích",
+  "learningMilestones": "Cột mốc học tập của bạn",
+  "topicsCompleted": "Chủ đề đã hoàn thành"
+}
