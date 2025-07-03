@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Filter, Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,6 +99,8 @@ const sampleContentSets: ContentSet[] = [
     },
 ];
 
+type TopicFilteringAction = 'newest' | 'oldest' | 'title-asc' | 'title-desc' | 'recently-studied' | 'flashcards-due-today'; 
+
 const ContentLibrary: React.FC<ContentLibraryProps> = ({
     contentSets = sampleContentSets,
     onCreateContent = () => {},
@@ -110,9 +112,10 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     const t = useTranslations('home.contentLibrary');
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('all');
-    const [sortBy, setSortBy] = useState('newest');
+    const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
     // topic states to manage Create New Content
+    const topicCreatedTranslation = useTranslations('topic.createdForm');
     const {
         data: topics,
         setData: setTopics,
@@ -122,8 +125,37 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     const [topicName, setTopicName] = useState<string>('');
     const [topicDescription, setTopicDescription] = useState<string>('');
     const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
+
+    const [topicsFiltered, setTopicsFiltered] = useState<ITopicsForUserReturned>();
+
+    useEffect(() => {   
+        if(!topics) {
+            return;
+        } 
+        const topicsCopied = [...topics];
+        const topicsFiltered = topicsCopied.sort((a, b) => {
+            if(sortBy === 'title-asc') {
+                return a.name.localeCompare(b.name, 'vi')
+            } else if(sortBy === 'title-desc') {
+                return b.name.localeCompare(a.name, 'vi')
+            } else if(sortBy === 'newest') {
+                if(a.createdAt === b.createdAt) return 0;
+                return a.createdAt! > b.createdAt! ? 1 : -1
+            } else if(sortBy === 'oldest') {
+                if(a.createdAt === b.createdAt) return 0;
+                return a.createdAt! < b.createdAt! ? 1 : -1
+            } else if(sortBy === 'flashcards-due-today') {
+                return b.flashcardsDueToday! - a.flashcardsDueToday!
+            } else {
+                return 0
+            }
+        })
+        // console.log(topicsFiltered);
+        setTopicsFiltered(topicsFiltered);
+    }, [topics, sortBy]);
+
     const handleRenderTopicsSection = () => {
-        if (topicsLoading || !topics) {
+        if (topicsLoading || !topics || !topicsFiltered) {
             return <LoadingPage />;
         }
         if (topicsError) {
@@ -132,7 +164,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
         if (topics?.length === 0) {
             return <div>No Topics available</div>;
         }
-        return <TopicsList topics={topics} setTopics={setTopics} />;
+        return <TopicsList topics={topicsFiltered} setTopics={setTopics} />; // todo-ka: cân nhắc setTopicsFiltered ngay khi nhận response từ API thay vì useEffect topics
     };
 
     const handleCloseCreateModal = () => {
@@ -142,9 +174,9 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     };
 
     // todo-ka: check this function
-    const setTopicsCallback = (topic: ITopicForUser) => {
+    const addTopic = (topic: ITopicForUser) => {
         if (topics === null) return;
-        setTopics([...topics, topic]);
+        setTopics([...topics, { ...topic, flashcardsCount: 0, flashcardsDueToday: 0, flashcardsNew: 0 }]);
     };
 
     // Filter content based on search query, active tab, and sort
@@ -189,14 +221,14 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     return (
         <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <h2 className="text-2xl font-semibold text-gray-800">{t('title')}</h2>
+                <h2 className="text-2xl font-semibold">{t('title')}</h2>
                 <TopicModal
                     trigger={
-                        <Button className="bg-gray-800 hover:bg-gray-900">
-                            <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
+                        <Button className="bg-background text-foreground">
+                            <Plus className="mr-2 h-4 w-4" />{t('createNewContent')}
                         </Button>
                     }
-                    title={t('createNewContent')}
+                    title={topicCreatedTranslation('title')}
                     body={
                         <TopicCreatedForm
                             name={topicName}
@@ -204,7 +236,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                             description={topicDescription}
                             setDescription={setTopicDescription}
                             handleCloseModal={handleCloseCreateModal}
-                            setTopics={setTopicsCallback}
+                            addTopic={addTopic}
                         />
                     }
                     isOpen={isTopicModalOpen}
@@ -227,7 +259,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                         <Filter className="text-gray-500 h-4 w-4" />
                         <span className="text-sm text-gray-600">{t('sortBy')}</span>
                     </div>
-                    <Select value={sortBy} onValueChange={setSortBy}>
+                    <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder={t('sortBy')} />
                         </SelectTrigger>
@@ -237,11 +269,14 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                             <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
                             <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
                             <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
+                            <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
             </div>
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+            {handleRenderTopicsSection()}
+            {/* TODO: UNKNOWN */}
+            {/* <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
                 <TabsList className="w-full md:w-auto bg-gray-200">
                     <TabsTrigger value="all" className="flex-1 md:flex-none">
                         {t('tabs.all')}
@@ -257,7 +292,6 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="all" className="mt-6">
-                    {/* {renderContentGrid(filteredContent)} */}
                     {handleRenderTopicsSection()}
                 </TabsContent>
                 <TabsContent value="flashcards" className="mt-6">
@@ -269,7 +303,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                 <TabsContent value="quizzes" className="mt-6">
                     {renderContentGrid(filteredContent)}
                 </TabsContent>
-            </Tabs>
+            </Tabs> */}
             {filteredContent.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 rounded-lg border border-gray-200">
                     <BookOpen className="h-12 w-12 text-gray-400 mb-4" />
@@ -279,7 +313,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
                             ? t('noContent.searchMessage', { query: searchQuery })
                             : t('noContent.emptyMessage')}
                     </p>
-                    <Button onClick={onCreateContent} className="bg-gray-700 hover:bg-gray-800">
+                    <Button onClick={onCreateContent} className="bg-background text-foreground">
                         <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
                     </Button>
                 </div>

@@ -6,6 +6,7 @@ import { ChangeEvent, useState } from 'react';
 import BackButton from '../../flashcards/components/BackButton';
 import { postRequest } from '@/api/api';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/constants/routes';
 
 const Page = () => {
   const router = useRouter();
@@ -30,7 +31,7 @@ const Page = () => {
     const dataSubmitted = { topicName: name, topicDescription: description };
     try {
       await postRequest('/topics', dataSubmitted);
-      router.push('/home');
+      router.push(ROUTES.HOME);
     } catch (err) {
       console.log(err);
     }
