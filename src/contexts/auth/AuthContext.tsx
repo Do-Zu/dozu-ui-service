@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { getRequest } from '@/api/api';
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
@@ -28,6 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { isLoggedIn, isAuthenticated, user, setAuthData, updateUser, clearAuthData, markOnboardingComplete } =
         useAuthStorage();
 
+    const [currentPlanUser, setCurrentPlanUser] = useState<unknown | null>(null);
+
     const checkAuthStatus = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -40,12 +43,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!user) {
                 //TODO: Refresh user data from API or session
             }
+
+            const plan = await getCurrentPlanSubscription();
+
+            if (plan) {
+                setCurrentPlanUser(plan);
+            }
         } catch (error) {
             console.error('Error checking authentication status:', error);
         } finally {
             setIsLoading(false);
         }
     }, []);
+
+    const getCurrentPlanSubscription = async () => {
+        const result = await getRequest('/subscription/current-plan');
+        return result;
+    };
 
     useEffect(() => {
         checkAuthStatus();
