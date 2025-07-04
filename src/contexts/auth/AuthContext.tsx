@@ -2,7 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { getRequest } from '@/api/api';
+import { getRequest, postRequest } from '@/api/api';
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
@@ -13,12 +13,63 @@ interface AuthContextType {
     isAuthenticated: boolean;
     hasCompletedOnboarding: boolean;
     userType: UserType;
+    currentPlanUser: ICurrentPlan | null;
     setAuthData: (userData: User) => void;
     clearAuthData: () => void;
     hasRole: (role: string) => boolean;
     hasPermission: (permission: string) => boolean;
     updateUser: (userData: Partial<User>) => void;
     markOnboardingComplete: () => void;
+}
+
+interface IPlanResponse {
+    planId: number;
+    name: string;
+    description: string;
+    isActive: boolean;
+}
+interface IPlan extends IPlanResponse {}
+interface ISuccessResponse {
+    subscriptionId: number;
+    userId: number;
+    planId: number;
+    status: 'active' | 'cancelled' | 'expired' | 'pending' | 'suspended' | 'trialing';
+    currentPeriodStart: Date;
+    currentPeriodEnd: Date;
+    trialStart: Date | null;
+    trialEnd: Date | null;
+    cancelAt: Date | null;
+    canceledAt: Date | null;
+    cancellationReason: string | null;
+    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
+    amount: string;
+    currency: string;
+    externalSubscriptionId: string | null;
+    autoRenew: boolean;
+    createdAt: Date | null;
+    updatedAt: Date | null;
+}
+interface ICurrentPlanSubscriptionResponse {
+    subscription: ISuccessResponse;
+    plan: IPlanResponse;
+}
+
+interface IFeatureRequest {
+    planId: number;
+}
+interface IFeatureResponse {
+    featureId: number;
+    name: string;
+    description: string | null;
+    featureType: 'boolean' | 'usage' | 'size_limit';
+    featureIntervalExpire: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    category: 'core' | 'storage' | 'integrations' | 'customization';
+    unit: 'GB' | 'MB' | 'count' | null;
+}
+
+interface ICurrentPlan {
+    plan: IPlan;
+    features: IFeatureResponse[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { isLoggedIn, isAuthenticated, user, setAuthData, updateUser, clearAuthData, markOnboardingComplete } =
         useAuthStorage();
 
-    const [currentPlanUser, setCurrentPlanUser] = useState<unknown | null>(null);
+    const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null);
 
     const checkAuthStatus = useCallback(async () => {
         try {
@@ -37,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (!isLoggedIn) {
                 clearAuthData();
+                setCurrentPlanUser(null);
                 return;
             }
 
@@ -44,11 +96,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 //TODO: Refresh user data from API or session
             }
 
-            const plan = await getCurrentPlanSubscription();
+            // Get current subscription plan of user
+            const { data } = await getCurrentPlanSubscription();
 
-            if (plan) {
-                setCurrentPlanUser(plan);
+            const { plan } = data;
+
+            if (!plan || !plan?.planId) {
+                setCurrentPlanUser(null);
+                return;
             }
+
+            const { data: features } = await getAllFeatureBelongPlan(plan.planId);
+
+            if (!features || features.length === 0) {
+                setCurrentPlanUser(null);
+                return;
+            }
+
+            const planWithFeatures = {
+                plan,
+                features,
+            };
+
+            setCurrentPlanUser(planWithFeatures);
         } catch (error) {
             console.error('Error checking authentication status:', error);
         } finally {
@@ -57,7 +127,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const getCurrentPlanSubscription = async () => {
-        const result = await getRequest('/subscription/current-plan');
+        const result = await getRequest<ICurrentPlanSubscriptionResponse, ICurrentPlanSubscriptionResponse>(
+            '/subscription/current-plan',
+        );
+        return result;
+    };
+
+    const getAllFeatureBelongPlan = async (planId: number) => {
+        const result = await postRequest<IFeatureRequest, IFeatureResponse[]>(`/subscription/plan/features`, {
+            planId,
+        });
         return result;
     };
 
@@ -91,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isNewUser,
             hasCompletedOnboarding,
             userType,
+            currentPlanUser,
             setAuthData,
             clearAuthData,
             hasRole,
