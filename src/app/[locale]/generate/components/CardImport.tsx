@@ -37,6 +37,8 @@ interface ApiResponsePubGenContent {
     };
 }
 
+const URL_API_GENERATE = '/generate/v3/text/llm';
+
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     const router = useRouter();
     const dispatch = useCardImportDispatch();
@@ -53,7 +55,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         data: apiResponse,
         error: apiPostContentError,
         execute,
-    } = usePost<unknown, ApiResponsePubGenContent>('/generate/v3/text/llm', 'POST');
+    } = usePost<unknown, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
 
     // Setup SSE connection when jobId is available
     const { data: sseData, status: sseStatus } = useEventSource<ISseData>(
@@ -61,10 +63,8 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     );
 
     const {
-        contentType,
         dataGenerated,
         setDataGenerated,
-        isContentReady,
         topicName,
         setTopicName,
         topicDescription,
