@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useUpgradePlanModal } from '@/hooks/useUpgradePlanModal';
+import { useUpgradePlanModal } from '@/stores/features/subscription/useUpgradePlanModal';
 import { cn } from '@/lib/utils';
 import { Check, X } from 'lucide-react';
 

@@ -5,6 +5,7 @@ import subscriptionSlice from './features/subscription/subscriptionSlice';
 export const store = configureStore({
     reducer: {
         auth: authSlice,
+        subscription: subscriptionSlice,
     },
     devTools: process.env.NODE_ENV !== 'production',
 });
