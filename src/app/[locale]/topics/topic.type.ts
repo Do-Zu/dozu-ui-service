@@ -3,13 +3,18 @@ export interface ITopic {
     userId: number;
     name: string;
     description: string;
-    // createdAt: Date;
+    createdAt: Date;
+    classId?: number;
     imageUrl?: string;
+    flashcardsCount?: number;
+    flashcardsDueToday?: number;
+    flashcardsNew?: number;
 }
 
-export type ITopicBasic = Pick<ITopic, 'topicId' | 'name' | 'description' | 'imageUrl'>;
-export type ITopicAdded = Pick<ITopic, 'userId' | 'name' | 'description'>;
-export type ITopicUpdated = Pick<ITopic, 'name' | 'description'>;
+export type ICreateTopicRequest = Pick<ITopic, 'name' | 'description'>;
+export type ICreateTopicResponse = Pick<ITopic, 'topicId' | 'name' | 'description' | 'createdAt' | 'imageUrl'>;
+export type IUpdateTopicRequest = Pick<ITopic, 'topicId' | 'name' | 'description'>;
+export type IUpdateTopicResponse = Pick<ITopic, 'topicId' | 'name' | 'description'>;
 
-export type ITopicForUser = ITopicBasic & { createdAt?: Date; flashcardsCount?: number; flashcardsDueToday?: number; flashcardsNew?: number };
-export type ITopicsForUserReturned = ITopicForUser[];
+export type ICreateTopicInClassRequest = Pick<ITopic, 'classId' | 'name' | 'description'>;
+export type ICreateTopicInClassResponse = ICreateTopicResponse;
