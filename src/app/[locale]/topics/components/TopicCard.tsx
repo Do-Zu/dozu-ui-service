@@ -1,5 +1,4 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ITopicForUser } from '../topic.type';
 import {
     DropdownMenu,
     DropdownMenuItem,
@@ -10,48 +9,39 @@ import {
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import {
-    BookOpen,
-    ClipboardCheck,
-    Edit,
-    GitFork,
-    GraduationCap,
-    Layers,
-    MoreVertical,
-    Trash2,
-} from 'lucide-react';
+import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import { format } from 'date-fns';
+import { ITopic } from '../topic.type';
 
 interface Props {
-    topic: ITopicForUser;
-    onSelectEditTopic: ({ topicId, name, description } : { topicId: number, name: string, description: string }) => void;
-    onSelectDeleteTopic: ({ topicId, name } : { topicId: number, name: string }) => void;
+    topic: ITopic;
+    handleOpenUpdateModal: ({
+        topicId,
+        name,
+        description,
+    }: {
+        topicId: number;
+        name: string;
+        description: string;
+    }) => void;
+    handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
 }
 const lastStudied = '1 day ago';
 
 export function TopicCard({
     topic,
-    onSelectEditTopic,
-    onSelectDeleteTopic
+    handleOpenUpdateModal,
+    handleOpenDeleteModal,
 }: Props) {
     const router = useRouter();
 
     const { topicId, name, description, imageUrl } = topic;
     const topicT = useTranslations('topic');
 
-    function handleOnSelectEditTopic() {
-        onSelectEditTopic({topicId, name, description});
-    }
-
-    function handleOnSelectDeleteTopic() {
-        onSelectDeleteTopic({ topicId, name });
-    }
-
-    // todo-ka: cân nhắc bỏ ở cha
     function handleOnSelectEditFlashcard() {
         router.push(ROUTES.FLASHCARDS_EDIT(topicId));
     }
@@ -135,11 +125,11 @@ export function TopicCard({
                             </DropdownMenuSub>
 
                             {/* Topic itself */}
-                            <DropdownMenuItem onSelect={handleOnSelectEditTopic}>
+                            <DropdownMenuItem onSelect={() => handleOpenUpdateModal({ topicId, name, description })}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>{topicT('edit')}</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={handleOnSelectDeleteTopic}>
+                            <DropdownMenuItem onSelect={() => handleOpenDeleteModal({ topicId, name })}>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 <span>{topicT('delete')}</span>
                             </DropdownMenuItem>
@@ -156,25 +146,33 @@ export function TopicCard({
                         <div className="text-gray-500 dark:text-slate-500 text-lg">Preview</div>
                     )}
                 </div>
-                <div className="flex flex-col text-xs text-foreground justify-between">
-                    <div className='flex flex-row justify-between items-center'>
-                        <div>
-                            Created At: <span className="font-bold text-sm">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
-                        </div>
-                        <div>
-                            <span className="font-bold text-sm">{topic.flashcardsNew}</span> new flashcards
-                        </div>
+                {topic.classId ? (
+                    <div className='text-xs text-foreground'>
+                        Created At: <span className="font-bold">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
                     </div>
+                ) : 
+                (
+                    <div className="flex flex-col text-xs text-foreground justify-between">
+                        <div className="flex flex-row justify-between items-center">
+                            <div>
+                                Created At: <span className="font-bold">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
+                            </div>
+                            <div>
+                                <span className="font-bold">{topic.flashcardsNew}</span> new flashcards
+                            </div>
+                        </div>
 
-                    <div className='flex flex-row justify-between items-center'>
-                        <div>
-                            Last studied: <span className="font-bold text-sm">{lastStudied}</span>
-                        </div>
-                        <div>
-                            <span className="font-bold text-sm">{topic.flashcardsDueToday}</span> flashcards due today
+                        <div className="flex flex-row justify-between items-center">
+                            <div>
+                                Last studied: <span className="font-bold">{lastStudied}</span>
+                            </div>
+                            <div>
+                                <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
+
             </CardContent>
         </Card>
     );
