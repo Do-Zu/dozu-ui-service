@@ -18,6 +18,7 @@ import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxS
 import { ISseData } from '../types';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import Import from './import/Import';
+import LoadingPage from '@/app/loading';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
@@ -213,7 +214,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         }
     }, [sseData, sseStatus, dispatch]);
 
-    if ((jobId && sseStatus === 'open') || loading) {
+    if (jobId && sseStatus === 'open') {
         return <GeneratingSkeleton />;
     }
 
@@ -238,7 +239,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
             </CardHeader>
 
             <CardContent className="">{renderStepContent()}</CardContent>
-
+            {loading && <LoadingPage isOverlay={true} size={120} />}
             <CardFooter className="flex justify-between items-center sm:justify-between">
                 {step > 1 && (
                     <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>
