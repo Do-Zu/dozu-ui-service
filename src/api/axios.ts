@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { store } from '@/stores/store'; // Import the store
 import { getTimestampWithClientOffset } from '@/utils';
+import { getCurrentPlanUser } from '@/utils/auth/subscription';
 
 const Axios = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -21,6 +21,28 @@ const requestInterceptor = Axios.interceptors.request.use(
             const userObject = JSON.parse(userString);
             const accessToken = userObject?.accessToken;
             config.headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        const { method, url } = config;
+
+        if (['POST', 'PUT', 'PATCH'].includes(method?.toUpperCase() || '')) {
+            const currentPlanUser = getCurrentPlanUser();
+
+            if (currentPlanUser && currentPlanUser.features && url) {
+                const matchingFeature = currentPlanUser?.features.find(
+                    (feature) => feature?.apiUrl && url?.includes(feature.apiUrl),
+                );
+
+                if (config.data && matchingFeature) {
+                    config.data = {
+                        ...config.data,
+                        featureId: matchingFeature.featureId,
+                        planId: currentPlanUser.plan.planId,
+                        featureType: matchingFeature.featureType,
+                        url,
+                    };
+                }
+            }
         }
 
         const { timestamp, timezone } = getTimestampWithClientOffset();
@@ -59,6 +81,9 @@ const responseInterceptor = Axios.interceptors.response.use(
                 // Redirect to login page or show login modal
             } else if (error.response.status === 500) {
                 console.error('Server error occurred. Please try again later.');
+            } else if (error.response.status === 402) {
+                console.log("Payment required - User's plan may have expired or is not valid.");
+                //TODO: Handle logic for expired or invalid plan
             } else {
                 console.error('API Error:', error.response.data.message || error.message);
             }

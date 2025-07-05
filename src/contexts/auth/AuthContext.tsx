@@ -6,6 +6,7 @@ import { getRequest, postRequest } from '@/api/api';
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
+import { storeSessionData } from '@/utils/storage';
 
 interface AuthContextType {
     user: User | null | undefined;
@@ -65,9 +66,10 @@ interface IFeatureResponse {
     featureIntervalExpire: 'daily' | 'weekly' | 'monthly' | 'yearly';
     category: 'core' | 'storage' | 'integrations' | 'customization';
     unit: 'GB' | 'MB' | 'count' | null;
+    apiUrl: string | null;
 }
 
-interface ICurrentPlan {
+export interface ICurrentPlan {
     plan: IPlan;
     features: IFeatureResponse[];
 }
@@ -118,6 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 features,
             };
 
+            storeSessionData<ICurrentPlan>('currentPlanUser', planWithFeatures);
+
             setCurrentPlanUser(planWithFeatures);
         } catch (error) {
             console.error('Error checking authentication status:', error);
@@ -139,6 +143,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         return result;
     };
+
+    const getFeatureByApiUrl = useCallback(
+        (apiUrl: string): IFeatureResponse | null => {
+            if (!currentPlanUser?.features) return null;
+
+            return (
+                currentPlanUser.features.find((feature) => feature?.apiUrl && apiUrl.includes(feature.apiUrl)) || null
+            );
+        },
+        [currentPlanUser?.features],
+    );
 
     useEffect(() => {
         checkAuthStatus();
