@@ -1,115 +1,207 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-  useMemo,
-  useCallback,
-} from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { getRequest, postRequest } from '@/api/api';
+import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
-import { useSessionStorage } from '@/hooks/useSessionStorage';
-import { SESSION_STORAGE_KEY } from '@/utils/constants/storage';
-import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
+import { storeSessionData } from '@/utils/storage';
 
 interface AuthContextType {
-  user: User | null | undefined;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  hasCompletedOnboarding: boolean;
-  userType: UserType;
-  setAuthData: (userData: User) => void;
-  clearAuthData: () => void;
-  hasRole: (role: string) => boolean;
-  hasPermission: (permission: string) => boolean;
-  updateUser: (userData: Partial<User>) => void;
-  markOnboardingComplete: () => void;
+    user: User | null | undefined;
+    isLoading: boolean;
+    isAuthenticated: boolean;
+    hasCompletedOnboarding: boolean;
+    userType: UserType;
+    currentPlanUser: ICurrentPlan | null;
+    setAuthData: (userData: User) => void;
+    clearAuthData: () => void;
+    hasRole: (role: string) => boolean;
+    hasPermission: (permission: string) => boolean;
+    updateUser: (userData: Partial<User>) => void;
+    markOnboardingComplete: () => void;
+}
+
+interface IPlanResponse {
+    planId: number;
+    name: string;
+    description: string;
+    isActive: boolean;
+}
+interface IPlan extends IPlanResponse {}
+interface ISuccessResponse {
+    subscriptionId: number;
+    userId: number;
+    planId: number;
+    status: 'active' | 'cancelled' | 'expired' | 'pending' | 'suspended' | 'trialing';
+    currentPeriodStart: Date;
+    currentPeriodEnd: Date;
+    trialStart: Date | null;
+    trialEnd: Date | null;
+    cancelAt: Date | null;
+    canceledAt: Date | null;
+    cancellationReason: string | null;
+    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
+    amount: string;
+    currency: string;
+    externalSubscriptionId: string | null;
+    autoRenew: boolean;
+    createdAt: Date | null;
+    updatedAt: Date | null;
+}
+interface ICurrentPlanSubscriptionResponse {
+    subscription: ISuccessResponse;
+    plan: IPlanResponse;
+}
+
+interface IFeatureRequest {
+    planId: number;
+}
+interface IFeatureResponse {
+    featureId: number;
+    name: string;
+    description: string | null;
+    featureType: 'boolean' | 'usage' | 'size_limit';
+    featureIntervalExpire: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    category: 'core' | 'storage' | 'integrations' | 'customization';
+    unit: 'GB' | 'MB' | 'count' | null;
+    apiUrl: string | null;
+}
+
+export interface ICurrentPlan {
+    plan: IPlan;
+    features: IFeatureResponse[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const {
-    isLoggedIn,
-    isAuthenticated,
-    user,
-    setAuthData,
-    updateUser,
-    clearAuthData,
-    markOnboardingComplete,
-  } = useAuthStorage();
+    const { isLoggedIn, isAuthenticated, user, setAuthData, updateUser, clearAuthData, markOnboardingComplete } =
+        useAuthStorage();
 
-  const checkAuthStatus = useCallback(async () => {
-    try {
-      setIsLoading(true);
+    const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null);
 
-      if (!isLoggedIn) {
-        clearAuthData();
-        return;
-      }
+    const checkAuthStatus = useCallback(async () => {
+        try {
+            setIsLoading(true);
 
-      if (!user) {
-        //TODO: Refresh user data from API or session
-      }
-    } catch (error) {
-      console.error('Error checking authentication status:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+            if (!isLoggedIn) {
+                clearAuthData();
+                setCurrentPlanUser(null);
+                return;
+            }
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
+            if (!user) {
+                //TODO: Refresh user data from API or session
+            }
 
-  const hasRole = useCallback(
-    (role: string): boolean => {
-      return user?.roles.includes(role) ?? false;
-    },
-    [user?.roles],
-  );
+            // Get current subscription plan of user
+            const { data } = await getCurrentPlanSubscription();
 
-  const hasPermission = useCallback(
-    (permission: string): boolean => {
-      return user?.permissions.includes(permission) ?? false;
-    },
-    [user?.permissions],
-  );
+            const { plan } = data;
 
-  const contextValue = useMemo(() => {
-    const userType = getUserType(isAuthenticated, user);
-    const isNewUser = userType === 'new_user';
-    const hasCompletedOnboarding = user?.hasCompletedOnboarding ?? false;
+            if (!plan || !plan?.planId) {
+                setCurrentPlanUser(null);
+                return;
+            }
 
-    return {
-      user,
-      isLoading,
-      isAuthenticated,
-      isNewUser,
-      hasCompletedOnboarding,
-      userType,
-      setAuthData,
-      clearAuthData,
-      hasRole,
-      hasPermission,
-      updateUser,
-      markOnboardingComplete,
+            const { data: features } = await getAllFeatureBelongPlan(plan.planId);
+
+            if (!features || features.length === 0) {
+                setCurrentPlanUser(null);
+                return;
+            }
+
+            const planWithFeatures = {
+                plan,
+                features,
+            };
+
+            storeSessionData<ICurrentPlan>('currentPlanUser', planWithFeatures);
+
+            setCurrentPlanUser(planWithFeatures);
+        } catch (error) {
+            console.error('Error checking authentication status:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const getCurrentPlanSubscription = async () => {
+        const result = await getRequest<ICurrentPlanSubscriptionResponse, ICurrentPlanSubscriptionResponse>(
+            '/subscription/current-plan',
+        );
+        return result;
     };
-  }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete]);
 
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+    const getAllFeatureBelongPlan = async (planId: number) => {
+        const result = await postRequest<IFeatureRequest, IFeatureResponse[]>(`/subscription/plan/features`, {
+            planId,
+        });
+        return result;
+    };
+
+    const getFeatureByApiUrl = useCallback(
+        (apiUrl: string): IFeatureResponse | null => {
+            if (!currentPlanUser?.features) return null;
+
+            return (
+                currentPlanUser.features.find((feature) => feature?.apiUrl && apiUrl.includes(feature.apiUrl)) || null
+            );
+        },
+        [currentPlanUser?.features],
+    );
+
+    useEffect(() => {
+        checkAuthStatus();
+    }, [checkAuthStatus]);
+
+    const hasRole = useCallback(
+        (role: string): boolean => {
+            return user?.roles.includes(role) ?? false;
+        },
+        [user?.roles],
+    );
+
+    const hasPermission = useCallback(
+        (permission: string): boolean => {
+            return user?.permissions.includes(permission) ?? false;
+        },
+        [user?.permissions],
+    );
+
+    const contextValue = useMemo(() => {
+        const userType = getUserType(isAuthenticated, user);
+        const isNewUser = userType === 'new_user';
+        const hasCompletedOnboarding = user?.hasCompletedOnboarding ?? false;
+
+        return {
+            user,
+            isLoading,
+            isAuthenticated,
+            isNewUser,
+            hasCompletedOnboarding,
+            userType,
+            currentPlanUser,
+            setAuthData,
+            clearAuthData,
+            hasRole,
+            hasPermission,
+            updateUser,
+            markOnboardingComplete,
+        };
+    }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete]);
+
+    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 };

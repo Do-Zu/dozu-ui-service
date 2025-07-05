@@ -1,23 +1,24 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
-import { toast } from '@/hooks/use-toast';
-import usePost from '@/hooks/usePost';
-import { useEventSource } from '@/hooks/useEventSource';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import Import from './import/Import';
 import { resetExtractionState } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
 import { setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
+import { useEventSource } from '@/hooks/useEventSource';
+import usePost from '@/hooks/usePost';
+import { ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import { compressContent } from '../helper/compress';
-import { useRouter } from 'next/navigation';
-import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
-import ContentGenerationPreview from './ContentGenerationPreview';
 import { useContentGeneration } from '../hooks/useContentGeneration';
+import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
 import { ISseData } from '../types';
+import ContentGenerationPreview from './ContentGenerationPreview';
+import Import from './import/Import';
+import LoadingPage from '@/app/loading';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
@@ -37,6 +38,8 @@ interface ApiResponsePubGenContent {
     };
 }
 
+const URL_API_GENERATE = '/generate/v3/text/llm';
+
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     const router = useRouter();
     const dispatch = useCardImportDispatch();
@@ -53,7 +56,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         data: apiResponse,
         error: apiPostContentError,
         execute,
-    } = usePost<unknown, ApiResponsePubGenContent>('/generate/v3/text/llm', 'POST');
+    } = usePost<unknown, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
 
     // Setup SSE connection when jobId is available
     const { data: sseData, status: sseStatus } = useEventSource<ISseData>(
@@ -61,10 +64,8 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     );
 
     const {
-        contentType,
         dataGenerated,
         setDataGenerated,
-        isContentReady,
         topicName,
         setTopicName,
         topicDescription,
@@ -213,7 +214,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         }
     }, [sseData, sseStatus, dispatch]);
 
-    if ((jobId && sseStatus === 'open') || loading) {
+    if (jobId && sseStatus === 'open') {
         return <GeneratingSkeleton />;
     }
 
@@ -238,7 +239,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
             </CardHeader>
 
             <CardContent className="">{renderStepContent()}</CardContent>
-
+            {loading && <LoadingPage isOverlay={true} size={120} />}
             <CardFooter className="flex justify-between items-center sm:justify-between">
                 {step > 1 && (
                     <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>
