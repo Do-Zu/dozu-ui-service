@@ -1,23 +1,23 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
-import { toast } from '@/hooks/use-toast';
-import usePost from '@/hooks/usePost';
-import { useEventSource } from '@/hooks/useEventSource';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import Import from './import/Import';
 import { resetExtractionState } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
 import { setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
+import { useEventSource } from '@/hooks/useEventSource';
+import usePost from '@/hooks/usePost';
+import { ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import { compressContent } from '../helper/compress';
-import { useRouter } from 'next/navigation';
-import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
-import ContentGenerationPreview from './ContentGenerationPreview';
 import { useContentGeneration } from '../hooks/useContentGeneration';
+import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
 import { ISseData } from '../types';
+import ContentGenerationPreview from './ContentGenerationPreview';
+import Import from './import/Import';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
