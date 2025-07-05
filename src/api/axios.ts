@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { openUpgradeModal } from '@/stores/features/subscription/subscriptionUtils';
 import { getTimestampWithClientOffset } from '@/utils';
-import { getCurrentPlanUser } from '@/utils/auth/subscription';
+import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
 
 const Axios = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -30,7 +31,7 @@ const requestInterceptor = Axios.interceptors.request.use(
 
             if (currentPlanUser && currentPlanUser.features && url) {
                 const matchingFeature = currentPlanUser?.features.find(
-                    (feature) => feature?.apiUrl && url?.includes(feature.apiUrl),
+                    (feature) => feature?.apiUrl && normalizeUrl(url) === normalizeUrl(feature.apiUrl),
                 );
 
                 if (config.data && matchingFeature) {
@@ -82,8 +83,8 @@ const responseInterceptor = Axios.interceptors.response.use(
             } else if (error.response.status === 500) {
                 console.error('Server error occurred. Please try again later.');
             } else if (error.response.status === 402) {
-                console.log("Payment required - User's plan may have expired or is not valid.");
-                //TODO: Handle logic for expired or invalid plan
+                console.error("Payment required - User's plan may have expired or is not valid.");
+                openUpgradeModal();
             } else {
                 console.error('API Error:', error.response.data.message || error.message);
             }
