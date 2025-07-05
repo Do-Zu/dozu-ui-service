@@ -32,7 +32,11 @@ export function useUpgradePlanModal() {
 
     const handleSelectPlan = () => {
         const selectedPlanData = plans.find((plan) => plan.planId === selectedPlan);
-        console.log('Selected plan:', selectedPlanData);
+        // console.log('Selected plan:', selectedPlanData);
+        alert(`
+            Selected plan: ${selectedPlanData?.name || 'None'}
+            This feature will be available soon.
+            `);
         // Handle plan selection logic here
         // You can dispatch additional actions or call APIs here
     };
