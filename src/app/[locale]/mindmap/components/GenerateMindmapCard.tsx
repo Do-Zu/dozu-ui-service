@@ -4,7 +4,7 @@ import React from 'react';
 import PreviewMindmap from './PreviewMindmap';
 import { Button } from '@/components/ui/button';
 import { postRequest } from '@/api/api';
-import { ITopicForUser } from '../../topics/topic.type';
+import { ITopic } from '../../topics/topic.type';
 import Axios from '@/api/axios';
 import { Card } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
@@ -46,8 +46,8 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName }: GenerateM
     const updatedMindmapData = getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges);
 
     const handleSaveTopicAndMindmap = async () => {
-        const dataSubmitted = { topicName: topicName, topicDescription: 'Description' };
-        const topicData = await postRequest<any, ITopicForUser>('/topics', dataSubmitted);
+        const dataSubmitted = { name: topicName, description: 'Description' };
+        const topicData = await postRequest<any, ITopic>('/topics', dataSubmitted);
         const topicId = topicData.data.topicId;
 
         const options: any = {
