@@ -18,6 +18,7 @@ import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxS
 import { ISseData } from '../types';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import Import from './import/Import';
+import LoadingPage from '@/app/loading';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
@@ -37,7 +38,10 @@ interface ApiResponsePubGenContent {
     };
 }
 
+const URL_API_GENERATE = '/generate/v3/text/llm';
+
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
+    const router = useRouter();
     const dispatch = useCardImportDispatch();
 
     const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
@@ -52,7 +56,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         data: apiResponse,
         error: apiPostContentError,
         execute,
-    } = usePost<unknown, ApiResponsePubGenContent>('/generate/v3/text/llm', 'POST');
+    } = usePost<unknown, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
 
     // Setup SSE connection when jobId is available
     const { data: sseData, status: sseStatus } = useEventSource<ISseData>(
@@ -60,10 +64,8 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     );
 
     const {
-        contentType,
         dataGenerated,
         setDataGenerated,
-        isContentReady,
         topicName,
         setTopicName,
         topicDescription,
@@ -212,7 +214,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         }
     }, [sseData, sseStatus, dispatch]);
 
-    if ((jobId && sseStatus === 'open') || loading) {
+    if (jobId && sseStatus === 'open') {
         return <GeneratingSkeleton />;
     }
 
@@ -221,7 +223,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
             <div className=" items-center justify-between p-4">
                 {renderStepContent()}
                 <div className="flex-1 sm:flex-none"></div>
-                <Button className="fixed bottom-4 right-4 z-50" onClick={handleContinue} disabled={!isStepValid()}>
+                <Button className="fixed bottom-4 right-[50%] z-50" onClick={handleContinue} disabled={!isStepValid()}>
                     Create Learning Content
                 </Button>
             </div>
@@ -237,7 +239,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
             </CardHeader>
 
             <CardContent className="">{renderStepContent()}</CardContent>
-
+            {loading && <LoadingPage isOverlay={true} size={120} />}
             <CardFooter className="flex justify-between items-center sm:justify-between">
                 {step > 1 && (
                     <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>

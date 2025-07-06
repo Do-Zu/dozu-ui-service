@@ -1,11 +1,11 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import useFetch from '@/hooks/useFetch';
-import FlashcardEditor, { handleConvertToFlashcardsEdited } from '../components/FlashcardEditor';
-import { IFlashcardBasic } from '../flashcard.type';
+import FlashcardEditor, { handleConvertToFlashcardsEdited } from '../../components/FlashcardEditor';
+import { IFlashcardBasic } from '../../flashcard.type';
 import LoadingPage from '@/app/loading';
 
 interface IFlashcard {
@@ -31,12 +31,10 @@ interface IFlashcardsWithTopicName {
 }
 
 const Page = () => {
-    const searchParamsClient = useSearchParams();
-    if (!searchParamsClient) {
-        return <div>Loading or invalid context...</div>;
-    }
+    const params = useParams();
+    if (!params?.topicId) return <div>No topic id is provided</div>;
 
-    const topicId = searchParamsClient.get('topicId')!;
+    const { topicId } = params as { topicId : string };
 
     const {
         data: flashcardsExisted,
