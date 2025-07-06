@@ -31,6 +31,16 @@ export const putRequest = async <T, R>(url: string, data: T): Promise<ApiRespons
     }
 };
 
+export const patchRequest = async <T, R>(url: string, data: T): Promise<ApiResponse<R>> => {
+    try {
+        const enhancedData = addTimezoneInfo(data);
+        const response = await Axios.patch<ApiResponse<R>>(url, enhancedData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const deleteRequest = async <T, R>(url: string, data?: T): Promise<R> => {
     try {
         if (data) {

@@ -15,10 +15,13 @@ export interface GeneratedContent {
     data: any;
 }
 
+//TODO: Update TypeDataGenerated to be more specific based on the content type
+export type TypeDataGenerated = IFlashcardWithServer[] | object[] | object | null;
+
 interface ContentGenerationPreviewProps {
     sseData: ISseData | null;
-    dataGenerated: object[] | null;
-    setDataGenerated: (flashcards: IFlashcardWithServer[] | null | object[]) => void;
+    dataGenerated: TypeDataGenerated;
+    setDataGenerated: (data: TypeDataGenerated) => void;
     topicName: string;
     setTopicName: (name: string) => void;
     topicDescription: string;

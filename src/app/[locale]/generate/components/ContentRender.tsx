@@ -2,13 +2,13 @@
 
 import React from 'react';
 import FlashcardEditor, { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
-import { GeneratedContent } from './ContentGenerationPreview';
+import { GeneratedContent, TypeDataGenerated } from './ContentGenerationPreview';
 import { CONTENT_TYPE_GENERATE } from '../types';
 
 interface ContentRenderProps {
     content: GeneratedContent;
-    dataGenerated: object[] | null;
-    setDataGenerated: (dataGenerated: object[] | null) => void;
+    dataGenerated: TypeDataGenerated;
+    setDataGenerated: (dataGenerated: TypeDataGenerated) => void;
 }
 
 const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, setDataGenerated }) => {
@@ -63,6 +63,7 @@ const FlashcardRenderer: React.FC<FlashcardRendererProps> = ({ flashcards, setFl
 };
 
 interface QuizRendererProps {
+    //TODO: Define the structure of quiz data
     data: any;
 }
 
@@ -78,6 +79,7 @@ const QuizRenderer: React.FC<QuizRendererProps> = ({ data }) => {
 };
 
 interface MindmapRendererProps {
+    //TODO: Define the structure of mindmap data
     data: any;
 }
 
