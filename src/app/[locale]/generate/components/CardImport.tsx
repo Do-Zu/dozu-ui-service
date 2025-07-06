@@ -1,7 +1,8 @@
 'use client';
 
 import { resetExtractionState } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
-import { setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import { resetImportDialog, setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import LoadingPage from '@/app/loading';
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,8 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { useEventSource } from '@/hooks/useEventSource';
 import usePost from '@/hooks/usePost';
 import { ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import { compressContent } from '../helper/compress';
 import { useContentGeneration } from '../hooks/useContentGeneration';
@@ -18,7 +18,6 @@ import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxS
 import { ISseData } from '../types';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import Import from './import/Import';
-import LoadingPage from '@/app/loading';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
@@ -41,13 +40,14 @@ interface ApiResponsePubGenContent {
 const URL_API_GENERATE = '/generate/v3/text/llm';
 
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
-    const router = useRouter();
     const dispatch = useCardImportDispatch();
 
     const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
     const { step, importMethod, files, selectedMethod, isProcessing } = useCardImportSelector(
         (state) => state.importDialog,
     );
+
+    const isRender = useRef<boolean>(false);
 
     const [jobId, setJobId] = useState<string | undefined>();
 
@@ -213,6 +213,18 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
             });
         }
     }, [sseData, sseStatus, dispatch]);
+
+    useEffect(() => {
+        if (!isRender.current) {
+            isRender.current = true;
+            return;
+        }
+
+        return () => {
+            dispatch(resetExtractionState());
+            dispatch(resetImportDialog());
+        };
+    }, []);
 
     if (jobId && sseStatus === 'open') {
         return <GeneratingSkeleton />;
