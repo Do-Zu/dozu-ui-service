@@ -47,8 +47,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         (state) => state.importDialog,
     );
 
-    const isRender = useRef<boolean>(false);
-
     const [jobId, setJobId] = useState<string | undefined>();
 
     const {
@@ -215,11 +213,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     }, [sseData, sseStatus, dispatch]);
 
     useEffect(() => {
-        if (!isRender.current) {
-            isRender.current = true;
-            return;
-        }
-
         return () => {
             dispatch(resetExtractionState());
             dispatch(resetImportDialog());
