@@ -8,6 +8,7 @@ import {
     selectSubscriptionState,
 } from '@/stores/features/subscription/subscriptionSlice';
 import { PlanFeature } from '@/components/upgrade-plan/UpgradePlanModal';
+import { toast } from '@/hooks/use-toast';
 
 export function useUpgradePlanModal() {
     const dispatch = useAppDispatch();
@@ -32,9 +33,11 @@ export function useUpgradePlanModal() {
 
     const handleSelectPlan = () => {
         const selectedPlanData = plans.find((plan) => plan.planId === selectedPlan);
-        console.log('Selected plan:', selectedPlanData);
-        // Handle plan selection logic here
-        // You can dispatch additional actions or call APIs here
+        //TODO: Handle payment redirection and process
+        toast({
+            description: `You have selected the ${selectedPlanData?.name} \n Feature Payment will be soon}.`,
+            duration: 1000,
+        });
     };
 
     const onClose = () => {
