@@ -1,16 +1,16 @@
 'use client';
 
 import '@xyflow/react/dist/style.css';
-import CustomReactFlowNode from './CustomReactFlowNode';
 import FloatingEdge from './FloatingEdge';
 import { Background, BackgroundVariant, ReactFlow, useEdgesState, useNodesState } from '@xyflow/react';
+import CustomReactFlowPreviewNode from './CustomReactFlowPreviewNode';
 
 const defaultEdgeOptions = {
     type: 'floating',
 };
 
 const nodeTypes = {
-    'custom-react-flow-node': CustomReactFlowNode,
+    'custom-react-flow-node': CustomReactFlowPreviewNode, //uses a different node with reduced functionalities for simplicity and preventing bugs, mostly as a hotfix:) - DuyND
 };
 
 const edgeTypes = {

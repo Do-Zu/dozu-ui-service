@@ -2,14 +2,16 @@
 import { configureStore } from '@reduxjs/toolkit';
 import bookSlice from './features/book/bookSlice';
 import authSlice from './features/auth/authSlice';
+import selectedNodeSlice from './features/mindmap/selectedNodeSlice';
 
 // Cấu hình Redux Store
 export const store = configureStore({
-  reducer: {
-    book: bookSlice,
-    auth: authSlice,
-  },
-  devTools: process.env.NODE_ENV !== 'production',
+    reducer: {
+        book: bookSlice,
+        auth: authSlice,
+        selectedNodeSlice: selectedNodeSlice,
+    },
+    devTools: process.env.NODE_ENV !== 'production',
 });
 
 export type RootState = ReturnType<typeof store.getState>;

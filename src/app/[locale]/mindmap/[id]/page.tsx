@@ -7,9 +7,26 @@ import Axios from '@/api/axios';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FloatingEdge from '../components/FloatingEdge';
 import { v4 as uuidv4 } from 'uuid';
-import { Background, BackgroundVariant, Controls, Panel, ReactFlow, useEdgesState, useNodesState } from '@xyflow/react';
+import {
+    Background,
+    BackgroundVariant,
+    Controls,
+    Node,
+    Panel,
+    ReactFlow,
+    useEdgesState,
+    useNodesState,
+} from '@xyflow/react';
 import { Button } from '@/components/ui/button';
-import { CustomEdge } from '../mindmap.type';
+import { CustomEdge, CustomNodeData } from '../mindmap.type';
+import NodeSheet from '../components/NodeSheet';
+import { useDispatch } from 'react-redux';
+import { setRouterRef } from '@/utils/routerService';
+import { toast } from '@/hooks/use-toast';
+
+type RouteParams = {
+    id: string; // Assuming your dynamic route segment is named `[id]`
+};
 
 const initialEdges: CustomEdge[] = [];
 
@@ -27,20 +44,30 @@ const edgeTypes = {
 
 const MindmapPage = () => {
     const router = useRouter();
-    const params = useParams();
+
+    useEffect(() => {
+        setRouterRef(router);
+    }, [router]);
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        toast({ description: 'TEST' });
+    }, []);
+
+    const params = useParams<RouteParams>();
     const topicId = params?.id;
-    console.log('topicId', topicId);
     const [isLoading, setIsLoading] = useState(false);
 
-    const initialNodes = [
+    const initialNodes: Node<CustomNodeData>[] = [
         {
             id: '1',
             type: 'custom-react-flow-node',
             position: { x: 0, y: 0 },
-            data: { nodeId: '1', label: '1', isRoot: true, topicId: topicId, router: router },
+            data: { nodeId: '1', label: '1', isRoot: true, topicId: topicId },
         },
     ];
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node<CustomNodeData>>(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
     if (!params?.id) return <div>No topic id is provided</div>;
@@ -61,12 +88,12 @@ const MindmapPage = () => {
                         label: result.data.data.name,
                         isRoot: true,
                         topicId: topicId, //remove
-                        router: router, //remove
                     },
                 },
             ]);
         };
         const getMindmap = async () => {
+            //tries to get mindmap, if mindmap does not exist, generate initial mindmap
             try {
                 const result = await Axios.get(`/mindmap/${params.id}`);
                 console.log(result.data.data.resultMindmap.mindmapData);
@@ -120,8 +147,9 @@ const MindmapPage = () => {
             >
                 <Panel position="top-center">
                     <Button disabled={isLoading} onClick={handleSaveMindMap}>
-                        Save mind map
+                        Save mindmap
                     </Button>
+                    <NodeSheet />
                 </Panel>
                 {/* <Panel position="top-left">React Flow Mind Map</Panel> */}
                 <Controls />

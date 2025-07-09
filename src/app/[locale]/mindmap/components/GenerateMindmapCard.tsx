@@ -53,10 +53,8 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
     const updatedMindmapData = useMemo(
         () => getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges),
         [mindmapData.nodes, mindmapData.edges],
-    ); 
-    //! useMemo to fix nodeIds being changed, if site reload then nodeIds is changed and mindmap becomes invalid
-    //todo:fix nodeIds being changed
-    
+    );
+
     useEffect(() => {
         setDataGenerated(updatedMindmapData);
     }, [updatedMindmapData]);

@@ -1,20 +1,24 @@
+import { Edge, Node } from '@xyflow/react';
 import { NextRouter } from 'next/router';
 
-export interface CustomEdge {
+export type CustomEdge = {
     id: string;
     type?: string;
     source: string;
     target: string;
-}
+};
 
 export type CustomNodeData = {
     nodeId: string;
     label: string;
+    description?:string;
     isRoot?: boolean;
     topicId?: string; // Add topicId here if it's part of your data
-    router?: NextRouter; // Or AppRouterInstance if using App Router
-    forceToolbarVisible?: boolean; // If you use this prop
+    forceToolbarVisible?: boolean;
 };
+
+export type AppNode = Node<CustomNodeData>;
+export type AppEdge = Edge<CustomEdge>;
 
 export interface CustomNode {
     id: string;
