@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface EventSourceOptions {
     onOpen?: () => void;
@@ -7,11 +7,14 @@ interface EventSourceOptions {
     withCredentials?: boolean;
     timeoutMs?: number;
     onTimeout?: () => void;
+    startEvent?: () => void;
+    endEvent?: () => void;
 }
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_STREAM_SSE_URL}/api`;
 const DEFAULT_TIMEOUT_MS = 5 * 60000; // 5 minutes
 
 export function useEventSource<T>(url: string | null, options: EventSourceOptions = {}) {
+    const eventSourceRef = useRef<EventSource | null>(null);
     const [data, setData] = useState<T | null>(null);
     const [status, setStatus] = useState<'idle' | 'connecting' | 'open' | 'closed' | 'error' | 'timeout' | 'completed'>(
         'idle',
@@ -79,6 +82,8 @@ export function useEventSource<T>(url: string | null, options: EventSourceOption
             }
         };
 
+        eventSourceRef.current = eventSource;
+
         return () => {
             eventSource.close();
             setStatus('closed');
@@ -86,5 +91,5 @@ export function useEventSource<T>(url: string | null, options: EventSourceOption
         };
     }, [url, options?.withCredentials, options?.timeoutMs]);
 
-    return { data, status };
+    return { data, status, eventSourceRef };
 }
