@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import FlashcardEditor, { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
-import { GeneratedContent } from './ContentGenerationPreview';
+import { GeneratedContent, TypeDataGenerated } from './ContentGenerationPreview';
 import { CONTENT_TYPE_GENERATE } from '../types';
 import GenerateMindmapCard from '../../mindmap/components/GenerateMindmapCard';
 
 interface ContentRenderProps {
     content: GeneratedContent;
-    dataGenerated: object[] | null;
-    setDataGenerated: (dataGenerated: object[] | null) => void;
+    dataGenerated: TypeDataGenerated;
+    setDataGenerated: (dataGenerated: TypeDataGenerated) => void;
 }
 
 const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, setDataGenerated }) => {
@@ -64,6 +64,7 @@ const FlashcardRenderer: React.FC<FlashcardRendererProps> = ({ flashcards, setFl
 };
 
 interface QuizRendererProps {
+    //TODO: Define the structure of quiz data
     data: any;
 }
 
@@ -80,6 +81,7 @@ const QuizRenderer: React.FC<QuizRendererProps> = ({ data }) => {
 
 
 interface MindmapRendererProps {
+    //TODO: Define the structure of mindmap data
     data: any;
     setDataGenerated: (data: any) => void;
     //original is object[] but mindmapData is object so it doesn't work, changing requires changing useContentGeneration hook 

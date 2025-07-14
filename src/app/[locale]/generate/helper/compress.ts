@@ -9,41 +9,41 @@ import { MAX_CONTENT_SIZE_KB } from './validate';
  * @returns Compressed binary data as string
  */
 export const compressContent = (text: string): string => {
-  if (!text || text.length === 0) {
-    return '';
-  }
+    if (!text || text.length === 0) {
+        return '';
+    }
 
-  try {
-    // Convert string to Uint8Array
-    const textBytes = new TextEncoder().encode(text);
+    try {
+        // Convert string to Uint8Array
+        const textBytes = new TextEncoder().encode(text);
 
-    // Compress the bytes with maximum level and optimal settings
-    const compressedBytes = pako.deflate(textBytes, {
-      level: 9, // Maximum compression level
-      windowBits: 15, // Maximum window size
-      memLevel: 9, // Maximum memory level
-      strategy: 0, // Default strategy works best for text
-    });
+        // Compress the bytes with maximum level and optimal settings
+        const compressedBytes = pako.deflate(textBytes, {
+            level: 9, // Maximum compression level
+            windowBits: 15, // Maximum window size
+            memLevel: 9, // Maximum memory level
+            strategy: 0, // Default strategy works best for text
+        });
 
-    // Convert to binary string representation for maximum efficiency
-    const binaryString = Array.from(compressedBytes)
-      .map((byte) => String.fromCharCode(byte))
-      .join('');
+        // Convert to binary string representation for maximum efficiency
+        const binaryString = Array.from(compressedBytes)
+            .map((byte) => String.fromCharCode(byte))
+            .join('');
 
-    const originalSize = text.length;
-    const compressedSize = binaryString.length;
-    const compressionRatio = (compressedSize / originalSize) * 100;
+        const originalSize = text.length;
+        const compressedSize = binaryString.length;
+        const compressionRatio = (compressedSize / originalSize) * 100;
 
-    console.log(
-      `Max compression: Original: ${originalSize / 1024} KB, Compressed: ${compressedSize / 1024} KB, Ratio: ${compressionRatio.toFixed(2)}%`,
-    );
+        // console.log(
+        //   `Max compression: Original: ${originalSize / 1024} KB, Compressed: ${compressedSize / 1024} KB, Ratio: ${compressionRatio.toFixed(2)}%`,
+        // );
 
-    return binaryString;
-  } catch (error) {
-    console.error('Error compressing content:', error);
-    // Fall back to original text if compression fails
-    return text;
-  }
+        return binaryString;
+    } catch (error) {
+        console.error('Error compressing content:', error);
+        // Fall back to original text if compression fails
+        return text;
+    }
 };
 
 /**
@@ -53,27 +53,25 @@ export const compressContent = (text: string): string => {
  * @returns Original decompressed text
  */
 export const decompressContent = (compressedText: string): string => {
-  if (!compressedText || compressedText.length === 0) {
-    return '';
-  }
+    if (!compressedText || compressedText.length === 0) {
+        return '';
+    }
 
-  try {
-    // Convert binary string back to Uint8Array
-    const compressedBytes = new Uint8Array(
-      compressedText.split('').map((char) => char.charCodeAt(0)),
-    );
+    try {
+        // Convert binary string back to Uint8Array
+        const compressedBytes = new Uint8Array(compressedText.split('').map((char) => char.charCodeAt(0)));
 
-    // Decompress the bytes
-    const decompressedBytes = pako.inflate(compressedBytes);
+        // Decompress the bytes
+        const decompressedBytes = pako.inflate(compressedBytes);
 
-    // Convert Uint8Array back to string
-    const decompressedText = new TextDecoder().decode(decompressedBytes);
+        // Convert Uint8Array back to string
+        const decompressedText = new TextDecoder().decode(decompressedBytes);
 
-    return decompressedText;
-  } catch (error) {
-    console.error('Error decompressing content:', error);
-    return compressedText;
-  }
+        return decompressedText;
+    } catch (error) {
+        console.error('Error decompressing content:', error);
+        return compressedText;
+    }
 };
 
 /**
@@ -83,10 +81,10 @@ export const decompressContent = (compressedText: string): string => {
  * @returns Boolean indicating if the content is too large
  */
 export const isContentTooLarge = (text: string): boolean => {
-  if (!text) return false;
+    if (!text) return false;
 
-  const compressed = compressContent(text);
-  const sizeKB = compressed.length / 1024;
+    const compressed = compressContent(text);
+    const sizeKB = compressed.length / 1024;
 
-  return sizeKB > MAX_CONTENT_SIZE_KB;
+    return sizeKB > MAX_CONTENT_SIZE_KB;
 };

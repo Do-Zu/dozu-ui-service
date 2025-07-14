@@ -3,6 +3,7 @@ import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../
 import { handleCreateTopic } from '../../topics/components/TopicCreatedForm';
 import { ContentType } from '../components/ContentGenerationPreview';
 import Axios from '@/api/axios';
+import { store } from '@/stores/store';
 
 export interface CreateContentParams {
     topicName: string;
@@ -27,11 +28,15 @@ export class ContentCreationService {
     static async createContent(params: CreateContentParams): Promise<ContentCreationResult> {
         const { topicName, topicDescription, contentType, contentData } = params;
 
+        const state = store.getState()//get state to get inputSetId saved on file upload - DuyND
+        
+
         try {
             // Phase 1: Create topic
             const topic = await handleCreateTopic({
                 name: topicName,
                 description: topicDescription,
+                inputSetId:state.inputSet.inputSetId
             });
 
             if (!topic) {

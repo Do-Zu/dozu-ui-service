@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE } from '../types';
 import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { detectContentType, getContentTypeDisplayName } from '../utils/contentTypeDetector';
-import { ContentType } from '../components/ContentGenerationPreview';
+import { ContentType, TypeDataGenerated } from '../components/ContentGenerationPreview';
 import { toast } from '@/hooks/use-toast';
 import router from 'next/router';
 import { ContentCreationService } from '../services/contentCreation.service';
@@ -16,9 +16,9 @@ export interface UseContentGenerationProps {
 
 export interface UseContentGenerationReturn {
     contentType: ContentType | null;
-    dataGenerated: object[] | null;
+    dataGenerated: TypeDataGenerated;
     //TODO: Extend this to handle other content types
-    setDataGenerated: (data: object[] | null) => void;
+    setDataGenerated: (data: TypeDataGenerated) => void;
     isContentReady: boolean;
     topicName: string;
     setTopicName: (name: string) => void;
@@ -30,7 +30,7 @@ export interface UseContentGenerationReturn {
 }
 
 export const useContentGeneration = ({ sseData, sseStatus }: UseContentGenerationProps): UseContentGenerationReturn => {
-    const [dataGenerated, setDataGenerated] = useState<object[] | null>(null);
+    const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
     const [topicName, setTopicName] = useState<string>('');
     const [topicDescription, setTopicDescription] = useState<string>('');
     const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);

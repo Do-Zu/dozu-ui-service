@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'standalone', // Build output configuration
-    reactStrictMode: true, // Enable React strict mode
+    reactStrictMode: false, // Enable React strict mode
     env: {}, // Environment variables if needed
     // Add rewrites for proxy configuration if needed in development
     async rewrites() {
