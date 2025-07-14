@@ -219,8 +219,8 @@ export default function PaymentPage() {
                             </div>
                             <div className="flex justify-between">
                                 <span>Status:</span>
-                                <Badge variant={paymentData.status === 'PENDING' ? 'secondary' : 'default'}>
-                                    {paymentData.status}
+                                <Badge variant={paymentData?.status === 'PENDING' ? 'secondary' : 'default'}>
+                                    {paymentData?.status}
                                 </Badge>
                             </div>
                         </div>
