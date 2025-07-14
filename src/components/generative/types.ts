@@ -71,6 +71,7 @@ export interface UploadFileResponse {
   mimeType: string;
   status: 'completed' | 'processing' | 'failed';
   uploadedAt: string;
+  setId?:string;
 }
 
 /**

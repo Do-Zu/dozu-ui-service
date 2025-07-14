@@ -9,9 +9,11 @@ import { useTranslations } from 'next-intl';
 export async function handleCreateTopic({
     name,
     description,
+    inputSetId,
 }: {
     name: string;
     description: string;
+    inputSetId?: number;
 }): Promise<ITopicForUser | null> {
     if (!name) {
         toast({
@@ -21,7 +23,11 @@ export async function handleCreateTopic({
         return null;
     }
 
-    const dataSubmitted = { topicName: name, topicDescription: description };
+    const dataSubmitted = {
+        topicName: name,
+        topicDescription: description,
+        inputSetId: inputSetId, //to update inputSet's topicId - DuyND
+    };
     let data;
     try {
         data = await postRequest<any, ITopicForUser>('/topics', dataSubmitted);
@@ -31,8 +37,8 @@ export async function handleCreateTopic({
         // err.message err.response.data
         toast({
             title: 'Create Topic failed, please try again',
-            variant: 'destructive'
-        })
+            variant: 'destructive',
+        });
         throw err;
     }
     return data.data;
