@@ -1,18 +1,17 @@
 'use client';
 
+import LoadingPage from '@/app/loading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
+import { ROUTES } from '@/utils/constants/routes';
 import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { usePayment } from './hooks/usePayment';
-import { ROUTES } from '@/utils/constants/routes';
 import { PAYMENT_STATUS } from './utils/constants';
-import LoadingPage from '@/app/loading';
 
 //example return success payment: http://localhost:3000/en/payment?planId=2&code=00&id=b1ad5a123f774db88d0b5495710d40cb&cancel=false&status=PAID&orderCode=53501
 
@@ -131,7 +130,7 @@ export default function PaymentPage() {
 
     if (error) {
         return (
-            <div className="container mx-auto px-4 py-8 max-w-2xl">
+            <div className="container mx-auto px-4 max-w-2xl">
                 <Card>
                     <CardHeader className="text-center">
                         <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -191,13 +190,13 @@ export default function PaymentPage() {
                         <div className="border rounded-lg p-4">
                             <h3 className="font-semibold text-lg">{plan.name}</h3>
                             <p className="text-2xl font-bold text-primary">
-                                {paymentData.currency === 'VND' ? '₫' : '$'}
-                                {paymentData.amount.toLocaleString()}
+                                {paymentData?.currency === 'VND' ? '₫' : '$'}
+                                {paymentData?.amount.toLocaleString()}
                                 <span className="text-sm font-normal text-muted-foreground">
-                                    /{plan.billingInterval}
+                                    /{plan?.billingInterval}
                                 </span>
                             </p>
-                            <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
+                            <p className="text-sm text-muted-foreground mt-2">{plan?.description}</p>
                         </div>
 
                         <div className="space-y-2">
