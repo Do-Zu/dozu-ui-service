@@ -9,7 +9,7 @@ import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import BackButton from '../../components/BackButton';
-import { IFlashcardBasic, IFlashcardStatus } from '../../flashcard.type';
+import { IFlashcardBasic, IFlashcardStatus } from '../../types/flashcard.type';
 import { putRequest } from '@/api/api';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
@@ -52,7 +52,7 @@ export default function Page() {
     const params = useParams();
     if (!params?.topicId) return <div>No topic id is provided</div>;
 
-    const { topicId } = params as { topicId : string };
+    const { topicId } = params as { topicId: string };
 
     const flashcardsSelector = (data: { flashcards: IFlashcardsForTopicReturned[] }) => data.flashcards;
 
@@ -319,7 +319,7 @@ export default function Page() {
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
 
-                    <div className='text-base'>
+                    <div className="text-base">
                         {currentFlashcardIndex + 1} / {flashcards!.length}{' '}
                     </div>
 
@@ -342,12 +342,7 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 px-2"
-                                onClick={handleOnClickLearning}
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickLearning}>
                                 <BookOpen className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">{t('learning')}</span>
                             </Button>

@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 import BackButton from '../../components/BackButton';
-import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../../flashcard.type';
+import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
 import Flashcard from '../../components/Flashcard';
 import { Angry, CircleAlert, Eye, Frown, Laugh, Smile, ThumbsUp } from 'lucide-react';
 import { putRequest } from '@/api/api';
@@ -26,8 +26,8 @@ interface Props {
     cardRef: React.RefObject<HTMLDivElement>;
     isFrontRef: React.RefObject<boolean>;
     shouldShowTrackingOptions: boolean;
-    handleManualFlip: () => void
-    handleOnClickTrackingOption: (qualityResponse: IQualityResponse) => void
+    handleManualFlip: () => void;
+    handleOnClickTrackingOption: (qualityResponse: IQualityResponse) => void;
 }
 
 export function FlashcardLearning({
@@ -38,7 +38,7 @@ export function FlashcardLearning({
     cardRef,
     shouldShowTrackingOptions,
     handleManualFlip,
-    handleOnClickTrackingOption 
+    handleOnClickTrackingOption,
 }: Props) {
     const topicT = useTranslations('topic');
     const flashcardT = useTranslations('flashcard.learning');

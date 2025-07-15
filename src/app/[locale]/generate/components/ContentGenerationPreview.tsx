@@ -1,12 +1,11 @@
 'use client';
 
 import React from 'react';
-import { TopicModal } from '../../topics/components/TopicModal';
-import { TopicCreatedForm } from '../../topics/components/TopicCreatedForm';
 import { ISseData } from '../types';
 import { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { detectContentType } from '../utils/contentTypeDetector';
 import ContentRenderer from './ContentRender';
+import { CreateTopicModal } from '../../topics/components/CreateTopicModal';
 
 export type ContentType = 'flashcard' | 'quiz' | 'mindmap';
 
@@ -65,19 +64,14 @@ const ContentGenerationPreview: React.FC<ContentGenerationPreviewProps> = ({
 
     return (
         <div className="space-y-4">
-            <TopicModal
-                title="Create New Content"
-                body={
-                    <TopicCreatedForm
-                        name={topicName}
-                        setName={setTopicName}
-                        description={topicDescription}
-                        setDescription={setTopicDescription}
-                        handleOnClickCreate={onSave}
-                    />
-                }
+            <CreateTopicModal
                 isOpen={isTopicModalOpen}
                 setIsOpen={setIsTopicModalOpen}
+                name={topicName}
+                setName={setTopicName}
+                description={topicDescription}
+                setDescription={setTopicDescription}
+                handleCreateClick={onSave}
             />
 
             {generatedContent && (

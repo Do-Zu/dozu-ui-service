@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 import { Edit, Import, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { IFlashcardAdded, IFlashcardBasic, IFlashcardDeleted, IFlashcardUpdated } from '../flashcard.type';
+import { IFlashcardAdded, IFlashcardBasic, IFlashcardDeleted, IFlashcardUpdated } from '../types/flashcard.type';
 import { IFlashcardsFromSSE, IGenerateFlashcardItem } from '../../generate/types';
 import BackButton from './BackButton';
 import { toast } from '@/hooks/use-toast';
@@ -319,17 +319,13 @@ const FlashcardEditor = ({
                 <div className="flex flex-row gap-4">
                     <Button className="flex flex-row items-center">
                         <Import size={24} />
-                        <div className="text-base">
-                            {t('import')}
-                        </div>
+                        <div className="text-base">{t('import')}</div>
                     </Button>
 
                     {shouldShowSaveButton ? (
                         <Button onClick={handleOnClickSave} className="flex flex-row items-center">
                             <Save size={24} />
-                            <div className="text-base">
-                                {t('save')}
-                            </div>
+                            <div className="text-base">{t('save')}</div>
                         </Button>
                     ) : null}
                 </div>
