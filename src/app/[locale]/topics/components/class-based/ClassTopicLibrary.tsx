@@ -15,7 +15,6 @@ import { CreateTopicModal } from '../CreateTopicModal';
 import { UpdateTopicModal } from '../UpdateTopicModal';
 import { DeleteTopicModal } from '../DeleteTopicModal';
 import { Button } from '@/components/ui/button';
-import { useAccess } from '@/hooks/useAccess';
 import { ShowIf } from '@/components/ui/ShowIf';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';

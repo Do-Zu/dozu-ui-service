@@ -14,14 +14,7 @@ import topicService, { ICreateTopicPayload, IUpdateTopicPayload } from '@/servic
 import { CreateTopicModal } from '../CreateTopicModal';
 import { UpdateTopicModal } from '../UpdateTopicModal';
 import { DeleteTopicModal } from '../DeleteTopicModal';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth/AuthContext';
-import { useRoleChecker } from '@/hooks/useRoleChecker';
-import { useSelector } from 'react-redux';
-import { selectLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
-import { useAccess } from '@/hooks/useAccess';
-import { ShowIf } from '@/components/ui/ShowIf';
 
 type TopicFilteringAction =
     | 'newest'
