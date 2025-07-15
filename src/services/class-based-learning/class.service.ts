@@ -1,27 +1,28 @@
 import { getRequest, postRequest, putRequest } from '@/api/api';
 import {
     IClass,
-    ICreateClassRequest,
+    ICreateClassBody,
     ICreateClassResponse,
-    IUpdateClassRequest,
+    IJoinClassBody,
+    IUpdateClassBody,
     IUpdateClassResponse,
-} from '@/app/[locale]/class-based-learning/types/class.type';
-import { ITopic } from '@/app/[locale]/topics/topic.type';
+} from '@/app/[locale]/class-based/types/class.type';
+import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 
-class ClassManagementService {
-    public async createClass({ name, description }: ICreateClassRequest) {
-        const data = await postRequest<ICreateClassRequest, ICreateClassResponse>('/classes', { name, description });
+export type ICreateClassPayload = ICreateClassBody;
+export type IUpdateClassPayload = IUpdateClassBody & { classId: number };
+
+class ClassService {
+    public async createClass({ name, description }: ICreateClassPayload) {
+        const data = await postRequest<ICreateClassBody, ICreateClassResponse>('/classes', { name, description });
         return data;
     }
 
-    public async updateClass({ classId, name, description }: IUpdateClassRequest) {
-        const data = await putRequest<unknown, IUpdateClassResponse>(
-            `/classes/${classId}`,
-            {
-                name,
-                description,
-            },
-        );
+    public async updateClass({ classId, name, description }: IUpdateClassPayload) {
+        const data = await putRequest<IUpdateClassBody, IUpdateClassResponse>(`/classes/${classId}`, {
+            name,
+            description,
+        });
         return data;
     }
 
@@ -31,9 +32,9 @@ class ClassManagementService {
     }
 
     public async joinClass(code: string) {
-        const data = await postRequest<unknown, IClass>(`/classes/enrollments`, { invitationCode: code });
+        const data = await postRequest<IJoinClassBody, IClass>(`/classes/enrollments`, { invitationCode: code });
         return data;
     }
 }
 
-export default new ClassManagementService();
+export default new ClassService();
