@@ -4,7 +4,7 @@ import React from 'react';
 import PreviewMindmap from './PreviewMindmap';
 import { Button } from '@/components/ui/button';
 import { postRequest } from '@/api/api';
-import { ITopic } from '../../topics/topic.type';
+import { ITopic } from '../../topics/types/topic.type';
 import Axios from '@/api/axios';
 import { Card } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
