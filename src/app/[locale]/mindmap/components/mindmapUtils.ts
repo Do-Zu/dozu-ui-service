@@ -47,8 +47,18 @@ interface IChangeNodeLabelParams {
     newLabel: string;
     newDescription: string;
     setNodes: React.Dispatch<React.SetStateAction<AppNode[]>>;
+    pageStartIndex: number;
+    pageEndIndex: number;
 }
-export const changeNodeLabel = ({ nodes, nodeId, newLabel, newDescription, setNodes }: IChangeNodeLabelParams) => {
+export const changeNodeLabel = ({
+    nodes,
+    nodeId,
+    newLabel,
+    newDescription,
+    setNodes,
+    pageStartIndex,
+    pageEndIndex,
+}: IChangeNodeLabelParams) => {
     const updatedNodes = nodes.map((node) => {
         if (node.data.nodeId === nodeId) {
             // Create a new node object with updated data
@@ -58,6 +68,8 @@ export const changeNodeLabel = ({ nodes, nodeId, newLabel, newDescription, setNo
                     ...node.data,
                     label: newLabel,
                     description: newDescription,
+                    pageStartIndex: pageStartIndex,
+                    pageEndIndex: pageEndIndex,
                 },
             };
         } else {

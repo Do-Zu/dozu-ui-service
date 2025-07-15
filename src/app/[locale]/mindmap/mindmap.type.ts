@@ -11,10 +11,12 @@ export type CustomEdge = {
 export type CustomNodeData = {
     nodeId: string;
     label: string;
-    description?:string;
+    description?: string;
     isRoot?: boolean;
     topicId?: string; // Add topicId here if it's part of your data
     forceToolbarVisible?: boolean;
+    pageStartIndex?: number;
+    pageEndIndex?: number;
 };
 
 export type AppNode = Node<CustomNodeData>;

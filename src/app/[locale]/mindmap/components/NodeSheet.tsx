@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
-import { Bot, CopyPlus, DiamondPlus, PanelRightClose, SquarePen, TableOfContents, Trash } from 'lucide-react';
-import React, { useState } from 'react';
+import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
 import { toast } from '@/hooks/use-toast';
@@ -14,7 +14,12 @@ import { useRouter } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
-const NodeSheet = () => {
+interface INodeSheetParams {
+    setIsFileSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setPageNumber: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
     const router = useRouter();
 
     const { screenToFlowPosition, getNodes, getEdges, setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
@@ -26,6 +31,13 @@ const NodeSheet = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [newLabel, setNewLabel] = useState(selectedNodeData?.label || '');
     const [newDescription, setNewDescription] = useState(selectedNodeData?.description || '');
+    const [pageStartIndex, setPageStartIndex] = useState(selectedNodeData?.pageStartIndex);
+    const [pageEndIndex, setPageEndIndex] = useState(selectedNodeData?.pageEndIndex);
+
+    useEffect(() => {
+        setPageStartIndex(selectedNodeData?.pageStartIndex);
+        setPageEndIndex(selectedNodeData?.pageEndIndex);
+    }, [selectedNodeData]);
 
     const dispatch = useDispatch();
 
@@ -52,7 +64,15 @@ const NodeSheet = () => {
 
     const handleEditTitle = () => {
         if (isEditing) {
-            changeNodeLabel({ nodes, nodeId: selectedNodeData?.nodeId, newLabel, newDescription, setNodes });
+            changeNodeLabel({
+                nodes,
+                nodeId: selectedNodeData?.nodeId,
+                newLabel,
+                newDescription,
+                setNodes,
+                pageStartIndex: pageStartIndex || 1,
+                pageEndIndex: pageEndIndex || 1,
+            });
             dispatch(closeSheet());
         } else {
             setNewLabel(selectedNodeData?.label);
@@ -63,6 +83,14 @@ const NodeSheet = () => {
 
     const onChangeNewLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNewLabel(e.target.value);
+    };
+
+    const onChangePageStartIndex = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPageStartIndex(parseInt(e.target.value));
+    };
+
+    const onChangePageEndIndex = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPageEndIndex(parseInt(e.target.value));
     };
 
     const onChangeNewDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -86,6 +114,11 @@ const NodeSheet = () => {
             setIsEditing(false);
         }
         dispatch(setIsSheetOpen(open));
+    };
+
+    const handleViewDocument = () => {
+        setPageNumber(pageStartIndex || pageEndIndex || 1);
+        setIsFileSheetOpen(true);
     };
 
     return (
@@ -115,6 +148,23 @@ const NodeSheet = () => {
                     ) : (
                         <p>{selectedNodeData.description}</p>
                     )}
+                    <div className="grid grid-cols-2 w-full gap-3">
+                        <Label>Starts at page #</Label>
+
+                        {isEditing ? (
+                            <Input type="number" value={pageStartIndex} onChange={onChangePageStartIndex} />
+                        ) : (
+                            selectedNodeData?.pageStartIndex
+                        )}
+                    </div>
+                    <div className="grid grid-cols-2 w-full gap-3">
+                        <Label>Ends at page #</Label>
+                        {isEditing ? (
+                            <Input type="number" value={pageEndIndex} onChange={onChangePageEndIndex} />
+                        ) : (
+                            selectedNodeData?.pageEndIndex
+                        )}
+                    </div>
                 </div>
 
                 {/* <SheetFooter> */}
@@ -129,7 +179,11 @@ const NodeSheet = () => {
                     </Button>
                     <Button onClick={handleAddFlashcards} variant="outline" className="w-full">
                         <Bot />
-                        Generate flashcards
+                        Generate flashcards ** WIP
+                    </Button>
+                    <Button onClick={handleViewDocument} variant="outline" className="w-full">
+                        <FileText />
+                        View document
                     </Button>
                     <Button onClick={handleViewFlashcards} variant="outline" className="w-full">
                         <TableOfContents />

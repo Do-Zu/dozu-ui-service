@@ -23,6 +23,10 @@ import NodeSheet from '../components/NodeSheet';
 import { useDispatch } from 'react-redux';
 import { setRouterRef } from '@/utils/routerService';
 import { toast } from '@/hooks/use-toast';
+import DownloadButton from '../components/buttons/DownloadButton';
+import { Save } from 'lucide-react';
+import ViewFileButton from '../components/buttons/ViewFileButton.';
+import FileSheet from '../components/FileSheet';
 
 type RouteParams = {
     id: string; // Assuming your dynamic route segment is named `[id]`
@@ -44,6 +48,8 @@ const edgeTypes = {
 
 const MindmapPage = () => {
     const router = useRouter();
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const [isFileSheetOpen, setIsFileSheetOpen] = useState(false);
 
     useEffect(() => {
         setRouterRef(router);
@@ -145,11 +151,24 @@ const MindmapPage = () => {
                 // onConnect={onConnect}
                 defaultEdgeOptions={defaultEdgeOptions}
             >
+                <Panel position="top-left">
+                    <ViewFileButton setIsFileSheetOpen={setIsFileSheetOpen} />
+                </Panel>
                 <Panel position="top-center">
-                    <Button disabled={isLoading} onClick={handleSaveMindMap}>
-                        Save mindmap
-                    </Button>
-                    <NodeSheet />
+                    <div className="flex gap-2 ">
+                        <Button disabled={isLoading} variant="outline" onClick={handleSaveMindMap}>
+                            <Save />
+                            Save mindmap
+                        </Button>
+                        <DownloadButton />
+                    </div>
+                    <FileSheet
+                        isFileSheetOpen={isFileSheetOpen}
+                        setIsFileSheetOpen={setIsFileSheetOpen}
+                        pageNumber={pageNumber}
+                        setPageNumber={setPageNumber}
+                    />
+                    <NodeSheet setIsFileSheetOpen={setIsFileSheetOpen} setPageNumber={setPageNumber}/>
                 </Panel>
                 {/* <Panel position="top-left">React Flow Mind Map</Panel> */}
                 <Controls />

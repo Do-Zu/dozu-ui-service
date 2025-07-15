@@ -16,7 +16,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
     const edges = useEdges();
 
-
     const deleteNode = (id: string) => {
         edges.forEach((edge) => {
             if (edge.source === id) {
@@ -28,12 +27,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         console.log(edges);
     };
 
-
     const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLabel(e.target.value);
     };
-
-
 
     const handleClickNode = () => {
         dispatch(openSheet());
