@@ -5,7 +5,7 @@ import { ISseData } from '../types';
 import { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { detectContentType } from '../utils/contentTypeDetector';
 import ContentRenderer from './ContentRender';
-import { TopicCreatedModal } from '../../topics/components/TopicCreatedModal';
+import { CreateTopicModal } from '../../topics/components/CreateTopicModal';
 
 export type ContentType = 'flashcard' | 'quiz' | 'mindmap';
 
@@ -64,7 +64,7 @@ const ContentGenerationPreview: React.FC<ContentGenerationPreviewProps> = ({
 
     return (
         <div className="space-y-4">
-            <TopicCreatedModal
+            <CreateTopicModal
                 isOpen={isTopicModalOpen}
                 setIsOpen={setIsTopicModalOpen}
                 name={topicName}
