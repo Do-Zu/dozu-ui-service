@@ -2,6 +2,7 @@ import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
 import { ContentType } from '../components/ContentGenerationPreview';
 import topicService from '@/services/topic/topic.service';
+import { store } from '@/stores/store';
 
 export interface CreateContentParams {
     topicName: string;
@@ -26,9 +27,12 @@ export class ContentCreationService {
     static async createContent(params: CreateContentParams): Promise<ContentCreationResult> {
         const { topicName, topicDescription, contentType, contentData } = params;
 
+        const state = store.getState()//get state to get inputSetId saved on file upload - DuyND
+        
+
         try {
             // Phase 1: Create topic
-            const data = await topicService.createTopic({ name: topicName, description: topicDescription });
+            const data = await topicService.createTopic({ name: topicName, description: topicDescription, inputSetId: state.inputSet.inputSetId });
             const topic = data.data; 
 
             if (!topic) {

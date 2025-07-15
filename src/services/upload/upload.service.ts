@@ -3,6 +3,8 @@ import { uploadApi } from './upload.api';
 import Axios from '@/api/axios';
 import { ApiResponse } from '@/api/type';
 import { UploadApiResponse, UploadFileResponse } from '@/components/generative/types';
+import { store } from '@/stores/store';
+import { updateInputSetId } from '@/stores/features/inputSet/inputSetSlice';
 // Types for upload functionality
 export interface PresignedUrlRequest {
     fileName: string;
@@ -98,6 +100,10 @@ class UploadService {
             let uploadResult: UploadFileResponse;
 
             uploadResult = await this.uploadSmallFile(file, presignedResponse, fileId);
+
+            if (uploadResult.setId) {//set inputSetId if logged in (setId is only returned when logged in) - DuyND
+                store.dispatch(updateInputSetId(parseInt(uploadResult.setId)));
+            }
 
             // Step 3: Notify server of completion
             //   await this.notifyUploadCompletion({

@@ -17,7 +17,8 @@ export const ROUTES = Object.freeze({
     LIBRARY: '/library',
     PROGRESS: '/progress',
     CLASS_BASED: '/class-based',
-    CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`
+    CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
+    PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
 });
 
 // Route groups for easier management
