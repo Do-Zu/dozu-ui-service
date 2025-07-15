@@ -14,8 +14,8 @@ export type IUpdateTopicPayload = IUpdateTopicBody & { topicId: number };
 export type ICreateTopicInClassPayload = ICreateTopicInClassBody & { classId: number };
 
 class TopicService {
-    public async createTopic({ name, description }: ICreateTopicBody) {
-        const data = await postRequest<ICreateTopicBody, ICreateTopicResponse>('/topics', { name, description });
+    public async createTopic({ name, description, inputSetId }: ICreateTopicBody) {
+        const data = await postRequest<ICreateTopicBody, ICreateTopicResponse>('/topics', { name, description, inputSetId });
         return data;
     }
 
