@@ -9,7 +9,7 @@ const SettingSidebar = () => {
   const cleanPathname = pathname?.split('/').slice(2).join('/');
 
   const menuItems = [
-    { title: 'Profile', path: '/setting/profile' }, //demo
+    { title: 'Profile', path: ROUTES.PROFILE }, 
     { title: 'Schedule Setup', path: ROUTES.SETTING_SCHEDULE_SETUP },
   ];
 
