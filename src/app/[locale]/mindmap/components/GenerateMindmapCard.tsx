@@ -1,21 +1,28 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import PreviewMindmap from './PreviewMindmap';
+
 import { Button } from '@/components/ui/button';
 import { postRequest } from '@/api/api';
 import { ITopic } from '../../topics/types/topic.type';
 import Axios from '@/api/axios';
 import { Card } from '@/components/ui/card';
+
 import { v4 as uuidv4 } from 'uuid';
+import { CustomEdge, CustomNode } from '../mindmap.type';
 
 interface GenerateMindmapCardProps {
     mindmapData: any;
     topicName: string;
     setTopicName: (name: string) => void;
+    setDataGenerated: (
+        dataGenerated: {
+            nodes: CustomNode[];
+            edges: CustomEdge[];
+        } | null,
+    ) => void;
 }
 
-const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName }: GenerateMindmapCardProps) => {
+const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGenerated }: GenerateMindmapCardProps) => {
     const getUpdatedEdges = (oldId: any, newId: any, edges: any) => {
         const updatedEdges = edges.map((edge: any) => {
             if (edge.source === oldId) {
@@ -31,53 +38,40 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName }: GenerateM
 
     const getUpdatedMindmapData = (nodes: any, edges: any) => {
         let updatedEdges = edges;
+
         const updatedNodes = mindmapData?.nodes?.map((node: any) => {
             const oldId = node.id;
-            const nodeUuid = uuidv4();
-            updatedEdges = getUpdatedEdges(oldId, nodeUuid, updatedEdges);
-            node.id = nodeUuid;
-            node.data.nodeId = nodeUuid;
-            node.type = 'custom-react-flow-node';
-            return node;
+            const newId = uuidv4();
+            updatedEdges = getUpdatedEdges(oldId, newId, updatedEdges);
+            return {
+                ...node,
+                id: newId,
+                data: {
+                    ...node.data,
+                    nodeId: newId,
+                },
+                type: 'custom-react-flow-node',
+            };
         });
         return { nodes: updatedNodes, edges: updatedEdges };
     };
 
-    const updatedMindmapData = getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges);
+    // const updatedMindmapData = getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges);
+    const updatedMindmapData = useMemo(
+        () => getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges),
+        [mindmapData.nodes, mindmapData.edges],
+    );
 
-    const handleSaveTopicAndMindmap = async () => {
-        const dataSubmitted = { name: topicName, description: 'Description' };
-        const topicData = await postRequest<any, ITopic>('/topics', dataSubmitted);
-        const topicId = topicData.data.topicId;
 
-        const options: any = {
-            body: {
-                title: 'a',
-                nodes: updatedMindmapData.nodes,
-                edges: updatedMindmapData.edges,
-            },
-        };
-        const response = await Axios.post(`/mindmap/${topicId}`, options.body);
-    };
+    useEffect(() => {
+        setDataGenerated(updatedMindmapData);
+    }, [updatedMindmapData]);
+
 
     return (
-        <div>
-            <div className="grid w-full max-w-sm items-center gap-3">
-                <Card>
-                    <Label htmlFor="topicName">Topic name</Label>
-                    <Input
-                        id="topicName"
-                        placeholder="Topic name"
-                        value={topicName}
-                        onChange={(e) => {
-                            setTopicName(e.target.value);
-                        }}
-                    />
-                    <PreviewMindmap initialNodes={updatedMindmapData.nodes} initialEdges={updatedMindmapData.edges} />
-                    <Button disabled={topicName ? false : true} onClick={handleSaveTopicAndMindmap}>
-                        Save to topic
-                    </Button>
-                </Card>
+        <div className="w-full flex">
+            <div className="flex-auto grid w-full items-center gap-3">
+                <PreviewMindmap initialNodes={updatedMindmapData.nodes} initialEdges={updatedMindmapData.edges} />
             </div>
         </div>
     );
