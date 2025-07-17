@@ -11,27 +11,15 @@ import { useDispatch } from 'react-redux';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 
 interface ProvidersProps {
-  children: ReactNode;
-  locale: string;
-  messages: Record<string, any>;
+    children: ReactNode;
+    locale: string;
+    messages: Record<string, any>;
 }
 
 export default function Providers({ children, locale, messages }: ProvidersProps) {
-
-  const [ storedValue ] = useLocalStorage<ILearningMode>('learningMode', 'personal');
-  const { isTeacher } = useRoleChecker();
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if(isTeacher) {
-      dispatch(setLearningMode('class-based'));
-    } else {
-      dispatch(setLearningMode(storedValue));
-    }
-  }, []);
-
-  return (
-    <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Ho_Chi_Minh">
-      {children}
-    </NextIntlClientProvider>
-  );
+    return (
+        <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Ho_Chi_Minh">
+            {children}
+        </NextIntlClientProvider>
+    );
 }
