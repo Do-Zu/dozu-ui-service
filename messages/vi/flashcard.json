@@ -1,0 +1,33 @@
+{
+    "flashcard": {
+        "edit": {
+            "import": "Tải lên",
+            "save": "Lưu",
+            "addCards": "Thêm thẻ"
+        },
+        "study": {
+            "card": "Thẻ",
+            "of": "trên",
+            "complete": "hoàn thành",
+            "autoPlay": "Tự động",
+            "resetProgress": "Làm lại",
+            "speed": "Tốc độ",
+            "shuffle": "Xáo thẻ",
+            "backFirst": "Mặt sau",
+            "edit": "Chỉnh sửa",
+            "learning": "Thực hành"
+        },
+        "learning": {
+            "responseOptions": {
+                "blackout": "Quên hẳn",
+                "wrong": "Sai",
+                "wrongEasy": "Sai (dễ)",
+                "hard": "Khó",
+                "good": "Tốt",
+                "perfect": "Hoàn hảo"
+            },
+            "showAnswer": "Hiện kết quả",
+            "flashcardsRemaining": "flashcards còn lại"
+        }
+    }
+}
