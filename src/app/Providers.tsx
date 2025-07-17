@@ -1,14 +1,7 @@
 'use client';
 
-import { ReactNode, useEffect, useRef } from 'react';
-import { Provider as ReduxProvider } from 'react-redux';
-import { store } from '@/stores/store';
-import { ThemeProvider } from '@/lib/providers/theme';
 import { NextIntlClientProvider } from 'next-intl';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { ILearningMode, setLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
-import { useDispatch } from 'react-redux';
-import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { ReactNode } from 'react';
 
 interface ProvidersProps {
     children: ReactNode;
