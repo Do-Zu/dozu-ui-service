@@ -1,5 +1,5 @@
 import React from 'react';
-import { IFlashcardBasic } from '../flashcard.type';
+import { IFlashcardBasic } from '../types/flashcard.type';
 import { Content } from '@radix-ui/react-tabs';
 
 interface Props {
@@ -14,7 +14,11 @@ export default function Flashcard(props: Props) {
     const { style, handleManualFlip = () => {}, cardContainerRef, cardRef, flashcard } = props;
     return (
         <div className={style} onClick={() => handleManualFlip()} ref={cardContainerRef}>
-            <div className="relative w-full h-full bg-white dark:bg-gray-800" style={{ transformStyle: 'preserve-3d' }} ref={cardRef}>
+            <div
+                className="relative w-full h-full bg-white dark:bg-gray-800"
+                style={{ transformStyle: 'preserve-3d' }}
+                ref={cardRef}
+            >
                 <div
                     className="absolute w-full h-full rounded-lg flex justify-center items-center text-2xl font-normal p-5"
                     style={{ transform: 'rotateX(0deg)', backfaceVisibility: 'hidden' }}

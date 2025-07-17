@@ -1,8 +1,8 @@
 import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
-import { handleCreateTopic } from '../../topics/components/TopicCreatedForm';
 import { ContentType } from '../components/ContentGenerationPreview';
 import Axios from '@/api/axios';
+import topicService from '@/services/topic/topic.service';
 import { store } from '@/stores/store';
 
 export interface CreateContentParams {
@@ -33,11 +33,8 @@ export class ContentCreationService {
 
         try {
             // Phase 1: Create topic
-            const topic = await handleCreateTopic({
-                name: topicName,
-                description: topicDescription,
-                inputSetId:state.inputSet.inputSetId
-            });
+            const data = await topicService.createTopic({ name: topicName, description: topicDescription, inputSetId: state.inputSet.inputSetId });
+            const topic = data.data; 
 
             if (!topic) {
                 return { success: false, error: 'Failed to create topic' };

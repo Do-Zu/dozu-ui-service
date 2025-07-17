@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import useFetch from '@/hooks/useFetch';
 import { putRequest } from '@/api/api';
-import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../../flashcard.type';
+import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
 import LoadingPage from '@/app/loading';
 import { FlashcardLearning } from '../components/FlashcardLearning';
 import { useParams } from 'next/navigation';
@@ -78,8 +78,8 @@ export default function Page() {
         } catch (err) {
             toast({
                 title: 'Tracking failed, please try again',
-                variant: 'destructive'
-            })
+                variant: 'destructive',
+            });
         }
     }
 

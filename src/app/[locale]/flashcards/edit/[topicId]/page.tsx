@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import useFetch from '@/hooks/useFetch';
 import FlashcardEditor, { handleConvertToFlashcardsEdited } from '../../components/FlashcardEditor';
-import { IFlashcardBasic } from '../../flashcard.type';
+import { IFlashcardBasic } from '../../types/flashcard.type';
 import LoadingPage from '@/app/loading';
 
 interface IFlashcard {
@@ -34,7 +34,7 @@ const Page = () => {
     const params = useParams();
     if (!params?.topicId) return <div>No topic id is provided</div>;
 
-    const { topicId } = params as { topicId : string };
+    const { topicId } = params as { topicId: string };
 
     const {
         data: flashcardsExisted,

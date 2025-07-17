@@ -1,5 +1,4 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ITopicForUser } from '../topic.type';
 import {
     DropdownMenu,
     DropdownMenuItem,
@@ -10,48 +9,39 @@ import {
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import {
-    BookOpen,
-    ClipboardCheck,
-    Edit,
-    GitFork,
-    GraduationCap,
-    Layers,
-    MoreVertical,
-    Trash2,
-} from 'lucide-react';
+import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import { format } from 'date-fns';
+import { ITopic } from '../../types/topic.type';
+import { ShowIf } from '@/components/ui/ShowIf';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import topicService from '@/services/topic/topic.service';
 
 interface Props {
-    topic: ITopicForUser;
-    onSelectEditTopic: ({ topicId, name, description } : { topicId: number, name: string, description: string }) => void;
-    onSelectDeleteTopic: ({ topicId, name } : { topicId: number, name: string }) => void;
+    topic: ITopic;
+    handleOpenUpdateModal: ({
+        topicId,
+        name,
+        description,
+    }: {
+        topicId: number;
+        name: string;
+        description: string;
+    }) => void;
+    handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
+    editable: boolean;
 }
-const lastStudied = '1 day ago';
 
-export function TopicCard({
-    topic,
-    onSelectEditTopic,
-    onSelectDeleteTopic
-}: Props) {
+export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal, editable }: Props) {
     const router = useRouter();
+    const { isTeacher, isStudent } = useRoleChecker();
 
     const { topicId, name, description, imageUrl } = topic;
     const topicT = useTranslations('topic');
 
-    function handleOnSelectEditTopic() {
-        onSelectEditTopic({topicId, name, description});
-    }
-
-    function handleOnSelectDeleteTopic() {
-        onSelectDeleteTopic({ topicId, name });
-    }
-
-    // todo-ka: cân nhắc bỏ ở cha
     function handleOnSelectEditFlashcard() {
         router.push(ROUTES.FLASHCARDS_EDIT(topicId));
     }
@@ -60,7 +50,11 @@ export function TopicCard({
         router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
     }
 
-    function handleOnSelectLearning() {
+    async function handleOnSelectLearning() {
+        const { hasProgress } = topic;
+        if (hasProgress != undefined && !hasProgress) {
+            await topicService.startLearningFlashcards(topicId);
+        }
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
@@ -87,10 +81,12 @@ export function TopicCard({
                                     <span>Flashcard</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
-                                    <DropdownMenuItem onSelect={handleOnSelectEditFlashcard}>
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
-                                    </DropdownMenuItem>
+                                    <ShowIf when={editable}>
+                                        <DropdownMenuItem onSelect={handleOnSelectEditFlashcard}>
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            <span>{topicT('edit')}</span>
+                                        </DropdownMenuItem>
+                                    </ShowIf>
                                     <DropdownMenuItem onSelect={handleOnSelectBrowse}>
                                         <BookOpen className="mr-2 h-4 w-4" />
                                         <span>{topicT('browse')}</span>
@@ -135,14 +131,21 @@ export function TopicCard({
                             </DropdownMenuSub>
 
                             {/* Topic itself */}
-                            <DropdownMenuItem onSelect={handleOnSelectEditTopic}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                <span>{topicT('edit')}</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={handleOnSelectDeleteTopic}>
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>{topicT('delete')}</span>
-                            </DropdownMenuItem>
+                            <ShowIf when={editable}>
+                                <DropdownMenuItem
+                                    onSelect={() => handleOpenUpdateModal({ topicId, name, description })}
+                                >
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    <span>{topicT('edit')}</span>
+                                </DropdownMenuItem>
+                            </ShowIf>
+
+                            <ShowIf when={editable}>
+                                <DropdownMenuItem onSelect={() => handleOpenDeleteModal({ topicId, name })}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    <span>{topicT('delete')}</span>
+                                </DropdownMenuItem>
+                            </ShowIf>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -156,25 +159,30 @@ export function TopicCard({
                         <div className="text-gray-500 dark:text-slate-500 text-lg">Preview</div>
                     )}
                 </div>
-                <div className="flex flex-col text-xs text-foreground justify-between">
-                    <div className='flex flex-row justify-between items-center'>
-                        <div>
-                            Created At: <span className="font-bold text-sm">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
-                        </div>
-                        <div>
-                            <span className="font-bold text-sm">{topic.flashcardsNew}</span> new flashcards
-                        </div>
+                <ShowIf when={isTeacher}>
+                    <div className="text-xs text-foreground">
+                        Created At: <span className="font-bold">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
                     </div>
+                </ShowIf>
 
-                    <div className='flex flex-row justify-between items-center'>
-                        <div>
-                            Last studied: <span className="font-bold text-sm">{lastStudied}</span>
-                        </div>
-                        <div>
-                            <span className="font-bold text-sm">{topic.flashcardsDueToday}</span> flashcards due today
+                <ShowIf when={isStudent}>
+                    <div className="flex flex-col text-xs text-foreground justify-between">
+                        <div className="flex flex-row justify-between items-center">
+                            <div>
+                                Last studied: <span className="font-bold">1 day ago</span>
+                            </div>
+                            <div>
+                                <ShowIf when={topic.hasProgress != undefined && topic.hasProgress}>
+                                    <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
+                                </ShowIf>
+
+                                <ShowIf when={topic.hasProgress != undefined && !topic.hasProgress}>
+                                    <div>Not Studied Yet</div>
+                                </ShowIf>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </ShowIf>
             </CardContent>
         </Card>
     );
