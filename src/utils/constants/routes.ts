@@ -16,6 +16,14 @@ export const ROUTES = Object.freeze({
     SCHEDULE: '/schedule',
     LIBRARY: '/library',
     PROGRESS: '/progress',
+    PROFILE: '/setting/profile',
+    PROFILE_EDIT: '/setting/profile/edit',
+    PROFILE_AVATAR: '/setting/profile/avatar',
+    PROFILE_PASSWORD: '/setting/profile/password',
+    PROFILE_NOTIFICATIONS: '/setting/profile/notifications',
+    PROFILE_PRIVACY: '/setting/profile/privacy',
+    PROFILE_SETTINGS: '/setting/profile/settings',
+
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
@@ -55,4 +63,5 @@ export const ROUTE_CONFIG = {
     [ROUTES.SCHEDULE]: ROUTE_ACCESS.ONBOARDED,
     [ROUTES.PROGRESS]: ROUTE_ACCESS.ONBOARDED,
     [ROUTES.UNAUTHORIZED]: ROUTE_ACCESS.PUBLIC,
+    [ROUTES.PROFILE]: ROUTE_ACCESS.ONBOARDED,
 } as const;
