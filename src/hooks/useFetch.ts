@@ -16,12 +16,22 @@ import { z } from 'zod';
  *   - error: Error message if the request failed or validation failed, otherwise null
  *   - refetch: Function to manually trigger a refetch of the data
  */
+
+interface Options<Z> {
+  selector?: Function;
+  schema?: z.ZodType<Z>;
+  shouldRun?: boolean | ((...args: any[]) => boolean);
+}
+
 function useFetch<T, Z = T>(
-  param: string | (() => Promise<unknown>),
-  selector?: Function,
-  schema?: z.ZodType<Z>,
-  options?: FetchOptions,
+  param: string | ((...args: any[]) => Promise<unknown>),
+  options?: Options<Z>,
+  fetchOptions?: FetchOptions,
 ) {
+  const selector = options?.selector,
+    schema = options?.schema,
+    shouldRun =
+      options?.shouldRun != undefined || options?.shouldRun != null ? options.shouldRun : true;
   const [data, setData] = useState<Z | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +55,7 @@ function useFetch<T, Z = T>(
       let rawData: unknown;
 
       if (typeof param === 'string') {
-        const result = await callApiAsync(param, 'GET', options);
+        const result = await callApiAsync(param, 'GET', fetchOptions);
         rawData = result.data;
       } else if (typeof param === 'function') {
         rawData = await param();
@@ -84,10 +94,15 @@ function useFetch<T, Z = T>(
         setLoading(false);
       }
     }
-  }, [param, schema, options]);
+  }, [param, schema, fetchOptions]);
 
   useEffect(() => {
-    fetchData();
+    // only fetch data if shouldRun is true
+    if (typeof shouldRun === 'function' && shouldRun()) {
+      fetchData();
+    } else if (typeof shouldRun === 'boolean' && shouldRun) {
+      fetchData();
+    }
 
     return () => {
       // Cancel any pending requests
@@ -95,7 +110,7 @@ function useFetch<T, Z = T>(
         abortControllerRef.current.abort();
       }
     };
-  }, [fetchData]);
+  }, [shouldRun, fetchData]);
 
   return { data, setData, loading, error, refetch: fetchData };
 }

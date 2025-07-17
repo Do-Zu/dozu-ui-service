@@ -1,5 +1,5 @@
 // Add these constants at the top of the file
-const MAX_FILE_SIZE_MB = 4; // 4MB for documents
+const MAX_FILE_SIZE_MB = 10; // 10MB for documents
 const MAX_MEDIA_SIZE_MB = 50; // 50MB for audio/video
 const MAX_TEXT_LENGTH = 5000; // 5000 tokens (approximate)
 const ALLOWED_FILE_TYPES = ['.pdf', '.doc', '.docx', '.txt'];
@@ -8,43 +8,43 @@ const ALLOWED_VIDEO_TYPES = ['.mp4', '.mov', '.avi'];
 const MAX_CONTENT_SIZE_KB = 256;
 
 const validateFileSize = (
-  file: File,
-  isMedia = false,
-  maxSizeFile = MAX_FILE_SIZE_MB,
-  maxFileMedia = MAX_MEDIA_SIZE_MB,
+    file: File,
+    isMedia = false,
+    maxSizeFile = MAX_FILE_SIZE_MB,
+    maxFileMedia = MAX_MEDIA_SIZE_MB,
 ): boolean => {
-  const maxSizeMB = isMedia ? maxSizeFile : maxFileMedia;
-  const fileSizeMB = file.size / (1024 * 1024);
-  return fileSizeMB <= maxSizeMB;
+    const maxSizeMB = isMedia ? maxSizeFile : maxFileMedia;
+    const fileSizeMB = file.size / (1024 * 1024);
+    return fileSizeMB <= maxSizeMB;
 };
 
 const validateFileType = (file: File): boolean => {
-  const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-  return ALLOWED_FILE_TYPES.includes(fileExtension);
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    return ALLOWED_FILE_TYPES.includes(fileExtension);
 };
 
 const validateMediaType = (file: File, mediaType: 'audio' | 'video'): boolean => {
-  const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-  return mediaType === 'audio'
-    ? ALLOWED_AUDIO_TYPES.includes(fileExtension)
-    : ALLOWED_VIDEO_TYPES.includes(fileExtension);
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    return mediaType === 'audio'
+        ? ALLOWED_AUDIO_TYPES.includes(fileExtension)
+        : ALLOWED_VIDEO_TYPES.includes(fileExtension);
 };
 
 const validateTextLength = (text: string): boolean => {
-  // Simple approximation: 1 token ≈ 4 characters
-  return text.length <= MAX_TEXT_LENGTH * 4;
+    // Simple approximation: 1 token ≈ 4 characters
+    return text.length <= MAX_TEXT_LENGTH * 4;
 };
 
 export {
-  ALLOWED_AUDIO_TYPES,
-  ALLOWED_FILE_TYPES,
-  ALLOWED_VIDEO_TYPES,
-  MAX_FILE_SIZE_MB,
-  MAX_MEDIA_SIZE_MB,
-  MAX_TEXT_LENGTH,
-  MAX_CONTENT_SIZE_KB,
-  validateFileSize,
-  validateFileType,
-  validateMediaType,
-  validateTextLength,
+    ALLOWED_AUDIO_TYPES,
+    ALLOWED_FILE_TYPES,
+    ALLOWED_VIDEO_TYPES,
+    MAX_FILE_SIZE_MB,
+    MAX_MEDIA_SIZE_MB,
+    MAX_TEXT_LENGTH,
+    MAX_CONTENT_SIZE_KB,
+    validateFileSize,
+    validateFileType,
+    validateMediaType,
+    validateTextLength,
 };

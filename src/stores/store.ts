@@ -1,15 +1,17 @@
-// src/stores/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import bookSlice from './features/book/bookSlice';
 import authSlice from './features/auth/authSlice';
+import subscriptionSlice from './features/subscription/subscriptionSlice';
+import learningModeSlice from './features/class-based-learning/learningModeSlice' ;
+import inputSetSlice from './features/inputSet/inputSetSlice';
 
-// Cấu hình Redux Store
 export const store = configureStore({
-  reducer: {
-    book: bookSlice,
-    auth: authSlice,
-  },
-  devTools: process.env.NODE_ENV !== 'production',
+    reducer: {
+        auth: authSlice,
+        subscription: subscriptionSlice,
+        learningMode: learningModeSlice,
+        inputSet: inputSetSlice,
+    },
+    devTools: process.env.NODE_ENV !== 'production',
 });
 
 export type RootState = ReturnType<typeof store.getState>;
