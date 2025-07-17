@@ -10,7 +10,6 @@
       "title": "Learning Progress",
       "subtitle": "Track your learning journey and manage your progress",
       "dashboard": "Dashboard",
-      "manage": "Manage Progress",
       "totalContents": "Total Contents",
       "completed": "Completed",
       "inProgress": "In Progress",
@@ -26,7 +25,26 @@
       "studyTimeDistribution": "Your study time distribution",
       "achievements": "Achievements",
       "learningMilestones": "Your learning milestones",
-      "topicsCompleted": "Topics Completed"
+      "topicsCompleted": "Topics Completed",
+      "loading": "Loading progress data...",
+      "error": "Error loading progress data",
+      "export": "Export",
+      "exportPdf": "Export as PDF",
+      "exportExcel": "Export as Excel", 
+      "exportCsv": "Export as CSV",
+      "print": "Print",
+      "share": "Share",
+      "reportTitle": "Learning Progress Report",
+      "generatedOn": "Generated on",
+      "overviewStatistics": "Overview Statistics",
+      "shareText": "Check out my learning progress! Total study hours: {hours}h, Completed topics: {topics}",
+      "exportFailed": "Failed to export as {format}. Please try again.",
+      "shareSuccess": "Progress report details copied to clipboard!",
+      "urlCopied": "URL copied to clipboard!",
+      "shareError": "Unable to share. Please copy the URL manually.",
+      "day": "Day",
+      "hours": "Hours",
+      "date": "Date"
     }
   }
   

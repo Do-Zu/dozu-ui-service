@@ -26,7 +26,26 @@
       "studyTimeDistribution": "Phân bố thời gian học tập của bạn",
       "achievements": "Thành Tựu",
       "learningMilestones": "Các cột mốc học tập của bạn",
-      "topicsCompleted": "Chủ Đề Đã Hoàn Thành"
+      "topicsCompleted": "Chủ Đề Đã Hoàn Thành",
+      "loading": "Đang tải dữ liệu tiến độ...",
+      "error": "Lỗi khi tải dữ liệu tiến độ",
+      "export": "Xuất",
+      "exportPdf": "Xuất dưới dạng PDF",
+      "exportExcel": "Xuất dưới dạng Excel",
+      "exportCsv": "Xuất dưới dạng CSV",
+      "print": "In",
+      "share": "Chia sẻ",
+      "reportTitle": "Báo Cáo Tiến Độ Học Tập",
+      "generatedOn": "Được tạo vào",
+      "overviewStatistics": "Thống Kê Tổng Quan",
+      "shareText": "Xem tiến độ học tập của tôi! Tổng giờ học: {hours}h, Chủ đề đã hoàn thành: {topics}",
+      "exportFailed": "Không thể xuất dưới dạng {format}. Vui lòng thử lại.",
+      "shareSuccess": "Chi tiết báo cáo tiến độ đã được sao chép vào clipboard!",
+      "urlCopied": "URL đã được sao chép vào clipboard!",
+      "shareError": "Không thể chia sẻ. Vui lòng sao chép URL thủ công.",
+      "day": "Ngày",
+      "hours": "Giờ",
+      "date": "Ngày tháng"
     }
   }
   
