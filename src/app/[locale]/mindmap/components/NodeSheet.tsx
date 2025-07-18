@@ -3,7 +3,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
 import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
 import { toast } from '@/hooks/use-toast';
@@ -13,14 +13,18 @@ import { useReactFlow } from '@xyflow/react';
 import { useRouter } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { useMindMapContext } from '../context/MindMapContext';
+import { useEventSource } from '@/hooks/useEventSource';
+import usePost from '@/hooks/usePost';
+import { ApiResponsePubGenContent, ISseData } from '../../generate/types';
+import { URL_API_GENERATE } from '../../generate/utils/constant';
+import { compressContent } from '../../generate/helper/compress';
+import LoadingPage from '@/app/loading';
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 
-interface INodeSheetParams {
-    setIsFileSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setPageNumber: React.Dispatch<React.SetStateAction<number>>;
-}
-
-const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
+const NodeSheet = () => {
     const router = useRouter();
+    const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange } = useMindMapContext();
 
     const { screenToFlowPosition, getNodes, getEdges, setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
     const nodes = getNodes();
@@ -33,6 +37,22 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
     const [newDescription, setNewDescription] = useState(selectedNodeData?.description || '');
     const [pageStartIndex, setPageStartIndex] = useState(selectedNodeData?.pageStartIndex);
     const [pageEndIndex, setPageEndIndex] = useState(selectedNodeData?.pageEndIndex);
+
+    const {
+        loading: isLoadingRegisterGenerate,
+        data: apiResponse,
+        error: apiPostContentError,
+        execute,
+    } = usePost<unknown, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
+
+    const urlOfSSEGenerateJob = useMemo(() => {
+        if (!apiResponse || !apiResponse.data || apiPostContentError) return null;
+        const { data } = apiResponse;
+        const jobId = data?.jobId;
+        return `/event/generate/job/${jobId}`;
+    }, [apiResponse, isLoadingRegisterGenerate]);
+
+    const { data: sseData, status: sseStatus } = useEventSource<ISseData>(urlOfSSEGenerateJob);
 
     useEffect(() => {
         setPageStartIndex(selectedNodeData?.pageStartIndex);
@@ -105,6 +125,24 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
         router.push(`/mindmap/add-flashcard?topicId=${selectedNodeData.topicId}&nodeId=${selectedNodeData.nodeId}`);
     };
 
+    const handleGenerateFlashcards = async () => {
+        if (!pageStartIndex || !pageEndIndex) return;
+
+        const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
+
+        if (!text) {
+            toast({ description: 'No text found in the specified page range.' });
+            return;
+        }
+        const compressedContent = compressContent(text);
+
+        await execute({
+            content: compressedContent,
+            method: 'file',
+            type: 'flashcards',
+        });
+    };
+
     const handleViewFlashcards = () => {
         router.push(`/mindmap/nodes/${selectedNodeData.nodeId}/flashcard`);
     };
@@ -117,9 +155,31 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
     };
 
     const handleViewDocument = () => {
-        setPageNumber(pageStartIndex || pageEndIndex || 1);
+        setCurrentPageNumber(pageStartIndex || pageEndIndex || 1);
         setIsFileSheetOpen(true);
     };
+
+    useEffect(() => {
+        if (sseStatus === 'timeout' || sseStatus === 'error') {
+            toast({
+                description:
+                    sseStatus === 'timeout'
+                        ? 'The generation process timed out!'
+                        : 'There was an error with the generation process. Please try again.',
+            });
+        } else if (sseData && sseStatus === 'completed') {
+            const data = sseData?.data?.data;
+            console.log({ data });
+            toast({
+                description: 'Your content has been successfully generated.',
+                variant: 'default',
+            });
+        }
+    }, [sseData, sseStatus]);
+
+    if (sseStatus === 'open') {
+        return <GeneratingSkeleton />;
+    }
 
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
@@ -141,6 +201,7 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
 
                     <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription>
                 </SheetHeader>
+                {isLoadingRegisterGenerate && <LoadingPage isOverlay={true} size={120} />}
                 <div className="grid w-full gap-3">
                     <Label>Description</Label>
                     {isEditing ? (
@@ -177,9 +238,9 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
                         <CopyPlus />
                         Add flashcards
                     </Button>
-                    <Button onClick={handleAddFlashcards} variant="outline" className="w-full">
+                    <Button onClick={handleGenerateFlashcards} variant="outline" className="w-full">
                         <Bot />
-                        Generate flashcards ** WIP
+                        Generate flashcards
                     </Button>
                     <Button onClick={handleViewDocument} variant="outline" className="w-full">
                         <FileText />
