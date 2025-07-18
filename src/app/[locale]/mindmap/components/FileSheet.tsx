@@ -1,116 +1,116 @@
 'use client';
-import Axios from '@/api/axios';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { memo, useCallback } from 'react';
+import { useMindMapContext } from '../context/MindMapContext';
 
-import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
+import { ExternalLink, MoveLeft, MoveRight } from 'lucide-react';
 import { pdfjs } from 'react-pdf';
 import { Document, Page } from 'react-pdf';
-import { ExternalLink, MoveLeft, MoveRight } from 'lucide-react';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 //Configure PDF.js worker with external CDN - DuyND
 
-type RouteParams = {
-    id: string; // Assuming your dynamic route segment is named `[id]`
-};
+const FileSheet = () => {
+    const {
+        isFileSheetOpen,
+        setIsFileSheetOpen,
+        pdfUrl,
+        currentPageNumber,
+        totalPages,
+        setTotalPages,
+        setCurrentPageNumber,
+    } = useMindMapContext();
 
-interface IFileSheetParams {
-    isFileSheetOpen: boolean;
-    setIsFileSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    pageNumber: number;
-    setPageNumber: React.Dispatch<React.SetStateAction<number>>;
-}
-
-const FileSheet = ({ isFileSheetOpen, setIsFileSheetOpen, pageNumber, setPageNumber }: IFileSheetParams) => {
-    const [pdfUrl, setPdfUrl] = useState<string>('');
-    const params = useParams<RouteParams>();
-    const topicId = params?.id;
-    const [numPages, setNumPages] = useState<number>(0);
-    // const [pageNumber, setPageNumber] = useState<number>(1);
     function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
-        setNumPages(numPages);
+        setTotalPages(numPages);
     }
 
-    useEffect(() => {
-        const getInputSetDocument = async () => {
-            const response = await Axios.get(`/input-set/document/${topicId}`, {
-                responseType: 'blob',
-            });
-            console.log(response.data);
-            const url = URL.createObjectURL(response.data);
-            setPdfUrl(url);
-        };
-        getInputSetDocument();
-
-        return () => {
-            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-        };
-    }, []);
-
-    const handleOnOpenChange = (isFileSheetOpen: boolean) => {
-        setIsFileSheetOpen(isFileSheetOpen);
+    const handleOnOpenChange = (open: boolean) => {
+        setIsFileSheetOpen(open);
     };
 
-    if (!pdfUrl) return;
-    else
-        return (
-            <Sheet open={isFileSheetOpen} onOpenChange={handleOnOpenChange}>
-                <SheetContent className="w-[1000px] min-w-[800px]" side="left">
-                    <SheetHeader>
-                        <SheetTitle>Uploaded Document</SheetTitle>
+    const goToNextPage = useCallback(() => {
+        if (currentPageNumber < totalPages) {
+            setCurrentPageNumber(currentPageNumber + 1);
+        }
+    }, [currentPageNumber, totalPages]);
 
-                        <SheetDescription>Content</SheetDescription>
-                    </SheetHeader>
-                    <div className="grid w-full gap-3">
-                        {' '}
-                        <div className="grid grid-cols-2 gap-3">
-                            <Button
-                                disabled={pageNumber <= 1}
-                                variant={'outline'}
-                                onClick={() => setPageNumber(pageNumber - 1)}
-                            >
-                                <MoveLeft /> Previous page
-                            </Button>
-                            <Button
-                                disabled={pageNumber >= numPages}
-                                variant={'outline'}
-                                onClick={() => setPageNumber(pageNumber + 1)}
-                            >
-                                <MoveRight /> Next page
-                            </Button>
-                        </div>
-                        <Button
-                            // className="justify-start"
-                            variant={'outline'}
-                            asChild
-                        >
-                            <Link href={pdfUrl} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink />
-                                Open PDF in new tab
-                            </Link>
+    const goToPreviousPage = useCallback(() => {
+        if (currentPageNumber > 1) {
+            setCurrentPageNumber(currentPageNumber - 1);
+        }
+    }, [currentPageNumber]);
+
+    if (!pdfUrl) return null;
+
+    return (
+        <Sheet open={isFileSheetOpen} onOpenChange={handleOnOpenChange}>
+            <SheetContent className="w-[1000px] min-w-[800px]" side="left">
+                <SheetHeader>
+                    <SheetTitle>Uploaded Document</SheetTitle>
+
+                    <SheetDescription>Content</SheetDescription>
+                </SheetHeader>
+                <div className="grid w-full gap-3">
+                    <div className="grid grid-cols-2 gap-3">
+                        <Button disabled={currentPageNumber <= 1} variant={'outline'} onClick={goToPreviousPage}>
+                            <MoveLeft /> Previous page
                         </Button>
-                        <div>
-                            {/* {topicId} */}
-                            <p>
-                                Page {pageNumber} of {numPages}
-                            </p>
-                            {/* Renders the pdf file */}
-                            <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} renderMode={'canvas'}>
-                                <Page pageNumber={pageNumber} />
-                            </Document>
-                        </div>
+                        <Button disabled={currentPageNumber >= totalPages} variant={'outline'} onClick={goToNextPage}>
+                            <MoveRight /> Next page
+                        </Button>
                     </div>
 
-                    {/* </SheetFooter> */}
-                </SheetContent>
-            </Sheet>
-        );
+                    <Button variant={'outline'} asChild>
+                        <Link href={pdfUrl} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink />
+                            Open PDF in new tab
+                        </Link>
+                    </Button>
+
+                    {/* Display extraction results */}
+                    {/* {extractionResult && !extractionResult.success && (
+                        <div className="p-3 bg-red-50 border border-red-200 rounded">
+                            <p className="text-red-600 text-sm">Error: {extractionResult.error}</p>
+                        </div>
+                    )}
+
+                    {extractionResult && extractionResult.success && (
+                        <div className="p-3 bg-green-50 border border-green-200 rounded">
+                            <p className="text-green-600 text-sm">
+                                Successfully extracted text from {extractionResult.extractedPages.length} pages
+                                {extractionResult.extractedPages.length > 0 &&
+                                    ` (${extractionResult.extractedPages.join(', ')})`}
+                            </p>
+                        </div>
+                    )}
+
+                    {extractedText && (
+                        <div className="max-h-40 overflow-y-auto border p-2 bg-gray-50 rounded">
+                            <h4 className="font-bold mb-2">Extracted Text:</h4>
+                            <pre className="whitespace-pre-wrap text-sm">{extractedText}</pre>
+                        </div>
+                    )} */}
+
+                    <div>
+                        <p>
+                            Page {currentPageNumber} of {totalPages}
+                        </p>
+                        <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} renderMode={'canvas'}>
+                            <Page pageNumber={currentPageNumber} />
+                        </Document>
+                    </div>
+                </div>
+
+                {/* </SheetFooter> */}
+            </SheetContent>
+        </Sheet>
+    );
 };
 
-export default FileSheet;
+export default memo(FileSheet);

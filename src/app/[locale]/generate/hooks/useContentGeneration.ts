@@ -8,6 +8,7 @@ import router from 'next/router';
 import { ContentCreationService } from '../services/contentCreation.service';
 import { resetImportDialog } from '../stores/features/importDialogSlice';
 import { useCardImportDispatch } from './useReduxStore';
+import { ROUTES } from '@/utils/constants/routes';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
@@ -84,7 +85,9 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
                 description: 'Your content has been attached to the new topic.',
                 variant: 'default',
             });
-            router.push('/home');
+            setTimeout(() => {
+                router.push(ROUTES.LANDING);
+            }, 100);
         } else {
             toast({
                 description: result.error || 'Failed to create content',

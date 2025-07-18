@@ -15,29 +15,15 @@ import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import { compressContent } from '../helper/compress';
 import { useContentGeneration } from '../hooks/useContentGeneration';
 import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
-import { ISseData } from '../types';
+import { ApiResponsePubGenContent, ISseData } from '../types';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import Import from './import/Import';
+import { URL_API_GENERATE } from '../utils/constant';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
     onComplete?: (data: any) => void;
 }
-
-interface ApiResponsePubGenContent {
-    status: string;
-    message: string;
-    data?: {
-        jobId: string;
-        status?: string;
-        data?: object[];
-    };
-    sse: {
-        event: string;
-    };
-}
-
-const URL_API_GENERATE = '/generate/v3/text/llm';
 
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     const dispatch = useCardImportDispatch();
@@ -202,9 +188,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
                 variant: 'destructive',
             });
         } else if (sseData && sseStatus === 'completed') {
-            console.log({ sseData });
             dispatch(setStep(3));
-
             toast({
                 description: 'Your content has been successfully generated.',
                 variant: 'default',

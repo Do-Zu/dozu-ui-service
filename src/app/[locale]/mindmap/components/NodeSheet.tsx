@@ -1,26 +1,24 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
+import { useReactFlow } from '@xyflow/react';
 import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
-import { toast } from '@/hooks/use-toast';
+import { compressContent } from '../../generate/helper/compress';
+import { useMindMapContext } from '../context/MindMapContext';
 import { AppEdge, AppNode } from '../mindmap.type';
-import { Input } from '@/components/ui/input';
-import { useReactFlow } from '@xyflow/react';
-import { useRouter } from 'next/navigation';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
 
-interface INodeSheetParams {
-    setIsFileSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setPageNumber: React.Dispatch<React.SetStateAction<number>>;
-}
-
-const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
+const NodeSheet = () => {
     const router = useRouter();
+    const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
     const { screenToFlowPosition, getNodes, getEdges, setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
     const nodes = getNodes();
@@ -105,6 +103,25 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
         router.push(`/mindmap/add-flashcard?topicId=${selectedNodeData.topicId}&nodeId=${selectedNodeData.nodeId}`);
     };
 
+    const handleGenerateFlashcards = async () => {
+        if (!pageStartIndex || !pageEndIndex) return;
+
+        const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
+
+        if (!text) {
+            toast({ description: 'No text found in the specified page range.' });
+            return;
+        }
+
+        const compressedContent = compressContent(text);
+
+        await executeGenerate({
+            content: compressedContent,
+            method: 'file',
+            type: 'flashcards',
+        });
+    };
+
     const handleViewFlashcards = () => {
         router.push(`/mindmap/nodes/${selectedNodeData.nodeId}/flashcard`);
     };
@@ -117,7 +134,7 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
     };
 
     const handleViewDocument = () => {
-        setPageNumber(pageStartIndex || pageEndIndex || 1);
+        setCurrentPageNumber(pageStartIndex || pageEndIndex || 1);
         setIsFileSheetOpen(true);
     };
 
@@ -141,6 +158,7 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
 
                     <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription>
                 </SheetHeader>
+
                 <div className="grid w-full gap-3">
                     <Label>Description</Label>
                     {isEditing ? (
@@ -177,9 +195,9 @@ const NodeSheet = ({ setIsFileSheetOpen, setPageNumber }: INodeSheetParams) => {
                         <CopyPlus />
                         Add flashcards
                     </Button>
-                    <Button onClick={handleAddFlashcards} variant="outline" className="w-full">
+                    <Button onClick={handleGenerateFlashcards} variant="outline" className="w-full">
                         <Bot />
-                        Generate flashcards ** WIP
+                        Generate flashcards
                     </Button>
                     <Button onClick={handleViewDocument} variant="outline" className="w-full">
                         <FileText />

@@ -14,7 +14,6 @@ export interface GeneratedContent {
     data: any;
 }
 
-//TODO: Update TypeDataGenerated to be more specific based on the content type
 export type TypeDataGenerated = IFlashcardWithServer[] | object[] | object | null;
 
 interface ContentGenerationPreviewProps {

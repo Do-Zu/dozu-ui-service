@@ -1,15 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { File } from 'lucide-react';
 import React from 'react';
+import { useMindMapContext } from '../../context/MindMapContext';
 
-interface INodeSheetParams {
-    setIsFileSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const ViewFileButton = () => {
+    const { isFileSheetOpen, setIsFileSheetOpen } = useMindMapContext();
 
-const ViewFileButton = ({ setIsFileSheetOpen }: INodeSheetParams) => {
     const handleClickViewFile = () => {
-        setIsFileSheetOpen((isFileSheetOpen) => !isFileSheetOpen);
+        setIsFileSheetOpen(!isFileSheetOpen);
     };
+
     return (
         <Button variant="outline" onClick={handleClickViewFile}>
             <File />

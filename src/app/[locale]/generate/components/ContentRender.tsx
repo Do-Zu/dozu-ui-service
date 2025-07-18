@@ -31,15 +31,7 @@ const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, s
         }
     };
 
-    return (
-        <div className="w-full">
-            <div className="mb-4">
-                <h3 className="text-lg font-semibold capitalize">Generated {content.type}</h3>
-                <p className="text-sm text-gray-600">Review and customize your {content.type} before saving</p>
-            </div>
-            {renderContent()}
-        </div>
-    );
+    return <div className="w-full">{renderContent()}</div>;
 };
 
 // Individual content type renderers
@@ -79,12 +71,11 @@ const QuizRenderer: React.FC<QuizRendererProps> = ({ data }) => {
     );
 };
 
-
 interface MindmapRendererProps {
     //TODO: Define the structure of mindmap data
     data: any;
     setDataGenerated: (data: any) => void;
-    //original is object[] but mindmapData is object so it doesn't work, changing requires changing useContentGeneration hook 
+    //original is object[] but mindmapData is object so it doesn't work, changing requires changing useContentGeneration hook
     // and that's too hard - DuyND
 }
 

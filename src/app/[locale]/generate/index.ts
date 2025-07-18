@@ -8,3 +8,4 @@ export type { GenerateContentRequestInterface } from './models/GenerateContentRe
 export type { GenerateContentResponseInterface } from './models/GenerateContentResponseInterface';
 export type { JobStatusResponseInterface } from './models/JobStatusResponseInterface';
 export type { QuizItemInterface } from './models/QuizItemInterface';
+export type * from './types/';

@@ -251,6 +251,104 @@ const useReaderFile = (fileInit?: File) => {
         }
     }, [file, loading, handleExtractPdfToText, handleExtractTxtToText, handleExtractDocxToText]);
 
+    /**
+     * Extracts text from a PDF file using pdfjs-dist for a specific page range.
+     */
+    const handleExtractPdfToTextByRange = useCallback(
+        async (startPage: number, endPage: number): Promise<string> => {
+            setLoading(true);
+            setError(null);
+
+            if (!file) {
+                setLoading(false);
+                setError('No file selected.');
+                return '';
+            }
+
+            // Load PDF library when needed
+            const pdfGetDocument = await loadPdfLibrary();
+            if (!pdfGetDocument) {
+                setLoading(false);
+                setError('No PDF library available.');
+                return '';
+            }
+
+            return new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = async (e) => {
+                    try {
+                        const arrayBuffer = e.target?.result as ArrayBuffer;
+                        if (!arrayBuffer) {
+                            setError('Error reading file.!');
+                            setLoading(false);
+                            reject(new Error('Error reading file'));
+                            return;
+                        }
+
+                        // Load PDF document
+                        const pdf = await pdfGetDocument(arrayBuffer).promise;
+
+                        if (!pdf) {
+                            setError('Error loading PDF document.');
+                            setLoading(false);
+                            reject(new Error('Error loading PDF document'));
+                            return;
+                        }
+
+                        if (pdf?.numPages) {
+                            setNumPages(pdf.numPages);
+                        }
+
+                        // Validate page range
+                        const actualStartPage = Math.max(1, startPage);
+                        const actualEndPage = Math.min(pdf.numPages, endPage);
+
+                        if (actualStartPage > actualEndPage) {
+                            setError('Invalid page range: start page is greater than end page.');
+                            setLoading(false);
+                            reject(new Error('Invalid page range'));
+                            return;
+                        }
+
+                        let fullText = '';
+
+                        // Loop through specified page range
+                        for (let i = actualStartPage; i <= actualEndPage; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent: TextContent = await page.getTextContent();
+                            const textItems: TextItem[] = textContent?.items as TextItem[];
+
+                            // Extract text from each item
+                            textItems.forEach((item: TextItem) => {
+                                fullText += item.str;
+                            });
+                            fullText += `\n Page ${i} \n`;
+                        }
+
+                        const finalText = fullText.trim();
+                        setText(finalText);
+                        setLoading(false);
+                        resolve(finalText);
+                    } catch (error) {
+                        setError('Error reading file pdf.');
+                        setLoading(false);
+                        reject(error);
+                    }
+                };
+
+                reader.onerror = (e) => {
+                    setError('Error reading file');
+                    setLoading(false);
+                    reject(new Error('Error reading file'));
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        },
+        [file, loadPdfLibrary],
+    );
+
     // Process file when file changes
     useEffect(() => {
         if (file && !loading && !text && !error) {
@@ -261,7 +359,6 @@ const useReaderFile = (fileInit?: File) => {
     return {
         text,
         numPages,
-        loading,
         error,
         file,
         // Additional utilities
@@ -273,6 +370,7 @@ const useReaderFile = (fileInit?: File) => {
         fileName: file?.name,
         fileSize: file?.size,
         fileType: file?.type,
+        extractTextByRange: handleExtractPdfToTextByRange,
     };
 };
 
