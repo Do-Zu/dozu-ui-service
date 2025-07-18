@@ -1,30 +1,24 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
-import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
-import { toast } from '@/hooks/use-toast';
-import { AppEdge, AppNode } from '../mindmap.type';
-import { Input } from '@/components/ui/input';
 import { useReactFlow } from '@xyflow/react';
+import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { useMindMapContext } from '../context/MindMapContext';
-import { useEventSource } from '@/hooks/useEventSource';
-import usePost from '@/hooks/usePost';
-import { ApiResponsePubGenContent, ISseData } from '../../generate/types';
-import { URL_API_GENERATE } from '../../generate/utils/constant';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { compressContent } from '../../generate/helper/compress';
-import LoadingPage from '@/app/loading';
-import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+import { useMindMapContext } from '../context/MindMapContext';
+import { AppEdge, AppNode } from '../mindmap.type';
+import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
 
 const NodeSheet = () => {
     const router = useRouter();
-    const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange } = useMindMapContext();
+    const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
     const { screenToFlowPosition, getNodes, getEdges, setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
     const nodes = getNodes();
@@ -37,22 +31,6 @@ const NodeSheet = () => {
     const [newDescription, setNewDescription] = useState(selectedNodeData?.description || '');
     const [pageStartIndex, setPageStartIndex] = useState(selectedNodeData?.pageStartIndex);
     const [pageEndIndex, setPageEndIndex] = useState(selectedNodeData?.pageEndIndex);
-
-    const {
-        loading: isLoadingRegisterGenerate,
-        data: apiResponse,
-        error: apiPostContentError,
-        execute,
-    } = usePost<unknown, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
-
-    const urlOfSSEGenerateJob = useMemo(() => {
-        if (!apiResponse || !apiResponse.data || apiPostContentError) return null;
-        const { data } = apiResponse;
-        const jobId = data?.jobId;
-        return `/event/generate/job/${jobId}`;
-    }, [apiResponse, isLoadingRegisterGenerate]);
-
-    const { data: sseData, status: sseStatus } = useEventSource<ISseData>(urlOfSSEGenerateJob);
 
     useEffect(() => {
         setPageStartIndex(selectedNodeData?.pageStartIndex);
@@ -134,9 +112,10 @@ const NodeSheet = () => {
             toast({ description: 'No text found in the specified page range.' });
             return;
         }
+
         const compressedContent = compressContent(text);
 
-        await execute({
+        await executeGenerate({
             content: compressedContent,
             method: 'file',
             type: 'flashcards',
@@ -159,28 +138,6 @@ const NodeSheet = () => {
         setIsFileSheetOpen(true);
     };
 
-    useEffect(() => {
-        if (sseStatus === 'timeout' || sseStatus === 'error') {
-            toast({
-                description:
-                    sseStatus === 'timeout'
-                        ? 'The generation process timed out!'
-                        : 'There was an error with the generation process. Please try again.',
-            });
-        } else if (sseData && sseStatus === 'completed') {
-            const data = sseData?.data?.data;
-            console.log({ data });
-            toast({
-                description: 'Your content has been successfully generated.',
-                variant: 'default',
-            });
-        }
-    }, [sseData, sseStatus]);
-
-    if (sseStatus === 'open') {
-        return <GeneratingSkeleton />;
-    }
-
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
             <SheetContent className="w-[400px] sm:w-[540px]">
@@ -201,7 +158,7 @@ const NodeSheet = () => {
 
                     <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription>
                 </SheetHeader>
-                {isLoadingRegisterGenerate && <LoadingPage isOverlay={true} size={120} />}
+
                 <div className="grid w-full gap-3">
                     <Label>Description</Label>
                     {isEditing ? (

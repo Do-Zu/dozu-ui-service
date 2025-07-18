@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEdgesState, useNodesState, Node, useReactFlow } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +8,10 @@ import Axios from '@/api/axios';
 import { toast } from '@/hooks/use-toast';
 import { AppNode, AppEdge, CustomNodeData, CustomEdge } from '../mindmap.type';
 import useReaderFile from '@/hooks/useReaderFile';
+import { EventSourceStatus, useEventSource } from '@/hooks/useEventSource';
+import usePost from '@/hooks/usePost';
+import { ApiResponsePubGenContent, ISseData } from '../../generate';
+import { URL_API_GENERATE } from '../../generate/utils/constant';
 
 // Types for PDF Document
 interface PDFDocumentInfo {
@@ -91,6 +95,13 @@ interface MindMapContextType {
     updateNode: (nodeId: string, updates: Partial<CustomNodeData>) => void;
     deleteNode: (nodeId: string) => void;
 
+    //Generate
+    isProcessingRegisterGenerate: boolean;
+    executeGenerate: (payload: unknown) => Promise<ApiResponsePubGenContent | null>;
+
+    sseData: ISseData | null;
+    sseStatus: EventSourceStatus;
+
     // Cleanup
     cleanup: () => void;
 }
@@ -157,6 +168,22 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
     const [selectedNodeData, setSelectedNodeData] = useState<CustomNodeData | null>(null);
 
     const { extractTextByRange: extractTextByRangeHook, error, text } = useReaderFile(pdfFile);
+
+    const {
+        loading: isProcessingRegisterGenerate,
+        data: apiResponse,
+        error: apiPostContentError,
+        execute,
+    } = usePost<unknown, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
+
+    const urlOfSSEGenerateJob = useMemo(() => {
+        if (!apiResponse || !apiResponse.data || apiPostContentError) return null;
+        const { data } = apiResponse;
+        const jobId = data?.jobId;
+        return `/event/generate/job/${jobId}`;
+    }, [apiResponse, isProcessingRegisterGenerate]);
+
+    const { data: sseData, status: sseStatus } = useEventSource<ISseData>(urlOfSSEGenerateJob);
 
     // Wrap the hook function to match the expected return type
     const extractTextByRange = useCallback(
@@ -444,6 +471,12 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
         addChildNode,
         updateNode,
         deleteNode,
+
+        //Generate
+        executeGenerate: execute,
+        isProcessingRegisterGenerate,
+        sseData,
+        sseStatus,
 
         // Cleanup
         cleanup,

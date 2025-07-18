@@ -14,6 +14,12 @@ import FileSheet from '../components/FileSheet';
 import FloatingEdge from '../components/FloatingEdge';
 import NodeSheet from '../components/NodeSheet';
 import { useMindMapContext } from '../context/MindMapContext';
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+import { toast } from '@/hooks/use-toast';
+import LoadingPage from '@/app/loading';
+import ContentGenerationPreview from '../../generate/components/ContentGenerationPreview';
+import { useAppSelector } from '@/stores/hooks';
+import { useContentGeneration } from '../../generate/hooks/useContentGeneration';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -30,18 +36,96 @@ const edgeTypes = {
 export default function MindmapContent() {
     const router = useRouter();
 
-    const { topicId, nodes, edges, onNodesChange, onEdgesChange, isSaving, saveMindmap } = useMindMapContext();
+    const {
+        topicId,
+        nodes,
+        edges,
+        onNodesChange,
+        onEdgesChange,
+        isSaving,
+        saveMindmap,
+        sseData,
+        sseStatus,
+        isProcessingRegisterGenerate,
+    } = useMindMapContext();
+
+    const {
+        dataGenerated,
+        setDataGenerated,
+        setTopicName,
+        setTopicDescription,
+        isTopicModalOpen,
+        setIsTopicModalOpen,
+        handleOnClickSave,
+    } = useContentGeneration({ sseData, sseStatus });
+
+    const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
 
     useEffect(() => {
         setRouterRef(router);
     }, [router]);
 
+    useEffect(() => {
+        if (sseStatus === 'timeout' || sseStatus === 'error') {
+            toast({
+                description:
+                    sseStatus === 'timeout'
+                        ? 'The generation process timed out!'
+                        : 'There was an error with the generation process. Please try again.',
+            });
+        } else if (sseData && sseStatus === 'completed') {
+            const data = sseData?.data?.data;
+            console.log({ data });
+            toast({
+                description: 'Your content has been successfully generated.',
+                variant: 'default',
+            });
+        }
+    }, [sseData, sseStatus]);
+
     if (!topicId) {
         return <div>No topic id is provided</div>;
     }
 
+    if (sseStatus === 'open') {
+        return <GeneratingSkeleton />;
+    }
+
+    //TODO: Implement save content generated
+    // That must be include nodeId
+    const handleSaveContentGenerated = async () => {
+        toast({
+            description: 'Implement this function to save generated content',
+            variant: 'default',
+        });
+        //NODE: Can reuse function handleOnClickSave
+    };
+
+    if (dataGenerated) {
+        return (
+            <div className="relative">
+                <ContentGenerationPreview
+                    sseData={sseData}
+                    dataGenerated={dataGenerated}
+                    setDataGenerated={setDataGenerated}
+                    topicName={selectedNodeData?.label || ''}
+                    setTopicName={setTopicName}
+                    topicDescription={selectedNodeData?.description || ''}
+                    setTopicDescription={setTopicDescription}
+                    isTopicModalOpen={isTopicModalOpen}
+                    setIsTopicModalOpen={setIsTopicModalOpen}
+                    onSave={handleSaveContentGenerated}
+                />
+                <Button className="fixed bottom-5 right-64 z-50 w-32" onClick={handleSaveContentGenerated}>
+                    Save
+                </Button>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full h-full">
+            {isProcessingRegisterGenerate && <LoadingPage isOverlay={true} size={120} />}
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
