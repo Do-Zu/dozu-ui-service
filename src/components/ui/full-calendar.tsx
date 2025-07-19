@@ -262,26 +262,69 @@ CalendarViewTrigger.displayName = 'CalendarViewTrigger';
 
 const EventGroup = ({ events, hour }: { events: CalendarEvent[]; hour: Date }) => {
     return (
-        <div className="h-20 border-t last:border-b">
-            {events
-                .filter((event) => isSameHour(event.start, hour))
-                .map((event) => {
-                    const hoursDifference = differenceInMinutes(event.end, event.start) / 60;
-                    const startPosition = event.start.getMinutes() / 60;
+        <div className="h-20 border-t last:border-b relative">
+            {/* This component now only renders the time slot container */}
+        </div>
+    );
+};
 
-                    return (
-                        <div
-                            key={event.id}
-                            className={cn('relative', dayEventVariants({ variant: event.color }))}
-                            style={{
-                                top: `${startPosition * 100}%`,
-                                height: `${hoursDifference * 100}%`,
-                            }}
-                        >
-                            <EventCard event={{ ...event, color: event.color ?? undefined }} />
-                        </div>
-                    );
-                })}
+const DayEventsContainer = ({ events, dayDate }: { events: CalendarEvent[]; dayDate: Date }) => {
+    const startOfDay = new Date(dayDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const dayEvents = events.filter((event) => isSameDay(event.start, dayDate));
+
+    // Group overlapping events for better positioning
+    const sortedEvents = dayEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+    return (
+        <div className="absolute inset-0 pointer-events-none">
+            {sortedEvents.map((event, index) => {
+                // Calculate position from start of day (0:00)
+                const eventStartMinutes = event.start.getHours() * 60 + event.start.getMinutes();
+                const eventEndMinutes = event.end.getHours() * 60 + event.end.getMinutes();
+
+                // Ensure event doesn't go beyond the current day
+                const maxMinutes = 24 * 60; // 24 hours
+                const clampedEndMinutes = Math.min(eventEndMinutes, maxMinutes);
+
+                // Each hour slot is 80px (h-20), so total day height is 24 * 80px = 1920px
+                const hourHeight = 80; // 80px per hour (h-20 = 5rem = 80px)
+                const topPosition = (eventStartMinutes / 60) * hourHeight;
+                const eventHeight = Math.max(((clampedEndMinutes - eventStartMinutes) / 60) * hourHeight, 20); // Minimum 20px height
+
+                // Check for overlapping events to adjust width and position
+                let leftOffset = 0;
+                let widthReduction = 0;
+
+                for (let i = 0; i < index; i++) {
+                    const prevEvent = sortedEvents[i];
+                    const prevStartMinutes = prevEvent.start.getHours() * 60 + prevEvent.start.getMinutes();
+                    const prevEndMinutes = prevEvent.end.getHours() * 60 + prevEvent.end.getMinutes();
+
+                    // Check if events overlap
+                    if (eventStartMinutes < prevEndMinutes && eventEndMinutes > prevStartMinutes) {
+                        leftOffset = Math.max(leftOffset, 50); // 50% offset for overlapping events
+                        widthReduction = 50; // Reduce width to 50% for overlapping events
+                    }
+                }
+
+                return (
+                    <div
+                        key={event.id}
+                        className={cn('absolute pointer-events-auto', dayEventVariants({ variant: event.color }))}
+                        style={{
+                            top: `${topPosition}px`,
+                            height: `${eventHeight}px`,
+                            left: `${4 + leftOffset}%`,
+                            right: `${4 + widthReduction}%`,
+                            zIndex: 10 + index,
+                        }}
+                    >
+                        <EventCard event={{ ...event, color: event.color ?? undefined }} />
+                    </div>
+                );
+            })}
         </div>
     );
 };
@@ -296,10 +339,11 @@ const CalendarDayView = () => {
     return (
         <div className="flex relative pt-2 overflow-auto h-full">
             <TimeTable />
-            <div className="flex-1">
+            <div className="flex-1 relative">
                 {hours.map((hour) => (
                     <EventGroup key={hour.toString()} hour={hour} events={events} />
                 ))}
+                <DayEventsContainer events={events} dayDate={date} />
             </div>
         </div>
     );
@@ -334,7 +378,7 @@ const CalendarWeekView = () => {
 
     return (
         <div className="flex flex-col relative overflow-auto h-full">
-            <div className="flex sticky top-0 bg-card z-10 border-b mb-3">
+            <div className="flex sticky top-0 bg-card  border-b mb-3">
                 <div className="w-12"></div>
                 {headerDays.map((date, i) => (
                     <div
@@ -362,10 +406,11 @@ const CalendarWeekView = () => {
                 </div>
                 <div className="grid grid-cols-7 flex-1">
                     {weekDates.map((hours, i) => {
+                        const dayDate = hours[0]; // First hour of the day represents the day
                         return (
                             <div
                                 className={cn(
-                                    'h-full text-sm text-muted-foreground border-l first:border-l-0',
+                                    'h-full text-sm text-muted-foreground border-l first:border-l-0 relative',
                                     [0, 6].includes(i) && 'bg-muted/50',
                                 )}
                                 key={hours[0].toString()}
@@ -373,6 +418,7 @@ const CalendarWeekView = () => {
                                 {hours.map((hour) => (
                                     <EventGroup key={hour.toString()} hour={hour} events={events} />
                                 ))}
+                                <DayEventsContainer events={events} dayDate={dayDate} />
                             </div>
                         );
                     })}
@@ -382,128 +428,128 @@ const CalendarWeekView = () => {
     );
 };
 
-const CalendarMonthView = () => {
-    const { date, view, events, locale } = useCalendar();
+// const CalendarMonthView = () => {
+//     const { date, view, events, locale } = useCalendar();
 
-    const monthDates = useMemo(() => getDaysInMonth(date), [date]);
-    const weekDays = useMemo(() => generateWeekdays(locale), [locale]);
+//     const monthDates = useMemo(() => getDaysInMonth(date), [date]);
+//     const weekDays = useMemo(() => generateWeekdays(locale), [locale]);
 
-    if (view !== 'month') return null;
+//     if (view !== 'month') return null;
 
-    return (
-        <div className="h-full flex flex-col">
-            <div className="grid grid-cols-7 gap-px sticky top-0 bg-background border-b">
-                {weekDays.map((day, i) => (
-                    <div
-                        key={day}
-                        className={cn(
-                            'mb-2 text-right text-sm text-muted-foreground pr-2',
-                            [0, 6].includes(i) && 'text-muted-foreground/50',
-                        )}
-                    >
-                        {day}
-                    </div>
-                ))}
-            </div>
-            <div className="grid overflow-hidden -mt-px flex-1 auto-rows-fr p-px grid-cols-7 gap-px">
-                {monthDates.map((_date) => {
-                    const currentEvents = events.filter((event) => isSameDay(event.start, _date));
+//     return (
+//         <div className="h-full flex flex-col">
+//             <div className="grid grid-cols-7 gap-px sticky top-0 bg-background border-b">
+//                 {weekDays.map((day, i) => (
+//                     <div
+//                         key={day}
+//                         className={cn(
+//                             'mb-2 text-right text-sm text-muted-foreground pr-2',
+//                             [0, 6].includes(i) && 'text-muted-foreground/50',
+//                         )}
+//                     >
+//                         {day}
+//                     </div>
+//                 ))}
+//             </div>
+//             <div className="grid overflow-hidden -mt-px flex-1 auto-rows-fr p-px grid-cols-7 gap-px">
+//                 {monthDates.map((_date) => {
+//                     const currentEvents = events.filter((event) => isSameDay(event.start, _date));
 
-                    return (
-                        <div
-                            className={cn(
-                                'ring-1 p-2 text-sm text-muted-foreground ring-border overflow-auto',
-                                !isSameMonth(date, _date) && 'text-muted-foreground/50',
-                            )}
-                            key={_date.toString()}
-                        >
-                            <span
-                                className={cn(
-                                    'size-6 grid place-items-center rounded-full mb-1 sticky top-0',
-                                    isToday(_date) && 'bg-primary text-primary-foreground',
-                                )}
-                            >
-                                {format(_date, 'd')}
-                            </span>
+//                     return (
+//                         <div
+//                             className={cn(
+//                                 'ring-1 p-2 text-sm text-muted-foreground ring-border overflow-auto',
+//                                 !isSameMonth(date, _date) && 'text-muted-foreground/50',
+//                             )}
+//                             key={_date.toString()}
+//                         >
+//                             <span
+//                                 className={cn(
+//                                     'size-6 grid place-items-center rounded-full mb-1 sticky top-0',
+//                                     isToday(_date) && 'bg-primary text-primary-foreground',
+//                                 )}
+//                             >
+//                                 {format(_date, 'd')}
+//                             </span>
 
-                            {currentEvents.map((event) => {
-                                return (
-                                    <div key={event.id} className="px-1 rounded text-sm flex items-center gap-1">
-                                        <div
-                                            className={cn('shrink-0', monthEventVariants({ variant: event.color }))}
-                                        ></div>
-                                        <span className="flex-1 truncate">{event.title}</span>
-                                        <time className="tabular-nums text-muted-foreground/50 text-xs">
-                                            {format(event.start, 'HH:mm')}
-                                        </time>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-};
+//                             {currentEvents.map((event) => {
+//                                 return (
+//                                     <div key={event.id} className="px-1 rounded text-sm flex items-center gap-1">
+//                                         <div
+//                                             className={cn('shrink-0', monthEventVariants({ variant: event.color }))}
+//                                         ></div>
+//                                         <span className="flex-1 truncate">{event.title}</span>
+//                                         <time className="tabular-nums text-muted-foreground/50 text-xs">
+//                                             {format(event.start, 'HH:mm')}
+//                                         </time>
+//                                     </div>
+//                                 );
+//                             })}
+//                         </div>
+//                     );
+//                 })}
+//             </div>
+//         </div>
+//     );
+// };
 
-const CalendarYearView = () => {
-    const { view, date, today, locale } = useCalendar();
+// const CalendarYearView = () => {
+//     const { view, date, today, locale } = useCalendar();
 
-    const months = useMemo(() => {
-        if (!view) {
-            return [];
-        }
+//     const months = useMemo(() => {
+//         if (!view) {
+//             return [];
+//         }
 
-        return Array.from({ length: 12 }).map((_, i) => {
-            return getDaysInMonth(setMonth(date, i));
-        });
-    }, [date, view]);
+//         return Array.from({ length: 12 }).map((_, i) => {
+//             return getDaysInMonth(setMonth(date, i));
+//         });
+//     }, [date, view]);
 
-    const weekDays = useMemo(() => generateWeekdays(locale), [locale]);
+//     const weekDays = useMemo(() => generateWeekdays(locale), [locale]);
 
-    if (view !== 'year') return null;
+//     if (view !== 'year') return null;
 
-    return (
-        <div className="grid grid-cols-4 gap-10 overflow-auto h-full">
-            {months.map((days, i) => (
-                <div key={days[0].toString()}>
-                    <span className="text-xl">{i + 1}</span>
+//     return (
+//         <div className="grid grid-cols-4 gap-10 overflow-auto h-full">
+//             {months.map((days, i) => (
+//                 <div key={days[0].toString()}>
+//                     <span className="text-xl">{i + 1}</span>
 
-                    <div className="grid grid-cols-7 gap-2 my-5">
-                        {weekDays.map((day) => (
-                            <div key={day} className="text-center text-xs text-muted-foreground">
-                                {day}
-                            </div>
-                        ))}
-                    </div>
+//                     <div className="grid grid-cols-7 gap-2 my-5">
+//                         {weekDays.map((day) => (
+//                             <div key={day} className="text-center text-xs text-muted-foreground">
+//                                 {day}
+//                             </div>
+//                         ))}
+//                     </div>
 
-                    <div className="grid gap-x-2 text-center grid-cols-7 text-xs tabular-nums">
-                        {days.map((_date) => {
-                            return (
-                                <div
-                                    key={_date.toString()}
-                                    className={cn(getMonth(_date) !== i && 'text-muted-foreground')}
-                                >
-                                    <div
-                                        className={cn(
-                                            'aspect-square grid place-content-center size-full tabular-nums',
-                                            isSameDay(today, _date) &&
-                                                getMonth(_date) === i &&
-                                                'bg-primary text-primary-foreground rounded-full',
-                                        )}
-                                    >
-                                        {format(_date, 'd')}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
+//                     <div className="grid gap-x-2 text-center grid-cols-7 text-xs tabular-nums">
+//                         {days.map((_date) => {
+//                             return (
+//                                 <div
+//                                     key={_date.toString()}
+//                                     className={cn(getMonth(_date) !== i && 'text-muted-foreground')}
+//                                 >
+//                                     <div
+//                                         className={cn(
+//                                             'aspect-square grid place-content-center size-full tabular-nums',
+//                                             isSameDay(today, _date) &&
+//                                                 getMonth(_date) === i &&
+//                                                 'bg-primary text-primary-foreground rounded-full',
+//                                         )}
+//                                     >
+//                                         {format(_date, 'd')}
+//                                     </div>
+//                                 </div>
+//                             );
+//                         })}
+//                     </div>
+//                 </div>
+//             ))}
+//         </div>
+//     );
+// };
 
 const CalendarNextTrigger = forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
     ({ children, onClick, ...props }, ref) => {
@@ -622,7 +668,7 @@ const TimeTable = () => {
                     <div className="text-right relative text-xs text-muted-foreground/50 h-20 last:h-0" key={hour}>
                         {now.getHours() === hour && (
                             <div
-                                className="absolute z- left-full translate-x-2 w-dvw h-[2px] bg-red-500"
+                                className="absolute  left-full translate-x-2 w-dvw h-[2px] bg-red-500"
                                 style={{
                                     top: `${(now.getMinutes() / 60) * 100}%`,
                                 }}
@@ -668,11 +714,9 @@ export {
     Calendar,
     CalendarCurrentDate,
     CalendarDayView,
-    CalendarMonthView,
     CalendarNextTrigger,
     CalendarPrevTrigger,
     CalendarTodayTrigger,
     CalendarViewTrigger,
     CalendarWeekView,
-    CalendarYearView,
 };
