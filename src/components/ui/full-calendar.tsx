@@ -1,9 +1,13 @@
 'use client';
 
+import { generateSchedule } from '@/app/[locale]/schedule/services/schedule.service';
+import { ScheduleData, type ScheduleGenerateRequest } from '@/app/[locale]/schedule/types/schedule.type';
 import { Button } from '@/components/ui/button';
+import EventCard from '@/components/ui/event-card';
+import { toast } from '@/hooks/use-toast';
+import usePost from '@/hooks/usePost';
 import { cn } from '@/lib/utils';
 import { VariantProps, cva } from 'class-variance-authority';
-import EventCard from '@/components/ui/event-card';
 import {
     Locale,
     addDays,
@@ -26,16 +30,6 @@ import {
 import { enUS } from 'date-fns/locale/en-US';
 import { ReactNode, createContext, forwardRef, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import usePost from '@/hooks/usePost';
-import { generateSchedule } from '@/app/[locale]/schedule/services/schedule.service';
-import { toast } from '@/hooks/use-toast';
-import { getISOTime } from '@/utils';
-import {
-    ScheduleData,
-    type ScheduleGenerateRequest,
-    type ScheduleGenerateResponse,
-} from '@/app/[locale]/schedule/types/schedule.type';
-import { data } from 'tailwindcss/defaultTheme';
 
 const monthEventVariants = cva('size-2 rounded-full', {
     variants: {
@@ -155,8 +149,8 @@ const Calendar = ({
         const endDateOfWeek = endOfWeek(date, { weekStartsOn: 1 });
 
         const request: ScheduleGenerateRequest = {
-            fromDate: getISOTime(startDateOfWeek),
-            toDate: getISOTime(endDateOfWeek),
+            fromDate: format(startDateOfWeek, 'yyyy-MM-dd'),
+            toDate: format(endDateOfWeek, 'yyyy-MM-dd'),
         };
 
         await execute(request);

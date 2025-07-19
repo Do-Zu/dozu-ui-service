@@ -21,7 +21,7 @@ export default function CalendarView() {
     }, []);
 
     return (
-        <div className="h-dvh p-14 flex flex-col">
+        <div className="h-dvh flex flex-col">
             {isLoading && <LoadingPage isOverlay={true} />}
             <div className="flex px-6 items-center gap-2 mb-6">
                 <CalendarViewTrigger className="aria-[current=true]:bg-accent" view="day">
