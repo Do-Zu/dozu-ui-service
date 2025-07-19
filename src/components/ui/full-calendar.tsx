@@ -85,6 +85,8 @@ const Context = createContext<ContextType>({} as ContextType);
 
 export type CalendarEvent = {
     id: string;
+    type?: string;
+    topicId: number;
     start: Date;
     end: Date;
     title: string;
@@ -180,6 +182,8 @@ const Calendar = ({
                     (event, index) =>
                         ({
                             id: `${event.topicId}:${event.type}:${index}`,
+                            type: event?.type,
+                            topicId: event.topicId,
                             start: new Date(event.startTime),
                             end: new Date(event.endTime),
                             title: event.title,
@@ -318,7 +322,6 @@ const DayEventsContainer = ({ events, dayDate }: { events: CalendarEvent[]; dayD
                             height: `${eventHeight}px`,
                             left: `${4 + leftOffset}%`,
                             right: `${4 + widthReduction}%`,
-                            zIndex: 10 + index,
                         }}
                     >
                         <EventCard event={{ ...event, color: event.color ?? undefined }} />
