@@ -1,17 +1,14 @@
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import {
-    fetchPlans,
-    openModal,
-    closeModal,
-    setSelectedPlan,
-    selectSubscriptionState,
-} from '@/stores/features/subscription/subscriptionSlice';
 import { PlanFeature } from '@/components/upgrade-plan/UpgradePlanModal';
 import { toast } from '@/hooks/use-toast';
+import { closeModal, fetchPlans, openModal, setSelectedPlan } from '@/stores/features/subscription/subscriptionSlice';
+import { useAppDispatch, useAppSelector } from '@/stores/hooks';
+import { ROUTES } from '@/utils/constants/routes';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export function useUpgradePlanModal() {
     const dispatch = useAppDispatch();
+    const router = useRouter();
     const {
         isModalOpen: isOpen,
         error,
@@ -32,12 +29,18 @@ export function useUpgradePlanModal() {
     }, [isOpen, plans.length, loading, dispatch]);
 
     const handleSelectPlan = () => {
-        const selectedPlanData = plans.find((plan) => plan.planId === selectedPlan);
-        //TODO: Handle payment redirection and process
-        toast({
-            description: `You have selected the ${selectedPlanData?.name} \n Feature Payment will be soon}.`,
-            duration: 1000,
-        });
+        if (!selectedPlan) {
+            toast({
+                description: 'Please select a plan first',
+                variant: 'destructive',
+                duration: 2000,
+            });
+            return;
+        }
+
+        // Close modal and redirect to payment page
+        dispatch(closeModal());
+        router.push(ROUTES.PAYMENT(selectedPlan));
     };
 
     const onClose = () => {

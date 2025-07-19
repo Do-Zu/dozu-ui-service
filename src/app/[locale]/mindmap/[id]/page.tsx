@@ -1,26 +1,25 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import '@xyflow/react/dist/style.css';
-import { useParams, useRouter } from 'next/navigation';
-import Axios from '@/api/axios';
-import CustomReactFlowNode from '../components/CustomReactFlowNode';
-import FloatingEdge from '../components/FloatingEdge';
-import { v4 as uuidv4 } from 'uuid';
-import {
-    addEdge,
-    Background,
-    BackgroundVariant,
-    Controls,
-    Panel,
-    ReactFlow,
-    useEdgesState,
-    useNodesState,
-} from '@xyflow/react';
 import { Button } from '@/components/ui/button';
-import { Edge } from '../mindmap.type';
-
-const initialEdges: Edge[] = [];
+import { setRouterRef } from '@/utils/routerService';
+import { Background, BackgroundVariant, Controls, Panel, ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { Save } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import DownloadButton from '../components/buttons/DownloadButton';
+import ViewFileButton from '../components/buttons/ViewFileButton.';
+import CustomReactFlowNode from '../components/CustomReactFlowNode';
+import FileSheet from '../components/FileSheet';
+import FloatingEdge from '../components/FloatingEdge';
+import NodeSheet from '../components/NodeSheet';
+import { useMindMapContext } from '../context/MindMapContext';
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+import { toast } from '@/hooks/use-toast';
+import LoadingPage from '@/app/loading';
+import ContentGenerationPreview from '../../generate/components/ContentGenerationPreview';
+import { useAppSelector } from '@/stores/hooks';
+import { useContentGeneration } from '../../generate/hooks/useContentGeneration';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -34,92 +33,99 @@ const edgeTypes = {
     floating: FloatingEdge,
 };
 
-const MindmapPage = () => {
+export default function MindmapContent() {
     const router = useRouter();
-    const params = useParams();
-    const topicId = params?.id;
-    console.log('topicId', topicId);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const initialNodes = [
-        {
-            id: '1',
-            type: 'custom-react-flow-node',
-            position: { x: 0, y: 0 },
-            data: { nodeId: '1', label: '1', isRoot: true, topicId: topicId, router: router },
-        },
-    ];
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const {
+        topicId,
+        nodes,
+        edges,
+        onNodesChange,
+        onEdgesChange,
+        isSaving,
+        saveMindmap,
+        sseData,
+        sseStatus,
+        isProcessingRegisterGenerate,
+    } = useMindMapContext();
 
-    if (!params?.id) return <div>No topic id is provided</div>;
+    const {
+        dataGenerated,
+        setDataGenerated,
+        setTopicName,
+        setTopicDescription,
+        isTopicModalOpen,
+        setIsTopicModalOpen,
+        handleOnClickSave,
+    } = useContentGeneration({ sseData, sseStatus });
+
+    const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
 
     useEffect(() => {
-        const getTopic = async () => {
-            console.log('router', router);
-            const result = await Axios.get(`/topics/${params.id}`);
-            console.log(result.data.data);
-            const id = uuidv4();
-            setNodes([
-                {
-                    id: id,
-                    type: 'custom-react-flow-node',
-                    position: { x: 0, y: 0 },
-                    data: {
-                        nodeId: id,
-                        label: result.data.data.name,
-                        isRoot: true,
-                        topicId: topicId, //remove
-                        router: router, //remove
-                    },
-                },
-            ]);
-        };
-        const getMindmap = async () => {
-            try {
-                const result = await Axios.get(`/mindmap/${params.id}`);
-                console.log(result.data.data.resultMindmap.mindmapData);
-                const mindmapData = result.data.data.resultMindmap.mindmapData;
-                mindmapData.nodes = mindmapData.nodes.map((node: any) => {
-                    return {
-                        ...node,
-                        data: { ...node.data, topicId: topicId, router: router },
-                    };
-                });
-                console.log(mindmapData.nodes);
-                setNodes(mindmapData.nodes);
-                setEdges(mindmapData.edges);
-            } catch (e) {
-                // console.log('error', e);
-                getTopic();
-            }
-        };
+        setRouterRef(router);
+    }, [router]);
 
-        getMindmap();
-    }, []);
-
-    const handleSaveMindMap = async () => {
-        setIsLoading(true);
-        try {
-            const options: any = {
-                body: {
-                    title: 'a',
-                    nodes: nodes,
-                    edges: edges,
-                },
-            };
-            const response = await Axios.post(`/mindmap/${topicId}`, options.body);
-        } catch (e) {
-            console.log(e);
+    useEffect(() => {
+        if (sseStatus === 'timeout' || sseStatus === 'error') {
+            toast({
+                description:
+                    sseStatus === 'timeout'
+                        ? 'The generation process timed out!'
+                        : 'There was an error with the generation process. Please try again.',
+            });
+        } else if (sseData && sseStatus === 'completed') {
+            const data = sseData?.data?.data;
+            console.log({ data });
+            toast({
+                description: 'Your content has been successfully generated.',
+                variant: 'default',
+            });
         }
-        setIsLoading(false);
+    }, [sseData, sseStatus]);
+
+    if (!topicId) {
+        return <div>No topic id is provided</div>;
+    }
+
+    if (sseStatus === 'open') {
+        return <GeneratingSkeleton />;
+    }
+
+    //TODO: Implement save content generated
+    // That must be include nodeId
+    const handleSaveContentGenerated = async () => {
+        toast({
+            description: 'Implement this function to save generated content',
+            variant: 'default',
+        });
+        //NODE: Can reuse function handleOnClickSave
     };
 
-    // const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+    if (dataGenerated) {
+        return (
+            <div className="relative">
+                <ContentGenerationPreview
+                    sseData={sseData}
+                    dataGenerated={dataGenerated}
+                    setDataGenerated={setDataGenerated}
+                    topicName={selectedNodeData?.label || ''}
+                    setTopicName={setTopicName}
+                    topicDescription={selectedNodeData?.description || ''}
+                    setTopicDescription={setTopicDescription}
+                    isTopicModalOpen={isTopicModalOpen}
+                    setIsTopicModalOpen={setIsTopicModalOpen}
+                    onSave={handleSaveContentGenerated}
+                />
+                <Button className="fixed bottom-5 right-64 z-50 w-32" onClick={handleSaveContentGenerated}>
+                    Save
+                </Button>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-full">
-            {/* <ReactFlowProvider> */}
+            {isProcessingRegisterGenerate && <LoadingPage isOverlay={true} size={120} />}
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -127,21 +133,25 @@ const MindmapPage = () => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 edgeTypes={edgeTypes}
-                // onConnect={onConnect}
                 defaultEdgeOptions={defaultEdgeOptions}
             >
-                <Panel position="top-center">
-                    <Button disabled={isLoading} onClick={handleSaveMindMap}>
-                        Save mind map
-                    </Button>
+                <Panel position="top-left">
+                    <ViewFileButton />
                 </Panel>
-                <Panel position="top-left">React Flow Mind Map</Panel>
+                <Panel position="top-center">
+                    <div className="flex gap-2 ">
+                        <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
+                            <Save />
+                            {isSaving ? 'Saving...' : 'Save mindmap'}
+                        </Button>
+                        <DownloadButton />
+                    </div>
+                    <FileSheet />
+                    <NodeSheet />
+                </Panel>
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
-            {/* </ReactFlowProvider> */}
         </div>
     );
-};
-
-export default MindmapPage;
+}

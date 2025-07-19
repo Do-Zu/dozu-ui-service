@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,9 @@ import DailyStudyBarChart from './DailyStudyBarChart';
 import LearningMethodsPieChart from './LearningMethodsPieChart';
 
 const ProgressDashboard: React.FC = () => {
+  const printRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations('progress');
+  
   const { data: stats, loading: statsLoading, error: statsError } = useProgressStatistics();
   const { data: dashboard, loading: dashboardLoading, error: dashboardError } = useDashboardStatistics();
   const { data: dailyStudy, loading: dailyStudyLoading } = useDailyStudyRecords(7);
@@ -39,7 +43,7 @@ const ProgressDashboard: React.FC = () => {
   if (statsLoading || dashboardLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading progress data...</div>
+        <div className="text-lg">{t('loading')}</div>
       </div>
     );
   }
@@ -47,7 +51,7 @@ const ProgressDashboard: React.FC = () => {
   if (statsError || dashboardError) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-red-500">Error loading progress data</div>
+        <div className="text-red-500">{t('error')}</div>
       </div>
     );
   }
@@ -72,12 +76,12 @@ const ProgressDashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={printRef}>
       {/* Overview Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Contents</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('totalContents')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalContents || 0}</div>
@@ -86,7 +90,7 @@ const ProgressDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('completed')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats?.completedContents || 0}</div>
@@ -99,7 +103,7 @@ const ProgressDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('inProgress')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{stats?.inProgressContents || 0}</div>
@@ -108,7 +112,7 @@ const ProgressDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('averageScore')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.averageScore?.toFixed(1) || 0}%</div>
@@ -121,20 +125,20 @@ const ProgressDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Study Overview</CardTitle>
-              <CardDescription>Your learning progress this week</CardDescription>
+              <CardTitle>{t('studyOverview')}</CardTitle>
+              <CardDescription>{t('learningProgress')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between items-center">
-                <span>Total Study Hours</span>
+                <span>{t('totalStudyHours')}</span>
                 <span className="font-bold">{dashboard.totalStudyHours.toFixed(1)}h</span>
               </div>
               <div className="flex justify-between items-center">
-                <span>Completed Topics</span>
+                <span>{t('completedTopics')}</span>
                 <span className="font-bold">{dashboard.completedTopics}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span>Weekly Change</span>
+                <span>{t('weeklyChange')}</span>
                 <span className={`font-bold ${weeklyComparison?.percentageChange && weeklyComparison.percentageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {weeklyComparison?.percentageChange ? (weeklyComparison.percentageChange >= 0 ? '+' : '') + weeklyComparison.percentageChange.toFixed(1) : '0'}%
                 </span>
@@ -144,8 +148,8 @@ const ProgressDashboard: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Learning Methods</CardTitle>
-              <CardDescription>Distribution of your learning activities</CardDescription>
+              <CardTitle>{t('learningMethods')}</CardTitle>
+              <CardDescription>{t('distribution')}</CardDescription>
             </CardHeader>
             <CardContent>
               <LearningMethodsPieChart data={learningMethods || []} />
@@ -157,13 +161,13 @@ const ProgressDashboard: React.FC = () => {
       {/* Daily Study Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Daily Study Hours (Last 7 Days)</CardTitle>
-          <CardDescription>Your study time distribution</CardDescription>
+          <CardTitle>{t('dailyStudyHours')}</CardTitle>
+          <CardDescription>{t('studyTimeDistribution')}</CardDescription>
         </CardHeader>
         <CardContent>
           {dailyStudyLoading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="text-sm text-gray-500">Loading chart data...</div>
+              <div className="text-sm text-gray-500">{t('loadingChart')}</div>
             </div>
           ) : (
             <DailyStudyBarChart data={dailyStudy || []} />
@@ -172,11 +176,11 @@ const ProgressDashboard: React.FC = () => {
       </Card>
 
       {/* Report Footer */}
-      <Card>
+      <Card className="no-print">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Report generated on {new Date().toLocaleDateString('en-US', { 
+              {t('reportGenerated')} {new Date().toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
@@ -196,15 +200,15 @@ const ProgressDashboard: React.FC = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleExport('pdf')}>
                     <FileText className="h-4 w-4 mr-2" />
-                    Export as PDF
+                    {t('exportPdf')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleExport('excel')}>
                     <FileText className="h-4 w-4 mr-2" />
-                    Export as Excel
+                    {t('exportExcel')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleExport('csv')}>
                     <FileText className="h-4 w-4 mr-2" />
-                    Export as CSV
+                    {t('exportCsv')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -212,19 +216,19 @@ const ProgressDashboard: React.FC = () => {
               {/* Print Button */}
               <Button variant="outline" onClick={handlePrint} className="gap-2">
                 <Printer className="h-4 w-4" />
-                Print
+                {t('print')}
               </Button>
 
               {/* Share Button */}
               <Button variant="outline" onClick={handleShare} className="gap-2">
                 <Share2 className="h-4 w-4" />
-                Share
+                {t('share')}
               </Button>
 
               {/* Export Button */}
               <Button onClick={() => handleExport('pdf')} className="gap-2">
                 <Download className="h-4 w-4" />
-                Export
+                {t('export')}
               </Button>
             </div>
           </div>
@@ -235,32 +239,195 @@ const ProgressDashboard: React.FC = () => {
   );
 
   // Handler functions
-  function handleExport(format: 'pdf' | 'excel' | 'csv') {
-    // TODO: Implement export functionality
-    console.log(`Exporting as ${format}...`);
-    // You can implement actual export logic here
-    // For example, using libraries like jsPDF, xlsx, etc.
+  async function handleExport(format: 'pdf' | 'excel' | 'csv') {
+    try {
+      if (format === 'pdf') {
+        await exportToPDF();
+      } else if (format === 'excel') {
+        await exportToExcel();
+      } else if (format === 'csv') {
+        await exportToCSV();
+      }
+    } catch (error) {
+      alert(t('exportError', { format }));
+    }
+  }
+
+  async function exportToPDF() {
+    const { jsPDF } = await import('jspdf');
+    const html2canvas = (await import('html2canvas')).default;
+    
+    if (!printRef.current) return;
+
+    const canvas = await html2canvas(printRef.current, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210;
+    const pageHeight = 295;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save(`progress-report-${new Date().toISOString().split('T')[0]}.pdf`);
+  }
+
+  async function exportToExcel() {
+    const XLSX = await import('xlsx');
+    
+    // Prepare data for Excel
+    const progressData = [
+      [t('progressReportTitle')],
+      [t('reportGenerated'), new Date().toLocaleDateString()],
+      [''],
+      [t('studyOverview')],
+      [t('totalContents'), stats?.totalContents || 0],
+      [t('completed'), stats?.completedContents || 0],
+      [t('inProgress'), stats?.inProgressContents || 0],
+      [t('averageScore'), `${stats?.averageScore?.toFixed(1) || 0}%`],
+      [''],
+      [t('studyOverview')],
+      [t('totalStudyHours'), dashboard?.totalStudyHours?.toFixed(1) || 0],
+      [t('completedTopics'), dashboard?.completedTopics || 0],
+      [t('weeklyChange'), `${weeklyComparison?.percentageChange?.toFixed(1) || 0}%`],
+      [''],
+      [t('dailyStudyHours')],
+      ['Day', 'Hours', 'Date'],
+      ...((dailyStudy || []).map(day => [day.day, day.hours, day.date]))
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(progressData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, t('progressReportTitle'));
+    
+    XLSX.writeFile(wb, `progress-report-${new Date().toISOString().split('T')[0]}.xlsx`);
+  }
+
+  async function exportToCSV() {
+    const dailyStudyCSV = [
+      ['Day', 'Hours', 'Date'],
+      ...((dailyStudy || []).map(day => [day.day, day.hours, day.date]))
+    ];
+
+    const csvContent = dailyStudyCSV.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `daily-study-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   function handlePrint() {
-    // TODO: Implement print functionality
-    console.log('Printing report...');
-    window.print();
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow || !printRef.current) return;
+
+    const printContent = printRef.current.innerHTML;
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>{t('progressReportTitle')}</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              margin: 20px; 
+              color: #333;
+            }
+            .space-y-6 > * + * { margin-top: 1.5rem; }
+            .grid { display: grid; }
+            .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .lg\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .gap-4 { gap: 1rem; }
+            .gap-6 { gap: 1.5rem; }
+            .border { border: 1px solid #e5e7eb; }
+            .rounded-lg { border-radius: 0.5rem; }
+            .p-4 { padding: 1rem; }
+            .p-6 { padding: 1.5rem; }
+            .text-sm { font-size: 0.875rem; }
+            .text-2xl { font-size: 1.5rem; }
+            .font-bold { font-weight: 700; }
+            .font-semibold { font-weight: 600; }
+            .text-green-600 { color: #16a34a; }
+            .text-blue-600 { color: #2563eb; }
+            .text-muted-foreground { color: #6b7280; }
+            @media print {
+              body { margin: 0; }
+              .no-print { display: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>{t('progressReportTitle')}</h1>
+          <p>{t('reportGenerated')} ${new Date().toLocaleDateString()}</p>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Wait for content to load then print
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
   }
 
-  function handleShare() {
-    // TODO: Implement share functionality
-    console.log('Sharing report...');
-    if (navigator.share) {
-      navigator.share({
-        title: 'Learning Progress Report',
-        text: 'Check out my learning progress!',
-        url: window.location.href,
-      });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      // You might want to show a toast notification here
+  async function handleShare() {
+    const shareData = {
+      title: t('progressReportTitle'),
+      text: t('progressReportText', { 
+        hours: dashboard?.totalStudyHours?.toFixed(1) || 0, 
+        topics: dashboard?.completedTopics || 0 
+      }),
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(
+          `${shareData.title}\n${shareData.text}\n${shareData.url}`
+        );
+        
+        // Show success message
+        alert(t('reportDetailsCopied'));
+      }
+    } catch (error) {
+      
+      // Final fallback: copy URL only
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert(t('urlCopied'));
+      } catch (clipboardError) {
+        alert(t('shareError'));
+      }
     }
   }
 };

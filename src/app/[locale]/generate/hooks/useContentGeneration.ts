@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE } from '../types';
-import { handleConvertToFlashcardsEdited } from '../../flashcards/components/FlashcardEditor';
+import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { detectContentType, getContentTypeDisplayName } from '../utils/contentTypeDetector';
 import { ContentType, TypeDataGenerated } from '../components/ContentGenerationPreview';
 import { toast } from '@/hooks/use-toast';
@@ -8,6 +8,7 @@ import router from 'next/router';
 import { ContentCreationService } from '../services/contentCreation.service';
 import { resetImportDialog } from '../stores/features/importDialogSlice';
 import { useCardImportDispatch } from './useReduxStore';
+import { ROUTES } from '@/utils/constants/routes';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
@@ -50,6 +51,8 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
                 type: 'generative',
                 flashcardsProp: data as IFlashcardsFromSSE,
             });
+        } else if (contentType === CONTENT_TYPE_GENERATE.MIND_MAP) {
+            return data;
         }
 
         //TODO: Add parsing logic for other content types
@@ -82,7 +85,9 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
                 description: 'Your content has been attached to the new topic.',
                 variant: 'default',
             });
-            router.push('/home');
+            setTimeout(() => {
+                router.push(ROUTES.LANDING);
+            }, 100);
         } else {
             toast({
                 description: result.error || 'Failed to create content',

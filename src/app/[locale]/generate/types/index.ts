@@ -1,5 +1,18 @@
 import { object } from 'zod';
 
+export interface ApiResponsePubGenContent {
+    status: string;
+    message: string;
+    data?: {
+        jobId: string;
+        status?: string;
+        data?: object[];
+    };
+    sse: {
+        event: string;
+    };
+}
+
 export interface IGenerateFlashcardItem {
     q: string;
     a: string;

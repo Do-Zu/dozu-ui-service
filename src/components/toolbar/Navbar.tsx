@@ -14,6 +14,9 @@ import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
 import { ROUTES } from '@/utils/constants/routes';
+import { LearningModeSelect } from './LearningModeSelect';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { ShowIf } from '../ui/ShowIf';
 
 function TokenHandler() {
     // const dispatch = useAppDispatch();
@@ -33,6 +36,7 @@ function TokenHandler() {
 export default function Navbar() {
     const dispatch = useAppDispatch();
     const { isAuthenticated, clearAuthData } = useAuth();
+    const { isStudent } = useRoleChecker();
 
     useEffect(() => {
         const refreshToken = async () => {
@@ -90,9 +94,13 @@ export default function Navbar() {
         <>
             <div className="mx-auto flex p-2 justify-between items-center h-full bg-background/95 backdrop-blur-md border-b border-muted dark:border-muted/50">
                 {/* Logo or Home Link */}
-                <Link href="/" className="text-lg font-bold text-primary">
-                    Dozu
-                </Link>
+                <div className="flex items-center gap-4">
+                    <Link href="/" className="text-lg font-bold text-primary">
+                        Dozu
+                    </Link>
+                    <ShowIf when={isStudent} children={<LearningModeSelect />} />
+                    {/* <LearningModeSelect /> */}
+                </div>
 
                 {/* Right side controls */}
                 <div className="flex items-center gap-4">
