@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import CalendarView from './components/CalendarView';
 import { Calendar } from '@/components/ui/full-calendar';
+import { withAuth } from '@/hoc/withAuth';
+import CalendarView from './components/CalendarView';
 
-export default function SchedulePage() {
+const SchedulePage = () => {
     return (
         <Calendar>
             <div className="mx-auto p-2 space-y-10">
@@ -12,4 +12,6 @@ export default function SchedulePage() {
             </div>
         </Calendar>
     );
-}
+};
+
+export default withAuth(SchedulePage);

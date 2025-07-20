@@ -2,17 +2,16 @@
 
 import React from 'react';
 
+import { withAuth } from '@/hoc/withAuth';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { selectLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { ROUTES } from '@/utils/constants/routes';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { TeacherClassLibrary } from '../class-based/components/teacher/TeacherClassLibrary';
+import PersonalTopicLibrary from '../topics/components/personal/PersonalTopicLibrary';
 import CoreActionCards from './components/CoreActionCards';
 import CurrentProcessLearning from './components/CurrentProcessLearning';
-import PersonalTopicLibrary from '../topics/components/personal/PersonalTopicLibrary';
-import { useSelector } from 'react-redux';
-import { selectLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
-import { StudentClassLibrary } from '../class-based/components/student/StudentClassLibrary';
-import { TeacherClassLibrary } from '../class-based/components/teacher/TeacherClassLibrary';
-import { useRoleChecker } from '@/hooks/useRoleChecker';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/utils/constants/routes';
-import { withAuth } from '@/hoc/withAuth';
 
 const Home: React.FC = () => {
     const learningMode = useSelector(selectLearningMode);
@@ -42,4 +41,4 @@ const Home: React.FC = () => {
     );
 };
 
-export default withAuth(Home);
+export default Home;

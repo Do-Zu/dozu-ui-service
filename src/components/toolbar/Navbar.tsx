@@ -5,7 +5,7 @@ import ThemeToggle from '@/components/toolbar/ThemeToggle';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { logout, setCredentials, updateAccessToken } from '@/stores/features/auth/authSlice';
 import { useEffect, Suspense } from 'react';
 import usePost from '@/hooks/usePost';
@@ -17,6 +17,8 @@ import { ROUTES } from '@/utils/constants/routes';
 import { LearningModeSelect } from './LearningModeSelect';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { ShowIf } from '../ui/ShowIf';
+import LoadingPage from '@/app/loading';
+import { toast } from '@/hooks/use-toast';
 
 function TokenHandler() {
     // const dispatch = useAppDispatch();
@@ -37,36 +39,37 @@ export default function Navbar() {
     const dispatch = useAppDispatch();
     const { isAuthenticated, clearAuthData } = useAuth();
     const { isStudent } = useRoleChecker();
+    const router = useRouter();
 
-    useEffect(() => {
-        const refreshToken = async () => {
-            try {
-                const result = await Axios.post(
-                    '/auth/refresh-token',
-                    {},
-                    {
-                        withCredentials: true,
-                    },
-                );
-                // Handle success (e.g., store new token)
-                const decoded: any = jwtDecode(result.data.data.accessToken);
-                const userId = decoded.user.userId;
-                const username = decoded.user.username;
+    // useEffect(() => {
+    //     const refreshToken = async () => {
+    //         try {
+    //             const result = await Axios.post(
+    //                 '/auth/refresh-token',
+    //                 {},
+    //                 {
+    //                     withCredentials: true,
+    //                 },
+    //             );
+    //             // Handle success (e.g., store new token)
+    //             const decoded: any = jwtDecode(result.data.data.accessToken);
+    //             const userId = decoded.user.userId;
+    //             const username = decoded.user.username;
 
-                dispatch(
-                    setCredentials({
-                        accessToken: result.data.data.accessToken,
-                        userId,
-                        username,
-                    }),
-                );
-            } catch (error) {
-                console.error('Failed to refresh token', error);
-                // Optional: redirect to login
-            }
-        };
-        refreshToken();
-    }, []);
+    //             dispatch(
+    //                 setCredentials({
+    //                     accessToken: result.data.data.accessToken,
+    //                     userId,
+    //                     username,
+    //                 }),
+    //             );
+    //         } catch (error) {
+    //             console.error('Failed to refresh token', error);
+    //             // Optional: redirect to login
+    //         }
+    //     };
+    //     refreshToken();
+    // }, []);
 
     const handleLogout = async () => {
         try {
@@ -75,10 +78,12 @@ export default function Navbar() {
             clearAuthData();
 
             dispatch(logout());
-            // router.push('/auth/login'); //todo:router not working
+
+            router.replace(ROUTES.LANDING);
         } catch (error) {
-            console.error('Logout failed:', error);
-            //todo:catch error
+            toast({
+                description: 'There was an error logging you out. Please try again later.',
+            });
         }
     };
 
@@ -89,7 +94,8 @@ export default function Navbar() {
         execute,
     } = usePost<any, any>('/auth/logout', 'POST');
 
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
+    if (loading) return <LoadingPage />;
+
     return (
         <>
             <div className="mx-auto flex p-2 justify-between items-center h-full bg-background/95 backdrop-blur-md border-b border-muted dark:border-muted/50">
