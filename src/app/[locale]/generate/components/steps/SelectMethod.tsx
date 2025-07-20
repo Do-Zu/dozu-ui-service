@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Sparkles, BookOpen, FileText, Lightbulb, Check, Map } from 'lucide-react';
 import { useCardImportSelector, useCardImportDispatch } from '../../hooks/useReduxStore';
 import { setSelectedMethod } from '@/app/[locale]/generate/stores/features/importDialogSlice';
@@ -9,7 +9,7 @@ interface SelectMethodProps {}
 
 const SelectMethod: React.FC<SelectMethodProps> = () => {
     const dispatch = useCardImportDispatch();
-    const { suggestedMethods, selectedMethod } = useCardImportSelector((state) => state.importDialog);
+    const { suggestedMethods, selectedMethod, importMethod } = useCardImportSelector((state) => state.importDialog);
 
     const handleMethodSelection = (method: string) => {
         dispatch(setSelectedMethod(method));
@@ -43,6 +43,14 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
         }
     };
 
+    const suggestMethodSelection = useMemo(() => {
+        if (importMethod === 'file') {
+            return suggestedMethods;
+        }
+        // Exclude mindmap if importMethod is not 'file'
+        return suggestedMethods.filter((method) => method !== 'mindmap');
+    }, [selectedMethod]);
+
     return (
         <div className="space-y-6">
             <div className="p-4 rounded-lg border">
@@ -61,7 +69,7 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
             </div>
 
             <div className="space-y-3">
-                {suggestedMethods.map((method) => (
+                {suggestMethodSelection?.map((method) => (
                     <div
                         key={method}
                         className={`p-4 rounded-lg border ${selectedMethod === method ? 'border-border bg-muted' : 'border-border'} cursor-pointer transition-all`}
