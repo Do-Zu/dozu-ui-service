@@ -1,9 +1,11 @@
 import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
+import { handleConvertToQuestionsSubmitted } from '../../question/utils/handleConvertToQuestionsSubmitted';
 import { ContentType } from '../components/ContentGenerationPreview';
 import Axios from '@/api/axios';
 import topicService from '@/services/topic/topic.service';
 import { store } from '@/stores/store';
+import { IQuestion } from '@/app/[locale]/question/types/question.type';
 
 export interface CreateContentParams {
     topicName: string;
@@ -48,7 +50,7 @@ export class ContentCreationService {
                     await this.saveFlashcards(topicId, contentData);
                     break;
                 case 'quiz':
-                    await this.saveQuiz(topicId, contentData);
+                    await this.saveQuiz(topicId, contentData as IQuestion[]);
                     break;
                 case 'mindmap':
                     await this.saveMindmap(topicId, contentData);
@@ -88,10 +90,20 @@ export class ContentCreationService {
      * Saves quiz to a topic
      * TODO: Implement quiz saving logic
      */
-    private static async saveQuiz(topicId: string | number, quizData: any): Promise<void> {
-        // TODO: Implement quiz API endpoint
-        console.log('Saving quiz for topic:', topicId, quizData);
-        throw new Error('Quiz saving not implemented yet');
+    private static async saveQuiz(topicId: string | number, quizData: IQuestion[]): Promise<void> {
+        if (!quizData || quizData.length === 0) {
+            throw new Error('No quiz data provided');
+        }
+
+        console.log({quizData})
+
+        const questionsSubmitted = handleConvertToQuestionsSubmitted(quizData);
+
+        if (!questionsSubmitted) {
+            throw new Error('No valid quiz questions to submit');
+        }
+
+        await postRequest(`/questions/batch?topicId=${topicId}`, questionsSubmitted);
     }
 
     /**

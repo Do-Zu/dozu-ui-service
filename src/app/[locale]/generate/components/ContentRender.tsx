@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import FlashcardEditor, { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { GeneratedContent, TypeDataGenerated } from './ContentGenerationPreview';
+import QuestionEditor from '../../question/components/QuestionEditor';
+import { IQuestion } from '../../question/types/question.type';
 import { CONTENT_TYPE_GENERATE } from '../types';
 import GenerateMindmapCard from '../../mindmap/components/GenerateMindmapCard';
 
@@ -23,7 +25,7 @@ const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, s
                     />
                 );
             case CONTENT_TYPE_GENERATE.QUIZ || CONTENT_TYPE_GENERATE.MULTIPLE_CHOICE:
-                return <QuizRenderer data={content.data} />;
+                return <QuestionRenderer questions={dataGenerated as IQuestion[]} setQuestions={setDataGenerated} />;
             case CONTENT_TYPE_GENERATE.MIND_MAP:
                 return <MindmapRenderer data={content.data} setDataGenerated={setDataGenerated} />;
             default:
@@ -55,19 +57,23 @@ const FlashcardRenderer: React.FC<FlashcardRendererProps> = ({ flashcards, setFl
     );
 };
 
-interface QuizRendererProps {
-    //TODO: Define the structure of quiz data
-    data: any;
+interface QuestionRendererProps {
+    questions: IQuestion[] | null;
+    setQuestions: (questions: IQuestion[] | null) => void;
 }
 
-const QuizRenderer: React.FC<QuizRendererProps> = ({ data }) => {
-    // TODO: Implement quiz renderer component
+const QuestionRenderer: React.FC<QuestionRendererProps> = ({ questions, setQuestions }) => {
+    if (!questions) {
+        return <div className="p-4 text-center text-gray-500">No quiz questions generated</div>;
+    }
+
     return (
-        <div className="p-4 border rounded-lg">
-            <h4 className="font-medium mb-2">Quiz Content</h4>
-            <p className="text-sm text-gray-600">Quiz renderer will be implemented here</p>
-            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">{JSON.stringify(data, null, 2)}</pre>
-        </div>
+        <QuestionEditor
+            questions={questions}
+            setQuestions={setQuestions}
+            shouldShowBackButton={false}
+            shouldShowSaveButton={false}
+        />
     );
 };
 
