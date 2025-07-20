@@ -1,24 +1,62 @@
-// Chức năng: Hiển thị thông tin tóm tắt về một bài quiz, bao gồm tên quiz, điểm số (nếu có), và thời gian làm.
-// Sử dụng: Được sử dụng trong các trang như danh sách quiz trong quiz/history.
+'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface QuizCardProps {
-  quizId: number;
-  quizTitle: string;
-  totalScore: number;
-  onClickViewDetails: () => void;
+    quizResultId: number;
+    quizId: number;
+    correctAnswersCount: number;
+    questionsCount: number;
+    timeReviewed: string;
+    quizTitle?: string;
+    onClick?: () => void;
 }
 
-const QuizCard = ({ quizId, quizTitle, totalScore, onClickViewDetails }: QuizCardProps) => (
-  <Card onClick={onClickViewDetails} className="mb-4 cursor-pointer">
-    <CardHeader>
-      <CardTitle>{quizTitle}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p>Total Score: {totalScore}</p>
-    </CardContent>
-  </Card>
-);
+const QuizCard = ({
+    quizId,
+    quizResultId,
+    correctAnswersCount,
+    questionsCount,
+    timeReviewed,
+    quizTitle,
+    onClick,
+}: QuizCardProps) => {
+    const scorePercent = Math.round((correctAnswersCount / questionsCount) * 100);
+    const formattedTime = new Date(timeReviewed).toLocaleString('vi-VN', {
+        hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+
+    return (
+        <Card
+            onClick={onClick}
+            className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border border-border bg-blue-50"
+        >
+            <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-bold text-primary leading-snug flex items-center gap-2">
+                    {quizTitle || `Quiz #${quizId}`}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">Result ID: {quizResultId}</p>
+            </CardHeader>
+
+            <CardContent className="text-sm text-muted-foreground space-y-1">
+                <p>
+                    <span className="font-medium text-green-600">{correctAnswersCount}</span> correct out of{' '}
+                    <span className="text-foreground">{questionsCount}</span> questions
+                </p>
+                <p>
+                    Accuracy: <span className="font-semibold text-blue-600">{scorePercent}%</span>
+                </p>
+                <p>
+                    Reviewed on: <span className="text-gray-600">{formattedTime}</span>
+                </p>
+            </CardContent>
+        </Card>
+    );
+};
 
 export default QuizCard;
