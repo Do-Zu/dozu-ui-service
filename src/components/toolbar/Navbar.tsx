@@ -94,7 +94,7 @@ export default function Navbar() {
         execute,
     } = usePost<any, any>('/auth/logout', 'POST');
 
-    if (loading) return <LoadingPage />;
+    if (loading) return <LoadingPage isOverlay={true} />;
 
     return (
         <>
