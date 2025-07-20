@@ -19,18 +19,18 @@ function HomePage() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (isAuthenticated || user?.isNewUser) {
-            router.push(ROUTES.HOME);
-        } else {
-            router.push(ROUTES.WELCOME);
-        }
-
         if (isAuthenticated && isTeacher) {
             dispatch(setLearningMode('class-based'));
         } else {
             dispatch(setLearningMode(storedValue));
         }
-    }, [isAuthenticated, router]);
+
+        if (isAuthenticated) {
+            router.push(ROUTES.HOME);
+        } else {
+            router.push(ROUTES.WELCOME);
+        }
+    }, [isAuthenticated]);
 
     return <AuthSkeleton />;
 }
