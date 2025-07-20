@@ -12,13 +12,14 @@ import { TeacherClassLibrary } from '../class-based/components/teacher/TeacherCl
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
+import { withAuth } from '@/hoc/withAuth';
 
 const Home: React.FC = () => {
     const learningMode = useSelector(selectLearningMode);
     const { isTeacher } = useRoleChecker();
     const router = useRouter();
 
-    if(isTeacher) {
+    if (isTeacher) {
         return (
             <div className="flex flex-col h-full">
                 <CoreActionCards />
@@ -28,7 +29,7 @@ const Home: React.FC = () => {
         );
     }
 
-    if(learningMode === 'class-based') {
+    if (learningMode === 'class-based') {
         router.push(ROUTES.CLASS_BASED);
     }
 
@@ -41,4 +42,4 @@ const Home: React.FC = () => {
     );
 };
 
-export default Home;
+export default withAuth(Home);

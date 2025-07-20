@@ -30,7 +30,7 @@ function HomePage() {
         } else {
             dispatch(setLearningMode(storedValue));
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated]);
 
     return <AuthSkeleton />;
 }
