@@ -24,6 +24,7 @@
         "browse": "Browse",
         "learning": "Learning",
         "name": "Name",
+        "start-quiz": "Start Quiz",
         "description": "Description",
         "nameBlankAlert": "Name must not be blank"
     }

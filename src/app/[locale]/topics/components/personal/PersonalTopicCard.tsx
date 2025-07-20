@@ -9,7 +9,7 @@ import {
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Trash2 } from 'lucide-react';
+import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Trash2, Play } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -57,6 +57,10 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
     function handleOnClickMindmap() {
         router.push(`mindmap/${topicId}`);
     }
+
+    function handleOnClickStartQuiz() {
+        router.push(`quiz/${topicId}/quiz-type`);
+    };
 
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
@@ -113,6 +117,10 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                                     <span>Quiz</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
+                                    <DropdownMenuItem onSelect={handleOnClickStartQuiz}>
+                                        <Play className="mr-2 h-4 w-4" />
+                                        <span>{topicT('start-quiz')}</span>
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem>
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>{topicT('edit')}</span>
