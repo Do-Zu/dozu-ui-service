@@ -20,6 +20,14 @@ export interface IGenerateFlashcardItem {
 
 export type IFlashcardsFromSSE = IGenerateFlashcardItem[];
 
+export interface IGenerateQuestionItemRaw {
+  q: string;
+  o: string[];
+  idx: number;
+}
+
+export type IQuestionsFromSSERaw = IGenerateQuestionItemRaw[];
+
 export interface ISseData {
     jobId: string;
     timestamp: string;

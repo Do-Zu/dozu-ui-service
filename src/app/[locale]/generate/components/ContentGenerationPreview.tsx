@@ -4,6 +4,7 @@ import React from 'react';
 import { ISseData } from '../types';
 import { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { detectContentType } from '../utils/contentTypeDetector';
+import { IQuestion } from '../../question/types/question.type';
 import ContentRenderer from './ContentRender';
 import { CreateTopicModal } from '../../topics/components/CreateTopicModal';
 
@@ -14,7 +15,7 @@ export interface GeneratedContent {
     data: any;
 }
 
-export type TypeDataGenerated = IFlashcardWithServer[] | object[] | object | null;
+export type TypeDataGenerated = IFlashcardWithServer[] | IQuestion[] | object[] | object | null;
 
 interface ContentGenerationPreviewProps {
     sseData: ISseData | null;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE } from '../types';
+import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '../types';
 import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
+import { handleConvertToQuestionsEdited } from '../../question/utils/handleConvertToQuestionsEdited';
 import { detectContentType, getContentTypeDisplayName } from '../utils/contentTypeDetector';
 import { ContentType, TypeDataGenerated } from '../components/ContentGenerationPreview';
 import { toast } from '@/hooks/use-toast';
@@ -50,6 +51,11 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
             return handleConvertToFlashcardsEdited({
                 type: 'generative',
                 flashcardsProp: data as IFlashcardsFromSSE,
+            });
+        } else if (contentType === CONTENT_TYPE_GENERATE.QUIZ) {
+            return handleConvertToQuestionsEdited({
+                type: 'generative',
+                questionsProp: data as IQuestionsFromSSERaw,
             });
         } else if (contentType === CONTENT_TYPE_GENERATE.MIND_MAP) {
             return data;
