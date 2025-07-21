@@ -223,7 +223,13 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
                 // Load existing mindmap
                 mindmapData.nodes = mindmapData.nodes.map((node: any) => ({
                     ...node,
-                    data: { ...node.data, topicId: topicId, router: router },
+                    data: {
+                        ...node.data,
+                        topicId: topicId,
+                        router: router,
+                        pageStartIndex: parseInt(node.data.pageStartIndex),
+                        pageEndIndex: parseInt(node.data.pageEndIndex),
+                    },
                 }));
                 setNodes(mindmapData.nodes);
                 setEdges(mindmapData.edges);
