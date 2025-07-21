@@ -101,7 +101,12 @@ const FileSheet = () => {
                         <p>
                             Page {currentPageNumber} of {totalPages}
                         </p>
-                        <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} renderMode={'canvas'}>
+                        <Document
+                            file={pdfUrl}
+                            onLoadSuccess={onDocumentLoadSuccess}
+                            renderMode={'canvas'}
+                            onLoadError={(error) => alert('Error while loading document! ' + error.message)}
+                        >
                             <Page pageNumber={currentPageNumber} />
                         </Document>
                     </div>
