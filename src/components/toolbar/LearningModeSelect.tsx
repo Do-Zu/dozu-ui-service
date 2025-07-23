@@ -2,7 +2,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ILearningMode, setLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { CircleUserRound, School } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
@@ -28,9 +28,14 @@ function ClassBased() {
 export function LearningModeSelect() {
     const dispatch = useDispatch();
     const [storedValue, setValue] = useLocalStorage<ILearningMode>('learningMode', 'personal');
+    const [isMounted, setIsMounted] = useState<boolean>(false);
     const router = useRouter();
 
     useEffect(() => {
+        if(!isMounted) {
+            setIsMounted(true);
+            return;
+        }
         dispatch(setLearningMode(storedValue));
         if (storedValue === 'personal') {
             router.push(ROUTES.HOME);
