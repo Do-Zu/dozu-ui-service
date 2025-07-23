@@ -28,7 +28,7 @@ function AdminUsersPage() {
                 const mapped = (response.data ?? []).map(
                     (user: any): UserBasic => ({
                         id: String(user.userId),
-                        name: user.fullName || '—',
+                        name: user.username || '—',
                         email: user.email,
                         role: user.role,
                         isActive: user.isActive,

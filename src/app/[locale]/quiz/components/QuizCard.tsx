@@ -32,30 +32,31 @@ const QuizCard = ({
     });
 
     return (
-        <Card
-            onClick={onClick}
-            className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border border-border bg-blue-50"
-        >
-            <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-bold text-primary leading-snug flex items-center gap-2">
-                    {quizTitle || `Quiz #${quizId}`}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">Result ID: {quizResultId}</p>
-            </CardHeader>
+<Card
+  onClick={onClick}
+  className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border border-border bg-muted"
+>
+  <CardHeader className="pb-2">
+    <CardTitle className="text-lg font-bold text-primary leading-snug flex items-center gap-2">
+      {quizTitle || `Quiz #${quizId}`}
+    </CardTitle>
+    <p className="text-sm text-muted-foreground">Result ID: {quizResultId}</p>
+  </CardHeader>
 
-            <CardContent className="text-sm text-muted-foreground space-y-1">
-                <p>
-                    <span className="font-medium text-green-600">{correctAnswersCount}</span> correct out of{' '}
-                    <span className="text-foreground">{questionsCount}</span> questions
-                </p>
-                <p>
-                    Accuracy: <span className="font-semibold text-blue-600">{scorePercent}%</span>
-                </p>
-                <p>
-                    Reviewed on: <span className="text-gray-600">{formattedTime}</span>
-                </p>
-            </CardContent>
-        </Card>
+  <CardContent className="text-sm text-muted-foreground space-y-1">
+    <p>
+      <span className="font-medium text-foreground">{correctAnswersCount}</span> correct out of{' '}
+      <span className="text-foreground">{questionsCount}</span> questions
+    </p>
+    <p>
+      Accuracy: <span className="font-semibold text-primary">{scorePercent}%</span>
+    </p>
+    <p>
+      Reviewed on: <span className="text-muted-foreground">{formattedTime}</span>
+    </p>
+  </CardContent>
+</Card>
+
     );
 };
 
