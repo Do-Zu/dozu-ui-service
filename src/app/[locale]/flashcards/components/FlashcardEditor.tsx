@@ -36,7 +36,7 @@ interface IFlashcardsWithTopicName {
     topicName: string;
 }
 
-interface FlashcardsSubmitted {
+export interface FlashcardsSubmitted {
     flashcardsAdded?: IFlashcardAdded[];
     flashcardsUpdated?: IFlashcardUpdated[];
     flashcardsDeleted?: IFlashcardDeleted[];
