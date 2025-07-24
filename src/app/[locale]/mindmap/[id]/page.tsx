@@ -16,10 +16,20 @@ import NodeSheet from '../components/NodeSheet';
 import { useMindMapContext } from '../context/MindMapContext';
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import { toast } from '@/hooks/use-toast';
+
 import LoadingPage from '@/app/loading';
 import ContentGenerationPreview from '../../generate/components/ContentGenerationPreview';
 import { useAppSelector } from '@/stores/hooks';
 import { useContentGeneration } from '../../generate/hooks/useContentGeneration';
+import {
+    FlashcardsSubmitted,
+    handleConvertToFlashcardsSubmitted,
+    IFlashcardWithServer,
+} from '../../flashcards/components/FlashcardEditor';
+import { postRequest } from '@/api/api';
+import { ROUTES } from '@/utils/constants/routes';
+import { TypeDataGenerated } from '@/app/[locale]/generate/components/ContentGenerationPreview';
+import { IFlashcardAdded, IFlashcardDeleted, IFlashcardUpdated } from '../../flashcards/types/flashcard.type';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -91,14 +101,90 @@ export default function MindmapContent() {
         return <GeneratingSkeleton />;
     }
 
+    function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithServer[]): FlashcardsSubmitted | null {
+        if (!flashcards) return null;
+
+        let flashcardsFormatted = flashcards.map((flashcard) => {
+            return {
+                ...flashcard,
+                front: flashcard.front.trim(),
+                back: flashcard.back.trim(),
+            };
+        });
+
+        let flashcardsAdded: IFlashcardAdded[];
+        let flashcardsUpdated: IFlashcardUpdated[];
+        let flashcardsDeleted: IFlashcardDeleted[];
+
+        let flashcardsFilter;
+
+        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
+            return !flashcard.serverInfo && (flashcard.front !== '' || flashcard.back !== '');
+        });
+        flashcardsAdded = flashcardsFilter.map((flashcard) => ({
+            front: flashcard.front,
+            back: flashcard.back,
+        }));
+
+        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
+            return (
+                flashcard.serverInfo &&
+                flashcard.serverInfo.isUpdated &&
+                flashcard.front !== '' &&
+                flashcard.back !== ''
+            );
+        });
+        flashcardsUpdated = flashcardsFilter.map((flashcard) => ({
+            flashcardId: flashcard.serverInfo!.flashcardId,
+            front: flashcard.front,
+            back: flashcard.back,
+        }));
+
+        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
+            return (
+                flashcard.serverInfo &&
+                (flashcard.serverInfo.isDeleted ||
+                    (flashcard.serverInfo.isUpdated && flashcard.front === '' && flashcard.back === ''))
+            );
+        });
+        flashcardsDeleted = flashcardsFilter.map((flashcard) => flashcard.serverInfo!.flashcardId);
+
+        if (
+            (!flashcardsAdded || flashcardsAdded.length === 0) &&
+            (!flashcardsUpdated || flashcardsUpdated.length === 0) &&
+            (!flashcardsDeleted || flashcardsDeleted.length === 0)
+        )
+            return null;
+
+        let dataSubmitted: FlashcardsSubmitted = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
+        return dataSubmitted;
+    }
+
     //TODO: Implement save content generated
     // That must be include nodeId
+    console.log(dataGenerated);
+    console.log(selectedNodeData);
     const handleSaveContentGenerated = async () => {
+        let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]); //handle checks if needed - DuyND
+        try {
+            await postRequest(
+                `/flashcards/batch/node?topicId=${topicId}&nodeId=${selectedNodeData?.nodeId}`,
+                flashcardsSubmitted,
+            );
+            toast({
+                title: 'Edit Flashcards successfully',
+                variant: 'default',
+            });
+            router.push(ROUTES.HOME);
+        } catch (err) {
+            console.log(err);
+            return;
+        }
         toast({
             description: 'Implement this function to save generated content',
             variant: 'default',
         });
-        //NODE: Can reuse function handleOnClickSave
+        //NOTE: Can reuse function handleOnClickSave
     };
 
     if (dataGenerated) {
