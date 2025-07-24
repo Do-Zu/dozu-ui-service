@@ -85,7 +85,6 @@ export default function MindmapContent() {
             });
         } else if (sseData && sseStatus === 'completed') {
             const data = sseData?.data?.data;
-            console.log({ data });
             toast({
                 description: 'Your content has been successfully generated.',
                 variant: 'default',
@@ -160,28 +159,25 @@ export default function MindmapContent() {
         return dataSubmitted;
     }
 
-    //TODO: Implement save content generated
-    // That must be include nodeId
-    console.log(dataGenerated);
-    console.log(selectedNodeData);
     const handleSaveContentGenerated = async () => {
         let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]); //handle checks if needed - DuyND
         try {
-            await postRequest(
-                `/flashcards/batch/node?topicId=${topicId}&nodeId=${selectedNodeData?.nodeId}`,
-                flashcardsSubmitted,
-            );
+            await postRequest(`/flashcards/batch/node`, {
+                flashcards: flashcardsSubmitted,
+                topicId,
+                nodeId: selectedNodeData?.nodeId,
+            });
             toast({
                 title: 'Edit Flashcards successfully',
                 variant: 'default',
             });
-            router.push(ROUTES.HOME);
+            router.push(`/flashcards/edit/${topicId}`);
         } catch (err) {
             console.log(err);
             return;
         }
         toast({
-            description: 'Implement this function to save generated content',
+            description: 'Flashcards saved successfully',
             variant: 'default',
         });
         //NOTE: Can reuse function handleOnClickSave
