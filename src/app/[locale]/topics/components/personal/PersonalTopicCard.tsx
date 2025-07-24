@@ -62,6 +62,10 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
         router.push(`quiz/${topicId}/quiz-type`);
     };
 
+    function handleOnClickEditQuestion() {
+        router.push(`question/edit/${topicId}`);
+    };
+
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">
@@ -121,7 +125,7 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                                         <Play className="mr-2 h-4 w-4" />
                                         <span>{topicT('start-quiz')}</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={handleOnClickEditQuestion}>
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>{topicT('edit')}</span>
                                     </DropdownMenuItem>

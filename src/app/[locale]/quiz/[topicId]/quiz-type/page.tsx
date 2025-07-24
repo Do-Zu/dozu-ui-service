@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import QuizTypeSelector from '../../components/QuizTypeSelector';
 import CreateQuizModal from '../../components/CreateQuizModal';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,13 @@ import QuizOnboarding from '../../components/QuizOnboarding';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+interface IQuizStatistics {
+    totalQuizzes: number;
+    averageScore: number;
+    perfectScoreCount: number;
+    averageQuestionsPerQuiz: number;
+}
+
 const QuizTypePage = () => {
     const router = useRouter();
     const params = useParams();
@@ -22,7 +29,20 @@ const QuizTypePage = () => {
     const [selectedType, setSelectedType] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const [statistics, setStatistics] = useState<IQuizStatistics | null>(null);
 
+    useEffect(() => {
+        const fetchStatistics = async () => {
+            try {
+                const res = await quizService.getStatistics(topicId);
+                setStatistics(res.data as IQuizStatistics);
+            } catch (err) {
+                console.error('Failed to fetch quiz statistics:', err);
+            }
+        };
+
+        fetchStatistics();
+    }, [topicId]);
     const handleSelectQuizType = async (type: string) => {
         try {
             const { data } = await quizService.generateQuiz(topicId, type);
@@ -76,11 +96,18 @@ const QuizTypePage = () => {
     };
 
     const chartData = {
-        labels: ['Quiz Done', 'Average Score', 'Average Time', 'Quiz Success'],
+        labels: ['Total Quizzes', 'Average Score (%)', 'Perfect Scores', 'Avg Questions/Quiz'],
         datasets: [
             {
-                label: 'Statistics Quiz',
-                data: [20, 85, 3.33, 9],
+                label: 'Quiz Statistics',
+                data: statistics
+                    ? [
+                          statistics.totalQuizzes,
+                          statistics.averageScore,
+                          statistics.perfectScoreCount,
+                          statistics.averageQuestionsPerQuiz,
+                      ]
+                    : [0, 0, 0, 0],
                 backgroundColor: '#4B89A3',
                 borderColor: '#1E3A8A',
                 borderWidth: 1,
