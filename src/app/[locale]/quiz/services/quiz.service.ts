@@ -1,6 +1,12 @@
 import { getRequest, postRequest } from '@/api/api';
 
 export const quizService = {
+
+    getStatistics: async (topicId: string) => {
+        const response = await getRequest(`/quiz/statistics?topicId=${topicId}`);
+        return response;
+    },
+
     generateQuiz: async (topicId: string, type: string) => {
         const response = await getRequest(`/quiz/generate?type=${type}&topicId=${topicId}`);
         return response;
