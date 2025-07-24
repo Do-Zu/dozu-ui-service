@@ -32,7 +32,6 @@ interface QuizData {
 
 const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
     const [quizData, setQuizData] = useState<Question[]>([]);
-    console.log({quizData});
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -143,7 +142,7 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                 ))}
             </div>
             <Button onClick={handleSubmitQuiz} className="mt-4">
-                Nộp bài
+                Submit
             </Button>
         </div>
     );

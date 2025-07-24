@@ -45,7 +45,7 @@ export function handleConvertToQuestionsEdited(
       );
     } else {
       initialQuestions = questions.map((q, index) => ({
-        id: index,
+        id: q.questionId,
         questionText: q.questionText,
         choices: q.choices,
         correctIndex: q.correctIndex,
