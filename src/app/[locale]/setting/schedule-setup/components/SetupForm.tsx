@@ -74,7 +74,7 @@ export default function SetupForm({ onComplete }: Props) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 p-6 bg-white rounded shadow">
+        <div className="space-y-8 p-6 bg-white rounded shadow">
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                     Có lỗi xảy ra: {error}
@@ -94,10 +94,14 @@ export default function SetupForm({ onComplete }: Props) {
             </section>
 
             <div className="text-right">
-                <Button type="submit" disabled={updating}>
+                <Button
+                    disabled={updating}
+                    onClick={handleSubmit}
+                    className="bg-primary text-white hover:bg-primary-dark transition-colors"
+                >
                     <span className="text-sm font-medium">{updating ? 'Đang lưu...' : 'Lưu'}</span>
                 </Button>
             </div>
-        </form>
+        </div>
     );
 }
