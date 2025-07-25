@@ -33,7 +33,11 @@ export interface UseContentGenerationReturn {
     handleOnClickSave: () => Promise<void>;
 }
 
-export const useContentGeneration = ({ sseData, sseStatus, classProps = { mode: 'personal' } }: UseContentGenerationProps): UseContentGenerationReturn => {
+export const useContentGeneration = ({
+    sseData,
+    sseStatus,
+    classProps = { mode: MODE_ACCESS_PAGE_ROLE.personal },
+}: UseContentGenerationProps): UseContentGenerationReturn => {
     const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
     const [topicName, setTopicName] = useState<string>('');
     const [topicDescription, setTopicDescription] = useState<string>('');
@@ -79,14 +83,14 @@ export const useContentGeneration = ({ sseData, sseStatus, classProps = { mode: 
             return;
         }
         let result;
-        if(classProps.mode === 'personal') {
+        if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
             result = await ContentCreationService.createContent({
                 topicName,
                 topicDescription,
                 contentType,
                 contentData,
             });
-        } else if(classProps.mode === 'class-based') {
+        } else if (classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased) {
             const { classId } = classProps;
             result = await ContentCreationService.createContentForClass({
                 classId,
@@ -96,10 +100,10 @@ export const useContentGeneration = ({ sseData, sseStatus, classProps = { mode: 
                 contentData,
             });
         } else {
-            result = { 
+            result = {
                 success: false,
-                error: `Unsupported learning mode`
-            }
+                error: `Unsupported learning mode`,
+            };
         }
 
         if (result.success) {

@@ -13,6 +13,7 @@ import { TeacherClassLibrary } from '../class-based/components/teacher/TeacherCl
 import PersonalTopicLibrary from '../topics/components/personal/PersonalTopicLibrary';
 import CoreActionCards from './components/CoreActionCards';
 import CurrentProcessLearning from './components/CurrentProcessLearning';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 const Home: React.FC = () => {
     const learningMode = useSelector(selectLearningMode);
@@ -20,7 +21,7 @@ const Home: React.FC = () => {
     const router = useRouter();
 
     useEffect(() => {
-        if (!isTeacher && learningMode === 'class-based') {
+        if (!isTeacher && learningMode === MODE_ACCESS_PAGE_ROLE.classBased) {
             router.push(ROUTES.CLASS_BASED);
         }
     }, [learningMode, isTeacher]);
@@ -33,7 +34,7 @@ const Home: React.FC = () => {
         );
     }
 
-    if (learningMode === 'class-based') {
+    if (learningMode === MODE_ACCESS_PAGE_ROLE.classBased) {
         return <LoadingPage />;
     }
 
