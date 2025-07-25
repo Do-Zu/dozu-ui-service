@@ -17,11 +17,9 @@ export default function SetupForm({ onComplete }: Props) {
     const [formData, setFormData] = useState<IUpdateSchedulePreferencePayload>({
         preferences: {
             studyMethods: [],
-            studyPreferences: [],
             studyDuration: 60,
-            interestedTopicTags: [],
-            onboardingCompletedAt: new Date().toISOString(),
         },
+        studyPreferences: [],
         avgStudyDuration: null,
         freeTime: {},
     });
@@ -43,16 +41,6 @@ export default function SetupForm({ onComplete }: Props) {
         }));
     };
 
-    const handlePreferencesChange = (preferences: Partial<IPreferences>) => {
-        setFormData((prev) => ({
-            ...prev,
-            preferences: {
-                ...prev.preferences,
-                ...preferences,
-            },
-        }));
-    };
-
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
@@ -69,18 +57,12 @@ export default function SetupForm({ onComplete }: Props) {
         }
     };
 
-    if (loadingPreferences || updating) {
+    if (loadingPreferences) {
         return <LoadingPage />;
     }
 
     return (
         <div className="space-y-8 p-6 bg-white rounded shadow">
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    Có lỗi xảy ra: {error}
-                </div>
-            )}
-
             <section>
                 <h2 className="text-xl font-semibold mb-2">Thời gian rảnh trong tuần</h2>
                 <p className="text-sm text-gray-500 mb-4">Chọn khoảng thời gian bạn có thể học mỗi ngày</p>
@@ -90,7 +72,7 @@ export default function SetupForm({ onComplete }: Props) {
             <section>
                 <h2 className="text-xl font-semibold mb-2">Thói quen học</h2>
                 <p className="text-sm text-gray-500 mb-4">Hệ thống sẽ gợi ý lịch học phù hợp với bạn hơn</p>
-                <StudyPreference initialData={formData.preferences} onChange={handlePreferencesChange} />
+                <StudyPreference initialData={formData} onChange={setFormData} />
             </section>
 
             <div className="text-right">
@@ -102,6 +84,12 @@ export default function SetupForm({ onComplete }: Props) {
                     <span className="text-sm font-medium">{updating ? 'Đang lưu...' : 'Lưu'}</span>
                 </Button>
             </div>
+
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    Có lỗi xảy ra: {error}
+                </div>
+            )}
         </div>
     );
 }

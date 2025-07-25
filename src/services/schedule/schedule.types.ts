@@ -16,19 +16,18 @@ export interface IFreeTime {
 export interface IPreferences {
     studyMethods: string[];
     studyDuration: number;
-    interestedTopicTags: string[];
-    onboardingCompletedAt: string;
-    studyPreferences: string[];
 }
 
 export interface ISchedulePreference {
     preferences: IPreferences;
     avgStudyDuration: number | null;
+    studyPreferences: string[];
     freeTime: IFreeTime;
 }
 
 export interface IUpdateSchedulePreferencePayload {
     preferences: IPreferences;
+    studyPreferences: string[];
     avgStudyDuration: number | null;
     freeTime: IFreeTime;
 }
@@ -36,5 +35,6 @@ export interface IUpdateSchedulePreferencePayload {
 export interface IGetSchedulePreferenceResponse {
     preferences: IPreferences;
     avgStudyDuration: number | null;
+    studyPreferences: string[];
     freeTime: IFreeTime;
 }

@@ -1,56 +1,73 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { IPreferences } from '@/services/schedule/schedule.types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Clock, BookOpen, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ISchedulePreference, IUpdateSchedulePreferencePayload } from '@/services/schedule/schedule.types';
+import { BookOpen, Clock, Target } from 'lucide-react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 
 interface Props {
-    initialData?: IPreferences;
-    onChange?: (preferences: Partial<IPreferences>) => void;
+    initialData: ISchedulePreference;
+    onChange: Dispatch<SetStateAction<IUpdateSchedulePreferencePayload>>;
 }
 
 export default function StudyPreference({ initialData, onChange }: Props) {
-    const [studyDuration, setStudyDuration] = useState<number>(60);
-    const [customDuration, setCustomDuration] = useState('');
-    const [studyMethods, setStudyMethods] = useState<string[]>([]);
-    const [studyPreferencesTime, setStudyPreferencesTime] = useState<string[]>([]);
-
     const StudyPreferenceInDate = useMemo(() => ['Sáng', 'Chiều', 'Tối'], []);
-
     const methodsLearning = useMemo(() => ['Questions', 'Flashcards'], []);
 
-    // Initialize from API data
+    // Use state instead of useMemo for reactive values
+    const [studyDuration, setStudyDuration] = useState<number>(60);
+    const [studyMethods, setStudyMethods] = useState<string[]>([]);
+    const [studyPreferencesTime, setStudyPreferencesTime] = useState<string[]>([]);
+    const [customDuration, setCustomDuration] = useState('');
+
+    // Update local state when initialData changes
     useEffect(() => {
         if (initialData) {
-            setStudyDuration(initialData?.studyDuration || 60);
-            setStudyMethods(initialData?.studyMethods || []);
+            setStudyDuration(initialData?.preferences?.studyDuration || 60);
+            setStudyMethods(initialData?.preferences?.studyMethods || []);
             setStudyPreferencesTime(initialData?.studyPreferences || []);
         }
     }, [initialData]);
 
     const handlePreferredTimeChange = (time: string) => {
-        setStudyPreferencesTime((prev) => {
-            const newPreferences = prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time];
+        const newPreferenceTime = studyPreferencesTime.includes(time)
+            ? studyPreferencesTime.filter((t) => t !== time)
+            : [...studyPreferencesTime, time];
 
-            if (onChange) {
-                onChange({ studyPreferences: newPreferences });
-            }
+        // Update local state
+        setStudyPreferencesTime(newPreferenceTime);
+
+        // Update parent state
+        onChange((prev) => {
+            const newPreferences: IUpdateSchedulePreferencePayload = {
+                ...prev,
+                studyPreferences: newPreferenceTime,
+            };
             return newPreferences;
         });
     };
 
     const handleStudyDurationChange = (duration: number) => {
+        // Update local state
         setStudyDuration(duration);
-        if (onChange) {
-            onChange({ studyDuration: duration });
-        }
+
+        // Update parent state
+        onChange((prev) => {
+            const newPreferences: IUpdateSchedulePreferencePayload = {
+                ...prev,
+                preferences: {
+                    ...prev.preferences,
+                    studyDuration: duration,
+                },
+            };
+            return newPreferences;
+        });
     };
 
     const handleCustomDurationChange = (value: string) => {
@@ -63,15 +80,28 @@ export default function StudyPreference({ initialData, onChange }: Props) {
 
     const handleCheckboxChange = (value: string) => {
         let newMethods: string[];
+
         if (studyMethods.includes(value)) {
             newMethods = studyMethods.filter((item) => item !== value);
         } else {
             newMethods = [...studyMethods, value];
         }
+
+        // Update local state
         setStudyMethods(newMethods);
 
+        // Update parent state
         if (onChange) {
-            onChange({ studyMethods: newMethods });
+            onChange((prev) => {
+                const newPreferences: IUpdateSchedulePreferencePayload = {
+                    ...prev,
+                    preferences: {
+                        ...prev.preferences,
+                        studyMethods: newMethods,
+                    },
+                };
+                return newPreferences;
+            });
         }
     };
 

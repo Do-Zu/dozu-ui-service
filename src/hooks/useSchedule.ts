@@ -1,8 +1,12 @@
-import { z } from 'zod';
 import useFetch from '@/hooks/useFetch';
 import usePost from '@/hooks/usePost';
 import { scheduleService } from '@/services/schedule';
-import { ISchedulePreference, IUpdateSchedulePreferencePayload } from '@/services/schedule/schedule.types';
+import {
+    IGetSchedulePreferenceResponse,
+    ISchedulePreference,
+    IUpdateSchedulePreferencePayload,
+} from '@/services/schedule/schedule.types';
+import { z } from 'zod';
 
 // Zod schemas for validation
 const TimeSlotSchema = z.object({
@@ -33,7 +37,7 @@ const PreferencesSchema = z.object({
  * @returns Object with data, loading, error, and refetch function
  */
 export const useGetSchedulePreferences = (shouldRun = true) => {
-    return useFetch<ISchedulePreference, ISchedulePreference>(() => scheduleService.getPreferences(), {
+    return useFetch<ISchedulePreference, IGetSchedulePreferenceResponse>(() => scheduleService.getPreferences(), {
         shouldRun,
     });
 };
