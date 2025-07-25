@@ -6,7 +6,7 @@ import StudyPreference from '@/components/schedule/StudyPreference';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useGetSchedulePreferences, useUpdateSchedulePreferences } from '@/hooks/useSchedule';
-import { IFreeTime, IPreferences, IUpdateSchedulePreferencePayload } from '@/services/schedule/schedule.types';
+import { IFreeTime, IUpdateSchedulePreferencePayload } from '@/services/schedule/schedule.types';
 import React, { useEffect, useState } from 'react';
 
 type Props = {
@@ -66,7 +66,7 @@ export default function SetupForm({ onComplete }: Props) {
             <section>
                 <h2 className="text-xl font-semibold mb-2">Thời gian rảnh trong tuần</h2>
                 <p className="text-sm text-gray-500 mb-4">Chọn khoảng thời gian bạn có thể học mỗi ngày</p>
-                <FreeTimeSelector initialData={formData.freeTime} onChange={handleFreeTimeChange} />
+                <FreeTimeSelector initialData={formData?.freeTime} onChange={handleFreeTimeChange} />
             </section>
 
             <section>

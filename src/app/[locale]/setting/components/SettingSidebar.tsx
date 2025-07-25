@@ -10,7 +10,7 @@ const SettingSidebar = () => {
 
     const menuItems = [
         { title: 'Profile', path: ROUTES.PROFILE },
-        { title: 'Schedule Setup', path: ROUTES.SETTING_SCHEDULE_SETUP },
+        { title: 'Schedule', path: ROUTES.SETTING_SCHEDULE_SETUP },
     ];
 
     const handleClick = (path: string) => {
@@ -18,7 +18,7 @@ const SettingSidebar = () => {
     };
 
     return (
-        <div className="w-1/5 bg-background text-foreground p-4">
+        <div className="w-[10%] bg-background text-foreground p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Settings</h2>
             <div className="space-y-4">
                 {menuItems.map((item) => (
