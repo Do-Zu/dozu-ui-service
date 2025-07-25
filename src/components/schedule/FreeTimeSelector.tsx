@@ -158,10 +158,6 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
         }
     };
 
-    const getSelectedHoursCount = () => {
-        return freeTime.reduce((total, day) => total + day.reduce((dayTotal, hour) => dayTotal + (hour ? 1 : 0), 0), 0);
-    };
-
     const formatHour = (hour: number) => {
         return `${hour.toString().padStart(2, '0')}:00`;
     };
@@ -204,7 +200,6 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <div className="text-sm ">
-                                        <p className="font-medium mb-1">Hướng dẫn sử dụng:</p>
                                         <ul className="space-y-1 text-xs">
                                             <li>
                                                 • <strong>Click</strong> vào ô để chọn/bỏ chọn 1 giờ
@@ -212,8 +207,9 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
                                             <li>
                                                 • <strong>Kéo thả</strong> để chọn nhiều giờ cùng lúc
                                             </li>
-                                            <li>• Màu xanh lá: Thời gian rảnh đã chọn</li>
-                                            <li>• Màu trắng: Thời gian chưa chọn</li>
+                                            <li>
+                                                • <strong>Màu xanh lá:</strong> Thời gian rảnh đã chọn
+                                            </li>
                                         </ul>
                                     </div>
                                 </TooltipContent>
