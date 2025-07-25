@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import { withAuth } from '@/hoc/withAuth';
 import { useParams } from 'next/navigation';
-import { ROUTES } from '@/utils/constants/routes';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 // Dynamically import CardImport with no SSR
 const GeneratePage = dynamic(() => import('@/app/[locale]/generate/components/GeneratePage'), {
@@ -23,12 +23,15 @@ const AuthComponent = withAuth(GeneratePage, { requiredRole: 'teacher' });
 
 export default function HomePage() {
     let { id: classId } = useParams() as { id: string | string[] | number };
+
     if (typeof classId != 'string') {
-        return <div>Invalid Params, classId must be a valid number</div>
+        return <div>Invalid Params, classId must be a valid number</div>;
     }
+
     classId = Number(classId);
-    if(isNaN(classId)) {
-        return <div>Invalid Params, classId must be a valid number</div>
+
+    if (isNaN(classId)) {
+        return <div>Invalid Params, classId must be a valid number</div>;
     }
 
     return (
@@ -39,7 +42,7 @@ export default function HomePage() {
                 </div>
             }
         >
-            <AuthComponent mode="class-based" classId={classId} />
+            <AuthComponent mode={MODE_ACCESS_PAGE_ROLE.classBased} classId={classId} />
         </Suspense>
     );
 }

@@ -20,6 +20,7 @@ import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface Props {
     classId: number;
@@ -111,7 +112,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         // todo-ka: cân nhắc setTopicsFiltered ngay khi nhận response từ API thay vì useEffect topics
         return (
             <TopicsList
-                type="class-based"
+                type={MODE_ACCESS_PAGE_ROLE.classBased}
                 topics={topicsFiltered}
                 handleOpenUpdateModal={handleOpenUpdateModal}
                 handleOpenDeleteModal={handleOpenDeleteModal}
@@ -306,7 +307,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                 <ShowIf
                     when={isTeacher}
                     children={
-                        <div className='flex flex-col gap-4'>
+                        <div className="flex flex-col gap-4">
                             <Button className="bg-background text-foreground" onClick={handleOpenCreateModal}>
                                 <Plus className="mr-2 h-4 w-4" />
                                 {t('createNewContent')}

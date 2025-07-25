@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
+import router from 'next/router';
+import { toast } from '@/hooks/use-toast';
+
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '../types';
 import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { handleConvertToQuestionsEdited } from '../../question/utils/handleConvertToQuestionsEdited';
 import { detectContentType, getContentTypeDisplayName } from '../utils/contentTypeDetector';
 import { ContentType, TypeDataGenerated } from '../components/ContentGenerationPreview';
-import { toast } from '@/hooks/use-toast';
-import router from 'next/router';
 import { ContentCreationService } from '../services/contentCreation.service';
 import { resetImportDialog } from '../stores/features/importDialogSlice';
 import { useCardImportDispatch } from './useReduxStore';
 import { ROUTES } from '@/utils/constants/routes';
 import { ClassPropsInGenerate } from '../components/GeneratePage';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;

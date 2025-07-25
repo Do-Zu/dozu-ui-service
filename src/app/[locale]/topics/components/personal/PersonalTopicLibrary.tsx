@@ -15,6 +15,7 @@ import { CreateTopicModal } from '../CreateTopicModal';
 import { UpdateTopicModal } from '../UpdateTopicModal';
 import { DeleteTopicModal } from '../DeleteTopicModal';
 import { Button } from '@/components/ui/button';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 type TopicFilteringAction =
     | 'newest'
@@ -90,7 +91,7 @@ const PersonalTopicLibrary = () => {
         // todo-ka: cân nhắc setTopicsFiltered ngay khi nhận response từ API thay vì useEffect topics
         return (
             <TopicsList
-                type="personal"
+                type={MODE_ACCESS_PAGE_ROLE.personal}
                 topics={topicsFiltered}
                 handleOpenUpdateModal={handleOpenUpdateModal}
                 handleOpenDeleteModal={handleOpenDeleteModal}
