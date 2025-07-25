@@ -8,8 +8,10 @@ import {
     DropdownMenuContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Edit, MoreVertical } from 'lucide-react';
+import { Edit, MoreVertical, Sparkles } from 'lucide-react';
 import { IClass } from '../../types/class.type';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface Props {
     classProp: IClass;
@@ -26,6 +28,7 @@ interface Props {
 }
 
 export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNameClick }: Props) {
+    const router = useRouter();
     const {
         classId,
         name,
@@ -38,6 +41,10 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
     function formatDate(date: Date | undefined) {
         if (date) return format(date, 'yyyy-MM-dd');
         return null;
+    }
+
+    async function handleGenerateClick() {
+        router.push(ROUTES.CLASS_BASED_ID_GENERATE(classId));
     }
 
     return (
@@ -64,6 +71,10 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" side="top">
                             {/* Class itself */}
+                            <DropdownMenuItem onSelect={handleGenerateClick}>
+                                <Sparkles className="mr-2 h-4 w-4" />
+                                <span>Generate</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleUpdateClassSelect({ classId, name, description })}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>Edit</span>

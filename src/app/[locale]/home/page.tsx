@@ -20,9 +20,7 @@ const Home: React.FC = () => {
 
     if (isTeacher) {
         return (
-            <div className="flex flex-col h-full">
-                <CoreActionCards />
-                <CurrentProcessLearning />
+            <div className="flex flex-col h-full mt-4">
                 <TeacherClassLibrary />
             </div>
         );

@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { withAuth } from '@/hoc/withAuth';
 
 // Dynamically import CardImport with no SSR
-const CardImport = dynamic(() => import('./components/CardImport'), {
+const GeneratePage = dynamic(() => import('./components/GeneratePage'), {
   ssr: false,
   loading: () => (
     <div className="flex justify-center items-center h-screen">
@@ -15,7 +15,7 @@ const CardImport = dynamic(() => import('./components/CardImport'), {
   ),
 });
 
-const AuthComponent = withAuth(CardImport);
+const AuthComponent = withAuth(GeneratePage, { requiredRole: 'user' });
 
 export default function HomePage() {
   return (
@@ -26,7 +26,7 @@ export default function HomePage() {
         </div>
       }
     >
-      <AuthComponent />
+      <AuthComponent mode='personal' />
     </Suspense>
   );
 }

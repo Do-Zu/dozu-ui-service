@@ -1,8 +1,8 @@
 import { deleteRequest, postRequest, putRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
 import {
-    ICreateTopicInClassBody,
-    ICreateTopicInClassResponse,
+    ICreateTopicForClassBody as ICreateTopicForClassBody,
+    ICreateTopicForClassResponse,
     ICreateTopicBody,
     ICreateTopicResponse,
     IUpdateTopicBody,
@@ -11,11 +11,15 @@ import {
 
 export type ICreateTopicPayload = ICreateTopicBody;
 export type IUpdateTopicPayload = IUpdateTopicBody & { topicId: number };
-export type ICreateTopicInClassPayload = ICreateTopicInClassBody & { classId: number };
+export type ICreateTopicForClassPayload = ICreateTopicForClassBody & { classId: number };
 
 class TopicService {
     public async createTopic({ name, description, inputSetId }: ICreateTopicBody) {
-        const data = await postRequest<ICreateTopicBody, ICreateTopicResponse>('/topics', { name, description, inputSetId });
+        const data = await postRequest<ICreateTopicBody, ICreateTopicResponse>('/topics', {
+            name,
+            description,
+            inputSetId,
+        });
         return data;
     }
 
@@ -31,10 +35,11 @@ class TopicService {
         await deleteRequest(`/topics/${topicId}`);
     }
 
-    public async createTopicInClass({ classId, name, description }: ICreateTopicInClassPayload) {
-        const data = await postRequest<ICreateTopicBody, ICreateTopicInClassResponse>(`/classes/${classId}/topic`, {
+    public async createTopicForClass({ classId, name, description, inputSetId }: ICreateTopicForClassPayload) {
+        const data = await postRequest<ICreateTopicBody, ICreateTopicForClassResponse>(`/classes/${classId}/topic`, {
             name,
             description,
+            inputSetId,
         });
         return data;
     }

@@ -160,7 +160,7 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                     )}
                 </div>
                 <div className="flex flex-col text-xs text-foreground justify-between">
-                    <div className="flex flex-row justify-between items-center">
+                    <div className="flex flex-row justify-between items-center text-[0.7rem]">
                         <div>
                             Created At: <span className="font-bold">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
                         </div>
@@ -169,9 +169,9 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                         </div>
                     </div>
 
-                    <div className="flex flex-row justify-between items-center">
+                    <div className="flex flex-row justify-between items-center text-[0.7rem]">
                         <div>
-                            Last studied: <span className="font-bold">{lastStudied}</span>
+                            {/* Last studied: <span className="font-bold">{lastStudied}</span> */}
                         </div>
                         <div>
                             <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today

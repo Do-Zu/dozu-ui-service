@@ -10,10 +10,12 @@ import { ContentCreationService } from '../services/contentCreation.service';
 import { resetImportDialog } from '../stores/features/importDialogSlice';
 import { useCardImportDispatch } from './useReduxStore';
 import { ROUTES } from '@/utils/constants/routes';
+import { ClassPropsInGenerate } from '../components/GeneratePage';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
     sseStatus: string;
+    classProps?: ClassPropsInGenerate;
 }
 
 export interface UseContentGenerationReturn {
@@ -31,7 +33,7 @@ export interface UseContentGenerationReturn {
     handleOnClickSave: () => Promise<void>;
 }
 
-export const useContentGeneration = ({ sseData, sseStatus }: UseContentGenerationProps): UseContentGenerationReturn => {
+export const useContentGeneration = ({ sseData, sseStatus, classProps = { mode: 'personal' } }: UseContentGenerationProps): UseContentGenerationReturn => {
     const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
     const [topicName, setTopicName] = useState<string>('');
     const [topicDescription, setTopicDescription] = useState<string>('');
@@ -76,13 +78,29 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
             });
             return;
         }
-
-        const result = await ContentCreationService.createContent({
-            topicName,
-            topicDescription,
-            contentType,
-            contentData,
-        });
+        let result;
+        if(classProps.mode === 'personal') {
+            result = await ContentCreationService.createContent({
+                topicName,
+                topicDescription,
+                contentType,
+                contentData,
+            });
+        } else if(classProps.mode === 'class-based') {
+            const { classId } = classProps;
+            result = await ContentCreationService.createContentForClass({
+                classId,
+                topicName,
+                topicDescription,
+                contentType,
+                contentData,
+            });
+        } else {
+            result = { 
+                success: false,
+                error: `Unsupported learning mode`
+            }
+        }
 
         if (result.success) {
             dispatch(resetImportDialog());

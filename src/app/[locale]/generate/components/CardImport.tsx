@@ -19,13 +19,15 @@ import { ApiResponsePubGenContent, ISseData } from '../types';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import Import from './import/Import';
 import { URL_API_GENERATE } from '../utils/constant';
+import { ClassPropsInGenerate } from './GeneratePage';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
     onComplete?: (data: any) => void;
+    classProps: ClassPropsInGenerate;
 }
 
-const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
+const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classProps }) => {
     const dispatch = useCardImportDispatch();
 
     const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
@@ -57,7 +59,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         isTopicModalOpen,
         setIsTopicModalOpen,
         handleOnClickSave,
-    } = useContentGeneration({ sseData, sseStatus });
+    } = useContentGeneration({ sseData, sseStatus, classProps });
 
     const handleRequestGenContent = async () => {
         let content = '';
