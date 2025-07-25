@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
+import LoadingPage from '@/app/loading';
 import { withAuth } from '@/hoc/withAuth';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { selectLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
@@ -18,6 +19,12 @@ const Home: React.FC = () => {
     const { isTeacher } = useRoleChecker();
     const router = useRouter();
 
+    useEffect(() => {
+        if (!isTeacher && learningMode === 'class-based') {
+            router.push(ROUTES.CLASS_BASED);
+        }
+    }, [learningMode, isTeacher]);
+
     if (isTeacher) {
         return (
             <div className="flex flex-col h-full mt-4">
@@ -27,7 +34,7 @@ const Home: React.FC = () => {
     }
 
     if (learningMode === 'class-based') {
-        router.push(ROUTES.CLASS_BASED);
+        return <LoadingPage />;
     }
 
     return (
