@@ -18,101 +18,101 @@ import { z } from 'zod';
  */
 
 interface Options<Z> {
-  selector?: Function;
-  schema?: z.ZodType<Z>;
-  shouldRun?: boolean | ((...args: any[]) => boolean);
+    selector?: Function;
+    schema?: z.ZodType<Z>;
+    shouldRun?: boolean | ((...args: any[]) => boolean);
 }
 
 function useFetch<T, Z = T>(
-  param: string | ((...args: any[]) => Promise<unknown>),
-  options?: Options<Z>,
-  fetchOptions?: FetchOptions,
+    param: string | ((...args: any[]) => Promise<unknown>),
+    options?: Options<Z>,
+    fetchOptions?: FetchOptions,
 ) {
-  const selector = options?.selector,
-    schema = options?.schema,
-    shouldRun =
-      options?.shouldRun != undefined || options?.shouldRun != null ? options.shouldRun : true;
-  const [data, setData] = useState<Z | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+    const selector = options?.selector,
+        schema = options?.schema,
+        shouldRun = options?.shouldRun != undefined || options?.shouldRun != null ? options.shouldRun : true;
 
-  const abortControllerRef = useRef<AbortController | null>(null);
+    const [data, setData] = useState<Z | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    // Cancel any in-flight request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+    const abortControllerRef = useRef<AbortController | null>(null);
 
-    // Create a new abort controller for this request and store it in a local variable
-    const currentController = new AbortController();
-    abortControllerRef.current = currentController;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      let rawData: unknown;
-
-      if (typeof param === 'string') {
-        const result = await callApiAsync(param, 'GET', fetchOptions);
-        rawData = result.data;
-      } else if (typeof param === 'function') {
-        rawData = await param();
-      } else {
-        throw new Error('Invalid parameter: must be a URL string or a function');
-      }
-
-      // apply in here to select customized param
-      if (selector && rawData) rawData = selector(rawData);
-
-      // Apply Zod validation if schema is provided
-      if (schema) {
-        try {
-          const validatedData = schema.parse(rawData);
-          setData(validatedData);
-        } catch (validationError) {
-          if (validationError instanceof z.ZodError) {
-            throw new Error(
-              `Validation error: ${validationError.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-            );
-          }
-          throw validationError;
+    const fetchData = useCallback(async () => {
+        // Cancel any in-flight request
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
         }
-      } else {
-        // If no schema provided, cast the data as Z
-        setData(rawData as Z);
-      }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        return;
-      }
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      // Check the signal from our local controller variable
-      if (!currentController.signal.aborted) {
-        setLoading(false);
-      }
-    }
-  }, [param, schema, fetchOptions]);
 
-  useEffect(() => {
-    // only fetch data if shouldRun is true
-    if (typeof shouldRun === 'function' && shouldRun()) {
-      fetchData();
-    } else if (typeof shouldRun === 'boolean' && shouldRun) {
-      fetchData();
-    }
+        // Create a new abort controller for this request and store it in a local variable
+        const currentController = new AbortController();
+        abortControllerRef.current = currentController;
 
-    return () => {
-      // Cancel any pending requests
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [shouldRun, fetchData]);
+        try {
+            setLoading(true);
+            setError(null);
 
-  return { data, setData, loading, error, refetch: fetchData };
+            let rawData: unknown;
+
+            if (typeof param === 'string') {
+                const result = await callApiAsync(param, 'GET', fetchOptions);
+                rawData = result.data;
+            } else if (typeof param === 'function') {
+                rawData = await param();
+            } else {
+                throw new Error('Invalid parameter: must be a URL string or a function');
+            }
+
+            // apply in here to select customized param
+            if (selector && rawData) rawData = selector(rawData);
+
+            // Apply Zod validation if schema is provided
+            if (schema) {
+                try {
+                    const validatedData = schema.parse(rawData);
+                    setData(validatedData);
+                } catch (validationError) {
+                    if (validationError instanceof z.ZodError) {
+                        throw new Error(
+                            `Validation error: ${validationError.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+                        );
+                    }
+                    throw validationError;
+                }
+            } else {
+                // If no schema provided, cast the data as Z
+                setData(rawData as Z);
+            }
+        } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') {
+                return;
+            }
+            setError(error instanceof Error ? error.message : 'Unknown error');
+        } finally {
+            // Check the signal from our local controller variable
+            if (!currentController.signal.aborted) {
+                setLoading(false);
+            }
+        }
+    }, [param, selector, schema, fetchOptions]);
+
+    useEffect(() => {
+        // only fetch data if shouldRun is true
+        if (typeof shouldRun === 'function' && shouldRun()) {
+            fetchData();
+        } else if (typeof shouldRun === 'boolean' && shouldRun) {
+            fetchData();
+        }
+
+        return () => {
+            // Cancel any pending requests
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
+
+    return { data, setData, loading, error, refetch: fetchData };
 }
 
 export default useFetch;
