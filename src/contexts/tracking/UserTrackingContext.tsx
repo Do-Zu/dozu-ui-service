@@ -91,11 +91,8 @@ export function UserTrackingProvider({
 
     const postRequestTracking = async (data: any) => {
         try {
-            console.log('Sending tracking data to API...', data);
             await postRequest(apiEndpoint, data);
-            console.log('Tracking data sent successfully');
         } catch (error) {
-            console.error('Failed to send tracking data:', error);
             throw error;
         }
     };
@@ -105,7 +102,6 @@ export function UserTrackingProvider({
         const wasTracking = isTrackingRef.current;
 
         if (!wasTracking || latestActivity.totalTimeOnPage <= minSessionTime) {
-            console.log('Not sending data - tracking inactive or session too short');
             return;
         }
 
@@ -152,46 +148,36 @@ export function UserTrackingProvider({
         accuracy?: number;
     }) => {
         try {
-            console.log('Sending learning tracking data to API...', sessionData);
             await postRequest('/progress/learning-tracking', sessionData);
-            console.log('Learning tracking data sent successfully');
         } catch (error) {
-            console.error('Failed to send learning tracking data:', error);
             throw error;
         }
     };
 
     // Function to send final tracking data (with duplicate prevention)
     const sendFinalData = async () => {
-        console.log('sendFinalData called, hasDataBeenSent:', hasDataBeenSent.current);
 
         if (hasDataBeenSent.current) {
-            console.log('Data already sent, skipping...');
             return;
         }
 
         const latestActivity = activityRef.current;
         const wasTracking = isTrackingRef.current;
 
-        console.log('Checking tracking conditions:', {
-            wasTracking,
-            totalTimeOnPage: latestActivity.totalTimeOnPage,
-            minSessionTime,
-        });
+    
 
         if (!wasTracking || latestActivity.totalTimeOnPage <= minSessionTime) {
-            console.log('Not sending data - tracking inactive or session too short');
             return;
         }
 
         // Mark as sent to prevent duplicates
         hasDataBeenSent.current = true;
-        console.log('Marking data as sent and preparing to send...');
+
 
         try {
             await sendTrackingData();
         } catch (error) {
-            console.error('Failed to send final tracking data:', error);
+        
             // Reset the flag if sending failed, so it can be retried
             hasDataBeenSent.current = false;
         }
@@ -208,18 +194,16 @@ export function UserTrackingProvider({
 
         // Add multiple event listeners for different unload scenarios
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-            console.log('Before unload event triggered');
             sendFinalData();
         };
 
         const handlePageHide = (event: PageTransitionEvent) => {
-            console.log('Page hidden trigger');
             sendFinalData();
         };
 
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'hidden') {
-                console.log('Page is hidden, sending final data');
+                sendFinalData();
                 sendFinalData();
             }
         };
@@ -230,8 +214,6 @@ export function UserTrackingProvider({
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
-            console.log('UserTrackingProvider cleanup - removing event listeners and sending final data');
-
             // Remove event listeners
             window.removeEventListener('beforeunload', handleBeforeUnload);
             window.removeEventListener('pagehide', handlePageHide);

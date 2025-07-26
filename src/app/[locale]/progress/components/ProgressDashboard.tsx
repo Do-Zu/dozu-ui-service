@@ -50,12 +50,7 @@ const ProgressDashboard: React.FC = () => {
   useEffect(() => {
     if (activity.studyHours > 0 || activity.completedTopics > 0) {
       const interval = setInterval(async () => {
-        try {
           await sendLearningTrackingData();
-          console.log('Learning tracking data auto-saved');
-        } catch (error) {
-          console.error('Failed to auto-save learning data:', error);
-        }
       }, 30000); // 30 seconds
 
       return () => clearInterval(interval);
@@ -65,9 +60,8 @@ const ProgressDashboard: React.FC = () => {
   // Listen for progress updates from other components
   useEffect(() => {
     const handleProgressUpdate = () => {
-      console.log('Progress update event received - refreshing data');
       // Force re-fetch dashboard data
-      window.location.reload(); // Simple approach, could be optimized
+      window.location.reload(); 
     };
     
     window.addEventListener('progressUpdated', handleProgressUpdate);
@@ -78,16 +72,7 @@ const ProgressDashboard: React.FC = () => {
   const totalStudyHours = (dashboard?.totalStudyHours || 0) + (activity.studyHours || 0);
   const totalCompletedTopics = (completedTopics?.completedTopics || 0) + (activity.completedTopics || 0);
 
-  // Debug logs
-  useEffect(() => {
-    console.log('📊 Progress Dashboard Debug:', {
-      dashboard,
-      completedTopics,
-      activity,
-      totalStudyHours,
-      totalCompletedTopics
-    });
-  }, [dashboard, completedTopics, activity, totalStudyHours, totalCompletedTopics]);
+
 
   if (statsLoading || dashboardLoading) {
     return (
@@ -197,12 +182,12 @@ const ProgressDashboard: React.FC = () => {
                   <Badge variant="outline">{activity.currentTopic}</Badge>
                 </div>
               )}
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <span>{t('weeklyChange')}</span>
                 <span className={`font-bold ${weeklyComparison?.percentageChange && weeklyComparison.percentageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {weeklyComparison?.percentageChange ? (weeklyComparison.percentageChange >= 0 ? '+' : '') + weeklyComparison.percentageChange.toFixed(1) : '0'}%
                 </span>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 

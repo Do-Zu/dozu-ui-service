@@ -60,17 +60,11 @@ export default function Page() {
         sessionStartTimeRef.current = startTime;
         
         if (topicId && currentFlashcard) {
-            console.log('🎓 Starting study session for topic:', topicId);
             startStudySession(topicId as string, currentFlashcard.topicName);
         }
         
         // End session when component unmounts ONLY
         return () => {
-            console.log('🏁 Component unmounting, ending study session');
-            console.log('📊 Final session stats:', {
-                cardsStudied: cardsStudiedRef.current,
-                correctAnswers: correctAnswersRef.current
-            });
             const accuracy = cardsStudiedRef.current > 0 ? (correctAnswersRef.current / cardsStudiedRef.current) * 100 : 0;
             endStudySession(cardsStudiedRef.current, accuracy);
             
@@ -116,7 +110,7 @@ export default function Page() {
 
     // Save learning progress to database
     const saveLearningProgressToDB = async () => {
-        try {
+       
             const timeSpent = Date.now() - sessionStartTimeRef.current;
             const accuracy = cardsStudiedRef.current > 0 ? (correctAnswersRef.current / cardsStudiedRef.current) * 100 : 0;
             
@@ -125,14 +119,6 @@ export default function Page() {
             const simulatedTime = cardsStudiedRef.current > 0 ? 
                 Math.max(timeSpent, cardsStudiedRef.current * minTimePerCard) : timeSpent;
             
-            console.log('💾 Saving learning progress to database:', {
-                topicId,
-                actualTimeSpent: timeSpent,
-                simulatedTimeSpent: simulatedTime,
-                timeSpentMinutes: Math.floor(simulatedTime / (1000 * 60)),
-                cardsStudied: cardsStudiedRef.current,
-                accuracy: accuracy.toFixed(2)
-            });
 
             const response = await postRequest('/progress/learning-tracking', {
                 topicId: topicId,
@@ -150,17 +136,13 @@ export default function Page() {
                 }
             });
             
-            console.log('✅ Learning progress saved successfully:', response);
+    
             
             // Optional: Trigger a data refresh on the progress page
             // You can implement this by dispatching a custom event
             if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('progressUpdated'));
             }
-        } catch (error) {
-            console.error('❌ Failed to save learning progress:', error);
-            // Don't show toast error here since component might be unmounting
-        }
     };
 
     async function handleOnClickTrackingOption(qualityResponse: IQualityResponse) {
@@ -177,15 +159,8 @@ export default function Page() {
             setCardsStudiedCount(newCardsStudied);
             setCorrectAnswers(newCorrectAnswers);
             
-            console.log('📈 Updated tracking:', {
-                cardsStudied: newCardsStudied,
-                correctAnswers: newCorrectAnswers,
-                accuracy: newCardsStudied > 0 ? (newCorrectAnswers / newCardsStudied * 100).toFixed(2) + '%' : '0%'
-            });
-            
             // If this was the last card, save progress to database
             if (flashcardsFiltered.length === 0) {
-                console.log('🎉 Session completed! Saving final progress...');
                 await saveLearningProgressToDB();
             }
             
