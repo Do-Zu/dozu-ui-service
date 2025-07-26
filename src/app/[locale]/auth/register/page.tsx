@@ -19,7 +19,7 @@ import { useGoogleAuth } from '../hooks/useGoogleAuth';
 
 const RegisterPage = () => {
     const { googleAuthUrl } = useGoogleAuth();
-    const handleGoogleLogin = (event: SubmitEvent) => {
+    const handleGoogleLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
         // Prevent the default form submission behavior
         if (event) {
             event.preventDefault();
