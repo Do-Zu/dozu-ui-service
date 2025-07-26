@@ -33,6 +33,7 @@ export const ROUTES = Object.freeze({
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
+    CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
 });
 
 // Route groups for easier management
