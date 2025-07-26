@@ -7,17 +7,34 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import usePost from '@/hooks/usePost';
-import { setCredentials } from '@/stores/features/auth/authSlice';
 
-import { useRouter } from 'next/navigation';
+import {  useSearchParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
-import { jwtDecode } from 'jwt-decode';
 import { withRouteGuard } from '@/components/guards/RouteGuard';
 import { useGoogleAuth } from '../hooks/useGoogleAuth';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import { User } from '@/types/auth';
 
 const RegisterPage = () => {
+    const { setAuthData } = useAuth();
+    const { handlePostLogin } = useAuthNavigation();
+    const searchParams = useSearchParams();
+
+    const handleSuccessfulLogin = (user: User) => {
+        setAuthData(user);
+
+        const redirectTo = searchParams?.get('redirect');
+
+        if (redirectTo) {
+            const decodedPath = decodeURIComponent(redirectTo);
+            handlePostLogin(user, decodedPath);
+        } else {
+            handlePostLogin(user);
+        }
+    };
+
     const { googleAuthUrl } = useGoogleAuth();
     const handleGoogleLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
         // Prevent the default form submission behavior
@@ -26,15 +43,12 @@ const RegisterPage = () => {
         }
         window.location.href = googleAuthUrl;
     };
-    const router = useRouter();
 
     const t = useTranslations('RegisterPage');
-    const dispatch = useAppDispatch();
 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
 
     const body = { username: username, email: email, password: password };
     const {
@@ -49,22 +63,9 @@ const RegisterPage = () => {
         try {
             const result = await execute(body);
 
-            const { accessToken } = result.data;
+            console.log(result.data);
+            handleSuccessfulLogin(result.data);
 
-            const decoded: any = jwtDecode(accessToken);
-
-            const userId = decoded.user.userId;
-            const username = decoded.user.username;
-
-            dispatch(
-                setCredentials({
-                    accessToken,
-                    userId,
-                    username,
-                }),
-            );
-
-            router.push('/');
         } catch (err) {
             console.error('Login error:', err);
         }
@@ -110,6 +111,8 @@ const RegisterPage = () => {
                                     type="email"
                                     placeholder="you@example.com"
                                     required
+                                    pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                                    title="Please enter a valid email address"
                                     value={email}
                                     onChange={(e) => {
                                         setEmail(e.target.value);
