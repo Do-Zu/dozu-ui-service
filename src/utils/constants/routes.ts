@@ -23,11 +23,16 @@ export const ROUTES = Object.freeze({
     PROFILE_NOTIFICATIONS: '/setting/profile/notifications',
     PROFILE_PRIVACY: '/setting/profile/privacy',
     PROFILE_SETTINGS: '/setting/profile/settings',
+    PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
 
+    // ======================= ADMIN ROUTES ========================
+
+    ADMIN: '/admin',
+    ADMIN_STATISTICS: '/admin/stats',
+
+    // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
-    CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
-    PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
 });
 
 // Route groups for easier management
