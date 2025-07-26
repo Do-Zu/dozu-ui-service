@@ -59,6 +59,13 @@ export function TeacherClassLibrary() {
     }
 
     async function handleCreateClick() {
+        if (!className) {
+            toast({
+                title: 'Class Name must be provided',
+                variant: 'destructive',
+            });
+            return;
+        }
         try {
             const data = await classService.createClass({ name: className, description: classDescription });
             applyCreateClass(data.data);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Search, Filter, Plus, CircleUserRound, School } from 'lucide-react';
+import { Search, Filter, Plus, School, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
@@ -18,6 +18,9 @@ import { Button } from '@/components/ui/button';
 import { ShowIf } from '@/components/ui/ShowIf';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/constants/routes';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface Props {
     classId: number;
@@ -32,6 +35,7 @@ type TopicFilteringAction =
     | 'flashcards-due-today';
 
 const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
+    const router = useRouter();
     const { isTeacher } = useRoleChecker();
 
     const t = useTranslations('home.contentLibrary');
@@ -108,7 +112,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         // todo-ka: cân nhắc setTopicsFiltered ngay khi nhận response từ API thay vì useEffect topics
         return (
             <TopicsList
-                type="class-based"
+                type={MODE_ACCESS_PAGE_ROLE.classBased}
                 topics={topicsFiltered}
                 handleOpenUpdateModal={handleOpenUpdateModal}
                 handleOpenDeleteModal={handleOpenDeleteModal}
@@ -191,7 +195,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         try {
             let data;
             if (classId) {
-                data = await topicService.createTopicInClass({
+                data = await topicService.createTopicForClass({
                     classId,
                     name: topicName,
                     description: topicDescription,
@@ -271,6 +275,10 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         }
     }
 
+    async function handleGenerateClick() {
+        router.push(ROUTES.CLASS_BASED_ID_GENERATE(classId));
+    }
+
     if (myClassError) {
         return <div>Error: {myClassError}</div>;
     }
@@ -295,13 +303,20 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                         {myClass.description ? myClass.description : 'No Description'}
                     </div>
                 </div>
+
                 <ShowIf
                     when={isTeacher}
                     children={
-                        <Button className="bg-background text-foreground" onClick={handleOpenCreateModal}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            {t('createNewContent')}
-                        </Button>
+                        <div className="flex flex-col gap-4">
+                            <Button className="bg-background text-foreground" onClick={handleOpenCreateModal}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                {t('createNewContent')}
+                            </Button>
+                            <Button className="bg-background text-foreground" onClick={handleGenerateClick}>
+                                <Sparkles className="mr-2 h-4 w-4" />
+                                Generate New Content
+                            </Button>
+                        </div>
                     }
                 />
             </div>

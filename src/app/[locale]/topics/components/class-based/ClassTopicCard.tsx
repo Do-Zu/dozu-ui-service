@@ -169,7 +169,7 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                     <div className="flex flex-col text-xs text-foreground justify-between">
                         <div className="flex flex-row justify-between items-center">
                             <div>
-                                Last studied: <span className="font-bold">1 day ago</span>
+                                {/* Last studied: <span className="font-bold">1 day ago</span> */}
                             </div>
                             <div>
                                 <ShowIf when={topic.hasProgress != undefined && topic.hasProgress}>

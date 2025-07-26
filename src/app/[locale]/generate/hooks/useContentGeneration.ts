@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react';
+import router from 'next/router';
+import { toast } from '@/hooks/use-toast';
+
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '../types';
 import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { handleConvertToQuestionsEdited } from '../../question/utils/handleConvertToQuestionsEdited';
 import { detectContentType, getContentTypeDisplayName } from '../utils/contentTypeDetector';
 import { ContentType, TypeDataGenerated } from '../components/ContentGenerationPreview';
-import { toast } from '@/hooks/use-toast';
-import router from 'next/router';
 import { ContentCreationService } from '../services/contentCreation.service';
 import { resetImportDialog } from '../stores/features/importDialogSlice';
 import { useCardImportDispatch } from './useReduxStore';
 import { ROUTES } from '@/utils/constants/routes';
+import { ClassPropsInGenerate } from '../components/GeneratePage';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
     sseStatus: string;
+    classProps?: ClassPropsInGenerate;
 }
 
 export interface UseContentGenerationReturn {
@@ -31,7 +35,11 @@ export interface UseContentGenerationReturn {
     handleOnClickSave: () => Promise<void>;
 }
 
-export const useContentGeneration = ({ sseData, sseStatus }: UseContentGenerationProps): UseContentGenerationReturn => {
+export const useContentGeneration = ({
+    sseData,
+    sseStatus,
+    classProps = { mode: MODE_ACCESS_PAGE_ROLE.personal },
+}: UseContentGenerationProps): UseContentGenerationReturn => {
     const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
     const [topicName, setTopicName] = useState<string>('');
     const [topicDescription, setTopicDescription] = useState<string>('');
@@ -76,13 +84,29 @@ export const useContentGeneration = ({ sseData, sseStatus }: UseContentGeneratio
             });
             return;
         }
-
-        const result = await ContentCreationService.createContent({
-            topicName,
-            topicDescription,
-            contentType,
-            contentData,
-        });
+        let result;
+        if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
+            result = await ContentCreationService.createContent({
+                topicName,
+                topicDescription,
+                contentType,
+                contentData,
+            });
+        } else if (classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased) {
+            const { classId } = classProps;
+            result = await ContentCreationService.createContentForClass({
+                classId,
+                topicName,
+                topicDescription,
+                contentType,
+                contentData,
+            });
+        } else {
+            result = {
+                success: false,
+                error: `Unsupported learning mode`,
+            };
+        }
 
         if (result.success) {
             dispatch(resetImportDialog());

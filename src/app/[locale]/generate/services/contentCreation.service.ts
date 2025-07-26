@@ -14,6 +14,14 @@ export interface CreateContentParams {
     contentData: any;
 }
 
+export interface CreateContentForClassParams {
+    classId: number;
+    topicName: string;
+    topicDescription: string;
+    contentType: ContentType | null;
+    contentData: any;
+}
+
 export interface ContentCreationResult {
     success: boolean;
     topicId?: string | number;
@@ -30,13 +38,62 @@ export class ContentCreationService {
     static async createContent(params: CreateContentParams): Promise<ContentCreationResult> {
         const { topicName, topicDescription, contentType, contentData } = params;
 
-        const state = store.getState()//get state to get inputSetId saved on file upload - DuyND
-        
+        const state = store.getState(); //get state to get inputSetId saved on file upload - DuyND
 
         try {
             // Phase 1: Create topic
-            const data = await topicService.createTopic({ name: topicName, description: topicDescription, inputSetId: state.inputSet.inputSetId });
-            const topic = data.data; 
+            const data = await topicService.createTopic({
+                name: topicName,
+                description: topicDescription,
+                inputSetId: state.inputSet.inputSetId,
+            });
+            const topic = data.data;
+
+            if (!topic) {
+                return { success: false, error: 'Failed to create topic' };
+            }
+
+            const { topicId } = topic;
+
+            // Phase 2: Save content based on type
+            switch (contentType) {
+                case 'flashcard':
+                    await this.saveFlashcards(topicId, contentData);
+                    break;
+                case 'quiz':
+                    await this.saveQuiz(topicId, contentData as IQuestion[]);
+                    break;
+                case 'mindmap':
+                    await this.saveMindmap(topicId, contentData);
+                    break;
+                default:
+                    return { success: false, error: `Unsupported content type: ${contentType}` };
+            }
+
+            return { success: true, topicId };
+        } catch (error) {
+            console.error('Content creation failed:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error occurred',
+            };
+        }
+    }
+
+    static async createContentForClass(params: CreateContentForClassParams): Promise<ContentCreationResult> {
+        const { classId } = params;
+        const { topicName, topicDescription, contentType, contentData } = params;
+        const state = store.getState();
+
+        try {
+            // Phase 1: Create topic in a specific class
+            const data = await topicService.createTopicForClass({
+                classId,
+                name: topicName,
+                description: topicDescription,
+                inputSetId: state.inputSet.inputSetId,
+            });
+            const topic = data.data;
 
             if (!topic) {
                 return { success: false, error: 'Failed to create topic' };
@@ -95,7 +152,7 @@ export class ContentCreationService {
             throw new Error('No quiz data provided');
         }
 
-        console.log({quizData})
+        console.log({ quizData });
 
         const questionsSubmitted = handleConvertToQuestionsSubmitted(quizData);
 

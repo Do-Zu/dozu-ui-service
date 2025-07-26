@@ -1,13 +1,16 @@
 'use client';
 
+'use client';
+
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import { withAuth } from '@/hoc/withAuth';
+import { useParams } from 'next/navigation';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 // Dynamically import CardImport with no SSR
-const GeneratePage = dynamic(() => import('./components/GeneratePage'), {
+const GeneratePage = dynamic(() => import('@/app/[locale]/generate/components/GeneratePage'), {
     ssr: false,
     loading: () => (
         <div className="flex justify-center items-center h-screen">
@@ -16,9 +19,21 @@ const GeneratePage = dynamic(() => import('./components/GeneratePage'), {
     ),
 });
 
-const AuthComponent = withAuth(GeneratePage, { requiredRole: 'user' });
+const AuthComponent = withAuth(GeneratePage, { requiredRole: 'teacher' });
 
 export default function HomePage() {
+    let { id: classId } = useParams() as { id: string | string[] | number };
+
+    if (typeof classId != 'string') {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
+    classId = Number(classId);
+
+    if (isNaN(classId)) {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
     return (
         <Suspense
             fallback={
@@ -27,7 +42,7 @@ export default function HomePage() {
                 </div>
             }
         >
-            <AuthComponent mode={MODE_ACCESS_PAGE_ROLE.personal} />
+            <AuthComponent mode={MODE_ACCESS_PAGE_ROLE.classBased} classId={classId} />
         </Suspense>
     );
 }

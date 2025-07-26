@@ -18,5 +18,5 @@ export type ICreateTopicResponse = Pick<ITopic, 'topicId' | 'name' | 'descriptio
 export type IUpdateTopicBody = Pick<ITopic, 'name' | 'description'>;
 export type IUpdateTopicResponse = Pick<ITopic, 'topicId' | 'name' | 'description'>;
 
-export type ICreateTopicInClassBody = Pick<ITopic, 'name' | 'description'>;
-export type ICreateTopicInClassResponse = ICreateTopicResponse;
+export type ICreateTopicForClassBody = Pick<ITopic, 'name' | 'description'> & { inputSetId?: number };
+export type ICreateTopicForClassResponse = ICreateTopicResponse;

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 function Personal() {
     return (
@@ -27,17 +28,17 @@ function ClassBased() {
 
 export function LearningModeSelect() {
     const dispatch = useDispatch();
-    const [storedValue, setValue] = useLocalStorage<ILearningMode>('learningMode', 'personal');
+    const [storedValue, setValue] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const router = useRouter();
 
     useEffect(() => {
-        if(!isMounted) {
+        if (!isMounted) {
             setIsMounted(true);
             return;
         }
         dispatch(setLearningMode(storedValue));
-        if (storedValue === 'personal') {
+        if (storedValue === MODE_ACCESS_PAGE_ROLE.personal) {
             router.push(ROUTES.HOME);
         } else {
             router.push(ROUTES.CLASS_BASED);
@@ -54,7 +55,9 @@ export function LearningModeSelect() {
                 className="ml-8 w-[150px] bg-background text-foreground border-border"
                 aria-label="Select theme"
             >
-                <SelectValue>{storedValue === 'personal' ? <Personal /> : <ClassBased />}</SelectValue>
+                <SelectValue>
+                    {storedValue === MODE_ACCESS_PAGE_ROLE.personal ? <Personal /> : <ClassBased />}
+                </SelectValue>
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="personal">

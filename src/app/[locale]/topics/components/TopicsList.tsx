@@ -3,10 +3,11 @@
 import { ITopic } from '../types/topic.type';
 import { PersonalTopicCard } from './personal/PersonalTopicCard';
 import { ClassTopicCard } from './class-based/ClassTopicCard';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 type Props =
     | {
-          type: 'personal';
+          type: MODE_ACCESS_PAGE_ROLE.personal;
           topics: ITopic[];
           handleOpenUpdateModal: ({
               topicId,
@@ -20,7 +21,7 @@ type Props =
           handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
       }
     | {
-          type: 'class-based';
+          type: MODE_ACCESS_PAGE_ROLE.classBased;
           topics: ITopic[];
           handleOpenUpdateModal: ({
               topicId,
@@ -41,7 +42,7 @@ const TopicsList = (props: Props) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {topics.map((topic) => {
                 const { topicId } = topic;
-                return type === 'personal' ? (
+                return type === MODE_ACCESS_PAGE_ROLE.personal ? (
                     <PersonalTopicCard
                         key={topicId}
                         topic={topic}
