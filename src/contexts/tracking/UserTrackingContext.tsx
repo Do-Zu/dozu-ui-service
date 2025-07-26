@@ -4,6 +4,76 @@ import { postRequest } from '@/api/api';
 import { UserActivity, useUserTracking, UseUserTrackingOptions } from '@/hooks/useUserTracking';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 
+// Type definitions for learning tracking
+interface StudySession {
+    id: string;
+    topicId: string;
+    startTime: number;
+    endTime?: number;
+    duration: number;
+    cardsStudied: number;
+    accuracy: number;
+    status: 'active' | 'completed' | 'paused';
+}
+
+interface StudyMetrics {
+    totalStudyHours: number;
+    completedTopics: number;
+    currentSession: {
+        topic: string | undefined;
+        startTime: number;
+        duration: number;
+    } | null;
+    recentSessions: StudySession[];
+    todayStudyTime: number;
+}
+
+interface LearningTrackingData {
+    topicId: string;
+    contentType: string;
+    timeSpent: number;
+    isCompleted: boolean;
+    cardsStudied?: number;
+    accuracy?: number;
+    sessionData?: Record<string, any>;
+}
+
+interface LearningTrackingResponse {
+    message?: string;
+    success?: boolean;
+    timeSpentMinutes?: number;
+    isCompleted?: boolean;
+}
+
+interface SaveTrackingProgressParams {
+    topicId: string;
+    cardsStudied: number;
+    correctAnswers: number;
+    sessionStartTime: number;
+    totalCards?: number;
+    isTopicCompleted?: boolean;
+}
+
+interface TrackingData {
+    pageLoadTime: number;
+    totalTimeOnPage: number;
+    activeTime: number;
+    idleTime: number;
+    tabSwitches: number;
+    lastActivityTime: number;
+    exportTime: string;
+    engagementScore: number;
+    clicksPerMinute: number;
+    mouseMovements: number;
+    clicks: number;
+    scrollEvents: number;
+    keyboardEvents: number;
+    url: string;
+    userAgent: string;
+    screenResolution: string;
+    viewport: string;
+}
+
 interface UserTrackingContextType {
     activity: UserActivity;
     isTracking: boolean;
@@ -19,8 +89,10 @@ interface UserTrackingContextType {
     startStudySession: (topicId: string, topicName?: string) => void;
     endStudySession: (cardsStudied: number, accuracy: number) => void;
     pauseStudySession: () => void;
-    getStudyMetrics: () => any;
-    sendLearningTrackingData: () => Promise<any>;
+    getStudyMetrics: () => StudyMetrics;
+    sendLearningTrackingData: () => Promise<LearningTrackingResponse>;
+    // New method for saving learning progress
+    handleSaveTrackingProgressLearning: (params: SaveTrackingProgressParams) => Promise<void>;
 }
 
 interface UserTrackingProviderProps {
@@ -89,7 +161,7 @@ export function UserTrackingProvider({
         setMouseDistance(newMouseDistance);
     }, [activity]);
 
-    const postRequestTracking = async (data: any) => {
+    const postRequestTracking = async (data: TrackingData): Promise<void> => {
         try {
             await postRequest(apiEndpoint, data);
         } catch (error) {
@@ -115,7 +187,7 @@ export function UserTrackingProvider({
                 ? latestActivity.clicks.length / (latestActivity.totalTimeOnPage / 60000) || 0
                 : 0;
 
-        const data = {
+        const data: TrackingData = {
             pageLoadTime: latestActivity.pageLoadTime,
             totalTimeOnPage: latestActivity.totalTimeOnPage,
             activeTime: latestActivity.activeTime,
@@ -149,6 +221,53 @@ export function UserTrackingProvider({
     }) => {
         try {
             await postRequest('/progress/learning-tracking', sessionData);
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    // Handle save tracking progress learning - reusable method
+    const handleSaveTrackingProgressLearning = async (params: {
+        topicId: string;
+        cardsStudied: number;
+        correctAnswers: number;
+        sessionStartTime: number;
+        totalCards?: number;
+        isTopicCompleted?: boolean; // Add explicit completion flag
+    }) => {
+        try {
+            const { topicId, cardsStudied, correctAnswers, sessionStartTime, totalCards = 0, isTopicCompleted = false } = params;
+            
+            const timeSpent = Date.now() - sessionStartTime;
+            const accuracy = cardsStudied > 0 ? (correctAnswers / cardsStudied) * 100 : 0;
+            
+            // Ensure minimum time if cards were studied (simulate realistic study time)
+            const minTimePerCard = 10000; // 10 seconds per card minimum
+            const simulatedTime = cardsStudied > 0 ? 
+                Math.max(timeSpent, cardsStudied * minTimePerCard) : timeSpent;
+
+            const response = await postRequest('/progress/learning-tracking', {
+                topicId: topicId,
+                contentType: 'flashcard',
+                timeSpent: simulatedTime, // in milliseconds
+                isCompleted: isTopicCompleted, // Use explicit completion flag instead of cardsStudied > 0
+                cardsStudied: cardsStudied,
+                accuracy: accuracy,
+                sessionData: {
+                    startTime: sessionStartTime,
+                    endTime: Date.now(),
+                    totalCards: totalCards,
+                    actualTimeSpent: timeSpent,
+                    simulatedTimeSpent: simulatedTime,
+                    isTopicCompleted: isTopicCompleted
+                }
+            });
+            
+            
+            // Optional: Trigger a data refresh on the progress page
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('progressUpdated'));
+            }
         } catch (error) {
             throw error;
         }
@@ -242,7 +361,8 @@ export function UserTrackingProvider({
         endStudySession,
         pauseStudySession,
         getStudyMetrics,
-        sendLearningTrackingData: sendLearningTrackingDataFromHook,
+        sendLearningTrackingData: sendLearningTrackingDataFromHook as () => Promise<LearningTrackingResponse>,
+        handleSaveTrackingProgressLearning,
     };
 
     return <UserTrackingContext.Provider value={contextValue}>{children}</UserTrackingContext.Provider>;

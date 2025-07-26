@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import useFetch from '@/hooks/useFetch';
-import { putRequest, postRequest } from '@/api/api';
+import { putRequest } from '@/api/api';
 import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
 import LoadingPage from '@/app/loading';
 import { FlashcardLearning } from '../components/FlashcardLearning';
@@ -21,7 +21,7 @@ export default function Page() {
     const { topicId } = params;
     
     // Learning tracking integration
-    const { startStudySession, endStudySession, getStudyMetrics } = useUserTrackingContext();
+    const { startStudySession, endStudySession, getStudyMetrics, handleSaveTrackingProgressLearning } = useUserTrackingContext();
 
     const {
         data: flashcards,
@@ -68,8 +68,16 @@ export default function Page() {
             const accuracy = cardsStudiedRef.current > 0 ? (correctAnswersRef.current / cardsStudiedRef.current) * 100 : 0;
             endStudySession(cardsStudiedRef.current, accuracy);
             
-            // Save final session data to database
-            saveLearningProgressToDB();
+            // Save final session data to database using context method
+            // Don't mark as completed on unmount since user might be just leaving the page
+            handleSaveTrackingProgressLearning({
+                topicId: topicId as string,
+                cardsStudied: cardsStudiedRef.current,
+                correctAnswers: correctAnswersRef.current,
+                sessionStartTime: sessionStartTimeRef.current,
+                totalCards: flashcards?.length || 0,
+                isTopicCompleted: false 
+            })
         };
     }, []); // Empty dependency array - only run on mount/unmount
 
@@ -108,43 +116,6 @@ export default function Page() {
         }
     }
 
-    // Save learning progress to database
-    const saveLearningProgressToDB = async () => {
-       
-            const timeSpent = Date.now() - sessionStartTimeRef.current;
-            const accuracy = cardsStudiedRef.current > 0 ? (correctAnswersRef.current / cardsStudiedRef.current) * 100 : 0;
-            
-            // Ensure minimum time if cards were studied (simulate realistic study time)
-            const minTimePerCard = 10000; // 10 seconds per card minimum
-            const simulatedTime = cardsStudiedRef.current > 0 ? 
-                Math.max(timeSpent, cardsStudiedRef.current * minTimePerCard) : timeSpent;
-            
-
-            const response = await postRequest('/progress/learning-tracking', {
-                topicId: topicId,
-                contentType: 'flashcard',
-                timeSpent: simulatedTime, // in milliseconds
-                isCompleted: cardsStudiedRef.current > 0,
-                cardsStudied: cardsStudiedRef.current,
-                accuracy: accuracy,
-                sessionData: {
-                    startTime: sessionStartTimeRef.current,
-                    endTime: Date.now(),
-                    totalCards: flashcards?.length || 0,
-                    actualTimeSpent: timeSpent,
-                    simulatedTimeSpent: simulatedTime
-                }
-            });
-            
-    
-            
-            // Optional: Trigger a data refresh on the progress page
-            // You can implement this by dispatching a custom event
-            if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('progressUpdated'));
-            }
-    };
-
     async function handleOnClickTrackingOption(qualityResponse: IQualityResponse) {
         if (!flashcards || !currentFlashcard) return;
         try {
@@ -159,14 +130,17 @@ export default function Page() {
             setCardsStudiedCount(newCardsStudied);
             setCorrectAnswers(newCorrectAnswers);
             
-            // If this was the last card, save progress to database
+            // If this was the last card, save progress to database using context method
             if (flashcardsFiltered.length === 0) {
-                await saveLearningProgressToDB();
+                    await handleSaveTrackingProgressLearning({
+                        topicId: topicId as string,
+                        cardsStudied: newCardsStudied,
+                        correctAnswers: newCorrectAnswers,
+                        sessionStartTime: sessionStartTime,
+                        totalCards: flashcards.length,
+                        isTopicCompleted: true 
+                    });
             }
-            
-            // Save progress to database after each card (optional - could be optimized to batch)
-            // Uncomment if you want real-time saving:
-            // await saveLearningProgressToDB();
             
         } catch (err) {
             toast({
@@ -175,13 +149,36 @@ export default function Page() {
             });
         }
     }
+    
 
     if (flashcardLoading === true || flashcards === null || flashcards === undefined) {
         return <LoadingPage />;
     }
 
     if (flashcards.length === 0 || !currentFlashcard) {
-        return <div>Nothing to Learn</div>;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+                <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
+                        <svg className="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-semibold text-black">Great job! 🎉</h2>
+                    <p className="text-gray-700 max-w-md">
+                        You've completed all the flashcards for this topic. There's nothing more to learn right now.
+                    </p>
+                    <div className="pt-4">
+                        <button 
+                            onClick={() => window.history.back()}
+                            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors border border-gray-300"
+                        >
+                            Go Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (flashcardError) {
