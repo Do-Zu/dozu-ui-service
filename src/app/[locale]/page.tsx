@@ -12,25 +12,31 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 function HomePage() {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated } = useAuth();
     const router = useRouter();
 
     const [storedValue] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
-    const { isTeacher } = useRoleChecker();
+    const { isTeacher, isAdmin } = useRoleChecker();
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (isAuthenticated && isTeacher) {
+        if (!isAuthenticated) {
+            router.push(ROUTES.WELCOME);
+            return;
+        }
+
+        if (isAdmin) {
+            router.push(ROUTES.ADMIN);
+            return;
+        }
+
+        if (isTeacher) {
             dispatch(setLearningMode(MODE_ACCESS_PAGE_ROLE.classBased));
         } else {
             dispatch(setLearningMode(storedValue));
         }
 
-        if (isAuthenticated) {
-            router.push(ROUTES.HOME);
-        } else {
-            router.push(ROUTES.WELCOME);
-        }
+        router.push(ROUTES.HOME);
     }, [isAuthenticated]);
 
     return <AuthSkeleton />;
