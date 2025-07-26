@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -28,17 +28,66 @@ import {
 import { ContentType } from '@/types/progress';
 import DailyStudyBarChart from './DailyStudyBarChart';
 import LearningMethodsPieChart from './LearningMethodsPieChart';
+import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
 
 const ProgressDashboard: React.FC = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('progress');
   
+  // Database statistics
   const { data: stats, loading: statsLoading, error: statsError } = useProgressStatistics();
   const { data: dashboard, loading: dashboardLoading, error: dashboardError } = useDashboardStatistics();
   const { data: dailyStudy, loading: dailyStudyLoading } = useDailyStudyRecords(7);
   const { data: learningMethods, loading: learningMethodsLoading } = useLearningMethodsDistribution();
   const { data: weeklyComparison, loading: weeklyComparisonLoading } = useWeeklyComparison();
   const { data: completedTopics, loading: completedTopicsLoading } = useCompletedTopics();
+  
+  // Real-time learning tracking
+  const { getStudyMetrics, activity, sendLearningTrackingData } = useUserTrackingContext();
+  const currentSessionMetrics = getStudyMetrics();
+  
+  // Auto-save learning data every 30 seconds if there's activity
+  useEffect(() => {
+    if (activity.studyHours > 0 || activity.completedTopics > 0) {
+      const interval = setInterval(async () => {
+        try {
+          await sendLearningTrackingData();
+          console.log('Learning tracking data auto-saved');
+        } catch (error) {
+          console.error('Failed to auto-save learning data:', error);
+        }
+      }, 30000); // 30 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [activity.studyHours, activity.completedTopics, sendLearningTrackingData]);
+  
+  // Listen for progress updates from other components
+  useEffect(() => {
+    const handleProgressUpdate = () => {
+      console.log('Progress update event received - refreshing data');
+      // Force re-fetch dashboard data
+      window.location.reload(); // Simple approach, could be optimized
+    };
+    
+    window.addEventListener('progressUpdated', handleProgressUpdate);
+    return () => window.removeEventListener('progressUpdated', handleProgressUpdate);
+  }, []);
+  
+  // Combine database stats with real-time metrics
+  const totalStudyHours = (dashboard?.totalStudyHours || 0) + (activity.studyHours || 0);
+  const totalCompletedTopics = (completedTopics?.completedTopics || 0) + (activity.completedTopics || 0);
+
+  // Debug logs
+  useEffect(() => {
+    console.log('📊 Progress Dashboard Debug:', {
+      dashboard,
+      completedTopics,
+      activity,
+      totalStudyHours,
+      totalCompletedTopics
+    });
+  }, [dashboard, completedTopics, activity, totalStudyHours, totalCompletedTopics]);
 
   if (statsLoading || dashboardLoading) {
     return (
@@ -131,12 +180,23 @@ const ProgressDashboard: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="flex justify-between items-center">
                 <span>{t('totalStudyHours')}</span>
-                <span className="font-bold">{dashboard.totalStudyHours.toFixed(1)}h</span>
+                <span className="font-bold flex items-center gap-2">
+                  {totalStudyHours.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>{t('completedTopics')}</span>
-                <span className="font-bold">{dashboard.completedTopics}</span>
+                <span className="font-bold flex items-center gap-2">
+                  {totalCompletedTopics}
+                </span>
               </div>
+           
+              {activity.currentTopic && (
+                <div className="flex justify-between items-center">
+                  <span>Current Topic</span>
+                  <Badge variant="outline">{activity.currentTopic}</Badge>
+                </div>
+              )}
               <div className="flex justify-between items-center">
                 <span>{t('weeklyChange')}</span>
                 <span className={`font-bold ${weeklyComparison?.percentageChange && weeklyComparison.percentageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -302,8 +362,8 @@ const ProgressDashboard: React.FC = () => {
       [t('averageScore'), `${stats?.averageScore?.toFixed(1) || 0}%`],
       [''],
       [t('studyOverview')],
-      [t('totalStudyHours'), dashboard?.totalStudyHours?.toFixed(1) || 0],
-      [t('completedTopics'), dashboard?.completedTopics || 0],
+      [t('totalStudyHours'), totalStudyHours.toFixed(1)],
+      [t('completedTopics'), totalCompletedTopics],
       [t('weeklyChange'), `${weeklyComparison?.percentageChange?.toFixed(1) || 0}%`],
       [''],
       [t('dailyStudyHours')],
@@ -401,8 +461,8 @@ const ProgressDashboard: React.FC = () => {
     const shareData = {
       title: t('progressReportTitle'),
       text: t('progressReportText', { 
-        hours: dashboard?.totalStudyHours?.toFixed(1) || 0, 
-        topics: dashboard?.completedTopics || 0 
+        hours: totalStudyHours.toFixed(1), 
+        topics: totalCompletedTopics 
       }),
       url: window.location.href,
     };
