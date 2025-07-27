@@ -134,18 +134,29 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     return (
         <Card className="max-w-[80%] min-w-[40%] mx-auto mt-2 mb-8  bg-slate-500  dark:bg-gray-700 border-0 shadow-xl">
             <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1 bg-white/20 dark:bg-blue-400/20 rounded-lg">
-                            <Target className="h-4 w-4 text-white dark:text-sky-500" />
+                {data ? (
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="p-1 bg-white/20 dark:bg-blue-400/20 rounded-lg">
+                                <Target className="h-4 w-4 text-white dark:text-sky-500" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-slate-200 text-lg font-bold ">{t('title')}</CardTitle>
+                                <p className="text-slate-400 dark:text-gray-300 text-sm">{t('subtitle')}</p>
+                            </div>
                         </div>
-                        <div>
-                            <CardTitle className="text-slate-200 text-lg font-bold ">{t('title')}</CardTitle>
-                            <p className="text-slate-400 dark:text-gray-300 text-sm">{t('subtitle')}</p>
+                        <Badge className=" text-sm">{currentLearning?.type || 'N/A'}</Badge>
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="p-1 bg-white/20 dark:bg-blue-400/20 rounded-lg">
+                                <Target className="h-4 w-4 text-white dark:text-sky-500" />
+                            </div>
+                            <CardTitle className="text-slate-200 text-lg font-bold ">{t('error.message')}</CardTitle>
                         </div>
                     </div>
-                    <Badge className=" text-sm">{currentLearning?.type || 'N/A'}</Badge>
-                </div>
+                )}
             </CardHeader>
             <CardContent className="pt-0">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -182,7 +193,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                         </div>
                     </div>
                     <div className="flex items-center justify-center lg:justify-end">
-                        {!data && (
+                        {data && (
                             <Button
                                 onClick={() => onContinueLearning('current')}
                                 size="default"

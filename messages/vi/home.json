@@ -23,7 +23,7 @@
             "continueButton": "Tiếp Tục Học Tập",
             "error": {
                 "title": "Không có lịch học tập",
-                "message": "Bạn không có phiên học tập nào đang hoạt động. Vui lòng kiểm tra lịch trình của bạn hoặc bắt đầu một mô-đun mới.",
+                "message": "Bạn không có phiên học tập nào đang hoạt động.",
                 "noTopicFound": "Không tìm thấy chủ đề cho phiên học tập hiện tại này."
             }
         },
