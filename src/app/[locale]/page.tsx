@@ -32,12 +32,14 @@ function HomePage() {
 
         if (isTeacher) {
             dispatch(setLearningMode(MODE_ACCESS_PAGE_ROLE.classBased));
-        } else {
-            dispatch(setLearningMode(storedValue));
+            router.push(ROUTES.LANDING);
+            return;
         }
 
+        // For regular users, set learning mode and go to home
+        dispatch(setLearningMode(storedValue));
         router.push(ROUTES.HOME);
-    }, [isAuthenticated]);
+    }, [isAuthenticated, isTeacher, isAdmin]);
 
     return <AuthSkeleton />;
 }
