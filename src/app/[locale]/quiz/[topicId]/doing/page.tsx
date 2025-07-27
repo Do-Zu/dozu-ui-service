@@ -33,6 +33,7 @@ interface QuizData {
 const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
     const [quizData, setQuizData] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isSubmitted, setIsSubmitted] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -109,6 +110,7 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                 results: quizData.map((q: Question) => ({
                     questionId: q.questionId,
                     correct: q.selectedAnswer === q.correctIndex,
+                    userAnswerIndex: typeof q.selectedAnswer === 'number' ? q.selectedAnswer : null
                 })),
             });
             const { quizResultId } = response.data as { quizResultId: string };
@@ -126,11 +128,12 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
 
     return (
         <div className="px-6 py-8">
-            <h2 className="text-2xl font-semibold mb-4">Làm bài quiz</h2>
+            <h2 className="text-2xl font-semibold mb-4">Take the quiz</h2>
             <div className="space-y-4">
                 {quizData.map((question: Question, index: number) => (
                     <QuizQuestion
                         key={index}
+                        questionNumber={index + 1}
                         questionText={question.questionText}
                         choices={question.choices}
                         onAnswerSelect={(selectedIndex: number) => {
