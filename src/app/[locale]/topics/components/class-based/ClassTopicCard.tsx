@@ -9,7 +9,17 @@ import {
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Play, Trash2 } from 'lucide-react';
+import {
+    BookOpen,
+    ClipboardCheck,
+    Edit,
+    GitFork,
+    GraduationCap,
+    Layers,
+    MoreVertical,
+    Play,
+    Trash2,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -58,17 +68,21 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
-    function handleOnClickMindmap() {
-        router.push(ROUTES.MINDMAP(topicId));
+    function handleOnClickEditMindmap() {
+        router.push(ROUTES.MINDMAP_EDIT(topicId));
+    }
+
+    function handleOnClickViewMindmap() {
+        router.push(ROUTES.MINDMAP_VIEW(topicId));
     }
 
     function handleOnClickStartQuiz() {
         router.push(ROUTES.QUIZ_START(topicId));
-    };
+    }
 
     function handleOnClickEditQuestion() {
         router.push(ROUTES.QUIZ_EDIT(topicId));
-    };
+    }
 
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
@@ -113,10 +127,18 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                     <span>Mind Map</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
-                                    <DropdownMenuItem onSelect={handleOnClickMindmap}>
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
-                                    </DropdownMenuItem>
+                                    <ShowIf when={isTeacher}>
+                                        <DropdownMenuItem onSelect={handleOnClickEditMindmap}>
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            <span>{topicT('edit')}</span>
+                                        </DropdownMenuItem>
+                                    </ShowIf>
+                                    <ShowIf when={isStudent}>
+                                        <DropdownMenuItem onSelect={handleOnClickViewMindmap}>
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            <span>{topicT('view')}</span>
+                                        </DropdownMenuItem>
+                                    </ShowIf>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
 
@@ -184,9 +206,7 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                 <ShowIf when={isStudent}>
                     <div className="flex flex-col text-xs text-foreground justify-between">
                         <div className="flex flex-row justify-between items-center">
-                            <div>
-                                {/* Last studied: <span className="font-bold">1 day ago</span> */}
-                            </div>
+                            <div>{/* Last studied: <span className="font-bold">1 day ago</span> */}</div>
                             <div>
                                 <ShowIf when={topic.hasProgress != undefined && topic.hasProgress}>
                                     <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today

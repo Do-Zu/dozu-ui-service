@@ -30,7 +30,8 @@ export const ROUTES = Object.freeze({
     CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
 
-    MINDMAP: (topicId: string | number) => `/mindmap/${topicId}`,
+    MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
+    MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
 
     QUIZ_START: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     QUIZ_EDIT: (topicId: string | number) => `/question/edit/${topicId}`,

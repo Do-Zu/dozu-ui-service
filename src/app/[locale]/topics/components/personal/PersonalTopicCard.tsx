@@ -66,16 +66,16 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
     }
 
     function handleOnClickMindmap() {
-        router.push(ROUTES.MINDMAP(topicId));
+        router.push(ROUTES.MINDMAP_EDIT(topicId));
     }
 
     function handleOnClickStartQuiz() {
         router.push(ROUTES.QUIZ_START(topicId));
-    };
+    }
 
     function handleOnClickEditQuestion() {
         router.push(ROUTES.QUIZ_EDIT(topicId));
-    };
+    }
 
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">

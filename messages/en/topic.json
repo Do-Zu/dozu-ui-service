@@ -18,6 +18,7 @@
             "description": "This action will delete all items related to this topic. Still delete?",
             "deleteButton": "Delete"
         },
+        "view": "View",
         "edit": "Edit",
         "delete": "Delete",
         "browse": "Browse",
