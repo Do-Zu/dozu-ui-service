@@ -35,41 +35,52 @@ const ProgressDashboard: React.FC = () => {
   const t = useTranslations('progress');
   
   // Database statistics
-  const { data: stats, loading: statsLoading, error: statsError } = useProgressStatistics();
-  const { data: dashboard, loading: dashboardLoading, error: dashboardError } = useDashboardStatistics();
-  const { data: dailyStudy, loading: dailyStudyLoading } = useDailyStudyRecords(7);
-  const { data: learningMethods, loading: learningMethodsLoading } = useLearningMethodsDistribution();
-  const { data: weeklyComparison, loading: weeklyComparisonLoading } = useWeeklyComparison();
-  const { data: completedTopics, loading: completedTopicsLoading } = useCompletedTopics();
+  const { data: stats, loading: statsLoading, error: statsError, refetch: refetchStats } = useProgressStatistics();
+  const { data: dashboard, loading: dashboardLoading, error: dashboardError, refetch: refetchDashboard } = useDashboardStatistics();
+  const { data: dailyStudy, loading: dailyStudyLoading, refetch: refetchDailyStudy } = useDailyStudyRecords(7);
+  const { data: learningMethods, loading: learningMethodsLoading, refetch: refetchLearningMethods } = useLearningMethodsDistribution();
+  const { data: weeklyComparison, loading: weeklyComparisonLoading, refetch: refetchWeeklyComparison } = useWeeklyComparison();
+  const { data: completedTopics, loading: completedTopicsLoading, refetch: refetchCompletedTopics } = useCompletedTopics();
   
   // Real-time learning tracking
-  const { getStudyMetrics, activity, sendLearningTrackingData } = useUserTrackingContext();
+  const { getStudyMetrics, activity } = useUserTrackingContext();
   const currentSessionMetrics = getStudyMetrics();
   
-  // Auto-save learning data every 30 seconds if there's activity
-  useEffect(() => {
-    if (activity.studyHours > 0 || activity.completedTopics > 0) {
-      const interval = setInterval(async () => {
-          await sendLearningTrackingData();
-      }, 30000); // 30 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [activity.studyHours, activity.completedTopics, sendLearningTrackingData]);
+  // Note: Progress dashboard doesn't need auto-save since it's for viewing stats
+  // Active learning sessions handle their own tracking
   
   // Listen for progress updates from other components
   useEffect(() => {
-    const handleProgressUpdate = () => {
-      // Force re-fetch dashboard data
-      window.location.reload(); 
+    const handleProgressUpdate = async () => {
+      // Refetch all dashboard data instead of reloading the page
+      try {
+        await Promise.all([
+          refetchStats(),
+          refetchDashboard(),
+          refetchDailyStudy(),
+          refetchLearningMethods(),
+          refetchWeeklyComparison(),
+          refetchCompletedTopics()
+        ]);
+      } catch (error) {
+        console.error('Failed to refresh dashboard data:', error);
+      }
     };
     
+    // Test manual trigger (temporary for debugging)
+    (window as any).testProgressUpdate = handleProgressUpdate;
+    
     window.addEventListener('progressUpdated', handleProgressUpdate);
-    return () => window.removeEventListener('progressUpdated', handleProgressUpdate);
-  }, []);
+    return () => {
+      window.removeEventListener('progressUpdated', handleProgressUpdate);
+      delete (window as any).testProgressUpdate;
+    };
+  }, [refetchStats, refetchDashboard, refetchDailyStudy, refetchLearningMethods, refetchWeeklyComparison, refetchCompletedTopics]);
   
   // Combine database stats with real-time metrics
-  const totalStudyHours = (dashboard?.totalStudyHours || 0) + (activity.studyHours || 0);
+  // Calculate total from daily study data to ensure consistency
+  const calculatedTotalFromDaily = dailyStudy?.reduce((total, day) => total + day.hours, 0) || 0;
+  const totalStudyHours = calculatedTotalFromDaily + (activity.studyHours || 0);
   const totalCompletedTopics = (completedTopics?.completedTopics || 0) + (activity.completedTopics || 0);
 
 

@@ -21,7 +21,18 @@ export default function Page() {
     const { topicId } = params;
     
     // Learning tracking integration
-    const { startStudySession, endStudySession, getStudyMetrics, handleSaveTrackingProgressLearning } = useUserTrackingContext();
+    const { 
+        startStudySession, 
+        endStudySession, 
+        getStudyMetrics, 
+        itemsStudiedCount,
+        correctAnswersCount,
+        sessionStartTime,
+        updateItemsStudied,
+        updateCorrectAnswers,
+        resetLearningSession,
+        saveCurrentLearningSession
+    } = useUserTrackingContext();
 
     const {
         data: flashcards,
@@ -37,47 +48,28 @@ export default function Page() {
     const isFrontRef = useRef<boolean>(true);
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
-    const [cardsStudiedCount, setCardsStudiedCount] = useState<number>(0);
-    const [correctAnswers, setCorrectAnswers] = useState<number>(0);
-    const [sessionStartTime, setSessionStartTime] = useState<number>(Date.now());
     
-    // Use refs to access current values in cleanup
-    const cardsStudiedRef = useRef<number>(0);
-    const correctAnswersRef = useRef<number>(0);
-    const sessionStartTimeRef = useRef<number>(Date.now());
-    
-    // Update refs when state changes
+    // Initialize session when component mounts
     useEffect(() => {
-        cardsStudiedRef.current = cardsStudiedCount;
-        correctAnswersRef.current = correctAnswers;
-        sessionStartTimeRef.current = sessionStartTime;
-    }, [cardsStudiedCount, correctAnswers, sessionStartTime]);
-
-    // Start study session when component mounts
-    useEffect(() => {
-        const startTime = Date.now();
-        setSessionStartTime(startTime);
-        sessionStartTimeRef.current = startTime;
-        
+        resetLearningSession();
         if (topicId && currentFlashcard) {
             startStudySession(topicId as string, currentFlashcard.topicName);
         }
         
         // End session when component unmounts ONLY
         return () => {
-            const accuracy = cardsStudiedRef.current > 0 ? (correctAnswersRef.current / cardsStudiedRef.current) * 100 : 0;
-            endStudySession(cardsStudiedRef.current, accuracy);
+            const accuracy = itemsStudiedCount > 0 ? (correctAnswersCount / itemsStudiedCount) * 100 : 0;
+            endStudySession(itemsStudiedCount, accuracy);
             
             // Save final session data to database using context method
             // Don't mark as completed on unmount since user might be just leaving the page
-            handleSaveTrackingProgressLearning({
-                topicId: topicId as string,
-                cardsStudied: cardsStudiedRef.current,
-                correctAnswers: correctAnswersRef.current,
-                sessionStartTime: sessionStartTimeRef.current,
-                totalCards: flashcards?.length || 0,
-                isTopicCompleted: false 
-            })
+            saveCurrentLearningSession(
+                topicId as string,
+                flashcards?.length || 0,
+                false // not completed on unmount
+            ).catch((error: any) => {
+                console.error('Failed to save learning progress on unmount:', error);
+            });
         };
     }, []); // Empty dependency array - only run on mount/unmount
 
@@ -123,23 +115,19 @@ export default function Page() {
             const flashcardsFiltered = flashcards.slice(1);
             setFlashcardsData(flashcardsFiltered);
             
-            // Update learning tracking metrics
-            const newCardsStudied = cardsStudiedCount + 1;
-            const newCorrectAnswers = qualityResponse >= 3 ? correctAnswers + 1 : correctAnswers;
-            
-            setCardsStudiedCount(newCardsStudied);
-            setCorrectAnswers(newCorrectAnswers);
+            // Update learning tracking metrics using context methods
+            updateItemsStudied(itemsStudiedCount + 1);
+            if (qualityResponse >= 3) {
+                updateCorrectAnswers(correctAnswersCount + 1);
+            }
             
             // If this was the last card, save progress to database using context method
             if (flashcardsFiltered.length === 0) {
-                    await handleSaveTrackingProgressLearning({
-                        topicId: topicId as string,
-                        cardsStudied: newCardsStudied,
-                        correctAnswers: newCorrectAnswers,
-                        sessionStartTime: sessionStartTime,
-                        totalCards: flashcards.length,
-                        isTopicCompleted: true 
-                    });
+                await saveCurrentLearningSession(
+                    topicId as string,
+                    flashcards.length,
+                    true // completed
+                );
             }
             
         } catch (err) {

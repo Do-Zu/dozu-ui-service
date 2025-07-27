@@ -11,7 +11,7 @@ interface StudySession {
     startTime: number;
     endTime?: number;
     duration: number;
-    cardsStudied: number;
+    itemsStudied: number;
     accuracy: number;
     status: 'active' | 'completed' | 'paused';
 }
@@ -33,7 +33,7 @@ interface LearningTrackingData {
     contentType: string;
     timeSpent: number;
     isCompleted: boolean;
-    cardsStudied?: number;
+    itemsStudied?: number;
     accuracy?: number;
     sessionData?: Record<string, any>;
 }
@@ -47,31 +47,34 @@ interface LearningTrackingResponse {
 
 interface SaveTrackingProgressParams {
     topicId: string;
-    cardsStudied: number;
+    itemsStudied: number;
     correctAnswers: number;
     sessionStartTime: number;
-    totalCards?: number;
+    totalItems?: number;
     isTopicCompleted?: boolean;
+    forceSync?: boolean; // Allow bypassing validation for explicit saves
 }
 
 interface TrackingData {
-    pageLoadTime: number;
+    // Core time tracking only
     totalTimeOnPage: number;
     activeTime: number;
     idleTime: number;
-    tabSwitches: number;
     lastActivityTime: number;
     exportTime: string;
-    engagementScore: number;
-    clicksPerMinute: number;
-    mouseMovements: number;
-    clicks: number;
-    scrollEvents: number;
-    keyboardEvents: number;
     url: string;
-    userAgent: string;
-    screenResolution: string;
-    viewport: string;
+    // All other fields are optional/unused
+    tabSwitches?: number;
+    engagementScore?: number;
+    clicks?: number;
+    scrollEvents?: number;
+    keyboardEvents?: number;
+    pageLoadTime?: number;
+    clicksPerMinute?: number;
+    mouseMovements?: number;
+    userAgent?: string;
+    screenResolution?: string;
+    viewport?: string;
 }
 
 interface UserTrackingContextType {
@@ -87,12 +90,27 @@ interface UserTrackingContextType {
     mouseDistance: number;
     // Learning tracking methods
     startStudySession: (topicId: string, topicName?: string) => void;
-    endStudySession: (cardsStudied: number, accuracy: number) => void;
+    endStudySession: (itemsStudied: number, accuracy: number) => void;
     pauseStudySession: () => void;
     getStudyMetrics: () => StudyMetrics;
-    sendLearningTrackingData: () => Promise<LearningTrackingResponse>;
+    sendLearningTrackingData: (sessionData: {
+        topicId: string;
+        contentType: string;
+        timeSpent: number;
+        isCompleted: boolean;
+        itemsStudied?: number;
+        accuracy?: number;
+    }) => Promise<void>;
     // New method for saving learning progress
     handleSaveTrackingProgressLearning: (params: SaveTrackingProgressParams) => Promise<void>;
+    // Learning session state
+    itemsStudiedCount: number;
+    correctAnswersCount: number;
+    sessionStartTime: number;
+    updateItemsStudied: (count: number) => void;
+    updateCorrectAnswers: (count: number) => void;
+    resetLearningSession: () => void;
+    saveCurrentLearningSession: (topicId: string, totalItems: number, isCompleted?: boolean, forceSync?: boolean) => Promise<void>;
 }
 
 interface UserTrackingProviderProps {
@@ -101,7 +119,8 @@ interface UserTrackingProviderProps {
     autoStartTracking?: boolean;
     enableAutoSend?: boolean;
     minSessionTime?: number;
-    apiEndpoint?: string;
+    apiEndpoint?: string; // For behavioral tracking
+    learningApiEndpoint?: string; // For learning progress tracking
 }
 
 const UserTrackingContext = createContext<UserTrackingContextType | undefined>(undefined);
@@ -113,19 +132,19 @@ export function UserTrackingProvider({
     enableAutoSend = true,
     minSessionTime = 1000,
     apiEndpoint = '/tracking/active-learning',
+    learningApiEndpoint = '/progress/learning-tracking',
 }: UserTrackingProviderProps) {
-    const { 
-        activity, 
-        isTracking, 
-        startTracking, 
-        stopTracking, 
-        clearData, 
+    const {
+        activity,
+        isTracking,
+        startTracking,
+        stopTracking,
+        clearData,
         exportData,
         startStudySession,
         endStudySession,
         pauseStudySession,
         getStudyMetrics,
-        sendLearningTrackingData: sendLearningTrackingDataFromHook,
     } = useUserTracking(options);
     const activityRef = useRef(activity);
     const isTrackingRef = useRef(isTracking);
@@ -134,11 +153,44 @@ export function UserTrackingProvider({
     const [clicksPerMinute, setClicksPerMinute] = useState(0);
     const [mouseDistance, setMouseDistance] = useState(0);
 
+    // Learning session state
+    const [itemsStudiedCount, setItemsStudiedCount] = useState(0);
+    const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
+    const [sessionStartTime, setSessionStartTime] = useState(Date.now());
+
+    // Refs for cleanup access
+    const itemsStudiedRef = useRef(0);
+    const correctAnswersRef = useRef(0);
+    const sessionStartTimeRef = useRef(Date.now());
+
     // Update refs whenever activity or isTracking changes
     useEffect(() => {
         activityRef.current = activity;
         isTrackingRef.current = isTracking;
     }, [activity, isTracking]);
+
+    // Update learning session refs
+    useEffect(() => {
+        itemsStudiedRef.current = itemsStudiedCount;
+        correctAnswersRef.current = correctAnswersCount;
+        sessionStartTimeRef.current = sessionStartTime;
+    }, [itemsStudiedCount, correctAnswersCount, sessionStartTime]);
+
+    // Learning session methods
+    const updateItemsStudied = (count: number) => {
+        setItemsStudiedCount(count);
+    };
+
+    const updateCorrectAnswers = (count: number) => {
+        setCorrectAnswersCount(count);
+    };
+
+    const resetLearningSession = () => {
+        const newStartTime = Date.now();
+        setItemsStudiedCount(0);
+        setCorrectAnswersCount(0);
+        setSessionStartTime(newStartTime);
+    };
 
     // Calculate derived metrics
     useEffect(() => {
@@ -187,24 +239,14 @@ export function UserTrackingProvider({
                 ? latestActivity.clicks.length / (latestActivity.totalTimeOnPage / 60000) || 0
                 : 0;
 
-        const data: TrackingData = {
-            pageLoadTime: latestActivity.pageLoadTime,
+        // Send only core time tracking data for learning analytics
+        const data = {
             totalTimeOnPage: latestActivity.totalTimeOnPage,
             activeTime: latestActivity.activeTime,
             idleTime: latestActivity.idleTime,
-            tabSwitches: latestActivity.tabSwitches,
             lastActivityTime: Date.now(),
             exportTime: new Date().toISOString(),
-            engagementScore: finalEngagementScore,
-            clicksPerMinute: finalClicksPerMinute,
-            mouseMovements: latestActivity.mouseMovements.length,
-            clicks: latestActivity.clicks.length,
-            scrollEvents: latestActivity.scrollEvents.length,
-            keyboardEvents: latestActivity.keyboardEvents.length,
-            url: window.location.href,
-            userAgent: navigator.userAgent,
-            screenResolution: `${window.screen.width}x${window.screen.height}`,
-            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            url: window.location.href, // Keep URL for page identification
         };
 
         await postRequestTracking(data);
@@ -220,70 +262,132 @@ export function UserTrackingProvider({
         accuracy?: number;
     }) => {
         try {
-            await postRequest('/progress/learning-tracking', sessionData);
+            await postRequest(learningApiEndpoint, sessionData);
         } catch (error) {
             throw error;
         }
     };
 
-    // Handle save tracking progress learning - reusable method
+    // Handle save tracking progress learning - reusable method with validation
     const handleSaveTrackingProgressLearning = async (params: {
         topicId: string;
-        cardsStudied: number;
+        itemsStudied: number;
         correctAnswers: number;
         sessionStartTime: number;
-        totalCards?: number;
-        isTopicCompleted?: boolean; // Add explicit completion flag
+        totalItems?: number;
+        isTopicCompleted?: boolean;
+        forceSync?: boolean; // Allow bypassing validation for explicit saves
     }) => {
         try {
-            const { topicId, cardsStudied, correctAnswers, sessionStartTime, totalCards = 0, isTopicCompleted = false } = params;
-            
-            const timeSpent = Date.now() - sessionStartTime;
-            const accuracy = cardsStudied > 0 ? (correctAnswers / cardsStudied) * 100 : 0;
-            
-            // Ensure minimum time if cards were studied (simulate realistic study time)
-            const minTimePerCard = 10000; // 10 seconds per card minimum
-            const simulatedTime = cardsStudied > 0 ? 
-                Math.max(timeSpent, cardsStudied * minTimePerCard) : timeSpent;
+            const {
+                topicId,
+                itemsStudied,
+                correctAnswers,
+                sessionStartTime,
+                totalItems = 0,
+                isTopicCompleted = false,
+                forceSync = false,
+            } = params;
 
-            const response = await postRequest('/progress/learning-tracking', {
+            // Apply same validation logic as sendTrackingData
+            const latestActivity = activityRef.current;
+            const wasTracking = isTrackingRef.current;
+            const timeSpent = Date.now() - sessionStartTime;
+
+            // Skip API call if conditions not met (unless forced)
+            if (!forceSync) {
+                if (!wasTracking || timeSpent <= minSessionTime) {
+                    console.log('Learning tracking skipped: insufficient session time or not tracking');
+                    return;
+                }
+
+                // Only skip if BOTH no items studied AND no explicit completion AND very short session
+                // This allows progress updates for study time even without items completed
+                if (itemsStudied === 0 && !isTopicCompleted && timeSpent < (minSessionTime * 2)) {
+                    console.log('Learning tracking skipped: no items studied, not completed, and very short session');
+                    return;
+                }
+            }
+
+            const accuracy = itemsStudied > 0 ? (correctAnswers / itemsStudied) * 100 : 0;
+
+            // Ensure minimum time if items were studied (simulate realistic study time)
+            const minTimePerItem = 10000; // 10 seconds per item minimum
+            const simulatedTime = itemsStudied > 0 ? Math.max(timeSpent, itemsStudied * minTimePerItem) : timeSpent;
+
+            console.log('Sending learning tracking data:', { 
+                topicId, 
+                itemsStudied, 
+                accuracy, 
+                timeSpent: simulatedTime,
+                isTopicCompleted: isTopicCompleted
+            });
+
+            const response = await postRequest(learningApiEndpoint, {
                 topicId: topicId,
                 contentType: 'flashcard',
                 timeSpent: simulatedTime, // in milliseconds
-                isCompleted: isTopicCompleted, // Use explicit completion flag instead of cardsStudied > 0
-                cardsStudied: cardsStudied,
+                isCompleted: isTopicCompleted,
+                itemsStudied: itemsStudied,
                 accuracy: accuracy,
                 sessionData: {
                     startTime: sessionStartTime,
                     endTime: Date.now(),
-                    totalCards: totalCards,
+                    totalItems: totalItems,
                     actualTimeSpent: timeSpent,
                     simulatedTimeSpent: simulatedTime,
-                    isTopicCompleted: isTopicCompleted
-                }
+                    isTopicCompleted: isTopicCompleted,
+                },
             });
-            
-            
+
             // Optional: Trigger a data refresh on the progress page
             if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('progressUpdated'));
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('progressUpdated'));
+                }, 100);
             }
         } catch (error) {
+            console.error('Failed to save learning tracking progress:', error);
             throw error;
         }
     };
 
+    // Save current learning session using refs (for cleanup/unmount)
+    const saveCurrentLearningSession = async (topicId: string, totalItems: number, isCompleted: boolean = false, forceSync: boolean = false) => {
+        // Check if there was meaningful session activity
+        const currentItems = itemsStudiedRef.current;
+        const sessionTime = Date.now() - sessionStartTimeRef.current;
+        
+        // Skip API call ONLY if no activity at all (just opened and immediately closed)
+        if (!isCompleted && !forceSync && currentItems === 0 && sessionTime < minSessionTime) {
+            return;
+        }
+        
+        // For non-completion cases, we still want to update progress metrics
+        // but we don't send isCompleted: false to avoid downgrading completed topics
+        // Backend will preserve existing completion status
+        
+        // If there was activity (items studied or time spent), send update for metrics
+        // This ensures progress dashboard gets updated with new study time/items
+        return handleSaveTrackingProgressLearning({
+            topicId,
+            itemsStudied: itemsStudiedRef.current,
+            correctAnswers: correctAnswersRef.current,
+            sessionStartTime: sessionStartTimeRef.current,
+            totalItems,
+            isTopicCompleted: isCompleted,
+            forceSync,
+        });
+    };
+
     // Function to send final tracking data (with duplicate prevention)
     const sendFinalData = async () => {
-
         if (hasDataBeenSent.current) {
             return;
         }
 
         const latestActivity = activityRef.current;
         const wasTracking = isTrackingRef.current;
-
-    
 
         if (!wasTracking || latestActivity.totalTimeOnPage <= minSessionTime) {
             return;
@@ -292,11 +396,9 @@ export function UserTrackingProvider({
         // Mark as sent to prevent duplicates
         hasDataBeenSent.current = true;
 
-
         try {
             await sendTrackingData();
         } catch (error) {
-        
             // Reset the flag if sending failed, so it can be retried
             hasDataBeenSent.current = false;
         }
@@ -311,7 +413,7 @@ export function UserTrackingProvider({
             return;
         }
 
-        // Add multiple event listeners for different unload scenarios
+        // Only send API when actually leaving the page (unmounting)
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
             sendFinalData();
         };
@@ -320,10 +422,13 @@ export function UserTrackingProvider({
             sendFinalData();
         };
 
+        // For visibility change, don't send API - just let the tracking system handle pausing active time
         const handleVisibilityChange = () => {
+            // No API call here - the underlying useUserTracking hook should handle
+            // pausing/resuming active time calculation when page visibility changes
+            // This prevents sending API when user just switches tabs or minimizes window
             if (document.visibilityState === 'hidden') {
-                sendFinalData();
-                sendFinalData();
+                sendFinalData(); 
             }
         };
 
@@ -361,8 +466,16 @@ export function UserTrackingProvider({
         endStudySession,
         pauseStudySession,
         getStudyMetrics,
-        sendLearningTrackingData: sendLearningTrackingDataFromHook as () => Promise<LearningTrackingResponse>,
+        sendLearningTrackingData,
         handleSaveTrackingProgressLearning,
+        // Learning session state
+        itemsStudiedCount,
+        correctAnswersCount,
+        sessionStartTime,
+        updateItemsStudied,
+        updateCorrectAnswers,
+        resetLearningSession,
+        saveCurrentLearningSession,
     };
 
     return <UserTrackingContext.Provider value={contextValue}>{children}</UserTrackingContext.Provider>;

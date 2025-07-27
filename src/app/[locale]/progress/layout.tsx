@@ -11,7 +11,7 @@ export default function ProgressLayout({ children }: ProgressLayoutProps) {
   return (
     <UserTrackingProvider
       autoStartTracking={false} // Don't auto-start tracking on progress page
-      enableAutoSend={false}
+      enableAutoSend={true}
       minSessionTime={0}
       apiEndpoint="/tracking/active-learning"
     >

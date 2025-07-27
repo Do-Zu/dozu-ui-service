@@ -6,7 +6,7 @@ interface StudySession {
     startTime: number;
     endTime?: number;
     duration: number;
-    cardsStudied: number;
+    itemsStudied: number;
     accuracy: number;
     status: 'active' | 'completed' | 'paused';
 }
@@ -129,7 +129,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         lastActiveTimeRef.current = now;
     }, [activity.isActive]);
 
-    // Mouse movement tracking with sampling
+    // Mouse movement tracking with sampling - simplified for learning tracking
     const handleMouseMove = useCallback(
         (e: MouseEvent) => {
             const now = Date.now();
@@ -159,7 +159,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         [updateActiveTime],
     );
 
-    // Click tracking
+    // Click tracking - simplified for learning tracking
     const handleClick = useCallback(
         (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -183,7 +183,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         [updateActiveTime],
     );
 
-    // Scroll tracking
+    // Scroll tracking - simplified for learning tracking
     const handleScroll = useCallback(() => {
         const scrollEvent: ScrollEvent = {
             scrollTop: window.scrollY,
@@ -201,7 +201,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         updateActiveTime();
     }, [updateActiveTime]);
 
-    // Keyboard tracking
+    // Keyboard tracking - simplified for learning tracking
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
             const target = e.target as unknown as HTMLElement;
@@ -391,7 +391,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         onDataUpdate?.(newData);
     }, [onDataUpdate]);
 
-    // Export tracking data
+    // Export tracking data - simplified for learning tracking
     const exportData = useCallback(() => {
         const engagementScore = Math.min(
             100,
@@ -434,7 +434,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         }));
     }, []);
 
-    const endStudySession = useCallback((cardsStudied: number, accuracy: number) => {
+    const endStudySession = useCallback((itemsStudied: number, accuracy: number) => {
         const now = Date.now();
         setActivity(prev => {
             if (!prev.studyStartTime || !prev.currentTopic) return prev;
@@ -448,7 +448,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
                 startTime: prev.studyStartTime,
                 endTime: now,
                 duration,
-                cardsStudied,
+                itemsStudied,
                 accuracy,
                 status: 'completed'
             };
@@ -478,7 +478,7 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
                 startTime: prev.studyStartTime,
                 endTime: now,
                 duration,
-                cardsStudied: 0,
+                itemsStudied: 0,
                 accuracy: 0,
                 status: 'paused',
             };
@@ -513,34 +513,6 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         };
     }, [activity]);
 
-    // Send learning tracking data to backend
-    const sendLearningTrackingData = useCallback(async () => {
-        try {
-            const response = await fetch('/api/progress/learning-tracking', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    totalStudyHours: Math.round(activity.studyHours * 100) / 100,
-                    completedTopics: activity.completedTopics,
-                    studySessions: activity.studySessions,
-                    currentTopic: activity.currentTopic,
-                    studyStartTime: activity.studyStartTime,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to send learning tracking data');
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Error sending learning tracking data:', error);
-            throw error;
-        }
-    }, [activity]);
-
     return {
         activity,
         isTracking,
@@ -553,6 +525,5 @@ export function useUserTracking(options: UseUserTrackingOptions = {}) {
         endStudySession,
         pauseStudySession,
         getStudyMetrics,
-        sendLearningTrackingData,
     };
 }

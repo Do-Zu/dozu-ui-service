@@ -3,11 +3,11 @@
 import { ReactNode } from 'react';
 import { UserTrackingProvider } from '@/contexts/tracking/UserTrackingContext';
 
-interface LearningTopicLayoutProps {
+interface LearningLayoutProps {
     children: ReactNode;
 }
 
-export default function LearningTopicLayout({ children }: LearningTopicLayoutProps) {
+export default function LearningLayout({ children }: LearningLayoutProps) {
     return (
         <UserTrackingProvider
             autoStartTracking={true}
