@@ -122,13 +122,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     }
 
     if (!loading && error) {
-        return (
-            <Card className="max-w-[80%] min-w-[40%] h-[200px] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
-                <CardContent className="text-center text-white">
-                    <p>{t('error.title')}</p>
-                </CardContent>
-            </Card>
-        );
+        return <></>;
     }
 
     return (
