@@ -140,10 +140,6 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>{topicT('edit')}</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>{topicT('delete')}</span>
-                                    </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
 

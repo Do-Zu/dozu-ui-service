@@ -9,8 +9,9 @@ import { useEffect, useState } from 'react';
 import { getRequest } from '@/api/api';
 import { UserBasic, GetUsersQuery } from '@/types/user';
 import { toast } from '@/hooks/use-toast';
+import { withAuth } from '@/hoc/withAuth';
 
-export default function AdminDashboardPage() {
+function AdminDashboardPage() {
   const [users, setUsers] = useState<UserBasic[]>([]);
 
   useEffect(() => {
@@ -119,3 +120,8 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+export default withAuth(AdminDashboardPage, {
+  requiredRole: 'admin',
+});
+
