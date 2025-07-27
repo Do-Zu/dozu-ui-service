@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function StudyPreference({ initialData, onChange }: Props) {
-    const StudyPreferenceInDate = useMemo(() => ['Sáng', 'Chiều', 'Tối'], []);
+    const StudyPreferenceInDate = useMemo(() => ['Morning', 'Afternoon', 'Evening'], []);
     const methodsLearning = useMemo(() => ['Questions', 'Flashcards'], []);
 
     // Use state instead of useMemo for reactive values
@@ -112,7 +112,7 @@ export default function StudyPreference({ initialData, onChange }: Props) {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Clock className="h-5 w-5 text-primary" />
-                        Bạn thích học vào thời gian nào trong ngày?
+                        What time of day do you like to study?
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -139,13 +139,13 @@ export default function StudyPreference({ initialData, onChange }: Props) {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Target className="h-5 w-5 text-primary" />
-                        Thời lượng học trung bình?
+                        Average study duration?
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
                         <Label htmlFor="duration-select" className="text-sm font-medium">
-                            Chọn thời lượng có sẵn
+                            Select available duration
                         </Label>
                         <Select
                             value={studyDuration.toString()}
@@ -155,22 +155,22 @@ export default function StudyPreference({ initialData, onChange }: Props) {
                                 <SelectValue placeholder="Chọn thời lượng phiên học" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="30">30 phút</SelectItem>
-                                <SelectItem value="45">45 phút</SelectItem>
-                                <SelectItem value="60">1 giờ</SelectItem>
-                                <SelectItem value="120">2 giờ</SelectItem>
+                                <SelectItem value="30">30 minutes</SelectItem>
+                                <SelectItem value="45">45 minutes</SelectItem>
+                                <SelectItem value="60">1 hour</SelectItem>
+                                <SelectItem value="120">2 hour</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="relative">
                         <Label htmlFor="custom-duration" className="text-sm font-medium">
-                            Thời gian tùy chỉnh (phút)
+                            Custom time (minutes)
                         </Label>
                         <Input
                             id="custom-duration"
                             type="number"
-                            placeholder="Ví dụ: 90"
+                            placeholder="Example: 90"
                             value={customDuration}
                             onChange={(e) => handleCustomDurationChange(e.target.value)}
                             className="mt-2"
@@ -186,7 +186,7 @@ export default function StudyPreference({ initialData, onChange }: Props) {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <BookOpen className="h-5 w-5 text-primary" />
-                        Phương pháp học bạn thường áp dụng?
+                        What learning method do you usually use?
                     </CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -28,17 +28,62 @@ import {
 import { ContentType } from '@/types/progress';
 import DailyStudyBarChart from './DailyStudyBarChart';
 import LearningMethodsPieChart from './LearningMethodsPieChart';
+import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
 
 const ProgressDashboard: React.FC = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('progress');
   
-  const { data: stats, loading: statsLoading, error: statsError } = useProgressStatistics();
-  const { data: dashboard, loading: dashboardLoading, error: dashboardError } = useDashboardStatistics();
-  const { data: dailyStudy, loading: dailyStudyLoading } = useDailyStudyRecords(7);
-  const { data: learningMethods, loading: learningMethodsLoading } = useLearningMethodsDistribution();
-  const { data: weeklyComparison, loading: weeklyComparisonLoading } = useWeeklyComparison();
-  const { data: completedTopics, loading: completedTopicsLoading } = useCompletedTopics();
+  // Database statistics
+  const { data: stats, loading: statsLoading, error: statsError, refetch: refetchStats } = useProgressStatistics();
+  const { data: dashboard, loading: dashboardLoading, error: dashboardError, refetch: refetchDashboard } = useDashboardStatistics();
+  const { data: dailyStudy, loading: dailyStudyLoading, refetch: refetchDailyStudy } = useDailyStudyRecords(7);
+  const { data: learningMethods, loading: learningMethodsLoading, refetch: refetchLearningMethods } = useLearningMethodsDistribution();
+  const { data: weeklyComparison, loading: weeklyComparisonLoading, refetch: refetchWeeklyComparison } = useWeeklyComparison();
+  const { data: completedTopics, loading: completedTopicsLoading, refetch: refetchCompletedTopics } = useCompletedTopics();
+  
+  // Real-time learning tracking
+  const { getStudyMetrics, activity } = useUserTrackingContext();
+  const currentSessionMetrics = getStudyMetrics();
+  
+  // Note: Progress dashboard doesn't need auto-save since it's for viewing stats
+  // Active learning sessions handle their own tracking
+  
+  // Listen for progress updates from other components
+  useEffect(() => {
+    const handleProgressUpdate = async () => {
+      // Refetch all dashboard data instead of reloading the page
+      try {
+        await Promise.all([
+          refetchStats(),
+          refetchDashboard(),
+          refetchDailyStudy(),
+          refetchLearningMethods(),
+          refetchWeeklyComparison(),
+          refetchCompletedTopics()
+        ]);
+      } catch (error) {
+        console.error('Failed to refresh dashboard data:', error);
+      }
+    };
+    
+    // Test manual trigger (temporary for debugging)
+    (window as any).testProgressUpdate = handleProgressUpdate;
+    
+    window.addEventListener('progressUpdated', handleProgressUpdate);
+    return () => {
+      window.removeEventListener('progressUpdated', handleProgressUpdate);
+      delete (window as any).testProgressUpdate;
+    };
+  }, [refetchStats, refetchDashboard, refetchDailyStudy, refetchLearningMethods, refetchWeeklyComparison, refetchCompletedTopics]);
+  
+  // Combine database stats with real-time metrics
+  // Calculate total from daily study data to ensure consistency
+  const calculatedTotalFromDaily = dailyStudy?.reduce((total, day) => total + day.hours, 0) || 0;
+  const totalStudyHours = calculatedTotalFromDaily + (activity.studyHours || 0);
+  const totalCompletedTopics = (completedTopics?.completedTopics || 0) + (activity.completedTopics || 0);
+
+
 
   if (statsLoading || dashboardLoading) {
     return (
@@ -131,18 +176,29 @@ const ProgressDashboard: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="flex justify-between items-center">
                 <span>{t('totalStudyHours')}</span>
-                <span className="font-bold">{dashboard.totalStudyHours.toFixed(1)}h</span>
+                <span className="font-bold flex items-center gap-2">
+                  {totalStudyHours.toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>{t('completedTopics')}</span>
-                <span className="font-bold">{dashboard.completedTopics}</span>
+                <span className="font-bold flex items-center gap-2">
+                  {totalCompletedTopics}
+                </span>
               </div>
-              <div className="flex justify-between items-center">
+           
+              {activity.currentTopic && (
+                <div className="flex justify-between items-center">
+                  <span>Current Topic</span>
+                  <Badge variant="outline">{activity.currentTopic}</Badge>
+                </div>
+              )}
+              {/* <div className="flex justify-between items-center">
                 <span>{t('weeklyChange')}</span>
                 <span className={`font-bold ${weeklyComparison?.percentageChange && weeklyComparison.percentageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {weeklyComparison?.percentageChange ? (weeklyComparison.percentageChange >= 0 ? '+' : '') + weeklyComparison.percentageChange.toFixed(1) : '0'}%
                 </span>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 
@@ -302,8 +358,8 @@ const ProgressDashboard: React.FC = () => {
       [t('averageScore'), `${stats?.averageScore?.toFixed(1) || 0}%`],
       [''],
       [t('studyOverview')],
-      [t('totalStudyHours'), dashboard?.totalStudyHours?.toFixed(1) || 0],
-      [t('completedTopics'), dashboard?.completedTopics || 0],
+      [t('totalStudyHours'), totalStudyHours.toFixed(1)],
+      [t('completedTopics'), totalCompletedTopics],
       [t('weeklyChange'), `${weeklyComparison?.percentageChange?.toFixed(1) || 0}%`],
       [''],
       [t('dailyStudyHours')],
@@ -401,8 +457,8 @@ const ProgressDashboard: React.FC = () => {
     const shareData = {
       title: t('progressReportTitle'),
       text: t('progressReportText', { 
-        hours: dashboard?.totalStudyHours?.toFixed(1) || 0, 
-        topics: dashboard?.completedTopics || 0 
+        hours: totalStudyHours.toFixed(1), 
+        topics: totalCompletedTopics 
       }),
       url: window.location.href,
     };
