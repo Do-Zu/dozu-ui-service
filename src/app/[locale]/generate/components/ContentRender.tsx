@@ -99,7 +99,8 @@ const MindmapRenderer: React.FC<MindmapRendererProps> = ({ data, setDataGenerate
                 setTopicName={setTopicName}
                 setDataGenerated={setDataGenerated}
             />
-            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">{JSON.stringify(data, null, 2)}</pre>
+            {/* <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">{JSON.stringify(data, null, 2)}</pre> */}
+            {/* uncomment above ^ to test json if error */}
         </div>
     );
 };
