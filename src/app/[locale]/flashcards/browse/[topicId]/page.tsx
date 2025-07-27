@@ -382,10 +382,6 @@ export default function Page() {
                         style="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6 bg-gray-100 dark:bg-gray-950 overflow-hidden"
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcards.length}
-                        // handleClickBackFlashcard={handleClickBackFlashcard}
-                        // handleClickNextFlashcard={handleClickNextFlashcard}
-                        // isPlaying={isPlaying}
-                        // handleClickIsPlaying={() => setIsPlaying(!isPlaying)}
                         autoPlayEnabled={autoPlayEnabled}
                         handleOnChangeAutoPlayEnabled={() => setAutoPlayEnabled(!autoPlayEnabled)}
                         handleResetProgress={handleResetProgress}
