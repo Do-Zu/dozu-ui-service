@@ -184,7 +184,7 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
                     <div className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2">
                             <Calendar className="h-5 w-5 text-primary" />
-                            Chọn thời gian rảnh trong tuần
+                            Choose a free time during the week
                         </CardTitle>
                         <div className="flex items-center gap-2">
                             <Tooltip>
@@ -202,13 +202,13 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
                                     <div className="text-sm ">
                                         <ul className="space-y-1 text-xs">
                                             <li>
-                                                • <strong>Click</strong> vào ô để chọn/bỏ chọn 1 giờ
+                                                • <strong>Click</strong> check box to select/deselect 1 hour
                                             </li>
                                             <li>
-                                                • <strong>Kéo thả</strong> để chọn nhiều giờ cùng lúc
+                                                • <strong>Drag and drop</strong> to select multiple hours at once
                                             </li>
                                             <li>
-                                                • <strong>Màu xanh lá:</strong> Thời gian rảnh đã chọn
+                                                • <strong>Green:</strong> Selected free time
                                             </li>
                                         </ul>
                                     </div>
@@ -227,7 +227,7 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        <p>Khôi phục về cài đặt ban đầu</p>
+                                        <p>Restore to factory settings</p>
                                     </TooltipContent>
                                 </Tooltip>
                             )}
@@ -250,7 +250,7 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
                                         <th className="border border-gray-200 p-3 text-left font-semibold sticky left-0 bg-white z-10">
                                             <div className="flex items-center gap-2">
                                                 <Calendar className="h-4 w-4 " />
-                                                Ngày / Giờ
+                                                Date/Time
                                             </div>
                                         </th>
                                         {hours.map((hour) => (
@@ -308,13 +308,13 @@ export default function FreeTimeSelector({ initialData, onChange }: Props) {
                                                         </TooltipTrigger>
                                                         <TooltipContent>
                                                             <p>
-                                                                <strong>{day}</strong> - {formatHour(hour)} đến{' '}
+                                                                <strong>{day}</strong> - {formatHour(hour)} to{' '}
                                                                 {formatHour(hour + 1)}
                                                             </p>
                                                             <p className="text-xs text-gray-300">
                                                                 {freeTime[dayIndex][hour]
-                                                                    ? 'Đã chọn - Click để bỏ chọn'
-                                                                    : 'Click để chọn'}
+                                                                    ? 'Selected - Click to deselect'
+                                                                    : 'Click to select'}
                                                             </p>
                                                         </TooltipContent>
                                                     </Tooltip>
