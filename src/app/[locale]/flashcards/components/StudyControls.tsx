@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { ShowIf } from '@/components/ui/ShowIf';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
 import {
     ArrowLeft,
     ArrowRight,
@@ -50,6 +52,7 @@ interface Props {
 const labelStyle = 'text-sm text-foreground font-medium';
 
 export default function StudyControls(props: Props) {
+    const { isTeacher } = useRoleChecker();
     const t = useTranslations('flashcard.study');
     const { style } = props;
     const { currentFlashcardIndex, flashcardsLength } = props;
@@ -205,7 +208,9 @@ export default function StudyControls(props: Props) {
             </div>
 
             <div className="grid grid-cols-12 gap-3">
-                {renderEditSection('col-span-6')}
+                <ShowIf when={isTeacher}>
+                    {renderEditSection('col-span-6')}
+                </ShowIf>
                 {/* <div className="col-span-6"></div> */}
                 {CustomElement ? CustomElement : null}
             </div>

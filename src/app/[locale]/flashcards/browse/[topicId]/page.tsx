@@ -59,8 +59,8 @@ export default function Page() {
     const {
         data: flashcards,
         setData: setFlashcardsData,
-        loading: flashcardLoading,
-        error: flashcardError,
+        loading: flashcardsLoading,
+        error: flashcardsError,
     } = useFetch<IFlashcardsForTopicReturned>(`/flashcards?topicId=${topicId}`, { selector: flashcardsSelector });
 
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
@@ -294,16 +294,16 @@ export default function Page() {
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
-    if (flashcardLoading === true || flashcards === null || flashcards === undefined) {
+    if (flashcardsError) {
+        return <div>Error: { flashcardsError }</div>;
+    }
+
+    if (flashcardsLoading === true || flashcards === null || flashcards === undefined) {
         return <div>Loading flashcards...</div>;
     }
 
     if (flashcards.length === 0 || !currentFlashcard) {
         return <div>No Flashcards to study</div>;
-    }
-
-    if (flashcardError) {
-        return <div>Something went wrong with Flashcards</div>;
     }
 
     function renderFlashcardButtonsSection(style: string) {
@@ -382,10 +382,6 @@ export default function Page() {
                         style="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6 bg-gray-100 dark:bg-gray-950 overflow-hidden"
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcards.length}
-                        // handleClickBackFlashcard={handleClickBackFlashcard}
-                        // handleClickNextFlashcard={handleClickNextFlashcard}
-                        // isPlaying={isPlaying}
-                        // handleClickIsPlaying={() => setIsPlaying(!isPlaying)}
                         autoPlayEnabled={autoPlayEnabled}
                         handleOnChangeAutoPlayEnabled={() => setAutoPlayEnabled(!autoPlayEnabled)}
                         handleResetProgress={handleResetProgress}

@@ -66,15 +66,15 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
     }
 
     function handleOnClickMindmap() {
-        router.push(`mindmap/${topicId}`);
+        router.push(ROUTES.MINDMAP_EDIT(topicId));
     }
 
     function handleOnClickStartQuiz() {
-        router.push(`quiz/${topicId}/quiz-type`);
+        router.push(ROUTES.QUIZ_START(topicId));
     }
 
     function handleOnClickEditQuestion() {
-        router.push(`question/edit/${topicId}`);
+        router.push(ROUTES.QUIZ_EDIT(topicId));
     }
 
     return (

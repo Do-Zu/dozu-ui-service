@@ -25,3 +25,11 @@ export type IUpdateClassResponse = Pick<IClass, 'classId' | 'name' | 'descriptio
 export interface IJoinClassBody {
     invitationCode: string
 }
+
+export interface IStudentInClass {
+    userId: number;
+    username: string;
+    fullName: string | null;
+    avatarUrl: string;
+    enrolledAt: Date;
+}
