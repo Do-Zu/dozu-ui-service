@@ -1,24 +1,24 @@
 {
     "topic": {
         "topic": "Topic",
-
         "createdForm": {
             "title": "Create new Topic",
             "name": "Name",
             "description": "Description",
-            "createButton": "Create" 
+            "createButton": "Create"
         },
         "updatedForm": {
             "title": "Update Topic",
             "name": "Name",
             "description": "Description",
-            "updateButton": "Update" 
+            "updateButton": "Update"
         },
         "deletedForm": {
             "title": "Delete Topic {name}",
             "description": "This action will delete all items related to this topic. Still delete?",
             "deleteButton": "Delete"
         },
+        "view": "View",
         "edit": "Edit",
         "delete": "Delete",
         "browse": "Browse",

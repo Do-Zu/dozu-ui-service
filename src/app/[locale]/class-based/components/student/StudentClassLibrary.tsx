@@ -30,13 +30,6 @@ export function StudentClassLibrary() {
         loading: classesLoading,
     } = useFetch<IClass[]>('/classes');
 
-    function applyJoinClass(data: IClass) {
-        if (classes === null || classes === undefined) {
-            throw new Error('Cannot apply Join Class');
-        }
-        setClasses([...classes, data]);
-    }
-
     async function handleClassNameClick({
         classId,
         name,
@@ -51,15 +44,11 @@ export function StudentClassLibrary() {
         setClassDescriptionSelected(description);
     }
 
-    if (classesError) {
-        return <div>Something went wrong</div>;
-    }
-    if (classesLoading || classes === null || classes === undefined) {
-        return <LoadingPage />;
-    }
-    if (classIdSelected) {
-        // ClassBasedLibrary
-        router.push(ROUTES.CLASS_BASED_ID(classIdSelected));
+    function applyJoinClass(data: IClass) {
+        if (classes === null || classes === undefined) {
+            throw new Error('Cannot apply Join Class');
+        }
+        setClasses([...classes, data]);
     }
 
     async function handleJoinClick(code: string) {
@@ -74,6 +63,35 @@ export function StudentClassLibrary() {
                 variant: 'destructive',
             });
         }
+    }
+
+    function applyLeaveClass(classId: number) {
+        if (classes === null || classes === undefined) return;
+        const classFiltered = classes.filter((e) => e.classId !== classId);
+        setClasses(classFiltered);
+    }
+
+    async function handleLeaveClick(classId: number) {
+        try {
+            await classService.leaveClass(classId);
+            applyLeaveClass(classId);
+        } catch(err) {
+            toast({
+                title: 'Leave Class failed, please try again!', 
+                variant: 'destructive',
+            });
+        }
+    }
+
+    if (classesError) {
+        return <div>Something went wrong</div>;
+    }
+    if (classesLoading || classes === null || classes === undefined) {
+        return <LoadingPage />;
+    }
+    if (classIdSelected) {
+        // ClassBasedLibrary
+        router.push(ROUTES.CLASS_BASED_ID(classIdSelected));
     }
 
     return (
@@ -93,8 +111,9 @@ export function StudentClassLibrary() {
             </div>
             <ClassesList
                 role='student'
-                handleNameClick={handleClassNameClick}
                 classes={classes}
+                handleNameClick={handleClassNameClick}
+                handleLeaveClick={handleLeaveClick}
             />
 
             <JoinClassModal

@@ -34,6 +34,13 @@ export const ROUTES = Object.freeze({
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
     CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
+    CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
+
+    MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
+    MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
+
+    QUIZ_START: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
+    QUIZ_EDIT: (topicId: string | number) => `/question/edit/${topicId}`,
 });
 
 // Route groups for easier management

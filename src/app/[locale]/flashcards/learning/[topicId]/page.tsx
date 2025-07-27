@@ -22,8 +22,8 @@ export default function Page() {
     const {
         data: flashcards,
         setData: setFlashcardsData,
-        loading: flashcardLoading,
-        error: flashcardError,
+        loading: flashcardsLoading,
+        error: flashcardsError,
     } = useFetch<IFlashcard[]>(`/flashcards/learning/${topicId}`);
 
     const currentFlashcard = flashcards ? flashcards[0] : null;
@@ -83,16 +83,16 @@ export default function Page() {
         }
     }
 
-    if (flashcardLoading === true || flashcards === null || flashcards === undefined) {
+    if (flashcardsError) {
+        return <div>Error: { flashcardsError }</div>;
+    }
+
+    if (flashcardsLoading === true || flashcards === null || flashcards === undefined) {
         return <LoadingPage />;
     }
 
     if (flashcards.length === 0 || !currentFlashcard) {
         return <div>Nothing to Learn</div>;
-    }
-
-    if (flashcardError) {
-        return <div>Something went wrong with Flashcards</div>;
     }
 
     return (

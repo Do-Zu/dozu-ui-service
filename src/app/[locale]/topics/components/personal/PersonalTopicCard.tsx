@@ -9,7 +9,18 @@ import {
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Trash2, Play } from 'lucide-react';
+import {
+    BookOpen,
+    ClipboardCheck,
+    Edit,
+    GitFork,
+    GraduationCap,
+    Layers,
+    MoreVertical,
+    Trash2,
+    Play,
+    ImageIcon,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -55,16 +66,16 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
     }
 
     function handleOnClickMindmap() {
-        router.push(`mindmap/${topicId}`);
+        router.push(ROUTES.MINDMAP_EDIT(topicId));
     }
 
     function handleOnClickStartQuiz() {
-        router.push(`quiz/${topicId}/quiz-type`);
-    };
+        router.push(ROUTES.QUIZ_START(topicId));
+    }
 
     function handleOnClickEditQuestion() {
-        router.push(`question/edit/${topicId}`);
-    };
+        router.push(ROUTES.QUIZ_EDIT(topicId));
+    }
 
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
@@ -170,9 +181,7 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                     </div>
 
                     <div className="flex flex-row justify-between items-center text-[0.7rem]">
-                        <div>
-                            {/* Last studied: <span className="font-bold">{lastStudied}</span> */}
-                        </div>
+                        <div>{/* Last studied: <span className="font-bold">{lastStudied}</span> */}</div>
                         <div>
                             <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
                         </div>
