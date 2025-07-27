@@ -94,8 +94,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   <Input
                     id="username"
                     value={editData.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
+                    readOnly
+                    disabled
+                    className="bg-muted cursor-not-allowed"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Username cannot be changed
+                  </p>
                 </div>
                 
                 <div>
@@ -104,8 +109,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     id="email"
                     type="email"
                     value={editData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    readOnly
+                    disabled
+                    className="bg-muted cursor-not-allowed"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Email cannot be changed
+                  </p>
                 </div>
                 
                 <div>
