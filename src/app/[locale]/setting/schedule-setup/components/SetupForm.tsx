@@ -51,7 +51,7 @@ export default function SetupForm({ onComplete }: Props) {
             }
         } catch (error) {
             toast({
-                description: 'Không thể lưu cài đặt. Vui lòng thử lại sau.',
+                description: 'Unable to save settings. Please try again later.',
                 variant: 'destructive',
             });
         }
@@ -64,14 +64,14 @@ export default function SetupForm({ onComplete }: Props) {
     return (
         <div className="space-y-8 p-6 bg-white rounded shadow">
             <section>
-                <h2 className="text-xl font-semibold mb-2">Thời gian rảnh trong tuần</h2>
-                <p className="text-sm text-gray-500 mb-4">Chọn khoảng thời gian bạn có thể học mỗi ngày</p>
+                <h2 className="text-xl font-semibold mb-2">Free time during the week</h2>
+                <p className="text-sm text-gray-500 mb-4">Choose a time period you can study each day</p>
                 <FreeTimeSelector initialData={formData?.freeTime} onChange={handleFreeTimeChange} />
             </section>
 
             <section>
-                <h2 className="text-xl font-semibold mb-2">Thói quen học</h2>
-                <p className="text-sm text-gray-500 mb-4">Hệ thống sẽ gợi ý lịch học phù hợp với bạn hơn</p>
+                <h2 className="text-xl font-semibold mb-2">Study habits</h2>
+                <p className="text-sm text-gray-500 mb-4">The system will suggest a schedule that suits you better.</p>
                 <StudyPreference initialData={formData} onChange={setFormData} />
             </section>
 
@@ -81,13 +81,13 @@ export default function SetupForm({ onComplete }: Props) {
                     onClick={handleSubmit}
                     className="bg-primary text-white hover:bg-primary-dark transition-colors"
                 >
-                    <span className="text-sm font-medium">{updating ? 'Đang lưu...' : 'Lưu'}</span>
+                    <span className="text-sm font-medium">{updating ? 'Saving...' : 'Save'}</span>
                 </Button>
             </div>
 
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    Có lỗi xảy ra: {error}
+                    An error occurred: {error}
                 </div>
             )}
         </div>

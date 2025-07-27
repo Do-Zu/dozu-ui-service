@@ -8,6 +8,7 @@ import LoadingPage from '@/app/loading';
 import { FlashcardLearning } from '../components/FlashcardLearning';
 import { useParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
+import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
 
 export type IFlashcard = Pick<IFlashcardFull, 'flashcardId' | 'front' | 'back' | 'topicName'> & {
     qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
@@ -18,6 +19,20 @@ export default function Page() {
     if (!params?.topicId) return <div>No topic id is provided</div>;
 
     const { topicId } = params;
+    
+    // Learning tracking integration
+    const { 
+        startStudySession, 
+        endStudySession, 
+        getStudyMetrics, 
+        itemsStudiedCount,
+        correctAnswersCount,
+        sessionStartTime,
+        updateItemsStudied,
+        updateCorrectAnswers,
+        resetLearningSession,
+        saveCurrentLearningSession
+    } = useUserTrackingContext();
 
     const {
         data: flashcards,
@@ -33,6 +48,30 @@ export default function Page() {
     const isFrontRef = useRef<boolean>(true);
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
+    
+    // Initialize session when component mounts
+    useEffect(() => {
+        resetLearningSession();
+        if (topicId && currentFlashcard) {
+            startStudySession(topicId as string, currentFlashcard.topicName);
+        }
+        
+        // End session when component unmounts ONLY
+        return () => {
+            const accuracy = itemsStudiedCount > 0 ? (correctAnswersCount / itemsStudiedCount) * 100 : 0;
+            endStudySession(itemsStudiedCount, accuracy);
+            
+            // Save final session data to database using context method
+            // Don't mark as completed on unmount since user might be just leaving the page
+            saveCurrentLearningSession(
+                topicId as string,
+                flashcards?.length || 0,
+                false // not completed on unmount
+            ).catch((error: any) => {
+                console.error('Failed to save learning progress on unmount:', error);
+            });
+        };
+    }, []); // Empty dependency array - only run on mount/unmount
 
     // useEffect(() => {
     //     if(cardRef.current) {
@@ -75,6 +114,22 @@ export default function Page() {
             await putRequest(`/flashcards/${currentFlashcard.flashcardId}/track`, { qualityResponse });
             const flashcardsFiltered = flashcards.slice(1);
             setFlashcardsData(flashcardsFiltered);
+            
+            // Update learning tracking metrics using context methods
+            updateItemsStudied(itemsStudiedCount + 1);
+            if (qualityResponse >= 3) {
+                updateCorrectAnswers(correctAnswersCount + 1);
+            }
+            
+            // If this was the last card, save progress to database using context method
+            if (flashcardsFiltered.length === 0) {
+                await saveCurrentLearningSession(
+                    topicId as string,
+                    flashcards.length,
+                    true // completed
+                );
+            }
+            
         } catch (err) {
             toast({
                 title: 'Tracking failed, please try again',
@@ -82,6 +137,7 @@ export default function Page() {
             });
         }
     }
+    
 
     if (flashcardsError) {
         return <div>Error: { flashcardsError }</div>;
@@ -92,7 +148,29 @@ export default function Page() {
     }
 
     if (flashcards.length === 0 || !currentFlashcard) {
-        return <div>Nothing to Learn</div>;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+                <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
+                        <svg className="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-semibold text-black">Great job! 🎉</h2>
+                    <p className="text-gray-700 max-w-md">
+                        You've completed all the flashcards for this topic. There's nothing more to learn right now.
+                    </p>
+                    <div className="pt-4">
+                        <button 
+                            onClick={() => window.history.back()}
+                            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors border border-gray-300"
+                        >
+                            Go Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (

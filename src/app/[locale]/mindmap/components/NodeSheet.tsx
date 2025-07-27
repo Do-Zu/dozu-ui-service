@@ -156,7 +156,7 @@ const NodeSheet = () => {
                         </div>
                     </SheetTitle>
 
-                    <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription>
+                    {/* <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription> */}
                 </SheetHeader>
 
                 <div className="grid w-full gap-3">
