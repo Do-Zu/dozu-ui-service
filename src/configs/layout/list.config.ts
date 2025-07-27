@@ -27,6 +27,12 @@ export const layoutConfigs: PageLayoutConfig[] = [
         isDisplaySidebar: false,
     },
     {
+        pathPattern: '/${locale}/admin/',
+        isDisplayHeader: false,
+        isDisplayFooter: false,
+        isDisplaySidebar: false,
+    },
+    {
         pathPattern: '/${locale}/admin/*',
         isDisplayHeader: false,
         isDisplayFooter: false,
