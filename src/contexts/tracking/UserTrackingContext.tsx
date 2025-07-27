@@ -297,14 +297,12 @@ export function UserTrackingProvider({
             // Skip API call if conditions not met (unless forced)
             if (!forceSync) {
                 if (!wasTracking || timeSpent <= minSessionTime) {
-                    console.log('Learning tracking skipped: insufficient session time or not tracking');
                     return;
                 }
 
                 // Only skip if BOTH no items studied AND no explicit completion AND very short session
                 // This allows progress updates for study time even without items completed
                 if (itemsStudied === 0 && !isTopicCompleted && timeSpent < (minSessionTime * 2)) {
-                    console.log('Learning tracking skipped: no items studied, not completed, and very short session');
                     return;
                 }
             }
@@ -315,13 +313,6 @@ export function UserTrackingProvider({
             const minTimePerItem = 10000; // 10 seconds per item minimum
             const simulatedTime = itemsStudied > 0 ? Math.max(timeSpent, itemsStudied * minTimePerItem) : timeSpent;
 
-            console.log('Sending learning tracking data:', { 
-                topicId, 
-                itemsStudied, 
-                accuracy, 
-                timeSpent: simulatedTime,
-                isTopicCompleted: isTopicCompleted
-            });
 
             const response = await postRequest(learningApiEndpoint, {
                 topicId: topicId,
@@ -340,14 +331,16 @@ export function UserTrackingProvider({
                 },
             });
 
+           
+
             // Optional: Trigger a data refresh on the progress page
             if (typeof window !== 'undefined') {
+                // Add a small delay to ensure event handlers are ready
                 setTimeout(() => {
                     window.dispatchEvent(new CustomEvent('progressUpdated'));
                 }, 100);
             }
         } catch (error) {
-            console.error('Failed to save learning tracking progress:', error);
             throw error;
         }
     };
@@ -362,13 +355,7 @@ export function UserTrackingProvider({
         if (!isCompleted && !forceSync && currentItems === 0 && sessionTime < minSessionTime) {
             return;
         }
-        
-        // For non-completion cases, we still want to update progress metrics
-        // but we don't send isCompleted: false to avoid downgrading completed topics
-        // Backend will preserve existing completion status
-        
-        // If there was activity (items studied or time spent), send update for metrics
-        // This ensures progress dashboard gets updated with new study time/items
+   
         return handleSaveTrackingProgressLearning({
             topicId,
             itemsStudied: itemsStudiedRef.current,
