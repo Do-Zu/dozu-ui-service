@@ -8,8 +8,10 @@ export default function Page() {
     const classId = Number(params?.id as string);
 
     return (
-        <ClassTopicLibrary
-            classId={classId}
-        />
+        <div className="flex flex-col h-full mt-4">
+            <ClassTopicLibrary
+                classId={classId}
+            />
+        </div>
     )
 }

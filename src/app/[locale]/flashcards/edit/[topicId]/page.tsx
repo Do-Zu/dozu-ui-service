@@ -53,12 +53,12 @@ const Page = () => {
         setFlashcards(flashcards);
     }, [flashcardsExisted]);
 
-    if (flashcardsLoading) {
-        return <LoadingPage />;
-    }
-
     if (flashcardsError) {
         return <div>Error: {flashcardsError} </div>;
+    }
+
+    if (flashcardsLoading) {
+        return <LoadingPage />;
     }
 
     if (flashcards === null || flashcards === undefined) {

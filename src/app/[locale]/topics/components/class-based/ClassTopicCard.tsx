@@ -9,7 +9,7 @@ import {
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Trash2 } from 'lucide-react';
+import { BookOpen, ClipboardCheck, Edit, GitFork, GraduationCap, Layers, MoreVertical, Play, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -59,8 +59,16 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
     }
 
     function handleOnClickMindmap() {
-        router.push(`mindmap/${topicId}`);
+        router.push(ROUTES.MINDMAP(topicId));
     }
+
+    function handleOnClickStartQuiz() {
+        router.push(ROUTES.QUIZ_START(topicId));
+    };
+
+    function handleOnClickEditQuestion() {
+        router.push(ROUTES.QUIZ_EDIT(topicId));
+    };
 
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
@@ -119,14 +127,22 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                     <span>Quiz</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
-                                    <DropdownMenuItem>
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
+                                    <DropdownMenuItem onSelect={handleOnClickStartQuiz}>
+                                        <Play className="mr-2 h-4 w-4" />
+                                        <span>{topicT('start-quiz')}</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>{topicT('delete')}</span>
-                                    </DropdownMenuItem>
+                                    <ShowIf when={isTeacher}>
+                                        <DropdownMenuItem onSelect={handleOnClickEditQuestion}>
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            <span>{topicT('edit')}</span>
+                                        </DropdownMenuItem>
+                                    </ShowIf>
+                                    <ShowIf when={isTeacher}>
+                                        <DropdownMenuItem>
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            <span>{topicT('delete')}</span>
+                                        </DropdownMenuItem>
+                                    </ShowIf>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
 

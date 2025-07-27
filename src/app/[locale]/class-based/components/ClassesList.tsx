@@ -37,6 +37,7 @@ type Props =
               name: string;
               description: string;
           }) => void;
+          handleLeaveClick: (classId: number) => void; 
       };
 
 export function ClassesList(props: Props) {
@@ -50,6 +51,7 @@ export function ClassesList(props: Props) {
                         key={classId}
                         classProp={myClass}
                         handleNameClick={handleNameClick}
+                        handleLeaveClick={props.handleLeaveClick}
                     />
                 ) : (
                     <TeacherClassCard

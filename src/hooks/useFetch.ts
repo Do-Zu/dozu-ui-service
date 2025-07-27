@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { FetchOptions, METHOD } from './type';
 import { callApiAsync } from './helper';
 import { z } from 'zod';
+import { AxiosError } from 'axios';
 
 /**
  * Custom hook for fetching data from an API or via a provided function with Zod validation
@@ -87,7 +88,11 @@ function useFetch<T, Z = T>(
             if (error instanceof DOMException && error.name === 'AbortError') {
                 return;
             }
-            setError(error instanceof Error ? error.message : 'Unknown error');
+            if(error instanceof AxiosError) {
+                setError(error.response?.data.message);
+            } else {
+                setError(error instanceof Error ? error.message : 'Unknown error');
+            }
         } finally {
             // Check the signal from our local controller variable
             if (!currentController.signal.aborted) {

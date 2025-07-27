@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Search, Filter, Plus, School, Sparkles } from 'lucide-react';
+import { Search, Filter, Plus, School, Sparkles, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
@@ -61,7 +61,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         setData: setTopics,
         error: topicsError,
         loading: topicsLoading,
-    } = useFetch<ITopic[]>(`/classes/${classId}/topics`);
+    } = useFetch<ITopic[]>(isTeacher ? `/classes/${classId}/topics/teacher` : `/classes/${classId}/topics/student`);
 
     const {
         data: myClass,
@@ -279,6 +279,10 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         router.push(ROUTES.CLASS_BASED_ID_GENERATE(classId));
     }
 
+    async function handleManageStudentsClick() {
+        router.push(ROUTES.CLASS_BASED_ID_STUDENTS(classId));
+    }
+
     if (myClassError) {
         return <div>Error: {myClassError}</div>;
     }
@@ -302,19 +306,28 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                     <div className="text-muted-foreground">
                         {myClass.description ? myClass.description : 'No Description'}
                     </div>
+                    <div className='text-sm'>
+                        Invitation Code: { myClass.invitationCode }
+                    </div>
                 </div>
 
                 <ShowIf
                     when={isTeacher}
                     children={
                         <div className="flex flex-col gap-4">
-                            <Button className="bg-background text-foreground" onClick={handleOpenCreateModal}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                {t('createNewContent')}
-                            </Button>
-                            <Button className="bg-background text-foreground" onClick={handleGenerateClick}>
-                                <Sparkles className="mr-2 h-4 w-4" />
-                                Generate New Content
+                            <div className='flex flex-row gap-4'>
+                                <Button className="bg-background text-foreground" onClick={handleOpenCreateModal}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    {t('createNewContent')}
+                                </Button>
+                                <Button className="bg-background text-foreground" onClick={handleGenerateClick}>
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    Generate New Content
+                                </Button>
+                            </div>
+                            <Button className="bg-background text-foreground w-[50%] ml-auto" onClick={handleManageStudentsClick}>
+                                <Users className="mr-2 h-4 w-4" />
+                                <span>Manage Students</span>
                             </Button>
                         </div>
                     }

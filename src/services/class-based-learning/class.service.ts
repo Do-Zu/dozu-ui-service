@@ -1,4 +1,4 @@
-import { getRequest, postRequest, putRequest } from '@/api/api';
+import { deleteRequest, getRequest, postRequest, putRequest } from '@/api/api';
 import {
     IClass,
     ICreateClassBody,
@@ -33,6 +33,16 @@ class ClassService {
 
     public async joinClass(code: string) {
         const data = await postRequest<IJoinClassBody, IClass>(`/classes/enrollments`, { invitationCode: code });
+        return data;
+    }
+
+    public async leaveClass(classId: number) {
+        const data = await deleteRequest(`/classes/enrollments/${classId}`);
+        return data;
+    }
+
+    public async removeStudentFromClass(classId: number, studentId: number) {
+        const data = await deleteRequest(`/classes/enrollments/${classId}/students/${studentId}`);
         return data;
     }
 }

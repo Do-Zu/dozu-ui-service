@@ -8,7 +8,7 @@ import {
     DropdownMenuContent,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Edit, MoreVertical, Sparkles } from 'lucide-react';
+import { Edit, MoreVertical, Sparkles, Users } from 'lucide-react';
 import { IClass } from '../../types/class.type';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
@@ -47,6 +47,10 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
         router.push(ROUTES.CLASS_BASED_ID_GENERATE(classId));
     }
 
+    async function handleManageStudentsClick() {
+        router.push(ROUTES.CLASS_BASED_ID_STUDENTS(classId));
+    }
+
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">
@@ -73,7 +77,11 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
                             {/* Class itself */}
                             <DropdownMenuItem onSelect={handleGenerateClick}>
                                 <Sparkles className="mr-2 h-4 w-4" />
-                                <span>Generate</span>
+                                <span>Generate Contents</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={handleManageStudentsClick}>
+                                <Users className="mr-2 h-4 w-4" />
+                                <span>Manage Students</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => handleUpdateClassSelect({ classId, name, description })}>
                                 <Edit className="mr-2 h-4 w-4" />

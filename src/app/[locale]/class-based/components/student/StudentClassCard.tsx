@@ -3,13 +3,17 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { IClass } from '../../types/class.type';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { LogOut, MoreVertical } from 'lucide-react';
 
 interface Props {
     classProp: IClass;
     handleNameClick: ({ classId, name, description }: { classId: number; name: string; description: string }) => void;
+    handleLeaveClick: (classId: number) => void; 
 }
 
-export function StudentClassCard({ classProp, handleNameClick }: Props) {
+export function StudentClassCard({ classProp, handleNameClick, handleLeaveClick }: Props) {
     const {
         classId,
         name,
@@ -43,6 +47,19 @@ export function StudentClassCard({ classProp, handleNameClick }: Props) {
                             <div className="text-sm">({teacherName})</div>
                         </div>
                     </CardTitle>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
+                                <MoreVertical className="h-4 w-4 text-gray-500" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" side="top">
+                            <DropdownMenuItem onSelect={() => handleLeaveClick(classId)}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Leave</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </CardHeader>
 
