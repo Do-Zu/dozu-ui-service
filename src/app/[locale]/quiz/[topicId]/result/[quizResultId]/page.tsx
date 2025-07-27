@@ -24,7 +24,7 @@ const QuizResultPage = ({ params }: { params: { topicId: string; quizResultId: s
 
   return (
     <div className="px-6 py-8">
-      <h2 className="text-2xl font-semibold mb-4">Kết quả bài quiz</h2>
+      <h2 className="text-2xl font-semibold mb-4">Quiz results</h2>
       <QuizResult
         totalScore={quizResult.correctAnswersCount}
         correctAnswers={quizResult.correctAnswersCount}
