@@ -48,9 +48,9 @@ const EventCard = ({ event }: EventCardProps) => {
                             <Button onClick={handleRedirectLearningPage} variant="outline" className="text-sm">
                                 Learn
                             </Button>
-                            <Button onClick={handleEditClick} variant="outline" className="text-sm text-blue-600">
+                            {/* <Button onClick={handleEditClick} variant="outline" className="text-sm text-blue-600">
                                 Edit
-                            </Button>
+                            </Button> */}
                         </DialogFooter>
                     </div>
                 </HoverCardContent>
