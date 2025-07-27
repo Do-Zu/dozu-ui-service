@@ -159,7 +159,11 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
             </CardHeader>
 
             <CardContent>
-                <div className="relative h-44 bg-gray-200 dark:bg-gray-400 rounded-md mb-3 flex items-center justify-center">
+                <div
+                    className={`relative h-44 rounded-md mb-3 flex items-center justify-center ${
+                        !imageUrl ? 'bg-gray-200 dark:bg-gray-400' : ''
+                    }`}
+                >
                     {imageUrl ? (
                         <Image fill className="object-contain" alt="Item Image" src={imageUrl} />
                     ) : (
