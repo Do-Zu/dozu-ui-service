@@ -297,9 +297,7 @@ const ProgressDashboard: React.FC = () => {
   // Handler functions
   async function handleExport(format: 'pdf' | 'excel' | 'csv') {
     try {
-      if (format === 'pdf') {
-        await exportToPDF();
-      } else if (format === 'excel') {
+      if (format === 'excel') {
         await exportToExcel();
       } else if (format === 'csv') {
         await exportToCSV();
