@@ -3,11 +3,11 @@
         "topic": "Chủ đề",
         "createdForm": {
             "title": "Tạo mới chủ đề",
-            "createButton": "Tạo mới" 
+            "createButton": "Tạo mới"
         },
         "updatedForm": {
             "title": "Thay đổi chủ đề",
-            "updateButton": "Cập nhật" 
+            "updateButton": "Cập nhật"
         },
         "deletedForm": {
             "title": "Xóa chủ đề {name}",
