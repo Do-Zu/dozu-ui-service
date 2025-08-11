@@ -66,6 +66,23 @@
             "toasts": {
                 "extractionError": "Lỗi trích xuất"
             }
+        },
+        "selectMethod": {
+            "header": {
+                "title": "Phân tích nội dung",
+                "description": "Chúng tôi đã phân tích nội dung của bạn và xác định các phương pháp học phù hợp nhất:"
+            },
+            "methods": {
+                "flashcards": "Flashcards",
+                "quiz": "Quiz",
+                "mindmap": "Mind Map"
+            },
+            "descriptions": {
+                "flashcards": "Hoàn hảo để ghi nhớ và ôn tập nhanh",
+                "quiz": "Tuyệt vời để kiểm tra kiến thức của bạn",
+                "mindmap": "Tổ chức các ý tưởng và khái niệm một cách trực quan",
+                "default": "Phù hợp cho việc học chi tiết và tham khảo"
+            }
         }
     }
 }

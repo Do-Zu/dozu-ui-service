@@ -66,6 +66,23 @@
             "toasts": {
                 "extractionError": "Extraction Error"
             }
+        },
+        "selectMethod": {
+            "header": {
+                "title": "Content Analysis",
+                "description": "We've analyzed your content and identified the following learning methods that would work best:"
+            },
+            "methods": {
+                "flashcards": "Flashcards",
+                "quiz": "Quiz",
+                "mindmap": "Mind Map"
+            },
+            "descriptions": {
+                "flashcards": "Perfect for memorization and quick review",
+                "quiz": "Great for testing your knowledge",
+                "mindmap": "Visual organization to connect ideas and concepts",
+                "default": "Ideal for detailed study and reference"
+            }
         }
     }
 }
