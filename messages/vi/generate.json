@@ -1,0 +1,20 @@
+{
+    "generate": {
+        "cardImport": {
+            "titles": {
+                "step1": "Nhập Nội Dung Học Tập",
+                "step2": "Phương Pháp Học Gợi Ý"
+            },
+            "buttons": {
+                "back": "Quay lại",
+                "continue": "Tiếp tục",
+                "createContent": "Tạo Nội Dung Học Tập"
+            },
+            "toasts": {
+                "timeout": "Quá trình tạo nội dung đã hết thời gian. Vui lòng thử lại với tệp nhỏ hơn.",
+                "error": "Đã xảy ra lỗi trong quá trình tạo nội dung. Vui lòng thử lại.",
+                "success": "Nội dung của bạn đã được tạo thành công."
+            }
+        }
+    }
+}

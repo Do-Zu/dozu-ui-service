@@ -1,0 +1,20 @@
+{
+    "generate": {
+        "cardImport": {
+            "titles": {
+                "step1": "Import Learning Content",
+                "step2": "Suggested Learning Methods"
+            },
+            "buttons": {
+                "back": "Back",
+                "continue": "Continue",
+                "createContent": "Create Learning Content"
+            },
+            "toasts": {
+                "timeout": "The generation process timed out. Please try again with a smaller file.",
+                "error": "There was an error with the generation process. Please try again.",
+                "success": "Your content has been successfully generated."
+            }
+        }
+    }
+}
