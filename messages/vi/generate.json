@@ -40,6 +40,32 @@
             "validations": {
                 "fileRejected": "Tệp bị từ chối. Chỉ cho phép các tệp {types} dung lượng tối đa {size}MB."
             }
+        },
+        "textUrlTab": {
+            "tabs": {
+                "url": "Nội dung URL",
+                "text": "Văn bản"
+            },
+            "input": {
+                "urlPlaceholder": "Nhập URL YouTube hoặc trang web (ví dụ: https://youtube.com/... hoặc https://example.com)",
+                "textPlaceholder": "Dán hoặc nhập nội dung của bạn vào đây..."
+            },
+            "buttons": {
+                "extract": "Trích xuất nội dung",
+                "extracting": "Đang trích xuất...",
+                "viewDetails": "Xem chi tiết đầy đủ"
+            },
+            "messages": {
+                "tip": "Mẹo: Bạn có thể dán văn bản từ bất kỳ nguồn nào, bao gồm trang web, tài liệu hoặc ghi chú.",
+                "ytExtracted": "Đã trích xuất phụ đề YouTube thành công"
+            },
+            "headings": {
+                "youtubeTranscript": "Phụ đề YouTube:",
+                "extractedContent": "Nội dung đã trích xuất:"
+            },
+            "toasts": {
+                "extractionError": "Lỗi trích xuất"
+            }
         }
     }
 }

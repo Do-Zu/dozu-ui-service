@@ -40,6 +40,32 @@
             "validations": {
                 "fileRejected": "File rejected. Only {types} files up to {size}MB are allowed."
             }
+        },
+        "textUrlTab": {
+            "tabs": {
+                "url": "URL Content",
+                "text": "Text"
+            },
+            "input": {
+                "urlPlaceholder": "Enter YouTube URL or website URL (e.g., https://youtube.com/... or https://example.com)",
+                "textPlaceholder": "Paste or type your content here..."
+            },
+            "buttons": {
+                "extract": "Extract Content",
+                "extracting": "Extracting...",
+                "viewDetails": "View Full Details"
+            },
+            "messages": {
+                "tip": "Tip: You can paste text from any source, including websites, documents, or notes.",
+                "ytExtracted": "YouTube transcript extracted successfully"
+            },
+            "headings": {
+                "youtubeTranscript": "YouTube Transcript:",
+                "extractedContent": "Extracted Content:"
+            },
+            "toasts": {
+                "extractionError": "Extraction Error"
+            }
         }
     }
 }
