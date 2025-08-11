@@ -1,0 +1,15 @@
+{
+    "schedule": {
+        "calendar": {
+            "view": {
+                "day": "Day",
+                "week": "Week"
+            },
+            "controls": {
+                "previous": "Previous",
+                "today": "Today",
+                "next": "Next"
+            }
+        }
+    }
+}

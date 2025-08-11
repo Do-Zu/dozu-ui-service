@@ -43,7 +43,7 @@ const EventCard = ({ event }: EventCardProps) => {
                         <p className="text-xs">
                             {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                         </p>
-                        <p className="text-xs">Event description</p>
+                        {/* <p className="text-xs">Event description</p> */}
                         <DialogFooter>
                             <Button onClick={handleRedirectLearningPage} variant="outline" className="text-sm">
                                 Learn
@@ -63,7 +63,6 @@ const EventCard = ({ event }: EventCardProps) => {
                     onClose={() => setEditDialogOpen(false)}
                     event={editingEvent}
                     onSave={(updatedEvent) => {
-                        console.log('Đã lưu sự kiện:', updatedEvent);
                         setEditDialogOpen(false);
                     }}
                 />
