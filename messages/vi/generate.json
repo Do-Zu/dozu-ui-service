@@ -83,6 +83,27 @@
                 "mindmap": "Tổ chức các ý tưởng và khái niệm một cách trực quan",
                 "default": "Phù hợp cho việc học chi tiết và tham khảo"
             }
+        },
+        "generatingSkeleton": {
+            "title": "Đang tạo",
+            "subtitle": "Đang phân tích nội dung của bạn và tạo bản xem trước",
+            "file": {
+                "processing": "Đang xử lý nội dung..."
+            },
+            "steps": {
+                "extracted": "Đã trích xuất nội dung thành công",
+                "creatingVisual": "Đang tạo trực quan"
+            },
+            "messages": {
+                "analyzing": "Đang phân tích nội dung của bạn...",
+                "processing": "Đang xử lý dữ liệu...",
+                "building": "Đang xây dựng nội dung...",
+                "reviewing": "Đang kiểm tra chất lượng...",
+                "almost": "Gần xong, vui lòng chờ..."
+            },
+            "footer": {
+                "wait": "Quá trình có thể mất một vài phút"
+            }
         }
     }
 }

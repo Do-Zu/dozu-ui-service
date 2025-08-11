@@ -83,6 +83,27 @@
                 "mindmap": "Visual organization to connect ideas and concepts",
                 "default": "Ideal for detailed study and reference"
             }
+        },
+        "generatingSkeleton": {
+            "title": "Generating",
+            "subtitle": "Analyzing your content and creating a preview",
+            "file": {
+                "processing": "Processing content..."
+            },
+            "steps": {
+                "extracted": "Content extracted successfully",
+                "creatingVisual": "Creating visual"
+            },
+            "messages": {
+                "analyzing": "Analyzing your content...",
+                "processing": "Processing data...",
+                "building": "Building content...",
+                "reviewing": "Reviewing quality...",
+                "almost": "Almost done, please wait..."
+            },
+            "footer": {
+                "wait": "This may take a few moments"
+            }
         }
     }
 }
