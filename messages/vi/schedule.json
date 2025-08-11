@@ -1,0 +1,15 @@
+{
+    "schedule": {
+        "calendar": {
+            "view": {
+                "day": "Ngày",
+                "week": "Tuần"
+            },
+            "controls": {
+                "previous": "Trước",
+                "today": "Hôm nay",
+                "next": "Tiếp"
+            }
+        }
+    }
+}

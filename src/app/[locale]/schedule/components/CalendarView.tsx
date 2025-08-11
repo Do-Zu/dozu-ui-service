@@ -1,3 +1,5 @@
+'use client';
+
 import {
     CalendarCurrentDate,
     CalendarDayView,
@@ -10,11 +12,13 @@ import {
 } from '@/components/ui/full-calendar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 import LoadingPage from '@/app/loading';
 
 export default function CalendarView() {
     const { date, isLoading, handleGetGenerateScheduleEvent } = useCalendar();
+    const t = useTranslations('schedule.calendar');
 
     useEffect(() => {
         handleGetGenerateScheduleEvent(date);
@@ -25,10 +29,10 @@ export default function CalendarView() {
             {isLoading && <LoadingPage isOverlay={true} />}
             <div className="flex px-6 items-center gap-2 mb-6">
                 <CalendarViewTrigger className="aria-[current=true]:bg-accent" view="day">
-                    Day
+                    {t('view.day')}
                 </CalendarViewTrigger>
                 <CalendarViewTrigger view="week" className="aria-[current=true]:bg-accent">
-                    Week
+                    {t('view.week')}
                 </CalendarViewTrigger>
 
                 <span className="flex-1" />
@@ -37,14 +41,14 @@ export default function CalendarView() {
 
                 <CalendarPrevTrigger>
                     <ChevronLeft size={20} />
-                    <span className="sr-only">Previous</span>
+                    <span className="sr-only">{t('controls.previous')}</span>
                 </CalendarPrevTrigger>
 
-                <CalendarTodayTrigger>Today</CalendarTodayTrigger>
+                <CalendarTodayTrigger>{t('controls.today')}</CalendarTodayTrigger>
 
                 <CalendarNextTrigger>
                     <ChevronRight size={20} />
-                    <span className="sr-only">Next</span>
+                    <span className="sr-only">{t('controls.next')}</span>
                 </CalendarNextTrigger>
             </div>
 
