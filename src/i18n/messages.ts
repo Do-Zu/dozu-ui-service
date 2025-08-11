@@ -24,6 +24,7 @@ export async function getMessages(locale: string) {
         ...(await import(`../../messages/${locale}/topic.json`)).default,
         ...(await import(`../../messages/${locale}/flashcard.json`)).default,
         ...(await import(`../../messages/${locale}/progress.json`)).default,
+        ...(await import(`../../messages/${locale}/generate.json`)).default,
         ...(await import(`../../messages/${locale}/schedule.json`)).default,
     };
 
