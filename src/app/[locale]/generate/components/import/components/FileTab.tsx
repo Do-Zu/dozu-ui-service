@@ -10,9 +10,11 @@ import { useCardImportSelector, useCardImportDispatch } from '../../../hooks/use
 import FileUploadArea from './FileUploadArea';
 import LoadingOverlay from './LoadingOverlay';
 import uploadService from '@/services/upload';
+import { useTranslations } from 'next-intl';
 
 const FileTab: React.FC = () => {
     const dispatch = useCardImportDispatch();
+    const t = useTranslations('generate.fileTab');
     const { files } = useCardImportSelector((state) => state.importDialog);
     const [isUploading, setIsUploading] = useState(false);
     const { text, loading: isLoadingExtractFile, error: errorExtractFile } = useReaderFile();
@@ -29,7 +31,7 @@ const FileTab: React.FC = () => {
             dispatch(setFiles([file]));
         } catch (error) {
             toast({
-                description: 'Failed to upload file. Please try again.',
+                description: t('toasts.uploadFailed'),
                 variant: 'destructive',
             });
             dispatch(setFiles([]));
@@ -46,7 +48,10 @@ const FileTab: React.FC = () => {
             // Validate file type and size
             if (!validateFileType(file) || !validateFileSize(file)) {
                 toast({
-                    description: `File rejected. Only ${ALLOWED_FILE_TYPES.join(', ')} files up to ${MAX_FILE_SIZE_MB}MB are allowed.`,
+                    description: t('validations.fileRejected', {
+                        types: ALLOWED_FILE_TYPES.join(', '),
+                        size: MAX_FILE_SIZE_MB,
+                    }),
                     variant: 'destructive',
                 });
                 dispatch(setFiles([]));
@@ -133,19 +138,19 @@ const FileTab: React.FC = () => {
                     accept=".pdf,.doc,.docx,.txt"
                 />
                 <Upload className="h-10 w-10 mx-auto mb-4" />
-                <h3 className="font-medium mb-1">Drag & drop a file here</h3>
-                <p className="text-sm mb-2">or click to browse your files</p>
-                <p className="text-xs">Supports PDF, Word, and text files</p>
+                <h3 className="font-medium mb-1">{t('ui.dragDrop.title')}</h3>
+                <p className="text-sm mb-2">{t('ui.dragDrop.subtitle')}</p>
+                <p className="text-xs">{t('ui.dragDrop.supported')}</p>
             </div>
 
             {isUploading && (
-                <LoadingOverlay title="Uploading your file..." description="Please wait while we upload the content" />
+                <LoadingOverlay title={t('loading.uploading.title')} description={t('loading.uploading.description')} />
             )}
 
             {isLoadingExtractFile && (
                 <LoadingOverlay
-                    title="Processing your file..."
-                    description="Please wait while we extract the content"
+                    title={t('loading.processing.title')}
+                    description={t('loading.processing.description')}
                 />
             )}
 

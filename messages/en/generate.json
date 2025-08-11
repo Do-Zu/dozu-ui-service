@@ -15,6 +15,31 @@
                 "error": "There was an error with the generation process. Please try again.",
                 "success": "Your content has been successfully generated."
             }
+        },
+        "fileTab": {
+            "ui": {
+                "dragDrop": {
+                    "title": "Drag & drop a file here",
+                    "subtitle": "or click to browse your files",
+                    "supported": "Supports PDF, Word, and text files"
+                }
+            },
+            "loading": {
+                "uploading": {
+                    "title": "Uploading your file...",
+                    "description": "Please wait while we upload the content"
+                },
+                "processing": {
+                    "title": "Processing your file...",
+                    "description": "Please wait while we extract the content"
+                }
+            },
+            "toasts": {
+                "uploadFailed": "Failed to upload file. Please try again."
+            },
+            "validations": {
+                "fileRejected": "File rejected. Only {types} files up to {size}MB are allowed."
+            }
         }
     }
 }
