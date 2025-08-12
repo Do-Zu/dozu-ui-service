@@ -46,7 +46,7 @@ const lastStudied = '1 day ago';
 
 export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal }: Props) {
     const router = useRouter();
-    const { topicId, name, description, imageUrl } = topic;
+    const { topicId, name, description, imageUrl, createdAt } = topic;
     const topicT = useTranslations('topic');
 
     function handleOnSelectEditFlashcard() {
@@ -173,7 +173,7 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                 <div className="flex flex-col text-xs text-foreground justify-between">
                     <div className="flex flex-row justify-between items-center text-[0.7rem]">
                         <div>
-                            Created At: <span className="font-bold">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
+                            Created At: <span className="font-bold">{format(createdAt, 'yyyy-MM-dd')}</span>
                         </div>
                         <div>
                             <span className="font-bold">{topic.flashcardsNew}</span> new flashcards

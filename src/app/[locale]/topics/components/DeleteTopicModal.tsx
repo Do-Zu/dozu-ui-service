@@ -9,9 +9,11 @@ interface Props {
     topicId: number | null | undefined;
     name: string;
     handleDeleteClick: (topicId: number) => void;
+
+    loading?: boolean;
 }
 
-export function DeleteTopicModal({ isOpen, setIsOpen, topicId, name, handleDeleteClick }: Props) {
+export function DeleteTopicModal({ isOpen, setIsOpen, topicId, name, handleDeleteClick, loading }: Props) {
     const t = useTranslations('topic.deletedForm');
     return (
         <DeleteConfirmationModal
@@ -20,8 +22,8 @@ export function DeleteTopicModal({ isOpen, setIsOpen, topicId, name, handleDelet
             body={
                 topicId ? (
                     <div className="flex justify-end">
-                        <Button variant="destructive" onClick={() => handleDeleteClick(topicId)}>
-                            {t('deleteButton')}
+                        <Button variant="destructive" onClick={() => handleDeleteClick(topicId)} disabled={loading}>
+                            {loading ? 'Saving...' : t('deleteButton')}
                         </Button>
                     </div>
                 ) : (

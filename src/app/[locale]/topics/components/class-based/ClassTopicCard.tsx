@@ -32,29 +32,13 @@ import topicService from '@/services/topic/topic.service';
 
 interface Props {
     topic: ITopic;
-    handleOpenUpdateModal: ({
-        topicId,
-        name,
-        description,
-    }: {
-        topicId: number;
-        name: string;
-        description: string;
-    }) => void;
-    handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
-    editable: boolean;
 }
 
-export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal, editable }: Props) {
+export function ClassTopicCard({ topic }: Props) {
     const router = useRouter();
-    const { isTeacher, isStudent } = useRoleChecker();
 
     const { topicId, name, description, imageUrl } = topic;
     const topicT = useTranslations('topic');
-
-    function handleOnSelectEditFlashcard() {
-        router.push(ROUTES.FLASHCARDS_EDIT(topicId));
-    }
 
     function handleOnSelectBrowse() {
         router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
@@ -68,10 +52,6 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
-    function handleOnClickEditMindmap() {
-        router.push(ROUTES.MINDMAP_EDIT(topicId));
-    }
-
     function handleOnClickViewMindmap() {
         router.push(ROUTES.MINDMAP_VIEW(topicId));
     }
@@ -79,11 +59,7 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
     function handleOnClickStartQuiz() {
         router.push(ROUTES.QUIZ_START(topicId));
     }
-
-    function handleOnClickEditQuestion() {
-        router.push(ROUTES.QUIZ_EDIT(topicId));
-    }
-
+    
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">
@@ -103,12 +79,6 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                     <span>Flashcard</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
-                                    <ShowIf when={editable}>
-                                        <DropdownMenuItem onSelect={handleOnSelectEditFlashcard}>
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            <span>{topicT('edit')}</span>
-                                        </DropdownMenuItem>
-                                    </ShowIf>
                                     <DropdownMenuItem onSelect={handleOnSelectBrowse}>
                                         <BookOpen className="mr-2 h-4 w-4" />
                                         <span>{topicT('browse')}</span>
@@ -127,18 +97,10 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                     <span>Mind Map</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
-                                    <ShowIf when={isTeacher}>
-                                        <DropdownMenuItem onSelect={handleOnClickEditMindmap}>
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            <span>{topicT('edit')}</span>
-                                        </DropdownMenuItem>
-                                    </ShowIf>
-                                    <ShowIf when={isStudent}>
-                                        <DropdownMenuItem onSelect={handleOnClickViewMindmap}>
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            <span>{topicT('view')}</span>
-                                        </DropdownMenuItem>
-                                    </ShowIf>
+                                    <DropdownMenuItem onSelect={handleOnClickViewMindmap}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>{topicT('view')}</span>
+                                    </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
 
@@ -153,37 +115,8 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                         <Play className="mr-2 h-4 w-4" />
                                         <span>{topicT('start-quiz')}</span>
                                     </DropdownMenuItem>
-                                    <ShowIf when={isTeacher}>
-                                        <DropdownMenuItem onSelect={handleOnClickEditQuestion}>
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            <span>{topicT('edit')}</span>
-                                        </DropdownMenuItem>
-                                    </ShowIf>
-                                    <ShowIf when={isTeacher}>
-                                        <DropdownMenuItem>
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            <span>{topicT('delete')}</span>
-                                        </DropdownMenuItem>
-                                    </ShowIf>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
-
-                            {/* Topic itself */}
-                            <ShowIf when={editable}>
-                                <DropdownMenuItem
-                                    onSelect={() => handleOpenUpdateModal({ topicId, name, description })}
-                                >
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    <span>{topicT('edit')}</span>
-                                </DropdownMenuItem>
-                            </ShowIf>
-
-                            <ShowIf when={editable}>
-                                <DropdownMenuItem onSelect={() => handleOpenDeleteModal({ topicId, name })}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    <span>{topicT('delete')}</span>
-                                </DropdownMenuItem>
-                            </ShowIf>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -201,28 +134,20 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                         <div className="text-gray-500 dark:text-slate-500 text-lg">Preview</div>
                     )}
                 </div>
-                <ShowIf when={isTeacher}>
-                    <div className="text-xs text-foreground">
-                        Created At: <span className="font-bold">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
-                    </div>
-                </ShowIf>
+                <div className="flex flex-col text-xs text-foreground justify-between">
+                    <div className="flex flex-row justify-between items-center">
+                        <div>{/* Last studied: <span className="font-bold">1 day ago</span> */}</div>
+                        <div>
+                            <ShowIf when={topic.hasProgress != undefined && topic.hasProgress}>
+                                <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
+                            </ShowIf>
 
-                <ShowIf when={isStudent}>
-                    <div className="flex flex-col text-xs text-foreground justify-between">
-                        <div className="flex flex-row justify-between items-center">
-                            <div>{/* Last studied: <span className="font-bold">1 day ago</span> */}</div>
-                            <div>
-                                <ShowIf when={topic.hasProgress != undefined && topic.hasProgress}>
-                                    <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
-                                </ShowIf>
-
-                                <ShowIf when={topic.hasProgress != undefined && !topic.hasProgress}>
-                                    <div>Not Studied Yet</div>
-                                </ShowIf>
-                            </div>
+                            <ShowIf when={topic.hasProgress != undefined && !topic.hasProgress}>
+                                <div>Not Studied Yet</div>
+                            </ShowIf>
                         </div>
                     </div>
-                </ShowIf>
+                </div>
             </CardContent>
         </Card>
     );
