@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { useEventSource } from '@/hooks/useEventSource';
 import usePost from '@/hooks/usePost';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import React, { useEffect, useRef, useState } from 'react';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import { compressContent } from '../helper/compress';
@@ -29,6 +30,7 @@ interface CardImportProps {
 
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classProps }) => {
     const dispatch = useCardImportDispatch();
+    const t = useTranslations('generate.cardImport');
 
     const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
     const { step, importMethod, files, selectedMethod, isProcessing } = useCardImportSelector(
@@ -179,20 +181,15 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
     }, [apiPostContentError]);
 
     useEffect(() => {
-        // console.log({ sseData, sseStatus });
-
         if (sseStatus === 'timeout' || sseStatus === 'error') {
             toast({
-                description:
-                    sseStatus === 'timeout'
-                        ? 'The generation process timed out. Please try again with a smaller file.'
-                        : 'There was an error with the generation process. Please try again.',
+                description: sseStatus === 'timeout' ? t('toasts.timeout') : t('toasts.error'),
                 variant: 'destructive',
             });
         } else if (sseData && sseStatus === 'completed') {
             dispatch(setStep(3));
             toast({
-                description: 'Your content has been successfully generated.',
+                description: t('toasts.success'),
                 variant: 'default',
             });
         }
@@ -215,7 +212,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
                 {renderStepContent()}
                 <div className="flex-1 sm:flex-none"></div>
                 <Button className="fixed bottom-4 right-[50%] z-50" onClick={handleContinue} disabled={!isStepValid()}>
-                    Create Learning Content
+                    {t('buttons.createContent')}
                 </Button>
             </div>
         );
@@ -224,8 +221,8 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
         <Card className="max-w-[80vw] max-h-[90vh] overflow-auto mx-auto my-4">
             <CardHeader>
                 <CardTitle className="text-xl font-semibold ">
-                    {step === 1 && 'Import Learning Content'}
-                    {step === 2 && 'Suggested Learning Methods'}
+                    {step === 1 && t('titles.step1')}
+                    {step === 2 && t('titles.step2')}
                 </CardTitle>
             </CardHeader>
 
@@ -234,13 +231,13 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
             <CardFooter className="flex justify-between items-center sm:justify-between">
                 {step > 1 && (
                     <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>
-                        Back
+                        {t('buttons.back')}
                     </Button>
                 )}
                 <div className="flex-1 sm:flex-none"></div>
 
                 <Button onClick={handleContinue} disabled={!isStepValid()}>
-                    Continue
+                    {t('buttons.continue')}
                     <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
             </CardFooter>

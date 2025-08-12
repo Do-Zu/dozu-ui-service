@@ -4,11 +4,13 @@ import React, { useMemo } from 'react';
 import { Sparkles, BookOpen, FileText, Lightbulb, Check, Map } from 'lucide-react';
 import { useCardImportSelector, useCardImportDispatch } from '../../hooks/useReduxStore';
 import { setSelectedMethod } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import { useTranslations } from 'next-intl';
 
 interface SelectMethodProps {}
 
 const SelectMethod: React.FC<SelectMethodProps> = () => {
     const dispatch = useCardImportDispatch();
+    const t = useTranslations('generate.selectMethod');
     const { suggestedMethods, selectedMethod, importMethod } = useCardImportSelector((state) => state.importDialog);
 
     const handleMethodSelection = (method: string) => {
@@ -33,13 +35,13 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
     const getMethodDescription = (method: string) => {
         switch (method) {
             case 'flashcards':
-                return 'Perfect for memorization and quick review';
+                return t('descriptions.flashcards');
             case 'quiz':
-                return 'Great for testing your knowledge';
+                return t('descriptions.quiz');
             case 'mindmap':
-                return 'Visual organization to connect ideas and concepts';
+                return t('descriptions.mindmap');
             default:
-                return 'Ideal for detailed study and reference';
+                return t('descriptions.default');
         }
     };
 
@@ -59,11 +61,8 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
                         <Sparkles className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <h3 className="font-medium mb-1">Content Analysis</h3>
-                        <p className="text-sm text-muted-foreground">
-                            We've analyzed your content and identified the following learning methods that would work
-                            best:
-                        </p>
+                        <h3 className="font-medium mb-1">{t('header.title')}</h3>
+                        <p className="text-sm text-muted-foreground">{t('header.description')}</p>
                     </div>
                 </div>
             </div>
@@ -79,7 +78,7 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
                             <div className="flex items-center gap-3">
                                 {getMethodIcon(method)}
                                 <div>
-                                    <h4 className="font-medium capitalize">{method}</h4>
+                                    <h4 className="font-medium capitalize">{t(`methods.${method}`)}</h4>
                                     <p className="text-sm">{getMethodDescription(method)}</p>
                                 </div>
                             </div>

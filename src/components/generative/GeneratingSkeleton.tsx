@@ -1,5 +1,7 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import { Loader2, Brain, FileText, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface GeneratingSkeletonProps {
     fileName?: string;
@@ -8,13 +10,14 @@ interface GeneratingSkeletonProps {
 
 const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progress = 0 }) => {
     const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+    const t = useTranslations('generate.generatingSkeleton');
 
     const messages = [
-        'Analyzing your content...',
-        'Processing data...',
-        'Building content...',
-        'Reviewing quality...',
-        'Almost done, please wait...',
+        t('messages.analyzing'),
+        t('messages.processing'),
+        t('messages.building'),
+        t('messages.reviewing'),
+        t('messages.almost'),
     ];
 
     useEffect(() => {
@@ -35,10 +38,8 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                             <Brain className="h-8 w-8 text-white" />
                         </div>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900  mb-2">Generating</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Analyzing your content and creating a preview
-                    </p>
+                    <h3 className="text-xl font-semibold text-gray-900  mb-2">{t('title')}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{t('subtitle')}</p>
                 </div>
 
                 {fileName && (
@@ -46,7 +47,7 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                         <FileText className="h-5 w-5 text-blue-500 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{fileName}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Processing content...</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('file.processing')}</p>
                         </div>
                     </div>
                 )}
@@ -56,7 +57,7 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                         <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                             <Zap className="h-3 w-3 text-white" />
                         </div>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Content extracted successfully</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{t('steps.extracted')}</span>
                     </div>
 
                     <div className="flex items-center space-x-3">
@@ -72,7 +73,7 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                         <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
                             <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                         </div>
-                        <span className="text-sm text-gray-400 dark:text-gray-500">Creating visual</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500">{t('steps.creatingVisual')}</span>
                     </div>
                 </div>
                 {/* Animated Dots */}
@@ -91,7 +92,7 @@ const GeneratingSkeleton: React.FC<GeneratingSkeletonProps> = ({ fileName, progr
                             style={{ animationDelay: '300ms' }}
                         ></div>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">This may take a few moments</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{t('footer.wait')}</p>
                 </div>
             </div>
         </div>
