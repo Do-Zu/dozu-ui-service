@@ -1,13 +1,12 @@
 import React from 'react';
-import { IFlashcardBasic } from '../types/flashcard.type';
-import { Content } from '@radix-ui/react-tabs';
+import { IFlashcard } from '../types/flashcard.type';
 
 interface Props {
     style?: string;
     handleManualFlip?: Function;
     cardContainerRef: React.RefObject<HTMLDivElement>;
     cardRef: React.RefObject<HTMLDivElement>;
-    flashcard: Pick<IFlashcardBasic, 'front' | 'back'>;
+    flashcard: Pick<IFlashcard, 'front' | 'back'>;
 }
 
 export default function Flashcard(props: Props) {

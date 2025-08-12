@@ -1,0 +1,78 @@
+import { getRequest, patchRequest, postRequest } from '@/api/api';
+import { IFlashcardWithReviewPrediction } from '@/app/[locale]/flashcards/learning/[topicId]/page';
+import {
+    IFlashcard,
+    IFlashcardsBatchInput,
+    IFlashcardsWithTopicName,
+} from '@/app/[locale]/flashcards/types/flashcard.type';
+import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
+import { flashcardRoutes } from '@/utils/constants/api.routes';
+
+export interface IFlashcardReviewPayload {
+    topicId: string | number;
+    flashcardId: string | number;
+    qualityResponse: IQualityResponse;
+}
+
+class FlashcardService {
+    public async getFlashcardsForTopic(topicId: string | number) {
+        const response = await getRequest<unknown, IFlashcard[]>(
+            flashcardRoutes(topicId).GET_FLASHCARDS_WITHOUT_TOPIC_INFO,
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async getFlashcardsWithTopicInfo(topicId: string | number) {
+        const response = await getRequest<unknown, IFlashcardsWithTopicName>(
+            flashcardRoutes(topicId).GET_FLASHCARDS_WITH_TOPIC_INFO,
+        );
+
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async getDueFlashcardsForTopic(topicId: string | number) {
+        const response = await getRequest<unknown, IFlashcardWithReviewPrediction[]>(
+            flashcardRoutes(topicId).GET_DUE_FLASHCARDS,
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async batchFlashcardsForTopic({
+        topicId,
+        flashcards,
+    }: {
+        topicId: string | number;
+        flashcards: IFlashcardsBatchInput;
+    }) {
+        const response = await postRequest<IFlashcardsBatchInput, {}>(
+            flashcardRoutes(topicId).BATCH_FLASHCARDS,
+            flashcards,
+        );
+        if (response.status != 'created') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async reviewFlashcardWithQuality({ topicId, flashcardId, qualityResponse }: IFlashcardReviewPayload) {
+        const response = await patchRequest<{ qualityResponse: IQualityResponse }, {}>(
+            flashcardRoutes(topicId).REVIEW_FLASHCARD_WITH_QUALITY({ flashcardId }),
+            { qualityResponse },
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+}
+
+export default new FlashcardService();

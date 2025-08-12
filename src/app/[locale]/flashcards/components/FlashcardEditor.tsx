@@ -1,18 +1,26 @@
 'use client';
 
-import { postRequest } from '@/api/api';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Edit, Import, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { IFlashcardAdded, IFlashcardBasic, IFlashcardDeleted, IFlashcardUpdated } from '../types/flashcard.type';
+import {
+    IFlashcardCreateInput,
+    IFlashcardsBatchInput,
+    IFlashcardsWithTopicName,
+    IFlashcardUpdateInput,
+} from '../types/flashcard.type';
 import { IFlashcardsFromSSE, IGenerateFlashcardItem } from '../../generate/types';
 import BackButton from './BackButton';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
+import usePost from '@/hooks/usePost';
+import { any } from 'zod';
+import flashcardService from '@/services/flashcard/flashcard.service';
+import toastHelper from '@/utils/toast.helper';
 
 interface IFlashcard {
     id: number;
@@ -29,17 +37,6 @@ interface IFlashcardServer {
 
 export interface IFlashcardWithServer extends IFlashcard {
     serverInfo?: IFlashcardServer;
-}
-
-interface IFlashcardsWithTopicName {
-    flashcards: IFlashcardBasic[];
-    topicName: string;
-}
-
-export interface FlashcardsSubmitted {
-    flashcardsAdded?: IFlashcardAdded[];
-    flashcardsUpdated?: IFlashcardUpdated[];
-    flashcardsDeleted?: IFlashcardDeleted[];
 }
 
 const initialFlashcardsCount = 3;
@@ -65,7 +62,7 @@ function getFlashcardType(flashcard: IFlashcardWithServer): 'client' | 'server' 
     return flashcard.serverInfo ? 'server' : 'client';
 }
 
-export function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithServer[]): FlashcardsSubmitted | null {
+export function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithServer[]): IFlashcardsBatchInput | null {
     if (!flashcards) return null;
 
     let flashcardsFormatted = flashcards.map((flashcard) => {
@@ -76,9 +73,9 @@ export function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithSer
         };
     });
 
-    let flashcardsAdded: IFlashcardAdded[];
-    let flashcardsUpdated: IFlashcardUpdated[];
-    let flashcardsDeleted: IFlashcardDeleted[];
+    let flashcardsAdded: IFlashcardCreateInput[];
+    let flashcardsUpdated: IFlashcardUpdateInput[];
+    let flashcardsDeleted: number[];
 
     let flashcardsFilter;
 
@@ -117,7 +114,7 @@ export function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithSer
     )
         return null;
 
-    let dataSubmitted: FlashcardsSubmitted = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
+    let dataSubmitted: IFlashcardsBatchInput = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
     return dataSubmitted;
 }
 
@@ -142,7 +139,6 @@ interface FlashcardsWithTopicNameProp {
     flashcardsProp: IFlashcardsWithTopicName;
 }
 
-// type Props = BaseProps & (FlashcardsFromSSEProp | FlashcardsWithTopicNameProp);
 type Props = BaseProps;
 
 export function handleConvertToFlashcardsEdited(
@@ -194,8 +190,23 @@ const FlashcardEditor = ({
     topic,
 }: Props) => {
     const t = useTranslations('flashcard.edit');
-    const router = useRouter();
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
+
+    const {
+        loading: apiLoading,
+        execute,
+    } = usePost<{ topicId: string | number; flashcards: IFlashcardsBatchInput }, {}>(
+        ({ topicId, flashcards }) => flashcardService.batchFlashcardsForTopic({ topicId, flashcards }),
+        'POST',
+        {
+            onError(error) {
+                toastHelper.showErrorMessage(error)
+            },
+            onSuccess(data) {
+                toastHelper.showSuccessMessage('Edit Flashcards successfully')
+            },
+        }
+    );
 
     // fix, useEffect is not necessary
     useEffect(() => {
@@ -288,19 +299,20 @@ const FlashcardEditor = ({
         setFlashcards(newFlashcards);
     }
 
-    async function handleOnClickSave() {
-        let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(flashcards);
-        try {
-            await postRequest(`/flashcards/batch?topicId=${topic?.topicId}`, flashcardsSubmitted);
+    async function handleSaveClick() {
+        const flashcardsSubmitted = handleConvertToFlashcardsSubmitted(flashcards);
+        if (!topic || !flashcardsSubmitted) {
             toast({
-                title: 'Edit Flashcards successfully',
-                variant: 'default',
+                title: 'Topic or flashcards submitted is null',
+                variant: 'destructive',
             });
-            router.push(ROUTES.HOME);
-        } catch (err) {
-            console.log(err);
             return;
         }
+
+        await execute({
+            topicId: topic.topicId,
+            flashcards: flashcardsSubmitted,
+        });
     }
 
     if (!flashcards) {
@@ -323,9 +335,9 @@ const FlashcardEditor = ({
                     </Button>
 
                     {shouldShowSaveButton ? (
-                        <Button onClick={handleOnClickSave} className="flex flex-row items-center">
+                        <Button onClick={handleSaveClick} className="flex flex-row items-center" disabled={apiLoading}>
                             <Save size={24} />
-                            <div className="text-base">{t('save')}</div>
+                            <div className="text-base">{ apiLoading ? 'Saving...' : t('save') }</div>
                         </Button>
                     ) : null}
                 </div>

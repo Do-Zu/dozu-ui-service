@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 
 import useFetch from '@/hooks/useFetch';
 import FlashcardEditor, { handleConvertToFlashcardsEdited } from '../../components/FlashcardEditor';
-import { IFlashcardBasic } from '../../types/flashcard.type';
 import LoadingPage from '@/app/loading';
+import flashcardService from '@/services/flashcard/flashcard.service';
+import { ApiResponse } from '@/api/type';
+import { IFlashcardsWithTopicName } from '../../types/flashcard.type';
 
 interface IFlashcard {
     id: number;
@@ -25,11 +27,6 @@ interface IFlashcardWithServer extends IFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
-interface IFlashcardsWithTopicName {
-    flashcards: IFlashcardBasic[];
-    topicName: string;
-}
-
 const Page = () => {
     const params = useParams();
     if (!params?.topicId) return <div>No topic id is provided</div>;
@@ -37,27 +34,27 @@ const Page = () => {
     const { topicId } = params as { topicId: string };
 
     const {
-        data: flashcardsExisted,
-        loading: flashcardsLoading,
-        error: flashcardsError,
-    } = useFetch<IFlashcardsWithTopicName>(`/flashcards?topicId=${topicId}`);
+        data: flashcardsFromResponse,
+        loading: apiLoading,
+        error: apiError,
+    } = useFetch<IFlashcardsWithTopicName>(() => flashcardService.getFlashcardsWithTopicInfo(topicId));
 
     const [flashcards, setFlashcards] = useState<IFlashcardWithServer[]>();
 
     useEffect(() => {
-        if (!flashcardsExisted) return;
+        if (!flashcardsFromResponse) return;
         const flashcards = handleConvertToFlashcardsEdited({
             type: 'manual',
-            flashcardsProp: flashcardsExisted,
+            flashcardsProp: flashcardsFromResponse,
         });
         setFlashcards(flashcards);
-    }, [flashcardsExisted]);
+    }, [flashcardsFromResponse]);
 
-    if (flashcardsError) {
-        return <div>Error: {flashcardsError} </div>;
+    if (apiError) {
+        return <div>Error: {apiError} </div>;
     }
 
-    if (flashcardsLoading) {
+    if (apiLoading) {
         return <LoadingPage />;
     }
 
@@ -69,7 +66,7 @@ const Page = () => {
         <FlashcardEditor
             flashcards={flashcards}
             setFlashcards={setFlashcards}
-            topic={{ topicId, name: flashcardsExisted!.topicName }}
+            topic={{ topicId, name: flashcardsFromResponse!.topicName }}
         />
     );
 };
