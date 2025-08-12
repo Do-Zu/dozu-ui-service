@@ -6,6 +6,8 @@ import Axios from '@/api/axios';
 import topicService from '@/services/topic/topic.service';
 import { store } from '@/stores/store';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
+import flashcardService from '@/services/flashcard/flashcard.service';
+import teacherClassTopicService from '@/services/class-based-learning/teacher/teacherClassTopic.service';
 
 export interface CreateContentParams {
     topicName: string;
@@ -47,7 +49,7 @@ export class ContentCreationService {
                 description: topicDescription,
                 inputSetId: state.inputSet.inputSetId,
             });
-            const topic = data.data;
+            const topic = data;
 
             if (!topic) {
                 return { success: false, error: 'Failed to create topic' };
@@ -87,13 +89,13 @@ export class ContentCreationService {
 
         try {
             // Phase 1: Create topic in a specific class
-            const data = await topicService.createTopicForClass({
+            const data = await teacherClassTopicService.createTopicForClass({
                 classId,
                 name: topicName,
                 description: topicDescription,
                 inputSetId: state.inputSet.inputSetId,
             });
-            const topic = data.data;
+            const topic = data;
 
             if (!topic) {
                 return { success: false, error: 'Failed to create topic' };
@@ -140,7 +142,8 @@ export class ContentCreationService {
             throw new Error('No valid flashcards to submit');
         }
 
-        await postRequest(`/flashcards/batch?topicId=${topicId}`, flashcardsSubmitted);
+        // await postRequest(`/flashcards/batch?topicId=${topicId}`, flashcardsSubmitted);
+        await flashcardService.batchFlashcardsForTopic({ topicId, flashcards: flashcardsSubmitted }); // CHANGE FOR USING FLASHCARD SERVICE
     }
 
     /**
