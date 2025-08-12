@@ -192,21 +192,17 @@ const FlashcardEditor = ({
     const t = useTranslations('flashcard.edit');
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
 
-    const {
-        loading: apiLoading,
-        execute,
-    } = usePost<{ topicId: string | number; flashcards: IFlashcardsBatchInput }, {}>(
-        ({ topicId, flashcards }) => flashcardService.batchFlashcardsForTopic({ topicId, flashcards }),
-        'POST',
-        {
-            onError(error) {
-                toastHelper.showErrorMessage(error)
-            },
-            onSuccess(data) {
-                toastHelper.showSuccessMessage('Edit Flashcards successfully')
-            },
-        }
-    );
+    const { loading: apiLoading, execute } = usePost<
+        { topicId: string | number; flashcards: IFlashcardsBatchInput },
+        {}
+    >(({ topicId, flashcards }) => flashcardService.batchFlashcardsForTopic({ topicId, flashcards }), 'POST', {
+        onError(error) {
+            toastHelper.showErrorMessage(error);
+        },
+        onSuccess(data) {
+            toastHelper.showSuccessMessage('Edit Flashcards successfully');
+        },
+    });
 
     // fix, useEffect is not necessary
     useEffect(() => {
@@ -337,7 +333,7 @@ const FlashcardEditor = ({
                     {shouldShowSaveButton ? (
                         <Button onClick={handleSaveClick} className="flex flex-row items-center" disabled={apiLoading}>
                             <Save size={24} />
-                            <div className="text-base">{ apiLoading ? 'Saving...' : t('save') }</div>
+                            <div className="text-base">{apiLoading ? 'Saving...' : t('save')}</div>
                         </Button>
                     ) : null}
                 </div>
