@@ -12,6 +12,7 @@ import { EventSourceStatus, useEventSource } from '@/hooks/useEventSource';
 import usePost from '@/hooks/usePost';
 import { ApiResponsePubGenContent, ISseData } from '../../generate';
 import { URL_API_GENERATE } from '../../generate/utils/constant';
+import topicService from '@/services/topic/topic.service';
 
 // Types for PDF Document
 interface PDFDocumentInfo {
@@ -237,9 +238,11 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
         } catch (error) {
             // If mindmap doesn't exist, create initial mindmap from topic
             try {
-                const result = await Axios.get(`/topics/${topicId}`);
+                // const result = await Axios.get(`/topics/${topicId}`);
+                const result = await topicService.getTopicById(Number(topicId));
                 const id = uuidv4();
-                setTopicName(result.data.data.name);
+                // setTopicName(result.data.data.name);
+                setTopicName(result.name);
                 setNodes([
                     {
                         id: id,
@@ -247,7 +250,8 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
                         position: { x: 0, y: 0 },
                         data: {
                             nodeId: id,
-                            label: result.data.data.name,
+                            // label: result.data.data.name,
+                            label: result.name,
                             isRoot: true,
                             topicId: topicId,
                         },
