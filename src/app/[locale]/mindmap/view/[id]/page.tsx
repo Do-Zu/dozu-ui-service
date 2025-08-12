@@ -29,7 +29,12 @@ import { postRequest } from '@/api/api';
 import { ROUTES } from '@/utils/constants/routes';
 import { TypeDataGenerated } from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import NodeSheetViewOnly from '../../components/NodeSheetViewOnly';
-import { IFlashcardCreateInput, IFlashcardsBatchInput, IFlashcardUpdateInput } from '@/app/[locale]/flashcards/types/flashcard.type';
+import {
+    IFlashcardCreateInput,
+    IFlashcardsBatchInput,
+    IFlashcardUpdateInput,
+} from '@/app/[locale]/flashcards/types/flashcard.type';
+import flashcardService from '@/services/flashcard/flashcard.service';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -161,11 +166,24 @@ export default function MindmapContent() {
 
     const handleSaveContentGenerated = async () => {
         let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]); //handle checks if needed - DuyND
+        const nodeId = selectedNodeData?.nodeId;
+        if (!nodeId || !flashcardsSubmitted) {
+            toast({
+                title: 'Fail to edit flashcards',
+                variant: 'destructive',
+            });
+            return;
+        }
         try {
-            await postRequest(`/flashcards/batch/node`, {
-                flashcards: flashcardsSubmitted,
+            // await postRequest(`/flashcards/batch/node`, {
+            //     flashcards: flashcardsSubmitted,
+            //     topicId,
+            //     nodeId: selectedNodeData?.nodeId,
+            // });
+            await flashcardService.batchFlashcardsForNode({
                 topicId,
-                nodeId: selectedNodeData?.nodeId,
+                nodeId,
+                flashcards: flashcardsSubmitted,
             });
             toast({
                 title: 'Edit Flashcards successfully',

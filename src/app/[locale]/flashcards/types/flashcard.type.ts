@@ -35,3 +35,8 @@ export type IFlashcardsBatchInput = {
     flashcardsUpdated?: IFlashcardUpdateInput[];
     flashcardsDeleted?: number[];
 };
+
+export type IFlashcardsForNodeBatchInput = {
+    nodeId: string;
+    flashcards: IFlashcardsBatchInput;
+};

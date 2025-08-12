@@ -3,6 +3,7 @@ import { IFlashcardWithReviewPrediction } from '@/app/[locale]/flashcards/learni
 import {
     IFlashcard,
     IFlashcardsBatchInput,
+    IFlashcardsForNodeBatchInput,
     IFlashcardsWithTopicName,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
@@ -56,6 +57,28 @@ class FlashcardService {
         const response = await postRequest<IFlashcardsBatchInput, {}>(
             flashcardRoutes(topicId).BATCH_FLASHCARDS,
             flashcards,
+        );
+        if (response.status != 'created') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async batchFlashcardsForNode({
+        topicId,
+        nodeId,
+        flashcards,
+    }: {
+        topicId: string | number;
+        nodeId: string;
+        flashcards: IFlashcardsBatchInput;
+    }) {
+        const response = await postRequest<IFlashcardsForNodeBatchInput, {}>(
+            flashcardRoutes(topicId).BATCH_FLASHCARDS_FOR_NODE,
+            {
+                nodeId,
+                flashcards,
+            },
         );
         if (response.status != 'created') {
             throw new Error(response.message);
