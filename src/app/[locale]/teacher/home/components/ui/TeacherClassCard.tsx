@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Edit, MoreVertical, Sparkles, Users } from 'lucide-react';
-import { IClass } from '../../types/class.type';
+import { IClass } from '../../../../class-based/types/class.type';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 
@@ -29,14 +29,7 @@ interface Props {
 
 export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNameClick }: Props) {
     const router = useRouter();
-    const {
-        classId,
-        name,
-        description,
-        invitationCode,
-        imageUrl,
-        createdAt,
-    } = classProp;
+    const { classId, name, description, invitationCode, imageUrl, createdAt } = classProp;
 
     function formatDate(date: Date | undefined) {
         if (date) return format(date, 'yyyy-MM-dd');
@@ -44,11 +37,11 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
     }
 
     async function handleGenerateClick() {
-        router.push(ROUTES.CLASS_BASED_ID_GENERATE(classId));
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_GENERATE(classId));
     }
 
     async function handleManageStudentsClick() {
-        router.push(ROUTES.CLASS_BASED_ID_STUDENTS(classId));
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_STUDENTS(classId));
     }
 
     return (

@@ -13,6 +13,8 @@ interface Props {
     description: string;
     setDescription: (description: string) => void;
     handleUpdateClick: ({ classId, name, description }: { classId: number; name: string; description: string }) => void;
+
+    loading?: boolean;
 }
 
 export function UpdateClassModal({
@@ -24,6 +26,7 @@ export function UpdateClassModal({
     description,
     setDescription,
     handleUpdateClick,
+    loading,
 }: Props) {
     function handleOnChangeName(event: ChangeEvent<HTMLInputElement>) {
         setName(event.target.value);
@@ -55,8 +58,9 @@ export function UpdateClassModal({
                             <Button
                                 className="text-base"
                                 onClick={() => handleUpdateClick({ classId, name, description })}
+                                disabled={loading}
                             >
-                                Update
+                                {loading ? 'Saving...' : 'Update'}
                             </Button>
                         </div>
                     </div>

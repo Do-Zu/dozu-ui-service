@@ -1,16 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { Plus, School } from 'lucide-react';
-import { ClassesList } from '../ClassesList';
 import { useState } from 'react';
-import { CreateClassModal } from '../CreateClassModal';
-import { UpdateClassModal } from '../UpdateClassModal';
-import classService from '@/services/class-based-learning/class.service';
+import { CreateClassModal } from '../modal/CreateClassModal';
+import { UpdateClassModal } from '../modal/UpdateClassModal';
+import teacherClassService, {
+    ICreateClassPayload,
+    IUpdateClassPayload,
+} from '@/services/class-based-learning/teacher/teacherClass.service';
 import { toast } from '@/hooks/use-toast';
 import useFetch from '@/hooks/useFetch';
-import { IClass, ICreateClassResponse, IUpdateClassResponse } from '../../types/class.type';
+import { IClass, ICreateClassResponse, IUpdateClassResponse } from '../../../../class-based/types/class.type';
 import LoadingPage from '@/app/loading';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
+import usePost from '@/hooks/usePost';
+import toastHelper from '@/utils/toast.helper';
+import { TeacherClassList } from './TeacherClassList';
 
 export function TeacherClassLibrary() {
     const router = useRouter();
@@ -26,8 +31,6 @@ export function TeacherClassLibrary() {
     const [classUpdatedName, setClassUpdatedName] = useState<string>('');
     const [classUpdatedDescription, setClassUpdatedDescription] = useState<string>('');
 
-    // delete class
-
     // manage current class that is selected, showing list of topics in the class
     const [classIdSelected, setClassIdSelected] = useState<number | null>();
     const [classNameSelected, setClassNameSelected] = useState<string>('');
@@ -38,24 +41,61 @@ export function TeacherClassLibrary() {
         setData: setClasses,
         error: classesError,
         loading: classesLoading,
-    } = useFetch<IClass[]>('/classes');
+    } = useFetch<IClass[]>(teacherClassService.getClasses);
+
+    const { loading: createClassLoading, execute: createClassAsync } = usePost<
+        ICreateClassPayload,
+        ICreateClassResponse
+    >(teacherClassService.createClass, 'POST', {
+        onError: toastHelper.showErrorMessage,
+        onSuccess: (data) => {
+            toastHelper.showSuccessMessage('Create class successfully');
+            applyCreateClass(data);
+            resetCreateClassState();
+        },
+    });
+
+    const { loading: updateClassLoading, execute: updateClassAsync } = usePost<
+        IUpdateClassPayload,
+        IUpdateClassResponse
+    >(teacherClassService.updateClass, 'PUT', {
+        onError: toastHelper.showErrorMessage,
+        onSuccess: (data) => {
+            toastHelper.showSuccessMessage('Update class successfully');
+            applyUpdateClass(data);
+            resetUpdateClassState();
+        },
+    });
 
     function applyCreateClass(data: ICreateClassResponse) {
-        if (classes === null || classes === undefined) {
-            throw new Error('Cannot apply Create Class');
-        }
-        setClasses([...classes, data]);
+        setClasses((prevClasses) => {
+            const currentClasses = prevClasses ?? [];
+            return [...currentClasses, data];
+        });
     }
 
     function applyUpdateClass(data: IUpdateClassResponse) {
-        if (classes === null || classes === undefined) {
-            throw new Error('Cannot apply Update Class');
-        }
-        const classesUpdated = classes.map((e) => {
-            if (e.classId === data.classId) return { ...e, name: data.name, description: data.description };
-            return e;
+        setClasses((prevClasses) => {
+            const currentClasses = prevClasses ?? [];
+            const classesUpdated = currentClasses.map((e) => {
+                if (e.classId === data.classId) return { ...e, name: data.name, description: data.description };
+                return e;
+            });
+            return classesUpdated;
         });
-        setClasses(classesUpdated);
+    }
+
+    function resetCreateClassState() {
+        setIsCreateClassModalOpen(false);
+        setClassName('');
+        setClassDescription('');
+    }
+
+    function resetUpdateClassState() {
+        setIsUpdateClassModalOpen(false);
+        setClassUpdatedId(null);
+        setClassUpdatedName('');
+        setClassUpdatedDescription('');
     }
 
     async function handleCreateClick() {
@@ -66,18 +106,7 @@ export function TeacherClassLibrary() {
             });
             return;
         }
-        try {
-            const data = await classService.createClass({ name: className, description: classDescription });
-            applyCreateClass(data.data);
-            setIsCreateClassModalOpen(false);
-            setClassName('');
-            setClassDescription('');
-        } catch (err) {
-            toast({
-                title: 'Create Class failed, please try again!',
-                variant: 'destructive',
-            });
-        }
+        await createClassAsync({ name: className, description: classDescription });
     }
 
     async function handleUpdateClick() {
@@ -88,23 +117,11 @@ export function TeacherClassLibrary() {
             });
             return;
         }
-        try {
-            const data = await classService.updateClass({
-                classId: classUpdatedId,
-                name: classUpdatedName,
-                description: classUpdatedDescription,
-            });
-            applyUpdateClass(data.data);
-            setIsUpdateClassModalOpen(false);
-            setClassUpdatedId(null);
-            setClassUpdatedName('');
-            setClassUpdatedDescription('');
-        } catch (err) {
-            toast({
-                title: 'Update Class failed, please try again!',
-                variant: 'destructive',
-            });
-        }
+        await updateClassAsync({
+            classId: classUpdatedId,
+            name: classUpdatedName,
+            description: classUpdatedDescription,
+        });
     }
 
     function handleOpenUpdateModal({
@@ -147,7 +164,7 @@ export function TeacherClassLibrary() {
     }
     if (classIdSelected) {
         // return <TopicLibrary classId={classIdSelected} className={classNameSelected} />;
-        router.push(ROUTES.CLASS_BASED_ID(classIdSelected));
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID(classIdSelected));
     }
 
     return (
@@ -164,8 +181,7 @@ export function TeacherClassLibrary() {
                 </Button>
             </div>
 
-            <ClassesList
-                role="teacher"
+            <TeacherClassList
                 handleNameClick={handleClassNameClick}
                 classes={classes}
                 handleOpenUpdateModal={handleOpenUpdateModal}
@@ -179,6 +195,7 @@ export function TeacherClassLibrary() {
                 description={classDescription}
                 setDescription={setClassDescription}
                 handleCreateClick={handleCreateClick}
+                loading={createClassLoading}
             />
 
             <UpdateClassModal
@@ -190,6 +207,7 @@ export function TeacherClassLibrary() {
                 description={classUpdatedDescription}
                 setDescription={setClassUpdatedDescription}
                 handleUpdateClick={handleUpdateClick}
+                loading={updateClassLoading}
             />
         </div>
     );

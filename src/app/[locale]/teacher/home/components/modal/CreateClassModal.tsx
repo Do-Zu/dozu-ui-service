@@ -12,6 +12,8 @@ interface Props {
     description: string;
     setDescription: (description: string) => void;
     handleCreateClick: ({ name, description }: { name: string; description: string }) => void;
+
+    loading?: boolean;
 }
 
 export function CreateClassModal({
@@ -22,6 +24,7 @@ export function CreateClassModal({
     description,
     setDescription,
     handleCreateClick,
+    loading,
 }: Props) {
     function handleOnChangeName(event: ChangeEvent<HTMLInputElement>) {
         setName(event.target.value);
@@ -49,8 +52,12 @@ export function CreateClassModal({
                     </div>
 
                     <div>
-                        <Button className="text-base" onClick={() => handleCreateClick({ name, description })}>
-                            Create
+                        <Button
+                            className="text-base"
+                            onClick={() => handleCreateClick({ name, description })}
+                            disabled={loading}
+                        >
+                            {loading ? 'Saving...' : 'Create'}
                         </Button>
                     </div>
                 </div>
