@@ -31,8 +31,8 @@ function HomePage() {
         }
 
         if (isTeacher) {
-            dispatch(setLearningMode(MODE_ACCESS_PAGE_ROLE.classBased));
-            router.push(ROUTES.LANDING);
+            // dispatch(setLearningMode(MODE_ACCESS_PAGE_ROLE.classBased));
+            router.push(ROUTES.TEACHER.HOME);
             return;
         }
 
