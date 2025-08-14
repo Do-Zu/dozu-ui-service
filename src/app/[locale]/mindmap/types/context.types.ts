@@ -57,3 +57,12 @@ export interface PDFStates {
     extractedText: string;
     extractionResult: PDFTextExtractionResult | null;
 }
+
+export interface IResponseFileFromInputSet {
+    setId: number;
+    contentType: string | null;
+    description: string | null;
+    title: string;
+    fileUrl: string;
+    expiresIn: number;
+}

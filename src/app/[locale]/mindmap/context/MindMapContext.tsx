@@ -12,6 +12,8 @@ import { EventSourceStatus, useEventSource } from '@/hooks/useEventSource';
 import usePost from '@/hooks/usePost';
 import { ApiResponsePubGenContent, ISseData } from '../../generate';
 import { URL_API_GENERATE } from '../../generate/utils/constant';
+import { IResponseFileFromInputSet } from '../types/context.types';
+import { getRequest } from '@/api/api';
 
 // Types for PDF Document
 interface PDFDocumentInfo {
@@ -271,6 +273,7 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
         if (!topicId) return;
 
         setIsSaving(true);
+
         try {
             const payload = {
                 title: topicName || 'Untitled Mindmap',
@@ -298,28 +301,64 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
     const loadPdfDocument = useCallback(async () => {
         if (!topicId) return;
 
+        setIsLoading(true);
+
         try {
-            const response = await Axios.get(`/input-set/document/${topicId}`, {
-                responseType: 'blob',
+            const { data: fileContent } = await getRequest<unknown, IResponseFileFromInputSet>(
+                `/input-set/document/${topicId}`,
+            );
+
+            if (!fileContent?.fileUrl) {
+                throw new Error('No file URL provided');
+            }
+
+            // Fetch file from R2
+            const response = await fetch(fileContent.fileUrl, {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/pdf, */*',
+                    'Cache-Control': 'no-cache',
+                },
             });
 
-            const blob = new Blob([response.data], { type: 'application/pdf' });
-            const url = URL.createObjectURL(blob);
-            const file = new File([blob], 'document.pdf', { type: 'application/pdf' });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
 
-            setPdfUrl(url);
+            const blob = await response.blob();
+            const filename = fileContent?.title;
+
+            const file = new File([blob], filename, {
+                type: blob.type || 'application/pdf',
+                lastModified: Date.now(),
+            });
+
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Clean up previous blob URL to prevent memory leaks
+            if (pdfUrl) {
+                URL.revokeObjectURL(pdfUrl);
+            }
+
+            setPdfUrl(blobUrl);
             setPdfFile(file);
-
-            // Reset page number when loading new document
             setCurrentPageNumber(1);
+
+            toast({
+                title: 'Success',
+                description: `PDF loaded: ${filename}`,
+            });
         } catch (error) {
+            console.error('Failed to load PDF document:', error);
             toast({
                 title: 'Error',
-                description: 'Failed to load PDF document',
+                description: error instanceof Error ? error.message : 'Failed to load PDF document',
                 variant: 'destructive',
             });
+        } finally {
+            setIsLoading(false);
         }
-    }, [topicId]);
+    }, [topicId, pdfUrl]);
 
     // Sheet actions
     const openFileSheet = useCallback((pageNumber?: number) => {
