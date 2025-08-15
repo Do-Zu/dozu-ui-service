@@ -9,16 +9,42 @@ import { CalendarEvent } from '../ui/full-calendar';
 import EditDialog from '@/app/[locale]/schedule/components/EditDialog';
 import { ROUTES } from '@/utils/constants/routes';
 import { useTranslations } from 'next-intl';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 
 type EventCardProps = {
     event: CalendarEvent;
+    isDragging?: boolean;
+    onEventChange?: (event: CalendarEvent) => void;
 };
 
-const EventCard = ({ event }: EventCardProps) => {
+const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps) => {
     const router = useRouter();
     const t = useTranslations('schedule.eventCard.actions');
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState(event);
+
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging: isSortableDragging,
+    } = useSortable({
+        id: event.id,
+        data: {
+            type: 'event',
+            event,
+        },
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isSortableDragging ? 0.5 : 1,
+    };
 
     const handleEditClick = () => {
         setEditingEvent(event);
@@ -35,13 +61,34 @@ const EventCard = ({ event }: EventCardProps) => {
         }
     };
 
+    const handleSaveEvent = (updatedEvent: CalendarEvent) => {
+        setEditingEvent(updatedEvent);
+        setEditDialogOpen(false);
+        if (onEventChange) {
+            onEventChange(updatedEvent);
+        }
+    };
+
     return (
-        <div>
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={cn('group relative', isSortableDragging && 'z-50', isDragging && 'cursor-grabbing')}
+        >
             <HoverCard>
                 <HoverCardTrigger asChild>
-                    <Button variant="link" className={cn('absolute top-[-10px] text-xs')}>
-                        {event.title}
-                    </Button>
+                    <div className="flex items-center gap-1">
+                        <div
+                            {...attributes}
+                            {...listeners}
+                            className="cursor-grab hover:bg-gray-100 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <GripVertical size={12} />
+                        </div>
+                        <Button variant="link" className={cn('absolute left-4 top-[-10px] text-xs justify-start p-0')}>
+                            {event.title}
+                        </Button>
+                    </div>
                 </HoverCardTrigger>
                 <HoverCardContent className="w-80">
                     <div className="space-y-1">
@@ -66,9 +113,7 @@ const EventCard = ({ event }: EventCardProps) => {
                     isOpen={editDialogOpen}
                     onClose={() => setEditDialogOpen(false)}
                     event={editingEvent}
-                    onSave={(updatedEvent) => {
-                        setEditDialogOpen(false);
-                    }}
+                    onSave={handleSaveEvent}
                 />
             )}
         </div>

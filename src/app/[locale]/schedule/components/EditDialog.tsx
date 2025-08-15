@@ -3,12 +3,13 @@ import { Dialog, DialogContent, DialogFooter } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { CalendarEvent } from '@/components/ui/full-calendar';
 
 type EditDialogProps = {
     isOpen: boolean;
     onClose: () => void;
-    event: { id: string; start: Date; end: Date; title: string };
-    onSave: (updatedEvent: { id: string; start: Date; end: Date; title: string }) => void;
+    event: CalendarEvent;
+    onSave: (updatedEvent: CalendarEvent) => void;
 };
 
 const EditDialog = ({ isOpen, onClose, event, onSave }: EditDialogProps) => {
@@ -31,7 +32,12 @@ const EditDialog = ({ isOpen, onClose, event, onSave }: EditDialogProps) => {
                         <label htmlFor="title" className="block text-sm">
                             {t('title')}
                         </label>
-                        <input id="title" value={editedEvent.title} className="w-full border rounded px-3 py-2" />
+                        <input
+                            id="title"
+                            value={editedEvent.title}
+                            onChange={(e) => setEditedEvent((prev) => ({ ...prev, title: e.target.value }))}
+                            className="w-full border rounded px-3 py-2"
+                        />
                     </div>
                     <div>
                         <label htmlFor="start" className="block text-sm">
@@ -41,6 +47,12 @@ const EditDialog = ({ isOpen, onClose, event, onSave }: EditDialogProps) => {
                             id="start"
                             type="time"
                             value={format(editedEvent.start, 'HH:mm')}
+                            onChange={(e) => {
+                                const [hours, minutes] = e.target.value.split(':').map(Number);
+                                const newStart = new Date(editedEvent.start);
+                                newStart.setHours(hours, minutes);
+                                setEditedEvent((prev) => ({ ...prev, start: newStart }));
+                            }}
                             className="w-full border rounded px-3 py-2"
                         />
                     </div>
@@ -52,6 +64,12 @@ const EditDialog = ({ isOpen, onClose, event, onSave }: EditDialogProps) => {
                             id="end"
                             type="time"
                             value={format(editedEvent.end, 'HH:mm')}
+                            onChange={(e) => {
+                                const [hours, minutes] = e.target.value.split(':').map(Number);
+                                const newEnd = new Date(editedEvent.end);
+                                newEnd.setHours(hours, minutes);
+                                setEditedEvent((prev) => ({ ...prev, end: newEnd }));
+                            }}
                             className="w-full border rounded px-3 py-2"
                         />
                     </div>

@@ -25,6 +25,12 @@
                 "learn": "Học",
                 "edit": "Chỉnh sửa"
             }
+        },
+        "saveBar": {
+            "message": "Bạn có thay đổi chưa lưu",
+            "save": "Lưu thay đổi",
+            "cancel": "Hủy",
+            "errorSaveMessage": "Có lỗi xảy ra khi lưu thay đổi. Vui lòng thử lại."
         }
     }
 }

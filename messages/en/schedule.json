@@ -25,6 +25,12 @@
                 "learn": "Learn",
                 "edit": "Edit"
             }
+        },
+        "saveBar": {
+            "message": "You have unsaved changes",
+            "save": "Save changes",
+            "cancel": "Cancel",
+            "errorSaveMessage": "There was an error saving your changes. Please try again."
         }
     }
 }

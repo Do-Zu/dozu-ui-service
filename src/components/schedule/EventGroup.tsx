@@ -1,10 +1,11 @@
 import { CalendarEvent } from '../ui/full-calendar';
+import DroppableTimeSlot from './DroppableTimeSlot';
 
 const EventGroup = ({ events, hour }: { events: CalendarEvent[]; hour: Date }) => {
     return (
-        <div className="h-20 border-t last:border-b relative">
+        <DroppableTimeSlot hour={hour}>
             {/* This component now only renders the time slot container */}
-        </div>
+        </DroppableTimeSlot>
     );
 };
 
