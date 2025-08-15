@@ -8,6 +8,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { CalendarEvent } from '../ui/full-calendar';
 import EditDialog from '@/app/[locale]/schedule/components/EditDialog';
 import { ROUTES } from '@/utils/constants/routes';
+import { useTranslations } from 'next-intl';
 
 type EventCardProps = {
     event: CalendarEvent;
@@ -15,6 +16,7 @@ type EventCardProps = {
 
 const EventCard = ({ event }: EventCardProps) => {
     const router = useRouter();
+    const t = useTranslations('schedule.eventCard.actions');
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState(event);
 
@@ -49,10 +51,10 @@ const EventCard = ({ event }: EventCardProps) => {
                         </p>
                         <DialogFooter>
                             <Button onClick={handleRedirectLearningPage} variant="outline" className="text-sm">
-                                Learn
+                                {t('learn')}
                             </Button>
                             <Button onClick={handleEditClick} variant="outline" className="text-sm text-blue-600">
-                                Edit
+                                {t('edit')}
                             </Button>
                         </DialogFooter>
                     </div>

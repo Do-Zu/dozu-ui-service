@@ -19,6 +19,12 @@
                 "cancel": "Hủy",
                 "save": "Lưu"
             }
+        },
+        "eventCard": {
+            "actions": {
+                "learn": "Học",
+                "edit": "Chỉnh sửa"
+            }
         }
     }
 }

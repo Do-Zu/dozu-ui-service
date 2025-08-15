@@ -19,6 +19,12 @@
                 "cancel": "Cancel",
                 "save": "Save"
             }
+        },
+        "eventCard": {
+            "actions": {
+                "learn": "Learn",
+                "edit": "Edit"
+            }
         }
     }
 }
