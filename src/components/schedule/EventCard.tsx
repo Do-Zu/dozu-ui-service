@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { CalendarEvent } from './full-calendar';
+import { CalendarEvent } from '../ui/full-calendar';
 import EditDialog from '@/app/[locale]/schedule/components/EditDialog';
 import { ROUTES } from '@/utils/constants/routes';
 

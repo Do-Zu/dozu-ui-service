@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { isSameDay } from 'date-fns';
-import EventCard from '../ui/event-card';
+import EventCard from './EventCard';
 import { CalendarEvent } from '../ui/full-calendar';
 import { dayEventVariants } from './constant';
 

@@ -3,7 +3,6 @@
 import { generateSchedule } from '@/app/[locale]/schedule/services/schedule.service';
 import { ScheduleData, type ScheduleGenerateRequest } from '@/app/[locale]/schedule/types/schedule.type';
 import { Button } from '@/components/ui/button';
-import EventCard from '@/components/ui/event-card';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
 import { cn } from '@/lib/utils';
