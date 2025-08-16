@@ -12,8 +12,8 @@ import { ICreateTopicResponse, ITopic, IUpdateTopicResponse } from '../../types/
 import { toast } from '@/hooks/use-toast';
 import topicService, { ICreateTopicPayload, IUpdateTopicPayload } from '@/services/topic/topic.service';
 import { CreateTopicModal } from '../CreateTopicModal';
-import { UpdateTopicModal } from '../UpdateTopicModal';
-import { DeleteTopicModal } from '../DeleteTopicModal';
+import { UpdateTopicModal, IUpdatingTopic } from '../UpdateTopicModal';
+import { DeleteTopicModal, IDeletingTopic } from '../DeleteTopicModal';
 import { Button } from '@/components/ui/button';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import usePost from '@/hooks/usePost';
@@ -32,19 +32,12 @@ const PersonalTopicLibrary = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
-    const [topicName, setTopicName] = useState<string>('');
-    const [topicDescription, setTopicDescription] = useState<string>('');
     const [isCreateTopicModalOpen, setIsCreateTopicModalOpen] = useState<boolean>(false);
-
     const [isUpdateTopicModalOpen, setIsUpdateTopicModalOpen] = useState<boolean>(false);
     const [isDeleteTopicModalOpen, setIsDeleteTopicModalOpen] = useState<boolean>(false);
 
-    const [topicUpdatedId, setTopicUpdatedId] = useState<number | null>();
-    const [topicUpdatedName, setTopicUpdatedName] = useState<string>('');
-    const [topicUpdatedDescription, setTopicUpdatedDescription] = useState<string>('');
-
-    const [topicDeletedId, setTopicDeletedId] = useState<number | null>();
-    const [topicDeletedName, setTopicDeletedName] = useState<string>('');
+    const [updatingTopic, setUpdatingTopic] = useState<IUpdatingTopic | null>();
+    const [deletingTopic, setDeletingTopic] = useState<IDeletingTopic | null>();
 
     const {
         data: topics,
@@ -63,7 +56,7 @@ const PersonalTopicLibrary = () => {
         onSuccess: (data: ICreateTopicResponse) => {
             toastHelper.showSuccessMessage('Create topic successfully');
             applyCreateTopic(data);
-            resetCreateTopicState();
+            setIsCreateTopicModalOpen(false);
         },
     });
 
@@ -75,7 +68,7 @@ const PersonalTopicLibrary = () => {
         onSuccess: (data) => {
             toastHelper.showSuccessMessage('Update topic successfully');
             applyUpdateTopic(data);
-            resetUpdateTopicState();
+            setIsUpdateTopicModalOpen(false);
         },
     });
 
@@ -139,28 +132,20 @@ const PersonalTopicLibrary = () => {
     };
 
     const handleOpenCreateModal = useCallback(() => {
-        setTopicName('');
-        setTopicDescription('');
         setTimeout(() => {
             setIsCreateTopicModalOpen(true);
         }, 50);
     }, []);
 
-    const handleOpenUpdateModal = useCallback(
-        ({ topicId, name, description }: { topicId: number; name: string; description: string }) => {
-            setTopicUpdatedId(topicId);
-            setTopicUpdatedName(name);
-            setTopicUpdatedDescription(description);
-            setTimeout(() => {
-                setIsUpdateTopicModalOpen(true);
-            }, 50);
-        },
-        [],
-    );
+    const handleOpenUpdateModal = useCallback((topic: IUpdatingTopic) => {
+        setUpdatingTopic(topic);
+        setTimeout(() => {
+            setIsUpdateTopicModalOpen(true);
+        }, 50);
+    }, []);
 
-    const handleOpenDeleteModal = useCallback(({ topicId, name }: { topicId: number; name: string }) => {
-        setTopicDeletedId(topicId);
-        setTopicDeletedName(name);
+    const handleOpenDeleteModal = useCallback((topic: IDeletingTopic) => {
+        setDeletingTopic(topic);
         setTimeout(() => {
             setIsDeleteTopicModalOpen(true);
         }, 50);
@@ -180,7 +165,13 @@ const PersonalTopicLibrary = () => {
         setTopics((prevTopics) => {
             const currentTopics = prevTopics ?? [];
             const topicsUpdated = currentTopics.map((e) => {
-                if (e.topicId === topic.topicId) return { ...e, name: topic.name, description: topic.description };
+                if (e.topicId === topic.topicId)
+                    return {
+                        ...e,
+                        name: topic.name,
+                        description: topic.description,
+                        imageUrl: topic.imageUrl,
+                    };
                 return e;
             });
             return topicsUpdated;
@@ -195,57 +186,30 @@ const PersonalTopicLibrary = () => {
         });
     };
 
-    function resetCreateTopicState() {
-        setIsCreateTopicModalOpen(false);
-        setTopicName('');
-        setTopicDescription('');
-    }
-
-    function resetUpdateTopicState() {
-        setIsUpdateTopicModalOpen(false);
-        setTopicUpdatedId(null);
-        setTopicUpdatedName('');
-        setTopicUpdatedDescription('');
-    }
-
-    async function handleCreateClick() {
-        if (!topicName) {
+    async function handleCreateClick(topic: ICreateTopicPayload) {
+        if (!topic.name) {
             toast({
                 title: 'Topic Name must be provided',
                 variant: 'destructive',
             });
             return;
         }
-        await createTopicAsync({
-            name: topicName,
-            description: topicDescription,
-        });
+        await createTopicAsync(topic);
     }
 
-    async function handleUpdateClick() {
-        if (!topicUpdatedId || !topicUpdatedName) {
+    async function handleUpdateClick(topic: IUpdateTopicPayload) {
+        if (!topic.name) {
             toast({
-                title: 'Topic Id and Topic Name must be provided',
+                title: 'Topic Name must be provided',
                 variant: 'destructive',
             });
             return;
         }
-        await updateTopicAsync({
-            topicId: topicUpdatedId,
-            name: topicUpdatedName,
-            description: topicUpdatedDescription,
-        });
+        await updateTopicAsync(topic);
     }
 
-    async function handleDeleteClick() {
-        if (!topicDeletedId) {
-            toast({
-                title: 'Topic Id must be provided',
-                variant: 'destructive',
-            });
-            return;
-        }
-        await deleteTopicAsync(topicDeletedId);
+    async function handleDeleteClick(topicId: number) {
+        await deleteTopicAsync(topicId);
     }
 
     return (
@@ -303,31 +267,22 @@ const PersonalTopicLibrary = () => {
             <CreateTopicModal
                 isOpen={isCreateTopicModalOpen}
                 setIsOpen={setIsCreateTopicModalOpen}
-                name={topicName}
-                setName={setTopicName}
-                description={topicDescription}
-                setDescription={setTopicDescription}
-                handleCreateClick={handleCreateClick}
+                onSubmit={handleCreateClick}
                 loading={createTopicLoading}
             />
 
             <UpdateTopicModal
                 isOpen={isUpdateTopicModalOpen}
                 setIsOpen={setIsUpdateTopicModalOpen}
-                topicId={topicUpdatedId}
-                name={topicUpdatedName}
-                setName={setTopicUpdatedName}
-                description={topicUpdatedDescription}
-                setDescription={setTopicUpdatedDescription}
-                handleUpdateClick={handleUpdateClick}
+                topic={updatingTopic}
+                onSubmit={handleUpdateClick}
                 loading={updateTopicLoading}
             />
 
             <DeleteTopicModal
                 isOpen={isDeleteTopicModalOpen}
                 setIsOpen={setIsDeleteTopicModalOpen}
-                topicId={topicDeletedId}
-                name={topicDeletedName}
+                topic={deletingTopic}
                 handleDeleteClick={handleDeleteClick}
                 loading={deleteTopicLoading}
             />

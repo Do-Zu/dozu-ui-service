@@ -37,7 +37,7 @@ class StudentClassService {
     }
 
     public async leaveClass(classId: number) {
-        const response = await deleteRequest<null, ApiResponse<number>>(`/enrollments/${classId}`);
+        const response = await deleteRequest<void, ApiResponse<number>>(`/enrollments/${classId}`);
         if(response.status != 'success') {
             throw new Error(response.message);
         }

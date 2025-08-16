@@ -34,10 +34,12 @@ interface Props {
         topicId,
         name,
         description,
+        imageUrl,
     }: {
         topicId: number;
         name: string;
         description: string;
+        imageUrl?: string | null;
     }) => void;
     handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
 }
@@ -147,7 +149,9 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                             </DropdownMenuSub>
 
                             {/* Topic itself */}
-                            <DropdownMenuItem onSelect={() => handleOpenUpdateModal({ topicId, name, description })}>
+                            <DropdownMenuItem
+                                onSelect={() => handleOpenUpdateModal({ topicId, name, description, imageUrl })}
+                            >
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>{topicT('edit')}</span>
                             </DropdownMenuItem>

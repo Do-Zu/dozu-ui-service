@@ -1,18 +1,11 @@
 import { IClass } from "@/app/[locale]/class-based/types/class.type";
 import { TeacherClassCard } from "./TeacherClassCard";
+import { IUpdatingClass } from "../modal/UpdateClassModal";
 
 type Props = {
     classes: IClass[];
     handleNameClick: ({ classId, name, description }: { classId: number; name: string; description: string }) => void;
-    handleOpenUpdateModal: ({
-        classId,
-        name,
-        description,
-    }: {
-        classId: number;
-        name: string;
-        description: string;
-    }) => void;
+    handleOpenUpdateModal: (data: IUpdatingClass) => void;
 };
 
 export function TeacherClassList(props: Props) {

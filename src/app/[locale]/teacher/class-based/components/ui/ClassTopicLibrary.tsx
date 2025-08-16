@@ -17,12 +17,14 @@ import {
 import { toast } from '@/hooks/use-toast';
 import topicService, {
     ICreateTopicForClassPayload,
+    ICreateTopicPayload,
     IDeleteTopicInClassPayload,
     IUpdateTopicInClassPayload,
+    IUpdateTopicPayload,
 } from '@/services/topic/topic.service';
 import { CreateTopicModal } from '@/app/[locale]/topics/components/CreateTopicModal';
-import { UpdateTopicModal } from '@/app/[locale]/topics/components/UpdateTopicModal';
-import { DeleteTopicModal } from '@/app/[locale]/topics/components/DeleteTopicModal';
+import { IUpdatingTopic, UpdateTopicModal } from '@/app/[locale]/topics/components/UpdateTopicModal';
+import { DeleteTopicModal, IDeletingTopic } from '@/app/[locale]/topics/components/DeleteTopicModal';
 import { Button } from '@/components/ui/button';
 import { ShowIf } from '@/components/ui/ShowIf';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
@@ -55,19 +57,12 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
-    const [topicName, setTopicName] = useState<string>('');
-    const [topicDescription, setTopicDescription] = useState<string>('');
     const [isCreateTopicModalOpen, setIsCreateTopicModalOpen] = useState<boolean>(false);
-
     const [isUpdateTopicModalOpen, setIsUpdateTopicModalOpen] = useState<boolean>(false);
     const [isDeleteTopicModalOpen, setIsDeleteTopicModalOpen] = useState<boolean>(false);
 
-    const [topicUpdatedId, setTopicUpdatedId] = useState<number | null>();
-    const [topicUpdatedName, setTopicUpdatedName] = useState<string>('');
-    const [topicUpdatedDescription, setTopicUpdatedDescription] = useState<string>('');
-
-    const [topicDeletedId, setTopicDeletedId] = useState<number | null>();
-    const [topicDeletedName, setTopicDeletedName] = useState<string>('');
+    const [updatingTopic, setUpdatingTopic] = useState<IUpdatingTopic | null>();
+    const [deletingTopic, setDeletingTopic] = useState<IDeletingTopic | null>();
 
     const {
         data: topics,
@@ -92,7 +87,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         onSuccess: (data: ICreateTopicForClassResponse) => {
             toastHelper.showSuccessMessage('Create topic successfully');
             applyCreateTopic(data);
-            resetCreateTopicState();
+            setIsCreateTopicModalOpen(false);
         },
     });
 
@@ -104,7 +99,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         onSuccess: (data) => {
             toastHelper.showSuccessMessage('Update topic successfully');
             applyUpdateTopic(data);
-            resetUpdateTopicState();
+            setIsUpdateTopicModalOpen(false);
         },
     });
 
@@ -146,28 +141,20 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
     }, [topics, sortBy]);
 
     const handleOpenCreateModal = useCallback(() => {
-        setTopicName('');
-        setTopicDescription('');
         setTimeout(() => {
             setIsCreateTopicModalOpen(true);
         }, 50);
     }, []);
 
-    const handleOpenUpdateModal = useCallback(
-        ({ topicId, name, description }: { topicId: number; name: string; description: string }) => {
-            setTopicUpdatedId(topicId);
-            setTopicUpdatedName(name);
-            setTopicUpdatedDescription(description);
-            setTimeout(() => {
-                setIsUpdateTopicModalOpen(true);
-            }, 50);
-        },
-        [],
-    );
+    const handleOpenUpdateModal = useCallback((topic: IUpdatingTopic) => {
+        setUpdatingTopic(topic);
+        setTimeout(() => {
+            setIsUpdateTopicModalOpen(true);
+        }, 50);
+    }, []);
 
-    const handleOpenDeleteModal = useCallback(({ topicId, name }: { topicId: number; name: string }) => {
-        setTopicDeletedId(topicId);
-        setTopicDeletedName(name);
+    const handleOpenDeleteModal = useCallback((topic: IDeletingTopic) => {
+        setDeletingTopic(topic);
         setTimeout(() => {
             setIsDeleteTopicModalOpen(true);
         }, 50);
@@ -210,7 +197,8 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         setTopics((prevTopics) => {
             const currentTopics = prevTopics ?? [];
             const topicsUpdated = currentTopics.map((e) => {
-                if (e.topicId === topic.topicId) return { ...e, name: topic.name, description: topic.description };
+                if (e.topicId === topic.topicId)
+                    return { ...e, name: topic.name, description: topic.description, imageUrl: topic.imageUrl };
                 return e;
             });
             return topicsUpdated;
@@ -225,59 +213,32 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         });
     };
 
-    function resetCreateTopicState() {
-        setIsCreateTopicModalOpen(false);
-        setTopicName('');
-        setTopicDescription('');
-    }
-
-    function resetUpdateTopicState() {
-        setIsUpdateTopicModalOpen(false);
-        setTopicUpdatedId(null);
-        setTopicUpdatedName('');
-        setTopicUpdatedDescription('');
-    }
-
-    async function handleCreateClick() {
-        if (!topicName) {
+    async function handleCreateClick(topic: ICreateTopicPayload) {
+        if (!topic.name) {
             toast({
                 title: 'Topic Name must be provided',
                 variant: 'destructive',
             });
             return;
         }
-        await createTopicForClassAsync({
-            classId,
-            name: topicName,
-            description: topicDescription,
-        });
+        const value: ICreateTopicForClassPayload = { ...topic, classId };
+        await createTopicForClassAsync(value);
     }
 
-    async function handleUpdateClick() {
-        if (!topicUpdatedId || !topicUpdatedName) {
+    async function handleUpdateClick(topic: IUpdateTopicPayload) {
+        if (!topic.name) {
             toast({
                 title: 'Topic Id and Topic Name must be provided',
                 variant: 'destructive',
             });
             return;
         }
-        await updateTopicInClassAsync({
-            classId,
-            topicId: topicUpdatedId,
-            name: topicUpdatedName,
-            description: topicUpdatedDescription,
-        });
+        const value: IUpdateTopicInClassPayload = { ...topic, classId };
+        await updateTopicInClassAsync(value);
     }
 
-    async function handleDeleteClick() {
-        if (!topicDeletedId) {
-            toast({
-                title: 'Topic Id must be provided',
-                variant: 'destructive',
-            });
-            return;
-        }
-        await deleteTopicInClassAsync({ classId, topicId: topicDeletedId });
+    async function handleDeleteClick(topicId: number) {
+        await deleteTopicInClassAsync({ classId, topicId });
     }
 
     async function handleGenerateClick() {
@@ -368,31 +329,22 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
             <CreateTopicModal
                 isOpen={isCreateTopicModalOpen}
                 setIsOpen={setIsCreateTopicModalOpen}
-                name={topicName}
-                setName={setTopicName}
-                description={topicDescription}
-                setDescription={setTopicDescription}
-                handleCreateClick={handleCreateClick}
+                onSubmit={handleCreateClick}
                 loading={createTopicForClassLoading}
             />
 
             <UpdateTopicModal
                 isOpen={isUpdateTopicModalOpen}
                 setIsOpen={setIsUpdateTopicModalOpen}
-                topicId={topicUpdatedId}
-                name={topicUpdatedName}
-                setName={setTopicUpdatedName}
-                description={topicUpdatedDescription}
-                setDescription={setTopicUpdatedDescription}
-                handleUpdateClick={handleUpdateClick}
+                topic={updatingTopic}
+                onSubmit={handleUpdateClick}
                 loading={updateTopicInClassLoading}
             />
 
             <DeleteTopicModal
                 isOpen={isDeleteTopicModalOpen}
                 setIsOpen={setIsDeleteTopicModalOpen}
-                topicId={topicDeletedId}
-                name={topicDeletedName}
+                topic={deletingTopic}
                 handleDeleteClick={handleDeleteClick}
                 loading={deleteTopicInClassLoading}
             />

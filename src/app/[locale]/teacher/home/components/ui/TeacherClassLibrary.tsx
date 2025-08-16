@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, School } from 'lucide-react';
 import { useState } from 'react';
 import { CreateClassModal } from '../modal/CreateClassModal';
-import { UpdateClassModal } from '../modal/UpdateClassModal';
+import { IUpdatingClass, UpdateClassModal } from '../modal/UpdateClassModal';
 import teacherClassService, {
     ICreateClassPayload,
     IUpdateClassPayload,
@@ -22,14 +22,10 @@ export function TeacherClassLibrary() {
 
     // create class
     const [isCreateClassModalOpen, setIsCreateClassModalOpen] = useState<boolean>(false);
-    const [className, setClassName] = useState<string>('');
-    const [classDescription, setClassDescription] = useState<string>('');
 
     // update class
     const [isUpdateClassModalOpen, setIsUpdateClassModalOpen] = useState<boolean>(false);
-    const [classUpdatedId, setClassUpdatedId] = useState<number | null>();
-    const [classUpdatedName, setClassUpdatedName] = useState<string>('');
-    const [classUpdatedDescription, setClassUpdatedDescription] = useState<string>('');
+    const [updatingClass, setUpdatingClass] = useState<IUpdatingClass | null>();
 
     // manage current class that is selected, showing list of topics in the class
     const [classIdSelected, setClassIdSelected] = useState<number | null>();
@@ -51,7 +47,7 @@ export function TeacherClassLibrary() {
         onSuccess: (data) => {
             toastHelper.showSuccessMessage('Create class successfully');
             applyCreateClass(data);
-            resetCreateClassState();
+            setIsCreateClassModalOpen(false);
         },
     });
 
@@ -63,7 +59,7 @@ export function TeacherClassLibrary() {
         onSuccess: (data) => {
             toastHelper.showSuccessMessage('Update class successfully');
             applyUpdateClass(data);
-            resetUpdateClassState();
+            setIsUpdateClassModalOpen(false);
         },
     });
 
@@ -78,64 +74,38 @@ export function TeacherClassLibrary() {
         setClasses((prevClasses) => {
             const currentClasses = prevClasses ?? [];
             const classesUpdated = currentClasses.map((e) => {
-                if (e.classId === data.classId) return { ...e, name: data.name, description: data.description };
+                if (e.classId === data.classId)
+                    return { ...e, name: data.name, description: data.description, imageUrl: data.imageUrl };
                 return e;
             });
             return classesUpdated;
         });
     }
 
-    function resetCreateClassState() {
-        setIsCreateClassModalOpen(false);
-        setClassName('');
-        setClassDescription('');
-    }
-
-    function resetUpdateClassState() {
-        setIsUpdateClassModalOpen(false);
-        setClassUpdatedId(null);
-        setClassUpdatedName('');
-        setClassUpdatedDescription('');
-    }
-
-    async function handleCreateClick() {
-        if (!className) {
+    async function handleCreateClick(myClass: ICreateClassPayload) {
+        if (!myClass.name) {
             toast({
                 title: 'Class Name must be provided',
                 variant: 'destructive',
             });
             return;
         }
-        await createClassAsync({ name: className, description: classDescription });
+        await createClassAsync(myClass);
     }
 
-    async function handleUpdateClick() {
-        if (!classUpdatedId) {
+    async function handleUpdateClick(myClass: IUpdateClassPayload) {
+        if (!myClass.name) {
             toast({
-                title: 'Class Id must be provided',
+                title: 'Class Name must be provided',
                 variant: 'destructive',
             });
             return;
         }
-        await updateClassAsync({
-            classId: classUpdatedId,
-            name: classUpdatedName,
-            description: classUpdatedDescription,
-        });
+        await updateClassAsync(myClass);
     }
 
-    function handleOpenUpdateModal({
-        classId,
-        name,
-        description,
-    }: {
-        classId: number;
-        name: string;
-        description: string;
-    }) {
-        setClassUpdatedId(classId);
-        setClassUpdatedName(name);
-        setClassUpdatedDescription(description);
+    function handleOpenUpdateModal(data: IUpdatingClass) {
+        setUpdatingClass(data);
 
         setTimeout(() => {
             setIsUpdateClassModalOpen(true);
@@ -190,23 +160,15 @@ export function TeacherClassLibrary() {
             <CreateClassModal
                 isOpen={isCreateClassModalOpen}
                 setIsOpen={setIsCreateClassModalOpen}
-                name={className}
-                setName={setClassName}
-                description={classDescription}
-                setDescription={setClassDescription}
-                handleCreateClick={handleCreateClick}
+                onSubmit={handleCreateClick}
                 loading={createClassLoading}
             />
 
             <UpdateClassModal
                 isOpen={isUpdateClassModalOpen}
                 setIsOpen={setIsUpdateClassModalOpen}
-                classId={classUpdatedId}
-                name={classUpdatedName}
-                setName={setClassUpdatedName}
-                description={classUpdatedDescription}
-                setDescription={setClassUpdatedDescription}
-                handleUpdateClick={handleUpdateClick}
+                myClass={updatingClass}
+                onSubmit={handleUpdateClick}
                 loading={updateClassLoading}
             />
         </div>

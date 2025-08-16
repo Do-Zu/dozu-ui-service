@@ -16,7 +16,7 @@ export type IRemoveStudentInClassPayload = { classId: number; studentId: number 
 
 class TeacherClassService {
     public async getClasses() {
-        const response = await getRequest<null, IClass[]>(`/classes/teacher`);
+        const response = await getRequest<void, IClass[]>(`/classes/teacher`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -24,29 +24,37 @@ class TeacherClassService {
     }
 
     public async getClassById(classId: number) {
-        const response = await getRequest<null, IClass[]>(`/classes/teacher/${classId}`);
+        const response = await getRequest<void, IClass[]>(`/classes/teacher/${classId}`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
         return response.data;
     }
 
-    public async createClass({ name, description }: ICreateClassPayload) {
-        const response = await postRequest<ICreateClassBody, ICreateClassResponse>('/classes/teacher', {
-            name,
-            description,
-        });
+    public async createClass(data: ICreateClassPayload) {
+        const { name, description, imageFile } = data;
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('description', description);
+        if (imageFile) {
+            formData.append('file', imageFile);
+        }
+        const response = await postRequest<FormData, ICreateClassResponse>('/classes/teacher', formData);
         if (response.status !== 'created') {
             throw new Error(response.message);
         }
         return response.data;
     }
 
-    public async updateClass({ classId, name, description }: IUpdateClassPayload) {
-        const response = await putRequest<IUpdateClassBody, IUpdateClassResponse>(`/classes/teacher/${classId}`, {
-            name,
-            description,
-        });
+    public async updateClass(data: IUpdateClassPayload) {
+        const { classId, name, description, imageFile } = data;
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('description', description);
+        if (imageFile) {
+            formData.append('file', imageFile);
+        }
+        const response = await putRequest<FormData, IUpdateClassResponse>(`/classes/teacher/${classId}`, formData);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -54,7 +62,7 @@ class TeacherClassService {
     }
 
     public async getTopicsInClass(classId: number) {
-        const response = await getRequest<null, ITopic>(`/classes/teacher/${classId}/topics`);
+        const response = await getRequest<void, ITopic>(`/classes/teacher/${classId}/topics`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -62,7 +70,7 @@ class TeacherClassService {
     }
 
     public async getStudentsInClass(classId: number) {
-        const response = await getRequest<null, IStudentInClass[]>(`/enrollments/${classId}/students`);
+        const response = await getRequest<void, IStudentInClass[]>(`/enrollments/${classId}/students`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -70,7 +78,7 @@ class TeacherClassService {
     }
 
     public async removeStudentFromClass({ classId, studentId }: IRemoveStudentInClassPayload) {
-        const response = await deleteRequest<null, ApiResponse<number>>(
+        const response = await deleteRequest<void, ApiResponse<number>>(
             `/enrollments/${classId}/students/${studentId}`,
         );
         if (response.status !== 'success') {

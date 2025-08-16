@@ -12,18 +12,11 @@ import { Edit, MoreVertical, Sparkles, Users } from 'lucide-react';
 import { IClass } from '../../../../class-based/types/class.type';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
+import { IUpdatingClass } from '../modal/UpdateClassModal';
 
 interface Props {
     classProp: IClass;
-    handleUpdateClassSelect: ({
-        classId,
-        name,
-        description,
-    }: {
-        classId: number;
-        name: string;
-        description: string;
-    }) => void;
+    handleUpdateClassSelect: (data: IUpdatingClass) => void;
     handleNameClick: ({ classId, name, description }: { classId: number; name: string; description: string }) => void;
 }
 
@@ -76,7 +69,9 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
                                 <Users className="mr-2 h-4 w-4" />
                                 <span>Manage Students</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => handleUpdateClassSelect({ classId, name, description })}>
+                            <DropdownMenuItem
+                                onSelect={() => handleUpdateClassSelect({ classId, name, description, imageUrl })}
+                            >
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>Edit</span>
                             </DropdownMenuItem>
@@ -86,7 +81,11 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
             </CardHeader>
 
             <CardContent>
-                <div className="relative h-44 bg-gray-200 dark:bg-gray-400 rounded-md mb-3 flex items-center justify-center">
+                <div
+                    className={`relative h-44 rounded-md mb-3 flex items-center justify-center ${
+                        !imageUrl ? 'bg-gray-200 dark:bg-gray-400' : ''
+                    }`}
+                >
                     {imageUrl ? (
                         <Image fill className="object-contain" alt="Item Image" src={imageUrl} />
                     ) : (

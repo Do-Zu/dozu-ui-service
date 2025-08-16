@@ -59,7 +59,7 @@ export function ClassTopicCard({ topic }: Props) {
     function handleOnClickStartQuiz() {
         router.push(ROUTES.QUIZ_START(topicId));
     }
-    
+
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">

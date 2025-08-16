@@ -3,26 +3,23 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { IClass } from '../../types/class.type';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { LogOut, MoreVertical } from 'lucide-react';
 
 interface Props {
     classProp: IClass;
     handleNameClick: ({ classId, name, description }: { classId: number; name: string; description: string }) => void;
-    handleLeaveClick: (classId: number) => void; 
+    handleLeaveClick: (classId: number) => void;
 }
 
 export function StudentClassCard({ classProp, handleNameClick, handleLeaveClick }: Props) {
-    const {
-        classId,
-        name,
-        description,
-        imageUrl,
-        enrolledAt,
-        teacherName,
-        teacherImageUrl,
-    } = classProp;
+    const { classId, name, description, imageUrl, enrolledAt, teacherName, teacherImageUrl } = classProp;
 
     function formatDate(date: Date | undefined) {
         if (date) return format(date, 'yyyy-MM-dd');
@@ -64,7 +61,11 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClick 
             </CardHeader>
 
             <CardContent>
-                <div className="relative h-44 bg-gray-200 dark:bg-gray-400 rounded-md mb-3 flex items-center justify-center">
+                <div
+                    className={`relative h-44 rounded-md mb-3 flex items-center justify-center ${
+                        !imageUrl ? 'bg-gray-200 dark:bg-gray-400' : ''
+                    }`}
+                >
                     {imageUrl ? (
                         <Image fill className="object-contain" alt="Item Image" src={imageUrl} />
                     ) : (
