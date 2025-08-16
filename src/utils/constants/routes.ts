@@ -41,6 +41,10 @@ export const ROUTES = Object.freeze({
 
     QUIZ_START: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     QUIZ_EDIT: (topicId: string | number) => `/question/edit/${topicId}`,
+
+    // ======================= GAMES ========================
+    FLASHCARDS_BRAIN_CHASE: (topicId: string | number) => `/games/brain-chase?topicId=${topicId}`,
+    FLASHCARDS_MEMORY_MATCH: (topicId: string | number) => `/games/memory-match?topicId=${topicId}`,
 });
 
 // Route groups for easier management
