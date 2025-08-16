@@ -12,18 +12,21 @@ import { ROUTES } from '@/utils/constants/routes';
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
+import LeaveClassModal, { ILeavingClass } from '../modal/LeaveClassModal';
 
 export function StudentClassLibrary() {
     const router = useRouter();
 
     // manage current class that is selected, showing list of topics in the class
     const [classIdSelected, setClassIdSelected] = useState<number | null>();
-    const [classNameSelected, setClassNameSelected] = useState<string>('');
-    const [classDescriptionSelected, setClassDescriptionSelected] = useState<string>('');
 
     // join class
     const [isJoinClassModalOpen, setIsJoinClassModalOpen] = useState<boolean>(false);
     const [invitationCode, setInvitationCode] = useState<string>('');
+
+    // leave class
+    const [isLeaveClassModalOpen, setIsLeaveClassModalOpen] = useState<boolean>(false);
+    const [leavingClass, setLeavingClass] = useState<ILeavingClass | null>(null);
 
     const {
         data: classes,
@@ -53,22 +56,20 @@ export function StudentClassLibrary() {
             onSuccess: (data: number) => {
                 toastHelper.showSuccessMessage('Leave class successfully');
                 applyLeaveClass(data);
+                setIsLeaveClassModalOpen(false);
             },
         },
     );
 
-    async function handleClassNameClick({
-        classId,
-        name,
-        description,
-    }: {
-        classId: number;
-        name: string;
-        description: string;
-    }) {
+    function handleClassNameClick({ classId }: { classId: number }) {
         setClassIdSelected(classId);
-        setClassNameSelected(name);
-        setClassDescriptionSelected(description);
+    }
+
+    function handleLeaveClassModalOpen(leavingClass: ILeavingClass) {
+        setLeavingClass(leavingClass);
+        setTimeout(() => {
+            setIsLeaveClassModalOpen(true);
+        }, 50);
     }
 
     function applyJoinClass(data: IClass) {
@@ -94,7 +95,7 @@ export function StudentClassLibrary() {
         await leaveClassAsync(classId);
     }
 
-    async function resetJoinClassState() {
+    function resetJoinClassState() {
         setIsJoinClassModalOpen(false);
         setInvitationCode('');
     }
@@ -128,7 +129,7 @@ export function StudentClassLibrary() {
             <StudentClassList
                 classes={classes}
                 handleNameClick={handleClassNameClick}
-                handleLeaveClick={handleLeaveClick}
+                handleLeaveClassModalOpen={handleLeaveClassModalOpen}
             />
 
             <JoinClassModal
@@ -138,6 +139,14 @@ export function StudentClassLibrary() {
                 setCode={setInvitationCode}
                 handleJoinClick={handleJoinClick}
                 loading={joinClassLoading}
+            />
+
+            <LeaveClassModal
+                isOpen={isLeaveClassModalOpen}
+                setIsOpen={setIsLeaveClassModalOpen}
+                myClass={leavingClass}
+                handleLeaveClick={handleLeaveClick}
+                loading={leaveClassLoading}
             />
         </div>
     );
