@@ -33,8 +33,6 @@ export const ROUTES = Object.freeze({
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
-    CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
-    CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
 
     MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
     MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
@@ -42,9 +40,21 @@ export const ROUTES = Object.freeze({
     QUIZ_START: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     QUIZ_EDIT: (topicId: string | number) => `/question/edit/${topicId}`,
 
+
     // ======================= GAMES ========================
     FLASHCARDS_BRAIN_CHASE: (topicId: string | number) => `/games/brain-chase?topicId=${topicId}`,
     FLASHCARDS_MEMORY_MATCH: (topicId: string | number) => `/games/memory-match?topicId=${topicId}`,
+
+    // ======================= TEACHER ROUTES ========================
+
+    TEACHER: {
+        HOME: '/teacher/home',
+        CLASS_BASED: '/teacher/class-based',
+        CLASS_BASED_ID: (classId: string | number) => `/teacher/class-based/${classId}`,
+        CLASS_BASED_ID_GENERATE: (classId: string | number) => `/teacher/class-based/${classId}/generate`,
+        CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
+    }
+
 });
 
 // Route groups for easier management

@@ -22,14 +22,14 @@ import ContentGenerationPreview from '../../generate/components/ContentGeneratio
 import { useAppSelector } from '@/stores/hooks';
 import { useContentGeneration } from '../../generate/hooks/useContentGeneration';
 import {
-    FlashcardsSubmitted,
     handleConvertToFlashcardsSubmitted,
     IFlashcardWithServer,
 } from '../../flashcards/components/FlashcardEditor';
 import { postRequest } from '@/api/api';
 import { ROUTES } from '@/utils/constants/routes';
 import { TypeDataGenerated } from '@/app/[locale]/generate/components/ContentGenerationPreview';
-import { IFlashcardAdded, IFlashcardDeleted, IFlashcardUpdated } from '../../flashcards/types/flashcard.type';
+import { IFlashcardCreateInput, IFlashcardsBatchInput, IFlashcardUpdateInput } from '../../flashcards/types/flashcard.type';
+import flashcardService from '@/services/flashcard/flashcard.service';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -62,11 +62,6 @@ export default function MindmapContent() {
     const {
         dataGenerated,
         setDataGenerated,
-        setTopicName,
-        setTopicDescription,
-        isTopicModalOpen,
-        setIsTopicModalOpen,
-        handleOnClickSave,
     } = useContentGeneration({ sseData, sseStatus });
 
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
@@ -100,7 +95,7 @@ export default function MindmapContent() {
         return <GeneratingSkeleton />;
     }
 
-    function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithServer[]): FlashcardsSubmitted | null {
+    function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithServer[]): IFlashcardsBatchInput | null {
         if (!flashcards) return null;
 
         let flashcardsFormatted = flashcards.map((flashcard) => {
@@ -111,9 +106,9 @@ export default function MindmapContent() {
             };
         });
 
-        let flashcardsAdded: IFlashcardAdded[];
-        let flashcardsUpdated: IFlashcardUpdated[];
-        let flashcardsDeleted: IFlashcardDeleted[];
+        let flashcardsAdded: IFlashcardCreateInput[];
+        let flashcardsUpdated: IFlashcardUpdateInput[];
+        let flashcardsDeleted: number[];
 
         let flashcardsFilter;
 
@@ -155,17 +150,25 @@ export default function MindmapContent() {
         )
             return null;
 
-        let dataSubmitted: FlashcardsSubmitted = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
+        let dataSubmitted: IFlashcardsBatchInput = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
         return dataSubmitted;
     }
 
     const handleSaveContentGenerated = async () => {
         let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]); //handle checks if needed - DuyND
+        const nodeId = selectedNodeData?.nodeId;
+        if (!nodeId || !flashcardsSubmitted) {
+            toast({
+                title: 'Fail to edit flashcards',
+                variant: 'destructive',
+            });
+            return;
+        }
         try {
-            await postRequest(`/flashcards/batch/node`, {
-                flashcards: flashcardsSubmitted,
+            await flashcardService.batchFlashcardsForNode({
                 topicId,
-                nodeId: selectedNodeData?.nodeId,
+                nodeId,
+                flashcards: flashcardsSubmitted,
             });
             toast({
                 title: 'Edit Flashcards successfully',
@@ -190,12 +193,7 @@ export default function MindmapContent() {
                     sseData={sseData}
                     dataGenerated={dataGenerated}
                     setDataGenerated={setDataGenerated}
-                    topicName={selectedNodeData?.label || ''}
-                    setTopicName={setTopicName}
-                    topicDescription={selectedNodeData?.description || ''}
-                    setTopicDescription={setTopicDescription}
-                    isTopicModalOpen={isTopicModalOpen}
-                    setIsTopicModalOpen={setIsTopicModalOpen}
+                    shouldCreateTopic={false}
                     onSave={handleSaveContentGenerated}
                 />
                 <Button className="fixed bottom-5 right-64 z-50 w-32" onClick={handleSaveContentGenerated}>

@@ -10,20 +10,23 @@ export interface IClass {
     teacherName?: string | null;
     teacherImageUrl?: string;
 
-    imageUrl?: string;
+    imageUrl?: string | null;
 
     // only for student
     classEnrollmentId?: number;
     enrolledAt?: Date;
 }
 
-export type ICreateClassBody = Pick<IClass, 'name' | 'description'>;
-export type ICreateClassResponse = Pick<IClass, 'classId' | 'name' | 'description' | 'invitationCode' | 'createdAt'>;
-export type IUpdateClassBody = Pick<IClass, 'name' | 'description'>;
-export type IUpdateClassResponse = Pick<IClass, 'classId' | 'name' | 'description'>;
+export type ICreateClassBody = Pick<IClass, 'name' | 'description'> & { imageFile?: File | null };
+export type ICreateClassResponse = Pick<
+    IClass,
+    'classId' | 'name' | 'description' | 'invitationCode' | 'createdAt' | 'imageUrl'
+>;
+export type IUpdateClassBody = Pick<IClass, 'name' | 'description'> & { imageFile?: File | null };
+export type IUpdateClassResponse = Pick<IClass, 'classId' | 'name' | 'description' | 'imageUrl'>;
 
 export interface IJoinClassBody {
-    invitationCode: string
+    invitationCode: string;
 }
 
 export interface IStudentInClass {

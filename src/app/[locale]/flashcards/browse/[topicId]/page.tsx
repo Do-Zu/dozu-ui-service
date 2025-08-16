@@ -9,15 +9,12 @@ import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import BackButton from '../../components/BackButton';
-import { IFlashcardBasic, IFlashcardStatus } from '../../types/flashcard.type';
-import { putRequest } from '@/api/api';
+import { IFlashcard } from '../../types/flashcard.type';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
+import flashcardService from '@/services/flashcard/flashcard.service';
 
 const initialAutoPlaySpeed = 3;
-
-export type IFlashcardForTopic = Omit<IFlashcardBasic, 'topicId'> & { status: IFlashcardStatus };
-export type IFlashcardsForTopicReturned = IFlashcardForTopic[];
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * (max + 1));
@@ -37,7 +34,7 @@ function getRandomArray(num: number) {
     return result;
 }
 
-function getFlashcardsShuffled(flashcards: IFlashcardsForTopicReturned): IFlashcardsForTopicReturned {
+function getFlashcardsShuffled(flashcards: IFlashcard[]): IFlashcard[] {
     const flashcardsRandom = [];
     const arrayRandom = getRandomArray(flashcards.length);
     for (const indexRandom of arrayRandom) {
@@ -54,14 +51,12 @@ export default function Page() {
 
     const { topicId } = params as { topicId: string };
 
-    const flashcardsSelector = (data: { flashcards: IFlashcardsForTopicReturned[] }) => data.flashcards;
-
     const {
         data: flashcards,
         setData: setFlashcardsData,
         loading: flashcardsLoading,
         error: flashcardsError,
-    } = useFetch<IFlashcardsForTopicReturned>(`/flashcards?topicId=${topicId}`, { selector: flashcardsSelector });
+    } = useFetch<IFlashcard[]>(() => flashcardService.getFlashcardsForTopic(topicId));
 
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
 
@@ -109,7 +104,7 @@ export default function Page() {
         return null;
     }, [shuffleEnabled]);
 
-    function getCurrentFlashcard(): IFlashcardForTopic | null {
+    function getCurrentFlashcard(): IFlashcard | null {
         if (shuffleEnabled) {
             return flashcardsShuffled ? flashcardsShuffled[currentFlashcardIndex] : null;
         } else {

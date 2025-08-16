@@ -5,9 +5,10 @@ import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
 
 const Axios = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    // attach headers in requestInterceptor later
+    // headers: {
+    //     'Content-Type': 'application/json',
+    // },
 });
 
 Axios.defaults.withCredentials = true;
@@ -15,6 +16,10 @@ Axios.defaults.withCredentials = true;
 // Request Interceptor
 const requestInterceptor = Axios.interceptors.request.use(
     (config) => {
+        if(!(config.data instanceof FormData)) {
+            config.headers['Content-Type'] = 'application/json';
+        }
+
         // If the user is authenticated, attach the token to the request
         const userString = localStorage.getItem('user'); //get user object saved in localStorage
 
@@ -35,13 +40,20 @@ const requestInterceptor = Axios.interceptors.request.use(
                 );
 
                 if (config.data && matchingFeature) {
-                    config.data = {
-                        ...config.data,
-                        featureId: matchingFeature.featureId,
-                        planId: currentPlanUser.plan.planId,
-                        featureType: matchingFeature.featureType,
-                        url,
-                    };
+                    if (config.data instanceof FormData) {
+                        config.data.append('featureId', matchingFeature.featureId.toString());
+                        config.data.append('planId', currentPlanUser.plan.planId.toString());
+                        config.data.append('featureType', matchingFeature.featureType);
+                        config.data.append('url', url);
+                    } else {
+                        config.data = {
+                            ...config.data,
+                            featureId: matchingFeature.featureId,
+                            planId: currentPlanUser.plan.planId,
+                            featureType: matchingFeature.featureType,
+                            url,
+                        };
+                    }
                 }
             }
         }
