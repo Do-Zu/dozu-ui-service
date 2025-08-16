@@ -1,14 +1,15 @@
 import { IClass } from '../../types/class.type';
-import { StudentClassCard } from './StudentClassCard'; 
+import { ILeavingClass } from '../modal/LeaveClassModal';
+import { StudentClassCard } from './StudentClassCard';
 
 type Props = {
     classes: IClass[];
-    handleNameClick: ({ classId, name, description }: { classId: number; name: string; description: string }) => void;
-    handleLeaveClick: (classId: number) => void;
+    handleNameClick: ({ classId }: { classId: number }) => void;
+    handleLeaveClassModalOpen: (leavingClass: ILeavingClass) => void;
 };
 
 export function StudentClassList(props: Props) {
-    const { classes, handleNameClick } = props;
+    const { classes, handleNameClick, handleLeaveClassModalOpen } = props;
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {classes.map((myClass: IClass) => {
@@ -18,7 +19,7 @@ export function StudentClassList(props: Props) {
                         key={classId}
                         classProp={myClass}
                         handleNameClick={handleNameClick}
-                        handleLeaveClick={props.handleLeaveClick}
+                        handleLeaveClassModalOpen={handleLeaveClassModalOpen}
                     />
                 );
             })}

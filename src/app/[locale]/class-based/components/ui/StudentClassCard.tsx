@@ -11,14 +11,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { LogOut, MoreVertical } from 'lucide-react';
+import { ILeavingClass } from '../modal/LeaveClassModal';
 
 interface Props {
     classProp: IClass;
-    handleNameClick: ({ classId, name, description }: { classId: number; name: string; description: string }) => void;
-    handleLeaveClick: (classId: number) => void;
+    handleNameClick: ({ classId }: { classId: number }) => void;
+    handleLeaveClassModalOpen: (leavingClass: ILeavingClass) => void;
 }
 
-export function StudentClassCard({ classProp, handleNameClick, handleLeaveClick }: Props) {
+export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassModalOpen }: Props) {
     const { classId, name, description, imageUrl, enrolledAt, teacherName, teacherImageUrl } = classProp;
 
     function formatDate(date: Date | undefined) {
@@ -37,7 +38,7 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClick 
                         <div className="flex flex-row gap-2 items-center">
                             <div
                                 className="hover:underline hover:text-blue-400 transition"
-                                onClick={() => handleNameClick({ classId, name, description })}
+                                onClick={() => handleNameClick({ classId })}
                             >
                                 {name}
                             </div>
@@ -51,7 +52,7 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClick 
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" side="top">
-                            <DropdownMenuItem onSelect={() => handleLeaveClick(classId)}>
+                            <DropdownMenuItem onSelect={() => handleLeaveClassModalOpen({ classId, name })}>
                                 <LogOut className="mr-2 h-4 w-4" />
                                 <span>Leave</span>
                             </DropdownMenuItem>
