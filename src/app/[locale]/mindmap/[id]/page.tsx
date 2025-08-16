@@ -62,11 +62,6 @@ export default function MindmapContent() {
     const {
         dataGenerated,
         setDataGenerated,
-        setTopicName,
-        setTopicDescription,
-        isTopicModalOpen,
-        setIsTopicModalOpen,
-        handleOnClickSave,
     } = useContentGeneration({ sseData, sseStatus });
 
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
@@ -170,11 +165,6 @@ export default function MindmapContent() {
             return;
         }
         try {
-            // await postRequest(`/flashcards/batch/node`, {
-            //     flashcards: flashcardsSubmitted,
-            //     topicId,
-            //     nodeId: selectedNodeData?.nodeId,
-            // });
             await flashcardService.batchFlashcardsForNode({
                 topicId,
                 nodeId,
@@ -203,12 +193,7 @@ export default function MindmapContent() {
                     sseData={sseData}
                     dataGenerated={dataGenerated}
                     setDataGenerated={setDataGenerated}
-                    topicName={selectedNodeData?.label || ''}
-                    setTopicName={setTopicName}
-                    topicDescription={selectedNodeData?.description || ''}
-                    setTopicDescription={setTopicDescription}
-                    isTopicModalOpen={isTopicModalOpen}
-                    setIsTopicModalOpen={setIsTopicModalOpen}
+                    shouldCreateTopic={false}
                     onSave={handleSaveContentGenerated}
                 />
                 <Button className="fixed bottom-5 right-64 z-50 w-32" onClick={handleSaveContentGenerated}>
