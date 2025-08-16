@@ -54,10 +54,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
     const {
         dataGenerated,
         setDataGenerated,
-        topicName,
-        setTopicName,
-        topicDescription,
-        setTopicDescription,
         isTopicModalOpen,
         setIsTopicModalOpen,
         handleOnClickSave,
@@ -148,10 +144,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
                         sseData={sseData}
                         dataGenerated={dataGenerated}
                         setDataGenerated={setDataGenerated}
-                        topicName={topicName}
-                        setTopicName={setTopicName}
-                        topicDescription={topicDescription}
-                        setTopicDescription={setTopicDescription}
+                        shouldCreateTopic
                         isTopicModalOpen={isTopicModalOpen}
                         setIsTopicModalOpen={setIsTopicModalOpen}
                         onSave={handleOnClickSave}

@@ -3,23 +3,20 @@ import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../
 import { handleConvertToQuestionsSubmitted } from '../../question/utils/handleConvertToQuestionsSubmitted';
 import { ContentType } from '../components/ContentGenerationPreview';
 import Axios from '@/api/axios';
-import topicService from '@/services/topic/topic.service';
+import topicService, { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/topic/topic.service';
 import { store } from '@/stores/store';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import teacherClassTopicService from '@/services/class-based-learning/teacher/teacherClassTopic.service';
 
 export interface CreateContentParams {
-    topicName: string;
-    topicDescription: string;
+    topic: ICreateTopicPayload;
     contentType: ContentType | null;
     contentData: any;
 }
 
 export interface CreateContentForClassParams {
-    classId: number;
-    topicName: string;
-    topicDescription: string;
+    topic: ICreateTopicForClassPayload;
     contentType: ContentType | null;
     contentData: any;
 }
@@ -38,15 +35,17 @@ export class ContentCreationService {
      * Creates a topic and saves the generated content
      */
     static async createContent(params: CreateContentParams): Promise<ContentCreationResult> {
-        const { topicName, topicDescription, contentType, contentData } = params;
+        const { topic, contentType, contentData } = params;
+        const { name, description, imageFile } = topic;
 
         const state = store.getState(); //get state to get inputSetId saved on file upload - DuyND
 
         try {
             // Phase 1: Create topic
             const data = await topicService.createTopic({
-                name: topicName,
-                description: topicDescription,
+                name,
+                description,
+                imageFile,
                 inputSetId: state.inputSet.inputSetId,
             });
             const topic = data;
@@ -83,16 +82,17 @@ export class ContentCreationService {
     }
 
     static async createContentForClass(params: CreateContentForClassParams): Promise<ContentCreationResult> {
-        const { classId } = params;
-        const { topicName, topicDescription, contentType, contentData } = params;
+        const { topic, contentType, contentData } = params;
+        const { classId, name, description, imageFile } = topic;
         const state = store.getState();
 
         try {
             // Phase 1: Create topic in a specific class
             const data = await teacherClassTopicService.createTopicForClass({
                 classId,
-                name: topicName,
-                description: topicDescription,
+                name,
+                description,
+                imageFile,
                 inputSetId: state.inputSet.inputSetId,
             });
             const topic = data;
