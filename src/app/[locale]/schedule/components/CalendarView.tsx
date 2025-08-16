@@ -1,19 +1,18 @@
 'use client';
 
+import { useEffect } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
     CalendarCurrentDate,
-    CalendarDayView,
     CalendarNextTrigger,
     CalendarPrevTrigger,
     CalendarTodayTrigger,
     CalendarViewTrigger,
-    CalendarWeekView,
     useCalendar,
 } from '@/components/ui/full-calendar';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-
+import CalendarDayView from '@/components/schedule/CalendarDayView';
+import CalendarWeekView from '@/components/schedule/CalendarWeekView';
 import LoadingPage from '@/app/loading';
 
 export default function CalendarView() {
@@ -55,8 +54,6 @@ export default function CalendarView() {
             <div className="flex-1 px-6 overflow-hidden">
                 <CalendarDayView />
                 <CalendarWeekView />
-                {/* <CalendarMonthView />
-        <CalendarYearView /> */}
             </div>
         </div>
     );

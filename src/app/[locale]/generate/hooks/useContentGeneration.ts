@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '../types';
@@ -40,6 +40,7 @@ export const useContentGeneration = ({
     const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
     const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
 
+    const router = useRouter();
     const dispatch = useCardImportDispatch();
 
     const contentType = detectContentType(sseData);
@@ -69,6 +70,27 @@ export const useContentGeneration = ({
         return [];
     };
 
+    const handleRedirectAfterGenerateSuccess = (topicId: string | number | undefined) => {
+        if (topicId === undefined) {
+            router.replace(ROUTES.LANDING);
+            return;
+        }
+
+        switch (contentType) {
+            case CONTENT_TYPE_GENERATE.FLASH_CARD:
+                router.replace(ROUTES.FLASHCARDS_BROWSE(topicId));
+                break;
+            case CONTENT_TYPE_GENERATE.QUIZ:
+                router.replace(ROUTES.QUIZ_START(topicId));
+                break;
+            case CONTENT_TYPE_GENERATE.MIND_MAP:
+                router.replace(ROUTES.MINDMAP_VIEW(topicId));
+                break;
+            default:
+                router.replace(ROUTES.LANDING);
+        }
+    };
+
     const handleOnClickSave = async (topic: ICreateTopicPayload) => {
         const contentData = dataGenerated;
 
@@ -79,7 +101,9 @@ export const useContentGeneration = ({
             });
             return;
         }
+
         let result;
+
         if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
             result = await ContentCreationService.createContent({
                 topic,
@@ -104,13 +128,11 @@ export const useContentGeneration = ({
         if (result.success) {
             dispatch(resetImportDialog());
             toast({
-                title: `${getContentTypeDisplayName(contentType)} created successfully!`,
                 description: 'Your content has been attached to the new topic.',
                 variant: 'default',
             });
-            setTimeout(() => {
-                router.push(ROUTES.LANDING);
-            }, 100);
+
+            handleRedirectAfterGenerateSuccess(result?.topicId);
         } else {
             toast({
                 description: result.error || 'Failed to create content',

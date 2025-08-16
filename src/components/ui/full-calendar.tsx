@@ -3,7 +3,6 @@
 import { generateSchedule } from '@/app/[locale]/schedule/services/schedule.service';
 import { ScheduleData, type ScheduleGenerateRequest } from '@/app/[locale]/schedule/types/schedule.type';
 import { Button } from '@/components/ui/button';
-import EventCard from '@/components/ui/event-card';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
 import { cn } from '@/lib/utils';
@@ -12,16 +11,11 @@ import {
     Locale,
     addDays,
     addWeeks,
-    differenceInMinutes,
     endOfWeek,
     format,
-    getMonth,
     isSameDay,
-    isSameHour,
-    isSameMonth,
     isToday,
     setHours,
-    setMonth,
     startOfMonth,
     startOfWeek,
     subDays,
@@ -91,6 +85,9 @@ export type CalendarEvent = {
     end: Date;
     title: string;
     color?: VariantProps<typeof monthEventVariants>['variant'];
+    priority?: number;
+    description?: string | null;
+    amountItem?: number;
 };
 
 type CalendarProps = {
@@ -263,173 +260,6 @@ const CalendarViewTrigger = forwardRef<
     );
 });
 CalendarViewTrigger.displayName = 'CalendarViewTrigger';
-
-const EventGroup = ({ events, hour }: { events: CalendarEvent[]; hour: Date }) => {
-    return (
-        <div className="h-20 border-t last:border-b relative">
-            {/* This component now only renders the time slot container */}
-        </div>
-    );
-};
-
-const DayEventsContainer = ({ events, dayDate }: { events: CalendarEvent[]; dayDate: Date }) => {
-    const startOfDay = new Date(dayDate);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const dayEvents = events.filter((event) => isSameDay(event.start, dayDate));
-
-    // Group overlapping events for better positioning
-    const sortedEvents = dayEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
-
-    return (
-        <div className="absolute inset-0 pointer-events-none">
-            {sortedEvents.map((event, index) => {
-                // Calculate position from start of day (0:00)
-                const eventStartMinutes = event.start.getHours() * 60 + event.start.getMinutes();
-                const eventEndMinutes = event.end.getHours() * 60 + event.end.getMinutes();
-
-                // Ensure event doesn't go beyond the current day
-                const maxMinutes = 24 * 60; // 24 hours
-                const clampedEndMinutes = Math.min(eventEndMinutes, maxMinutes);
-
-                // Each hour slot is 80px (h-20), so total day height is 24 * 80px = 1920px
-                const hourHeight = 80; // 80px per hour (h-20 = 5rem = 80px)
-                const topPosition = (eventStartMinutes / 60) * hourHeight;
-                const eventHeight = Math.max(((clampedEndMinutes - eventStartMinutes) / 60) * hourHeight, 20); // Minimum 20px height
-
-                // Check for overlapping events to adjust width and position
-                let leftOffset = 0;
-                let widthReduction = 0;
-
-                for (let i = 0; i < index; i++) {
-                    const prevEvent = sortedEvents[i];
-                    const prevStartMinutes = prevEvent.start.getHours() * 60 + prevEvent.start.getMinutes();
-                    const prevEndMinutes = prevEvent.end.getHours() * 60 + prevEvent.end.getMinutes();
-
-                    // Check if events overlap
-                    if (eventStartMinutes < prevEndMinutes && eventEndMinutes > prevStartMinutes) {
-                        leftOffset = Math.max(leftOffset, 50); // 50% offset for overlapping events
-                        widthReduction = 50; // Reduce width to 50% for overlapping events
-                    }
-                }
-
-                return (
-                    <div
-                        key={event.id}
-                        className={cn('absolute pointer-events-auto', dayEventVariants({ variant: event.color }))}
-                        style={{
-                            top: `${topPosition}px`,
-                            height: `${eventHeight}px`,
-                            left: `${4 + leftOffset}%`,
-                            right: `${4 + widthReduction}%`,
-                        }}
-                    >
-                        <EventCard event={{ ...event, color: event.color ?? undefined }} />
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
-
-const CalendarDayView = () => {
-    const { view, events, date } = useCalendar();
-
-    if (view !== 'day') return null;
-
-    const hours = [...Array(24)].map((_, i) => setHours(date, i));
-
-    return (
-        <div className="flex relative pt-2 overflow-auto h-full">
-            <TimeTable />
-            <div className="flex-1 relative">
-                {hours.map((hour) => (
-                    <EventGroup key={hour.toString()} hour={hour} events={events} />
-                ))}
-                <DayEventsContainer events={events} dayDate={date} />
-            </div>
-        </div>
-    );
-};
-
-const CalendarWeekView = () => {
-    const { view, date, locale, events } = useCalendar();
-
-    const weekDates = useMemo(() => {
-        const start = startOfWeek(date, { weekStartsOn: 1 });
-        const weekDates = [];
-
-        for (let i = 0; i < 7; i++) {
-            const day = addDays(start, i);
-            const hours = [...Array(24)].map((_, i) => setHours(day, i));
-            weekDates.push(hours);
-        }
-
-        return weekDates;
-    }, [date]);
-
-    const headerDays = useMemo(() => {
-        const daysOfWeek = [];
-        for (let i = 0; i < 7; i++) {
-            const result = addDays(startOfWeek(date, { weekStartsOn: 1 }), i);
-            daysOfWeek.push(result);
-        }
-        return daysOfWeek;
-    }, [date]);
-
-    if (view !== 'week') return null;
-
-    return (
-        <div className="flex flex-col relative overflow-auto h-full">
-            <div className="flex sticky top-0 bg-card  border-b mb-3">
-                <div className="w-12"></div>
-                {headerDays.map((date, i) => (
-                    <div
-                        key={date.toString()}
-                        className={cn(
-                            'text-center flex-1 gap-1 pb-2 text-sm text-muted-foreground flex items-center justify-center',
-                            [0, 6].includes(i) && 'text-muted-foreground/50',
-                        )}
-                    >
-                        {format(date, 'E', { locale })}
-                        <span
-                            className={cn(
-                                'h-6 grid place-content-center',
-                                isToday(date) && 'bg-primary text-primary-foreground rounded-full size-6',
-                            )}
-                        >
-                            {format(date, 'd')}
-                        </span>
-                    </div>
-                ))}
-            </div>
-            <div className="flex flex-1">
-                <div className="w-fit">
-                    <TimeTable />
-                </div>
-                <div className="grid grid-cols-7 flex-1">
-                    {weekDates.map((hours, i) => {
-                        const dayDate = hours[0]; // First hour of the day represents the day
-                        return (
-                            <div
-                                className={cn(
-                                    'h-full text-sm text-muted-foreground border-l first:border-l-0 relative',
-                                    [0, 6].includes(i) && 'bg-muted/50',
-                                )}
-                                key={hours[0].toString()}
-                            >
-                                {hours.map((hour) => (
-                                    <EventGroup key={hour.toString()} hour={hour} events={events} />
-                                ))}
-                                <DayEventsContainer events={events} dayDate={dayDate} />
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        </div>
-    );
-};
 
 // const CalendarMonthView = () => {
 //     const { date, view, events, locale } = useCalendar();
@@ -716,10 +546,8 @@ const generateWeekdays = (locale: Locale) => {
 export {
     Calendar,
     CalendarCurrentDate,
-    CalendarDayView,
     CalendarNextTrigger,
     CalendarPrevTrigger,
     CalendarTodayTrigger,
     CalendarViewTrigger,
-    CalendarWeekView,
 };

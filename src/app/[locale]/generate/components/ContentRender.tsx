@@ -78,7 +78,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({ questions, setQuest
 };
 
 interface MindmapRendererProps {
-    //TODO: Define the structure of mindmap data
+    //TODO: Define the structure of mindmap data (don't use any type)
     data: any;
     setDataGenerated: (data: any) => void;
     //original is object[] but mindmapData is object so it doesn't work, changing requires changing useContentGeneration hook
@@ -88,19 +88,14 @@ interface MindmapRendererProps {
 const MindmapRenderer: React.FC<MindmapRendererProps> = ({ data, setDataGenerated }) => {
     const [topicName, setTopicName] = useState<string>('');
 
-    // TODO: Implement mindmap renderer component
     return (
         <div className="p-4 border rounded-lg">
-            <h4 className="font-medium mb-2">Mindmap Content</h4>
-
             <GenerateMindmapCard
                 mindmapData={data}
                 topicName={topicName}
                 setTopicName={setTopicName}
                 setDataGenerated={setDataGenerated}
             />
-            {/* <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">{JSON.stringify(data, null, 2)}</pre> */}
-            {/* uncomment above ^ to test json if error */}
         </div>
     );
 };

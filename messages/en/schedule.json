@@ -10,6 +10,27 @@
                 "today": "Today",
                 "next": "Next"
             }
+        },
+        "dialog": {
+            "edit": {
+                "title": "Title",
+                "startTime": "Start Time",
+                "endTime": "End Time",
+                "cancel": "Cancel",
+                "save": "Save"
+            }
+        },
+        "eventCard": {
+            "actions": {
+                "learn": "Learn",
+                "edit": "Edit"
+            }
+        },
+        "saveBar": {
+            "message": "You have unsaved changes",
+            "save": "Save changes",
+            "cancel": "Cancel",
+            "errorSaveMessage": "There was an error saving your changes. Please try again."
         }
     }
 }

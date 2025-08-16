@@ -161,8 +161,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             </h3>
                             <p className="text-slate-200 dark:text-gray-300 text-sm">{currentLearning?.description}</p>
                         </div>
-                        {/** TODO: Check logic for progress display */}
-                        {/* <div className="space-y-1">
+                        <div className="space-y-1">
                             <div className="flex justify-between text-xs text-white dark:text-gray-200">
                                 <span>{t('progress')}</span>
                                 <span>{currentLearning?.progress}%</span>
@@ -185,7 +184,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                                 <Calendar className="h-3 w-3" />
                                 <span>{currentLearning?.nextSession}</span>
                             </div>
-                        </div> */}
+                        </div>
                     </div>
                     <div className="flex items-center justify-center lg:justify-end">
                         {data && (
