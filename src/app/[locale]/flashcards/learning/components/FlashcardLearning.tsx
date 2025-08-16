@@ -1,16 +1,14 @@
 import { useTranslations } from 'next-intl';
 import BackButton from '../../components/BackButton';
-import { IFlashcardFull, IQualityResponse, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
+import { IFlashcard, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
 import Flashcard from '../../components/Flashcard';
 import { Angry, CircleAlert, Eye, Frown, Laugh, Smile, ThumbsUp } from 'lucide-react';
 import { putRequest } from '@/api/api';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import React from 'react';
-
-export type IFlashcard = Pick<IFlashcardFull, 'flashcardId' | 'front' | 'back' | 'topicName'> & {
-    qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
-};
+import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
+import { IFlashcardWithReviewPrediction } from '../[topicId]/page';
 
 type TrackingOption = {
     icon: any;
@@ -20,7 +18,7 @@ type TrackingOption = {
 
 interface Props {
     topicName: string;
-    flashcard: IFlashcard;
+    flashcard: IFlashcardWithReviewPrediction;
     total: number;
     flashcardContainerRef: React.RefObject<HTMLDivElement>;
     cardRef: React.RefObject<HTMLDivElement>;
@@ -57,6 +55,7 @@ export function FlashcardLearning({
     ];
 
     function renderTrackingOptionsSection(style: string) {
+        if(!flashcard) return;
         return (
             <div className={style}>
                 {trackingOptions.map((option, index) => {

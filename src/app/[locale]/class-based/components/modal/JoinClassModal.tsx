@@ -10,9 +10,11 @@ interface Props {
     setCode: (value: string) => void;
 
     handleJoinClick: (classId: string) => void;
+
+    loading?: boolean;
 }
 
-export function JoinClassModal({ isOpen, setIsOpen, code, setCode, handleJoinClick }: Props) {
+export function JoinClassModal({ isOpen, setIsOpen, code, setCode, handleJoinClick, loading }: Props) {
     function handleCodeChange(event: ChangeEvent<HTMLInputElement>) {
         setCode(event.target.value);
     }
@@ -30,9 +32,9 @@ export function JoinClassModal({ isOpen, setIsOpen, code, setCode, handleJoinCli
                         <Input value={code} onChange={handleCodeChange} />
                     </div>
 
-                    <div className='flex justify-end mt-2'>
-                        <Button className="text-base" onClick={() => handleJoinClick(code)}>
-                            Join
+                    <div className="flex justify-end mt-2">
+                        <Button className="text-base" onClick={() => handleJoinClick(code)} disabled={loading}>
+                            {loading ? 'Joining...' : 'Join'}
                         </Button>
                     </div>
                 </div>

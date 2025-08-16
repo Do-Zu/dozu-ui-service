@@ -1,15 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Link, School } from 'lucide-react';
-import { ClassesList } from '../ClassesList';
+import { StudentClassList } from './StudentClassList';
 import { useState } from 'react';
-import classService from '@/services/class-based-learning/class.service';
 import { toast } from '@/hooks/use-toast';
 import useFetch from '@/hooks/useFetch';
 import { IClass } from '../../types/class.type';
 import LoadingPage from '@/app/loading';
-import { JoinClassModal } from '../JoinClassModal';
+import { JoinClassModal } from '../modal/JoinClassModal';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
+import studentClassService from '@/services/class-based-learning/student/studentClass.service';
+import usePost from '@/hooks/usePost';
+import toastHelper from '@/utils/toast.helper';
 
 export function StudentClassLibrary() {
     const router = useRouter();
@@ -28,7 +30,32 @@ export function StudentClassLibrary() {
         setData: setClasses,
         error: classesError,
         loading: classesLoading,
-    } = useFetch<IClass[]>('/classes');
+    } = useFetch<IClass[]>(studentClassService.getClasses);
+
+    const { loading: joinClassLoading, execute: joinClassAsync } = usePost<string, IClass>(
+        studentClassService.joinClass,
+        'POST',
+        {
+            onError: toastHelper.showErrorMessage,
+            onSuccess: (data: IClass) => {
+                toastHelper.showSuccessMessage('Join class successfully');
+                applyJoinClass(data);
+                resetJoinClassState();
+            },
+        },
+    );
+
+    const { loading: leaveClassLoading, execute: leaveClassAsync } = usePost<number, number>(
+        studentClassService.leaveClass,
+        'DELETE',
+        {
+            onError: toastHelper.showErrorMessage,
+            onSuccess: (data: number) => {
+                toastHelper.showSuccessMessage('Leave class successfully');
+                applyLeaveClass(data);
+            },
+        },
+    );
 
     async function handleClassNameClick({
         classId,
@@ -45,46 +72,35 @@ export function StudentClassLibrary() {
     }
 
     function applyJoinClass(data: IClass) {
-        if (classes === null || classes === undefined) {
-            throw new Error('Cannot apply Join Class');
-        }
-        setClasses([...classes, data]);
-    }
-
-    async function handleJoinClick(code: string) {
-        try {
-            const data = await classService.joinClass(code);
-            applyJoinClass(data.data);
-            setIsJoinClassModalOpen(false);
-            setInvitationCode('');
-        } catch (err) {
-            toast({
-                title: 'Join Class failed, please try again!', // todo-ka: toast incorrect invitation code if it is
-                variant: 'destructive',
-            });
-        }
+        setClasses((prevClasses) => {
+            const currentClasses = prevClasses ?? [];
+            return [...currentClasses, data];
+        });
     }
 
     function applyLeaveClass(classId: number) {
-        if (classes === null || classes === undefined) return;
-        const classFiltered = classes.filter((e) => e.classId !== classId);
-        setClasses(classFiltered);
+        setClasses((prevClasses) => {
+            const currentClasses = prevClasses ?? [];
+            const classFiltered = currentClasses.filter((e) => e.classId !== classId);
+            return classFiltered;
+        });
+    }
+
+    async function handleJoinClick(code: string) {
+        await joinClassAsync(code);
     }
 
     async function handleLeaveClick(classId: number) {
-        try {
-            await classService.leaveClass(classId);
-            applyLeaveClass(classId);
-        } catch(err) {
-            toast({
-                title: 'Leave Class failed, please try again!', 
-                variant: 'destructive',
-            });
-        }
+        await leaveClassAsync(classId);
+    }
+
+    async function resetJoinClassState() {
+        setIsJoinClassModalOpen(false);
+        setInvitationCode('');
     }
 
     if (classesError) {
-        return <div>Something went wrong</div>;
+        return <div>Error: {classesError}</div>;
     }
     if (classesLoading || classes === null || classes === undefined) {
         return <LoadingPage />;
@@ -109,8 +125,7 @@ export function StudentClassLibrary() {
                     <Link className="mr-2 h-4 w-4" /> Join Class
                 </Button>
             </div>
-            <ClassesList
-                role='student'
+            <StudentClassList
                 classes={classes}
                 handleNameClick={handleClassNameClick}
                 handleLeaveClick={handleLeaveClick}
@@ -122,6 +137,7 @@ export function StudentClassLibrary() {
                 code={invitationCode}
                 setCode={setInvitationCode}
                 handleJoinClick={handleJoinClick}
+                loading={joinClassLoading}
             />
         </div>
     );

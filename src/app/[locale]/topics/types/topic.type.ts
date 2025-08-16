@@ -13,10 +13,16 @@ export interface ITopic {
     inputSetId?: number;
 }
 
-export type ICreateTopicBody = Pick<ITopic, 'name' | 'description'> & { inputSetId?: number };
+export type ICreateTopicBody = Pick<ITopic, 'name' | 'description'> & {
+    inputSetId?: number;
+    imageFile?: File | null;
+};
 export type ICreateTopicResponse = Pick<ITopic, 'topicId' | 'name' | 'description' | 'createdAt' | 'imageUrl'>;
-export type IUpdateTopicBody = Pick<ITopic, 'name' | 'description'>;
-export type IUpdateTopicResponse = Pick<ITopic, 'topicId' | 'name' | 'description'>;
+export type IUpdateTopicBody = Pick<ITopic, 'name' | 'description'> & { imageFile?: File | null };
+export type IUpdateTopicResponse = Pick<ITopic, 'topicId' | 'name' | 'description' | 'imageUrl'>;
 
-export type ICreateTopicForClassBody = Pick<ITopic, 'name' | 'description'> & { inputSetId?: number };
+export type ICreateTopicForClassBody = Pick<ITopic, 'name' | 'description'> & {
+    inputSetId?: number;
+    imageFile?: File | null;
+};
 export type ICreateTopicForClassResponse = ICreateTopicResponse;

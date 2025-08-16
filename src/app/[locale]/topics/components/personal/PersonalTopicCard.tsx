@@ -35,18 +35,19 @@ interface Props {
         topicId,
         name,
         description,
+        imageUrl,
     }: {
         topicId: number;
         name: string;
         description: string;
+        imageUrl?: string | null;
     }) => void;
     handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
 }
-const lastStudied = '1 day ago';
 
 export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal }: Props) {
     const router = useRouter();
-    const { topicId, name, description, imageUrl } = topic;
+    const { topicId, name, description, imageUrl, createdAt } = topic;
     const topicT = useTranslations('topic');
 
     function handleOnSelectEditFlashcard() {
@@ -58,10 +59,6 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
     }
 
     async function handleOnSelectLearning() {
-        const { hasProgress } = topic;
-        if (hasProgress != undefined && !hasProgress) {
-            await topicService.startLearningFlashcards(topicId);
-        }
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
@@ -144,7 +141,9 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                             </DropdownMenuSub>
 
                             {/* Topic itself */}
-                            <DropdownMenuItem onSelect={() => handleOpenUpdateModal({ topicId, name, description })}>
+                            <DropdownMenuItem
+                                onSelect={() => handleOpenUpdateModal({ topicId, name, description, imageUrl })}
+                            >
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>{topicT('edit')}</span>
                             </DropdownMenuItem>
@@ -173,7 +172,7 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                 <div className="flex flex-col text-xs text-foreground justify-between">
                     <div className="flex flex-row justify-between items-center text-[0.7rem]">
                         <div>
-                            Created At: <span className="font-bold">{format(topic.createdAt!, 'yyyy-MM-dd')}</span>
+                            Created At: <span className="font-bold">{format(createdAt, 'yyyy-MM-dd')}</span>
                         </div>
                         <div>
                             <span className="font-bold">{topic.flashcardsNew}</span> new flashcards

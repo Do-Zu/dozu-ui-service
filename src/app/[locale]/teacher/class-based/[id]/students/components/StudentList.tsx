@@ -11,7 +11,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { IStudentInClass } from '../../../types/class.type';
+import { IStudentInClass } from '../../../../../class-based/types/class.type';
 
 interface StudentListProps {
     students: IStudentInClass[];

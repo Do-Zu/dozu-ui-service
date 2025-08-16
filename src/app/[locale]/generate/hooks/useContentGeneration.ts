@@ -13,6 +13,7 @@ import { useCardImportDispatch } from './useReduxStore';
 import { ROUTES } from '@/utils/constants/routes';
 import { ClassPropsInGenerate } from '../components/GeneratePage';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/topic/topic.service';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
@@ -26,13 +27,9 @@ export interface UseContentGenerationReturn {
     //TODO: Extend this to handle other content types
     setDataGenerated: (data: TypeDataGenerated) => void;
     isContentReady: boolean;
-    topicName: string;
-    setTopicName: (name: string) => void;
-    topicDescription: string;
-    setTopicDescription: (description: string) => void;
     isTopicModalOpen: boolean;
     setIsTopicModalOpen: (open: boolean) => void;
-    handleOnClickSave: () => Promise<void>;
+    handleOnClickSave: (topic: ICreateTopicPayload) => Promise<void>;
 }
 
 export const useContentGeneration = ({
@@ -41,8 +38,6 @@ export const useContentGeneration = ({
     classProps = { mode: MODE_ACCESS_PAGE_ROLE.personal },
 }: UseContentGenerationProps): UseContentGenerationReturn => {
     const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
-    const [topicName, setTopicName] = useState<string>('');
-    const [topicDescription, setTopicDescription] = useState<string>('');
     const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
 
     const router = useRouter();
@@ -96,7 +91,7 @@ export const useContentGeneration = ({
         }
     };
 
-    const handleOnClickSave = async () => {
+    const handleOnClickSave = async (topic: ICreateTopicPayload) => {
         const contentData = dataGenerated;
 
         if (!contentData) {
@@ -111,17 +106,15 @@ export const useContentGeneration = ({
 
         if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
             result = await ContentCreationService.createContent({
-                topicName,
-                topicDescription,
+                topic,
                 contentType,
                 contentData,
             });
         } else if (classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased) {
             const { classId } = classProps;
+            const topicInClass: ICreateTopicForClassPayload = { ...topic, classId };
             result = await ContentCreationService.createContentForClass({
-                classId,
-                topicName,
-                topicDescription,
+                topic: topicInClass,
                 contentType,
                 contentData,
             });
@@ -165,10 +158,6 @@ export const useContentGeneration = ({
         dataGenerated,
         setDataGenerated,
         isContentReady,
-        topicName,
-        setTopicName,
-        topicDescription,
-        setTopicDescription,
         isTopicModalOpen,
         setIsTopicModalOpen,
         handleOnClickSave,
