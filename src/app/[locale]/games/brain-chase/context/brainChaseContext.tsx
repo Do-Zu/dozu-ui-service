@@ -10,6 +10,23 @@ import React, {
   useCallback,
 } from 'react';
 import useToggle from '@/hooks/useToggle';
+import useFetch from '@/hooks/useFetch';
+
+// Interface for flashcard from API
+interface IFlashcard {
+  flashcardId: number;
+  front: string;
+  back: string;
+  difficulty?: string;
+}
+
+// Interface for topic info
+interface ITopicInfo {
+  topicId: number;
+  name: string;
+  title?: string;
+  description?: string;
+}
 
 // Interface for questions
 export interface IQuestion {
@@ -86,6 +103,10 @@ interface BrainChaseContextType {
   score: number;
   errorsRemaining: number;
   showSettings: boolean;
+  isLoading: boolean;
+  loadError: any;
+  topicId?: string | null;
+  topicInfo?: ITopicInfo | null;
 
   // Current question data
   currentQuestion: string;
@@ -112,7 +133,7 @@ interface BrainChaseContextType {
 
 const BrainChaseContext = createContext<BrainChaseContextType | undefined>(undefined);
 
-export function BrainChaseProvider({ children }: { children: ReactNode }) {
+export function BrainChaseProvider({ children, topicId }: { children: ReactNode; topicId?: string | null }) {
   const [gameActive, setGameActive] = useState(false);
   const [gamePaused, togglePause] = useToggle(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -123,6 +144,72 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
 
   // Game settings with defaults
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS);
+
+  // Fetch flashcards if topicId is provided
+  const {
+    data: flashcards,
+    loading: flashcardsLoading,
+    error: flashcardsError,
+  } = useFetch<IFlashcard[]>(
+    topicId ? `/flashcards?topicId=${topicId}` : '',
+    { 
+      selector: (data: { flashcards: IFlashcard[] }) => data.flashcards
+    }
+  );
+
+  // Fetch topic info if topicId is provided
+  const {
+    data: topicInfo,
+    loading: topicLoading,
+    error: topicError,
+  } = useFetch<ITopicInfo>(
+    topicId ? `/topics/${topicId}` : '',
+    { 
+      selector: (data: any) => data.data || data
+    }
+  );
+
+  // Convert flashcards to game questions format
+  useEffect(() => {
+    if (flashcards && Array.isArray(flashcards) && flashcards.length > 0) {
+      const gameQuestions: IQuestion[] = flashcards.map((card: IFlashcard, index: number) => {
+        // Generate wrong answers from other flashcards
+        const wrongAnswers = flashcards
+          .filter((c: IFlashcard) => c.flashcardId !== card.flashcardId)
+          .map((c: IFlashcard) => c.back)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+
+        // Add some generic wrong answers if not enough
+        const genericAnswers = ['True', 'False', 'None of the above', 'All of the above'];
+        while (wrongAnswers.length < 3) {
+          const available = genericAnswers.filter(ga => !wrongAnswers.includes(ga) && ga !== card.back);
+          if (available.length > 0) {
+            wrongAnswers.push(available[0]);
+          } else {
+            wrongAnswers.push(`Option ${wrongAnswers.length + 1}`);
+          }
+        }
+
+        // Combine correct and wrong answers, then shuffle
+        const allAnswers = [card.back, ...wrongAnswers].sort(() => Math.random() - 0.5);
+        const correctAnswerIdx = allAnswers.indexOf(card.back);
+
+        return {
+          id: card.flashcardId,
+          question: card.front,
+          answers: allAnswers,
+          correctAnswerIdx,
+        };
+      });
+
+      setQuestions(gameQuestions);
+      console.log(`✅ Loaded ${gameQuestions.length} questions from flashcards for Brain Chase`);
+    } else if (!topicId) {
+      // Use sample questions if no topicId provided
+      setQuestions(sampleQuestions);
+    }
+  }, [flashcards, topicId]);
 
   //TODO : shuffled after get from db or setting is setting on
   useEffect(() => {
@@ -255,6 +342,10 @@ export function BrainChaseProvider({ children }: { children: ReactNode }) {
     score,
     errorsRemaining,
     showSettings,
+    isLoading: flashcardsLoading || topicLoading,
+    loadError: flashcardsError || topicError,
+    topicId,
+    topicInfo,
     currentQuestion,
     formattedAnswers,
     settings,

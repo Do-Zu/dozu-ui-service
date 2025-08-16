@@ -7,6 +7,7 @@ import QuestionArea from './components/QuestionArea';
 import Setting from './components/Setting';
 import { BrainChaseProvider, useBrainChase } from './context/brainChaseContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSearchParams } from 'next/navigation';
 
 function BrainChaseGame() {
   const {
@@ -21,7 +22,34 @@ function BrainChaseGame() {
     startGame,
     resetGame,
     handleShuffledQuestionGame,
+    isLoading,
+    loadError,
+    topicId,
+    topicInfo,
   } = useBrainChase();
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-muted/20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <h2 className="text-xl font-semibold mb-2">Loading Game</h2>
+        <p className="text-muted-foreground">Loading flashcards for Brain Chase...</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-muted/20">
+        <div className="text-destructive text-6xl mb-4"></div>
+        <h2 className="text-xl font-semibold mb-2 text-destructive">Error Loading Game</h2>
+        <p className="text-muted-foreground mb-4">Failed to load flashcards for this topic.</p>
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-[90%] bg-background">
@@ -31,10 +59,17 @@ function BrainChaseGame() {
           <GameArea />
         ) : (
           <div className="flex flex-col items-center justify-center h-full bg-muted/20">
-            <h1 className="text-4xl font-bold mb-4">Knowledge Game</h1>
+            <h1 className="text-4xl font-bold mb-4">
+              {topicId ? 'Flashcard Brain Chase' : 'Knowledge Game'}
+            </h1>
             <p className="text-xl mb-6">
               Select the correct answers as they float across the screen!
             </p>
+            {topicId && (
+              <p className="text-lg mb-4 text-muted-foreground">
+                Topic: {topicInfo?.name || topicInfo?.title || `ID: ${topicId}`}
+              </p>
+            )}
             <Button size="lg" onClick={startGame} className="flex items-center gap-2">
               <Play className="h-5 w-5" />
               Start Game
@@ -140,9 +175,12 @@ function BrainChaseGame() {
 }
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const topicId = searchParams.get('topicId');
+
   return (
     <div className="h-full w-full">
-      <BrainChaseProvider>
+      <BrainChaseProvider topicId={topicId}>
         <BrainChaseGame />
       </BrainChaseProvider>
     </div>
