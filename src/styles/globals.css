@@ -6,6 +6,7 @@
 @layer base {
 
   :root {
+    --font-sans    : "Geist", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
     --header-height: 10vh;
     --footer-height: 0vh;
     --main-height  : calc(100vh - var(--header-height) - var(--footer-height));
