@@ -4,7 +4,7 @@ import useFetch from '@/hooks/useFetch';
 import Flashcard from '../../components/Flashcard';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Gamepad2, Brain } from 'lucide-react';
 import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -289,6 +289,16 @@ export default function Page() {
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
+    function handleOnClickGame() {
+        router.push(ROUTES.FLASHCARDS_BRAIN_CHASE(topicId));
+    }
+
+    function handleOnClickMemoryMatch() {
+        router.push(ROUTES.FLASHCARDS_MEMORY_MATCH(topicId));
+    }
+    
+
+
     if (flashcardsError) {
         return <div>Error: { flashcardsError }</div>;
     }
@@ -333,7 +343,7 @@ export default function Page() {
 
     function renderLearningSection() {
         return (
-            <div className="flex flex-row">
+            <div className="flex flex-row gap-2">
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -344,6 +354,34 @@ export default function Page() {
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>Learn Flashcards</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickGame}>
+                                <Gamepad2 className="h-4 w-4 mr-1" />
+                                <span className="text-sm text-muted-foreground">Brain Chase</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Play Brain Chase Game</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickMemoryMatch}>
+                                <Brain className="h-4 w-4 mr-1" />
+                                <span className="text-sm text-muted-foreground">Memory</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Play Memory Match Game</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>

@@ -40,6 +40,11 @@ export const ROUTES = Object.freeze({
     QUIZ_START: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     QUIZ_EDIT: (topicId: string | number) => `/question/edit/${topicId}`,
 
+
+    // ======================= GAMES ========================
+    FLASHCARDS_BRAIN_CHASE: (topicId: string | number) => `/games/brain-chase?topicId=${topicId}`,
+    FLASHCARDS_MEMORY_MATCH: (topicId: string | number) => `/games/memory-match?topicId=${topicId}`,
+
     // ======================= TEACHER ROUTES ========================
 
     TEACHER: {
@@ -49,6 +54,7 @@ export const ROUTES = Object.freeze({
         CLASS_BASED_ID_GENERATE: (classId: string | number) => `/teacher/class-based/${classId}/generate`,
         CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
     }
+
 });
 
 // Route groups for easier management
