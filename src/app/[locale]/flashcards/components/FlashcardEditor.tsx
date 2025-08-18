@@ -21,6 +21,8 @@ import usePost from '@/hooks/usePost';
 import { any } from 'zod';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
+import FlashcardImportModal from './import/FlashcardImportModal';
+import { IFlashcardPreview } from './import/FlashcardPreview';
 
 interface IFlashcard {
     id: number;
@@ -191,6 +193,7 @@ const FlashcardEditor = ({
 }: Props) => {
     const t = useTranslations('flashcard.edit');
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
+    const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
 
     const { loading: apiLoading, execute } = usePost<
         { topicId: string | number; flashcards: IFlashcardsBatchInput },
@@ -295,6 +298,30 @@ const FlashcardEditor = ({
         setFlashcards(newFlashcards);
     }
 
+    function handleAddFlashcardsImported(flashcardsImported: IFlashcardPreview[]) {
+        const newFlashcards = [...flashcards];
+        let firstIndex = newFlashcards.length - 1;
+        for (; firstIndex >= 0; --firstIndex) {
+            if (newFlashcards[firstIndex].front === '' && newFlashcards[firstIndex].back === '') {
+                newFlashcards.pop();
+            } else {
+                break;
+            }
+        }
+        const lastId = newFlashcards.length === 0 ? -1 : newFlashcards[newFlashcards.length - 1].id;
+        let startId = lastId + 1;
+        for (const card of flashcardsImported) {
+            const { front, back } = card;
+            newFlashcards.push({ id: startId, front, back });
+            ++startId;
+        }
+        for (let i = newFlashcards.length; i % 3 !== 0; ++i) {
+            newFlashcards.push(createInitialFlashcard(++startId));
+        }
+        setFlashcards(newFlashcards);
+        setIsImportModalOpen(false);
+    }
+
     async function handleSaveClick() {
         const flashcardsSubmitted = handleConvertToFlashcardsSubmitted(flashcards);
         if (!topic || !flashcardsSubmitted) {
@@ -311,6 +338,12 @@ const FlashcardEditor = ({
         });
     }
 
+    function handleImportModalOpen() {
+        setTimeout(() => {
+            setIsImportModalOpen(true);
+        }, 50);
+    }
+
     if (!flashcards) {
         return <div>No Flashcards found</div>;
     }
@@ -325,7 +358,7 @@ const FlashcardEditor = ({
                     </div>
                 </div>
                 <div className="flex flex-row gap-4">
-                    <Button className="flex flex-row items-center">
+                    <Button className="flex flex-row items-center" onClick={handleImportModalOpen}>
                         <Import size={24} />
                         <div className="text-base">{t('import')}</div>
                     </Button>
@@ -387,6 +420,12 @@ const FlashcardEditor = ({
                     <Button onClick={handleAddFlashcardsCount}>+ {t('addCards')}</Button>
                 </div>
             </div>
+
+            <FlashcardImportModal
+                isOpen={isImportModalOpen}
+                setIsOpen={setIsImportModalOpen}
+                onSubmit={handleAddFlashcardsImported}
+            />
         </div>
     );
 };
