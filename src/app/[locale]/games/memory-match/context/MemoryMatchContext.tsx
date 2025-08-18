@@ -216,9 +216,16 @@ export function MemoryMatchProvider({
     loading: flashcardsLoading,
     error: flashcardsError,
   } = useFetch<IFlashcard[]>(
-    topicId ? `/flashcards?topicId=${topicId}` : '',
+    topicId ? `/topics/${topicId}/flashcards` : '',
     { 
-      selector: (data: { flashcards: IFlashcard[] }) => data.flashcards
+      selector: (data: any) => {
+        // API returns array directly when includeTopic=false
+        // or object with flashcards property when includeTopic=true
+        if (Array.isArray(data)) {
+          return data;
+        }
+        return data.flashcards || data.data || [];
+      }
     }
   );
 

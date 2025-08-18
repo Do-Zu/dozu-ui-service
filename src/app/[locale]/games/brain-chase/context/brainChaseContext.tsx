@@ -151,9 +151,16 @@ export function BrainChaseProvider({ children, topicId }: { children: ReactNode;
     loading: flashcardsLoading,
     error: flashcardsError,
   } = useFetch<IFlashcard[]>(
-    topicId ? `/flashcards?topicId=${topicId}` : '',
+    topicId ? `/topics/${topicId}/flashcards` : '',
     { 
-      selector: (data: { flashcards: IFlashcard[] }) => data.flashcards
+      selector: (data: any) => {
+        // API returns array directly when includeTopic=false
+        // or object with flashcards property when includeTopic=true
+        if (Array.isArray(data)) {
+          return data;
+        }
+        return data.flashcards || data.data || [];
+      }
     }
   );
 
@@ -204,7 +211,6 @@ export function BrainChaseProvider({ children, topicId }: { children: ReactNode;
       });
 
       setQuestions(gameQuestions);
-      console.log(`✅ Loaded ${gameQuestions.length} questions from flashcards for Brain Chase`);
     } else if (!topicId) {
       // Use sample questions if no topicId provided
       setQuestions(sampleQuestions);
