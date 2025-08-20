@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import { Provider as ReduxProvider } from 'react-redux';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
@@ -11,6 +12,12 @@ import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/core/ErrorBoundary';
 import UpgradePlanModal from '@/components/upgrade-plan/UpgradePlanModal';
 import '../styles/globals.css';
+
+const inter = Inter({
+    subsets: ['latin', 'vietnamese'],
+    variable: '--font-primary',
+    display: 'swap',
+});
 
 const geist = localFont({
     src: [
@@ -60,14 +67,14 @@ const geist = localFont({
             style: 'normal',
         },
     ],
-    variable: '--font-sans',
+    variable: '--font-geist',
     display: 'swap',
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const storeRef = useRef(store);
     return (
-        <html lang="en" suppressHydrationWarning className={geist.variable}>
+        <html lang="en" suppressHydrationWarning className={`${inter.variable} ${geist.variable}`}>
             <body className="font-sans">
                 <ReduxProvider store={storeRef.current}>
                     <ErrorBoundary>
