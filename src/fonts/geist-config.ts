@@ -1,9 +1,6 @@
-// Alternative font configuration using static Geist fonts
-// You can use this instead of the variable font if you prefer
-
 import localFont from 'next/font/local';
 
-export const geistStatic = localFont({
+const geistStatic = localFont({
     src: [
         {
             path: '../fonts/static/Geist-Thin.ttf',
@@ -54,3 +51,5 @@ export const geistStatic = localFont({
     variable: '--font-sans',
     display: 'swap',
 });
+
+export default geistStatic;
