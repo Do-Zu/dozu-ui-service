@@ -2,6 +2,7 @@ import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ICreateClassPayload } from '@/services/class-based-learning/teacher/teacherClass.service';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ChangeEvent, useEffect, useState } from 'react';
 
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export function CreateClassModal({ isOpen, setIsOpen, onSubmit, loading }: Props) {
+    const tCommon = useTranslations('common');
+    const tClass = useTranslations('class');
     const [name, setName] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -59,16 +62,16 @@ export function CreateClassModal({ isOpen, setIsOpen, onSubmit, loading }: Props
         <Modal
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            title="Create New Class"
+            title={tCommon('titles.createNew', { name: tClass('class') })}
             body={
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <div className="text-primary text-base font-normal">Name</div>
+                        <div className="text-primary text-base font-normal">{tCommon('labels.name')}</div>
                         <Input value={name} onChange={handleNameChange} />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <div className="text-primary text-base font-normal">Description</div>
+                        <div className="text-primary text-base font-normal">{tCommon('labels.description')}</div>
                         <Input value={description} onChange={handleDescriptionChange} />
                     </div>
 
@@ -79,7 +82,7 @@ export function CreateClassModal({ isOpen, setIsOpen, onSubmit, loading }: Props
 
                     <div>
                         <Button className="text-base" onClick={handleSubmit} disabled={loading}>
-                            {loading ? 'Saving...' : 'Create'}
+                            {loading ? tCommon('status.saving') : tCommon('actions.create')}
                         </Button>
                     </div>
                 </div>

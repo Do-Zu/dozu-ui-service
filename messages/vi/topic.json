@@ -1,25 +1,9 @@
 {
     "topic": {
         "topic": "Chủ đề",
-        "createdForm": {
-            "title": "Tạo mới chủ đề",
-            "createButton": "Tạo mới"
-        },
-        "updatedForm": {
-            "title": "Thay đổi chủ đề",
-            "updateButton": "Cập nhật"
-        },
-        "deletedForm": {
-            "title": "Xóa chủ đề {name}",
-            "description": "Hành động này sẽ xóa mọi vật phẩm có trong topic này. Vẫn xóa?",
-            "deleteButton": "Xóa"
-        },
-        "edit": "Chỉnh sửa",
-        "delete": "Xóa",
         "browse": "Lướt",
         "learning": "Học tập",
-        "name": "Tên",
-        "description": "Mô tả",
-        "blankNameAlert": "Tên không thể trống"
+        "start-quiz": "Làm Quiz",
+        "deleteConfirmation": "Bạn có chắc muốn xóa chủ đề {name} không? Tất cả dữ liệu trong topic này sẽ bị xóa theo."
     }
 }

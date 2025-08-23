@@ -16,8 +16,12 @@ import { ROUTES } from '@/utils/constants/routes';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { TeacherClassList } from './TeacherClassList';
+import { useTranslations } from 'next-intl';
 
 export function TeacherClassLibrary() {
+    const tCommon = useTranslations('common');
+    const tClass = useTranslations('class');
+    const classLabel = tClass('class');
     const router = useRouter();
 
     // create class
@@ -45,7 +49,7 @@ export function TeacherClassLibrary() {
     >(teacherClassService.createClass, 'POST', {
         onError: toastHelper.showErrorMessage,
         onSuccess: (data) => {
-            toastHelper.showSuccessMessage('Create class successfully');
+            toastHelper.showSuccessMessage(tCommon('messages.createSuccess', { name: classLabel }));
             applyCreateClass(data);
             setIsCreateClassModalOpen(false);
         },
@@ -57,7 +61,7 @@ export function TeacherClassLibrary() {
     >(teacherClassService.updateClass, 'PUT', {
         onError: toastHelper.showErrorMessage,
         onSuccess: (data) => {
-            toastHelper.showSuccessMessage('Update class successfully');
+            toastHelper.showSuccessMessage(tCommon('messages.updateSuccess', { name: classLabel }));
             applyUpdateClass(data);
             setIsUpdateClassModalOpen(false);
         },
@@ -85,7 +89,7 @@ export function TeacherClassLibrary() {
     async function handleCreateClick(myClass: ICreateClassPayload) {
         if (!myClass.name) {
             toast({
-                title: 'Class Name must be provided',
+                title: tCommon('validation.required', { name: tCommon('labels.name') }),
                 variant: 'destructive',
             });
             return;
@@ -96,7 +100,7 @@ export function TeacherClassLibrary() {
     async function handleUpdateClick(myClass: IUpdateClassPayload) {
         if (!myClass.name) {
             toast({
-                title: 'Class Name must be provided',
+                title: tCommon('validation.required', { name: tCommon('labels.name') }),
                 variant: 'destructive',
             });
             return;
@@ -143,11 +147,11 @@ export function TeacherClassLibrary() {
                 <div className="flex flex-col gap-2">
                     <div className="flex flex-row gap-2 items-center">
                         <School />
-                        <h2 className="text-2xl font-semibold">My Classes</h2>
+                        <h2 className="text-2xl font-semibold">{tClass('myClasses')}</h2>
                     </div>
                 </div>
                 <Button className="bg-background text-foreground" onClick={() => setIsCreateClassModalOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" /> Create New Class
+                    <Plus className="mr-2 h-4 w-4" /> {tCommon('titles.createNew', { name: classLabel })}
                 </Button>
             </div>
 

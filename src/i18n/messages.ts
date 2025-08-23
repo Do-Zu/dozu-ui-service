@@ -26,6 +26,7 @@ export async function getMessages(locale: string) {
         ...(await import(`../../messages/${locale}/progress.json`)).default,
         ...(await import(`../../messages/${locale}/generate.json`)).default,
         ...(await import(`../../messages/${locale}/schedule.json`)).default,
+        ...(await import(`../../messages/${locale}/class-based/class.json`)).default,
     };
 
     // You can dynamically load additional message files based on routes/features

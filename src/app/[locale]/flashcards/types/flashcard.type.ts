@@ -6,6 +6,7 @@ export interface IFlashcard {
     nodeId?: string | null;
     front: string;
     back: string;
+    imageUrl?: string | null;
     createdAt: Date;
     learningState?: IFlashcardLearningState;
 
@@ -27,7 +28,7 @@ export interface IQualityResponseNextReviewInterval {
     nextReviewInterval: number;
 }
 
-export type IFlashcardCreateInput = Pick<IFlashcard, 'front' | 'back'>;
+export type IFlashcardCreateInput = Pick<IFlashcard, 'front' | 'back'> & { image?: IImageSaveInput | null };
 export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'>;
 
 export type IFlashcardsBatchInput = {
@@ -40,3 +41,14 @@ export type IFlashcardsForNodeBatchInput = {
     nodeId: string;
     flashcards: IFlashcardsBatchInput;
 };
+
+export type IFlashcardBatchResult = {
+    flashcardsAdded: IFlashcard[];
+    flashcardsUpdated: IFlashcard[];
+};
+
+export interface IImageSaveInput {
+    id: string;
+    url: string;
+    downloadLocation: string;
+}

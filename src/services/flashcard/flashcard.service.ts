@@ -1,10 +1,13 @@
 import { getRequest, patchRequest, postRequest } from '@/api/api';
+import { IUnspashImage } from '@/app/[locale]/flashcards/components/ImagesPreview';
 import { IFlashcardWithReviewPrediction } from '@/app/[locale]/flashcards/learning/[topicId]/page';
 import {
     IFlashcard,
+    IImageSaveInput,
     IFlashcardsBatchInput,
     IFlashcardsForNodeBatchInput,
     IFlashcardsWithTopicName,
+    IFlashcardBatchResult,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { flashcardRoutes } from '@/utils/constants/api.routes';
@@ -53,8 +56,8 @@ class FlashcardService {
     }: {
         topicId: string | number;
         flashcards: IFlashcardsBatchInput;
-    }) {
-        const response = await postRequest<IFlashcardsBatchInput, {}>(
+    }): Promise<IFlashcardBatchResult> {
+        const response = await postRequest<IFlashcardsBatchInput, IFlashcardBatchResult>(
             flashcardRoutes(topicId).BATCH_FLASHCARDS,
             flashcards,
         );
@@ -91,6 +94,16 @@ class FlashcardService {
             flashcardRoutes(topicId).REVIEW_FLASHCARD_WITH_QUALITY({ flashcardId }),
             { qualityResponse },
         );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async searchImages(search: string): Promise<IUnspashImage[]> {
+        const response = await postRequest<{ search: string }, IUnspashImage[]>('/flashcards/search-images', {
+            search,
+        });
         if (response.status !== 'success') {
             throw new Error(response.message);
         }

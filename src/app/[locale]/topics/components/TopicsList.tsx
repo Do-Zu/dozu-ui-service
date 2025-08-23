@@ -6,25 +6,31 @@ import { ClassTopicCard } from './class-based/ClassTopicCard';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import React from 'react';
 
-type Props =
-    | {
-          type: MODE_ACCESS_PAGE_ROLE.personal;
-          topics: ITopic[];
-          handleOpenUpdateModal: ({
-              topicId,
-              name,
-              description,
-          }: {
-              topicId: number;
-              name: string;
-              description: string;
-          }) => void;
-          handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
-      }
-    | {
-          type: MODE_ACCESS_PAGE_ROLE.classBased;
-          topics: ITopic[];
-      };
+interface BaseProps {
+    type: MODE_ACCESS_PAGE_ROLE;
+    topics: ITopic[];
+    handleNameClick: (topic: ITopic) => void;
+}
+
+interface PersonalProps extends BaseProps {
+    type: MODE_ACCESS_PAGE_ROLE.personal;
+    handleOpenUpdateModal: ({
+        topicId,
+        name,
+        description,
+    }: {
+        topicId: number;
+        name: string;
+        description: string;
+    }) => void;
+    handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
+}
+
+interface ClassBasedProps extends BaseProps {
+    type: MODE_ACCESS_PAGE_ROLE.classBased;
+}
+
+type Props = PersonalProps | ClassBasedProps;
 
 const TopicsList = React.memo(
     (props: Props) => {
@@ -39,12 +45,10 @@ const TopicsList = React.memo(
                             topic={topic}
                             handleOpenUpdateModal={props.handleOpenUpdateModal}
                             handleOpenDeleteModal={props.handleOpenDeleteModal}
+                            handleNameClick={props.handleNameClick}
                         />
                     ) : (
-                        <ClassTopicCard
-                            key={topicId}
-                            topic={topic}
-                        />
+                        <ClassTopicCard key={topicId} topic={topic} handleNameClick={props.handleNameClick} />
                     );
                 })}
             </div>

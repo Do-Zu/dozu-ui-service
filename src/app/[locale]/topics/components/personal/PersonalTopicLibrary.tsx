@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
+import TopicDetailsModal, { ITopicDetails } from '../TopicDetailsModal';
 
 type TopicFilteringAction =
     | 'newest'
@@ -29,6 +30,9 @@ type TopicFilteringAction =
 
 const PersonalTopicLibrary = () => {
     const t = useTranslations('home.contentLibrary');
+    const tCommon = useTranslations('common');
+    const tTopic = useTranslations('topic');
+    const topicLabel = tTopic('topic');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
@@ -38,6 +42,10 @@ const PersonalTopicLibrary = () => {
 
     const [updatingTopic, setUpdatingTopic] = useState<IUpdatingTopic | null>();
     const [deletingTopic, setDeletingTopic] = useState<IDeletingTopic | null>();
+
+    // topic details
+    const [isTopicDetailsModalOpen, setIsTopicDetailsModalOpen] = useState<boolean>(false);
+    const [selectingTopic, setSelectingTopic] = useState<ITopicDetails | null>();
 
     const {
         data: topics,
@@ -54,7 +62,7 @@ const PersonalTopicLibrary = () => {
     >(topicService.createTopic, 'POST', {
         onError: toastHelper.showErrorMessage,
         onSuccess: (data: ICreateTopicResponse) => {
-            toastHelper.showSuccessMessage('Create topic successfully');
+            toastHelper.showSuccessMessage(tCommon('messages.createSuccess', { name: topicLabel }));
             applyCreateTopic(data);
             setIsCreateTopicModalOpen(false);
         },
@@ -66,7 +74,7 @@ const PersonalTopicLibrary = () => {
     >(topicService.updateTopic, 'PUT', {
         onError: toastHelper.showErrorMessage,
         onSuccess: (data) => {
-            toastHelper.showSuccessMessage('Update topic successfully');
+            toastHelper.showSuccessMessage(tCommon('messages.updateSuccess', { name: topicLabel }));
             applyUpdateTopic(data);
             setIsUpdateTopicModalOpen(false);
         },
@@ -78,7 +86,7 @@ const PersonalTopicLibrary = () => {
         {
             onError: toastHelper.showErrorMessage,
             onSuccess: (data) => {
-                toastHelper.showSuccessMessage('Delete topic successfully');
+                toastHelper.showSuccessMessage(tCommon('messages.deleteSuccess', { name: topicLabel }));
                 applyDeleteTopic(data);
                 setIsDeleteTopicModalOpen(false);
             },
@@ -110,6 +118,18 @@ const PersonalTopicLibrary = () => {
         setTopicsFiltered(topicsFiltered);
     }, [topics, sortBy]);
 
+    useEffect(() => {
+        if(!isUpdateTopicModalOpen) {
+            setUpdatingTopic(null);
+        }
+        if(!isDeleteTopicModalOpen) {
+            setDeletingTopic(null);
+        }
+        if(!isTopicDetailsModalOpen) {
+            setSelectingTopic(null);
+        }
+    }, [isUpdateTopicModalOpen, isDeleteTopicModalOpen, isTopicDetailsModalOpen]);
+
     const handleRenderTopicsSection = () => {
         if (topicsError) {
             return <div>Error: {topicsError} </div>;
@@ -127,6 +147,7 @@ const PersonalTopicLibrary = () => {
                 topics={topicsFiltered}
                 handleOpenUpdateModal={handleOpenUpdateModal}
                 handleOpenDeleteModal={handleOpenDeleteModal}
+                handleNameClick={handleNameClick}
             />
         );
     };
@@ -188,10 +209,7 @@ const PersonalTopicLibrary = () => {
 
     async function handleCreateClick(topic: ICreateTopicPayload) {
         if (!topic.name) {
-            toast({
-                title: 'Topic Name must be provided',
-                variant: 'destructive',
-            });
+            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.name') }));
             return;
         }
         await createTopicAsync(topic);
@@ -199,10 +217,7 @@ const PersonalTopicLibrary = () => {
 
     async function handleUpdateClick(topic: IUpdateTopicPayload) {
         if (!topic.name) {
-            toast({
-                title: 'Topic Name must be provided',
-                variant: 'destructive',
-            });
+            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.name') }));
             return;
         }
         await updateTopicAsync(topic);
@@ -210,6 +225,17 @@ const PersonalTopicLibrary = () => {
 
     async function handleDeleteClick(topicId: number) {
         await deleteTopicAsync(topicId);
+    }
+
+    function handleNameClick(topic: ITopic) {
+        const selectingTopic: ITopicDetails = {
+            ...topic,
+            numbers: { flashcards: topic.flashcardsCount ? topic.flashcardsCount : 0, nodes: 0, quizzes: 0 },
+        };
+        setSelectingTopic(selectingTopic);
+        setTimeout(() => {
+            setIsTopicDetailsModalOpen(true);
+        }, 50);
     }
 
     return (
@@ -285,6 +311,12 @@ const PersonalTopicLibrary = () => {
                 topic={deletingTopic}
                 handleDeleteClick={handleDeleteClick}
                 loading={deleteTopicLoading}
+            />
+
+            <TopicDetailsModal
+                isOpen={isTopicDetailsModalOpen}
+                setIsOpen={setIsTopicDetailsModalOpen}
+                topic={selectingTopic}
             />
         </div>
     );

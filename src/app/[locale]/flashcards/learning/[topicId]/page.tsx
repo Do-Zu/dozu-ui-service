@@ -5,7 +5,7 @@ import useFetch from '@/hooks/useFetch';
 import { putRequest } from '@/api/api';
 import LoadingPage from '@/app/loading';
 import { FlashcardLearning } from '../components/FlashcardLearning';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
 import { IFlashcard, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
@@ -13,8 +13,13 @@ import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import flashcardService, { IFlashcardReviewPayload } from '@/services/flashcard/flashcard.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
+import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
-export type IFlashcardWithReviewPrediction = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'topicName'> & {
+export type IFlashcardWithReviewPrediction = Pick<
+    IFlashcard,
+    'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName'
+> & {
     qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
 };
 
@@ -22,6 +27,9 @@ export default function Page() {
     const params = useParams();
     if (!params?.topicId) return <div>No topic id is provided</div>;
 
+    const router = useRouter();
+    const tCommon = useTranslations('common');
+    const tFlashcardLearning = useTranslations('flashcard.learning');
     const { topicId } = params as { topicId: string };
 
     // Learning tracking integration
@@ -158,6 +166,10 @@ export default function Page() {
         }
     }
 
+    function handleBackClick() {
+        router.back();
+    }
+
     if (flashcardsError) {
         return <div>Error: {flashcardsError}</div>;
     }
@@ -180,17 +192,15 @@ export default function Page() {
                             />
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-semibold text-black">Great job! 🎉</h2>
-                    <p className="text-gray-700 max-w-md">
-                        You've completed all the flashcards for this topic. There's nothing more to learn right now.
-                    </p>
+                    <h2 className="text-2xl font-semibold text-black">{tFlashcardLearning('greatJob')}</h2>
+                    <p className="text-gray-700 max-w-md">{tFlashcardLearning('flashcardsCompleted')}</p>
                     <div className="pt-4">
-                        <button
-                            onClick={() => window.history.back()}
+                        <Button
+                            onClick={handleBackClick}
                             className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors border border-gray-300"
                         >
                             Go Back
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

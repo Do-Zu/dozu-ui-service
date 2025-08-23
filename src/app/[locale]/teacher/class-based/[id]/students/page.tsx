@@ -12,6 +12,7 @@ import teacherClassService, {
 } from '@/services/class-based-learning/teacher/teacherClass.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
 
 export default function Page() {
     let { id: classId } = useParams() as { id: string | string[] | number };
@@ -26,6 +27,9 @@ export default function Page() {
         return <div>Invalid Params, classId must be a valid number</div>;
     }
 
+    const tCommon = useTranslations('common');
+    const tClass = useTranslations('class');
+    const tStudentList = useTranslations('class.studentList');
     const {
         data: myClass,
         error: myClassError,
@@ -45,7 +49,7 @@ export default function Page() {
     >(teacherClassService.removeStudentFromClass, 'DELETE', {
         onError: toastHelper.showErrorMessage,
         onSuccess: (data) => {
-            toastHelper.showSuccessMessage('Remove student successfully');
+            toastHelper.showSuccessMessage(tStudentList('removeSuccess'));
             applyRemoveStudent(data);
         },
     });
@@ -86,13 +90,17 @@ export default function Page() {
                     <div className="flex flex-row gap-2 items-center">
                         <div className="flex flex-row gap-4 items-center">
                             <School />
-                            <h2 className="text-2xl font-semibold">Class {myClass.name}</h2>
+                            <h2 className="text-2xl font-semibold">
+                                {tClass('classWithName', { name: myClass.name })}
+                            </h2>
                         </div>
                     </div>
                     <div className="text-muted-foreground">
-                        {myClass.description ? myClass.description : 'No Description'}
+                        {myClass.description ? myClass.description : tCommon('labels.noDescription')}
                     </div>
-                    <div className="text-sm">Invitation Code: {myClass.invitationCode}</div>
+                    <div className="text-sm">
+                        {tClass('invitationCode')}: {myClass.invitationCode}
+                    </div>
                 </div>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">

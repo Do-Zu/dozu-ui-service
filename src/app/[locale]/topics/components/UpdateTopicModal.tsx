@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { ITopic } from '../types/topic.type';
 import { IUpdateTopicPayload } from '@/services/topic/topic.service';
+import { useTranslations } from 'next-intl';
 
 export type IUpdatingTopic = Pick<ITopic, 'topicId' | 'name' | 'description' | 'imageUrl'>;
 
@@ -20,6 +21,8 @@ export function UpdateTopicModal({ isOpen, setIsOpen, topic, onSubmit, loading }
     if (!topic) {
         return null;
     }
+    const tCommon = useTranslations('common');
+    const tTopic = useTranslations('topic');
     const { topicId, name: nameSelected, description: descriptionSelected, imageUrl: imageUrlSelected } = topic;
 
     const [name, setName] = useState<string>('');
@@ -73,16 +76,16 @@ export function UpdateTopicModal({ isOpen, setIsOpen, topic, onSubmit, loading }
         <Modal
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            title="Update Topic"
+            title={tCommon('titles.updateItem', { name: tTopic('topic') })}
             body={
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <div className="text-primary text-base font-normal">Name</div>
+                        <div className="text-primary text-base font-normal">{tCommon('labels.name')}</div>
                         <Input value={name} onChange={handleNameChange} />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <div className="text-primary text-base font-normal">Description</div>
+                        <div className="text-primary text-base font-normal">{tCommon('labels.description')}</div>
                         <Input value={description} onChange={handleDescriptionChange} />
                     </div>
 
@@ -96,7 +99,7 @@ export function UpdateTopicModal({ isOpen, setIsOpen, topic, onSubmit, loading }
 
                     <div>
                         <Button className="text-base" onClick={handleSubmit} disabled={loading}>
-                            {loading ? 'Saving...' : 'Update'}
+                            {loading ? tCommon('status.saving') : tCommon('actions.update')}
                         </Button>
                     </div>
                 </div>
