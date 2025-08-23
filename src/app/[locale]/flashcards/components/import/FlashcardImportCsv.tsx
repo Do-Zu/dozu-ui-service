@@ -5,6 +5,7 @@ import toastHelper from '@/utils/toast.helper';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import FlashcardsPreview from './FlashcardPreview';
+import { useTranslations } from 'next-intl';
 
 export default function FlashcardImportCsv({
     flashcards,
@@ -15,6 +16,8 @@ export default function FlashcardImportCsv({
     setFlashcards: (data: IFlashcardPreview[]) => void;
     onSubmit: (flashcards: IFlashcardPreview[]) => void;
 }) {
+    const tCommon = useTranslations('common');
+    const tImportCsv = useTranslations('flashcard.import.importCsv');
     function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
@@ -47,7 +50,7 @@ export default function FlashcardImportCsv({
 
     function handleSubmit() {
         onSubmit(flashcards);
-        toastHelper.showSuccessMessage('Add Flashcards from CSV successfully');
+        toastHelper.showSuccessMessage(tImportCsv('importSuccess'));
     }
 
     return (
@@ -62,7 +65,7 @@ export default function FlashcardImportCsv({
             </div>
 
             <div>
-                <Button onClick={handleSubmit}>Save</Button>
+                <Button onClick={handleSubmit}>{tCommon('actions.save')}</Button>
             </div>
         </div>
     );

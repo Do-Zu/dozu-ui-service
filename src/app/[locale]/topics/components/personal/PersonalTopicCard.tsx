@@ -43,12 +43,14 @@ interface Props {
         imageUrl?: string | null;
     }) => void;
     handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
+    handleNameClick: (topic: ITopic) => void;
 }
 
-export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal }: Props) {
+export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal, handleNameClick }: Props) {
     const router = useRouter();
-    const { topicId, name, description, imageUrl, createdAt } = topic;
-    const topicT = useTranslations('topic');
+    const { topicId, name, description, imageUrl } = topic;
+    const tCommon = useTranslations('common');
+    const tTopic = useTranslations('topic');
 
     function handleOnSelectEditFlashcard() {
         router.push(ROUTES.FLASHCARDS_EDIT(topicId));
@@ -78,7 +80,12 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-medium truncate">{name}</CardTitle>
+                    <CardTitle
+                        className="text-lg font-medium truncate hover:underline hover:text-blue-400 transition"
+                        onClick={() => handleNameClick(topic)}
+                    >
+                        {name}
+                    </CardTitle>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
@@ -95,15 +102,15 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnSelectEditFlashcard}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
+                                        <span>{tCommon('actions.edit')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={handleOnSelectBrowse}>
                                         <BookOpen className="mr-2 h-4 w-4" />
-                                        <span>{topicT('browse')}</span>
+                                        <span>{tTopic('browse')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={handleOnSelectLearning}>
                                         <GraduationCap className="mr-2 h-4 w-4" />
-                                        <span>{topicT('learning')}</span>
+                                        <span>{tTopic('learning')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -117,7 +124,7 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnClickMindmap}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
+                                        <span>{tCommon('actions.edit')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -131,11 +138,11 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnClickStartQuiz}>
                                         <Play className="mr-2 h-4 w-4" />
-                                        <span>{topicT('start-quiz')}</span>
+                                        <span>{tTopic('start-quiz')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={handleOnClickEditQuestion}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
+                                        <span>{tCommon('actions.edit')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -145,12 +152,12 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                                 onSelect={() => handleOpenUpdateModal({ topicId, name, description, imageUrl })}
                             >
                                 <Edit className="mr-2 h-4 w-4" />
-                                <span>{topicT('edit')}</span>
+                                <span>{tCommon('actions.edit')}</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem onSelect={() => handleOpenDeleteModal({ topicId, name })}>
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                <span>{topicT('delete')}</span>
+                                <span>{tCommon('actions.delete')}</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -172,15 +179,8 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                 <div className="flex flex-col text-xs text-foreground justify-between">
                     <div className="flex flex-row justify-between items-center text-[0.7rem]">
                         <div>
-                            Created At: <span className="font-bold">{format(createdAt, 'yyyy-MM-dd')}</span>
-                        </div>
-                        <div>
                             <span className="font-bold">{topic.flashcardsNew}</span> new flashcards
                         </div>
-                    </div>
-
-                    <div className="flex flex-row justify-between items-center text-[0.7rem]">
-                        <div>{/* Last studied: <span className="font-bold">{lastStudied}</span> */}</div>
                         <div>
                             <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
                         </div>

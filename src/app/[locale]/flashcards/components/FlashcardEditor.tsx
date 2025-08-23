@@ -4,13 +4,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { Edit, Import, Save, Trash2 } from 'lucide-react';
+import { Edit, ImagePlus, Import, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
+    IFlashcardBatchResult,
     IFlashcardCreateInput,
     IFlashcardsBatchInput,
     IFlashcardsWithTopicName,
     IFlashcardUpdateInput,
+    IImageSaveInput,
 } from '../types/flashcard.type';
 import { IFlashcardsFromSSE, IGenerateFlashcardItem } from '../../generate/types';
 import BackButton from './BackButton';
@@ -23,11 +25,16 @@ import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import FlashcardImportModal from './import/FlashcardImportModal';
 import { IFlashcardPreview } from './import/FlashcardPreview';
+import ImagesPreviewModal, { IUnspashImage } from './ImagesPreview';
+import { IFlashcard as IFlashcardType } from '../types/flashcard.type';
 
 interface IFlashcard {
     id: number;
     front: string;
     back: string;
+    imageUrl?: string | null; // current imageUrl
+    thumb?: string; // thumb url for displaying image temporarily if user don't save
+    image?: IImageSaveInput; // image to save later
 }
 
 interface IFlashcardServer {
@@ -82,22 +89,33 @@ export function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithSer
     let flashcardsFilter;
 
     flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-        return !flashcard.serverInfo && (flashcard.front !== '' || flashcard.back !== '');
+        return (
+            !flashcard.serverInfo &&
+            (flashcard.front !== '' ||
+                flashcard.back !== '' ||
+                (flashcard.image !== null && flashcard.image !== undefined))
+        );
     });
     flashcardsAdded = flashcardsFilter.map((flashcard) => ({
         front: flashcard.front,
         back: flashcard.back,
+        image: flashcard.image ? flashcard.image : undefined,
     }));
 
     flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
         return (
-            flashcard.serverInfo && flashcard.serverInfo.isUpdated && flashcard.front !== '' && flashcard.back !== ''
+            flashcard.serverInfo &&
+            flashcard.serverInfo.isUpdated &&
+            (flashcard.front !== '' ||
+                flashcard.back !== '' ||
+                (flashcard.image !== null && flashcard.image !== undefined))
         );
     });
     flashcardsUpdated = flashcardsFilter.map((flashcard) => ({
         flashcardId: flashcard.serverInfo!.flashcardId,
         front: flashcard.front,
         back: flashcard.back,
+        image: flashcard.image ? flashcard.image : undefined,
     }));
 
     flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
@@ -157,6 +175,7 @@ export function handleConvertToFlashcardsEdited(
                     id: index,
                     front: flashcard.front,
                     back: flashcard.back,
+                    imageUrl: flashcard.imageUrl,
                     serverInfo: {
                         flashcardId: flashcard.flashcardId,
                         topicId: flashcard.topicId,
@@ -191,28 +210,112 @@ const FlashcardEditor = ({
     setFlashcards,
     topic,
 }: Props) => {
-    const t = useTranslations('flashcard.edit');
+    const tCommon = useTranslations('common');
+    const tFlashcardEdit = useTranslations('flashcard.edit');
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+    const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false);
+    const [selectingFlashcard, setSelectingFlashcard] = useState<IFlashcard | null>();
+    const [imagesPreview, setImagesPreview] = useState<IUnspashImage[] | null>(null);
 
-    const { loading: apiLoading, execute } = usePost<
+    const { loading: batchLoading, execute: batchFlashcards } = usePost<
         { topicId: string | number; flashcards: IFlashcardsBatchInput },
-        {}
+        IFlashcardBatchResult
     >(({ topicId, flashcards }) => flashcardService.batchFlashcardsForTopic({ topicId, flashcards }), 'POST', {
         onError(error) {
             toastHelper.showErrorMessage(error);
         },
         onSuccess(data) {
-            toastHelper.showSuccessMessage('Edit Flashcards successfully');
+            const { flashcardsAdded, flashcardsUpdated } = data;
+
+            // delete section
+            let newFlashcards = flashcards.filter(
+                (card) => !(!card.serverInfo || (card.serverInfo && card.serverInfo.isDeleted)),
+            );
+            console.log({ newFlashcards });
+
+            // update section
+            const updatedMap = new Map<number, IFlashcardType>();
+            for (const card of flashcardsUpdated) {
+                updatedMap.set(card.flashcardId, card);
+            }
+            newFlashcards = newFlashcards.map((card) => {
+                if (card.serverInfo && updatedMap.has(card.serverInfo.flashcardId)) {
+                    const cardUpdated = updatedMap.get(card.serverInfo.flashcardId);
+                    if (!cardUpdated) {
+                        return card;
+                    }
+                    const cardWithServer: IFlashcardWithServer = {
+                        ...card,
+                        front: cardUpdated.front,
+                        back: cardUpdated.back,
+                        imageUrl: cardUpdated.imageUrl,
+                        thumb: undefined,
+                        image: undefined,
+                        serverInfo: {
+                            flashcardId: cardUpdated.flashcardId,
+                            topicId: cardUpdated.topicId,
+                            isUpdated: false,
+                            isDeleted: false,
+                        },
+                    };
+                    return cardWithServer;
+                } else {
+                    return card;
+                }
+            });
+
+            // create section
+            const lastId = newFlashcards[newFlashcards.length - 1].id;
+            let startId = lastId + 1;
+            for (const cardAdded of flashcardsAdded) {
+                const cardWithServer: IFlashcardWithServer = {
+                    ...cardAdded,
+                    id: startId,
+                    front: cardAdded.front,
+                    back: cardAdded.back,
+                    imageUrl: cardAdded.imageUrl,
+                    thumb: undefined,
+                    image: undefined,
+                    serverInfo: {
+                        flashcardId: cardAdded.flashcardId,
+                        topicId: cardAdded.topicId,
+                        isUpdated: false,
+                        isDeleted: false,
+                    },
+                };
+                newFlashcards.push(cardWithServer);
+                ++startId;
+            }
+            for (let i = newFlashcards.length; i % 3 !== 0; ++i) {
+                newFlashcards.push(createInitialFlashcard(startId++));
+            }
+            setFlashcards(newFlashcards);
+
+            toastHelper.showSuccessMessage(tCommon('messages.updateSuccess', { name: 'Flashcards' }));
         },
     });
+
+    const { loading: searchImagesLoading, execute: searchImagesAsync } = usePost<string, IUnspashImage[]>(
+        flashcardService.searchImages,
+        'POST',
+        {
+            onError(error) {
+                toastHelper.showErrorMessage(error);
+                setIsAddImageModalOpen(false);
+            },
+            onSuccess(data) {
+                setImagesPreview(data);
+            },
+        },
+    );
 
     // fix, useEffect is not necessary
     useEffect(() => {
         if (!flashcards) return;
         if (flashcardsCount === flashcardsJump) return;
         let newFlashcards = [...flashcards];
-        let lastId = newFlashcards[newFlashcards.length - 1].id;
+        const lastId = newFlashcards[newFlashcards.length - 1].id;
         let startId = lastId + 1;
         for (let i = flashcardsCount - flashcardsJump; i < flashcardsCount; ++i) {
             newFlashcards.push({ id: startId, front: '', back: '' });
@@ -221,7 +324,14 @@ const FlashcardEditor = ({
         setFlashcards(newFlashcards);
     }, [flashcardsCount]);
 
-    function handleOnChangeFlashcard(
+    useEffect(() => {
+        if (!isAddImageModalOpen) {
+            setSelectingFlashcard(null);
+            setImagesPreview(null);
+        }
+    }, [isAddImageModalOpen]);
+
+    function handleFlashcardChange(
         side: 'front' | 'back',
         type: 'client' | 'server',
         flashcard: { order: number; text: string },
@@ -331,8 +441,7 @@ const FlashcardEditor = ({
             });
             return;
         }
-
-        await execute({
+        await batchFlashcards({
             topicId: topic.topicId,
             flashcards: flashcardsSubmitted,
         });
@@ -342,6 +451,44 @@ const FlashcardEditor = ({
         setTimeout(() => {
             setIsImportModalOpen(true);
         }, 50);
+    }
+
+    async function handleAddImageModalOpen(card: IFlashcard) {
+        if (card.front === '') {
+            toastHelper.showErrorMessage('Cannot search image with card having empty front');
+            return;
+        }
+        setIsAddImageModalOpen(true);
+        setSelectingFlashcard(card);
+        await searchImagesAsync(card.front);
+    }
+
+    async function handleSaveImageClick(image: IUnspashImage) {
+        if (!selectingFlashcard) {
+            toastHelper.showErrorMessage('No selecting flashcard');
+            return;
+        }
+        const imageSaveInput = {
+            id: image.id,
+            url: image.url.small,
+            downloadLocation: image.links.download_location,
+        };
+        let newFlashcards;
+        newFlashcards = flashcards.map((flashcard) => {
+            return flashcard.id === selectingFlashcard.id
+                ? {
+                      ...flashcard,
+                      image: imageSaveInput,
+                      thumb: image.url.thumb,
+                      serverInfo: flashcard.serverInfo
+                          ? { ...flashcard.serverInfo, isUpdated: true, isDeleted: false }
+                          : undefined,
+                  }
+                : flashcard;
+        });
+        setFlashcards(newFlashcards);
+        setIsAddImageModalOpen(false);
+        toastHelper.showSuccessMessage('Insert image into card successfully');
     }
 
     if (!flashcards) {
@@ -360,13 +507,19 @@ const FlashcardEditor = ({
                 <div className="flex flex-row gap-4">
                     <Button className="flex flex-row items-center" onClick={handleImportModalOpen}>
                         <Import size={24} />
-                        <div className="text-base">{t('import')}</div>
+                        <div className="text-base">{tFlashcardEdit('import')}</div>
                     </Button>
 
                     {shouldShowSaveButton ? (
-                        <Button onClick={handleSaveClick} className="flex flex-row items-center" disabled={apiLoading}>
+                        <Button
+                            onClick={handleSaveClick}
+                            className="flex flex-row items-center"
+                            disabled={batchLoading}
+                        >
                             <Save size={24} />
-                            <div className="text-base">{apiLoading ? 'Saving...' : t('save')}</div>
+                            <div className="text-base">
+                                {batchLoading ? tCommon('status.saving') : tFlashcardEdit('save')}
+                            </div>
                         </Button>
                     ) : null}
                 </div>
@@ -380,13 +533,18 @@ const FlashcardEditor = ({
                             key={flashcard.id}
                             className="col-span-4 bg-white p-8 text-center flex flex-col gap-4 rounded-xl border-2 dark:border-white"
                         >
-                            <div className="flex flex-rol gap-4 justify-end">
-                                <Edit size={20} className="cursor-pointer" />
-                                <Trash2
-                                    size={20}
-                                    className="cursor-pointer"
+                            <div className="flex flex-row justify-end">
+                                <Button variant="ghost" size="icon" onClick={() => handleAddImageModalOpen(flashcard)}>
+                                    <ImagePlus size={18} />
+                                </Button>
+
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
                                     onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}
-                                />
+                                >
+                                    <Trash2 size={18} className="text-red-500 hover:text-red-600" />
+                                </Button>
                             </div>
                             <div className="flex flex-col gap-4">
                                 <Textarea
@@ -394,7 +552,7 @@ const FlashcardEditor = ({
                                     className="resize-none"
                                     value={flashcard.front}
                                     onChange={(event) =>
-                                        handleOnChangeFlashcard('front', getFlashcardType(flashcard), {
+                                        handleFlashcardChange('front', getFlashcardType(flashcard), {
                                             order: index,
                                             text: event.target.value,
                                         })
@@ -405,7 +563,7 @@ const FlashcardEditor = ({
                                     className="resize-none"
                                     value={flashcard.back}
                                     onChange={(event) =>
-                                        handleOnChangeFlashcard('back', getFlashcardType(flashcard), {
+                                        handleFlashcardChange('back', getFlashcardType(flashcard), {
                                             order: index,
                                             text: event.target.value,
                                         })
@@ -417,7 +575,7 @@ const FlashcardEditor = ({
                 })}
 
                 <div className="col-span-12 flex justify-center">
-                    <Button onClick={handleAddFlashcardsCount}>+ {t('addCards')}</Button>
+                    <Button onClick={handleAddFlashcardsCount}>+ {tFlashcardEdit('addCards')}</Button>
                 </div>
             </div>
 
@@ -425,6 +583,16 @@ const FlashcardEditor = ({
                 isOpen={isImportModalOpen}
                 setIsOpen={setIsImportModalOpen}
                 onSubmit={handleAddFlashcardsImported}
+            />
+
+            <ImagesPreviewModal
+                isOpen={isAddImageModalOpen}
+                setIsOpen={setIsAddImageModalOpen}
+                currentThumb={selectingFlashcard?.thumb}
+                currentImageUrl={selectingFlashcard?.imageUrl}
+                images={imagesPreview}
+                loading={searchImagesLoading}
+                handleSaveClick={handleSaveImageClick}
             />
         </div>
     );

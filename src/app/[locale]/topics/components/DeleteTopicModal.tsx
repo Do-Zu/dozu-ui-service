@@ -19,16 +19,17 @@ export function DeleteTopicModal({ isOpen, setIsOpen, topic, handleDeleteClick, 
     if (!topic) {
         return null;
     }
-    const t = useTranslations('topic.deletedForm');
+    const tCommon = useTranslations('common');
+    const tTopic = useTranslations('topic');
     const { topicId, name } = topic;
     return (
         <DeleteConfirmationModal
-            title={t('title', { name })}
-            description={t('description')}
+            title={tCommon('titles.deleteItem', { name })}
+            description={tTopic('deleteConfirmation', { name })}
             body={
                 <div className="flex justify-end">
                     <Button variant="destructive" onClick={() => handleDeleteClick(topicId)} disabled={loading}>
-                        {loading ? 'Saving...' : t('deleteButton')}
+                        {loading ? tCommon('saving') : tCommon('actions.delete')}
                     </Button>
                 </div>
             }

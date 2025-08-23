@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { LogOut, MoreVertical } from 'lucide-react';
 import { ILeavingClass } from '../modal/LeaveClassModal';
+import { useTranslations } from 'next-intl';
 
 interface Props {
     classProp: IClass;
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassModalOpen }: Props) {
+    const tLeaveClass = useTranslations('class.leave');
     const { classId, name, description, imageUrl, enrolledAt, teacherName, teacherImageUrl } = classProp;
 
     function formatDate(date: Date | undefined) {
@@ -54,7 +56,7 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassM
                         <DropdownMenuContent align="start" side="top">
                             <DropdownMenuItem onSelect={() => handleLeaveClassModalOpen({ classId, name })}>
                                 <LogOut className="mr-2 h-4 w-4" />
-                                <span>Leave</span>
+                                <span>{tLeaveClass('label')}</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

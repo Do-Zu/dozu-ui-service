@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import flashcardContentConverter from '@/utils/import/flashcardContentConverter';
 import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
 
 export default function FlashcardImportText({
     flashcards,
@@ -16,6 +17,8 @@ export default function FlashcardImportText({
     setFlashcards: (data: IFlashcardPreview[]) => void;
     onSubmit: (flashcards: IFlashcardPreview[]) => void;
 }) {
+    const tCommon = useTranslations('common');
+    const tImportText = useTranslations('flashcard.import.importText');
     const [content, setContent] = useState<string>('');
     const [sideDivider, setSideDivider] = useState<string>(':');
     const [cardDivider, setCardDivider] = useState<string>('\n');
@@ -35,13 +38,13 @@ export default function FlashcardImportText({
     function handleSubmit() {
         onSubmit(flashcards);
         setContent('');
-        toastHelper.showSuccessMessage('Add Flashcards from Text successfully');
+        toastHelper.showSuccessMessage(tImportText('importSuccess'));
     }
 
     return (
         <div className="flex flex-col gap-4">
             <Textarea
-                placeholder={`Term 1: Definition 1\nTerm 2: Definition 2\n...`}
+                placeholder={tImportText('placeholder')}
                 rows={10}
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
@@ -49,12 +52,12 @@ export default function FlashcardImportText({
 
             <div className="flex flex-col gap-4">
                 <div className="flex flex-row items-center gap-4">
-                    <Label className="whitespace-nowrap">Between Term and Definition</Label>
+                    <Label className="whitespace-nowrap">{tImportText('sideDividerLabel')}</Label>
                     <Input className="w-[10%]" value={sideDivider} onChange={(e) => setSideDivider(e.target.value)} />
                 </div>
 
                 <div className="flex flex-row items-center gap-4">
-                    <Label className="whitespace-nowrap">Between Cards</Label>
+                    <Label className="whitespace-nowrap">{tImportText('cardDividerLabel')}</Label>
                     <Input
                         className="w-[10%]"
                         value={cardDivider === '\n' ? '\\n' : cardDivider}
@@ -69,7 +72,7 @@ export default function FlashcardImportText({
             </div>
 
             <div>
-                <Button onClick={handleSubmit}>Save</Button>
+                <Button onClick={handleSubmit}>{tCommon('actions.save')}</Button>
             </div>
         </div>
     );

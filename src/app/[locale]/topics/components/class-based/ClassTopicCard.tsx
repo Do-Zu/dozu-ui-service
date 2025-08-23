@@ -24,21 +24,21 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
-import { format } from 'date-fns';
 import { ITopic } from '../../types/topic.type';
 import { ShowIf } from '@/components/ui/ShowIf';
-import { useRoleChecker } from '@/hooks/useRoleChecker';
 import topicService from '@/services/topic/topic.service';
 
 interface Props {
     topic: ITopic;
+    handleNameClick: (topic: ITopic) => void;
 }
 
-export function ClassTopicCard({ topic }: Props) {
+export function ClassTopicCard({ topic, handleNameClick }: Props) {
     const router = useRouter();
 
     const { topicId, name, description, imageUrl } = topic;
-    const topicT = useTranslations('topic');
+    const tCommon = useTranslations('common');
+    const tTopic = useTranslations('topic');
 
     function handleOnSelectBrowse() {
         router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
@@ -64,7 +64,12 @@ export function ClassTopicCard({ topic }: Props) {
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-medium truncate">{name}</CardTitle>
+                    <CardTitle
+                        className="text-lg font-medium truncate hover:text-blue-400 transition"
+                        onClick={() => handleNameClick(topic)}
+                    >
+                        {name}
+                    </CardTitle>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
@@ -81,11 +86,11 @@ export function ClassTopicCard({ topic }: Props) {
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnSelectBrowse}>
                                         <BookOpen className="mr-2 h-4 w-4" />
-                                        <span>{topicT('browse')}</span>
+                                        <span>{tTopic('browse')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={handleOnSelectLearning}>
                                         <GraduationCap className="mr-2 h-4 w-4" />
-                                        <span>{topicT('learning')}</span>
+                                        <span>{tTopic('learning')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -99,7 +104,7 @@ export function ClassTopicCard({ topic }: Props) {
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnClickViewMindmap}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('view')}</span>
+                                        <span>{tCommon('actions.view')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -113,7 +118,7 @@ export function ClassTopicCard({ topic }: Props) {
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnClickStartQuiz}>
                                         <Play className="mr-2 h-4 w-4" />
-                                        <span>{topicT('start-quiz')}</span>
+                                        <span>{tTopic('start-quiz')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>

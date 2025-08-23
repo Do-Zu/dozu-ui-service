@@ -204,7 +204,7 @@ export default function StudyControls(props: Props) {
 
             <div className="grid grid-cols-12 gap-3">
                 {renderShuffleSection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-                {renderBackFirstSection('col-span-6 flex flex-row gap-2 items-center justify-between')}
+                {/* {renderBackFirstSection('col-span-6 flex flex-row gap-2 items-center justify-between')} */}
             </div>
 
             <div className="grid grid-cols-12 gap-3">

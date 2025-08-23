@@ -13,8 +13,12 @@ import studentClassService from '@/services/class-based-learning/student/student
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import LeaveClassModal, { ILeavingClass } from '../modal/LeaveClassModal';
+import { useTranslations } from 'next-intl';
 
 export function StudentClassLibrary() {
+    const tClass = useTranslations('class');
+    const tJoinClass = useTranslations('class.join');
+    const tLeaveClass = useTranslations('class.leave');
     const router = useRouter();
 
     // manage current class that is selected, showing list of topics in the class
@@ -41,7 +45,7 @@ export function StudentClassLibrary() {
         {
             onError: toastHelper.showErrorMessage,
             onSuccess: (data: IClass) => {
-                toastHelper.showSuccessMessage('Join class successfully');
+                toastHelper.showSuccessMessage(tJoinClass('joinSuccess'));
                 applyJoinClass(data);
                 resetJoinClassState();
             },
@@ -54,7 +58,7 @@ export function StudentClassLibrary() {
         {
             onError: toastHelper.showErrorMessage,
             onSuccess: (data: number) => {
-                toastHelper.showSuccessMessage('Leave class successfully');
+                toastHelper.showSuccessMessage(tLeaveClass('leaveSuccess'));
                 applyLeaveClass(data);
                 setIsLeaveClassModalOpen(false);
             },
@@ -117,13 +121,13 @@ export function StudentClassLibrary() {
                 <div className="flex flex-col gap-2">
                     <div className="flex flex-row gap-2 items-center">
                         <School />
-                        <h2 className="text-2xl font-semibold">My Classes</h2>
+                        <h2 className="text-2xl font-semibold">{tClass('myClasses')}</h2>
                     </div>
-                    <div>You're enrolled in the following classes</div>
+                    <div>{tClass('classesEnrolling')}</div>
                 </div>
 
                 <Button className="bg-background text-foreground" onClick={() => setIsJoinClassModalOpen(true)}>
-                    <Link className="mr-2 h-4 w-4" /> Join Class
+                    <Link className="mr-2 h-4 w-4" /> {tJoinClass('title')}
                 </Button>
             </div>
             <StudentClassList
