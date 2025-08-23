@@ -232,7 +232,6 @@ const FlashcardEditor = ({
             let newFlashcards = flashcards.filter(
                 (card) => !(!card.serverInfo || (card.serverInfo && card.serverInfo.isDeleted)),
             );
-            console.log({ newFlashcards });
 
             // update section
             const updatedMap = new Map<number, IFlashcardType>();
@@ -266,7 +265,7 @@ const FlashcardEditor = ({
             });
 
             // create section
-            const lastId = newFlashcards[newFlashcards.length - 1].id;
+            const lastId = newFlashcards.length === 0 ? 0 : newFlashcards[newFlashcards.length - 1].id;
             let startId = lastId + 1;
             for (const cardAdded of flashcardsAdded) {
                 const cardWithServer: IFlashcardWithServer = {
@@ -286,6 +285,11 @@ const FlashcardEditor = ({
                 };
                 newFlashcards.push(cardWithServer);
                 ++startId;
+            }
+            if(newFlashcards.length === 0) {
+                for(let i = 0; i < 3; ++i) {
+                    newFlashcards.push(createInitialFlashcard(i));
+                }
             }
             for (let i = newFlashcards.length; i % 3 !== 0; ++i) {
                 newFlashcards.push(createInitialFlashcard(startId++));
