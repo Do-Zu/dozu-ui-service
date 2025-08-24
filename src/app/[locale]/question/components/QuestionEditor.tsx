@@ -183,6 +183,39 @@ const QuestionEditor = ({
         }
     };
 
+    const canSaveGenerated =
+      contentType === CONTENT_TYPE_GENERATE.FLASH_CARD &&
+      Array.isArray(dataGenerated) &&
+      dataGenerated.length > 0;
+
+    if (previewOpen) {
+    return (
+    <div className="px-[4rem] py-7 bg-muted min-h-screen">
+      <ContentGenerationPreview
+        shouldCreateTopic={false}
+        sseData={sseData}
+        dataGenerated={dataGenerated}
+        setDataGenerated={setDataGenerated}
+        onSave={handleSaveGeneratedToThisTopic}
+      />
+      <div className="mt-4 flex gap-3">
+        <Button onClick={handleSaveGeneratedToThisTopic} disabled={!canSaveGenerated}>
+          Save to this topic
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setPreviewOpen(false);
+            setDataGenerated(null);
+          }}
+        >
+          Close
+        </Button>
+      </div>
+    </div>
+  );
+}  
+
     return (
         <div className="px-[4rem] py-7 bg-muted">
             <div className="flex justify-between items-center">
@@ -226,31 +259,6 @@ const QuestionEditor = ({
                     <Button onClick={handleAddQuestions}>+ Add Questions</Button>
                 </div>
             </div>
-            {previewOpen && (
-                <div className="mt-6">
-                    <ContentGenerationPreview
-                        shouldCreateTopic={false}
-                        sseData={sseData}
-                        dataGenerated={dataGenerated}
-                        setDataGenerated={setDataGenerated}
-                        onSave={handleSaveGeneratedToThisTopic}
-                    />
-                    <div className="mt-4 flex gap-3">
-                        <Button onClick={handleSaveGeneratedToThisTopic} disabled={!isContentReady}>
-                            Save to this topic
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                setPreviewOpen(false);
-                                setDataGenerated(null);
-                            }}
-                        >
-                            Close
-                        </Button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
