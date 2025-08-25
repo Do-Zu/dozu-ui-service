@@ -11,6 +11,7 @@
             "complete": "complete",
             "autoPlay": "Auto-play",
             "resetProgress": "Reset Progress",
+            "reset": "Reset",
             "speed": "Speed",
             "shuffle": "Shuffle",
             "backFirst": "Back First",
