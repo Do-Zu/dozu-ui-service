@@ -1,0 +1,316 @@
+'use client';
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+    ThumbsUp,
+    MessageCircle,
+    Share2,
+    MoreHorizontal,
+    Heart,
+    Laugh,
+    Angry,
+    ChevronDown,
+    ChevronUp,
+    Badge,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
+import { TooltipProvider, TooltipTrigger, TooltipContent } from '@radix-ui/react-tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
+
+interface CommentCardProps {
+    id?: string;
+    author?: {
+        name: string;
+        avatar: string;
+        role: 'Teacher' | 'Student' | 'Moderator' | 'Author';
+        isVerified?: boolean;
+    };
+    content?: string;
+    timestamp?: string;
+    likes?: number;
+    hearts?: number;
+    laughs?: number;
+    angry?: number;
+    isLiked?: boolean;
+    replies?: number;
+    sentiment?: 'positive' | 'neutral' | 'negative';
+    isReply?: boolean;
+    depth?: number;
+    replyTo?: string;
+    onLike?: (id: string) => void;
+    onReply?: (id: string) => void;
+    onShare?: (id: string) => void;
+    onReaction?: (id: string, type: 'like' | 'heart' | 'laugh' | 'angry') => void;
+}
+
+const CommentCard = ({
+    id = '1',
+    author = {
+        name: 'Jane Smith',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
+        role: 'Student',
+        isVerified: false,
+    },
+    content = 'This is a sample comment with modern design. It demonstrates how the comment card looks with clean typography, proper spacing, and smooth interactions. The content can be quite long and will show a read more option when needed.',
+    timestamp = '2 hours ago',
+    likes = 5,
+    hearts = 2,
+    laughs = 1,
+    angry = 0,
+    isLiked = false,
+    replies = 2,
+    sentiment = 'neutral',
+    isReply = false,
+    depth = 0,
+    replyTo,
+    onLike = () => {},
+    onReply = () => {},
+    onShare = () => {},
+    onReaction = () => {},
+}: CommentCardProps) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [showReactions, setShowReactions] = useState(false);
+
+    // Determine if content should be truncated
+    const shouldTruncate = content.length > 200;
+    const displayContent = shouldTruncate && !isExpanded ? content.slice(0, 200) + '...' : content;
+
+    // Determine sentiment styling
+    const sentimentStyles = {
+        positive: 'border-l-green-400 bg-green-50/50',
+        neutral: 'border-l-gray-300 bg-gray-50/30',
+        negative: 'border-l-red-400 bg-red-50/50',
+    }[sentiment];
+
+    // Role styling
+    const roleStyles = {
+        Teacher: 'bg-blue-100 text-blue-800 border-blue-200',
+        Student: 'bg-gray-100 text-gray-700 border-gray-200',
+        Moderator: 'bg-purple-100 text-purple-800 border-purple-200',
+        Author: 'bg-amber-100 text-amber-800 border-amber-200',
+    }[author.role];
+
+    // Get initials for avatar fallback
+    const getInitials = (name: string) => {
+        return name
+            .split(' ')
+            .map((part) => part[0])
+            .join('')
+            .toUpperCase();
+    };
+
+    // Format reactions
+    const totalReactions = likes + hearts + laughs + angry;
+
+    return (
+        <div
+            className={cn(
+                'group relative bg-white/80 backdrop-blur-sm rounded-2xl p-4 mb-4 transition-all duration-300 hover:shadow-lg  border border-gray-100/50',
+                sentimentStyles,
+            )}
+            style={{ marginLeft: `${depth * 24}px` }}
+        >
+            {/* Reply context */}
+            {replyTo && (
+                <div className="mb-3 p-2 bg-gray-50/80 rounded-lg border-l-2 border-gray-300 text-xs text-gray-600">
+                    <span className="font-medium">Replying to:</span> {replyTo.slice(0, 60)}...
+                </div>
+            )}
+
+            <div className="flex items-start gap-3">
+                <div className="relative group/avatar">
+                    {/* <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm transition-transform duration-200 group-hover/avatar:scale-105">
+                        <AvatarImage src={author.avatar} alt={author.name} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-gray-700 font-medium">
+                            {getInitials(author.name)}
+                        </AvatarFallback>
+                    </Avatar> */}
+                    {author.isVerified && (
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                            <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                    {/* Header */}
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <h4 className="font-semibold text-gray-900 text-sm hover:text-blue-300 transition-colors cursor-pointer">
+                            {author.name}
+                        </h4>
+                        <span className="text-xs text-gray-500 ml-auto font-medium">{timestamp}</span>
+                    </div>
+
+                    {/* Content */}
+                    <div className="mb-3">
+                        <p className="text-gray-800 text-sm leading-relaxed font-normal">{displayContent}</p>
+                        {shouldTruncate && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="text-blue-600 hover:text-blue-700 text-xs font-medium mt-1 transition-colors flex items-center gap-1"
+                            >
+                                {isExpanded ? (
+                                    <>
+                                        Show less <ChevronUp className="h-3 w-3" />
+                                    </>
+                                ) : (
+                                    <>
+                                        Read more <ChevronDown className="h-3 w-3" />
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Sentiment indicator */}
+                    {/* {sentiment !== 'neutral' && (
+                        <div className="mb-3">
+                            <span
+                                className={cn(
+                                    'inline-flex items-center text-xs px-2 py-1 rounded-full font-medium',
+                                    sentiment === 'positive'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-red-100 text-red-700',
+                                )}
+                            >
+                                {sentiment === 'positive' ? '😊' : '😔'} {sentiment} sentiment
+                            </span>
+                        </div>
+                    )} */}
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 relative">
+                        <TooltipProvider>
+                            {/* Like button with reactions */}
+                            <div className="relative">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className={cn(
+                                                'h-8 px-2 text-xs gap-1.5 rounded-full transition-all duration-200 hover:scale-105',
+                                                isLiked
+                                                    ? 'text-blue-600 bg-blue-50'
+                                                    : 'text-gray-600 hover:text-blue-300 hover:bg-blue-50',
+                                            )}
+                                            onClick={() => onReaction(id, 'like')}
+                                            onMouseEnter={() => setShowReactions(true)}
+                                            onMouseLeave={() => setShowReactions(false)}
+                                        >
+                                            <ThumbsUp className={cn('h-3.5 w-3.5', isLiked && 'fill-current')} />
+                                            {totalReactions > 0 && (
+                                                <span className="font-medium">{totalReactions}</span>
+                                            )}
+                                        </Button>
+                                    </TooltipTrigger>
+                                </Tooltip>
+
+                                {/* Reaction picker */}
+                                {/* {showReactions && (
+                                    <div
+                                        className="absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-lg border border-gray-200 p-1 flex gap-1 z-10 animate-in slide-in-from-bottom-2 duration-200"
+                                        onMouseEnter={() => setShowReactions(true)}
+                                        onMouseLeave={() => setShowReactions(false)}
+                                    >
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 rounded-full hover:bg-blue-50"
+                                            onClick={() => onReaction(id, 'like')}
+                                        >
+                                            👍
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 rounded-full hover:bg-red-50"
+                                            onClick={() => onReaction(id, 'heart')}
+                                        >
+                                            ❤️
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 rounded-full hover:bg-yellow-50"
+                                            onClick={() => onReaction(id, 'laugh')}
+                                        >
+                                            😂
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 rounded-full hover:bg-orange-50"
+                                            onClick={() => onReaction(id, 'angry')}
+                                        >
+                                            😡
+                                        </Button>
+                                    </div>
+                                )} */}
+                            </div>
+
+                            {/* Reply button */}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 px-2 text-xs gap-1.5 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-full transition-all duration-200 hover:scale-105"
+                                        onClick={() => onReply(id)}
+                                    >
+                                        <MessageCircle className="h-3.5 w-3.5" />
+                                        {replies > 0 && <span className="font-medium">{replies}</span>}
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                    {/* <span className="text-xs">Reply to this comment</span> */}
+                                </TooltipContent>
+                            </Tooltip>
+
+                            {/* Share button */}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 px-2 text-xs text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-all duration-200 hover:scale-105"
+                                        onClick={() => onShare(id)}
+                                    >
+                                        <Share2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>{/* <p className="text-xs">Share this comment</p> */}</TooltipContent>
+                            </Tooltip>
+
+                            {/* More options */}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-full transition-all duration-200 ml-auto opacity-0 group-hover:opacity-100"
+                                    >
+                                        <MoreHorizontal className="h-3.5 w-3.5" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>More options</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default CommentCard;
