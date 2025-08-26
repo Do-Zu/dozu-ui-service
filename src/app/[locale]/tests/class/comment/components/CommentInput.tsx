@@ -135,7 +135,7 @@ export default function CommentInput({
 
                             {/* Expanded toolbar */}
                             {isExpanded && (
-                                <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100s">
+                                <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
                                     <div className="flex gap-1">
                                         <TooltipProvider>
                                             <Tooltip>
