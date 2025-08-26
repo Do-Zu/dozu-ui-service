@@ -2,18 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-    ThumbsUp,
-    MessageCircle,
-    Share2,
-    MoreHorizontal,
-    Heart,
-    Laugh,
-    Angry,
-    ChevronDown,
-    ChevronUp,
-    Badge,
-} from 'lucide-react';
+import { ThumbsUp, MessageCircle, Share2, MoreHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
 import { TooltipProvider, TooltipTrigger, TooltipContent } from '@radix-ui/react-tooltip';

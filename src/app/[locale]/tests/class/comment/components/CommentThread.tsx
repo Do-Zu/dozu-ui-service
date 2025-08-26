@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MessageCircle, Plus, Filter, SortDesc, MessageSquare } from 'lucide-react';
+import { MessageCircle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CommentInput from './CommentInput';
 import CommentCard from './CommentCard';
