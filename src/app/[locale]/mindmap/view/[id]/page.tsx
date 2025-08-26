@@ -41,6 +41,17 @@ const edgeTypes = {
     floating: FloatingEdge,
 };
 
+/**
+ * Renders the interactive mind-map editor and related UI for a topic.
+ *
+ * Displays loading and generation states (loading page, generation skeleton, or content-generation preview)
+ * and, in the default state, a React Flow canvas with custom nodes/edges, controls, and auxiliary panels
+ * (file view/download, file sheet, node sheet). Integrates with mind-map context and content-generation
+ * hooks to handle real-time generation status, conversion of generated content into flashcard batch inputs,
+ * and saving generated flashcards for the currently selected node (which navigates to the flashcards edit page).
+ *
+ * @returns A React element containing the mind-map UI and any generation-related overlays.
+ */
 export default function MindmapContent() {
     const router = useRouter();
 

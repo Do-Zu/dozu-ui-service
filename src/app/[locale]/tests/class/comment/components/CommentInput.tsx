@@ -23,6 +23,22 @@ interface CommentInputProps {
     autoFocus?: boolean;
 }
 
+/**
+ * CommentInput — a composable comment/reply input UI with avatar, expandable formatting toolbar, keyboard shortcuts, and submit/cancel controls.
+ *
+ * Renders a textarea with an optional "replying to" banner, avatar, a row of formatting/action buttons when expanded, and Cancel / Submit actions.
+ * - Submit is triggered by clicking the Submit button or pressing Cmd/Ctrl+Enter; empty/whitespace-only content is not submitted.
+ * - Escape clears the input and triggers cancel behavior.
+ * - When `autoFocus` is true the textarea is focused and the input expands on mount.
+ * - `depth` controls left indentation (in pixels: depth * 24).
+ *
+ * @param isReply - When true, the UI is rendered in reply mode (affects styling and submit label).
+ * @param replyTo - Optional quoted text shown in the reply banner when replying to another comment.
+ * @param depth - Indentation level (multiplied by 24px) applied to the outer container.
+ * @param onSubmit - Optional callback invoked as `onSubmit(content, parentId)` when a non-empty comment is submitted.
+ * @param onCancel - Optional callback invoked when the input is cancelled (via Cancel button, reply banner close, or Escape).
+ * @param autoFocus - If true, focuses and expands the textarea on mount.
+ */
 export default function CommentInput({
     isReply = false,
     parentId,
