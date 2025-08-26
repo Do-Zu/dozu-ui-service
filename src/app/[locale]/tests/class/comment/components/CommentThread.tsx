@@ -366,7 +366,7 @@ const CommentThread = ({
 
     const renderCommentsContent = () => {
         return (
-            <div className="max-w-5xl mx-auto rounded-2xl p-6">
+            <div className="max-w-5xl mx-auto rounded-2xl p-6 ">
                 <div className="relative mb-8">
                     {/* <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/20 dark:to-purple-400/20 rounded-xl blur-sm"></div> */}
                     <div className="relative backdrop-blur-sm rounded-xl p-6 border border-white/20 dark:border-gray-700/30 shadow-lg dark:shadow-gray-900/10 bg-white/50 dark:bg-gray-800/50">
@@ -466,7 +466,7 @@ const CommentThread = ({
                         )}
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[80vw] max-w-6xl h-[85vh] overflow-hidden">
+                <DialogContent className="sm:max-w-[80vw] max-w-6xl h-[85vh] overflow-hidden bg-slate-200 dark:bg-slate-900">
                     <ScrollArea className="h-full w-full">
                         <div className="p-4">{renderCommentsContent()}</div>
                     </ScrollArea>
