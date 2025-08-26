@@ -10,7 +10,7 @@ import '@xyflow/react/dist/style.css';
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import { toast } from '@/hooks/use-toast';
 import DownloadButton from '../../components/buttons/DownloadButton';
-import ViewFileButton from '../../components/buttons/ViewFileButton.';
+import ViewFileButton from '../../components/buttons/ViewFileButton';
 import CustomReactFlowNode from '../../components/CustomReactFlowNode';
 import FileSheet from '../../components/FileSheet';
 import FloatingEdge from '../../components/FloatingEdge';
