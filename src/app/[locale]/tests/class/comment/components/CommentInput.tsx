@@ -136,7 +136,7 @@ export default function CommentInput({
 
                             {/* Expanded toolbar */}
                             {isExpanded && (
-                                <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                                <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100s">
                                     <div className="flex gap-1">
                                         <TooltipProvider>
                                             <Tooltip>
@@ -276,8 +276,8 @@ export default function CommentInput({
                                             className={cn(
                                                 'h-8 px-4 text-xs gap-1.5 rounded-full transition-all duration-300 transform hover:scale-105 disabled:transform-none',
                                                 comment.trim()
-                                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg'
-                                                    : 'bg-gray-100 text-gray-400',
+                                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                                                    : 'bg-gray-100 ',
                                             )}
                                         >
                                             <Send className="h-3.5 w-3.5" />

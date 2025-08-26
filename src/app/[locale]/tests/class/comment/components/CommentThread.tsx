@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import { MessageCircle, Plus, Filter, SortDesc, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CommentInput from './CommentInput';
 import CommentCard from './CommentCard';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Comment {
     id: string;
@@ -368,15 +368,15 @@ const CommentThread = ({
         return (
             <div className="max-w-5xl mx-auto rounded-2xl p-6">
                 <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/20 dark:to-purple-400/20 rounded-xl blur-sm"></div>
-                    <div className="relative backdrop-blur-sm rounded-xl p-6 border border-white/20 dark:border-gray-700/30 shadow-lg dark:shadow-gray-900/20 bg-white/50 dark:bg-gray-800/50">
+                    {/* <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/20 dark:to-purple-400/20 rounded-xl blur-sm"></div> */}
+                    <div className="relative backdrop-blur-sm rounded-xl p-6 border border-white/20 dark:border-gray-700/30 shadow-lg dark:shadow-gray-900/10 bg-white/50 dark:bg-gray-800/50">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl flex items-center justify-center shadow-lg">
                                     <MessageCircle className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
+                                    <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-200 dark:to-gray-300 bg-clip-text text-transparent">
                                         {nodeTitle ? `Discussion: ${nodeTitle}` : 'Discussion Thread'}
                                     </h2>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -387,32 +387,31 @@ const CommentThread = ({
                             </div>
 
                             {/* Proactive Action Buttons */}
-                            <div className="">
-                                <Dialog open={isAddCommentDialogOpen} onOpenChange={setIsAddCommentDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="shadow-lg hover:shadow-xl dark:shadow-gray-900/30 dark:hover:shadow-gray-900/50 transition-all duration-300 transform hover:scale-105 gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600 text-white">
-                                            <Plus className="h-4 w-4" />
-                                            Add Comment
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[600px] bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                                                Share Your Thoughts
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        <CommentInput
-                                            onSubmit={handleAddComment}
-                                            placeholder={
-                                                nodeId
-                                                    ? `What are your thoughts on ${nodeTitle}?`
-                                                    : 'Share your insights and join the discussion...'
-                                            }
-                                            nodeId={nodeId}
-                                        />
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
+
+                            <Dialog open={isAddCommentDialogOpen} onOpenChange={setIsAddCommentDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="shadow-lg dark:shadow-gray-900/10 dark:hover:shadow-gray-900/10 transition-all duration-300 transform hover:scale-105 gap-2">
+                                        <Plus className="h-4 w-4" />
+                                        Add Comment
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[600px]  ">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                                            Share Your Thoughts
+                                        </DialogTitle>
+                                    </DialogHeader>
+                                    <CommentInput
+                                        onSubmit={handleAddComment}
+                                        placeholder={
+                                            nodeId
+                                                ? `What are your thoughts on ${nodeTitle}?`
+                                                : 'Share your insights and join the discussion...'
+                                        }
+                                        nodeId={nodeId}
+                                    />
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </div>
                 </div>
@@ -467,8 +466,10 @@ const CommentThread = ({
                         )}
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[80vw] max-w-6xl h-[85vh] overflow-hidden ">
-                    <div className="overflow-y-auto ">{renderCommentsContent()}</div>
+                <DialogContent className="sm:max-w-[80vw] max-w-6xl h-[85vh] overflow-hidden">
+                    <ScrollArea className="h-full w-full">
+                        <div className="p-4">{renderCommentsContent()}</div>
+                    </ScrollArea>
                 </DialogContent>
             </Dialog>
         </div>
