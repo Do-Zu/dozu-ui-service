@@ -347,18 +347,7 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
             setPdfUrl(blobUrl);
             setPdfFile(file);
             setCurrentPageNumber(1);
-
-            toast({
-                title: 'Success',
-                description: `PDF loaded: ${filename}`,
-            });
         } catch (error) {
-            console.error('Failed to load PDF document:', error);
-            toast({
-                title: 'Error',
-                description: error instanceof Error ? error.message : 'Failed to load PDF document',
-                variant: 'destructive',
-            });
         } finally {
             setIsLoading(false);
         }
