@@ -421,16 +421,13 @@ const CommentThread = ({
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200/50 dark:border-blue-700/50">
                                 <MessageCircle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                             </div>
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-700 mb-2">
                                 No comments yet
                             </h3>
                             <p className="text-gray-500 dark:text-gray-400 mb-4">
                                 Be the first to share your thoughts!
                             </p>
-                            <Button
-                                onClick={() => setIsAddCommentDialogOpen(true)}
-                                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600 text-white"
-                            >
+                            <Button onClick={() => setIsAddCommentDialogOpen(true)} className="bg-gradient-to-r">
                                 Start the Discussion
                             </Button>
                         </div>
