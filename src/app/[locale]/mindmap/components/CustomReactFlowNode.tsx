@@ -7,7 +7,7 @@ import { CustomNodeData } from '../mindmap.type';
 import { useDispatch } from 'react-redux';
 import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
 import { getRouter } from '@/utils/routerService';
-import CommentThread from '../../tests/class/comment/components/CommentThread';
+import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
