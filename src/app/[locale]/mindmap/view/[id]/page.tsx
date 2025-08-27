@@ -11,7 +11,6 @@ import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import { toast } from '@/hooks/use-toast';
 import DownloadButton from '../../components/buttons/DownloadButton';
 import ViewFileButton from '../../components/buttons/ViewFileButton.';
-import CustomReactFlowNode from '../../components/CustomReactFlowNode';
 import FileSheet from '../../components/FileSheet';
 import FloatingEdge from '../../components/FloatingEdge';
 import { useMindMapContext } from '../../context/MindMapContext';
@@ -28,13 +27,14 @@ import { IFlashcardWithServer } from '../../../flashcards/components/FlashcardEd
 import ContentGenerationPreview from '../../../generate/components/ContentGenerationPreview';
 import { useContentGeneration } from '../../../generate/hooks/useContentGeneration';
 import NodeSheetViewOnly from '../../components/NodeSheetViewOnly';
+import ReactFlowNodeInClass from '../../components/ReactFlowNodeInClass';
 
 const defaultEdgeOptions = {
     type: 'floating',
 };
 
 const nodeTypes = {
-    'custom-react-flow-node': CustomReactFlowNode,
+    'custom-react-flow-node': ReactFlowNodeInClass,
 };
 
 const edgeTypes = {

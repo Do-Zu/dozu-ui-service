@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MessageCircle, Plus } from 'lucide-react';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import CommentInput from './CommentInput';
 import CommentCard from './CommentCard';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { TypeNodeComment } from '@/app/[locale]/class-based/types/class.type';
 
 interface Comment {
     id: string;
@@ -31,13 +32,16 @@ interface Comment {
 
 interface CommentThreadProps {
     comments?: Comment[];
-    className?: string;
     nodeId?: string;
     nodeTitle?: string;
     filterType?: 'all' | 'top' | 'recent';
+    typeNode?: TypeNodeComment;
     triggerText?: string;
     showTrigger?: boolean;
+    triggerComponent?: React.ReactNode;
+    className?: string;
 }
+
 const mockDataComments: Comment[] = [
     {
         id: '1',
@@ -152,27 +156,24 @@ const mockDataComments: Comment[] = [
 
 const CommentThread = ({
     comments: initialComments = [],
-    className = '',
+    className,
     nodeId,
     nodeTitle,
     filterType = 'all',
-    triggerText = 'View Comments',
+    triggerText,
     showTrigger = true,
+    triggerComponent,
 }: CommentThreadProps) => {
-    // Default comments if none provided
     const [comments, setComments] = useState<Comment[]>(
         initialComments.length > 0 ? initialComments : mockDataComments,
     );
 
-    const [activeTab, setActiveTab] = useState('all');
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [isAddCommentDialogOpen, setIsAddCommentDialogOpen] = useState(false);
     const [isCommentsDialogOpen, setIsCommentsDialogOpen] = useState(false);
 
-    // Filter comments based on active tab
-    const filteredComments = activeTab === 'top' ? comments.filter((comment) => comment.isTopComment) : comments;
-
     const handleAddComment = (content: string) => {
+        //TODO: Handle call api
         const newComment: Comment = {
             id: `comment-${Date.now()}`,
             userId: 'currentUser',
@@ -368,7 +369,6 @@ const CommentThread = ({
         return (
             <div className="max-w-5xl mx-auto rounded-2xl p-6 ">
                 <div className="relative mb-8">
-                    {/* <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/20 dark:to-purple-400/20 rounded-xl blur-sm"></div> */}
                     <div className="relative backdrop-blur-sm rounded-xl p-6 border border-white/20 dark:border-gray-700/30 shadow-lg dark:shadow-gray-900/10 bg-white/50 dark:bg-gray-800/50">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -416,7 +416,7 @@ const CommentThread = ({
                     </div>
                 </div>
                 <div>
-                    {filteredComments.length === 0 ? (
+                    {comments.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200/50 dark:border-blue-700/50">
                                 <MessageCircle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
@@ -433,13 +433,21 @@ const CommentThread = ({
                         </div>
                     ) : (
                         <div className="space-y-6">
-                            {filteredComments.map((comment, index) => renderComment(comment, index))}
+                            {comments.map((comment, index) => renderComment(comment, index))}
                         </div>
                     )}
                 </div>
             </div>
         );
     };
+
+    const handleQueryCommentForNode = async () => {};
+
+    useEffect(() => {
+        if (nodeId && isCommentsDialogOpen) {
+            handleQueryCommentForNode();
+        }
+    }, [nodeId, isCommentsDialogOpen]);
 
     if (!showTrigger) {
         return (
@@ -450,18 +458,15 @@ const CommentThread = ({
     }
 
     return (
-        <div className={`${className} border-2  `}>
+        <div className={`${className}`}>
             <Dialog open={isCommentsDialogOpen} onOpenChange={setIsCommentsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                        <MessageCircle className="h-4 w-4" />
-                        {triggerText}
-                        {comments.length > 0 && (
-                            <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full ml-1">
-                                {comments.length}
-                            </span>
-                        )}
-                    </Button>
+                    {triggerComponent ?? (
+                        <Button variant="outline" className="gap-2">
+                            <MessageCircle className="h-4 w-4" />
+                            {triggerText}
+                        </Button>
+                    )}
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[80vw] max-w-6xl h-[85vh] overflow-hidden bg-slate-200 dark:bg-slate-900">
                     <ScrollArea className="h-full w-full">

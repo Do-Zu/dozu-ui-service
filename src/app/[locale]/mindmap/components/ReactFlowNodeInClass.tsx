@@ -9,17 +9,16 @@ import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/select
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../tests/class/comment/components/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
+import { BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { EnumNodeComment } from '../../class-based/types/class.type';
 
-const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
+const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
     const dispatch = useDispatch();
     const router = getRouter();
 
-    const [editing, setEditing] = useState(false);
     const [label, setLabel] = useState(data.label);
     const [isHovered, setIsHovered] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(false);
     const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
     const edges = useEdges();
 
@@ -31,37 +30,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         });
         setNodes((nds) => nds.filter((node) => node.id !== id));
         setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
-        console.log(edges);
-    };
-
-    const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLabel(e.target.value);
-    };
-
-    const handleSave = () => {
-        // Update the node data with new label
-        setNodes((nds) =>
-            nds.map((node) => (node.id === data.nodeId ? { ...node, data: { ...node.data, label } } : node)),
-        );
-        setEditing(false);
-    };
-
-    const handleCancel = () => {
-        setLabel(data.label);
-        setEditing(false);
     };
 
     const handleClickNode = () => {
         dispatch(openSheet());
         dispatch(setSelectedNodeData(data));
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleSave();
-        } else if (e.key === 'Escape') {
-            handleCancel();
-        }
     };
 
     // Animation variants
@@ -81,6 +54,20 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         hidden: { opacity: 0, scale: 0.8, x: -10 },
         visible: { opacity: 1, scale: 1, x: 0 },
     };
+
+    const triggerComponent = (
+        <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+                e.stopPropagation();
+            }}
+            className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+        >
+            <MessageCircle className="w-3 h-3 mr-1" />
+            comments
+        </Button>
+    );
 
     return (
         <motion.div
@@ -136,9 +123,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 isConnectableStart={false}
             />
 
-            {/* Node Header */}
             <div className="p-4">
-                {/* Root indicator */}
                 {data.isRoot && (
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -152,14 +137,12 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                     </motion.div>
                 )}
 
-                {/* Main Content */}
                 <motion.div
                     variants={contentVariants}
-                    animate={isExpanded ? 'expanded' : 'collapsed'}
+                    animate={'collapsed'}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                     className="space-y-3"
                 >
-                    {/* Title Section */}
                     <div className="space-y-2">
                         <div onClick={handleClickNode} className="cursor-pointer group/title">
                             <motion.h3
@@ -199,7 +182,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                     )}
                 </motion.div>
 
-                {/* Action Buttons */}
                 <AnimatePresence>
                     {isHovered && (
                         <motion.div
@@ -224,6 +206,13 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                 <BookOpenIcon className="w-3 h-3 mr-1" />
                                 Learn
                             </Button>
+
+                            <CommentThread
+                                triggerComponent={triggerComponent}
+                                nodeId={data.nodeId}
+                                nodeTitle={data.label}
+                                typeNode={EnumNodeComment.MINDMAP}
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -237,4 +226,4 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     );
 };
 
-export default CustomReactFlowNode;
+export default ReactFlowNodeInClass;
