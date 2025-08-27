@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button';
 import CommentInput from './CommentInput';
 import CommentCard from './CommentCard';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useGetCommentsByNode, useCreateComment, IClassTopicComment } from '@/services/class-based-learning/comment';
 import { TypeNodeComment } from '@/app/[locale]/class-based/types/class.type';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 interface Comment {
     id: string;
@@ -19,10 +21,7 @@ interface Comment {
     content: string;
     timestamp: string;
     likes: number;
-    hearts: number;
-    laughs: number;
-    angry: number;
-    sentiment: 'positive' | 'neutral' | 'negative';
+    sentiment?: 'positive' | 'neutral' | 'negative';
     isTopComment?: boolean;
     isVerified?: boolean;
     replies?: Comment[];
@@ -32,167 +31,104 @@ interface Comment {
 
 interface CommentThreadProps {
     comments?: Comment[];
-    nodeId?: string;
+    nodeId: string;
     nodeTitle?: string;
+    classId: string | number;
+    topicId: string | number;
     filterType?: 'all' | 'top' | 'recent';
-    typeNode?: TypeNodeComment;
+    typeNode: TypeNodeComment;
     triggerText?: string;
     showTrigger?: boolean;
     triggerComponent?: React.ReactNode;
     className?: string;
 }
 
-const mockDataComments: Comment[] = [
-    {
-        id: '1',
-        userId: 'user1',
-        userName: 'Sarah Johnson',
-        userRole: 'Teacher',
-        userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-        content:
-            "I'd like everyone to share their thoughts on the reading assignment. What stood out to you the most about the chapter on neural networks? This is a great opportunity to dive deep into the concepts and share different perspectives on how these systems work in practice.",
-        timestamp: '2023-05-15T10:30:00Z',
-        likes: 12,
-        hearts: 5,
-        laughs: 0,
-        angry: 0,
-        sentiment: 'positive',
-        isTopComment: true,
-        isVerified: true,
-        depth: 0,
-        replies: [
-            {
-                id: '2',
-                userId: 'user2',
-                userName: 'Michael Chen',
-                userRole: 'Student',
-                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=michael',
-                content:
-                    "I was fascinated by how neural networks mimic human brain function. The parallels between biological neurons and artificial ones really helped me understand the concept better. It's amazing how we can simulate learning processes computationally!",
-                timestamp: '2023-05-15T11:15:00Z',
-                likes: 8,
-                hearts: 3,
-                laughs: 1,
-                angry: 0,
-                sentiment: 'positive',
-                parentId: '1',
-                depth: 1,
-                replies: [
-                    {
-                        id: '5',
-                        userId: 'user5',
-                        userName: 'Alex Thompson',
-                        userRole: 'Student',
-                        userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alex',
-                        content:
-                            "@Michael Chen That's exactly what I thought too! The biological inspiration is what makes it so intuitive once you grasp the basic concept.",
-                        timestamp: '2023-05-15T12:00:00Z',
-                        likes: 4,
-                        hearts: 2,
-                        laughs: 0,
-                        angry: 0,
-                        sentiment: 'positive',
-                        parentId: '2',
-                        depth: 2,
-                        replies: [
-                            {
-                                id: '6',
-                                userId: 'user2',
-                                userName: 'Michael Chen',
-                                userRole: 'Student',
-                                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=michael',
-                                content:
-                                    'Absolutely! And the way they handle pattern recognition is just mind-blowing.',
-                                timestamp: '2023-05-15T12:30:00Z',
-                                likes: 2,
-                                hearts: 1,
-                                laughs: 0,
-                                angry: 0,
-                                sentiment: 'positive',
-                                parentId: '5',
-                                depth: 3,
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                id: '3',
-                userId: 'user3',
-                userName: 'Emma Rodriguez',
-                userRole: 'Student',
-                userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=emma',
-                content:
-                    "I struggled with understanding backpropagation. Could someone explain it in simpler terms? I've read the textbook multiple times but I'm still not getting how the error flows backward through the network.",
-                timestamp: '2023-05-15T13:45:00Z',
-                likes: 5,
-                hearts: 1,
-                laughs: 0,
-                angry: 0,
-                sentiment: 'neutral',
-                parentId: '1',
-                depth: 1,
-            },
-        ],
-    },
-    {
-        id: '4',
-        userId: 'user4',
-        userName: 'David Wilson',
-        userRole: 'Student',
-        userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=david',
-        content:
-            "Has anyone found good resources for visualizing neural networks? I'm a visual learner and would appreciate any recommendations. Something interactive would be perfect!",
-        timestamp: '2023-05-16T09:20:00Z',
-        likes: 7,
-        hearts: 2,
-        laughs: 0,
-        angry: 0,
-        sentiment: 'neutral',
-        depth: 0,
-        replies: [],
-    },
-];
-
 const CommentThread = ({
     comments: initialComments = [],
     className,
     nodeId,
     nodeTitle,
+    typeNode,
+    classId,
+    topicId,
     filterType = 'all',
     triggerText,
     showTrigger = true,
     triggerComponent,
 }: CommentThreadProps) => {
-    const [comments, setComments] = useState<Comment[]>(
-        initialComments.length > 0 ? initialComments : mockDataComments,
-    );
+    const [comments, setComments] = useState<Comment[]>(initialComments);
 
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [isAddCommentDialogOpen, setIsAddCommentDialogOpen] = useState(false);
     const [isCommentsDialogOpen, setIsCommentsDialogOpen] = useState(false);
 
-    const handleAddComment = (content: string) => {
-        //TODO: Handle call api
-        const newComment: Comment = {
-            id: `comment-${Date.now()}`,
-            userId: 'currentUser',
-            userName: 'Current User',
-            userRole: 'Student',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=currentUser',
-            content,
-            timestamp: new Date().toISOString(),
-            likes: 0,
-            hearts: 0,
-            laughs: 0,
-            angry: 0,
-            sentiment: 'neutral',
-            depth: 0,
-            replies: [],
-        };
+    const { user } = useAuth();
 
-        setComments([...comments, newComment]);
-        setIsAddCommentDialogOpen(false);
+    const {
+        execute: fetchComments,
+        data: apiCommentsData,
+        loading: fetchingComments,
+        error: fetchCommentsError,
+    } = useGetCommentsByNode(classId || '', topicId || '');
+
+    const {
+        execute: createNewComment,
+        loading: creatingComment,
+        error: createCommentError,
+    } = useCreateComment(classId || '', topicId || '', {
+        onSuccess: (newComment: any) => {
+            // Convert API response to local Comment format
+            const formattedComment: Comment = {
+                id: newComment.commentId.toString(),
+                userId: newComment.author.user_id.toString(),
+                userName: newComment.author.name,
+                userRole: 'Student',
+                userAvatar: newComment.author.avatar,
+                content: newComment.content,
+                timestamp: newComment.createdAt.toISOString(),
+                likes: 0,
+                sentiment: 'neutral',
+                depth: newComment.level,
+                replies: [],
+            };
+
+            if (newComment.parentCmtId) {
+                // Handle adding reply to existing comment
+                const updatedComments = addReplyToComment(
+                    comments,
+                    newComment.parentCmtId.toString(),
+                    formattedComment,
+                );
+                setComments(updatedComments);
+            } else {
+                // Handle adding new top-level comment
+                setComments([...comments, formattedComment]);
+            }
+            setIsAddCommentDialogOpen(false);
+        },
+    });
+
+    const handleAddComment = async (content: string) => {
+        if (!classId || !topicId || !nodeId) {
+            console.error('Missing required parameters for creating comment');
+            return;
+        }
+
+        try {
+            await createNewComment({
+                nodeId,
+                typeNode,
+                content,
+                topicId,
+                author: {
+                    user_id: parseInt(user?.id! as string),
+                    name: user?.name!,
+                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=currentUser',
+                },
+            });
+        } catch (error) {
+            console.error('Failed to create comment:', error);
+        }
     };
 
     // Helper function to add reply at any depth
@@ -242,30 +178,29 @@ const CommentThread = ({
         return '';
     };
 
-    const handleAddReply = (commentId: string, content: string) => {
-        const parentDepth = findCommentDepth(comments, commentId);
-        const parentContent = findCommentContent(comments, commentId);
+    const handleAddReply = async (commentId: string, content: string) => {
+        if (!classId || !topicId || !nodeId) {
+            console.error('Missing required parameters for creating reply');
+            return;
+        }
 
-        const newReply: Comment = {
-            id: `reply-${Date.now()}`,
-            userId: 'currentUser',
-            userName: 'Current User',
-            userRole: 'Student',
-            userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=currentUser',
-            content,
-            timestamp: new Date().toISOString(),
-            likes: 0,
-            hearts: 0,
-            laughs: 0,
-            angry: 0,
-            sentiment: 'neutral',
-            parentId: commentId,
-            depth: parentDepth + 1,
-        };
-
-        const updatedComments = addReplyToComment(comments, commentId, newReply);
-        setComments(updatedComments);
-        setReplyingTo(null);
+        try {
+            await createNewComment({
+                nodeId: nodeId,
+                typeNode,
+                content,
+                topicId,
+                parentCmtId: commentId,
+                author: {
+                    user_id: parseInt(user?.id as string),
+                    name: user?.name || '',
+                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=currentUser',
+                },
+            });
+            setReplyingTo(null);
+        } catch (error) {
+            console.error('Failed to create reply:', error);
+        }
     };
 
     // Helper function to update reactions at any depth
@@ -321,15 +256,10 @@ const CommentThread = ({
                         author={{
                             name: comment.userName,
                             avatar: comment.userAvatar,
-                            role: comment.userRole,
-                            isVerified: comment.isVerified,
                         }}
                         content={comment.content}
                         timestamp={new Date(comment.timestamp).toLocaleString()}
                         likes={comment.likes}
-                        hearts={comment.hearts}
-                        laughs={comment.laughs}
-                        angry={comment.angry}
                         sentiment={comment.sentiment}
                         replies={comment.replies?.length || 0}
                         depth={comment.depth || 0}
@@ -441,7 +371,64 @@ const CommentThread = ({
         );
     };
 
-    const handleQueryCommentForNode = async () => {};
+    //TODO: query for get all comment for node
+    const handleQueryCommentForNode = async () => {
+        if (!classId || !topicId || !nodeId) {
+            console.error('Missing required parameters for fetching comments');
+            return;
+        }
+
+        try {
+            const response = await fetchComments({
+                nodeId: parseInt(nodeId),
+                typeNode,
+                page: 1,
+                limit: 20,
+            });
+
+            if (response && Array.isArray(response)) {
+                // Convert API response to local Comment format
+                const formattedComments: Comment[] = response.map((apiComment: any) => ({
+                    id: apiComment.commentId.toString(),
+                    userId: apiComment.author.user_id.toString(),
+                    userName: apiComment.author.name,
+                    userRole: 'Student', // You might want to map this from the API
+                    userAvatar:
+                        apiComment.author.avatar ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiComment.author.name}`,
+                    content: apiComment.content,
+                    timestamp: apiComment.createdAt.toISOString(),
+                    likes: apiComment.reactionCount,
+                    sentiment: 'neutral',
+                    depth: apiComment.level,
+                    parentId: apiComment.parentCmtId?.toString(),
+                    replies: apiComment.replies
+                        ? apiComment.replies.map((reply: any) => ({
+                              id: reply.commentId.toString(),
+                              userId: reply.author.user_id.toString(),
+                              userName: reply.author.name,
+                              userRole: 'Student',
+                              userAvatar: reply.author.avatar,
+                              content: reply.content,
+                              timestamp: reply.createdAt.toISOString(),
+                              likes: reply.reactionCount,
+                              hearts: 0,
+                              laughs: 0,
+                              angry: 0,
+                              sentiment: 'neutral',
+                              depth: reply.level,
+                              parentId: reply.parentCmtId?.toString(),
+                              replies: [], // Nested replies would need recursive handling
+                          }))
+                        : [],
+                }));
+
+                setComments(formattedComments);
+            }
+        } catch (error) {
+            console.error('Failed to fetch comments:', error);
+        }
+    };
 
     useEffect(() => {
         if (nodeId && isCommentsDialogOpen) {

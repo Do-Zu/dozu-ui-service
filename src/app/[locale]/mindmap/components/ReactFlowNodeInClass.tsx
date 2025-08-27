@@ -1,23 +1,21 @@
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Handle, Node, Position, useEdges, useReactFlow } from '@xyflow/react';
-import { useState } from 'react';
-import { CustomNodeData } from '../mindmap.type';
+import { useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
-import { getRouter } from '@/utils/routerService';
-import CommentThread from '../../tests/class/comment/components/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Handle, Position, useEdges, useReactFlow } from '@xyflow/react';
 import { BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { CustomNodeData } from '../mindmap.type';
+import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
+import { getRouter } from '@/utils/routerService';
 import { EnumNodeComment } from '../../class-based/types/class.type';
+import CommentThread from '../../tests/class/comment/components/CommentThread';
 
 const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
     const dispatch = useDispatch();
     const router = getRouter();
 
-    const [label, setLabel] = useState(data.label);
     const [isHovered, setIsHovered] = useState(false);
     const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
     const edges = useEdges();
@@ -55,18 +53,21 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
         visible: { opacity: 1, scale: 1, x: 0 },
     };
 
-    const triggerComponent = (
-        <Button
-            size="sm"
-            variant="ghost"
-            onClick={(e) => {
-                e.stopPropagation();
-            }}
-            className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-        >
-            <MessageCircle className="w-3 h-3 mr-1" />
-            comments
-        </Button>
+    const triggerComponent = useMemo(
+        () => (
+            <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                    e.stopPropagation();
+                }}
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+                <MessageCircle className="w-3 h-3 mr-1" />
+                comments
+            </Button>
+        ),
+        [],
     );
 
     return (
@@ -211,6 +212,8 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
                                 triggerComponent={triggerComponent}
                                 nodeId={data.nodeId}
                                 nodeTitle={data.label}
+                                classId="1" // TODO: Get from context or props or global state
+                                topicId={data.topicId!}
                                 typeNode={EnumNodeComment.MINDMAP}
                             />
                         </motion.div>

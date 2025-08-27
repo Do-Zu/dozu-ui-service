@@ -9,16 +9,14 @@ import { TooltipProvider, TooltipTrigger, TooltipContent } from '@radix-ui/react
 import { Tooltip } from '@/components/ui/tooltip';
 
 interface CommentCardProps {
-    id?: string;
-    author?: {
+    id: string;
+    author: {
         name: string;
         avatar: string;
-        role: 'Teacher' | 'Student' | 'Moderator' | 'Author';
-        isVerified?: boolean;
     };
-    content?: string;
-    timestamp?: string;
-    likes?: number;
+    content: string;
+    timestamp: string;
+    likes: number;
     hearts?: number;
     laughs?: number;
     angry?: number;
@@ -35,22 +33,14 @@ interface CommentCardProps {
 }
 
 const CommentCard = ({
-    id = '1',
-    author = {
-        name: 'Jane Smith',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
-        role: 'Student',
-        isVerified: false,
-    },
-    content = 'This is a sample comment with modern design. It demonstrates how the comment card looks with clean typography, proper spacing, and smooth interactions. The content can be quite long and will show a read more option when needed.',
-    timestamp = '2 hours ago',
-    likes = 5,
-    hearts = 2,
-    laughs = 1,
-    angry = 0,
+    id,
+    author,
+    content,
+    timestamp,
+    likes,
     isLiked = false,
-    replies = 2,
-    sentiment = 'neutral',
+    replies = 0,
+    sentiment,
     isReply = false,
     depth = 0,
     replyTo,
@@ -71,18 +61,18 @@ const CommentCard = ({
         positive: 'border-l-green-400 dark:border-l-green-500 bg-green-50/50 dark:bg-green-900/20',
         neutral: 'border-l-gray-300 dark:border-l-gray-600 bg-gray-50/30 dark:bg-gray-800/30',
         negative: 'border-l-red-400 dark:border-l-red-500 bg-red-50/50 dark:bg-red-900/20',
-    }[sentiment];
+    }[sentiment ?? 'neutral'];
 
     // Role styling
-    const roleStyles = {
-        Teacher:
-            'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-700',
-        Student:
-            'bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600',
-        Moderator:
-            'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-700',
-        Author: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700',
-    }[author.role];
+    // const roleStyles = {
+    //     Teacher:
+    //         'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-700',
+    //     Student:
+    //         'bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600',
+    //     Moderator:
+    //         'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-700',
+    //     Author: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700',
+    // }[author.role];
 
     // Get initials for avatar fallback
     const getInitials = (name: string) => {
@@ -94,7 +84,7 @@ const CommentCard = ({
     };
 
     // Format reactions
-    const totalReactions = likes + hearts + laughs + angry;
+    const totalReactions = likes ?? 0;
 
     return (
         <div
@@ -119,7 +109,7 @@ const CommentCard = ({
                             {getInitials(author.name)}
                         </AvatarFallback>
                     </Avatar>
-                    {author.isVerified && (
+                    {/* {author?.isVerified && (
                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
                             <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path
@@ -129,7 +119,7 @@ const CommentCard = ({
                                 />
                             </svg>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -209,48 +199,6 @@ const CommentCard = ({
                                         </Button>
                                     </TooltipTrigger>
                                 </Tooltip>
-
-                                {/* Reaction picker */}
-                                {/* {showReactions && (
-                                    <div
-                                        className="absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-lg border border-gray-200 p-1 flex gap-1 z-10 animate-in slide-in-from-bottom-2 duration-200"
-                                        onMouseEnter={() => setShowReactions(true)}
-                                        onMouseLeave={() => setShowReactions(false)}
-                                    >
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0 rounded-full hover:bg-blue-50"
-                                            onClick={() => onReaction(id, 'like')}
-                                        >
-                                            👍
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0 rounded-full hover:bg-red-50"
-                                            onClick={() => onReaction(id, 'heart')}
-                                        >
-                                            ❤️
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0 rounded-full hover:bg-yellow-50"
-                                            onClick={() => onReaction(id, 'laugh')}
-                                        >
-                                            😂
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0 rounded-full hover:bg-orange-50"
-                                            onClick={() => onReaction(id, 'angry')}
-                                        >
-                                            😡
-                                        </Button>
-                                    </div>
-                                )} */}
                             </div>
 
                             {/* Reply button */}
