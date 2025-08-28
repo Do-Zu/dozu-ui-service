@@ -102,7 +102,7 @@ const CommentCard = ({
     return (
         <div
             className={cn(
-                'group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 mb-4 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/30 border border-gray-100/50 dark:border-gray-700/50 border-[1px]',
+                'group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-2 py-4 mb-4 transition-all duration-300 hover:shadow-lg dark:hover:shadow-gray-900/30 border border-gray-100/50 dark:border-gray-700/50 border-[1px]',
                 sentimentStyles,
             )}
             style={{ marginLeft: `${depth * 24}px` }}

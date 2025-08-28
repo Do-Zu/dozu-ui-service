@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/auth/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { format, formatDistanceStrict } from 'date-fns';
 import { getCurrentSystemDateTime } from '@/utils';
+import CommentThreadSkeleton from './SkeletonCard';
 
 interface Comment {
     id: string;
@@ -273,6 +274,22 @@ const CommentThread = ({
         setReplyingTo(commentId);
     };
 
+    const renderReplyComment = (comment: Comment) => {
+        // if (isFetchingReplyComment && findCommentDepth(comments, comment.id) !== -1) {
+        //     return <CommentThreadSkeleton amount={1} />;
+        // }
+
+        return (
+            <>
+                {comment.replies && comment.replies.length > 0 && (
+                    <div className="space-y-4">
+                        {comment.replies.map((reply, replyIndex) => renderComment(reply, replyIndex))}
+                    </div>
+                )}
+            </>
+        );
+    };
+
     // Recursive function to render comments and their nested replies
     const renderComment = (comment: Comment, index: number) => {
         const parentContent = comment.parentId ? findCommentContent(comments, comment.parentId) : undefined;
@@ -319,10 +336,31 @@ const CommentThread = ({
                 )}
 
                 {/* Nested replies */}
-                {comment.replies && comment.replies.length > 0 && (
-                    <div className="space-y-4">
-                        {comment.replies.map((reply, replyIndex) => renderComment(reply, replyIndex))}
+                {renderReplyComment(comment)}
+            </div>
+        );
+    };
+
+    const renderListComment = () => {
+        if (fetchingComments && !fetchCommentsError) {
+            return <CommentThreadSkeleton />;
+        }
+
+        return (
+            <div>
+                {comments.length === 0 ? (
+                    <div className="text-center py-12">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200/50 dark:border-blue-700/50">
+                            <MessageCircle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-700 mb-2">No comments yet</h3>
+                        <p className="text-gray-500 dark:text-gray-400 mb-4">Be the first to share your thoughts!</p>
+                        <Button onClick={() => setIsAddCommentDialogOpen(true)} className="bg-gradient-to-r">
+                            Start the Discussion
+                        </Button>
                     </div>
+                ) : (
+                    <div className="space-y-6">{comments.map((comment, index) => renderComment(comment, index))}</div>
                 )}
             </div>
         );
@@ -332,7 +370,7 @@ const CommentThread = ({
         return (
             <div className="max-w-5xl mx-auto rounded-2xl p-6 ">
                 <div className="relative mb-8">
-                    <div className="relative backdrop-blur-sm rounded-xl p-6 border border-white/20 dark:border-gray-700/30 shadow-lg dark:shadow-gray-900/10 bg-white/50 dark:bg-gray-800/50">
+                    <div className="relative backdrop-blur-sm rounded-xl p-4 mb-4 border border-white/20 dark:border-gray-700/30 shadow-lg dark:shadow-gray-900/10 bg-white/50 dark:bg-gray-800/50">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl flex items-center justify-center shadow-lg">
@@ -378,28 +416,7 @@ const CommentThread = ({
                             </Dialog>
                         </div>
                     </div>
-                </div>
-                <div>
-                    {comments.length === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200/50 dark:border-blue-700/50">
-                                <MessageCircle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-                            </div>
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-700 mb-2">
-                                No comments yet
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-4">
-                                Be the first to share your thoughts!
-                            </p>
-                            <Button onClick={() => setIsAddCommentDialogOpen(true)} className="bg-gradient-to-r">
-                                Start the Discussion
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="space-y-6">
-                            {comments.map((comment, index) => renderComment(comment, index))}
-                        </div>
-                    )}
+                    {renderListComment()}
                 </div>
             </div>
         );
