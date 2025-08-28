@@ -8,7 +8,12 @@ import { Button } from '@/components/ui/button';
 import CommentInput from './CommentInput';
 import CommentCard from './CommentCard';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useGetCommentsByNode, useCreateComment, IClassTopicComment } from '@/services/class-based-learning/comment';
+import {
+    useGetCommentsByNode,
+    useCreateComment,
+    IClassTopicComment,
+    useGetCommentReplies,
+} from '@/services/class-based-learning/comment';
 import { TypeNodeComment } from '@/app/[locale]/class-based/types/class.type';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -27,6 +32,7 @@ interface Comment {
     sentiment?: 'positive' | 'neutral' | 'negative';
     isTopComment?: boolean;
     isVerified?: boolean;
+    relyCount?: number;
     replies?: Comment[];
     parentId?: string;
     depth?: number;
@@ -74,6 +80,13 @@ const CommentThread = ({
     } = useGetCommentsByNode(classId || '', topicId || '');
 
     const {
+        execute: fetchReplyComments,
+        data: apiReplyCommentsData,
+        loading: isFetchingReplyComment,
+        error: fetchReplyCommentsError,
+    } = useGetCommentReplies(classId || '', topicId || '');
+
+    const {
         execute: createNewComment,
         loading: creatingComment,
         error: createCommentError,
@@ -91,6 +104,7 @@ const CommentThread = ({
                 likes: newComment?.reactionCount || 0,
                 sentiment: 'neutral',
                 depth: newComment?.level,
+                relyCount: newComment?.replyCount || 0,
                 replies: [],
             };
 
@@ -143,9 +157,15 @@ const CommentThread = ({
     };
 
     // Helper function to add reply at any depth
-    const addReplyToComment = (comments: Comment[], targetId: string, newReply: Comment): Comment[] => {
+    const addReplyToComment = (comments: Comment[], targetId: string, newReply: Comment | Comment[]): Comment[] => {
         return comments.map((comment) => {
             if (comment.id === targetId) {
+                if (Array.isArray(newReply)) {
+                    return {
+                        ...comment,
+                        replies: [...(comment.replies || []), ...newReply],
+                    };
+                }
                 return {
                     ...comment,
                     replies: [...(comment.replies || []), newReply],
@@ -240,12 +260,10 @@ const CommentThread = ({
     };
 
     const handleReaction = (commentId: string, reactionType: 'like' | 'heart' | 'laugh' | 'angry') => {
-        const updatedComments = updateReactionInComments(comments, commentId, reactionType);
-        setComments(updatedComments);
-    };
-
-    const handleLike = (commentId: string) => {
-        handleReaction(commentId, 'like');
+        //TODO: Reaction for comment
+        toast({ description: 'Coming Soon!' });
+        // const updatedComments = updateReactionInComments(comments, commentId, reactionType);
+        // setComments(updatedComments);
     };
 
     const handleReply = (commentId: string) => {
@@ -272,11 +290,11 @@ const CommentThread = ({
                         timestamp={new Date(comment.timestamp).toLocaleString()}
                         likes={comment.likes}
                         sentiment={comment.sentiment}
-                        replies={comment.replies?.length || 0}
-                        depth={comment.depth || 0}
+                        replyCount={comment.relyCount}
+                        depth={comment.depth}
                         replyTo={parentContent}
-                        onLike={() => handleLike(comment.id)}
-                        onReply={() => handleReply(comment.id)}
+                        onFetchReply={() => handleFetchReplyComment(comment.id)}
+                        onReply={handleReply}
                         onReaction={(id, type) => handleReaction(id, type)}
                     />
                 </div>
@@ -384,6 +402,24 @@ const CommentThread = ({
         );
     };
 
+    const handleFormatComment = (comments: IClassTopicComment[]): Comment[] => {
+        return comments?.map((comment: IClassTopicComment) => ({
+            id: comment.commentId.toString(),
+            userId: comment.author.user_id.toString(),
+            userName: comment.author.name,
+            userRole: 'Student', // You might want to map this from the API
+            userAvatar: comment.author.avatar,
+            content: comment.content,
+            timestamp: format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss'),
+            likes: comment.reactionCount,
+            sentiment: 'neutral',
+            depth: comment.level,
+            parentId: comment.parentCmtId?.toString(),
+            replyCount: comment.replyCount,
+            replies: [],
+        }));
+    };
+
     const handleQueryCommentForNode = async () => {
         if (!classId || !topicId || !nodeId) {
             console.error('Missing required parameters for fetching comments');
@@ -400,43 +436,22 @@ const CommentThread = ({
 
             if (response && response.data) {
                 // Convert API response to local Comment format
-                const formattedComments: Comment[] = response.data?.map((apiComment: any) => ({
-                    id: apiComment.commentId.toString(),
-                    userId: apiComment.author.user_id.toString(),
-                    userName: apiComment.author.name,
-                    userRole: 'Student', // You might want to map this from the API
-                    userAvatar: apiComment.author.avatar,
-                    content: apiComment.content,
-                    timestamp: apiComment.createdAt,
-                    likes: apiComment.reactionCount,
-                    sentiment: 'neutral',
-                    depth: apiComment.level,
-                    parentId: apiComment.parentCmtId?.toString(),
-                    replies: apiComment.replies
-                        ? apiComment.replies.map((reply: any) => ({
-                              id: reply.commentId.toString(),
-                              userId: reply.author.user_id.toString(),
-                              userName: reply.author.name,
-                              userRole: 'Student',
-                              userAvatar: reply.author.avatar,
-                              content: reply.content,
-                              timestamp: reply.createdAt,
-                              likes: reply.reactionCount,
-                              hearts: 0,
-                              laughs: 0,
-                              angry: 0,
-                              sentiment: 'neutral',
-                              depth: reply.level,
-                              parentId: reply.parentCmtId?.toString(),
-                              replies: [], // Nested replies would need recursive handling
-                          }))
-                        : [],
-                }));
+                const formattedComments: Comment[] = handleFormatComment(response.data);
 
                 setComments(formattedComments);
             }
         } catch (error) {
             console.error('Failed to fetch comments:', error);
+        }
+    };
+
+    const handleFetchReplyComment = async (parentCmtId: string | number) => {
+        const response = await fetchReplyComments({ parentCmtId, nodeId, typeNode, page: 1, limit: 20 });
+
+        if (response && response.data) {
+            const formattedComments: Comment[] = handleFormatComment(response.data);
+
+            setComments((prevComments) => addReplyToComment(prevComments, parentCmtId.toString(), formattedComments));
         }
     };
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageCircle, Share2, MoreHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Share2, MoreHorizontal, ChevronDown, ChevronUp, ReplyIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
 import { TooltipProvider, TooltipTrigger, TooltipContent } from '@radix-ui/react-tooltip';
@@ -21,14 +21,13 @@ interface CommentCardProps {
     laughs?: number;
     angry?: number;
     isLiked?: boolean;
-    replies?: number;
+    replyCount?: number;
     sentiment?: 'positive' | 'neutral' | 'negative';
     isReply?: boolean;
     depth?: number;
     replyTo?: string;
-    onLike?: (id: string) => void;
+    onFetchReply: (id: string) => void;
     onReply?: (id: string) => void;
-    onShare?: (id: string) => void;
     onReaction?: (id: string, type: 'like' | 'heart' | 'laugh' | 'angry') => void;
 }
 
@@ -39,14 +38,14 @@ const CommentCard = ({
     timestamp,
     likes,
     isLiked = false,
-    replies = 0,
+    replyCount = 0,
     sentiment,
     isReply = false,
     depth = 0,
     replyTo,
-    onLike = () => {},
+    onFetchReply,
+
     onReply = () => {},
-    onShare = () => {},
     onReaction = () => {},
 }: CommentCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -200,8 +199,7 @@ const CommentCard = ({
                                     </TooltipTrigger>
                                 </Tooltip>
                             </div>
-
-                            {/* Reply button */}
+                            {/* See replyCount button */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -211,7 +209,7 @@ const CommentCard = ({
                                         onClick={() => onReply(id)}
                                     >
                                         <MessageCircle className="h-3.5 w-3.5" />
-                                        {replies > 0 && <span className="font-medium">{replies}</span>}
+                                        {<span className="font-medium">{replyCount}</span>}
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent side="bottom">
@@ -219,19 +217,21 @@ const CommentCard = ({
                                 </TooltipContent>
                             </Tooltip>
 
-                            {/* Share button */}
+                            {/* Reply button */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-8 px-2 text-xs text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-full transition-all duration-200 hover:scale-105"
-                                        onClick={() => onShare(id)}
+                                        className="h-8 px-2 text-xs gap-1.5 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full transition-all duration-200 hover:scale-105"
+                                        onClick={() => onFetchReply(id)}
                                     >
-                                        <Share2 className="h-3.5 w-3.5" />
+                                        <ReplyIcon className="h-3.5 w-3.5" />
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent>{/* <p className="text-xs">Share this comment</p> */}</TooltipContent>
+                                <TooltipContent side="bottom">
+                                    {/* <span className="text-xs">Reply to this comment</span> */}
+                                </TooltipContent>
                             </Tooltip>
 
                             {/* More options */}
