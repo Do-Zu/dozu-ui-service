@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageCircle, Share2, MoreHorizontal, ChevronDown, ChevronUp, ReplyIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -206,7 +206,7 @@ const CommentCard = ({
                                         variant="ghost"
                                         size="sm"
                                         className="h-8 px-2 text-xs gap-1.5 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full transition-all duration-200 hover:scale-105"
-                                        onClick={() => onReply(id)}
+                                        onClick={() => onFetchReply(id)}
                                     >
                                         <MessageCircle className="h-3.5 w-3.5" />
                                         {<span className="font-medium">{replyCount}</span>}
@@ -224,7 +224,7 @@ const CommentCard = ({
                                         variant="ghost"
                                         size="sm"
                                         className="h-8 px-2 text-xs gap-1.5 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full transition-all duration-200 hover:scale-105"
-                                        onClick={() => onFetchReply(id)}
+                                        onClick={() => onReply(id)}
                                     >
                                         <ReplyIcon className="h-3.5 w-3.5" />
                                     </Button>
@@ -257,4 +257,4 @@ const CommentCard = ({
     );
 };
 
-export default CommentCard;
+export default memo(CommentCard);

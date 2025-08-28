@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/auth/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { STATUS_CODE } from '@/utils/constants/http';
 import { format } from 'date-fns';
+import { parse } from 'path';
 
 interface Comment {
     id: string;
@@ -32,7 +33,7 @@ interface Comment {
     sentiment?: 'positive' | 'neutral' | 'negative';
     isTopComment?: boolean;
     isVerified?: boolean;
-    relyCount?: number;
+    replyCount?: number;
     replies?: Comment[];
     parentId?: string;
     depth?: number;
@@ -104,7 +105,7 @@ const CommentThread = ({
                 likes: newComment?.reactionCount || 0,
                 sentiment: 'neutral',
                 depth: newComment?.level,
-                relyCount: newComment?.replyCount || 0,
+                replyCount: newComment?.replyCount || 0,
                 replies: [],
             };
 
@@ -156,21 +157,38 @@ const CommentThread = ({
         }
     };
 
+    const compareIgnoreDigit = (a: string | number, b: string | number) => {
+        try {
+            return a.toString().trim() === b.toString().trim();
+        } catch (error) {
+            return false;
+        }
+    };
+
     // Helper function to add reply at any depth
-    const addReplyToComment = (comments: Comment[], targetId: string, newReply: Comment | Comment[]): Comment[] => {
+    const addReplyToComment = (
+        comments: Comment[],
+        targetId: string,
+        newReply: Comment | Comment[],
+        isReplace = false,
+    ): Comment[] => {
         return comments.map((comment) => {
-            if (comment.id === targetId) {
+            if (compareIgnoreDigit(comment.id, targetId)) {
                 if (Array.isArray(newReply)) {
                     return {
                         ...comment,
-                        replies: [...(comment.replies || []), ...newReply],
+                        replies: isReplace ? [...newReply] : [...(comment.replies || []), ...newReply],
+                        replyCount: isReplace ? comment.replyCount || 0 : (comment.replyCount || 0) + newReply.length,
                     };
                 }
+
                 return {
                     ...comment,
                     replies: [...(comment.replies || []), newReply],
+                    replyCount: (comment.replyCount || 0) + 1,
                 };
             }
+
             if (comment.replies && comment.replies.length > 0) {
                 return {
                     ...comment,
@@ -290,7 +308,7 @@ const CommentThread = ({
                         timestamp={new Date(comment.timestamp).toLocaleString()}
                         likes={comment.likes}
                         sentiment={comment.sentiment}
-                        replyCount={comment.relyCount}
+                        replyCount={comment.replyCount}
                         depth={comment.depth}
                         replyTo={parentContent}
                         onFetchReply={() => handleFetchReplyComment(comment.id)}
@@ -450,8 +468,9 @@ const CommentThread = ({
 
         if (response && response.data) {
             const formattedComments: Comment[] = handleFormatComment(response.data);
-
-            setComments((prevComments) => addReplyToComment(prevComments, parentCmtId.toString(), formattedComments));
+            setComments((prevComments) =>
+                addReplyToComment(prevComments, parentCmtId.toString(), formattedComments, true),
+            );
         }
     };
 

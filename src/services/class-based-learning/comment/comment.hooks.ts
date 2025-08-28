@@ -80,9 +80,9 @@ export const useGetSingleComment = (
 export const useGetCommentReplies = (
     classId: string | number,
     topicId: string | number,
-    options?: UsePostOptions<IGetRepliesBody, IGetRepliesResponse>,
+    options?: UsePostOptions<IGetRepliesBody, ApiResponse<IGetRepliesResponse>>,
 ) => {
-    return usePost<IGetRepliesBody, IGetRepliesResponse>(
+    return usePost<IGetRepliesBody, ApiResponse<IGetRepliesResponse>>(
         (repliesQuery) => getCommentReplies(classId, topicId, repliesQuery),
         'POST',
         options,
