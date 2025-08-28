@@ -17,9 +17,8 @@ import {
 import { TypeNodeComment } from '@/app/[locale]/class-based/types/class.type';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { STATUS_CODE } from '@/utils/constants/http';
-import { format } from 'date-fns';
-import { parse } from 'path';
+import { format, formatDistanceStrict } from 'date-fns';
+import { getCurrentSystemDateTime } from '@/utils';
 
 interface Comment {
     id: string;
@@ -28,7 +27,7 @@ interface Comment {
     userRole: 'Teacher' | 'Student' | 'Moderator' | 'Author';
     userAvatar: string;
     content: string;
-    timestamp: string;
+    timestamp: string | Date;
     likes: number;
     sentiment?: 'positive' | 'neutral' | 'negative';
     isTopComment?: boolean;
@@ -93,21 +92,7 @@ const CommentThread = ({
         error: createCommentError,
     } = useCreateComment(classId || '', topicId || '', {
         onSuccess: ({ data: newComment }: { data: IClassTopicComment }) => {
-            // Convert API response to local Comment format
-            const formattedComment: Comment = {
-                id: newComment.commentId?.toString(),
-                userId: newComment?.author?.user_id?.toString(),
-                userName: newComment?.author?.name,
-                userRole: 'Student',
-                userAvatar: newComment?.author?.avatar,
-                content: newComment.content,
-                timestamp: format(newComment.createdAt, 'yyyy-MM-dd HH:mm:ss'),
-                likes: newComment?.reactionCount || 0,
-                sentiment: 'neutral',
-                depth: newComment?.level,
-                replyCount: newComment?.replyCount || 0,
-                replies: [],
-            };
+            const formattedComment = handleFormatComment(newComment);
 
             if (newComment.parentCmtId) {
                 // Handle adding reply to existing comment
@@ -305,7 +290,7 @@ const CommentThread = ({
                             avatar: comment.userAvatar,
                         }}
                         content={comment.content}
-                        timestamp={new Date(comment.timestamp).toLocaleString()}
+                        timestamp={comment.timestamp}
                         likes={comment.likes}
                         sentiment={comment.sentiment}
                         replyCount={comment.replyCount}
@@ -420,22 +405,22 @@ const CommentThread = ({
         );
     };
 
-    const handleFormatComment = (comments: IClassTopicComment[]): Comment[] => {
-        return comments?.map((comment: IClassTopicComment) => ({
+    const handleFormatComment = (comment: IClassTopicComment): Comment => {
+        return {
             id: comment.commentId.toString(),
             userId: comment.author.user_id.toString(),
             userName: comment.author.name,
-            userRole: 'Student', // You might want to map this from the API
+            userRole: 'Student', // TODO: You might want to map this from the API
             userAvatar: comment.author.avatar,
             content: comment.content,
-            timestamp: format(comment.createdAt, 'yyyy-MM-dd HH:mm:ss'),
+            timestamp: comment.createdAt,
             likes: comment.reactionCount,
             sentiment: 'neutral',
             depth: comment.level,
             parentId: comment.parentCmtId?.toString(),
             replyCount: comment.replyCount,
             replies: [],
-        }));
+        };
     };
 
     const handleQueryCommentForNode = async () => {
@@ -454,8 +439,7 @@ const CommentThread = ({
 
             if (response && response.data) {
                 // Convert API response to local Comment format
-                const formattedComments: Comment[] = handleFormatComment(response.data);
-
+                const formattedComments: Comment[] = response.data?.map((comment) => handleFormatComment(comment));
                 setComments(formattedComments);
             }
         } catch (error) {
@@ -467,7 +451,7 @@ const CommentThread = ({
         const response = await fetchReplyComments({ parentCmtId, nodeId, typeNode, page: 1, limit: 20 });
 
         if (response && response.data) {
-            const formattedComments: Comment[] = handleFormatComment(response.data);
+            const formattedComments: Comment[] = response.data?.map((comment) => handleFormatComment(comment));
             setComments((prevComments) =>
                 addReplyToComment(prevComments, parentCmtId.toString(), formattedComments, true),
             );

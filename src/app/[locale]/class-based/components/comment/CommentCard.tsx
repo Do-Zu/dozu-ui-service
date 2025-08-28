@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
 import { TooltipProvider, TooltipTrigger, TooltipContent } from '@radix-ui/react-tooltip';
 import { Tooltip } from '@/components/ui/tooltip';
+import { getCurrentSystemDateTime } from '@/utils';
+import { formatDistanceStrict } from 'date-fns';
 
 interface CommentCardProps {
     id: string;
@@ -15,7 +17,7 @@ interface CommentCardProps {
         avatar: string;
     };
     content: string;
-    timestamp: string;
+    timestamp: string | Date | number;
     likes: number;
     hearts?: number;
     laughs?: number;
@@ -44,7 +46,6 @@ const CommentCard = ({
     depth = 0,
     replyTo,
     onFetchReply,
-
     onReply = () => {},
     onReaction = () => {},
 }: CommentCardProps) => {
@@ -84,6 +85,19 @@ const CommentCard = ({
 
     // Format reactions
     const totalReactions = likes ?? 0;
+
+    const formatDateTimeComment = (time: Date | string | number): string => {
+        try {
+            const prefix = 'ago';
+
+            const now = getCurrentSystemDateTime();
+            const distance = formatDistanceStrict(time, now);
+
+            return `${distance} ${prefix}`;
+        } catch (error) {
+            return 'N/A';
+        }
+    };
 
     return (
         <div
@@ -128,7 +142,7 @@ const CommentCard = ({
                             {author.name}
                         </h4>
                         <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto font-medium">
-                            {timestamp}
+                            {formatDateTimeComment(timestamp)}
                         </span>
                     </div>
 
