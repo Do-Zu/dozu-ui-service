@@ -53,7 +53,7 @@ const CommentCard = ({
     const [showReactions, setShowReactions] = useState(false);
 
     // Determine if content should be truncated
-    const shouldTruncate = content.length > 200;
+    const shouldTruncate = content?.length > 200;
     const displayContent = shouldTruncate && !isExpanded ? content.slice(0, 200) + '...' : content;
 
     // Determine sentiment styling
@@ -103,8 +103,8 @@ const CommentCard = ({
 
             <div className="flex items-start gap-3">
                 <div className="relative group/avatar">
-                    <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm transition-transform duration-200 group-hover/avatar:scale-105">
-                        <AvatarImage src={author.avatar} alt={author.name} />
+                    <Avatar className="ring-2 ring-white shadow-sm transition-transform duration-200 group-hover/avatar:scale-105">
+                        <AvatarImage className="h-8 w-8 ring-2 rounded-full" src={author.avatar} alt={author.name} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-gray-700 dark:text-gray-300 font-medium">
                             {getInitials(author.name)}
                         </AvatarFallback>

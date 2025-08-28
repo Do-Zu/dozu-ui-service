@@ -7,7 +7,7 @@ export interface IClassTopicComment {
     author: {
         user_id: number;
         name: string;
-        avatar?: string;
+        avatar: string;
     };
     typeNode: TypeNodeComment;
     isDeleted: boolean;

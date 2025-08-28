@@ -20,15 +20,15 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
     const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
     const edges = useEdges();
 
-    const deleteNode = (id: string) => {
-        edges.forEach((edge) => {
-            if (edge.source === id) {
-                deleteNode(edge.target);
-            }
-        });
-        setNodes((nds) => nds.filter((node) => node.id !== id));
-        setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
-    };
+    // const deleteNode = (id: string) => {
+    //     edges.forEach((edge) => {
+    //         if (edge.source === id) {
+    //             deleteNode(edge.target);
+    //         }
+    //     });
+    //     setNodes((nds) => nds.filter((node) => node.id !== id));
+    //     setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
+    // };
 
     const handleClickNode = () => {
         dispatch(openSheet());

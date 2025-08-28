@@ -10,6 +10,8 @@ import {
     IGetSingleCommentResponse,
 } from './comment.types';
 import { createComment, getCommentsByNode, getCommentReplies, getSingleComment } from './comment.service';
+import { ApiResponse } from '@/api/type';
+import { STATUS_CODE } from '@/utils/constants/http';
 
 /**
  * Hook for getting comments by node
@@ -21,9 +23,9 @@ import { createComment, getCommentsByNode, getCommentReplies, getSingleComment }
 export const useGetCommentsByNode = (
     classId: string | number,
     topicId: string | number,
-    options?: UsePostOptions<IGetCommentsQuery, IGetCommentsResponse>,
+    options?: UsePostOptions<IGetCommentsQuery, ApiResponse<IGetCommentsResponse>>,
 ) => {
-    return usePost<IGetCommentsQuery, IGetCommentsResponse>(
+    return usePost<IGetCommentsQuery, ApiResponse<IGetCommentsResponse>>(
         (query) => getCommentsByNode(classId, topicId, query),
         'POST',
         options,
@@ -40,9 +42,9 @@ export const useGetCommentsByNode = (
 export const useCreateComment = (
     classId: string | number,
     topicId: string | number,
-    options?: UsePostOptions<ICreateCommentBody, IClassTopicComment>,
+    options?: UsePostOptions<ICreateCommentBody, ApiResponse<IClassTopicComment>>,
 ) => {
-    return usePost<ICreateCommentBody, IClassTopicComment>(
+    return usePost<ICreateCommentBody, ApiResponse<IClassTopicComment>>(
         (commentData) => createComment(classId, topicId, commentData),
         'POST',
         options,

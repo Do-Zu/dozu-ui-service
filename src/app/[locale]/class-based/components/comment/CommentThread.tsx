@@ -11,6 +11,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGetCommentsByNode, useCreateComment, IClassTopicComment } from '@/services/class-based-learning/comment';
 import { TypeNodeComment } from '@/app/[locale]/class-based/types/class.type';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { toast } from '@/hooks/use-toast';
+import { STATUS_CODE } from '@/utils/constants/http';
+import { format } from 'date-fns';
 
 interface Comment {
     id: string;
@@ -56,13 +59,12 @@ const CommentThread = ({
     showTrigger = true,
     triggerComponent,
 }: CommentThreadProps) => {
-    const [comments, setComments] = useState<Comment[]>(initialComments);
+    const { user, isAuthenticated } = useAuth();
 
+    const [comments, setComments] = useState<Comment[]>(initialComments);
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [isAddCommentDialogOpen, setIsAddCommentDialogOpen] = useState(false);
     const [isCommentsDialogOpen, setIsCommentsDialogOpen] = useState(false);
-
-    const { user } = useAuth();
 
     const {
         execute: fetchComments,
@@ -76,41 +78,50 @@ const CommentThread = ({
         loading: creatingComment,
         error: createCommentError,
     } = useCreateComment(classId || '', topicId || '', {
-        onSuccess: (newComment: any) => {
+        onSuccess: ({ data: newComment }: { data: IClassTopicComment }) => {
             // Convert API response to local Comment format
             const formattedComment: Comment = {
-                id: newComment.commentId.toString(),
-                userId: newComment.author.user_id.toString(),
-                userName: newComment.author.name,
+                id: newComment.commentId?.toString(),
+                userId: newComment?.author?.user_id?.toString(),
+                userName: newComment?.author?.name,
                 userRole: 'Student',
-                userAvatar: newComment.author.avatar,
+                userAvatar: newComment?.author?.avatar,
                 content: newComment.content,
-                timestamp: newComment.createdAt.toISOString(),
-                likes: 0,
+                timestamp: format(newComment.createdAt, 'yyyy-MM-dd HH:mm:ss'),
+                likes: newComment?.reactionCount || 0,
                 sentiment: 'neutral',
-                depth: newComment.level,
+                depth: newComment?.level,
                 replies: [],
             };
 
             if (newComment.parentCmtId) {
                 // Handle adding reply to existing comment
-                const updatedComments = addReplyToComment(
-                    comments,
-                    newComment.parentCmtId.toString(),
-                    formattedComment,
-                );
+                const updatedComments = addReplyToComment(comments, newComment.parentCmtId as string, formattedComment);
+
                 setComments(updatedComments);
             } else {
                 // Handle adding new top-level comment
-                setComments([...comments, formattedComment]);
+                setComments((prev) => [...prev, formattedComment]);
             }
+
             setIsAddCommentDialogOpen(false);
+        },
+        onMessageSuccess: () => {
+            toast({ description: 'Sent' });
+        },
+        onError: () => {
+            toast({ description: 'Failed to add your comment!' });
         },
     });
 
     const handleAddComment = async (content: string) => {
         if (!classId || !topicId || !nodeId) {
-            console.error('Missing required parameters for creating comment');
+            toast({ description: 'Missing required parameters for creating comment' });
+            return;
+        }
+
+        if (!isAuthenticated || !user) {
+            toast({ description: 'You must be logged in to post a comment.' });
             return;
         }
 
@@ -121,13 +132,13 @@ const CommentThread = ({
                 content,
                 topicId,
                 author: {
-                    user_id: parseInt(user?.id! as string),
-                    name: user?.name!,
-                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=currentUser',
+                    user_id: parseInt(user.userId as string),
+                    name: user.fullName || user.username,
+                    avatar: user.avatarUrl,
                 },
             });
         } catch (error) {
-            console.error('Failed to create comment:', error);
+            toast({ description: 'failed to add your comment' });
         }
     };
 
@@ -179,8 +190,8 @@ const CommentThread = ({
     };
 
     const handleAddReply = async (commentId: string, content: string) => {
-        if (!classId || !topicId || !nodeId) {
-            console.error('Missing required parameters for creating reply');
+        if (!isAuthenticated || !user) {
+            toast({ description: 'You must be logged in to post a comment.' });
             return;
         }
 
@@ -192,9 +203,9 @@ const CommentThread = ({
                 topicId,
                 parentCmtId: commentId,
                 author: {
-                    user_id: parseInt(user?.id as string),
-                    name: user?.name || '',
-                    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=currentUser',
+                    user_id: parseInt(user.userId as string),
+                    name: user.fullName || user.username,
+                    avatar: user.avatarUrl,
                 },
             });
             setReplyingTo(null);
@@ -281,6 +292,7 @@ const CommentThread = ({
                             depth={comment.depth || 0}
                             replyTo={comment.content}
                             autoFocus
+                            avatarUrl={user?.avatarUrl}
                         />
                     </div>
                 )}
@@ -339,6 +351,7 @@ const CommentThread = ({
                                                 : 'Share your insights and join the discussion...'
                                         }
                                         nodeId={nodeId}
+                                        avatarUrl={user?.avatarUrl}
                                     />
                                 </DialogContent>
                             </Dialog>
@@ -371,7 +384,6 @@ const CommentThread = ({
         );
     };
 
-    //TODO: query for get all comment for node
     const handleQueryCommentForNode = async () => {
         if (!classId || !topicId || !nodeId) {
             console.error('Missing required parameters for fetching comments');
@@ -380,24 +392,22 @@ const CommentThread = ({
 
         try {
             const response = await fetchComments({
-                nodeId: parseInt(nodeId),
+                nodeId,
                 typeNode,
                 page: 1,
                 limit: 20,
             });
 
-            if (response && Array.isArray(response)) {
+            if (response && response.data) {
                 // Convert API response to local Comment format
-                const formattedComments: Comment[] = response.map((apiComment: any) => ({
+                const formattedComments: Comment[] = response.data?.map((apiComment: any) => ({
                     id: apiComment.commentId.toString(),
                     userId: apiComment.author.user_id.toString(),
                     userName: apiComment.author.name,
                     userRole: 'Student', // You might want to map this from the API
-                    userAvatar:
-                        apiComment.author.avatar ||
-                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiComment.author.name}`,
+                    userAvatar: apiComment.author.avatar,
                     content: apiComment.content,
-                    timestamp: apiComment.createdAt.toISOString(),
+                    timestamp: apiComment.createdAt,
                     likes: apiComment.reactionCount,
                     sentiment: 'neutral',
                     depth: apiComment.level,
@@ -410,7 +420,7 @@ const CommentThread = ({
                               userRole: 'Student',
                               userAvatar: reply.author.avatar,
                               content: reply.content,
-                              timestamp: reply.createdAt.toISOString(),
+                              timestamp: reply.createdAt,
                               likes: reply.reactionCount,
                               hearts: 0,
                               laughs: 0,
@@ -445,23 +455,21 @@ const CommentThread = ({
     }
 
     return (
-        <div className={`${className}`}>
-            <Dialog open={isCommentsDialogOpen} onOpenChange={setIsCommentsDialogOpen}>
-                <DialogTrigger asChild>
-                    {triggerComponent ?? (
-                        <Button variant="outline" className="gap-2">
-                            <MessageCircle className="h-4 w-4" />
-                            {triggerText}
-                        </Button>
-                    )}
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[80vw] max-w-6xl h-[85vh] overflow-hidden bg-slate-200 dark:bg-slate-900">
-                    <ScrollArea className="h-full w-full">
-                        <div className="p-4">{renderCommentsContent()}</div>
-                    </ScrollArea>
-                </DialogContent>
-            </Dialog>
-        </div>
+        <Dialog open={isCommentsDialogOpen} onOpenChange={setIsCommentsDialogOpen}>
+            <DialogTrigger asChild>
+                {triggerComponent ?? (
+                    <Button variant="outline" className="gap-2">
+                        <MessageCircle className="h-4 w-4" />
+                        {triggerText}
+                    </Button>
+                )}
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[80vw] max-w-6xl h-[85vh] overflow-hidden bg-slate-200 dark:bg-slate-900">
+                <ScrollArea className="h-full w-full">
+                    <div className="p-4">{renderCommentsContent()}</div>
+                </ScrollArea>
+            </DialogContent>
+        </Dialog>
     );
 };
 
