@@ -129,8 +129,8 @@ interface MindMapProviderProps {
 // Provider Component
 export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) => {
     const router = useRouter();
-    const params = useParams<{ id: string }>();
-    const topicId = params?.id;
+    const params = useParams<{ topicId: string }>();
+    const topicId = params?.topicId;
 
     // Topic State
     const [topicName, setTopicName] = useState<string>('');

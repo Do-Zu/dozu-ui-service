@@ -13,10 +13,7 @@ import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
 import TopicDetailsModal, { ITopicDetails } from '../TopicDetailsModal';
-
-interface Props {
-    classId: number;
-}
+import { useClassBased } from '@/contexts/class-based';
 
 type TopicFilteringAction =
     | 'newest'
@@ -26,7 +23,8 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
+const ClassTopicLibrary: React.FC = () => {
+    const { classId } = useClassBased();
     const t = useTranslations('home.contentLibrary');
     const tClass = useTranslations('class');
     const tCommon = useTranslations('common');

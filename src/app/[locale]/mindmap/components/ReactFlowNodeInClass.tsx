@@ -11,24 +11,14 @@ import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/select
 import { getRouter } from '@/utils/routerService';
 import { EnumNodeComment } from '../../class-based/types/class.type';
 import CommentThread from '../../class-based/components/comment/CommentThread';
+import { useParams } from 'next/navigation';
 
 const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
     const dispatch = useDispatch();
     const router = getRouter();
+    const { classId } = useParams<{ classId: string }>();
 
     const [isHovered, setIsHovered] = useState(false);
-    const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
-    const edges = useEdges();
-
-    // const deleteNode = (id: string) => {
-    //     edges.forEach((edge) => {
-    //         if (edge.source === id) {
-    //             deleteNode(edge.target);
-    //         }
-    //     });
-    //     setNodes((nds) => nds.filter((node) => node.id !== id));
-    //     setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
-    // };
 
     const handleClickNode = () => {
         dispatch(openSheet());
@@ -212,7 +202,7 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
                                 triggerComponent={triggerComponent}
                                 nodeId={data.nodeId}
                                 nodeTitle={data.label}
-                                classId="1" // TODO: Get from context or props or global state
+                                classId={classId}
                                 topicId={data.topicId!}
                                 typeNode={EnumNodeComment.MINDMAP}
                             />
