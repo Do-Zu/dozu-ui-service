@@ -17,8 +17,8 @@ import {
  * @param topicId - The topic ID
  * @returns Base URL string
  */
-const getBaseUrl = (classId: string | number, topicId: string | number, isTeacher = false) =>
-    `/classes/${isTeacher ? 'teacher' : 'student'}/${classId}/topics/${topicId}/comments`;
+const getBaseUrl = (classId: string | number, topicId: string | number) =>
+    `/classes/${classId}/topics/${topicId}/comments`;
 
 /**
  * Get comments for a specific node
