@@ -13,6 +13,7 @@ import { IClass } from '../../../../class-based/types/class.type';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import { IUpdatingClass } from '../modal/UpdateClassModal';
+import { useTranslations } from 'next-intl';
 
 interface Props {
     classProp: IClass;
@@ -21,6 +22,8 @@ interface Props {
 }
 
 export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNameClick }: Props) {
+    const tCommon = useTranslations('common');
+    const tClass = useTranslations('class');
     const router = useRouter();
     const { classId, name, description, invitationCode, imageUrl, createdAt } = classProp;
 
@@ -63,17 +66,17 @@ export function TeacherClassCard({ classProp, handleUpdateClassSelect, handleNam
                             {/* Class itself */}
                             <DropdownMenuItem onSelect={handleGenerateClick}>
                                 <Sparkles className="mr-2 h-4 w-4" />
-                                <span>Generate Contents</span>
+                                <span>{tClass('generateContent')}</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={handleManageStudentsClick}>
                                 <Users className="mr-2 h-4 w-4" />
-                                <span>Manage Students</span>
+                                <span>{tClass('manageStudents')}</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onSelect={() => handleUpdateClassSelect({ classId, name, description, imageUrl })}
                             >
                                 <Edit className="mr-2 h-4 w-4" />
-                                <span>Edit</span>
+                                <span>{tCommon('actions.edit')}</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

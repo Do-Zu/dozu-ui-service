@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { IStudentInClass } from '../../../../../class-based/types/class.type';
+import { useTranslations } from 'next-intl';
 
 interface StudentListProps {
     students: IStudentInClass[];
@@ -19,15 +20,19 @@ interface StudentListProps {
 }
 
 export function StudentList({ students, handleRemoveClick }: StudentListProps) {
+    const tCommon = useTranslations('common');
+    const tUser = useTranslations('user');
+    const tStudentList = useTranslations('class.studentList');
+
     if (!students || students.length === 0) {
         return (
             <div className="w-full max-w-[95%] mx-auto mt-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Students</CardTitle>
+                        <CardTitle>{tStudentList('title')}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-muted-foreground">No students have enrolled in this class yet.</p>
+                        <p className="text-muted-foreground">{tStudentList('emptyMessage')}</p>
                     </CardContent>
                 </Card>
             </div>
@@ -49,18 +54,18 @@ export function StudentList({ students, handleRemoveClick }: StudentListProps) {
         <div className="w-full max-w-[95%] mx-auto mt-4">
             <Card>
                 <CardHeader>
-                    <CardTitle>Students ({students.length})</CardTitle>
-                    <CardDescription>List of all students enrolled in this class.</CardDescription>
+                    <CardTitle>{tStudentList('title')} ({students.length})</CardTitle>
+                    <CardDescription>{tStudentList('description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-[80px]">Avatar</TableHead>
-                                <TableHead>Full Name</TableHead>
-                                <TableHead>Username</TableHead>
+                                <TableHead>{tUser('fullName')}</TableHead>
+                                <TableHead>{tUser('username')}</TableHead>
                                 <TableHead>Enrolled At</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead className="text-right">{tCommon('actions.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -91,14 +96,14 @@ export function StudentList({ students, handleRemoveClick }: StudentListProps) {
                                             <DropdownMenuContent align="start" side="top">
                                                 <DropdownMenuItem>
                                                     <User className="mr-2 h-4 w-4" />
-                                                    <span>View Profile</span>
+                                                    <span>{tStudentList('viewProfile')}</span>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     className="text-red-500"
                                                     onSelect={() => handleRemoveClick(student.userId)}
                                                 >
                                                     <UserMinus className="mr-2 h-4 w-4" />
-                                                    <span>Remove from Class</span>
+                                                    <span>{tStudentList('removeFromClass')}</span>
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>

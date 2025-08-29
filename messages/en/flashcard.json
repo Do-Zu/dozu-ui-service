@@ -27,7 +27,21 @@
                 "perfect": "Perfect"
             },
             "showAnswer": "Show answwer",
-            "flashcardsRemaining": "flashcards remaining"
+            "flashcardsRemaining": "flashcards remaining",
+            "greatJob": "Great job! 🎉",
+            "flashcardsCompleted": "You've completed all the flashcards for this topic. There's nothing more to learn right now."
+        },
+        "import": {
+            "title": "Import your data",
+            "importText": {
+                "placeholder": "Term 1: Definition 1\nTerm 2: Definition 2\n...",
+                "sideDividerLabel": "Between Term and Definition",
+                "cardDividerLabel": "Between Cards",
+                "importSuccess": "Add Flashcards from Text successfully"
+            },
+            "importCsv": {
+                "importSuccess": "Add Flashcards from CSV successfully"
+            }
         }
     }
 }

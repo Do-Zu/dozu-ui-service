@@ -16,10 +16,11 @@ type Props = {
         description: string;
     }) => void;
     handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
+    handleNameClick: (topic: ITopic) => void;
 };
 
 const ClassTopicList = React.memo((props: Props) => {
-    const { topics, handleOpenUpdateModal, handleOpenDeleteModal } = props;
+    const { topics, handleOpenUpdateModal, handleOpenDeleteModal, handleNameClick } = props;
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {topics.map((topic) => {
@@ -30,6 +31,7 @@ const ClassTopicList = React.memo((props: Props) => {
                         topic={topic}
                         handleOpenUpdateModal={handleOpenUpdateModal}
                         handleOpenDeleteModal={handleOpenDeleteModal}
+                        handleNameClick={handleNameClick}
                     />
                 );
             })}

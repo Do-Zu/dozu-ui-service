@@ -8,12 +8,11 @@ import { useTranslations } from 'next-intl';
 import TopicsList from '../TopicsList';
 import useFetch from '@/hooks/useFetch';
 import LoadingPage from '@/app/loading';
-import {
-    ITopic,
-} from '../../types/topic.type';
+import { ITopic } from '../../types/topic.type';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
+import TopicDetailsModal, { ITopicDetails } from '../TopicDetailsModal';
 
 interface Props {
     classId: number;
@@ -29,8 +28,14 @@ type TopicFilteringAction =
 
 const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
     const t = useTranslations('home.contentLibrary');
+    const tClass = useTranslations('class');
+    const tCommon = useTranslations('common');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
+
+    // topic details
+    const [isTopicDetailsModalOpen, setIsTopicDetailsModalOpen] = useState<boolean>(false);
+    const [selectingTopic, setSelectingTopic] = useState<ITopicDetails | null>();
 
     const {
         data: topics,
@@ -71,6 +76,17 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         setTopicsFiltered(topicsFiltered);
     }, [topics, sortBy]);
 
+    function handleNameClick(topic: ITopic) {
+        const selectingTopic: ITopicDetails = {
+            ...topic,
+            numbers: { flashcards: topic.flashcardsCount ? topic.flashcardsCount : 0, nodes: 0, quizzes: 0 },
+        };
+        setSelectingTopic(selectingTopic);
+        setTimeout(() => {
+            setIsTopicDetailsModalOpen(true);
+        }, 50);
+    }
+
     const handleRenderTopicsSection = () => {
         if (topicsError) {
             return <div>Error: {topicsError} </div>;
@@ -82,8 +98,20 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
             return <div></div>;
         }
         // todo-ka: cân nhắc setTopicsFiltered ngay khi nhận response từ API thay vì useEffect topics
-        return <TopicsList type={MODE_ACCESS_PAGE_ROLE.classBased} topics={topicsFiltered} />;
+        return (
+            <TopicsList
+                type={MODE_ACCESS_PAGE_ROLE.classBased}
+                topics={topicsFiltered}
+                handleNameClick={handleNameClick}
+            />
+        );
     };
+
+    useEffect(() => {
+        if (!isTopicDetailsModalOpen) {
+            setSelectingTopic(null);
+        }
+    }, [isTopicDetailsModalOpen]);
 
     if (myClassError) {
         return <div>Error: {myClassError}</div>;
@@ -102,13 +130,17 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                     <div className="flex flex-row gap-2 items-center">
                         <div className="flex flex-row gap-4 items-center">
                             <School />
-                            <h2 className="text-2xl font-semibold">Class {myClass.name}</h2>
+                            <h2 className="text-2xl font-semibold">
+                                {tClass('classWithName', { name: myClass.name })}
+                            </h2>
                         </div>
                     </div>
                     <div className="text-muted-foreground">
-                        {myClass.description ? myClass.description : 'No Description'}
+                        {myClass.description ? myClass.description : tCommon('labels.noDescription')}
                     </div>
-                    <div className="text-sm">Invitation Code: {myClass.invitationCode}</div>
+                    <div className="text-sm">
+                        {tClass('invitationCode')}: {myClass.invitationCode}
+                    </div>
                 </div>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -143,6 +175,12 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                 </div>
             </div>
             {handleRenderTopicsSection()}
+
+            <TopicDetailsModal
+                isOpen={isTopicDetailsModalOpen}
+                setIsOpen={setIsTopicDetailsModalOpen}
+                topic={selectingTopic}
+            />
         </div>
     );
 };

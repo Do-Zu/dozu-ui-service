@@ -13,6 +13,7 @@ import { IFlashcard } from '../../types/flashcard.type';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
 import flashcardService from '@/services/flashcard/flashcard.service';
+import toastHelper from '@/utils/toast.helper';
 
 const initialAutoPlaySpeed = 3;
 
@@ -53,7 +54,6 @@ export default function Page() {
 
     const {
         data: flashcards,
-        setData: setFlashcardsData,
         loading: flashcardsLoading,
         error: flashcardsError,
     } = useFetch<IFlashcard[]>(() => flashcardService.getFlashcardsForTopic(topicId));
@@ -68,13 +68,15 @@ export default function Page() {
     //     isFrontRef.current = isFront;
     // }, [isFront]);
 
-    const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [autoPlayEnabled, setAutoPlayEnabled] = useState<boolean>(false);
     const [autoPlaySpeed, setAutoPlaySpeed] = useState<number>(initialAutoPlaySpeed);
 
     const [shuffleEnabled, setShuffleEnabled] = useState<boolean>(false);
 
     const currentFlashcardIndexRef = useRef<number>(0);
+
+    // modals for images preview
+    const [isImagesModalOpen, setIsImagesModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -296,9 +298,15 @@ export default function Page() {
     function handleOnClickMemoryMatch() {
         router.push(ROUTES.FLASHCARDS_MEMORY_MATCH(topicId));
     }
+
+    function handleAddImageClick(front: string) {
+        if(!front) {
+            toastHelper.showErrorMessage("This card's front is empty, cannot search images");
+            return;
+        }
+        
+    }
     
-
-
     if (flashcardsError) {
         return <div>Error: { flashcardsError }</div>;
     }
@@ -400,11 +408,12 @@ export default function Page() {
                     <div className="bg-gray-100 dark:bg-gray-950 col-span-8 flex flex-col items-center justify-center">
                         {/* {renderMainFlashcardSection()} */}
                         <Flashcard
-                            style="flex w-[55%] h-[70%] mt-4 "
+                            style="relative flex w-[55%] h-[80%] mt-4 "
                             cardContainerRef={flashcardContainerRef}
                             cardRef={cardRef}
                             handleManualFlip={handleManualFlip}
                             flashcard={currentFlashcard}
+                            
                         />
 
                         {renderFlashcardButtonsSection('grid grid-cols-3 mt-4 gap-4')}

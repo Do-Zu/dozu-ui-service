@@ -30,6 +30,8 @@ const QuizTypePage = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [statistics, setStatistics] = useState<IQuizStatistics | null>(null);
+    const [defaultName, setDefaultName] = useState('');
+    const [defaultDescription, setDefaultDescription] = useState('');
 
     useEffect(() => {
         const fetchStatistics = async () => {
@@ -66,6 +68,26 @@ const QuizTypePage = () => {
                 });
                 return;
             }
+
+            const typeLabels: Record<'initial' | 'review' | 'ef_low' | 'new' | 'random' | 'wrong', string> = {
+                initial: 'Initial',
+                review: 'Review',
+                ef_low: 'EF Low',
+                new: 'New',
+                random: 'Random',
+                wrong: 'Wrong',
+            };
+            const typeLabel = typeLabels[type as keyof typeof typeLabels] || type;
+
+            const now = new Date();
+            const ts =
+                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ` +
+                `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            setDefaultName(`${typeLabel} Quiz - ${ts}`);
+            setDefaultDescription(
+                `Auto-generated (${data.length} questions). You can rename or edit this description before starting.`,
+            );
 
             setSelectedType(type);
             setIsModalOpen(true);
@@ -168,6 +190,8 @@ const QuizTypePage = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleCreateQuiz}
                 quizType={selectedType}
+                defaultName={defaultName}
+                defaultDescription={defaultDescription}
             />
 
             <QuizOnboarding open={showOnboarding} onOpenChange={setShowOnboarding} />

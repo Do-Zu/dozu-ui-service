@@ -37,6 +37,7 @@ import toastHelper from '@/utils/toast.helper';
 import teacherClassService from '@/services/class-based-learning/teacher/teacherClass.service';
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
 import teacherClassTopicService from '@/services/class-based-learning/teacher/teacherClassTopic.service';
+import TopicDetailsModal, { ITopicDetails } from '@/app/[locale]/topics/components/TopicDetailsModal';
 
 interface Props {
     classId: number;
@@ -54,6 +55,8 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
     const router = useRouter();
 
     const t = useTranslations('home.contentLibrary');
+    const tCommon = useTranslations('common');
+    const tClass = useTranslations('class');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
@@ -78,6 +81,10 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
     } = useFetch<IClass>(() => teacherClassService.getClassById(classId));
 
     const [topicsFiltered, setTopicsFiltered] = useState<ITopic[]>();
+
+    // topic details
+    const [isTopicDetailsModalOpen, setIsTopicDetailsModalOpen] = useState<boolean>(false);
+    const [selectingTopic, setSelectingTopic] = useState<ITopicDetails | null>();
 
     const { loading: createTopicForClassLoading, execute: createTopicForClassAsync } = usePost<
         ICreateTopicForClassPayload,
@@ -140,6 +147,18 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         setTopicsFiltered(topicsFiltered);
     }, [topics, sortBy]);
 
+    useEffect(() => {
+        if (!isUpdateTopicModalOpen) {
+            setUpdatingTopic(null);
+        }
+        if (!isDeleteTopicModalOpen) {
+            setDeletingTopic(null);
+        }
+        if (!isTopicDetailsModalOpen) {
+            setSelectingTopic(null);
+        }
+    }, [isUpdateTopicModalOpen, isDeleteTopicModalOpen, isTopicDetailsModalOpen]);
+
     const handleOpenCreateModal = useCallback(() => {
         setTimeout(() => {
             setIsCreateTopicModalOpen(true);
@@ -176,6 +195,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                 topics={topicsFiltered}
                 handleOpenUpdateModal={handleOpenUpdateModal}
                 handleOpenDeleteModal={handleOpenDeleteModal}
+                handleNameClick={handleNameClick}
             />
         );
     };
@@ -215,10 +235,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
 
     async function handleCreateClick(topic: ICreateTopicPayload) {
         if (!topic.name) {
-            toast({
-                title: 'Topic Name must be provided',
-                variant: 'destructive',
-            });
+            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.name') }));
             return;
         }
         const value: ICreateTopicForClassPayload = { ...topic, classId };
@@ -227,10 +244,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
 
     async function handleUpdateClick(topic: IUpdateTopicPayload) {
         if (!topic.name) {
-            toast({
-                title: 'Topic Id and Topic Name must be provided',
-                variant: 'destructive',
-            });
+            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.name') }));
             return;
         }
         const value: IUpdateTopicInClassPayload = { ...topic, classId };
@@ -247,6 +261,17 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
 
     async function handleManageStudentsClick() {
         router.push(ROUTES.TEACHER.CLASS_BASED_ID_STUDENTS(classId));
+    }
+
+    function handleNameClick(topic: ITopic) {
+        const selectingTopic: ITopicDetails = {
+            ...topic,
+            numbers: { flashcards: topic.flashcardsCount ? topic.flashcardsCount : 0, nodes: 0, quizzes: 0 },
+        };
+        setSelectingTopic(selectingTopic);
+        setTimeout(() => {
+            setIsTopicDetailsModalOpen(true);
+        }, 50);
     }
 
     if (myClassError) {
@@ -266,13 +291,17 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                     <div className="flex flex-row gap-2 items-center">
                         <div className="flex flex-row gap-4 items-center">
                             <School />
-                            <h2 className="text-2xl font-semibold">Class {myClass.name}</h2>
+                            <h2 className="text-2xl font-semibold">
+                                {tClass('classWithName', { name: myClass.name })}
+                            </h2>
                         </div>
                     </div>
                     <div className="text-muted-foreground">
-                        {myClass.description ? myClass.description : 'No Description'}
+                        {myClass.description ? myClass.description : tCommon('labels.noDescription')}
                     </div>
-                    <div className="text-sm">Invitation Code: {myClass.invitationCode}</div>
+                    <div className="text-sm">
+                        {tClass('invitationCode')}: {myClass.invitationCode}
+                    </div>
                 </div>
 
                 <div className="flex flex-col gap-4">
@@ -283,7 +312,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                         </Button>
                         <Button className="bg-background text-foreground" onClick={handleGenerateClick}>
                             <Sparkles className="mr-2 h-4 w-4" />
-                            Generate New Content
+                            {tClass('generateContent')}
                         </Button>
                     </div>
                     <Button
@@ -291,7 +320,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                         onClick={handleManageStudentsClick}
                     >
                         <Users className="mr-2 h-4 w-4" />
-                        <span>Manage Students</span>
+                        <span>{tClass('manageStudents')}</span>
                     </Button>
                 </div>
             </div>
@@ -347,6 +376,12 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                 topic={deletingTopic}
                 handleDeleteClick={handleDeleteClick}
                 loading={deleteTopicInClassLoading}
+            />
+
+            <TopicDetailsModal
+                isOpen={isTopicDetailsModalOpen}
+                setIsOpen={setIsTopicDetailsModalOpen}
+                topic={selectingTopic}
             />
         </div>
     );

@@ -3,6 +3,13 @@ import errorHelper from './error.helper';
 
 class ToastHelper {
     public showErrorMessage = (error: unknown): void => {
+        if (typeof error === 'string') {
+            toast({
+                title: error,
+                variant: 'destructive',
+            });
+            return;
+        }
         const message = errorHelper.getErrorMessage(error);
         toast({
             title: message,

@@ -26,13 +26,21 @@ const config: Config = {
         extend: {
             fontFamily: {
                 sans: [
-                    'var(--font-sans)',
+                    'var(--font-primary)',
+                    'Inter',
+                    'Segoe UI',
+                    'Roboto',
+                    'Helvetica Neue',
                     'Arial',
+                    'Noto Sans',
+                    'sans-serif',
                     'Apple Color Emoji',
                     'Segoe UI Emoji',
                     'Segoe UI Symbol',
                     ...defaultTheme.fontFamily.sans,
                 ],
+                geist: ['var(--font-geist)', 'Geist', 'sans-serif'],
+                primary: ['var(--font-primary)', 'Inter', 'sans-serif'],
             },
             colors: {
                 background: 'hsl(var(--background))',

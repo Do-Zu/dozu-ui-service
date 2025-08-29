@@ -1,51 +1,102 @@
 {
     "LocaleSwitcher": {
-      "label": "Chọn Ngôn Ngữ",
-      "locale": "Tiếng {locale}"
+        "label": "Chọn Ngôn Ngữ",
+        "locale": "Tiếng {locale}"
     },
     "home": {
-      "welcome": "Hệ sinh thái học tập cá nhân hóa dành cho bạn"
+        "welcome": "Hệ sinh thái học tập cá nhân hóa dành cho bạn"
     },
     "progress": {
-      "title": "Tiến Độ Học Tập",
-      "subtitle": "Theo dõi hành trình học tập và quản lý tiến độ của bạn",
-      "dashboard": "Bảng Điều Khiển",
-      "manage": "Quản Lý Tiến Độ",
-      "totalContents": "Tổng Nội Dung",
-      "completed": "Đã Hoàn Thành",
-      "inProgress": "Đang Tiến Hành",
-      "averageScore": "Điểm Trung Bình",
-      "studyOverview": "Tổng Quan Học Tập",
-      "learningProgress": "Tiến độ học tập của bạn trong tuần này",
-      "totalStudyHours": "Tổng Giờ Học",
-      "completedTopics": "Chủ Đề Đã Hoàn Thành",
-      "weeklyChange": "Thay Đổi Tuần",
-      "learningMethods": "Phương Pháp Học",
-      "distribution": "Phân bố các hoạt động học tập của bạn",
-      "dailyStudyHours": "Giờ Học Hàng Ngày (7 Ngày Qua)",
-      "studyTimeDistribution": "Phân bố thời gian học tập của bạn",
-      "achievements": "Thành Tựu",
-      "learningMilestones": "Các cột mốc học tập của bạn",
-      "topicsCompleted": "Chủ Đề Đã Hoàn Thành",
-      "loading": "Đang tải dữ liệu tiến độ...",
-      "error": "Lỗi khi tải dữ liệu tiến độ",
-      "export": "Xuất",
-      "exportPdf": "Xuất dưới dạng PDF",
-      "exportExcel": "Xuất dưới dạng Excel",
-      "exportCsv": "Xuất dưới dạng CSV",
-      "print": "In",
-      "share": "Chia sẻ",
-      "reportTitle": "Báo Cáo Tiến Độ Học Tập",
-      "generatedOn": "Được tạo vào",
-      "overviewStatistics": "Thống Kê Tổng Quan",
-      "shareText": "Xem tiến độ học tập của tôi! Tổng giờ học: {hours}h, Chủ đề đã hoàn thành: {topics}",
-      "exportFailed": "Không thể xuất dưới dạng {format}. Vui lòng thử lại.",
-      "shareSuccess": "Chi tiết báo cáo tiến độ đã được sao chép vào clipboard!",
-      "urlCopied": "URL đã được sao chép vào clipboard!",
-      "shareError": "Không thể chia sẻ. Vui lòng sao chép URL thủ công.",
-      "day": "Ngày",
-      "hours": "Giờ",
-      "date": "Ngày tháng"
+        "title": "Tiến Độ Học Tập",
+        "subtitle": "Theo dõi hành trình học tập và quản lý tiến độ của bạn",
+        "dashboard": "Bảng Điều Khiển",
+        "manage": "Quản Lý Tiến Độ",
+        "totalContents": "Tổng Nội Dung",
+        "completed": "Đã Hoàn Thành",
+        "inProgress": "Đang Tiến Hành",
+        "averageScore": "Điểm Trung Bình",
+        "studyOverview": "Tổng Quan Học Tập",
+        "learningProgress": "Tiến độ học tập của bạn trong tuần này",
+        "totalStudyHours": "Tổng Giờ Học",
+        "completedTopics": "Chủ Đề Đã Hoàn Thành",
+        "weeklyChange": "Thay Đổi Tuần",
+        "learningMethods": "Phương Pháp Học",
+        "distribution": "Phân bố các hoạt động học tập của bạn",
+        "dailyStudyHours": "Giờ Học Hàng Ngày (7 Ngày Qua)",
+        "studyTimeDistribution": "Phân bố thời gian học tập của bạn",
+        "achievements": "Thành Tựu",
+        "learningMilestones": "Các cột mốc học tập của bạn",
+        "topicsCompleted": "Chủ Đề Đã Hoàn Thành",
+        "loading": "Đang tải dữ liệu tiến độ...",
+        "error": "Lỗi khi tải dữ liệu tiến độ",
+        "export": "Xuất",
+        "exportPdf": "Xuất dưới dạng PDF",
+        "exportExcel": "Xuất dưới dạng Excel",
+        "exportCsv": "Xuất dưới dạng CSV",
+        "print": "In",
+        "share": "Chia sẻ",
+        "reportTitle": "Báo Cáo Tiến Độ Học Tập",
+        "generatedOn": "Được tạo vào",
+        "overviewStatistics": "Thống Kê Tổng Quan",
+        "shareText": "Xem tiến độ học tập của tôi! Tổng giờ học: {hours}h, Chủ đề đã hoàn thành: {topics}",
+        "exportFailed": "Không thể xuất dưới dạng {format}. Vui lòng thử lại.",
+        "shareSuccess": "Chi tiết báo cáo tiến độ đã được sao chép vào clipboard!",
+        "urlCopied": "URL đã được sao chép vào clipboard!",
+        "shareError": "Không thể chia sẻ. Vui lòng sao chép URL thủ công.",
+        "day": "Ngày",
+        "hours": "Giờ",
+        "date": "Ngày tháng"
+    },
+    "common": {
+        "actions": {
+            "create": "Tạo",
+            "view": "Xem",
+            "update": "Cập nhật",
+            "delete": "Xóa",
+            "edit": "Cập nhật",
+            "save": "Lưu",
+            "back": "Quay về",
+            "actions": "Hành động"
+        },
+        "titles": {
+            "createNew": "Tạo mới {name}",
+            "updateItem": "Cập nhật {name}",
+            "deleteItem": "Xóa {name}",
+            "viewDetail": "Xem chi tiết {name}"
+        },
+        "messages": {
+            "createSuccess": "Tạo {name} thành công",
+            "readSuccess": "Tải {name} thành công",
+            "updateSuccess": "Cập nhật {name} thành công",
+            "deleteSuccess": "Xóa {name} thành công",
+
+            "createError": "Không thể tạo {name}",
+            "readError": "Không thể tải {name}",
+            "updateError": "Không thể cập nhật {name}",
+            "deleteError": "Không thể xóa {name}"
+        },
+        "labels": {
+            "name": "Tên",
+            "description": "Mô tả",
+            "noDescription": "Chưa có mô tả",
+            "status": "Trạng thái",
+            "createdAt": "Ngày tạo",
+            "updatedAt": "Ngày cập nhật"
+        },
+        "status": {
+            "loading": "Đang tải...",
+            "saving": "Đang lưu...",
+            "noPermission": "Bạn không có quyền thực hiện hành động này"
+        },
+        "validation": {
+            "required": "{name} là bắt buộc",
+            "minLength": "{name} phải có ít nhất {min} ký tự",
+            "maxLength": "{name} chỉ được tối đa {max} ký tự",
+            "invalidFormat": "{name} có định dạng không hợp lệ"
+        }
+    },
+    "user": {
+        "fullName": "Họ và tên",
+        "username": "Username"
     }
-  }
-  
+}

@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { IFlashcardPreview } from './FlashcardPreview';
 import FlashcardImportText from './FlashcardImportText';
 import FlashcardImportCsv from './FlashcardImportCsv';
+import { useTranslations } from 'next-intl';
 
 interface Props {
     isOpen: boolean;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function FlashcardImportModal({ isOpen, setIsOpen, onSubmit }: Props) {
+    const tFlashcardImport = useTranslations('flashcard.import');
     const [importMethod, setImportMethod] = useState<string>('text');
     const [flashcards, setFlashcards] = useState<IFlashcardPreview[]>([]);
 
@@ -31,7 +33,7 @@ export default function FlashcardImportModal({ isOpen, setIsOpen, onSubmit }: Pr
         <Modal
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            title="Import your data"
+            title={tFlashcardImport('title')}
             body={
                 <Tabs
                     defaultValue="text"

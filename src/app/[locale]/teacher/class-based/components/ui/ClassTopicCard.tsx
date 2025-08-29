@@ -42,13 +42,15 @@ interface Props {
         imageUrl?: string | null;
     }) => void;
     handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
+    handleNameClick: (topic: ITopic) => void;
 }
 
-export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal }: Props) {
+export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal, handleNameClick }: Props) {
     const router = useRouter();
 
     const { topicId, name, description, imageUrl } = topic;
-    const topicT = useTranslations('topic');
+    const tCommon = useTranslations('common');
+    const tTopic = useTranslations('topic');
 
     function handleOnSelectEditFlashcard() {
         router.push(ROUTES.FLASHCARDS_EDIT(topicId));
@@ -82,7 +84,12 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-medium truncate">{name}</CardTitle>
+                    <CardTitle
+                        className="text-lg font-medium truncate hover:underline hover:text-blue-400 transition"
+                        onClick={() => handleNameClick(topic)}
+                    >
+                        {name}
+                    </CardTitle>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
@@ -99,15 +106,15 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnSelectEditFlashcard}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
+                                        <span>{tCommon('actions.edit')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={handleOnSelectBrowse}>
                                         <BookOpen className="mr-2 h-4 w-4" />
-                                        <span>{topicT('browse')}</span>
+                                        <span>{tTopic('browse')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={handleOnSelectLearning}>
                                         <GraduationCap className="mr-2 h-4 w-4" />
-                                        <span>{topicT('learning')}</span>
+                                        <span>{tTopic('learning')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -121,7 +128,7 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnClickEditMindmap}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
+                                        <span>{tCommon('actions.edit')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -135,15 +142,15 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                 <DropdownMenuSubContent>
                                     <DropdownMenuItem onSelect={handleOnClickStartQuiz}>
                                         <Play className="mr-2 h-4 w-4" />
-                                        <span>{topicT('start-quiz')}</span>
+                                        <span>{tTopic('start-quiz')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={handleOnClickEditQuestion}>
                                         <Edit className="mr-2 h-4 w-4" />
-                                        <span>{topicT('edit')}</span>
+                                        <span>{tCommon('actions.edit')}</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
                                         <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>{topicT('delete')}</span>
+                                        <span>{tCommon('actions.delete')}</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuSub>
@@ -153,12 +160,12 @@ export function ClassTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteM
                                 onSelect={() => handleOpenUpdateModal({ topicId, name, description, imageUrl })}
                             >
                                 <Edit className="mr-2 h-4 w-4" />
-                                <span>{topicT('edit')}</span>
+                                <span>{tCommon('actions.edit')}</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem onSelect={() => handleOpenDeleteModal({ topicId, name })}>
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                <span>{topicT('delete')}</span>
+                                <span>{tCommon('actions.delete')}</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
