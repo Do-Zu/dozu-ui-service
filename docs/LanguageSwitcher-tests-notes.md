@@ -1,0 +1,2 @@
+Note: Tests for src/components/toolbar/LanguageSwitcher use Jest + React Testing Library with jsdom.
+They mock next/navigation hooks (useRouter, usePathname, useSearchParams) and React.useTransition to run transitions immediately.
