@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { useBrainChase } from '../context/brainChaseContext';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface QuestionAreaProps {
   question: string;
@@ -12,6 +13,7 @@ interface QuestionAreaProps {
 }
 
 const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionAreaProps) => {
+  const t = useTranslations('games.brainChase');
   const {
     gameActive,
     gamePaused,
@@ -21,11 +23,25 @@ const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionArea
     settings,
     currentQuestionIndex,
     handleNextQuestion,
+    flashcards,
   } = useBrainChase();
 
   const [timeRemaining, setTimeRemaining] = useState(settings.timeLimit);
   const [timeProgress, setTimeProgress] = useState(0);
-  const totalQuestions = Math.min(settings.questionCount, 5);
+  
+  // Calculate total questions based on settings and available flashcards
+  const totalQuestions = (() => {
+    const availableFlashcards = flashcards?.length || 0;
+    
+    // If setting is more than available, use all available
+    if (settings.questionCount > availableFlashcards) {
+      return availableFlashcards;
+    }
+    
+    // Otherwise use the set limit
+    return settings.questionCount;
+  })();
+  
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -86,12 +102,12 @@ const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionArea
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium">
-                Question {currentQuestionNumber}/{totalQuestions}
+                {t('question')} {currentQuestionNumber}/{totalQuestions}
               </span>
-              <span className="text-sm font-medium">Score: {score}</span>
+              <span className="text-sm font-medium">{t('score')}: {score}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Errors left: {errorsRemaining}</span>
+              <span className="text-sm font-medium">{t('gameSettings.errorsLeft')} {errorsRemaining}</span>
             </div>
           </div>
 
@@ -108,7 +124,7 @@ const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionArea
         </>
       ) : (
         <div className="flex items-center justify-center h-full">
-          <p className="text-muted-foreground">Start the game to see questions</p>
+          <p className="text-muted-foreground">{t('startGameMessage')}</p>
         </div>
       )}
     </div>

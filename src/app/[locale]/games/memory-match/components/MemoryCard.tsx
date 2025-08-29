@@ -51,10 +51,10 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
         <Card 
           className={cn(
             'absolute inset-0',
-            'bg-gradient-to-br from-purple-500 to-blue-600',
-            'dark:from-purple-600 dark:to-blue-700',
-            'border-2 border-purple-300 dark:border-purple-400',
-            isClickable && 'hover:border-purple-400 dark:hover:border-purple-300 hover:shadow-lg'
+            'bg-gradient-to-br from-gray-100 to-gray-300',
+            'dark:from-gray-800 dark:to-gray-900',
+            'border-2 border-gray-300 dark:border-gray-600',
+            isClickable && 'hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-lg'
           )}
           style={{
             backfaceVisibility: 'hidden',
@@ -64,7 +64,7 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
           <CardContent className="flex items-center justify-center h-full p-2">
             <div className="text-center">
               <div className="text-2xl mb-2">🎯</div>
-              <div className="text-xs text-white/80 font-medium">
+              <div className="text-xs text-gray-600 dark:text-gray-300 font-medium">
                 Memory Card
               </div>
             </div>
@@ -76,9 +76,9 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
           className={cn(
             'absolute inset-0 border-2 bg-white dark:bg-gray-800',
             card.type === 'front' 
-              ? 'border-blue-300 dark:border-blue-500' 
-              : 'border-green-300 dark:border-green-500',
-            card.isMatched && 'border-yellow-400 dark:border-yellow-500'
+              ? 'border-gray-400 dark:border-gray-500' 
+              : 'border-gray-500 dark:border-gray-400',
+            card.isMatched && 'border-green-400 dark:border-green-500'
           )}
           style={{
             backfaceVisibility: 'hidden',
@@ -93,8 +93,8 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
               className={cn(
                 'absolute top-2 right-2 text-xs px-1 py-0',
                 card.type === 'front' 
-                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-500' 
-                  : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-500'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-400 dark:border-gray-500' 
+                  : 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border-gray-500 dark:border-gray-400'
               )}
             >
               {card.type === 'front' ? 'Q' : 'A'}
@@ -114,7 +114,7 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
             {/* Match indicator */}
             {card.isMatched && (
               <div 
-                className="absolute inset-0 bg-yellow-200/20 dark:bg-yellow-300/30 flex items-center justify-center animate-pulse"
+                className="absolute inset-0 bg-green-100/50 dark:bg-green-800/30 flex items-center justify-center animate-pulse"
                 style={{
                   animation: 'matchedPulse 0.6s ease-in-out',
                 }}

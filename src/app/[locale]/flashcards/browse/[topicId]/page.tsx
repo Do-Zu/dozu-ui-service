@@ -343,16 +343,16 @@ export default function Page() {
 
     function renderLearningSection() {
         return (
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-col gap-2">
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickLearning}>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickLearning}>
                                 <BookOpen className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">{t('learning')}</span>
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent side="right">
                             <p>Learn Flashcards</p>
                         </TooltipContent>
                     </Tooltip>
@@ -361,12 +361,12 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickGame}>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickGame}>
                                 <Gamepad2 className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">Brain Chase</span>
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent side="right">
                             <p>Play Brain Chase Game</p>
                         </TooltipContent>
                     </Tooltip>
@@ -375,12 +375,12 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickMemoryMatch}>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickMemoryMatch}>
                                 <Brain className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">Memory</span>
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent side="right">
                             <p>Play Memory Match Game</p>
                         </TooltipContent>
                     </Tooltip>

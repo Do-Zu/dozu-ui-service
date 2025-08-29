@@ -14,12 +14,14 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { DEFAULT_SETTINGS, GameSettings, useBrainChase } from '../context/brainChaseContext';
 import { Switch } from '@/components/ui/switch';
+import { useTranslations } from 'next-intl';
 
 export interface SettingProps {
   onOpenChange?: (open: boolean) => void;
 }
 
 export default function Setting({ onOpenChange }: SettingProps) {
+  const t = useTranslations('games.brainChase.gameSettings');
   const {
     settings: settingInitial,
     updateSettings,
@@ -27,9 +29,45 @@ export default function Setting({ onOpenChange }: SettingProps) {
     setShowSettings,
     resetGame,
     showSettings: isOpen,
+    flashcards,
   } = useBrainChase();
 
   const [settings, setSettings] = useState<GameSettings>(settingInitial);
+
+  // Calculate total flashcards available
+  const totalFlashcards = flashcards?.length || 0;
+
+  // Generate dynamic question count options based on available flashcards
+  const getQuestionCountOptions = () => {
+    const options = [];
+    
+    if (totalFlashcards > 0) {
+      // Add standard options if enough flashcards available
+      if (totalFlashcards >= 5) options.push({ value: 5, label: '5' });
+      if (totalFlashcards >= 10) options.push({ value: 10, label: '10' });
+      if (totalFlashcards >= 20) options.push({ value: 20, label: '20' });
+      
+      // Add "All" option if it's different from standard options
+      if (![5, 10, 20].includes(totalFlashcards) && totalFlashcards > 1) {
+        options.push({ 
+          value: totalFlashcards, 
+          label: `${totalFlashcards} (${t('all')})` 
+        });
+      }
+      
+      // If no standard options available, add the total as main option
+      if (options.length === 0) {
+        options.push({ 
+          value: totalFlashcards, 
+          label: `${totalFlashcards}` 
+        });
+      }
+    }
+    
+    return options;
+  };
+
+  const questionOptions = getQuestionCountOptions();
 
   const handleOpenChange = (newOpen: boolean) => {
     setShowSettings(newOpen);
@@ -59,14 +97,14 @@ export default function Setting({ onOpenChange }: SettingProps) {
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent className="bg-background w-[350px] sm:w-[500px]">
         <SheetHeader>
-          <SheetTitle className="text-xl font-bold">Game Settings</SheetTitle>
-          <SheetDescription>Customize your game experience with these settings.</SheetDescription>
+          <SheetTitle className="text-xl font-bold">{t('title')}</SheetTitle>
+          <SheetDescription>{t('description')}</SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-8">
           {/* Speed Setting */}
           <div className="space-y-3">
-            <h3 className="font-medium text-sm">Answer Movement Speed</h3>
+            <h3 className="font-medium text-sm">{t('speed')}</h3>
             <RadioGroup
               value={settings.speed}
               onValueChange={(value) =>
@@ -79,15 +117,15 @@ export default function Setting({ onOpenChange }: SettingProps) {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="slow" id="speed-slow" />
-                <Label htmlFor="speed-slow">Slow</Label>
+                <Label htmlFor="speed-slow">{t('slow')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="medium" id="speed-medium" />
-                <Label htmlFor="speed-medium">Medium</Label>
+                <Label htmlFor="speed-medium">{t('medium')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="fast" id="speed-fast" />
-                <Label htmlFor="speed-fast">Fast</Label>
+                <Label htmlFor="speed-fast">{t('fast')}</Label>
               </div>
             </RadioGroup>
           </div>
@@ -95,11 +133,20 @@ export default function Setting({ onOpenChange }: SettingProps) {
           {/* Question Count Setting */}
           <div className="space-y-3">
             <div className="flex justify-between">
-              <h3 className="font-medium text-sm">Number of Questions</h3>
-              <span className="text-sm font-medium">
-                {settings.questionCount === 0 ? 'Unlimited' : settings.questionCount}
-              </span>
+              <h3 className="font-medium text-sm">{t('questionCount')}</h3>
+              {/* <span className="text-sm font-medium">
+                {settings.questionCount === 0 ? t('unlimited') : settings.questionCount}
+              </span> */}
             </div>
+            
+            {/* Display available flashcards info */}
+            <div className="text-xs text-muted-foreground">
+              {totalFlashcards > 0 
+                ? `${totalFlashcards} ${t('flashcardsAvailable')}`
+                : t('noFlashcards')
+              }
+            </div>
+            
             <RadioGroup
               value={settings.questionCount.toString()}
               onValueChange={(value) =>
@@ -107,29 +154,24 @@ export default function Setting({ onOpenChange }: SettingProps) {
               }
               className="flex flex-wrap gap-3"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="5" id="questions-5" />
-                <Label htmlFor="questions-5">5</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="10" id="questions-10" />
-                <Label htmlFor="questions-10">10</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="20" id="questions-20" />
-                <Label htmlFor="questions-20">20</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="0" id="questions-unlimited" />
-                <Label htmlFor="questions-unlimited">Unlimited</Label>
-              </div>
+              {questionOptions.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <RadioGroupItem 
+                    value={option.value.toString()} 
+                    id={`questions-${option.value}`} 
+                  />
+                  <Label htmlFor={`questions-${option.value}`}>
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
             </RadioGroup>
           </div>
 
           {/* Time Limit Setting */}
           <div className="space-y-3">
             <div className="flex justify-between">
-              <h3 className="font-medium text-sm">Time Limit per Question</h3>
+              <h3 className="font-medium text-sm">{t('timeLimit')}</h3>
               <span className="text-sm font-medium">{settings.timeLimit} seconds</span>
             </div>
             <Slider
@@ -148,7 +190,7 @@ export default function Setting({ onOpenChange }: SettingProps) {
 
           {/* Error Allowance Setting */}
           <div className="space-y-3">
-            <h3 className="font-medium text-sm">Error Allowance</h3>
+            <h3 className="font-medium text-sm">{t('errorAllowance')}</h3>
             <RadioGroup
               value={settings.errorAllowance.toString()}
               onValueChange={(value) =>
@@ -158,22 +200,22 @@ export default function Setting({ onOpenChange }: SettingProps) {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="1" id="errors-1" />
-                <Label htmlFor="errors-1">1 error</Label>
+                <Label htmlFor="errors-1">{t('oneError')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="2" id="errors-2" />
-                <Label htmlFor="errors-2">2 errors</Label>
+                <Label htmlFor="errors-2">{t('twoErrors')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="3" id="errors-3" />
-                <Label htmlFor="errors-3">3 errors</Label>
+                <Label htmlFor="errors-3">{t('threeErrors')}</Label>
               </div>
             </RadioGroup>
           </div>
         </div>
 
         <div className="space-y-3 mt-4">
-          <h3 className="font-medium  text-sm">Shuffle Questions</h3>
+          <h3 className="font-medium  text-sm">{t('shuffleQuestions')}</h3>
           <Switch
             checked={settings.shuffleQuestions}
             onCheckedChange={(checked) => setSettings({ ...settings, shuffleQuestions: checked })}
@@ -183,9 +225,9 @@ export default function Setting({ onOpenChange }: SettingProps) {
 
         <div className="mt-8 flex justify-end space-x-4">
           <Button variant="outline" onClick={handleCancel}>
-            Cancel
+            {t('cancel')}
           </Button>
-          <Button onClick={handleResetDefault}>Reset</Button>
+          <Button onClick={handleResetDefault}>{t('reset')}</Button>
         </div>
       </SheetContent>
     </Sheet>

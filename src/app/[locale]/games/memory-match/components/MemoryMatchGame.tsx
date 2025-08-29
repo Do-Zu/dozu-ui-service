@@ -19,8 +19,10 @@ import {
 import { useMemoryMatch } from '../context/MemoryMatchContext';
 import MemoryGameBoard from './MemoryGameBoard';
 import GameStats from './GameStats';
+import { useTranslations } from 'next-intl';
 
 export default function MemoryMatchGame() {
+  const t = useTranslations('games.memoryMatch');
   const router = useRouter();
   const {
     gameStatus,
@@ -41,8 +43,8 @@ export default function MemoryMatchGame() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 dark:border-purple-400 mb-4"></div>
-        <h2 className="text-xl font-semibold mb-2 dark:text-gray-100">Loading Memory Match</h2>
-        <p className="text-gray-600 dark:text-gray-400">Loading flashcards for the game...</p>
+        <h2 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('loading')}</h2>
+        <p className="text-gray-600 dark:text-gray-400">{t('loadingMessage')}</p>
       </div>
     );
   }
@@ -52,14 +54,14 @@ export default function MemoryMatchGame() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900">
         <div className="text-red-500 text-6xl mb-4">⚠️</div>
-        <h2 className="text-xl font-semibold mb-2 text-red-600 dark:text-red-400">Error Loading Game</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">Failed to load flashcards for this topic.</p>
+        <h2 className="text-xl font-semibold mb-2 text-red-600 dark:text-red-400">{t('errorTitle')}</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">{t('errorMessage')}</p>
         <div className="flex gap-2">
           <Button onClick={() => window.location.reload()} variant="outline" className="dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-            Try Again
+            {t('tryAgain')}
           </Button>
           <Button onClick={() => router.back()} className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600">
-            Go Back
+            {t('backToTopic')}
           </Button>
         </div>
       </div>
@@ -71,10 +73,10 @@ export default function MemoryMatchGame() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900">
         <div className="text-yellow-500 text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-semibold mb-2 dark:text-gray-100">No Flashcards Found</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">This topic has no flashcards available for the game.</p>
+        <h2 className="text-xl font-semibold mb-2 dark:text-gray-100">{t('errorTitle')}</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">{t('errorMessage')}</p>
         <Button onClick={() => router.back()} className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600">
-          Choose Different Topic
+          {t('backToTopic')}
         </Button>
       </div>
     );
@@ -140,23 +142,23 @@ export default function MemoryMatchGame() {
               
               <div className="grid grid-cols-3 gap-4 mb-8 text-sm">
                 <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                  <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400 mb-2" />
+                  <Clock className="h-6 w-6 text-gray-600 dark:text-gray-400 mb-2" />
                   <span className="font-medium dark:text-gray-100">Quick Memory</span>
                   <span className="text-gray-500 dark:text-gray-400">Remember positions</span>
                 </div>
                 <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                  <Target className="h-6 w-6 text-purple-600 dark:text-purple-400 mb-2" />
+                  <Target className="h-6 w-6 text-gray-600 dark:text-gray-400 mb-2" />
                   <span className="font-medium dark:text-gray-100">Find Pairs</span>
                   <span className="text-gray-500 dark:text-gray-400">Match front & back</span>
                 </div>
                 <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                  <Zap className="h-6 w-6 text-purple-600 dark:text-purple-400 mb-2" />
+                  <Zap className="h-6 w-6 text-gray-600 dark:text-gray-400 mb-2" />
                   <span className="font-medium dark:text-gray-100">Score Points</span>
                   <span className="text-gray-500 dark:text-gray-400">Fewer moves = higher score</span>
                 </div>
               </div>
 
-              <Button size="lg" onClick={startGame} className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600">
+              <Button size="lg" onClick={startGame} className="bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-gray-900">
                 <Play className="h-5 w-5 mr-2" />
                 Start Game
               </Button>
