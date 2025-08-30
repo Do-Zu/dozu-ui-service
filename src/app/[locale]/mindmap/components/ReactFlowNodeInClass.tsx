@@ -196,14 +196,16 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
                                 Learn
                             </Button>
 
-                            <CommentThread
-                                triggerComponent={triggerComponent}
-                                nodeId={data.nodeId}
-                                nodeTitle={data.label}
-                                classId={classId}
-                                topicId={data.topicId!}
-                                typeNode={EnumNodeComment.MINDMAP}
-                            />
+                            {data.topicId && classId && (
+                                <CommentThread
+                                    triggerComponent={triggerComponent}
+                                    nodeId={data.nodeId}
+                                    nodeTitle={data.label}
+                                    classId={classId}
+                                    topicId={data.topicId}
+                                    typeNode={EnumNodeComment.MINDMAP}
+                                />
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
