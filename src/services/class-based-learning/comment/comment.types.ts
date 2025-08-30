@@ -16,8 +16,8 @@ export interface IClassTopicComment {
     content: string;
     reactionCount: number;
     replyCount: number;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
     replies?: IClassTopicComment[];
 }
 
