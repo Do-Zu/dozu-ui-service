@@ -37,7 +37,7 @@ export const ROUTES = Object.freeze({
     MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
     MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
     CLASS_MINDMAP_VIEW: (topicId: string | number, classId: string | number) =>
-        `/class-based/${classId}/mindmap/view/${topicId}`,
+        `/class-based/${classId}/mindmap/${topicId}`,
 
     QUIZ_START: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     QUIZ_EDIT: (topicId: string | number) => `/question/edit/${topicId}`,
