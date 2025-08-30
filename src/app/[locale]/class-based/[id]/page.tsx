@@ -6,7 +6,7 @@ import { useClassBased } from '@/contexts/class-based';
 export default function Page() {
     const { classId } = useClassBased();
 
-    if (!classId) {
+    if (!Number.isFinite(classId)) {
         return <div>Loading...</div>;
     }
 
