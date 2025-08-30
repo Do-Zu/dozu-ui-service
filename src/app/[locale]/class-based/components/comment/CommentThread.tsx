@@ -476,10 +476,12 @@ const CommentThread = ({
     };
 
     useEffect(() => {
-        if (nodeId && isCommentsDialogOpen) {
+        if (!nodeId) return;
+
+        if (isCommentsDialogOpen || !showTrigger) {
             handleQueryCommentForNode();
         }
-    }, [nodeId, isCommentsDialogOpen]);
+    }, [nodeId, isCommentsDialogOpen, showTrigger]);
 
     if (!showTrigger) {
         return (
