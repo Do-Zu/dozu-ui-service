@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Handle, Position, useEdges, useReactFlow } from '@xyflow/react';
@@ -11,12 +12,11 @@ import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/select
 import { getRouter } from '@/utils/routerService';
 import { EnumNodeComment } from '../../class-based/types/class.type';
 import CommentThread from '../../class-based/components/comment/CommentThread';
-import { useParams } from 'next/navigation';
 
 const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
     const dispatch = useDispatch();
     const router = getRouter();
-    const { classId } = useParams<{ classId: string }>();
+    const { id: classId } = useParams<{ id: string }>();
 
     const [isHovered, setIsHovered] = useState(false);
 
