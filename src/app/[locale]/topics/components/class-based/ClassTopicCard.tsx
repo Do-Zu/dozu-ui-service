@@ -57,7 +57,7 @@ export function ClassTopicCard({ topic, handleNameClick }: Props) {
     function handleOnClickViewMindmap() {
         //Q&A: Find suit logic for check class-based mode and check class ID pass
         if (Number.isFinite(classId)) {
-            router.push(ROUTES.CLASS_MINDMAP_VIEW(topicId, classId));
+            router.push(ROUTES.CLASS_MINDMAP_VIEW(classId, topicId));
         } else {
             router.push(ROUTES.MINDMAP_VIEW(topicId));
         }
