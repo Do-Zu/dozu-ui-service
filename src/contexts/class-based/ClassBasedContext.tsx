@@ -12,9 +12,11 @@ export type { ClassBasedContextType };
 const ClassBasedContext = createContext<ClassBasedContextType | undefined>(undefined);
 
 export function ClassBasedProvider({ children }: { children: ReactNode }) {
-    const params = useParams();
 
-    const classId = Number(params.id as string);
+    const params = useParams();
+    const idParam = (params?.id ?? '') as string | string[];
+    const idStr = Array.isArray(idParam) ? idParam[0] : idParam;
+    const classId = Number.parseInt(idStr, 10);
 
     const contextValue = useMemo(
         () => ({
