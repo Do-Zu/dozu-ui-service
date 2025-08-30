@@ -1,5 +1,7 @@
 name: CI/CD pipeline production environment
 
+permissions:
+  contents: read
 on:
   # pull_request:
   #   paths:
