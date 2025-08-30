@@ -61,9 +61,9 @@ export const useCreateComment = (
 export const useGetSingleComment = (
     classId: string | number,
     topicId: string | number,
-    options?: UsePostOptions<IGetSingleCommentBody, IGetSingleCommentResponse>,
+    options?: UsePostOptions<IGetSingleCommentBody, ApiResponse<IGetSingleCommentResponse>>,
 ) => {
-    return usePost<IGetSingleCommentBody, IGetSingleCommentResponse>(
+    return usePost<IGetSingleCommentBody, ApiResponse<IGetSingleCommentResponse>>(
         (commentQuery) => getSingleComment(classId, topicId, commentQuery),
         'POST',
         options,
