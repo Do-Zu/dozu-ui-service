@@ -1,33 +1,36 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useAppSelector } from '@/stores/hooks';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { setRouterRef } from '@/utils/routerService';
 import { Background, BackgroundVariant, Controls, Panel, ReactFlow, ReactFlowProvider } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import { toast } from '@/hooks/use-toast';
-import DownloadButton from '../../components/buttons/DownloadButton';
-import FileSheet from '../../components/FileSheet';
-import FloatingEdge from '../../components/FloatingEdge';
-import { useMindMapContext } from '../../context/MindMapContext';
-import ViewFileButton from '../../components/buttons/ViewFileButton';
-
 import {
-    IFlashcardCreateInput,
+    handleConvertToFlashcardsSubmitted,
+    IFlashcardWithServer,
+} from '@/app/[locale]/flashcards/components/FlashcardEditor';
+import {
     IFlashcardsBatchInput,
+    IFlashcardCreateInput,
     IFlashcardUpdateInput,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
+import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
+import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
+import DownloadButton from '@/app/[locale]/mindmap/components/buttons/DownloadButton';
+import ViewFileButton from '@/app/[locale]/mindmap/components/buttons/ViewFileButton';
+import FileSheet from '@/app/[locale]/mindmap/components/FileSheet';
+import FloatingEdge from '@/app/[locale]/mindmap/components/FloatingEdge';
+import NodeSheetViewOnly from '@/app/[locale]/mindmap/components/NodeSheetViewOnly';
+import ReactFlowNodeInClass from '@/app/[locale]/mindmap/components/ReactFlowNodeInClass';
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import LoadingPage from '@/app/loading';
 import flashcardService from '@/services/flashcard/flashcard.service';
-import { useAppSelector } from '@/stores/hooks';
-import { IFlashcardWithServer } from '../../../flashcards/components/FlashcardEditor';
-import ContentGenerationPreview from '../../../generate/components/ContentGenerationPreview';
-import { useContentGeneration } from '../../../generate/hooks/useContentGeneration';
-import NodeSheetViewOnly from '../../components/NodeSheetViewOnly';
-import ReactFlowNodeInClass from '../../components/ReactFlowNodeInClass';
+
+import '@xyflow/react/dist/style.css';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -95,67 +98,8 @@ export default function MindmapContent() {
         return <GeneratingSkeleton />;
     }
 
-    function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithServer[]): IFlashcardsBatchInput | null {
-        if (!flashcards) return null;
-
-        let flashcardsFormatted = flashcards.map((flashcard) => {
-            return {
-                ...flashcard,
-                front: flashcard.front.trim(),
-                back: flashcard.back.trim(),
-            };
-        });
-
-        let flashcardsAdded: IFlashcardCreateInput[];
-        let flashcardsUpdated: IFlashcardUpdateInput[];
-        let flashcardsDeleted: number[];
-
-        let flashcardsFilter;
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return !flashcard.serverInfo && (flashcard.front !== '' || flashcard.back !== '');
-        });
-        flashcardsAdded = flashcardsFilter.map((flashcard) => ({
-            front: flashcard.front,
-            back: flashcard.back,
-        }));
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return (
-                flashcard.serverInfo &&
-                flashcard.serverInfo.isUpdated &&
-                flashcard.front !== '' &&
-                flashcard.back !== ''
-            );
-        });
-        flashcardsUpdated = flashcardsFilter.map((flashcard) => ({
-            flashcardId: flashcard.serverInfo!.flashcardId,
-            front: flashcard.front,
-            back: flashcard.back,
-        }));
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return (
-                flashcard.serverInfo &&
-                (flashcard.serverInfo.isDeleted ||
-                    (flashcard.serverInfo.isUpdated && flashcard.front === '' && flashcard.back === ''))
-            );
-        });
-        flashcardsDeleted = flashcardsFilter.map((flashcard) => flashcard.serverInfo!.flashcardId);
-
-        if (
-            (!flashcardsAdded || flashcardsAdded.length === 0) &&
-            (!flashcardsUpdated || flashcardsUpdated.length === 0) &&
-            (!flashcardsDeleted || flashcardsDeleted.length === 0)
-        )
-            return null;
-
-        let dataSubmitted: IFlashcardsBatchInput = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
-        return dataSubmitted;
-    }
-
     const handleSaveContentGenerated = async () => {
-        let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]); //handle checks if needed - DuyND
+        let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]);
         const nodeId = selectedNodeData?.nodeId;
         if (!nodeId || !flashcardsSubmitted) {
             toast({
@@ -170,20 +114,13 @@ export default function MindmapContent() {
                 nodeId,
                 flashcards: flashcardsSubmitted,
             });
-            toast({
-                title: 'Edit Flashcards successfully',
-                variant: 'default',
-            });
+
+            toast({ description: 'Flashcards saved' });
+
             router.push(`/flashcards/edit/${topicId}`);
         } catch (err) {
-            console.log(err);
-            return;
+            toast({ description: 'Failed to save flashcards' });
         }
-        toast({
-            description: 'Flashcards saved successfully',
-            variant: 'default',
-        });
-        //NOTE: Can reuse function handleOnClickSave
     };
 
     if (dataGenerated) {
@@ -220,10 +157,6 @@ export default function MindmapContent() {
                 </Panel>
                 <Panel position="top-center">
                     <div className="flex gap-2 ">
-                        {/* <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                            <Save />
-                            {isSaving ? 'Saving...' : 'Save mindmap'}
-                        </Button> */}
                         <DownloadButton />
                     </div>
                     <FileSheet />

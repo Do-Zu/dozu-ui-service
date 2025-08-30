@@ -1,3 +1,7 @@
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import topicService from '@/services/topic/topic.service';
+import { useClassBased } from '@/contexts/class-based';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     DropdownMenu,
@@ -21,12 +25,9 @@ import {
     Trash2,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import { ITopic } from '../../types/topic.type';
 import { ShowIf } from '@/components/ui/ShowIf';
-import topicService from '@/services/topic/topic.service';
 
 interface Props {
     topic: ITopic;
@@ -35,6 +36,7 @@ interface Props {
 
 export function ClassTopicCard({ topic, handleNameClick }: Props) {
     const router = useRouter();
+    const { classId } = useClassBased();
 
     const { topicId, name, description, imageUrl } = topic;
     const tCommon = useTranslations('common');
@@ -53,7 +55,12 @@ export function ClassTopicCard({ topic, handleNameClick }: Props) {
     }
 
     function handleOnClickViewMindmap() {
-        router.push(ROUTES.MINDMAP_VIEW(topicId));
+        //Q&A: Find suit logic for check class-based mode and check class ID pass
+        if (Number.isFinite(classId)) {
+            router.push(ROUTES.CLASS_MINDMAP_VIEW(classId, topicId));
+        } else {
+            router.push(ROUTES.MINDMAP_VIEW(topicId));
+        }
     }
 
     function handleOnClickStartQuiz() {

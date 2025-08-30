@@ -1,35 +1,38 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { setRouterRef } from '@/utils/routerService';
-import { Background, BackgroundVariant, Controls, Panel, ReactFlow } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import { Save } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Background, BackgroundVariant, Controls, Panel, ReactFlow } from '@xyflow/react';
+import { useAppSelector } from '@/stores/hooks';
+import { toast } from '@/hooks/use-toast';
+import { setRouterRef } from '@/utils/routerService';
+
+import { Button } from '@/components/ui/button';
+import { Save } from 'lucide-react';
 import DownloadButton from '../components/buttons/DownloadButton';
-import ViewFileButton from '../components/buttons/ViewFileButton.';
+import ViewFileButton from '../components/buttons/ViewFileButton';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
 import FloatingEdge from '../components/FloatingEdge';
 import NodeSheet from '../components/NodeSheet';
 import { useMindMapContext } from '../context/MindMapContext';
-import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
-import { toast } from '@/hooks/use-toast';
 
 import LoadingPage from '@/app/loading';
-import ContentGenerationPreview from '../../generate/components/ContentGenerationPreview';
-import { useAppSelector } from '@/stores/hooks';
-import { useContentGeneration } from '../../generate/hooks/useContentGeneration';
-import {
-    handleConvertToFlashcardsSubmitted,
-    IFlashcardWithServer,
-} from '../../flashcards/components/FlashcardEditor';
-import { postRequest } from '@/api/api';
-import { ROUTES } from '@/utils/constants/routes';
-import { TypeDataGenerated } from '@/app/[locale]/generate/components/ContentGenerationPreview';
-import { IFlashcardCreateInput, IFlashcardsBatchInput, IFlashcardUpdateInput } from '../../flashcards/types/flashcard.type';
 import flashcardService from '@/services/flashcard/flashcard.service';
+
+import ContentGenerationPreview from '../../generate/components/ContentGenerationPreview';
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+
+import { useContentGeneration } from '../../generate/hooks/useContentGeneration';
+
+import { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
+import {
+    IFlashcardCreateInput,
+    IFlashcardsBatchInput,
+    IFlashcardUpdateInput,
+} from '../../flashcards/types/flashcard.type';
+
+import '@xyflow/react/dist/style.css';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -59,10 +62,7 @@ export default function MindmapContent() {
         isProcessingRegisterGenerate,
     } = useMindMapContext();
 
-    const {
-        dataGenerated,
-        setDataGenerated,
-    } = useContentGeneration({ sseData, sseStatus });
+    const { dataGenerated, setDataGenerated } = useContentGeneration({ sseData, sseStatus });
 
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
 
