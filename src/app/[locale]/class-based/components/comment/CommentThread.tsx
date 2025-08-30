@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { toast } from '@/hooks/use-toast';
 import { MessageCircle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CommentInput from './CommentInput';
@@ -15,10 +17,6 @@ import {
     useGetCommentReplies,
 } from '@/services/class-based-learning/comment';
 import { TypeNodeComment } from '@/app/[locale]/class-based/types/class.type';
-import { useAuth } from '@/contexts/auth/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { format, formatDistanceStrict } from 'date-fns';
-import { getCurrentSystemDateTime } from '@/utils';
 import CommentThreadSkeleton from './SkeletonCard';
 
 interface Comment {
