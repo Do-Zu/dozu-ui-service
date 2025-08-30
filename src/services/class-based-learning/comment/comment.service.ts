@@ -18,7 +18,7 @@ import {
  * @returns Base URL string
  */
 const getBaseUrl = (classId: string | number, topicId: string | number) =>
-    `/classes/${classId}/topics/${topicId}/comments`;
+    `/classes/${encodeURIComponent(String(classId))}/topics/${encodeURIComponent(String(topicId))}/comments`;
 
 /**
  * Get comments for a specific node
