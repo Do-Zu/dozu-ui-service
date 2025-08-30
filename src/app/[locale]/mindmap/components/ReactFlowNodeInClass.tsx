@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CustomNodeData } from '../mindmap.type';
 import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
-import { getRouter } from '@/utils/routerService';
 import { EnumNodeComment } from '../../class-based/types/class.type';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 
