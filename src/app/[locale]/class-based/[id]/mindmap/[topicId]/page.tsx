@@ -114,20 +114,13 @@ export default function MindmapContent() {
                 nodeId,
                 flashcards: flashcardsSubmitted,
             });
-            toast({
-                title: 'Edit Flashcards successfully',
-                variant: 'default',
-            });
+
+            toast({ description: 'Flashcards saved' });
+
             router.push(`/flashcards/edit/${topicId}`);
         } catch (err) {
-            console.log(err);
-            return;
+            toast({ description: 'Failed to save flashcards' });
         }
-        toast({
-            description: 'Flashcards saved successfully',
-            variant: 'default',
-        });
-        //NOTE: Can reuse function handleOnClickSave
     };
 
     if (dataGenerated) {
@@ -164,10 +157,6 @@ export default function MindmapContent() {
                 </Panel>
                 <Panel position="top-center">
                     <div className="flex gap-2 ">
-                        {/* <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                            <Save />
-                            {isSaving ? 'Saving...' : 'Save mindmap'}
-                        </Button> */}
                         <DownloadButton />
                     </div>
                     <FileSheet />
