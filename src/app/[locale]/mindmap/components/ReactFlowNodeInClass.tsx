@@ -15,7 +15,6 @@ import CommentThread from '../../class-based/components/comment/CommentThread';
 
 const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
     const dispatch = useDispatch();
-    const router = getRouter();
     const { id: classId } = useParams<{ id: string }>();
 
     const [isHovered, setIsHovered] = useState(false);
