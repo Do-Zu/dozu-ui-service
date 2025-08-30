@@ -9,7 +9,10 @@ import { Background, BackgroundVariant, Controls, Panel, ReactFlow, ReactFlowPro
 
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import { toast } from '@/hooks/use-toast';
-import { IFlashcardWithServer } from '@/app/[locale]/flashcards/components/FlashcardEditor';
+import {
+    handleConvertToFlashcardsSubmitted,
+    IFlashcardWithServer,
+} from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import {
     IFlashcardsBatchInput,
     IFlashcardCreateInput,
@@ -95,67 +98,8 @@ export default function MindmapContent() {
         return <GeneratingSkeleton />;
     }
 
-    function handleConvertToFlashcardsSubmitted(flashcards: IFlashcardWithServer[]): IFlashcardsBatchInput | null {
-        if (!flashcards) return null;
-
-        let flashcardsFormatted = flashcards.map((flashcard) => {
-            return {
-                ...flashcard,
-                front: flashcard.front.trim(),
-                back: flashcard.back.trim(),
-            };
-        });
-
-        let flashcardsAdded: IFlashcardCreateInput[];
-        let flashcardsUpdated: IFlashcardUpdateInput[];
-        let flashcardsDeleted: number[];
-
-        let flashcardsFilter;
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return !flashcard.serverInfo && (flashcard.front !== '' || flashcard.back !== '');
-        });
-        flashcardsAdded = flashcardsFilter.map((flashcard) => ({
-            front: flashcard.front,
-            back: flashcard.back,
-        }));
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return (
-                flashcard.serverInfo &&
-                flashcard.serverInfo.isUpdated &&
-                flashcard.front !== '' &&
-                flashcard.back !== ''
-            );
-        });
-        flashcardsUpdated = flashcardsFilter.map((flashcard) => ({
-            flashcardId: flashcard.serverInfo!.flashcardId,
-            front: flashcard.front,
-            back: flashcard.back,
-        }));
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return (
-                flashcard.serverInfo &&
-                (flashcard.serverInfo.isDeleted ||
-                    (flashcard.serverInfo.isUpdated && flashcard.front === '' && flashcard.back === ''))
-            );
-        });
-        flashcardsDeleted = flashcardsFilter.map((flashcard) => flashcard.serverInfo!.flashcardId);
-
-        if (
-            (!flashcardsAdded || flashcardsAdded.length === 0) &&
-            (!flashcardsUpdated || flashcardsUpdated.length === 0) &&
-            (!flashcardsDeleted || flashcardsDeleted.length === 0)
-        )
-            return null;
-
-        let dataSubmitted: IFlashcardsBatchInput = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
-        return dataSubmitted;
-    }
-
     const handleSaveContentGenerated = async () => {
-        let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]); //handle checks if needed - DuyND
+        let flashcardsSubmitted = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]);
         const nodeId = selectedNodeData?.nodeId;
         if (!nodeId || !flashcardsSubmitted) {
             toast({
