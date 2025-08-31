@@ -532,7 +532,7 @@ const FlashcardEditor = ({
 
     const handleSaveGeneratedToThisTopic = async () => {
        if (!topic) return;
-       if (!isContentReady || !dataGenerated) {
+       if (!dataGenerated) {
          toast({ description: 'No data to save', variant: 'destructive' });
          return;
        }
