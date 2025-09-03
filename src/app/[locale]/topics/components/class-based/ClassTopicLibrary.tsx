@@ -18,10 +18,7 @@ import ClassFeedList from '@/app/[locale]/class-based/components/ui/classFeed/Cl
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import classFeedService from '@/services/class-based-learning/classFeed.service';
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
-
-interface Props {
-    classId: number;
-}
+import { useClassBased } from '@/contexts/class-based';
 
 type TopicFilteringAction =
     | 'newest'
@@ -31,7 +28,8 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
+const ClassTopicLibrary: React.FC = () => {
+    const { classId } = useClassBased();
     const t = useTranslations('home.contentLibrary');
     const tClass = useTranslations('class');
     const tCommon = useTranslations('common');

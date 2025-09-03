@@ -24,7 +24,7 @@ const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, s
                         setFlashcards={setDataGenerated}
                     />
                 );
-            case CONTENT_TYPE_GENERATE.QUIZ || CONTENT_TYPE_GENERATE.MULTIPLE_CHOICE:
+            case CONTENT_TYPE_GENERATE.QUIZ:
                 return <QuestionRenderer questions={dataGenerated as IQuestion[]} setQuestions={setDataGenerated} />;
             case CONTENT_TYPE_GENERATE.MIND_MAP:
                 return <MindmapRenderer data={content.data} setDataGenerated={setDataGenerated} />;
