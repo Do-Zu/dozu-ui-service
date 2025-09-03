@@ -11,14 +11,14 @@ import LoadingPage from '@/app/loading';
 import { ICreateTopicResponse, ITopic, IUpdateTopicResponse } from '../../types/topic.type';
 import { toast } from '@/hooks/use-toast';
 import topicService, { ICreateTopicPayload, IUpdateTopicPayload } from '@/services/topic/topic.service';
-import { CreateTopicModal } from '../CreateTopicModal';
-import { UpdateTopicModal, IUpdatingTopic } from '../UpdateTopicModal';
-import { DeleteTopicModal, IDeletingTopic } from '../DeleteTopicModal';
+import { CreateTopicModal } from '../modals/CreateTopicModal';
+import { UpdateTopicModal, IUpdatingTopic } from '../modals/UpdateTopicModal';
+import { DeleteTopicModal, IDeletingTopic } from '../modals/DeleteTopicModal';
 import { Button } from '@/components/ui/button';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
-import TopicDetailsModal, { ITopicDetails } from '../TopicDetailsModal';
+import TopicDetailsModal, { ITopicDetails } from '../modals/TopicDetailsModal';
 
 type TopicFilteringAction =
     | 'newest'
@@ -119,13 +119,13 @@ const PersonalTopicLibrary = () => {
     }, [topics, sortBy]);
 
     useEffect(() => {
-        if(!isUpdateTopicModalOpen) {
+        if (!isUpdateTopicModalOpen) {
             setUpdatingTopic(null);
         }
-        if(!isDeleteTopicModalOpen) {
+        if (!isDeleteTopicModalOpen) {
             setDeletingTopic(null);
         }
-        if(!isTopicDetailsModalOpen) {
+        if (!isTopicDetailsModalOpen) {
             setSelectingTopic(null);
         }
     }, [isUpdateTopicModalOpen, isDeleteTopicModalOpen, isTopicDetailsModalOpen]);

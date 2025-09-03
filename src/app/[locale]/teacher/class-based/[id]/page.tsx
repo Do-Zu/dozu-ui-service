@@ -1,6 +1,6 @@
 'use client'
 
-import ClassTopicLibrary from "../components/ui/ClassTopicLibrary";
+import TeacherTopicLibrary from "@/app/[locale]/topics/components/common/TeacherTopicLibrary";
 import { useParams } from "next/navigation";
 
 export default function Page() {
@@ -9,7 +9,7 @@ export default function Page() {
 
     return (
         <div className="flex flex-col h-full mt-4">
-            <ClassTopicLibrary
+            <TeacherTopicLibrary
                 classId={classId}
             />
         </div>

@@ -6,7 +6,7 @@ import { IFlashcardWithServer } from '../../flashcards/components/FlashcardEdito
 import { detectContentType } from '../utils/contentTypeDetector';
 import { IQuestion } from '../../question/types/question.type';
 import ContentRenderer from './ContentRender';
-import { CreateTopicModal } from '../../topics/components/CreateTopicModal';
+import { CreateTopicModal } from '../../topics/components/modals/CreateTopicModal';
 import { ICreateTopicPayload } from '@/services/topic/topic.service';
 
 export type ContentType = 'flashcard' | 'quiz' | 'mindmap';

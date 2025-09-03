@@ -27,6 +27,9 @@
             "removeFromClass": "Xóa khỏi lớp",
             "notAvailable": "Không có",
             "removeSuccess": "Xóa học sinh khỏi lớp học thành công"
+        },
+        "classFeed": {
+            "classFeed": "thông báo lớp học"
         }
     }
 }

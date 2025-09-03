@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { ITopic } from '../types/topic.type';
+import { ITopic } from '../../types/topic.type';
 import { IUpdateTopicPayload } from '@/services/topic/topic.service';
 import { useTranslations } from 'next-intl';
 

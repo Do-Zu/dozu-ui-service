@@ -77,10 +77,13 @@
         "labels": {
             "name": "Name",
             "description": "Description",
-            "noDescription": "No Description",
+            "noDescription": "No description yet",
             "status": "Status",
             "createdAt": "Created at",
-            "updatedAt": "Updated at"
+            "updatedAt": "Updated at",
+            "title": "Title",
+            "content": "Content",
+            "noContent": "No content yet"
         },
         "status": {
             "loading": "Loading...",

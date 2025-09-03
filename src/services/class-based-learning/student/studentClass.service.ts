@@ -20,14 +20,6 @@ class StudentClassService {
         return response.data;
     }
 
-    public async getTopicsInClass(classId: number) {
-        const response = await getRequest<null, ITopic>(`/classes/student/${classId}/topics`);
-        if (response.status !== 'success') {
-            throw new Error(response.message);
-        }
-        return response.data;
-    }
-
     public async joinClass(code: string) {
         const response = await postRequest<IJoinClassBody, IClass>(`/enrollments`, { invitationCode: code });
         if (response.status !== 'created') {

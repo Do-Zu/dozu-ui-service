@@ -7,7 +7,7 @@ import topicService, { ICreateTopicForClassPayload, ICreateTopicPayload } from '
 import { store } from '@/stores/store';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import flashcardService from '@/services/flashcard/flashcard.service';
-import teacherClassTopicService from '@/services/class-based-learning/teacher/teacherClassTopic.service';
+import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -88,7 +88,7 @@ export class ContentCreationService {
 
         try {
             // Phase 1: Create topic in a specific class
-            const data = await teacherClassTopicService.createTopicForClass({
+            const data = await teacherTopicService.createTopicForClass({
                 classId,
                 name,
                 description,

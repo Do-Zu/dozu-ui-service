@@ -1,6 +1,6 @@
-import { IClass } from "@/app/[locale]/class-based/types/class.type";
-import { TeacherClassCard } from "./TeacherClassCard";
-import { IUpdatingClass } from "../modal/UpdateClassModal";
+import { IClass } from '@/app/[locale]/class-based/types/class.type';
+import { TeacherClassCard } from './TeacherClassCard';
+import { IUpdatingClass } from '../modal/class/UpdateClassModal';
 
 type Props = {
     classes: IClass[];

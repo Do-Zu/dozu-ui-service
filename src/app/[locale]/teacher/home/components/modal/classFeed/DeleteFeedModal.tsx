@@ -1,34 +1,30 @@
 import { useTranslations } from 'next-intl';
 import { DeleteConfirmationModal } from '@/components/modal/DeleteComfirmationModal';
 import { Button } from '@/components/ui/button';
-import { ITopic } from '../types/topic.type';
-
-export type IDeletingTopic = Pick<ITopic, 'topicId' | 'name'>;
+import { useEffect } from 'react';
 
 interface Props {
     isOpen: boolean;
     setIsOpen: (value: boolean) => void;
 
-    topic?: IDeletingTopic | null;
-    handleDeleteClick: (topicId: number) => void;
+    classFeedId?: number | null;
+    onSubmit: (classFeedId: number) => void;
 
     loading?: boolean;
 }
 
-export function DeleteTopicModal({ isOpen, setIsOpen, topic, handleDeleteClick, loading }: Props) {
-    if (!topic) {
+export function DeleteFeedModal({ isOpen, setIsOpen, classFeedId, onSubmit, loading }: Props) {
+    if (!classFeedId) {
         return null;
     }
     const tCommon = useTranslations('common');
-    const tTopic = useTranslations('topic');
-    const { topicId, name } = topic;
+
     return (
         <DeleteConfirmationModal
-            title={tCommon('titles.deleteItem', { name })}
-            description={tTopic('deleteConfirmation', { name })}
+            title="Do you want to delete this feed"
             body={
                 <div className="flex justify-end">
-                    <Button variant="destructive" onClick={() => handleDeleteClick(topicId)} disabled={loading}>
+                    <Button variant="destructive" onClick={() => onSubmit(classFeedId)} disabled={loading}>
                         {loading ? tCommon('saving') : tCommon('actions.delete')}
                     </Button>
                 </div>

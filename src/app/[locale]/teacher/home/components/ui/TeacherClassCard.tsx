@@ -12,7 +12,7 @@ import { Edit, MoreVertical, Sparkles, Users } from 'lucide-react';
 import { IClass } from '../../../../class-based/types/class.type';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
-import { IUpdatingClass } from '../modal/UpdateClassModal';
+import { IUpdatingClass } from '../modal/class/UpdateClassModal';
 import { useTranslations } from 'next-intl';
 
 interface Props {

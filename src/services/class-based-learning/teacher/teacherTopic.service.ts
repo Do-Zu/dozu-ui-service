@@ -1,16 +1,21 @@
-import { deleteRequest, postRequest, putRequest } from '@/api/api';
+import { deleteRequest, getRequest, postRequest, putRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
-import {
-    ICreateTopicForClassResponse,
-    IUpdateTopicResponse,
-} from '@/app/[locale]/topics/types/topic.type';
+import { ICreateTopicForClassResponse, ITopic, IUpdateTopicResponse } from '@/app/[locale]/topics/types/topic.type';
 import {
     ICreateTopicForClassPayload,
     IDeleteTopicInClassPayload,
     IUpdateTopicInClassPayload,
 } from '@/services/topic/topic.service';
 
-class TeacherClassTopicService {
+class TeacherTopicService {
+    public async getTopicsInClass(classId: number) {
+        const response = await getRequest<void, ITopic>(`/classes/teacher/${classId}/topics`);
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
     public async createTopicForClass(topic: ICreateTopicForClassPayload) {
         const { classId, name, description, inputSetId, imageFile } = topic;
         const formData = new FormData();
@@ -61,4 +66,4 @@ class TeacherClassTopicService {
     }
 }
 
-export default new TeacherClassTopicService();
+export default new TeacherTopicService();

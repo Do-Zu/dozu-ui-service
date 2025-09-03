@@ -12,7 +12,12 @@ import { ITopic } from '../../types/topic.type';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
-import TopicDetailsModal, { ITopicDetails } from '../TopicDetailsModal';
+import TopicDetailsModal, { ITopicDetails } from '../modals/TopicDetailsModal';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ClassFeedList from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedList';
+import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
+import classFeedService from '@/services/class-based-learning/classFeed.service';
+import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
 
 interface Props {
     classId: number;
@@ -41,7 +46,7 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
         data: topics,
         error: topicsError,
         loading: topicsLoading,
-    } = useFetch<ITopic[]>(() => studentClassService.getTopicsInClass(classId));
+    } = useFetch<ITopic[]>(() => studentTopicService.getTopicsInClass(classId));
 
     const {
         data: myClass,
@@ -50,6 +55,12 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
     } = useFetch<IClass>(() => studentClassService.getClassById(classId));
 
     const [topicsFiltered, setTopicsFiltered] = useState<ITopic[]>();
+
+    const {
+        data: feeds,
+        error: feedsError,
+        loading: feedsLoading,
+    } = useFetch<IClassFeed[]>(() => classFeedService.getFeedsInClass({ classId }));
 
     useEffect(() => {
         if (!topics) {
@@ -143,44 +154,67 @@ const ClassTopicLibrary: React.FC<Props> = ({ classId }) => {
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="relative w-full md:w-[300px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />{' '}
-                    <Input
-                        placeholder={t('searchPlaceholder')}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
+            <Tabs defaultValue="feeds">
+                <TabsList>
+                    <TabsTrigger value="feeds" className="flex items-center gap-2">
+                        <span>Feeds</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="topics" className="flex items-center gap-2">
+                        <span>Topics</span>
+                    </TabsTrigger>
+                </TabsList>
 
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <div className="flex items-center gap-2">
-                        <Filter className="text-gray-500 h-4 w-4" />
-                        <span className="text-sm text-gray-600">{t('sortBy')}</span>
+                <TabsContent value="feeds">
+                    {feedsError ? <div>Error: {feedsError}</div> : null}
+                    {feedsLoading ? <LoadingPage /> : null}
+                    {feeds ? (
+                        <div className="mt-5">
+                            <ClassFeedList feedList={feeds} editable={false} />
+                        </div>
+                    ) : null}
+                </TabsContent>
+
+                <TabsContent value="topics">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 mt-5 gap-4">
+                        <div className="relative w-full md:w-[300px]">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />{' '}
+                            <Input
+                                placeholder={t('searchPlaceholder')}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="flex items-center gap-2">
+                                <Filter className="text-gray-500 h-4 w-4" />
+                                <span className="text-sm text-gray-600">{t('sortBy')}</span>
+                            </div>
+                            <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder={t('sortBy')} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
+                                    <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
+                                    <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
+                                    <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
+                                    <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
+                                    <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                    <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder={t('sortBy')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
-                            <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
-                            <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
-                            <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
-                            <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
-                            <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-            {handleRenderTopicsSection()}
+                    {handleRenderTopicsSection()}
 
-            <TopicDetailsModal
-                isOpen={isTopicDetailsModalOpen}
-                setIsOpen={setIsTopicDetailsModalOpen}
-                topic={selectingTopic}
-            />
+                    <TopicDetailsModal
+                        isOpen={isTopicDetailsModalOpen}
+                        setIsOpen={setIsTopicDetailsModalOpen}
+                        topic={selectingTopic}
+                    />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };

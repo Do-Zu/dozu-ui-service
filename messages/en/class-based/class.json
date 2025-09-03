@@ -27,6 +27,9 @@
             "removeFromClass": "Remove from Class",
             "notAvailable": "N/A",
             "removeSuccess": "Remove student successfully"
+        },
+        "classFeed": {
+            "classFeed": "class feed"
         }
     }
 }
