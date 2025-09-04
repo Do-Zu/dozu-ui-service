@@ -267,9 +267,6 @@ const PersonalTopicLibrary = () => {
                 <div className="relative z-10 px-6 pt-6 md:px-8">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div className="flex items-start gap-4">
-                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-400/70 via-sky-400/70 to-cyan-400/70 dark:from-indigo-500/40 dark:via-sky-500/40 dark:to-cyan-500/40 flex items-center justify-center ring-1 ring-slate-200/60 dark:ring-white/10 shadow-inner shadow-black/10 dark:shadow-black/30">
-                                <CircleUserRound className="h-5 w-5 text-slate-600 dark:text-slate-200" />
-                            </div>
                             <div>
                                 <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
                                     {t('title')}
@@ -281,16 +278,16 @@ const PersonalTopicLibrary = () => {
                         </div>
                         <Button
                             onClick={handleOpenCreateModal}
-                            className="relative rounded-full px-5 h-10 text-sm font-medium bg-gradient-to-r from-indigo-600 via-sky-500 to-cyan-500 dark:from-indigo-500 dark:via-sky-500 dark:to-cyan-500 text-white shadow hover:from-indigo-500 hover:via-sky-500 hover:to-cyan-500 dark:hover:from-indigo-400 dark:hover:via-sky-400 dark:hover:to-cyan-400"
+                            className="relative rounded-full px-5 h-10 text-sm font-medium bg-gradient-to-bl"
                         >
                             <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
                         </Button>
                     </div>
                     <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <Metric label="Topics" value={metrics.topics} />
-                        <Metric label="Due Today" value={metrics.due} tone="warning" />
-                        <Metric label="New" value={metrics.fresh} tone="info" />
-                        <Metric label="Flashcards" value={metrics.totalFlashcards} tone="accent" />
+                        <Metric label="Due Today" value={metrics.due} />
+                        <Metric label="New" value={metrics.fresh} />
+                        <Metric label="Flashcards" value={metrics.totalFlashcards} />
                     </div>
                     <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="relative w-full md:max-w-sm group">
