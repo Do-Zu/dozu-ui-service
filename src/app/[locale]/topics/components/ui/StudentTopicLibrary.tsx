@@ -9,7 +9,6 @@ import studentClassService from '@/services/class-based-learning/student/student
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTranslations } from 'next-intl';
 import TopicLibrary from '../common/TopicLibrary';
-import ClassFeedList from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedList';
 import {
     DropdownMenu,
     DropdownMenuItem,
@@ -30,6 +29,7 @@ import TopicCard from '../common/TopicCard';
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
 import { useTopics } from '../../hooks/useTopics';
 import { useClassBased } from '@/contexts/class-based';
+import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
 
 type TopicFilteringAction =
     | 'newest'
@@ -148,7 +148,13 @@ export default function StudentTopicLibrary() {
             {feedsLoading ? <LoadingPage /> : null}
             {feeds ? (
                 <div className="mt-5">
-                    <ClassFeedList feedList={feeds} editable={false} />
+                    <div className="w-full h-full">
+                        <div className="space-y-4">
+                            {feeds.map((feed) => (
+                                <ClassFeedCard role="student" feed={feed} />
+                            ))}
+                        </div>
+                    </div>
                 </div>
             ) : null}
         </>

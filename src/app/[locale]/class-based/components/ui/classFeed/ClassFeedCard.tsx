@@ -14,15 +14,26 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
+import { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
 
-interface Props {
-    feed: IClassFeed;
-    editable: boolean;
+interface TeacherProps {
+    role: 'teacher';
+    onUpdateOpen: (feed: IUpdatingFeed) => void;
+    onDeleteOpen: (classFeedId: number) => void;
 }
 
-export default function ClassFeedCard({ feed, editable }: Props) {
+interface StudentProps {
+    role: 'student';
+}
+
+type Props = {
+    feed: IClassFeed;
+} & (TeacherProps | StudentProps);
+
+export default function ClassFeedCard(props: Props) {
     const tCommon = useTranslations('common');
-    const { title, content, createdAt, updatedAt, sender, link } = feed;
+    const { feed, role } = props;
+    const { classFeedId, title, content, createdAt, updatedAt, sender, link } = feed;
 
     return (
         <Card>
@@ -45,7 +56,7 @@ export default function ClassFeedCard({ feed, editable }: Props) {
                     <div className="flex justify-between items-center gap-4">
                         <h3 className="text-lg font-bold text-foreground">{title}</h3>
 
-                        {editable ? (
+                        {role === 'teacher' ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
@@ -53,11 +64,20 @@ export default function ClassFeedCard({ feed, editable }: Props) {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="start" side="top">
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onSelect={() => {
+                                            props.onUpdateOpen({
+                                                classFeedId: classFeedId,
+                                                title,
+                                                content,
+                                                link,
+                                            });
+                                        }}
+                                    >
                                         <Edit className="mr-2 h-4 w-4" />
                                         <span>{tCommon('actions.edit')}</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => props.onDeleteOpen(classFeedId)}>
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         <span>{tCommon('actions.delete')}</span>
                                     </DropdownMenuItem>

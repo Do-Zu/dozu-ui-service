@@ -1,8 +1,4 @@
-import ClassFeedList from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedList';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
-import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
-import LoadingPage from '@/app/loading';
-import { ShowIf } from '@/components/ui/ShowIf';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CircleUserRound, School } from 'lucide-react';
 import { useTranslations } from 'next-intl';

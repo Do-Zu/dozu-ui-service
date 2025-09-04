@@ -62,7 +62,6 @@ import classFeedService, {
     IUpdateClassFeedBody,
     IUpdateClassFeedPayload,
 } from '@/services/class-based-learning/classFeed.service';
-import ClassFeedList from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedList';
 import UpdateFeedModal, { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
 import CreateFeedModal from '@/app/[locale]/teacher/feeds/components/modals/CreateFeedModal';
 import { DeleteFeedModal } from '@/app/[locale]/teacher/feeds/components/modals/DeleteFeedModal';
@@ -79,6 +78,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTopics } from '../../hooks/useTopics';
 import { useFeeds } from '@/app/[locale]/teacher/feeds/hooks/useFeeds';
+import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
 
 type TopicFilteringAction =
     | 'newest'
@@ -272,12 +272,18 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
                         </Button>
                     </div>
 
-                    <ClassFeedList
-                        feedList={feeds}
-                        editable={true}
-                        onUpdateOpen={handleOpenUpdateFeedModal}
-                        onDeleteOpen={handleOpenDeleteFeedModal}
-                    />
+                    <div className="w-full h-full">
+                        <div className="space-y-4">
+                            {feeds.map((feed) => (
+                                <ClassFeedCard
+                                    role="teacher"
+                                    feed={feed}
+                                    onUpdateOpen={handleOpenUpdateFeedModal}
+                                    onDeleteOpen={handleOpenDeleteFeedModal}
+                                />
+                            ))}
+                        </div>
+                    </div>
 
                     <CreateFeedModal
                         isOpen={isCreateFeedModalOpen}
