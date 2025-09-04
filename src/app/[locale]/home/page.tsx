@@ -40,7 +40,6 @@ const Home: React.FC = () => {
         <div className="flex flex-col h-full w-full">
             <BackGroundGradient />
 
-            {/* Hero */}
             <HeroSection />
 
             {/* Core actions */}
@@ -48,12 +47,10 @@ const Home: React.FC = () => {
                 <CoreActionCards />
             </section> */}
 
-            {/* Current learning progress */}
             <section className="relative z-10">
                 <CurrentProcessLearning />
             </section>
 
-            {/* Personal topics library */}
             <section className="relative z-10">
                 <PersonalTopicLibrary />
             </section>
