@@ -251,9 +251,6 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
 
                     <div className="mb-4">
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-[0.6rem] uppercase tracking-wide text-slate-500/80 dark:text-slate-400/80">
-                                {tTopic('progress')}
-                            </span>
                             <span className="text-[0.6rem] font-semibold text-slate-600 dark:text-slate-300">
                                 {progressValue}%
                             </span>
