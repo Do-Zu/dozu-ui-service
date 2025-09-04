@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { Plus, School } from 'lucide-react';
-import { useState } from 'react';
-import { CreateClassModal } from '../modal/class/CreateClassModal';
-import { IUpdatingClass, UpdateClassModal } from '../modal/class/UpdateClassModal';
+import { Edit, MoreVertical, Plus, School, Sparkles, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CreateClassModal } from '@/app/[locale]/teacher/home/components/modal/CreateClassModal';
+import { IUpdatingClass, UpdateClassModal } from '@/app/[locale]/teacher/home/components/modal/UpdateClassModal';
 import teacherClassService, {
     ICreateClassPayload,
     IUpdateClassPayload,
@@ -15,10 +15,14 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
-import { TeacherClassList } from './TeacherClassList';
 import { useTranslations } from 'next-intl';
+import ClassLibrary from '../../../../class-based/components/common/class/ClassLibrary';
+import { DropdownMenuItem, DropdownMenuContent } from '@/components/ui/dropdown-menu';
+import ClassCard from '@/app/[locale]/class-based/components/common/class/ClassCard';
+import TopicCard from '@/app/[locale]/topics/components/common/TopicCard';
+import Flashcard from '@/app/[locale]/flashcards/components/Flashcard';
 
-export function TeacherClassLibrary() {
+export default function TeacherClassLibrary() {
     const tCommon = useTranslations('common');
     const tClass = useTranslations('class');
     const classLabel = tClass('class');
@@ -33,6 +37,12 @@ export function TeacherClassLibrary() {
 
     // manage current class that is selected, showing list of topics in the class
     const [classIdSelected, setClassIdSelected] = useState<number | null>();
+
+    useEffect(() => {
+        if (classIdSelected) {
+            router.push(ROUTES.TEACHER.CLASS_BASED_ID(classIdSelected));
+        }
+    }, [classIdSelected, router]);
 
     const {
         data: classes,
@@ -118,37 +128,44 @@ export function TeacherClassLibrary() {
         setClassIdSelected(classId);
     }
 
-    if (classesError) {
-        return <div>Something went wrong</div>;
-    }
-    if (classesLoading || classes === null || classes === undefined) {
-        return <LoadingPage />;
-    }
-    if (classIdSelected) {
-        // return <TopicLibrary classId={classIdSelected} className={classNameSelected} />;
-        router.push(ROUTES.TEACHER.CLASS_BASED_ID(classIdSelected));
+    // ... UI
+    // button actions
+    const mainActionButtons = (
+        <Button className="bg-background text-foreground" onClick={() => setIsCreateClassModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> {tCommon('titles.createNew', { name: classLabel })}
+        </Button>
+    );
+
+    async function handleGenerateClick(classId: number) {
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_GENERATE(classId));
     }
 
-    return (
-        <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="flex flex-col gap-2">
-                    <div className="flex flex-row gap-2 items-center">
-                        <School />
-                        <h2 className="text-2xl font-semibold">{tClass('myClasses')}</h2>
-                    </div>
-                </div>
-                <Button className="bg-background text-foreground" onClick={() => setIsCreateClassModalOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" /> {tCommon('titles.createNew', { name: classLabel })}
-                </Button>
-            </div>
+    async function handleManageStudentsClick(classId: number) {
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_STUDENTS(classId));
+    }
 
-            <TeacherClassList
-                handleNameClick={handleClassNameClick}
-                classes={classes}
-                handleOpenUpdateModal={handleOpenUpdateModal}
-            />
+    const menuContentInCard = (myClass: IClass) => {
+        const { classId, name, description, imageUrl } = myClass;
+        return (
+            <DropdownMenuContent align="start" side="top">
+                <DropdownMenuItem onSelect={() => handleGenerateClick(classId)}>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    <span>{tClass('generateContent')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => handleManageStudentsClick(classId)}>
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>{tClass('manageStudents')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => handleOpenUpdateModal({ classId, name, description, imageUrl })}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>{tCommon('actions.edit')}</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        );
+    };
 
+    const modals = (
+        <div>
             <CreateClassModal
                 isOpen={isCreateClassModalOpen}
                 setIsOpen={setIsCreateClassModalOpen}
@@ -164,5 +181,31 @@ export function TeacherClassLibrary() {
                 loading={updateClassLoading}
             />
         </div>
+    );
+
+    const classCard = (myClass: IClass) => (
+        <ClassCard
+            role="teacher"
+            myClass={myClass}
+            handleNameClick={handleClassNameClick}
+            menuContent={menuContentInCard}
+        />
+    );
+
+    if (classesError) {
+        return <div>Error: {classesError}</div>;
+    }
+    if (classesLoading || classes === null || classes === undefined) {
+        return <LoadingPage />;
+    }
+
+    return (
+        <ClassLibrary
+            role="teacher"
+            classes={classes}
+            mainActionButtons={mainActionButtons}
+            modals={modals}
+            classCard={classCard}
+        />
     );
 }

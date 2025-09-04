@@ -28,9 +28,9 @@ interface StudentProps {
     role: 'student';
 }
 
-type Props = BaseProps & (TeacherProps | StudentProps);
+export type ClassCardProps = BaseProps & (TeacherProps | StudentProps);
 
-export default function ClassCard({ role, myClass, handleNameClick, menuContent }: Props) {
+const ClassCard: React.FC<ClassCardProps> = ({ role, myClass, handleNameClick, menuContent }) => {
     const { classId, name, description, imageUrl } = myClass;
     const { createdAt, teacherName, teacherImageUrl } = myClass;
     const { enrolledAt } = myClass;
@@ -100,3 +100,5 @@ export default function ClassCard({ role, myClass, handleNameClick, menuContent 
         </Card>
     );
 }
+
+export default ClassCard;

@@ -28,8 +28,8 @@ import { Button } from '@/components/ui/button';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import TopicDetailsModal, { ITopicDetails } from '../modals/TopicDetailsModal';
-import TopicLibrary from './TopicLibrary';
-import TopicCard from './TopicCard';
+import TopicLibrary from '../common/TopicLibrary';
+import TopicCard from '../common/TopicCard';
 import {
     DropdownMenu,
     DropdownMenuItem,

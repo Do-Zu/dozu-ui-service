@@ -5,7 +5,6 @@ import { Search, Filter, Plus, School, Sparkles, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
-import TopicsList from '../TopicsList';
 import useFetch from '@/hooks/useFetch';
 import LoadingPage from '@/app/loading';
 import { ITopic } from '../../types/topic.type';
@@ -20,6 +19,7 @@ import classFeedService from '@/services/class-based-learning/classFeed.service'
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
 import { useClassBased } from '@/contexts/class-based';
 
+// !!WARNING: this file should be deleted (not deleted now since it can lead to conflicts)
 type TopicFilteringAction =
     | 'newest'
     | 'oldest'
@@ -108,11 +108,7 @@ const ClassTopicLibrary: React.FC = () => {
         }
         // todo-ka: cân nhắc setTopicsFiltered ngay khi nhận response từ API thay vì useEffect topics
         return (
-            <TopicsList
-                type={MODE_ACCESS_PAGE_ROLE.classBased}
-                topics={topicsFiltered}
-                handleNameClick={handleNameClick}
-            />
+            <div></div>
         );
     };
 

@@ -2,15 +2,14 @@ import { ShowIf } from '@/components/ui/ShowIf';
 import { School } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { IClass } from '../../../types/class.type';
-import ClassCard from './ClassCard';
+import ClassCard, { ClassCardProps } from './ClassCard';
 import React from 'react';
 import roleHelper from '@/utils/role.helper';
 
 interface BaseProps {
     classes: IClass[];
     mainActionButtons: React.ReactNode;
-    handleNameClick: ({ classId }: { classId: number }) => void;
-    menuContentInCard: (myClass: IClass) => React.ReactNode;
+    classCard: (myClass: IClass) => React.ReactElement<ClassCardProps, typeof ClassCard>;
     modals: React.ReactNode;
 }
 
@@ -28,8 +27,7 @@ export default function ClassLibrary({
     classes,
     role,
     mainActionButtons,
-    handleNameClick,
-    menuContentInCard,
+    classCard,
     modals,
 }: Props) {
     const tClass = useTranslations('class');
@@ -52,13 +50,7 @@ export default function ClassLibrary({
             {/* Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {classes.map((myClass: IClass) => (
-                    <ClassCard
-                        key={myClass.classId}
-                        role={role}
-                        myClass={myClass}
-                        handleNameClick={handleNameClick}
-                        menuContent={menuContentInCard}
-                    />
+                    <div key={myClass.classId}>{classCard(myClass)}</div>
                 ))}
             </div>
 

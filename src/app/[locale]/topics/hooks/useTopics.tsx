@@ -1,5 +1,4 @@
 import topicService, {
-    ICreateTopicForClassPayload,
     ICreateTopicPayload,
     IUpdateTopicPayload,
 } from '@/services/topic/topic.service';
@@ -11,7 +10,6 @@ import { useDeleteTopic } from './useDeleteTopic';
 import { useTopicDetails } from './useTopicDetails';
 import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
-import toastHelper from '@/utils/toast.helper';
 
 interface PersonalProps {
     mode: 'personal';

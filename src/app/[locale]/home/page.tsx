@@ -7,7 +7,7 @@ import { selectLearningMode } from '@/stores/features/class-based-learning/learn
 import { ROUTES } from '@/utils/constants/routes';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
-import PersonalTopicLibrary from '../topics/components/common/PersonalTopicLibrary';
+import PersonalTopicLibrary from '../topics/components/ui/PersonalTopicLibrary';
 import CoreActionCards from './components/CoreActionCards';
 import CurrentProcessLearning from './components/CurrentProcessLearning';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';

@@ -29,6 +29,7 @@ import { ROUTES } from '@/utils/constants/routes';
 import { ITopic } from '../../types/topic.type';
 import { ShowIf } from '@/components/ui/ShowIf';
 
+// !!WARNING: this file should be deleted (not deleted now since it can lead to conflicts)
 interface Props {
     topic: ITopic;
     handleNameClick: (topic: ITopic) => void;

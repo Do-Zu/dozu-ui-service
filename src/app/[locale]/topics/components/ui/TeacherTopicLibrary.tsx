@@ -1,6 +1,6 @@
 'use client';
 
-import TopicLibrary from './TopicLibrary';
+import TopicLibrary from '../common/TopicLibrary';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Search,
@@ -63,11 +63,10 @@ import classFeedService, {
     IUpdateClassFeedPayload,
 } from '@/services/class-based-learning/classFeed.service';
 import ClassFeedList from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedList';
-import UpdateFeedModal, { IUpdatingFeed } from '@/app/[locale]/teacher/home/components/modal/classFeed/UpdateFeedModal';
-import CreateFeedModal from '@/app/[locale]/teacher/home/components/modal/classFeed/CreateFeedModal';
-import { DeleteFeedModal } from '@/app/[locale]/teacher/home/components/modal/classFeed/DeleteFeedModal';
-import ClassTopicList from '@/app/[locale]/teacher/class-based/components/ui/ClassTopicList';
-import TopicCard from './TopicCard';
+import UpdateFeedModal, { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
+import CreateFeedModal from '@/app/[locale]/teacher/feeds/components/modals/CreateFeedModal';
+import { DeleteFeedModal } from '@/app/[locale]/teacher/feeds/components/modals/DeleteFeedModal';
+import TopicCard from '../common/TopicCard';
 import { formatDate } from '@/utils';
 import {
     DropdownMenu,
@@ -79,6 +78,7 @@ import {
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import { useTopics } from '../../hooks/useTopics';
+import { useFeeds } from '@/app/[locale]/teacher/feeds/hooks/useFeeds';
 
 type TopicFilteringAction =
     | 'newest'
@@ -147,62 +147,35 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     } = showTopicDetails;
 
     // feeds
+    const { fetchFeeds, createFeed, updateFeed, deleteFeed } = useFeeds({
+        classId,
+    });
+    const { feeds, feedsError, feedsLoading } = fetchFeeds;
     const {
-        data: feeds,
-        setData: setFeeds,
-        error: feedsError,
-        loading: feedsLoading,
-    } = useFetch<IClassFeed[]>(() => classFeedService.getFeedsInClassForTeacher({ classId }));
+        isOpen: isCreateFeedModalOpen,
+        setIsOpen: setIsCreateFeedModalOpen,
+        open: handleOpenCreateFeedModal,
+        loading: createFeedLoading,
+        submit: handleCreateFeedClick,
+    } = createFeed;
 
-    // create feed
-    const [isCreateFeedModalOpen, setIsCreateFeedModalOpen] = useState<boolean>(false);
+    const {
+        isOpen: isUpdateFeedModalOpen,
+        setIsOpen: setIsUpdateFeedModalOpen,
+        open: handleOpenUpdateFeedModal,
+        loading: updateFeedLoading,
+        submit: handleUpdateFeedClick,
+        updatingFeed,
+    } = updateFeed;
 
-    // update feed
-    const [isUpdateFeedModalOpen, setIsUpdateFeedModalOpen] = useState<boolean>(false);
-    const [updatingFeed, setUpdatingFeed] = useState<IUpdatingFeed | null>(null);
-
-    // delete feed
-    const [isDeleteFeedModalOpen, setIsDeleteFeedModalOpen] = useState<boolean>(false);
-    const [deletingFeed, setDeletingFeed] = useState<number | null>(null);
-
-    const { loading: createFeedLoading, execute: createFeedAsync } = usePost<ICreateClassFeedPayload, IClassFeed>(
-        classFeedService.createGeneralFeed,
-        'POST',
-        {
-            onError: toastHelper.showErrorMessage,
-            onSuccess(data) {
-                toastHelper.showSuccessMessage('Create class feed successfully');
-                applyCreateFeed(data);
-                setIsCreateFeedModalOpen(false);
-            },
-        },
-    );
-
-    const { loading: updateFeedLoading, execute: updateFeedAsync } = usePost<IUpdateClassFeedPayload, IClassFeed>(
-        classFeedService.updateFeed,
-        'PUT',
-        {
-            onError: toastHelper.showErrorMessage,
-            onSuccess(data) {
-                toastHelper.showSuccessMessage('Update class feed successfully');
-                applyUpdateFeed(data);
-                setIsUpdateFeedModalOpen(false);
-            },
-        },
-    );
-
-    const { loading: deleteFeedLoading, execute: deleteFeedAsync } = usePost<IDeleteClassFeedPayload, number>(
-        classFeedService.deleteFeed,
-        'DELETE',
-        {
-            onError: toastHelper.showErrorMessage,
-            onSuccess(data) {
-                toastHelper.showSuccessMessage('Delete class feed successfully');
-                applyDeleteFeed(data);
-                setIsDeleteFeedModalOpen(false);
-            },
-        },
-    );
+    const {
+        isOpen: isDeleteFeedModalOpen,
+        setIsOpen: setIsDeleteFeedModalOpen,
+        open: handleOpenDeleteFeedModal,
+        loading: deleteFeedLoading,
+        submit: handleDeleteFeedClick,
+        deletingFeed,
+    } = deleteFeed;
 
     useEffect(() => {
         if (!topics) {
@@ -228,79 +201,6 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         });
         setTopicsFiltered(topicsFiltered);
     }, [topics, sortBy]);
-
-    const handleOpenCreateFeedModal = useCallback(() => {
-        setTimeout(() => {
-            setIsCreateFeedModalOpen(true);
-        }, 50);
-    }, []);
-
-    const handleOpenUpdateFeedModal = useCallback((feed: IUpdatingFeed) => {
-        setTimeout(() => {
-            setIsUpdateFeedModalOpen(true);
-            setUpdatingFeed(feed);
-        }, 50);
-    }, []);
-
-    const handleOpenDeleteFeedModal = useCallback((classFeedId: number) => {
-        setTimeout(() => {
-            setIsDeleteFeedModalOpen(true);
-            setDeletingFeed(classFeedId);
-        }, 50);
-    }, []);
-
-    const applyCreateFeed = (feed: IClassFeed) => {
-        setFeeds((prevFeeds) => {
-            const currentFeeds = prevFeeds ?? [];
-            currentFeeds.unshift(feed);
-            return currentFeeds;
-        });
-    };
-
-    const applyUpdateFeed = (feed: IClassFeed) => {
-        setFeeds((prevFeeds) => {
-            const currentFeeds = prevFeeds ?? [];
-            const feedsUpdated = currentFeeds.map((e) => {
-                return e.classFeedId === feed.classFeedId ? feed : e;
-            });
-            return feedsUpdated;
-        });
-    };
-
-    const applyDeleteFeed = (classFeedId: number) => {
-        setFeeds((prevFeeds) => {
-            const currentFeeds = prevFeeds ?? [];
-            const feedsFiltered = currentFeeds.filter((e) => e.classFeedId !== classFeedId);
-            return feedsFiltered;
-        });
-    };
-
-    async function handleCreateFeedClick(feed: ICreateClassFeedBody) {
-        if (!feed.title) {
-            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.title') }));
-            return;
-        }
-        const value: ICreateClassFeedPayload = { ...feed, classId };
-        await createFeedAsync(value);
-    }
-
-    async function handleUpdateFeedClick(feed: IUpdatingFeed) {
-        if (!updatingFeed) {
-            toastHelper.showErrorMessage('No selecting feed');
-            return;
-        }
-        if (!feed.title) {
-            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.title') }));
-            return;
-        }
-        const value: IUpdateClassFeedPayload = { ...feed, classId };
-        await updateFeedAsync(value);
-    }
-
-    async function handleDeleteFeedClick(classFeedId: number) {
-        const value: IDeleteClassFeedPayload = { classId, classFeedId };
-        await deleteFeedAsync(value);
-    }
 
     function handleGenerateClick() {
         router.push(ROUTES.TEACHER.CLASS_BASED_ID_GENERATE(classId));

@@ -8,7 +8,7 @@ import classFeedService from '@/services/class-based-learning/classFeed.service'
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTranslations } from 'next-intl';
-import TopicLibrary from './TopicLibrary';
+import TopicLibrary from '../common/TopicLibrary';
 import ClassFeedList from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedList';
 import {
     DropdownMenu,
@@ -26,9 +26,10 @@ import { useRouter } from 'next/navigation';
 import { ShowIf } from '@/components/ui/ShowIf';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import TopicCard from './TopicCard';
+import TopicCard from '../common/TopicCard';
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
 import { useTopics } from '../../hooks/useTopics';
+import { useClassBased } from '@/contexts/class-based';
 
 type TopicFilteringAction =
     | 'newest'
@@ -38,7 +39,8 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function StudentTopicLibrary({ classId }: { classId: number }) {
+export default function StudentTopicLibrary() {
+    const { classId } = useClassBased();
     const router = useRouter();
     const t = useTranslations('home.contentLibrary');
     const tTopic = useTranslations('topic');
@@ -114,7 +116,12 @@ export default function StudentTopicLibrary({ classId }: { classId: number }) {
     }
 
     function handleOnClickViewMindmap(topicId: number) {
-        router.push(ROUTES.MINDMAP_VIEW(topicId));
+        //Q&A: Find suit logic for check class-based mode and check class ID pass
+        if (Number.isFinite(classId)) {
+            router.push(ROUTES.CLASS_MINDMAP_VIEW(classId, topicId));
+        } else {
+            router.push(ROUTES.MINDMAP_VIEW(topicId));
+        }
     }
 
     function handleOnClickStartQuiz(topicId: number) {

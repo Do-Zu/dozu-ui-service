@@ -1,4 +1,4 @@
-import { IUpdatingFeed } from '@/app/[locale]/teacher/home/components/modal/classFeed/UpdateFeedModal';
+import { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
 import { IClassFeed } from '../../../types/classFeed.type';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';

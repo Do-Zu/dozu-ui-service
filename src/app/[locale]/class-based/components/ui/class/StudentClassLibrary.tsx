@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Link, LogOut } from 'lucide-react';
 import { DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import ClassLibrary from '../../common/class/ClassLibrary';
+import ClassCard from '../../common/class/ClassCard';
 
 export default function StudentClassLibrary() {
     const tJoinClass = useTranslations('class.join');
@@ -149,6 +150,15 @@ export default function StudentClassLibrary() {
         </DropdownMenuContent>
     );
 
+    const classCard = (myClass: IClass) => (
+        <ClassCard
+            role="student"
+            myClass={myClass}
+            handleNameClick={handleClassNameClick}
+            menuContent={menuContentInCard}
+        />
+    );
+
     if (classesError) {
         return <div>Error: {classesError}</div>;
     }
@@ -160,10 +170,9 @@ export default function StudentClassLibrary() {
         <ClassLibrary
             role="student"
             classes={classes}
-            handleNameClick={handleClassNameClick}
             mainActionButtons={mainActionButtons}
-            menuContentInCard={menuContentInCard}
             modals={modals}
+            classCard={classCard}
         />
     );
 }
