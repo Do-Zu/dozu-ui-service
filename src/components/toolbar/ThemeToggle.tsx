@@ -57,7 +57,7 @@ export default function ThemeToggle() {
                     </TooltipContent>
                 </Tooltip> */}
 
-                <div className="hidden group-data-[collapsible=icon]:hidden xl:flex items-center rounded-lg p-1 bg-white/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-700 backdrop-blur gap-1">
+                <div className="hidden group-data-[collapsible=icon]:hidden xl:flex items-center justify-between rounded-lg p-1 bg-white/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-700 backdrop-blur gap-1">
                     {THEMES.map((t) => {
                         const Icon = t.icon;
                         const active = t.key === current;
