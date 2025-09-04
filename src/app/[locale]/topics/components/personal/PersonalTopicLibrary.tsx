@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { Search, Filter, Plus, CircleUserRound, School } from 'lucide-react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { Search, Filter, Plus, CircleUserRound } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
@@ -56,6 +56,25 @@ const PersonalTopicLibrary = () => {
 
     const [topicsFiltered, setTopicsFiltered] = useState<ITopic[]>();
 
+    // aggregated metrics
+    const metrics = useMemo(() => {
+        const list = topicsFiltered ?? [];
+        let due = 0;
+        let fresh = 0;
+        let totalFlashcards = 0;
+        list.forEach((t) => {
+            due += t.flashcardsDueToday || 0;
+            fresh += t.flashcardsNew || 0;
+            totalFlashcards += t.flashcardsCount || 0;
+        });
+        return {
+            topics: list.length,
+            due,
+            fresh,
+            totalFlashcards,
+        };
+    }, [topicsFiltered]);
+
     const { loading: createTopicLoading, execute: createTopicAsync } = usePost<
         ICreateTopicPayload,
         ICreateTopicResponse
@@ -94,38 +113,40 @@ const PersonalTopicLibrary = () => {
     );
 
     useEffect(() => {
-        if (!topics) {
-            return;
-        }
-        const topicsCopied = [...topics];
-        const topicsFiltered = topicsCopied.sort((a, b) => {
-            if (sortBy === 'title-asc') {
-                return a.name.localeCompare(b.name, 'vi');
-            } else if (sortBy === 'title-desc') {
-                return b.name.localeCompare(a.name, 'vi');
-            } else if (sortBy === 'newest') {
+        if (!topics) return;
+        const searchLower = searchQuery.trim().toLowerCase();
+        const sorted = [...topics].sort((a, b) => {
+            if (sortBy === 'title-asc') return a.name.localeCompare(b.name, 'vi');
+            if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
+            if (sortBy === 'newest') {
                 if (a.createdAt === b.createdAt) return 0;
                 return a.createdAt! > b.createdAt! ? 1 : -1;
-            } else if (sortBy === 'oldest') {
+            }
+            if (sortBy === 'oldest') {
                 if (a.createdAt === b.createdAt) return 0;
                 return a.createdAt! < b.createdAt! ? 1 : -1;
-            } else if (sortBy === 'flashcards-due-today') {
-                return b.flashcardsDueToday! - a.flashcardsDueToday!;
-            } else {
-                return 0;
             }
+            if (sortBy === 'flashcards-due-today') return (b.flashcardsDueToday || 0) - (a.flashcardsDueToday || 0);
+            return 0;
         });
-        setTopicsFiltered(topicsFiltered);
-    }, [topics, sortBy]);
+        const filtered = searchLower
+            ? sorted.filter(
+                  (t) =>
+                      t.name.toLowerCase().includes(searchLower) ||
+                      (t.description || '').toLowerCase().includes(searchLower),
+              )
+            : sorted;
+        setTopicsFiltered(filtered);
+    }, [topics, sortBy, searchQuery]);
 
     useEffect(() => {
-        if(!isUpdateTopicModalOpen) {
+        if (!isUpdateTopicModalOpen) {
             setUpdatingTopic(null);
         }
-        if(!isDeleteTopicModalOpen) {
+        if (!isDeleteTopicModalOpen) {
             setDeletingTopic(null);
         }
-        if(!isTopicDetailsModalOpen) {
+        if (!isTopicDetailsModalOpen) {
             setSelectingTopic(null);
         }
     }, [isUpdateTopicModalOpen, isDeleteTopicModalOpen, isTopicDetailsModalOpen]);
@@ -239,56 +260,72 @@ const PersonalTopicLibrary = () => {
     }
 
     return (
-        <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="flex flex-col gap-2">
-                    <div className="flex flex-row gap-2 items-center">
-                        <div className="flex flex-col gap-2">
-                            <div className="flex flex-row gap-4 items-center">
-                                <CircleUserRound />
-                                <h2 className="text-2xl font-semibold">{t('title')}</h2>
+        <div className="relative w-full max-w-6xl mx-auto mb-16 px-6 md:px-8">
+            <div className="pointer-events-none absolute -inset-x-10 -top-6 h-40 bg-gradient-to-r from-indigo-500/10 via-sky-500/10 to-cyan-500/10 blur-2xl" />
+            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/70 via-slate-900/40 to-slate-800/70 backdrop-blur-md shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.04] mix-blend-soft-light bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.4),transparent_60%)]" />
+                <div className="relative z-10 px-6 pt-6 md:px-8">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        <div className="flex items-start gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500/40 via-sky-500/40 to-cyan-500/40 flex items-center justify-center ring-1 ring-white/10 shadow-inner shadow-black/30">
+                                <CircleUserRound className="h-5 w-5 text-slate-200" />
                             </div>
-                            <div>Your topics and personal contents live here</div>
+                            <div>
+                                <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200 bg-clip-text text-transparent">
+                                    {t('title')}
+                                </h2>
+                                <p className="text-xs md:text-sm text-slate-400 mt-1">
+                                    Your topics and personal contents live here
+                                </p>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={handleOpenCreateModal}
+                            className="relative rounded-full px-5 h-10 text-sm font-medium bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-500 text-white shadow hover:from-indigo-400 hover:via-sky-400 hover:to-cyan-400"
+                        >
+                            <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
+                        </Button>
+                    </div>
+                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <Metric label="Topics" value={metrics.topics} />
+                        <Metric label="Due Today" value={metrics.due} tone="warning" />
+                        <Metric label="New" value={metrics.fresh} tone="info" />
+                        <Metric label="Flashcards" value={metrics.totalFlashcards} tone="accent" />
+                    </div>
+                    <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="relative w-full md:max-w-sm group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-slate-300 transition-colors" />
+                            <Input
+                                placeholder={t('searchPlaceholder')}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 h-10 rounded-full bg-slate-800/60 border-white/10 text-sm placeholder:text-slate-500 focus:border-indigo-400/40 focus:ring-0 transition-all"
+                            />
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-400">
+                                <Filter className="h-4 w-4" />
+                                <span>{t('sortBy')}</span>
+                            </div>
+                            <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
+                                <SelectTrigger className="w-48 h-10 rounded-full bg-slate-800/60 border-white/10 text-sm">
+                                    <SelectValue placeholder={t('sortBy')} />
+                                </SelectTrigger>
+                                <SelectContent className="backdrop-blur-md bg-slate-900/80 border-slate-700">
+                                    <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
+                                    <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
+                                    <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
+                                    <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
+                                    <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
+                                    <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </div>
-                <Button className="bg-background text-foreground" onClick={handleOpenCreateModal}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t('createNewContent')}
-                </Button>
+                {/* Topics list */}
+                <div className="relative z-10 px-4 md:px-6 pb-8 pt-4">{handleRenderTopicsSection()}</div>
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="relative w-full md:w-[300px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />{' '}
-                    <Input
-                        placeholder={t('searchPlaceholder')}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
-
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <div className="flex items-center gap-2">
-                        <Filter className="text-gray-500 h-4 w-4" />
-                        <span className="text-sm text-gray-600">{t('sortBy')}</span>
-                    </div>
-                    <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder={t('sortBy')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
-                            <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
-                            <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
-                            <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
-                            <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
-                            <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-            {handleRenderTopicsSection()}
 
             <CreateTopicModal
                 isOpen={isCreateTopicModalOpen}
@@ -318,6 +355,24 @@ const PersonalTopicLibrary = () => {
                 setIsOpen={setIsTopicDetailsModalOpen}
                 topic={selectingTopic}
             />
+        </div>
+    );
+};
+
+const Metric = ({ label, value, tone }: { label: string; value: number; tone?: 'warning' | 'info' | 'accent' }) => {
+    const palette: Record<string, string> = {
+        warning: 'from-amber-400/80 to-orange-400/80',
+        info: 'from-sky-400/80 to-cyan-400/80',
+        accent: 'from-violet-400/80 to-indigo-400/80',
+    };
+    const gradient = tone ? palette[tone] : 'from-indigo-300/80 to-cyan-300/80';
+    return (
+        <div className="relative group overflow-hidden rounded-xl border border-white/10 bg-slate-800/40 backdrop-blur-sm p-3 flex flex-col gap-1">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/5 to-transparent" />
+            <span className="text-[0.65rem] uppercase tracking-wide text-slate-400/80 font-medium">{label}</span>
+            <span className={`text-base font-semibold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
+                {value}
+            </span>
         </div>
     );
 };

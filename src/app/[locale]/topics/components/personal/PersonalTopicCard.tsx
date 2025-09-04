@@ -124,7 +124,6 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/40 via-sky-500/30 to-cyan-500/40 opacity-0 group-hover:opacity-100 blur-xl transition duration-700" />
             <div className="absolute inset-px rounded-[0.95rem] bg-gradient-to-br from-indigo-600/40 via-sky-700/30 to-cyan-700/50 backdrop-blur-sm" />
             <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/70 via-slate-900/40 to-slate-900/70 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.75)]">
-                {/* interactive spotlight */}
                 {mounted && (
                     <motion.div
                         style={{ background: spotlight }}
@@ -228,7 +227,6 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                 </CardHeader>
 
                 <CardContent className="relative z-10 pt-0">
-                    {/* Media preview */}
                     <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl border border-white/5 bg-gradient-to-br from-slate-800/60 via-slate-900/40 to-slate-800/50 group-hover:border-indigo-400/30 transition-colors">
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.2),transparent_60%)]" />
                         {imageUrl ? (
@@ -247,14 +245,6 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
                         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-slate-950/70 to-transparent" />
                     </div>
 
-                    {/* Metrics row */}
-                    <div className="flex items-stretch justify-between gap-4 mb-4">
-                        <Metric label={'new'} value={flashcardsNew} />
-                        <Metric label={'due-today'} value={flashcardsDueToday} />
-                        <Metric label={'total'} value={flashcardsCount ?? '-'} />
-                    </div>
-
-                    {/* Progress bar */}
                     <div className="mb-4">
                         <div className="flex items-center justify-between mb-1">
                             <span className="text-[0.6rem] uppercase tracking-wide text-slate-400/80">
@@ -265,7 +255,7 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
 
                         <div className="relative h-2 overflow-hidden rounded-full bg-slate-800">
                             <div
-                                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 shadow-[0_0_0_1px_rgba(255,255,255,0.15)] transition-[width] duration-700 ease-out"
+                                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200 shadow-[0_0_0_1px_rgba(255,255,255,0.15)] transition-[width] duration-700 ease-out"
                                 style={{ width: `${12}%` }}
                             />
 
