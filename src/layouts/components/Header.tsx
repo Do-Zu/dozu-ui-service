@@ -16,6 +16,7 @@ const Header: React.FC<IHeaderProps> = ({ className = '' }) => {
             style={{
                 height: 'var(--header-height)',
                 zIndex: 50,
+                maxHeight: 'var(--max-header-height)',
             }}
         >
             <Navbar />
