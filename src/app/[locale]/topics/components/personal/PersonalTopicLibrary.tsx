@@ -261,27 +261,27 @@ const PersonalTopicLibrary = () => {
 
     return (
         <div className="relative w-full max-w-6xl mx-auto mb-16 px-6 md:px-8">
-            <div className="pointer-events-none absolute -inset-x-10 -top-6 h-40 bg-gradient-to-r from-indigo-500/10 via-sky-500/10 to-cyan-500/10 blur-2xl" />
-            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/70 via-slate-900/40 to-slate-800/70 backdrop-blur-md shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] overflow-hidden">
-                <div className="absolute inset-0 opacity-[0.04] mix-blend-soft-light bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.4),transparent_60%)]" />
+            <div className="pointer-events-none absolute -inset-x-10 -top-6 h-40 bg-gradient-to-r from-indigo-300/20 via-sky-300/20 to-cyan-300/20 dark:from-indigo-500/10 dark:via-sky-500/10 dark:to-cyan-500/10 blur-2xl" />
+            <div className="relative rounded-2xl border border-slate-200/60 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.25] dark:opacity-[0.04] mix-blend-normal dark:mix-blend-soft-light bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.25),transparent_60%)]" />
                 <div className="relative z-10 px-6 pt-6 md:px-8">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div className="flex items-start gap-4">
-                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500/40 via-sky-500/40 to-cyan-500/40 flex items-center justify-center ring-1 ring-white/10 shadow-inner shadow-black/30">
-                                <CircleUserRound className="h-5 w-5 text-slate-200" />
+                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-400/70 via-sky-400/70 to-cyan-400/70 dark:from-indigo-500/40 dark:via-sky-500/40 dark:to-cyan-500/40 flex items-center justify-center ring-1 ring-slate-200/60 dark:ring-white/10 shadow-inner shadow-black/10 dark:shadow-black/30">
+                                <CircleUserRound className="h-5 w-5 text-slate-600 dark:text-slate-200" />
                             </div>
                             <div>
-                                <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200 bg-clip-text text-transparent">
+                                <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
                                     {t('title')}
                                 </h2>
-                                <p className="text-xs md:text-sm text-slate-400 mt-1">
+                                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mt-1">
                                     Your topics and personal contents live here
                                 </p>
                             </div>
                         </div>
                         <Button
                             onClick={handleOpenCreateModal}
-                            className="relative rounded-full px-5 h-10 text-sm font-medium bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-500 text-white shadow hover:from-indigo-400 hover:via-sky-400 hover:to-cyan-400"
+                            className="relative rounded-full px-5 h-10 text-sm font-medium bg-gradient-to-r from-indigo-600 via-sky-500 to-cyan-500 dark:from-indigo-500 dark:via-sky-500 dark:to-cyan-500 text-white shadow hover:from-indigo-500 hover:via-sky-500 hover:to-cyan-500 dark:hover:from-indigo-400 dark:hover:via-sky-400 dark:hover:to-cyan-400"
                         >
                             <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
                         </Button>
@@ -294,24 +294,24 @@ const PersonalTopicLibrary = () => {
                     </div>
                     <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="relative w-full md:max-w-sm group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-slate-300 transition-colors" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-slate-700 dark:text-slate-500 dark:group-focus-within:text-slate-300 transition-colors" />
                             <Input
                                 placeholder={t('searchPlaceholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 h-10 rounded-full bg-slate-800/60 border-white/10 text-sm placeholder:text-slate-500 focus:border-indigo-400/40 focus:ring-0 transition-all"
+                                className="pl-9 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-indigo-400/40 focus:ring-0 transition-all"
                             />
                         </div>
                         <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-400">
+                            <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                 <Filter className="h-4 w-4" />
                                 <span>{t('sortBy')}</span>
                             </div>
                             <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
-                                <SelectTrigger className="w-48 h-10 rounded-full bg-slate-800/60 border-white/10 text-sm">
+                                <SelectTrigger className="w-48 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200">
                                     <SelectValue placeholder={t('sortBy')} />
                                 </SelectTrigger>
-                                <SelectContent className="backdrop-blur-md bg-slate-900/80 border-slate-700">
+                                <SelectContent className="backdrop-blur-md bg-white/90 dark:bg-slate-900/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
                                     <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
                                     <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
                                     <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
@@ -361,15 +361,18 @@ const PersonalTopicLibrary = () => {
 
 const Metric = ({ label, value, tone }: { label: string; value: number; tone?: 'warning' | 'info' | 'accent' }) => {
     const palette: Record<string, string> = {
-        warning: 'from-amber-400/80 to-orange-400/80',
-        info: 'from-sky-400/80 to-cyan-400/80',
-        accent: 'from-violet-400/80 to-indigo-400/80',
+        warning: 'from-amber-500 to-orange-500 dark:from-amber-400/80 dark:to-orange-400/80',
+        info: 'from-sky-600 to-cyan-600 dark:from-sky-400/80 dark:to-cyan-400/80',
+        accent: 'from-violet-600 to-indigo-600 dark:from-violet-400/80 dark:to-indigo-400/80',
     };
-    const gradient = tone ? palette[tone] : 'from-indigo-300/80 to-cyan-300/80';
+    const defaultGradient = 'from-indigo-700 to-cyan-700 dark:from-indigo-300/80 dark:to-cyan-300/80';
+    const gradient = tone ? palette[tone] : defaultGradient;
     return (
-        <div className="relative group overflow-hidden rounded-xl border border-white/10 bg-slate-800/40 backdrop-blur-sm p-3 flex flex-col gap-1">
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/5 to-transparent" />
-            <span className="text-[0.65rem] uppercase tracking-wide text-slate-400/80 font-medium">{label}</span>
+        <div className="relative group overflow-hidden rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-slate-800/40 backdrop-blur-sm p-3 flex flex-col gap-1">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-slate-100/80 to-transparent dark:from-white/5" />
+            <span className="text-[0.65rem] uppercase tracking-wide text-slate-500 font-medium dark:text-slate-400/80">
+                {label}
+            </span>
             <span className={`text-base font-semibold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
                 {value}
             </span>
