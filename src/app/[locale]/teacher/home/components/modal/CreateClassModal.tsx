@@ -1,6 +1,7 @@
 import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { ICreateClassPayload } from '@/services/class-based-learning/teacher/teacherClass.service';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -50,7 +51,7 @@ export function CreateClassModal({ isOpen, setIsOpen, onSubmit, loading }: Props
         setName(event.target.value);
     }
 
-    function handleDescriptionChange(event: ChangeEvent<HTMLInputElement>) {
+    function handleDescriptionChange(event: ChangeEvent<HTMLTextAreaElement>) {
         setDescription(event.target.value);
     }
 
@@ -72,7 +73,7 @@ export function CreateClassModal({ isOpen, setIsOpen, onSubmit, loading }: Props
 
                     <div className="flex flex-col gap-2">
                         <div className="text-primary text-base font-normal">{tCommon('labels.description')}</div>
-                        <Input value={description} onChange={handleDescriptionChange} />
+                        <Textarea value={description} onChange={handleDescriptionChange} />
                     </div>
 
                     {tempImageUrl ? (

@@ -1,6 +1,6 @@
 import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
-import { ITopic } from '../types/topic.type';
+import { ITopic } from '../../types/topic.type';
 import Link from 'next/link';
 
 export type ITopicDetails = Pick<ITopic, 'topicId' | 'name' | 'description' | 'createdAt'> & {
@@ -60,7 +60,9 @@ function TopicDetails({ topic }: { topic: ITopicDetails }) {
 
             {/* Progress link */}
             <div>
-                <Link className='hover:underline' href='/'>View Progress</Link>
+                <Link className="hover:underline" href="/">
+                    View Progress
+                </Link>
             </div>
         </div>
     );
@@ -76,12 +78,5 @@ export default function TopicDetailsModal({ isOpen, setIsOpen, topic }: Props) {
     if (!topic) {
         return null;
     }
-    return (
-        <Modal
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            title="Topic details"
-            body={<TopicDetails topic={topic} />}
-        />
-    );
+    return <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Topic details" body={<TopicDetails topic={topic} />} />;
 }

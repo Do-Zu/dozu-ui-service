@@ -1,8 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { format } from 'date-fns';
-import Image from 'next/image';
+import { IClass } from '../../../types/class.type';
+import { ShowIf } from '@/components/ui/ShowIf';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { IClass } from '../../types/class.type';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,33 +9,42 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { LogOut, MoreVertical } from 'lucide-react';
-import { ILeavingClass } from '../modal/LeaveClassModal';
-import { useTranslations } from 'next-intl';
+import { MoreVertical } from 'lucide-react';
+import Image from 'next/image';
+import { formatDate } from '@/utils';
+import roleHelper from '@/utils/role.helper';
 
-interface Props {
-    classProp: IClass;
+interface BaseProps {
+    myClass: IClass;
     handleNameClick: ({ classId }: { classId: number }) => void;
-    handleLeaveClassModalOpen: (leavingClass: ILeavingClass) => void;
+    menuContent: (myClass: IClass) => React.ReactNode;
 }
 
-export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassModalOpen }: Props) {
-    const tLeaveClass = useTranslations('class.leave');
-    const { classId, name, description, imageUrl, enrolledAt, teacherName, teacherImageUrl } = classProp;
+interface TeacherProps {
+    role: 'teacher';
+}
 
-    function formatDate(date: Date | undefined) {
-        if (date) return format(date, 'yyyy-MM-dd');
-        return null;
-    }
+interface StudentProps {
+    role: 'student';
+}
+
+export type ClassCardProps = BaseProps & (TeacherProps | StudentProps);
+
+const ClassCard: React.FC<ClassCardProps> = ({ role, myClass, handleNameClick, menuContent }) => {
+    const { classId, name, description, imageUrl } = myClass;
+    const { createdAt, teacherName, teacherImageUrl } = myClass;
+    const { enrolledAt } = myClass;
 
     return (
         <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
             <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                     <CardTitle className="w-full flex flex-row gap-4 text-lg font-medium truncate">
-                        <Avatar>
-                            <AvatarImage src={teacherImageUrl} alt="Avatar" />
-                        </Avatar>
+                        <ShowIf when={roleHelper.isStudent(role)}>
+                            <Avatar>
+                                <AvatarImage src={teacherImageUrl} alt="Avatar" />
+                            </Avatar>
+                        </ShowIf>
                         <div className="flex flex-row gap-2 items-center">
                             <div
                                 className="hover:underline hover:text-blue-400 transition"
@@ -44,7 +52,6 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassM
                             >
                                 {name}
                             </div>
-                            <div className="text-sm">({teacherName})</div>
                         </div>
                     </CardTitle>
                     <DropdownMenu>
@@ -53,16 +60,10 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassM
                                 <MoreVertical className="h-4 w-4 text-gray-500" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" side="top">
-                            <DropdownMenuItem onSelect={() => handleLeaveClassModalOpen({ classId, name })}>
-                                <LogOut className="mr-2 h-4 w-4" />
-                                <span>{tLeaveClass('label')}</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
+                        {menuContent(myClass)}
                     </DropdownMenu>
                 </div>
             </CardHeader>
-
             <CardContent>
                 <div
                     className={`relative h-44 rounded-md mb-3 flex items-center justify-center ${
@@ -78,7 +79,20 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassM
                 <div className="flex flex-col text-xs text-foreground justify-between">
                     <div className="flex flex-row justify-between items-center">
                         <div>
-                            Enrolled At: <span className="font-bold">{formatDate(enrolledAt)}</span>
+                            {roleHelper.isTeacher(role) ? (
+                                <>
+                                    Created At: <span className="font-bold">{formatDate(createdAt)}</span>
+                                </>
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex flex-row gap-2">
+                                        Your teacher: <span className="font-bold">{teacherName}</span>
+                                    </div>
+                                    <div className="flex flex-row gap-2">
+                                        Enrolled At: <span className="font-bold">{formatDate(enrolledAt!)}</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -86,3 +100,5 @@ export function StudentClassCard({ classProp, handleNameClick, handleLeaveClassM
         </Card>
     );
 }
+
+export default ClassCard;

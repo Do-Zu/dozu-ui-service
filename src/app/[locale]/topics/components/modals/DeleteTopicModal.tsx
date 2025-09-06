@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { DeleteConfirmationModal } from '@/components/modal/DeleteComfirmationModal';
 import { Button } from '@/components/ui/button';
-import { ITopic } from '../types/topic.type';
+import { ITopic } from '../../types/topic.type';
 
 export type IDeletingTopic = Pick<ITopic, 'topicId' | 'name'>;
 
