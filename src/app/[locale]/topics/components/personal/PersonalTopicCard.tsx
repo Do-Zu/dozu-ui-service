@@ -27,7 +27,6 @@ import { ROUTES } from '@/utils/constants/routes';
 import { ITopic } from '../../types/topic.type';
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Progress } from '@/components/ui/progress';
 
 interface Props {
     topic: ITopic;
@@ -45,17 +44,6 @@ interface Props {
     handleOpenDeleteModal: ({ topicId, name }: { topicId: number; name: string }) => void;
     handleNameClick: (topic: ITopic) => void;
 }
-
-const Metric = ({ label, value }: { label: string; value: number | string }) => (
-    <div className="flex flex-col min-w-[4.5rem]">
-        <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground/70 font-medium mb-0.5">
-            {label}
-        </span>
-        <span className="text-sm font-semibold bg-gradient-to-r from-indigo-300 via-sky-300 to-cyan-200 bg-clip-text text-transparent">
-            {value}
-        </span>
-    </div>
-);
 
 export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDeleteModal, handleNameClick }: Props) {
     const router = useRouter();
@@ -106,11 +94,17 @@ export function PersonalTopicCard({ topic, handleOpenUpdateModal, handleOpenDele
 
     const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(99,102,241,0.25), transparent 70%)`;
 
-    const progressTotal = flashcardsCount || flashcardsDueToday + flashcardsNew;
-    const progressValue = progressTotal
-        ? Math.min(100, Math.round(((flashcardsCount - flashcardsDueToday) / progressTotal) * 100))
+    //TODO: note for update logic calculate remain flashcard remain and get progress
+    const progressValue = flashcardsCount
+        ? Math.min(100, Math.round(((flashcardsCount - (flashcardsDueToday + flashcardsNew)) / flashcardsCount) * 100))
         : 0;
 
+    console.log({
+        flashcardsCount,
+        flashcardsDueToday,
+        flashcardsNew,
+        progressValue,
+    });
     return (
         <motion.div
             ref={cardRef}
