@@ -21,7 +21,7 @@ export default function HeroSection() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
-                        className="text-3xl md:text-5xl font-bold tracking-tight leading-tight bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200 bg-clip-text text-transparent"
+                        className="text-3xl md:text-5xl font-bold tracking-tight leading-tight bg-gradient-to-r from-slate-700 via-slate-800 to-sky-800 dark:from-slate-400 dark:via-sky-800 dark:to-cyan-700 bg-clip-text text-transparent"
                     >
                         {tHome('title')}
                     </motion.h1>
