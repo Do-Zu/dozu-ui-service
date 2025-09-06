@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
@@ -39,6 +39,7 @@ import { CreateTopicModal } from '../modals/CreateTopicModal';
 import { DeleteTopicModal } from '../modals/DeleteTopicModal';
 import TopicDetailsModal from '../modals/TopicDetailsModal';
 import { UpdateTopicModal } from '../modals/UpdateTopicModal';
+import { useMotionTemplate, useMotionValue } from 'framer-motion';
 
 type TopicFilteringAction =
     | 'newest'
@@ -240,18 +241,93 @@ export default function PersonalTopicLibrary() {
         );
     };
 
-    const cardFooter = (topic: ITopic) => (
-        <div className="flex flex-col text-xs text-foreground justify-between">
-            <div className="flex flex-row justify-between items-center text-[0.7rem]">
-                <div>
-                    <span className="font-bold">{topic.flashcardsNew}</span> new flashcards
+    const cardFooter = (topic: ITopic) => {
+        const { topicId, flashcardsNew = 0, flashcardsDueToday = 0, flashcardsCount = 0 } = topic;
+
+        const tTopic = useTranslations('topic');
+
+        function handleOnSelectEditFlashcard() {
+            router.push(ROUTES.FLASHCARDS_EDIT(topicId));
+        }
+        function handleOnSelectBrowse() {
+            router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
+        }
+        function handleOnSelectLearning() {
+            router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
+        }
+        function handleOnClickMindmap() {
+            router.push(ROUTES.MINDMAP_EDIT(topicId));
+        }
+        function handleOnClickStartQuiz() {
+            router.push(ROUTES.QUIZ_START(topicId));
+        }
+        function handleOnClickEditQuestion() {
+            router.push(ROUTES.QUIZ_EDIT(topicId));
+        }
+
+        //TODO: note for update logic calculate remain flashcard remain and get progress
+        const progressValue = flashcardsCount
+            ? Math.min(
+                  100,
+                  Math.round(((flashcardsCount - (flashcardsDueToday + flashcardsNew)) / flashcardsCount) * 100),
+              )
+            : 0;
+
+        return (
+            <div>
+                <div className="mb-4">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[0.6rem] font-semibold text-slate-600 dark:text-slate-300">
+                            {progressValue}%
+                        </span>
+                    </div>
+                    <div className="relative h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                        <div
+                            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-500 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 shadow-[0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.15)] transition-[width] duration-700 ease-out"
+                            style={{ width: `${progressValue}%` }}
+                        />
+                        <div className="absolute inset-0 animate-[shimmer_2.5s_infinite] bg-[linear-gradient(110deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.5)_40%,rgba(255,255,255,0)_80%)] dark:bg-[linear-gradient(110deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.15)_40%,rgba(255,255,255,0)_80%)] bg-[length:200%_100%]" />
+                    </div>
                 </div>
-                <div>
-                    <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
+                <div className="flex items-center justify-between gap-3">
+                    <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-7 px-3 rounded-full bg-slate-900/5 dark:bg-slate-800/80 hover:bg-slate-900/10 dark:hover:bg-slate-700/70 text-[0.65rem] font-medium tracking-wide border border-slate-300/60 dark:border-transparent backdrop-blur-sm"
+                        onClick={handleOnSelectLearning}
+                    >
+                        {tTopic('learning')}
+                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
+                            onClick={handleOnSelectBrowse}
+                        >
+                            <BookOpen className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
+                            onClick={handleOnClickStartQuiz}
+                        >
+                            <ClipboardCheck className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
+                            onClick={handleOnClickMindmap}
+                        >
+                            <GitFork className="h-3.5 w-3.5" />
+                        </Button>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const handleRenderTopicsSection = () => {
         if (topicsError) {
