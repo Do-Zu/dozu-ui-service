@@ -22,7 +22,7 @@
             "description": "Description",
             "progress": "Tiến độ",
             "remaining": "còn lại",
-            "continueButton": "Tiếp Tục Học Tập",
+            "continueButton": "Tiếp Tục",
             "error": {
                 "title": "Không có lịch học tập",
                 "message": "Bạn không có phiên học tập nào đang hoạt động.",

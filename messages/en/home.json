@@ -21,7 +21,7 @@
             "description": "Description",
             "progress": "Progress",
             "remaining": "remaining",
-            "continueButton": "Continue Learning",
+            "continueButton": "Continue",
             "error": {
                 "title": "No current topic learning",
                 "message": "You have no active learning sessions at the moment.",
