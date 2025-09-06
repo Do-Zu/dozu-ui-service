@@ -5,6 +5,7 @@ import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { IUpdatingTopic } from '../components/modals/UpdateTopicModal';
+import { useValidateTopic } from './useTopics';
 
 interface Props {
     setTopics: React.Dispatch<React.SetStateAction<ITopic[] | null>>;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function useUpdateTopic({ setTopics, updateFn }: Props) {
+    const validateTopic = useValidateTopic();
     const tCommon = useTranslations('common');
     const tTopic = useTranslations('topic');
     const topicLabel = tTopic('topic');
@@ -45,11 +47,9 @@ export function useUpdateTopic({ setTopics, updateFn }: Props) {
     });
 
     async function submit(topic: IUpdateTopicPayload) {
-        if (!topic.name) {
-            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.name') }));
-            return;
+        if (validateTopic(topic)) {
+            await updateAsync(topic);
         }
-        await updateAsync(topic);
     }
 
     const applyUpdate = (topic: IUpdateTopicResponse) => {

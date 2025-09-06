@@ -45,6 +45,9 @@ export function useCreateFeed({ classId, setFeeds }: Props) {
             toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.title') }));
             return;
         }
+        if (feed.link === undefined || feed.link?.length === 0) {
+            feed.link = null;
+        }
         const value: ICreateClassFeedPayload = { ...feed, classId };
         await createAsync(value);
     }
@@ -52,8 +55,9 @@ export function useCreateFeed({ classId, setFeeds }: Props) {
     const applyCreate = (feed: IClassFeed) => {
         setFeeds((prevFeeds) => {
             const currentFeeds = prevFeeds ?? [];
-            currentFeeds.unshift(feed);
-            return currentFeeds;
+            const result = [...currentFeeds];
+            result.unshift(feed);
+            return result;
         });
     };
 

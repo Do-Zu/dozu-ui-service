@@ -131,6 +131,7 @@ export default function MindmapContent() {
                     dataGenerated={dataGenerated}
                     setDataGenerated={setDataGenerated}
                     shouldCreateTopic={false}
+                    shouldCreateFeed={false}
                     onSave={handleSaveContentGenerated}
                 />
                 <Button className="fixed bottom-5 right-64 z-50 w-32" onClick={handleSaveContentGenerated}>

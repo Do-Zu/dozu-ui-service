@@ -46,7 +46,9 @@ export default function ClassFeedCard(props: Props) {
                         </Avatar>
                         <div className="flex flex-col">
                             <span className="font-semibold text-foreground">{sender.fullName}</span>
-                            <span className="text-xs text-muted-foreground">{formatDate(createdAt)}</span>
+                            <span className="text-xs text-muted-foreground">
+                                {formatDate(createdAt, DATETIME_DMY_12H_FORMAT)}
+                            </span>
                         </div>
                     </div>
                 ) : null}
@@ -114,6 +116,14 @@ export default function ClassFeedCard(props: Props) {
                             </span>
                         ) : null}
                     </div>
+                </CardFooter>
+            ) : null}
+
+            {sender && updatedAt ? (
+                <CardFooter className='-mt-2'>
+                    <span className="text-xs text-muted-foreground">
+                        This post was last edited at '{formatDate(updatedAt, DATETIME_DMY_12H_FORMAT)}'
+                    </span>
                 </CardFooter>
             ) : null}
         </Card>

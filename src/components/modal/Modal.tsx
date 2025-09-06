@@ -14,7 +14,7 @@ import React, { ReactElement } from 'react';
 interface Props {
     trigger?: ReactElement;
     title: string;
-    description?: ReactElement | string;
+    description?: ReactElement | string | null;
     body: ReactElement;
     isOpen?: boolean;
     setIsOpen?: (isOpen: boolean) => void;

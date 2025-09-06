@@ -53,17 +53,8 @@ import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import teacherClassService from '@/services/class-based-learning/teacher/teacherClass.service';
 import TopicDetailsModal, { ITopicDetails } from '@/app/[locale]/topics/components/modals/TopicDetailsModal';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
-import classFeedService, {
-    ICreateClassFeedBody,
-    ICreateClassFeedPayload,
-    IDeleteClassFeedPayload,
-    IUpdateClassFeedBody,
-    IUpdateClassFeedPayload,
-} from '@/services/class-based-learning/classFeed.service';
 import UpdateFeedModal, { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
-import CreateFeedModal from '@/app/[locale]/teacher/feeds/components/modals/CreateFeedModal';
+import CreateFeedModal, { IDefaultFeed } from '@/app/[locale]/teacher/feeds/components/modals/CreateFeedModal';
 import { DeleteFeedModal } from '@/app/[locale]/teacher/feeds/components/modals/DeleteFeedModal';
 import TopicCard from '../common/TopicCard';
 import { formatDate } from '@/utils';
@@ -76,9 +67,11 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import { useTopics } from '../../hooks/useTopics';
+import { useTopics, useValidateTopic } from '../../hooks/useTopics';
 import { useFeeds } from '@/app/[locale]/teacher/feeds/hooks/useFeeds';
 import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
+import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
+import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 
 type TopicFilteringAction =
     | 'newest'
@@ -90,6 +83,7 @@ type TopicFilteringAction =
 
 export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     const router = useRouter();
+    const validateTopic = useValidateTopic();
 
     const t = useTranslations('home.contentLibrary');
     const tCommon = useTranslations('common');
@@ -118,7 +112,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         setIsOpen: setIsCreateTopicModalOpen,
         open: handleCreateTopicModalOpen,
         loading: createTopicLoading,
-        submit: handleCreateTopicSubmit,
+        createAsync: createTopicAsync,
     } = createTopic;
 
     const {
@@ -126,7 +120,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         setIsOpen: setIsUpdateTopicModalOpen,
         open: handleUpdateTopicModalOpen,
         loading: updateTopicLoading,
-        submit: handleUpdateTopicSubmit,
+        submit: handleUpdateTopicClick,
         updatingTopic,
     } = updateTopic;
 
@@ -135,7 +129,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         setIsOpen: setIsDeleteTopicModalOpen,
         open: handleDeleteTopicModalOpen,
         loading: deleteTopicLoading,
-        submit: handleDeleteTopicSubmit,
+        submit: handleDeleteTopicClick,
         deletingTopic,
     } = deleteTopic;
 
@@ -146,6 +140,8 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         selectingTopic,
     } = showTopicDetails;
 
+    const [defaultFeed, setDefaultFeed] = useState<IDefaultFeed>();
+
     // feeds
     const { fetchFeeds, createFeed, updateFeed, deleteFeed } = useFeeds({
         classId,
@@ -154,15 +150,25 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     const {
         isOpen: isCreateFeedModalOpen,
         setIsOpen: setIsCreateFeedModalOpen,
-        open: handleOpenCreateFeedModal,
+        open: handleCreateFeedModalOpen,
         loading: createFeedLoading,
         submit: handleCreateFeedClick,
     } = createFeed;
 
+    const notifyFeed = { ...createFeed };
+    const {
+        isOpen: isNotifyModalOpen,
+        setIsOpen: setIsNotifyModalOpen,
+        open: handleNotifyModalOpen,
+        close: handleNotifyModalClose,
+        loading: notifyLoading,
+        submit: handleNotifyClick,
+    } = notifyFeed;
+
     const {
         isOpen: isUpdateFeedModalOpen,
         setIsOpen: setIsUpdateFeedModalOpen,
-        open: handleOpenUpdateFeedModal,
+        open: handleUpdateFeedModalOpen,
         loading: updateFeedLoading,
         submit: handleUpdateFeedClick,
         updatingFeed,
@@ -171,11 +177,28 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     const {
         isOpen: isDeleteFeedModalOpen,
         setIsOpen: setIsDeleteFeedModalOpen,
-        open: handleOpenDeleteFeedModal,
+        open: handleDeleteFeedModalOpen,
         loading: deleteFeedLoading,
         submit: handleDeleteFeedClick,
         deletingFeed,
     } = deleteFeed;
+
+    async function handleCreateTopicClick(topic: ICreateTopicPayload) {
+        if (!validateTopic(topic)) {
+            return;
+        }
+
+        const data = await createTopicAsync(topic);
+        if (data) {
+            const defaultFeed: IDefaultFeed = {
+                title: 'A new topic has been created',
+                content: `Topic '${data.name}' is now available in our class. Check out to see the learning materials!`,
+                link: null,
+            };
+            setDefaultFeed(defaultFeed);
+            handleNotifyModalOpen();
+        }
+    }
 
     useEffect(() => {
         if (!topics) {
@@ -259,6 +282,16 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         </div>
     );
 
+    const renderFeedCard = (feed: IClassFeed) => (
+        <ClassFeedCard
+            key={feed.classFeedId}
+            role="teacher"
+            feed={feed}
+            onUpdateOpen={handleUpdateFeedModalOpen}
+            onDeleteOpen={handleDeleteFeedModalOpen}
+        />
+    );
+
     const feedContent = (
         <>
             {feedsError ? <div>Error: {feedsError}</div> : null}
@@ -266,23 +299,14 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
             {feeds ? (
                 <div className="mt-5 flex flex-col gap-4">
                     <div className="flex flex-col md:flex-row justify-between items-start">
-                        <Button className="bg-background text-foreground" onClick={handleOpenCreateFeedModal}>
+                        <Button className="bg-background text-foreground" onClick={() => handleCreateFeedModalOpen()}>
                             <BellRing className="mr-2 h-4 w-4" />
                             Post an Announcement
                         </Button>
                     </div>
 
                     <div className="w-full h-full">
-                        <div className="space-y-4">
-                            {feeds.map((feed) => (
-                                <ClassFeedCard
-                                    role="teacher"
-                                    feed={feed}
-                                    onUpdateOpen={handleOpenUpdateFeedModal}
-                                    onDeleteOpen={handleOpenDeleteFeedModal}
-                                />
-                            ))}
-                        </div>
+                        <ClassFeedGroupedByTime feeds={feeds} renderFeedCard={renderFeedCard} />
                     </div>
 
                     <CreateFeedModal
@@ -290,6 +314,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
                         setIsOpen={setIsCreateFeedModalOpen}
                         onSubmit={handleCreateFeedClick}
                         loading={createFeedLoading}
+                        type="custom"
                     />
 
                     <UpdateFeedModal
@@ -460,7 +485,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
             <CreateTopicModal
                 isOpen={isCreateTopicModalOpen}
                 setIsOpen={setIsCreateTopicModalOpen}
-                onSubmit={handleCreateTopicSubmit}
+                onSubmit={handleCreateTopicClick}
                 loading={createTopicLoading}
             />
 
@@ -468,7 +493,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
                 isOpen={isUpdateTopicModalOpen}
                 setIsOpen={setIsUpdateTopicModalOpen}
                 topic={updatingTopic}
-                onSubmit={handleUpdateTopicSubmit}
+                onSubmit={handleUpdateTopicClick}
                 loading={updateTopicLoading}
             />
 
@@ -476,7 +501,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
                 isOpen={isDeleteTopicModalOpen}
                 setIsOpen={setIsDeleteTopicModalOpen}
                 topic={deletingTopic}
-                handleDeleteClick={handleDeleteTopicSubmit}
+                handleDeleteClick={handleDeleteTopicClick}
                 loading={deleteTopicLoading}
             />
 
@@ -484,6 +509,16 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
                 isOpen={isTopicDetailsModalOpen}
                 setIsOpen={setIsTopicDetailsModalOpen}
                 topic={selectingTopic}
+            />
+
+            <CreateFeedModal
+                isOpen={isNotifyModalOpen}
+                setIsOpen={setIsNotifyModalOpen}
+                onSubmit={handleNotifyClick}
+                loading={notifyLoading}
+                defaultFeed={defaultFeed}
+                type="system"
+                onCancel={handleNotifyModalClose}
             />
         </div>
     );

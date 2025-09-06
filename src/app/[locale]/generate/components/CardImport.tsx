@@ -21,6 +21,7 @@ import ContentGenerationPreview from './ContentGenerationPreview';
 import Import from './import/Import';
 import { URL_API_GENERATE } from '../utils/constant';
 import { ClassPropsInGenerate } from './GeneratePage';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
@@ -57,6 +58,13 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
         isTopicModalOpen,
         setIsTopicModalOpen,
         handleOnClickSave,
+
+        isCreateFeedModalOpen,
+        setIsCreateFeedModalOpen,
+        handleCreateFeedModalOpen,
+        handleCreateFeedClick,
+        defaultFeed,
+        handleCancelFeedClick,
     } = useContentGeneration({ sseData, sseStatus, classProps });
 
     const handleRequestGenContent = async () => {
@@ -148,6 +156,13 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
                         isTopicModalOpen={isTopicModalOpen}
                         setIsTopicModalOpen={setIsTopicModalOpen}
                         onSave={handleOnClickSave}
+                        shouldCreateFeed={classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased}
+                        isFeedModalOpen={isCreateFeedModalOpen}
+                        setIsFeedModalOpen={setIsCreateFeedModalOpen}
+                        openFeedModal={handleCreateFeedModalOpen}
+                        onSaveFeed={handleCreateFeedClick}
+                        defaultFeed={defaultFeed}
+                        onCancelFeed={handleCancelFeedClick}
                     />
                 );
 

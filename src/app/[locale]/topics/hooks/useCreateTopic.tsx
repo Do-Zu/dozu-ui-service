@@ -4,6 +4,7 @@ import usePost from '@/hooks/usePost';
 import { ICreateTopicPayload } from '@/services/topic/topic.service';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
+import { useValidateTopic } from './useTopics';
 
 interface Props {
     setTopics: React.Dispatch<React.SetStateAction<ITopic[] | null>>;
@@ -12,6 +13,7 @@ interface Props {
 
 export function useCreateTopic(props: Props) {
     const { setTopics, createFn } = props;
+    const validateTopic = useValidateTopic();
     const tCommon = useTranslations('common');
     const tTopic = useTranslations('topic');
     const topicLabel = tTopic('topic');
@@ -37,11 +39,9 @@ export function useCreateTopic(props: Props) {
     });
 
     async function submit(topic: ICreateTopicPayload) {
-        if (!topic.name) {
-            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.name') }));
-            return;
+        if (validateTopic(topic)) {
+            await createAsync(topic);
         }
-        await createAsync(topic);
     }
 
     const applyCreate = (topic: ICreateTopicResponse) => {

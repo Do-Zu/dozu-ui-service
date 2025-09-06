@@ -8,6 +8,8 @@ import { IQuestion } from '../../question/types/question.type';
 import ContentRenderer from './ContentRender';
 import { CreateTopicModal } from '../../topics/components/modals/CreateTopicModal';
 import { ICreateTopicPayload } from '@/services/topic/topic.service';
+import { ICreateClassFeedBody } from '@/services/class-based-learning/classFeed.service';
+import CreateFeedModal, { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
 
 export type ContentType = 'flashcard' | 'quiz' | 'mindmap';
 
@@ -18,7 +20,7 @@ export interface GeneratedContent {
 
 export type TypeDataGenerated = IFlashcardWithServer[] | IQuestion[] | object[] | object | null;
 
-type ContentGenerationPreviewProps = GenerateContentForTopicProps | GenerateContentForNodeProps;
+type ContentGenerationPreviewProps = GenerateContentForNodeProps | GenerateContentForTopicProps;
 
 interface BaseContentGenerationProps {
     sseData: ISseData | null;
@@ -32,11 +34,20 @@ interface GenerateContentForTopicProps extends BaseContentGenerationProps {
     isTopicModalOpen: boolean;
     setIsTopicModalOpen: (open: boolean) => void;
     onSave: (topic: ICreateTopicPayload) => Promise<void>;
+
+    shouldCreateFeed?: boolean;
+    isFeedModalOpen?: boolean;
+    setIsFeedModalOpen?: (open: boolean) => void;
+    openFeedModal?: () => void;
+    onSaveFeed?: (feed: ICreateClassFeedBody) => Promise<void>;
+    defaultFeed?: IDefaultFeed | null;
+    onCancelFeed?: () => void;
 }
 
 // type for generating flashcards for a node
 interface GenerateContentForNodeProps extends BaseContentGenerationProps {
     shouldCreateTopic: false;
+    shouldCreateFeed: false;
     onSave: () => Promise<void>;
 }
 
@@ -65,12 +76,28 @@ const ContentGenerationPreview: React.FC<ContentGenerationPreviewProps> = (props
 
     return (
         <div className="space-y-4">
-            {shouldCreateTopic ? (
-                <CreateTopicModal
-                    isOpen={props.isTopicModalOpen}
-                    setIsOpen={props.setIsTopicModalOpen}
-                    onSubmit={onSave}
-                />
+            {shouldCreateTopic === true ? (
+                <>
+                    <CreateTopicModal
+                        isOpen={props.isTopicModalOpen}
+                        setIsOpen={props.setIsTopicModalOpen}
+                        onSubmit={onSave}
+                    />
+                    {props.shouldCreateFeed === true &&
+                    props.isFeedModalOpen &&
+                    props.setIsFeedModalOpen &&
+                    props.onSaveFeed &&
+                    props.onCancelFeed ? (
+                        <CreateFeedModal
+                            isOpen={props.isFeedModalOpen}
+                            setIsOpen={props.setIsFeedModalOpen}
+                            onSubmit={props.onSaveFeed}
+                            defaultFeed={props.defaultFeed}
+                            type="system"
+                            onCancel={props.onCancelFeed}
+                        />
+                    ) : null}
+                </>
             ) : null}
 
             {generatedContent && (

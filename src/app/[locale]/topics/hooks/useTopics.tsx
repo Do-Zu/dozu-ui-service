@@ -1,7 +1,4 @@
-import topicService, {
-    ICreateTopicPayload,
-    IUpdateTopicPayload,
-} from '@/services/topic/topic.service';
+import topicService, { ICreateTopicPayload, IUpdateTopicPayload } from '@/services/topic/topic.service';
 import { ITopic } from '../types/topic.type';
 import useFetch from '@/hooks/useFetch';
 import { useCreateTopic } from './useCreateTopic';
@@ -10,6 +7,8 @@ import { useDeleteTopic } from './useDeleteTopic';
 import { useTopicDetails } from './useTopicDetails';
 import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
+import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
 
 interface PersonalProps {
     mode: 'personal';
@@ -70,5 +69,17 @@ export function useTopics(props: Props) {
         updateTopic,
         deleteTopic,
         showTopicDetails,
+    };
+}
+
+export function useValidateTopic() {
+    const tCommon = useTranslations('common');
+
+    return (topic: ICreateTopicPayload | IUpdateTopicPayload): boolean => {
+        if (!topic.name) {
+            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.name') }));
+            return false;
+        }
+        return true;
     };
 }

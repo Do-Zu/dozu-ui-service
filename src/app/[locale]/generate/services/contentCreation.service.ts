@@ -24,6 +24,7 @@ export interface CreateContentForClassParams {
 export interface ContentCreationResult {
     success: boolean;
     topicId?: string | number;
+    topicName?: string;
     error?: string;
 }
 
@@ -118,7 +119,7 @@ export class ContentCreationService {
                     return { success: false, error: `Unsupported content type: ${contentType}` };
             }
 
-            return { success: true, topicId };
+            return { success: true, topicId, topicName: topic.name };
         } catch (error) {
             console.error('Content creation failed:', error);
             return {

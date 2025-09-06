@@ -30,6 +30,7 @@ import studentTopicService from '@/services/class-based-learning/student/student
 import { useTopics } from '../../hooks/useTopics';
 import { useClassBased } from '@/contexts/class-based';
 import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
+import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 
 type TopicFilteringAction =
     | 'newest'
@@ -142,6 +143,8 @@ export default function StudentTopicLibrary() {
 
     const mainActionButtons = null;
 
+    const renderFeedCard = (feed: IClassFeed) => <ClassFeedCard key={feed.classFeedId} role="student" feed={feed} />;
+
     const feedContent = (
         <>
             {feedsError ? <div>Error: {feedsError}</div> : null}
@@ -149,11 +152,7 @@ export default function StudentTopicLibrary() {
             {feeds ? (
                 <div className="mt-5">
                     <div className="w-full h-full">
-                        <div className="space-y-4">
-                            {feeds.map((feed) => (
-                                <ClassFeedCard role="student" feed={feed} />
-                            ))}
-                        </div>
+                        <ClassFeedGroupedByTime feeds={feeds} renderFeedCard={renderFeedCard} />
                     </div>
                 </div>
             ) : null}

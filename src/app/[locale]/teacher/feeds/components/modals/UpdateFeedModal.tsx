@@ -20,10 +20,11 @@ export default function UpdateFeedModal({ isOpen, setIsOpen, feed, onSubmit, loa
     if (!feed) {
         return null;
     }
-    const { classFeedId, title: titleSelected, content: contentSelected, link } = feed;
+    const { classFeedId, title: titleSelected, content: contentSelected, link: linkSelected } = feed;
     const tCommon = useTranslations('common');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [link, setLink] = useState('');
 
     useEffect(() => {
         if (!isOpen) {
@@ -32,8 +33,9 @@ export default function UpdateFeedModal({ isOpen, setIsOpen, feed, onSubmit, loa
         } else {
             setTitle(titleSelected);
             setContent(contentSelected);
+            setLink(linkSelected || '');
         }
-    }, [isOpen, titleSelected, contentSelected]);
+    }, [isOpen, titleSelected, contentSelected, linkSelected]);
 
     function handleTitleChange(event: ChangeEvent<HTMLInputElement>) {
         setTitle(event.target.value);
@@ -41,6 +43,10 @@ export default function UpdateFeedModal({ isOpen, setIsOpen, feed, onSubmit, loa
 
     function handleContentChange(event: ChangeEvent<HTMLTextAreaElement>) {
         setContent(event.target.value);
+    }
+
+    function handleLinkChange(event: ChangeEvent<HTMLInputElement>) {
+        setLink(event.target.value);
     }
 
     function handleSubmit() {
@@ -63,6 +69,13 @@ export default function UpdateFeedModal({ isOpen, setIsOpen, feed, onSubmit, loa
                         <div className="text-primary text-base font-normal">Content</div>
                         <Textarea value={content} onChange={handleContentChange} />
                     </div>
+
+                    {link.length > 0 ? (
+                        <div className="flex flex-col gap-2">
+                            <div className="text-primary text-base font-normal">Link</div>
+                            <Input value={link} onChange={handleLinkChange} disabled />
+                        </div>
+                    ) : null}
 
                     <div>
                         <Button className="text-base" onClick={handleSubmit} disabled={loading}>

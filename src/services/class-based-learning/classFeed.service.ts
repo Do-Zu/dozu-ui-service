@@ -12,10 +12,11 @@ export type IDeleteClassFeedPayload = { classId: number; classFeedId: number };
 
 class ClassFeedService {
     public async createGeneralFeed(payload: ICreateClassFeedPayload) {
-        const { classId, title, content } = payload;
+        const { classId, title, content, link } = payload;
         const response = await postRequest<ICreateClassFeedBody, IClassFeed>(`/classes/teacher/${classId}/feeds`, {
             title,
             content,
+            link,
         });
         if (response.status !== 'created') {
             throw new Error(response.message);
@@ -53,8 +54,10 @@ class ClassFeedService {
 
     public async deleteFeed(payload: IDeleteClassFeedPayload) {
         const { classId, classFeedId } = payload;
-        const response = await deleteRequest<void, ApiResponse<number>>(`/classes/teacher/${classId}/feeds/${classFeedId}`)
-        if(response.status !== 'success') {
+        const response = await deleteRequest<void, ApiResponse<number>>(
+            `/classes/teacher/${classId}/feeds/${classFeedId}`,
+        );
+        if (response.status !== 'success') {
             throw new Error(response.message);
         }
         return response.data;

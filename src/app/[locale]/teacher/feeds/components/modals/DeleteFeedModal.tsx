@@ -25,7 +25,7 @@ export function DeleteFeedModal({ isOpen, setIsOpen, classFeedId, onSubmit, load
             body={
                 <div className="flex justify-end">
                     <Button variant="destructive" onClick={() => onSubmit(classFeedId)} disabled={loading}>
-                        {loading ? tCommon('saving') : tCommon('actions.delete')}
+                        {loading ? tCommon('status.saving') : tCommon('actions.delete')}
                     </Button>
                 </div>
             }
