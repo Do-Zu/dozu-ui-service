@@ -5,14 +5,16 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import { motion } from 'framer-motion';
 import { Sparkles, Calendar, Library } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 export default function HeroSection() {
     const router = useRouter();
+    const t = useTranslations('home.coreActionCards');
+    const tHome = useTranslations('home');
 
     return (
         <div className="relative isolate pt-10 pb-12 md:pt-14 md:pb-16">
-            {/* background gradient mesh */}
-
             <div className="mx-auto max-w-6xl px-4 relative">
                 <div className="flex flex-col items-center text-center">
                     <motion.h1
@@ -21,7 +23,7 @@ export default function HeroSection() {
                         transition={{ duration: 0.7 }}
                         className="text-3xl md:text-5xl font-bold tracking-tight leading-tight bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200 bg-clip-text text-transparent"
                     >
-                        Accelerate Your Adaptive Learning Journey
+                        {tHome('title')}
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, y: 18 }}
@@ -29,8 +31,7 @@ export default function HeroSection() {
                         transition={{ duration: 0.6, delay: 0.15 }}
                         className="mt-4 max-w-2xl text-sm md:text-base text-slate-400 leading-relaxed"
                     >
-                        Generate content with AI, schedule deep practice, and track spaced repetition progress — all in
-                        one unified workspace.
+                        {t('generate.description')}
                     </motion.p>
                     <motion.div
                         initial={{ opacity: 0, y: 14 }}
@@ -42,19 +43,23 @@ export default function HeroSection() {
                             onClick={() => router.push(ROUTES.GENERATE)}
                             className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-500 text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-400 hover:via-sky-400 hover:to-cyan-400 transition"
                         >
-                            <Sparkles className="mr-2 h-4 w-4" /> Generate Content
+                            <Sparkles className="mr-2 h-4 w-4" /> {t('generate.title')}
                         </Button>
                         <Button
                             variant="secondary"
                             onClick={() => router.push(ROUTES.SCHEDULE)}
                             className="rounded-full border border-white/10 bg-slate-800/70 backdrop-blur hover:bg-slate-700/70 text-slate-200 text-sm"
                         >
-                            <Calendar className="mr-2 h-4 w-4" /> View Schedule
+                            <Calendar className="mr-2 h-4 w-4" /> {t('schedule.title')}
                         </Button>
                         <Button
                             variant="ghost"
-                            onClick={() => router.push(ROUTES.LIBRARY)}
-                            className="rounded-full text-slate-300 hover:text-white hover:bg-white/5 text-sm"
+                            onClick={() => {
+                                toast({
+                                    description: 'feature is coming soon',
+                                });
+                            }}
+                            className="rounded-full text-slate-300  text-sm"
                         >
                             <Library className="mr-2 h-4 w-4" /> Library
                         </Button>

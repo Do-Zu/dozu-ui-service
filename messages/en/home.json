@@ -1,5 +1,6 @@
 {
     "home": {
+        "title": "Accelerate Your Adaptive Learning Journey",
         "coreActionCards": {
             "schedule": {
                 "title": "View Schedule",
@@ -11,7 +12,7 @@
             },
             "generate": {
                 "title": "Generate Content",
-                "description": "Create new learning materials with AI-powered content generation."
+                "description": "Generate content with AI, schedule deep practice, and track spaced repetition progress — all in one unified workspace."
             }
         },
         "currentProcessLearning": {
