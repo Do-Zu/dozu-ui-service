@@ -1,47 +1,44 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+
+import LoadingPage from '@/app/loading';
+import { Button } from '@/components/ui/button';
 import {
-    Search,
-    Filter,
-    Plus,
-    Layers,
-    Edit,
-    BookOpen,
-    GitFork,
-    ClipboardCheck,
-    Play,
-    Trash2,
-    GraduationCap,
-} from 'lucide-react';
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTranslations } from 'next-intl';
-import useFetch from '@/hooks/useFetch';
-import LoadingPage from '@/app/loading';
-import { ICreateTopicResponse, ITopic, IUpdateTopicResponse } from '../../types/topic.type';
-import topicService, { ICreateTopicPayload, IUpdateTopicPayload } from '@/services/topic/topic.service';
-import { CreateTopicModal } from '../modals/CreateTopicModal';
-import { UpdateTopicModal, IUpdatingTopic } from '../modals/UpdateTopicModal';
-import { DeleteTopicModal, IDeletingTopic } from '../modals/DeleteTopicModal';
-import { Button } from '@/components/ui/button';
-import usePost from '@/hooks/usePost';
-import toastHelper from '@/utils/toast.helper';
-import TopicDetailsModal, { ITopicDetails } from '../modals/TopicDetailsModal';
-import TopicLibrary from '../common/TopicLibrary';
-import TopicCard from '../common/TopicCard';
-import {
-    DropdownMenu,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuSub,
-    DropdownMenuSubTrigger,
-    DropdownMenuSubContent,
-} from '@/components/ui/dropdown-menu';
 import { ROUTES } from '@/utils/constants/routes';
-import { useRouter } from 'next/navigation';
+import {
+    BookOpen,
+    ClipboardCheck,
+    Edit,
+    Filter,
+    GitFork,
+    GraduationCap,
+    Layers,
+    Play,
+    Plus,
+    Search,
+    Trash2,
+} from 'lucide-react';
+
 import { useTopics } from '../../hooks/useTopics';
+import { ITopic } from '../../types/topic.type';
+import Metric from '../common/Metric';
+import TopicCard from '../common/TopicCard';
+import TopicLibrary from '../common/TopicLibrary';
+import { CreateTopicModal } from '../modals/CreateTopicModal';
+import { DeleteTopicModal } from '../modals/DeleteTopicModal';
+import TopicDetailsModal from '../modals/TopicDetailsModal';
+import { UpdateTopicModal } from '../modals/UpdateTopicModal';
 
 type TopicFilteringAction =
     | 'newest'
@@ -60,6 +57,24 @@ export default function PersonalTopicLibrary() {
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
     const [topicsFiltered, setTopicsFiltered] = useState<ITopic[]>();
+
+    const metrics = useMemo(() => {
+        const list = topicsFiltered ?? [];
+        let due = 0;
+        let fresh = 0;
+        let totalFlashcards = 0;
+        list.forEach((t) => {
+            due += t.flashcardsDueToday || 0;
+            fresh += t.flashcardsNew || 0;
+            totalFlashcards += t.flashcardsCount || 0;
+        });
+        return {
+            topics: list.length,
+            due,
+            fresh,
+            totalFlashcards,
+        };
+    }, [topicsFiltered]);
 
     const { fetchTopics, createTopic, updateTopic, deleteTopic, showTopicDetails } = useTopics({ mode: 'personal' });
     const { topics, topicsError, topicsLoading } = fetchTopics;
@@ -144,6 +159,12 @@ export default function PersonalTopicLibrary() {
     function handleOnClickEditQuestion(topicId: number) {
         router.push(ROUTES.QUIZ_EDIT(topicId));
     }
+
+    const handleOpenCreateModal = useCallback(() => {
+        setTimeout(() => {
+            setIsCreateTopicModalOpen(true);
+        }, 50);
+    }, []);
 
     // UI Section
 
@@ -232,48 +253,18 @@ export default function PersonalTopicLibrary() {
         </div>
     );
 
-    const topicContent = (
-        <>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="relative w-full md:w-[300px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />{' '}
-                    <Input
-                        placeholder={t('searchPlaceholder')}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
-
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    <div className="flex items-center gap-2">
-                        <Filter className="text-gray-500 h-4 w-4" />
-                        <span className="text-sm text-gray-600">{t('sortBy')}</span>
-                    </div>
-                    <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder={t('sortBy')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
-                            <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
-                            <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
-                            <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
-                            <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
-                            <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-
-            {/* Topic Section */}
-            {topicsError ? (
-                <div>Error: {topicsError}</div>
-            ) : topicsLoading || !topics || !topicsFiltered ? (
-                <LoadingPage />
-            ) : topics.length === 0 || topicsFiltered.length === 0 ? (
-                <div></div>
-            ) : (
+    const handleRenderTopicsSection = () => {
+        if (topicsError) {
+            return <div>Error: {topicsError} </div>;
+        }
+        if (topicsLoading || !topics || !topicsFiltered) {
+            return <LoadingPage />;
+        }
+        if (topics?.length === 0) {
+            return <div></div>;
+        }
+        return (
+            <div className="relative z-10 px-4 md:px-6 pb-8 pt-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {topicsFiltered.map((topic) => (
                         <TopicCard
@@ -285,7 +276,65 @@ export default function PersonalTopicLibrary() {
                         />
                     ))}
                 </div>
-            )}
+            </div>
+        );
+    };
+
+    const topicContent = (
+        <>
+            <div className="relative z-10 px-6 pt-6 md:px-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div className="flex items-start gap-4">
+                        <div>
+                            <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
+                                {t('title')}
+                            </h2>
+                            <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                Your topics and personal contents live here
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Metric label="Topics" value={metrics.topics} />
+                    <Metric label="Due Today" value={metrics.due} />
+                    <Metric label="New" value={metrics.fresh} />
+                    <Metric label="Flashcards" value={metrics.totalFlashcards} />
+                </div>
+                <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="relative w-full md:max-w-sm group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-slate-700 dark:text-slate-500 dark:group-focus-within:text-slate-300 transition-colors" />
+                        <Input
+                            placeholder={t('searchPlaceholder')}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-indigo-400/40 focus:ring-0 transition-all"
+                        />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                            <Filter className="h-4 w-4" />
+                            <span>{t('sortBy')}</span>
+                        </div>
+                        <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
+                            <SelectTrigger className="w-48 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200">
+                                <SelectValue placeholder={t('sortBy')} />
+                            </SelectTrigger>
+                            <SelectContent className="backdrop-blur-md bg-white/90 dark:bg-slate-900/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+                                <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
+                                <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
+                                <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
+                                <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
+                                <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
+                                <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            </div>
+
+            {/* LIST TOPICS SECTION */}
+            {handleRenderTopicsSection()}
 
             <CreateTopicModal
                 isOpen={isCreateTopicModalOpen}
@@ -319,9 +368,11 @@ export default function PersonalTopicLibrary() {
     );
 
     const mainActionButtons = (
-        <Button className="bg-background text-foreground" onClick={handleCreateTopicModalOpen}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('createNewContent')}
+        <Button
+            onClick={handleOpenCreateModal}
+            className="relative rounded-full px-5 h-10 text-sm font-medium bg-gradient-to-bl"
+        >
+            <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
         </Button>
     );
 
