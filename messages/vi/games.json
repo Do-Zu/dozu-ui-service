@@ -58,7 +58,7 @@
     "memoryMatch": {
       "title": "Ghép Thẻ Ghi Nhớ",
       "subtitle": "Trò Chơi Ghép Thẻ",
-      "description": "Ghép các cặp flashcard để thắng!",
+      "description": "Lật thẻ để tìm các cặp phù hợp. Ghép mặt trước và sau của mỗi flashcard!",
       "loading": "Đang Tải Trò Chơi",
       "loadingMessage": "Đang tải flashcards cho Ghép Thẻ Ghi Nhớ...",
       "errorTitle": "Lỗi Khi Tải Trò Chơi",
@@ -67,6 +67,7 @@
       "backToTopic": "Quay Lại Chủ Đề",
       "gameControls": "Điều Khiển Trò Chơi",
       "settings": "Cài Đặt",
+      "back": "Quay về",
       "start": "Bắt Đầu Trò Chơi",
       "pause": "Tạm Dừng",
       "resume": "Tiếp Tục",
@@ -79,7 +80,41 @@
       "accuracy": "Độ Chính Xác",
       "gameComplete": "Hoàn Thành Trò Chơi!",
       "congratulations": "Chúc Mừng!",
+      "completedAllPairs": "Bạn đã hoàn thành tất cả {pairs} cặp!",
       "playAgain": "Chơi Lại",
+      "playing": "Đang Chơi",
+      "paused": "Đã Tạm Dừng",
+      "completed": "Đã Hoàn Thành",
+      "pairs": "Cặp",
+      "matched": "đã ghép",
+      "gameProgress": "Tiến Độ Trò Chơi",
+      "findPairs": "Tìm Cặp",
+      "matchFrontBack": "Ghép mặt trước & sau",
+      "scorePoints": "Ghi Điểm",
+      "fewerMovesHigherScore": "Ít lượt di chuyển = điểm cao hơn",
+      "finalScore": "Điểm Cuối",
+      "totalMoves": "Tổng Lượt Di Chuyển",
+      "time": "Thời Gian",
+      "quickMemory": "Trí Nhớ Nhanh",
+      "rememberPositions": "Ghi nhớ vị trí",
+      "startGame": "Bắt Đầu Trò Chơi",
+      "performance": "Hiệu Suất",
+      "efficiency": "Hiệu Quả",
+      "bestPossible": "Tốt Nhất Có Thể",
+      "tips": "Mẹo",
+      "elapsed": "Đã Trôi",
+      "movesUnit": "lượt",
+      "achievements": "Thành Tích",
+      "gameCompleted": "Hoàn Thành Trò Chơi",
+      "perfectMemory": "Trí Nhớ Hoàn Hảo!",
+      "greatJob": "Làm Tốt Lắm!",
+      "wellDone": "Tốt Lắm!",
+      "seconds": "giây",
+      "excellent": "Xuất Sắc",
+      "good": "Tốt",
+      "fair": "Khá",
+      "keepTrying": "Tiếp tục cố gắng",
+      "pairsMatched": "Cặp Đã Ghép",
       "gameSettings": {
         "title": "Cài Đặt Trò Chơi",
         "gridSize": "Kích Thước Lưới",
@@ -97,7 +132,11 @@
         "bestTime": "Thời Gian Tốt Nhất",
         "totalPairs": "Tổng Số Cặp",
         "currentStreak": "Chuỗi Hiện Tại",
-        "perfectMatches": "Ghép Hoàn Hảo"
+        "perfectMatches": "Ghép Hoàn Hảo",
+        "rememberCardPositions": "Ghi nhớ vị trí thẻ (A)",
+        "frontCardsAreQuestions": "Mặt trước của thẻ là câu hỏi (Q)",
+        "backCardsAreAnswers": "Mặt sau của thẻ là câu trả lời (A)",
+        "fewerMovesHigherScore": "Ít lượt di chuyển = điểm cao hơn"
       }
     },
     "common": {
@@ -109,7 +148,8 @@
       "gameMenu": "Menu Trò Chơi",
       "selectGame": "Chọn Trò Chơi",
       "brainChase": "Đua Trí Tuệ",
-      "memoryMatch": "Ghép Thẻ Ghi Nhớ"
+      "memoryMatch": "Ghép Thẻ Ghi Nhớ",
+      "memoryCard": "Thẻ Ghi Nhớ"
     }
   }
 }

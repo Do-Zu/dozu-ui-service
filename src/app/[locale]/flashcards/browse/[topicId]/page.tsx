@@ -1,6 +1,7 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
+import type { IFlashcard } from '../../../games/memory-match/types/memory-game.types';
 import Flashcard from '../../components/Flashcard';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -9,7 +10,6 @@ import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import BackButton from '../../components/BackButton';
-import { IFlashcard } from '../../types/flashcard.type';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
 import flashcardService from '@/services/flashcard/flashcard.service';
@@ -54,6 +54,7 @@ export default function Page() {
 
     const {
         data: flashcards,
+        setData: setFlashcardsData,
         loading: flashcardsLoading,
         error: flashcardsError,
     } = useFetch<IFlashcard[]>(() => flashcardService.getFlashcardsForTopic(topicId));
@@ -68,6 +69,7 @@ export default function Page() {
     //     isFrontRef.current = isFront;
     // }, [isFront]);
 
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [autoPlayEnabled, setAutoPlayEnabled] = useState<boolean>(false);
     const [autoPlaySpeed, setAutoPlaySpeed] = useState<number>(initialAutoPlaySpeed);
 

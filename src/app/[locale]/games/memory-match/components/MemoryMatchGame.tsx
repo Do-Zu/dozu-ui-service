@@ -23,6 +23,7 @@ import { useTranslations } from 'next-intl';
 
 export default function MemoryMatchGame() {
   const t = useTranslations('games.memoryMatch');
+  const t1 = useTranslations('games.common');
   const router = useRouter();
   const {
     gameStatus,
@@ -94,10 +95,10 @@ export default function MemoryMatchGame() {
               className="gap-2 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
               <Home className="h-4 w-4" />
-              Back
+              {t('back')}
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-purple-800 dark:text-purple-300">Memory Match</h1>
+              <h1 className="text-3xl font-bold text-purple-800 dark:text-purple-300">{t('title')}</h1>
               {topicInfo && (
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
                   Topic: {topicInfo.name || topicInfo.title || 'Unknown'}
@@ -109,11 +110,11 @@ export default function MemoryMatchGame() {
           <div className="flex items-center gap-4">
             <Badge variant="secondary" className="gap-1 dark:bg-gray-700 dark:text-gray-200">
               <Target className="h-3 w-3" />
-              {stats.totalPairs} Pairs
+              {stats.totalPairs} {t('pairs')}
             </Badge>
             <Badge variant="outline" className="gap-1 dark:border-gray-600 dark:text-gray-200">
               <Trophy className="h-3 w-3" />
-              Score: {stats.score}
+              {t('score')}: {stats.score}
             </Badge>
           </div>
         </div>
@@ -121,12 +122,12 @@ export default function MemoryMatchGame() {
         {/* Game Progress */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium dark:text-gray-200">Game Progress</span>
+            <span className="text-sm font-medium dark:text-gray-200">{t('gameProgress')}</span>
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {stats.matches}/{stats.totalPairs} pairs matched
+              {stats.matches}/{stats.totalPairs} {t('pairs')} {t('matched')}  
             </span>
           </div>
-          <Progress value={getGameProgress()} className="h-2" />
+          <Progress value={getGameProgress()} className="h-2 dark:bg-gray-700" />
         </div>
 
         {/* Game Content */}
@@ -135,32 +136,31 @@ export default function MemoryMatchGame() {
           <div className="flex flex-col items-center justify-center py-16">
             <div className="text-center max-w-lg">
               <div className="text-6xl mb-6">🧠</div>
-              <h2 className="text-2xl font-bold mb-4 dark:text-gray-100">Memory Match Challenge</h2>
+              {/* <h2 className="text-2xl font-bold mb-4 dark:text-gray-100">{t('subtitle')}</h2> */}
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-                Flip cards to find matching pairs. Match the front and back of each flashcard!
+                {t('description')}
               </p>
               
               <div className="grid grid-cols-3 gap-4 mb-8 text-sm">
-                <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                   <Clock className="h-6 w-6 text-gray-600 dark:text-gray-400 mb-2" />
-                  <span className="font-medium dark:text-gray-100">Quick Memory</span>
-                  <span className="text-gray-500 dark:text-gray-400">Remember positions</span>
+                  <span className="font-medium dark:text-gray-100">{t('quickMemory')}</span>
+                  <span className="text-gray-500 dark:text-gray-400">{t('rememberPositions')}</span>
                 </div>
-                <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                   <Target className="h-6 w-6 text-gray-600 dark:text-gray-400 mb-2" />
-                  <span className="font-medium dark:text-gray-100">Find Pairs</span>
-                  <span className="text-gray-500 dark:text-gray-400">Match front & back</span>
+                  <span className="font-medium dark:text-gray-100">{t('findPairs')}</span>
+                  <span className="text-gray-500 dark:text-gray-400">{t('matchFrontBack')}</span>
                 </div>
-                <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                   <Zap className="h-6 w-6 text-gray-600 dark:text-gray-400 mb-2" />
-                  <span className="font-medium dark:text-gray-100">Score Points</span>
-                  <span className="text-gray-500 dark:text-gray-400">Fewer moves = higher score</span>
+                  <span className="font-medium dark:text-gray-100">{t('scorePoints')}</span>
+                  <span className="text-gray-500 dark:text-gray-400">{t('fewerMovesHigherScore')}</span>
                 </div>
               </div>
 
               <Button size="lg" onClick={startGame} className="bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-gray-900">
-                <Play className="h-5 w-5 mr-2" />
-                Start Game
+                {t('startGame')}     
               </Button>
             </div>
           </div>
@@ -169,22 +169,22 @@ export default function MemoryMatchGame() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Game Board */}
             <div className="lg:col-span-3">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline">
-                        {gameStatus === 'playing' ? 'Playing' : 
-                         gameStatus === 'paused' ? 'Paused' : 
-                         gameStatus === 'completed' ? 'Completed' : gameStatus}
+                      <Badge variant="outline" className="dark:border-gray-600 dark:text-gray-200">
+                        {gameStatus === 'playing' ? t('playing') : 
+                         gameStatus === 'paused' ? t('paused') : 
+                         gameStatus === 'completed' ? t('completed') : gameStatus}
                       </Badge>
-                      {gameStatus === 'playing' && (
+                      {/* {gameStatus === 'playing' && (
                         <Badge variant="secondary" className="gap-1">
                           <Clock className="h-3 w-3" />
                           {Math.floor(stats.timeElapsed / 60)}:
                           {(stats.timeElapsed % 60).toString().padStart(2, '0')}
                         </Badge>
-                      )}
+                      )} */}
                     </div>
                     
                     <div className="flex gap-2">
@@ -223,44 +223,44 @@ export default function MemoryMatchGame() {
 
         {/* Game Completed Modal */}
         {gameStatus === 'completed' && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Card className="w-full max-w-md mx-4 bg-white dark:bg-gray-800">
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+            <Card className="w-full max-w-md mx-4 bg-white dark:bg-gray-800 dark:border-gray-700 shadow-2xl">
               <CardContent className="p-6 text-center">
                 <div className="text-6xl mb-4">🎉</div>
-                <h2 className="text-2xl font-bold mb-4 dark:text-gray-100">Congratulations!</h2>
+                <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">{t('congratulations')}</h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  You completed all {stats.totalPairs} pairs!
+                  {t('completedAllPairs', { pairs: stats.totalPairs })}
                 </p>
                 
                 <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                    <div className="font-medium text-purple-600 dark:text-purple-400">{stats.score}</div>
-                    <div className="text-gray-500 dark:text-gray-400">Final Score</div>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border dark:border-gray-600">
+                    <div className="font-medium text-purple-600 dark:text-purple-400 text-lg">{stats.score}</div>
+                    <div className="text-gray-500 dark:text-gray-400">{t('finalScore')}</div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                    <div className="font-medium text-purple-600 dark:text-purple-400">{stats.moves}</div>
-                    <div className="text-gray-500 dark:text-gray-400">Total Moves</div>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border dark:border-gray-600">
+                    <div className="font-medium text-purple-600 dark:text-purple-400 text-lg">{stats.moves}</div>
+                    <div className="text-gray-500 dark:text-gray-400">{t('totalMoves')}</div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                    <div className="font-medium text-purple-600 dark:text-purple-400">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border dark:border-gray-600">
+                    <div className="font-medium text-purple-600 dark:text-purple-400 text-lg">
                       {Math.floor(stats.timeElapsed / 60)}:{(stats.timeElapsed % 60).toString().padStart(2, '0')}
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Time</div>
+                    <div className="text-gray-500 dark:text-gray-400">{t('time')}</div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                    <div className="font-medium text-purple-600 dark:text-purple-400">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border dark:border-gray-600">
+                    <div className="font-medium text-purple-600 dark:text-purple-400 text-lg">
                       {stats.accuracy.toFixed(1)}%
                     </div>
-                    <div className="text-gray-500 dark:text-gray-400">Accuracy</div>
+                    <div className="text-gray-500 dark:text-gray-400">{t('accuracy')}</div>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={resetGame} className="flex-1 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
-                    Play Again
+                    {t('playAgain')}
                   </Button>
-                  <Button onClick={() => router.back()} className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600">
-                    Back to Flashcards
+                  <Button onClick={() => router.back()} className="flex-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600 text-white">
+                    {t1('backToFlashcards')}
                   </Button>
                 </div>
               </CardContent>

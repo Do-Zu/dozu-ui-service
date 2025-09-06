@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useMemoryMatch } from '../context/MemoryMatchContext';
 import { IMemoryCard } from '../types/memory-game.types';
+import { useTranslations } from 'next-intl';
 
 interface MemoryCardProps {
   card: IMemoryCard;
@@ -14,6 +15,7 @@ interface MemoryCardProps {
 }
 
 export default function MemoryCard({ card, index, disabled = false }: MemoryCardProps) {
+  const t = useTranslations('games.common');
   const { flipCard, canFlipCard } = useMemoryMatch();
 
   const handleClick = () => {
@@ -65,7 +67,7 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
             <div className="text-center">
               <div className="text-2xl mb-2">🎯</div>
               <div className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                Memory Card
+                {t('memoryCard')}
               </div>
             </div>
           </CardContent>
@@ -93,8 +95,8 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
               className={cn(
                 'absolute top-2 right-2 text-xs px-1 py-0',
                 card.type === 'front' 
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-400 dark:border-gray-500' 
-                  : 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border-gray-500 dark:border-gray-400'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white border-gray-400 dark:border-gray-500' 
+                  : 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white border-gray-500 dark:border-gray-400'
               )}
             >
               {card.type === 'front' ? 'Q' : 'A'}
@@ -103,7 +105,7 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
             {/* Card content */}
             <div className="text-center flex-1 flex items-center justify-center">
               <p className={cn(
-                'font-medium leading-tight text-gray-900 dark:text-gray-100',
+                'font-medium leading-tight text-gray-900 dark:text-white',
                 card.content.length > 50 ? 'text-xs' : 
                 card.content.length > 30 ? 'text-sm' : 'text-base'
               )}>

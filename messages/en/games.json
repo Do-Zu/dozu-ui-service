@@ -58,7 +58,7 @@
     "memoryMatch": {
       "title": "Memory Match",
       "subtitle": "Card Matching Game",
-      "description": "Match flashcard pairs to win!",
+      "description": "Flip cards to find matching pairs. Match the front and back of each flashcard!",
       "loading": "Loading Game",
       "loadingMessage": "Loading flashcards for Memory Match...",
       "errorTitle": "Error Loading Game",
@@ -67,6 +67,7 @@
       "backToTopic": "Back to Topic",
       "gameControls": "Game Controls",
       "settings": "Settings",
+      "back": "Back",
       "start": "Start Game",
       "pause": "Pause",
       "resume": "Resume",
@@ -79,7 +80,41 @@
       "accuracy": "Accuracy",
       "gameComplete": "Game Complete!",
       "congratulations": "Congratulations!",
+      "completedAllPairs": "You completed all {pairs} pairs!",
       "playAgain": "Play Again",
+      "playing": "Playing",
+      "paused": "Paused",
+      "completed": "Completed",
+      "pairs": "Pairs",
+      "matched": "matched",
+      "gameProgress": "Game Progress",
+      "findPairs": "Find Pairs",
+      "matchFrontBack": "Match front & back",
+      "scorePoints": "Score Points",
+      "fewerMovesHigherScore": "Fewer moves = higher score",
+      "finalScore": "Final Score",
+      "totalMoves": "Total Moves",
+      "time": "Time",
+      "quickMemory": "Quick Memory",
+      "rememberPositions": "Remember positions",
+      "startGame": "Start Game",
+      "performance": "Performance",
+      "efficiency": "Efficiency",
+      "bestPossible": "Best Possible",
+      "tips": "Tips",
+      "elapsed": "Elapsed",
+      "movesUnit": "moves",
+      "achievements": "Achievements",
+      "gameCompleted": "Game Completed",
+      "perfectMemory": "Perfect Memory!",
+      "greatJob": "Great Job!",
+      "wellDone": "Well Done!",
+      "seconds": "seconds",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "keepTrying": "Keep trying",
+      "pairsMatched": "Pairs Matched",
       "gameSettings": {
         "title": "Game Settings",
         "gridSize": "Grid Size",
@@ -97,7 +132,11 @@
         "bestTime": "Best Time",
         "totalPairs": "Total Pairs",
         "currentStreak": "Current Streak",
-        "perfectMatches": "Perfect Matches"
+        "perfectMatches": "Perfect Matches",
+        "rememberCardPositions": "Remember card positions",
+        "frontCardsAreQuestions": "Front cards are questions",
+        "backCardsAreAnswers": "Back cards are answers",
+        "fewerMovesHigherScore": "Fewer moves = higher score"
       }
     },
     "common": {
@@ -109,7 +148,8 @@
       "gameMenu": "Game Menu",
       "selectGame": "Select a Game",
       "brainChase": "Brain Chase",
-      "memoryMatch": "Memory Match"
+      "memoryMatch": "Memory Match",  
+      "memoryCard": "Memory Card"
     }
   }
 }
