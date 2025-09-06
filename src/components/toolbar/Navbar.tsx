@@ -68,7 +68,9 @@ export default function Navbar() {
                     >
                         Dozu
                     </Link>
-                    <ShowIf when={isStudent} children={<LearningModeSelect />} />
+                    <ShowIf when={isStudent}>
+                        <LearningModeSelect />
+                    </ShowIf>
                 </div>
                 <div className="flex items-center gap-3 text-[0.65rem] uppercase tracking-wide text-muted-foreground/70">
                     {/* <span className="hidden sm:inline">Knowledge Platform</span> */}
