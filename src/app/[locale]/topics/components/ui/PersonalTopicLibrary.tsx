@@ -116,25 +116,18 @@ export default function PersonalTopicLibrary() {
         if (!topics) {
             return;
         }
-        const topicsCopied = [...topics];
-        const topicsFiltered = topicsCopied.sort((a, b) => {
-            if (sortBy === 'title-asc') {
-                return a.name.localeCompare(b.name, 'vi');
-            } else if (sortBy === 'title-desc') {
-                return b.name.localeCompare(a.name, 'vi');
-            } else if (sortBy === 'newest') {
-                if (a.createdAt === b.createdAt) return 0;
-                return a.createdAt! > b.createdAt! ? 1 : -1;
-            } else if (sortBy === 'oldest') {
-                if (a.createdAt === b.createdAt) return 0;
-                return a.createdAt! < b.createdAt! ? 1 : -1;
-            } else if (sortBy === 'flashcards-due-today') {
-                return b.flashcardsDueToday! - a.flashcardsDueToday!;
-            } else {
-                return 0;
-            }
+
+        const sorted = [...topics].sort((a, b) => {
+            if (sortBy === 'title-asc') return a.name.localeCompare(b.name, 'vi');
+            if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
+            const ts = (d?: string | number | Date) => (d ? new Date(d).getTime() : 0);
+            if (sortBy === 'newest') return ts(b.createdAt) - ts(a.createdAt);
+            if (sortBy === 'oldest') return ts(a.createdAt) - ts(b.createdAt);
+            if (sortBy === 'flashcards-due-today') return (b.flashcardsDueToday || 0) - (a.flashcardsDueToday || 0);
+            return 0;
         });
-        setTopicsFiltered(topicsFiltered);
+
+        setTopicsFiltered(sorted);
     }, [topics, sortBy]);
 
     function handleOnSelectEditFlashcard(topicId: number) {
@@ -249,6 +242,7 @@ export default function PersonalTopicLibrary() {
         function handleOnSelectEditFlashcard() {
             router.push(ROUTES.FLASHCARDS_EDIT(topicId));
         }
+
         function handleOnSelectBrowse() {
             router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
         }
