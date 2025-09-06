@@ -81,7 +81,10 @@
             "noDescription": "Chưa có mô tả",
             "status": "Trạng thái",
             "createdAt": "Ngày tạo",
-            "updatedAt": "Ngày cập nhật"
+            "updatedAt": "Ngày cập nhật",
+            "title": "Tiêu đề",
+            "content": "Nội dung",
+            "noContent": "Chưa có nội dung"
         },
         "status": {
             "loading": "Đang tải...",

@@ -61,14 +61,6 @@ class TeacherClassService {
         return response.data;
     }
 
-    public async getTopicsInClass(classId: number) {
-        const response = await getRequest<void, ITopic>(`/classes/teacher/${classId}/topics`);
-        if (response.status !== 'success') {
-            throw new Error(response.message);
-        }
-        return response.data;
-    }
-
     public async getStudentsInClass(classId: number) {
         const response = await getRequest<void, IStudentInClass[]>(`/enrollments/${classId}/students`);
         if (response.status !== 'success') {
