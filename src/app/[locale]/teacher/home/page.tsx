@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TeacherClassLibrary } from './components/ui/TeacherClassLibrary';
+import TeacherClassLibrary from './components/ui/TeacherClassLibrary';
 
 const Home: React.FC = () => {
     return (

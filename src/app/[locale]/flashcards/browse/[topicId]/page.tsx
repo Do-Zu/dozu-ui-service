@@ -5,7 +5,7 @@ import type { IFlashcard } from '../../../games/memory-match/types/memory-game.t
 import Flashcard from '../../components/Flashcard';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, BookOpen, Gamepad2, Brain } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Gamepad2, Brain, Home, Settings, PanelLeft } from 'lucide-react';
 import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
+import { cn } from '@/lib/utils';
 
 const initialAutoPlaySpeed = 3;
 
@@ -80,6 +81,8 @@ export default function Page() {
     // modals for images preview
     const [isImagesModalOpen, setIsImagesModalOpen] = useState<boolean>(false);
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
             const { key } = event;
@@ -127,6 +130,10 @@ export default function Page() {
             cardRef.current.style.transition = 'transform 0.6s';
         }
     }, [flashcards]);
+
+    function handleSidebarOpenToogle() {
+        setIsSidebarOpen(!isSidebarOpen);
+    }
 
     function handleClickBackFlashcard() {
         // chỉnh state isFront thành isFrontRef để ko phụ thuộc vào isFront
@@ -302,15 +309,14 @@ export default function Page() {
     }
 
     function handleAddImageClick(front: string) {
-        if(!front) {
+        if (!front) {
             toastHelper.showErrorMessage("This card's front is empty, cannot search images");
             return;
         }
-        
     }
-    
+
     if (flashcardsError) {
-        return <div>Error: { flashcardsError }</div>;
+        return <div>Error: {flashcardsError}</div>;
     }
 
     if (flashcardsLoading === true || flashcards === null || flashcards === undefined) {
@@ -400,30 +406,43 @@ export default function Page() {
     }
 
     return (
-        <div className="flex bg-gray-100 dark:bg-gray-950 h-[90vh]">
-            <div className="flex flex-1 flex-col m-1.25 mb-0 p-5">
-                <div className="bg-white dark:bg-gray-800 p-2.5">
-                    <BackButton />
-                </div>
-                <div className="flex-1 bg-gray-50 dark:bg-gray-900 p-5 grid grid-cols-11 gap-5">
-                    {/* Main Flashcard Section */}
-                    <div className="bg-gray-100 dark:bg-gray-950 col-span-8 flex flex-col items-center justify-center">
-                        {/* {renderMainFlashcardSection()} */}
-                        <Flashcard
-                            style="relative flex w-[55%] h-[80%] mt-4 "
-                            cardContainerRef={flashcardContainerRef}
-                            cardRef={cardRef}
-                            handleManualFlip={handleManualFlip}
-                            flashcard={currentFlashcard}
-                            
-                        />
-
-                        {renderFlashcardButtonsSection('grid grid-cols-3 mt-4 gap-4')}
+        <div className="flex bg-gray-background w-full h-full">
+            <div className="relative flex-1 p-5 overflow-hidden">
+                {/* Main Flashcard Section */}
+                <div
+                    className={cn(
+                        'relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg',
+                        'transform-all duration-300 ease-in-out',
+                        isSidebarOpen ? 'w-[75%]' : 'w-full',
+                    )}
+                >
+                    <div className="absolute top-8 right-8 z-20">
+                        <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
+                            <PanelLeft size={18} />
+                        </Button>
                     </div>
+                    <Flashcard
+                        style="relative flex w-[55%] h-[80%] mt-4 "
+                        cardContainerRef={flashcardContainerRef}
+                        cardRef={cardRef}
+                        handleManualFlip={handleManualFlip}
+                        flashcard={currentFlashcard}
+                    />
 
-                    {/* Study Control Section */}
+                    {renderFlashcardButtonsSection('grid grid-cols-3 mt-4 gap-4')}
+                </div>
+
+                {/* Study Control Section */}
+
+                <aside
+                    className={cn(
+                        'absolute top-0 right-0 h-full p-5 w-[25%]',
+                        'transform transition-transform duration-300 ease-in-out',
+                        isSidebarOpen ? 'translate-x-0' : 'translate-x-full',
+                    )}
+                >
                     <StudyControls
-                        style="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6 bg-gray-100 dark:bg-gray-950 overflow-hidden"
+                        style="bg-gray-100 dark:bg-gray-850 h-full p-6 rounded-lg shadow-sm flex flex-col gap-6 overflow-hidden"
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcards.length}
                         autoPlayEnabled={autoPlayEnabled}
@@ -434,9 +453,11 @@ export default function Page() {
                         shuffleEnabled={shuffleEnabled}
                         handleOnChangeShuffleEnabled={() => setShuffleEnabled(!shuffleEnabled)}
                         handleClickEditFlashcards={handleClickEditFlashcards}
-                        CustomElement={renderLearningSection()}
+                        handleOnClickLearning={handleOnClickLearning}
+                        handleOnClickGame={handleOnClickGame}
+                        handleOnClickMemoryMatch={handleOnClickMemoryMatch}
                     />
-                </div>
+                </aside>
             </div>
         </div>
     );

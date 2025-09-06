@@ -7,7 +7,7 @@ import topicService, { ICreateTopicForClassPayload, ICreateTopicPayload } from '
 import { store } from '@/stores/store';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import flashcardService from '@/services/flashcard/flashcard.service';
-import teacherClassTopicService from '@/services/class-based-learning/teacher/teacherClassTopic.service';
+import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -24,6 +24,7 @@ export interface CreateContentForClassParams {
 export interface ContentCreationResult {
     success: boolean;
     topicId?: string | number;
+    topicName?: string;
     error?: string;
 }
 
@@ -88,7 +89,7 @@ export class ContentCreationService {
 
         try {
             // Phase 1: Create topic in a specific class
-            const data = await teacherClassTopicService.createTopicForClass({
+            const data = await teacherTopicService.createTopicForClass({
                 classId,
                 name,
                 description,
@@ -118,7 +119,7 @@ export class ContentCreationService {
                     return { success: false, error: `Unsupported content type: ${contentType}` };
             }
 
-            return { success: true, topicId };
+            return { success: true, topicId, topicName: topic.name };
         } catch (error) {
             console.error('Content creation failed:', error);
             return {

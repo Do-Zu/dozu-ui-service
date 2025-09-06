@@ -19,7 +19,7 @@ export default function Flashcard(props: Props) {
     return (
         <div className={style} onClick={() => handleManualFlip()} ref={cardContainerRef}>
             <div
-                className="relative w-full h-full bg-white dark:bg-gray-800"
+                className="relative w-full h-full bg-white dark:bg-gray-700"
                 style={{ transformStyle: 'preserve-3d' }}
                 ref={cardRef}
             >
@@ -31,7 +31,7 @@ export default function Flashcard(props: Props) {
                 </div>
 
                 <div
-                    className="absolute w-full h-full rounded-lg flex flex-col gap-2 justify-center items-center text-2xl font-normal p-5"
+                    className={`absolute w-full h-full rounded-lg flex flex-col gap-2 items-center text-2xl font-normal p-5 ${flashcard.imageUrl ? 'justify-start' : 'justify-center'}`}
                     style={{ transform: 'rotateX(180deg)', backfaceVisibility: 'hidden' }}
                 >
                     {flashcard.imageUrl ? (

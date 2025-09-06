@@ -16,6 +16,12 @@ import toastHelper from '@/utils/toast.helper';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 
+import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
+import { handleConvertToQuestionsEdited } from '@/app/[locale]/question/utils/handleConvertToQuestionsEdited';
+import { CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '@/app/[locale]/generate/types';
+import { writeLocalQuiz } from '@/app/[locale]/quiz/utils/localQuiz.storage';
+import { buildPayloadFromLearnedFlashcards } from '@/app/[locale]/question/utils/buildGenPayload';
+
 export type IFlashcardWithReviewPrediction = Pick<
     IFlashcard,
     'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName'
@@ -31,6 +37,19 @@ export default function Page() {
     const tCommon = useTranslations('common');
     const tFlashcardLearning = useTranslations('flashcard.learning');
     const { topicId } = params as { topicId: string };
+
+    // initial total when fetched
+    const [initialTotal, setInitialTotal] = useState<number>(0);
+    // List of lessons learned (reviewed)
+    const [studied, setStudied] = useState<IFlashcardWithReviewPrediction[]>([]);
+    // "chunk 20%" completed
+    const [chunksDone, setChunksDone] = useState<number>(0);
+    // preparing quiz for chunk number (to navigate when SSE is done)
+    const [pendingChunk, setPendingChunk] = useState<number | null>(null);
+
+    const { regenerate, sseData, sseStatus, loading } = useGenerateFromExisting();
+
+    const isGenerating = pendingChunk !== null && (loading || sseStatus === 'open');
 
     // Learning tracking integration
     const {
@@ -52,6 +71,42 @@ export default function Page() {
         loading: flashcardsLoading,
         error: flashcardsError,
     } = useFetch<IFlashcardWithReviewPrediction[]>(() => flashcardService.getDueFlashcardsForTopic(topicId));
+
+    useEffect(() => {
+        if (flashcards && flashcards.length > 0) {
+            setInitialTotal(flashcards.length);
+        }
+    }, [flashcards]);
+
+    const chunkSize = Math.max(1, Math.ceil(initialTotal * 0.2)); // luôn >=1
+
+    // Wait for SSE "completed" -> parse -> save local -> redirect to local quiz page
+    useEffect(() => {
+        const raw = (sseData as any)?.data?.data as IQuestionsFromSSERaw | undefined;
+        const payloadStatus = (sseData as any)?.data?.status ?? (sseData as any)?.status;
+
+        // only process while waiting for a specific chunk
+        if (pendingChunk === null) return;
+
+        const isCompleted = sseStatus === 'completed' || payloadStatus === 'completed';
+        if (!isCompleted) return;
+        if (!Array.isArray(raw) || raw.length === 0) return;
+
+        const parsed = handleConvertToQuestionsEdited({
+            type: 'generative',
+            questionsProp: raw,
+        });
+
+        const toStore = parsed.map((q) => ({
+            questionText: q.questionText,
+            choices: q.choices,
+            correctIndex: q.correctIndex,
+        }));
+
+        writeLocalQuiz(topicId, toStore);
+
+        router.push(`/quiz/local?topicId=${topicId}&chunk=${pendingChunk}`);
+    }, [sseStatus, sseData, pendingChunk, topicId, router]);
 
     const currentFlashcard = flashcards ? flashcards[0] : null;
 
@@ -144,10 +199,33 @@ export default function Page() {
             const flashcardsFiltered = flashcards.slice(1);
             setFlashcardsData(flashcardsFiltered);
 
+            const newStudied = [...studied, currentFlashcard];
+            setStudied(newStudied);
+
             // Update learning tracking metrics using context methods
             updateItemsStudied(itemsStudiedCount + 1);
             if (qualityResponse >= 3) {
                 updateCorrectAnswers(correctAnswersCount + 1);
+            }
+
+            // If finish learning the new 20% chunk -> ask gen quiz
+            const studiedCountAfter = newStudied.length;
+            const nextChunk = chunksDone + 1;
+            const nextThreshold = nextChunk * chunkSize;
+            const justReachedNewChunk = studiedCountAfter >= nextThreshold;
+
+            if (justReachedNewChunk && !loading && pendingChunk === null) {
+                const ok = window.confirm('Bạn đã học xong 20% bài. Bạn có muốn làm quiz nhanh không?');
+                if (ok) {
+                    const start = chunksDone * chunkSize;
+                    const end = Math.min(start + chunkSize, studiedCountAfter);
+                    const chunkCards = newStudied.slice(start, end);
+
+                    const payload = buildPayloadFromLearnedFlashcards(topicId, chunkCards);
+                    setPendingChunk(nextChunk);
+                    await regenerate(payload, 'quiz'); // SSE completed sẽ redirect
+                }
+                setChunksDone(nextChunk);
             }
 
             // If this was the last card, save progress to database using context method
@@ -208,16 +286,24 @@ export default function Page() {
     }
 
     return (
-        <FlashcardLearning
-            topicName={currentFlashcard.topicName ? currentFlashcard.topicName : ''}
-            total={flashcards.length}
-            flashcardContainerRef={flashcardContainerRef}
-            cardRef={cardRef}
-            isFrontRef={isFrontRef}
-            flashcard={currentFlashcard}
-            handleManualFlip={handleManualFlip}
-            shouldShowTrackingOptions={shouldShowTrackingOptions}
-            handleOnClickTrackingOption={handleReviewFlashcardClick}
-        />
+        <>
+            <FlashcardLearning
+                topicName={currentFlashcard.topicName ? currentFlashcard.topicName : ''}
+                total={flashcards.length}
+                flashcardContainerRef={flashcardContainerRef}
+                cardRef={cardRef}
+                isFrontRef={isFrontRef}
+                flashcard={currentFlashcard}
+                handleManualFlip={handleManualFlip}
+                shouldShowTrackingOptions={shouldShowTrackingOptions}
+                handleOnClickTrackingOption={handleReviewFlashcardClick}
+            />
+
+            {isGenerating && (
+                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex items-center justify-center">
+                    <div className="rounded-xl bg-white px-6 py-5 shadow-lg">Generating quiz…</div>
+                </div>
+            )}
+        </>
     );
 }

@@ -129,8 +129,8 @@ interface MindMapProviderProps {
 // Provider Component
 export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) => {
     const router = useRouter();
-    const params = useParams<{ id: string }>();
-    const topicId = params?.id;
+    const params = useParams<{ topicId: string }>();
+    const topicId = params?.topicId;
 
     // Topic State
     const [topicName, setTopicName] = useState<string>('');
@@ -347,18 +347,7 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
             setPdfUrl(blobUrl);
             setPdfFile(file);
             setCurrentPageNumber(1);
-
-            toast({
-                title: 'Success',
-                description: `PDF loaded: ${filename}`,
-            });
         } catch (error) {
-            console.error('Failed to load PDF document:', error);
-            toast({
-                title: 'Error',
-                description: error instanceof Error ? error.message : 'Failed to load PDF document',
-                variant: 'destructive',
-            });
         } finally {
             setIsLoading(false);
         }

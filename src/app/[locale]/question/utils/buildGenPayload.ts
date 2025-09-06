@@ -1,5 +1,6 @@
 import { IFlashcardWithServer } from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
+import type { IFlashcardWithReviewPrediction } from '@/app/[locale]/flashcards/learning/[topicId]/page';
 
 export const buildContentFromFlashcardsForQuiz = (
   topicId: string | number,
@@ -36,3 +37,15 @@ export const buildContentFromQuestionsForFlashcards = (
     questions: items, // [{ questionText, choices, correctIndex }]
   });
 };
+
+export const buildPayloadFromLearnedFlashcards = (topicId: string | number, cards: IFlashcardWithReviewPrediction[]) => {
+  const items = cards
+    .map(c => ({ q: (c.front ?? '').trim(), a: (c.back ?? '').trim() }))
+    .filter(x => x.q && x.a);
+
+  return JSON.stringify({
+    source: 'FLASH_CARD',
+    topicId,
+    flashcards: items, // [{ q, a }]
+  });
+}

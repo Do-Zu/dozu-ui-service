@@ -167,7 +167,7 @@ const QuestionEditor = ({
 
     const handleSaveGeneratedToThisTopic = async () => {
         if (!topic) return;
-        if (!isContentReady || !dataGenerated) {
+        if (!dataGenerated) {
             toast({ description: 'No data to save', variant: 'destructive' });
             return;
         }
@@ -193,6 +193,7 @@ const QuestionEditor = ({
     <div className="px-[4rem] py-7 bg-muted min-h-screen">
       <ContentGenerationPreview
         shouldCreateTopic={false}
+        shouldCreateFeed={false}
         sseData={sseData}
         dataGenerated={dataGenerated}
         setDataGenerated={setDataGenerated}

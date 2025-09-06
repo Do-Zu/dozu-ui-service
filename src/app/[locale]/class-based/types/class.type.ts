@@ -36,3 +36,11 @@ export interface IStudentInClass {
     avatarUrl: string;
     enrolledAt: Date;
 }
+
+export type TypeNodeComment = 'mindmap' | 'flashcard' | 'quiz';
+
+export enum EnumNodeComment {
+    MINDMAP = 'mindmap',
+    FLASHCARD = 'flashcard',
+    QUIZ = 'quiz',
+}
