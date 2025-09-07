@@ -117,7 +117,22 @@ export default function PersonalTopicLibrary() {
             return;
         }
 
-        const sorted = [...topics].sort((a, b) => {
+        const filterPattern = searchQuery.trim().toLowerCase();
+
+        let baseFiltered = topics;
+
+        if (filterPattern) {
+            baseFiltered = topics.filter((topic) => {
+                if (!filterPattern) return true;
+
+                const namePattern = topic?.name?.trim().toLowerCase();
+                const descriptionPattern = topic?.description?.trim()?.toLowerCase();
+
+                return namePattern.includes(filterPattern) || descriptionPattern?.includes(filterPattern);
+            });
+        }
+
+        const sorted = [...baseFiltered].sort((a, b) => {
             if (sortBy === 'title-asc') return a.name.localeCompare(b.name, 'vi');
             if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
             const ts = (d?: string | number | Date) => (d ? new Date(d).getTime() : 0);
@@ -128,7 +143,7 @@ export default function PersonalTopicLibrary() {
         });
 
         setTopicsFiltered(sorted);
-    }, [topics, sortBy]);
+    }, [topics, sortBy, searchQuery]);
 
     function handleOnSelectEditFlashcard(topicId: number) {
         router.push(ROUTES.FLASHCARDS_EDIT(topicId));
