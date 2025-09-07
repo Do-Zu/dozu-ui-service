@@ -6,12 +6,13 @@
 @layer base {
 
   :root {
-    --font-primary : var(--font-primary);
-    --font-geist   : var(--font-geist);
-    --font-sans    : var(--font-primary), "Geist", "Inter", "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --header-height: 10vh;
-    --footer-height: 0vh;
-    --main-height  : calc(100vh - var(--header-height) - var(--footer-height));
+    --font-primary     : var(--font-primary);
+    --font-geist       : var(--font-geist);
+    --font-sans        : var(--font-primary), "Geist", "Inter", "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --header-height    : 10vh;
+    --max-header-height: 75px;
+    --footer-height    : 0vh;
+    --main-height      : calc(100vh - var(--header-height) - var(--footer-height));
 
     /* Language-specific font optimization */
     --font-vietnamese: "Inter", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif;
@@ -98,6 +99,18 @@
     -webkit-font-smoothing : antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Shimmer animation used in progress bars */
+  @keyframes shimmer {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    100% {
+      background-position: -200% 50%;
+    }
+  }
+
 }
 
 .text-balance {

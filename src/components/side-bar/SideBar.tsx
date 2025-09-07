@@ -31,6 +31,9 @@ import {
 import { ROUTES } from '@/utils/constants/routes';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { ShieldCheck } from 'lucide-react';
+import ThemeToggle from '@/components/toolbar/ThemeToggle';
+import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
+import AuthButton from '@/components/toolbar/AuthButton';
 
 // Menu items.
 const items = [
@@ -130,33 +133,44 @@ export function AppSidebar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
+
+                {hasRole('admin') && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Admin</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={pathname ? pathname.startsWith('/admin') : false}
+                                        tooltip="Admin Panel"
+                                    >
+                                        <Link href="/admin">
+                                            <ShieldCheck />
+                                            <span>Admin Panel</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
             </SidebarContent>
 
-            {hasRole('admin') && (
-                <SidebarGroup>
-                    <SidebarGroupLabel>Admin</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    asChild
-                                    isActive={pathname ? pathname.startsWith('/admin') : false}
-                                    tooltip="Admin Panel"
-                                >
-                                    <Link href="/admin">
-                                        <ShieldCheck />
-                                        <span>Admin Panel</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            )}
+            <SidebarGroup>
+                <SidebarGroupLabel></SidebarGroupLabel>
+                <SidebarGroupContent className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4 group-data-[collapsible=icon]:hidden">
+                        <ThemeToggle />
+                        <LanguageSwitcher />
+                    </div>
+                    <AuthButton />
+                </SidebarGroupContent>
+            </SidebarGroup>
 
-            <SidebarFooter>
-                <div className="p-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">© Dozu</div>
-            </SidebarFooter>
+            <div className="text-[10px] text-muted-foreground text-center w-full group-data-[collapsible=icon]:hidden">
+                © Dozu
+            </div>
         </Sidebar>
     );
 }
