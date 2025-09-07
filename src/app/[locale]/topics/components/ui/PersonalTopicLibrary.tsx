@@ -269,12 +269,15 @@ export default function PersonalTopicLibrary() {
         }
 
         //TODO: note for update logic calculate remain flashcard remain and get progress
-        const progressValue = flashcardsCount
-            ? Math.min(
-                  100,
-                  Math.round(((flashcardsCount - (flashcardsDueToday + flashcardsNew)) / flashcardsCount) * 100),
-              )
-            : 0;
+
+        let progressValue = 0;
+        if (flashcardsCount) {
+            const completed = flashcardsCount - (flashcardsDueToday + flashcardsNew);
+            const percentage = Math.round((completed / flashcardsCount) * 100);
+
+            // Clamp between 0 and 100
+            progressValue = Math.min(100, Math.max(0, percentage));
+        }
 
         return (
             <div>
