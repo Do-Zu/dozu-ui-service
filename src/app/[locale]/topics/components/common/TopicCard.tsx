@@ -58,12 +58,20 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
                     <div className="flex justify-between items-start">
                         <div className="flex-1 min-w-0">
                             <CardTitle
-                                onClick={() => handleNameClick(topic)}
-                                className="text-base font-semibold tracking-tight leading-snug line-clamp-2 bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent cursor-pointer hover:from-indigo-500 hover:via-sky-500 hover:to-cyan-500 dark:hover:from-indigo-300 dark:hover:via-sky-300 dark:hover:to-cyan-300 transition-colors"
-                            >
-                                {name}
-                            </CardTitle>
-                            {description && (
+                                <CardTitle
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => handleNameClick(topic)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault()
+                                            handleNameClick(topic)
+                                        }
+                                    }}
+                                    className="text-base font-semibold tracking-tight leading-snug line-clamp-2 bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent cursor-pointer hover:from-indigo-500 hover:via-sky-500 hover:to-cyan-500 dark:hover:from-indigo-300 dark:hover:via-sky-300 dark:hover:to-cyan-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 rounded-sm"
+                                >
+                                    {name}
+                                </CardTitle>
                                 <p className="mt-1 text-[0.7rem] line-clamp-2 text-slate-600/80 dark:text-slate-400/80 leading-relaxed">
                                     {description}
                                 </p>
