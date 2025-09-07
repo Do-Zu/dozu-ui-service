@@ -252,12 +252,6 @@ export default function PersonalTopicLibrary() {
     const cardFooter = (topic: ITopic) => {
         const { topicId, flashcardsNew = 0, flashcardsDueToday = 0, flashcardsCount = 0 } = topic;
 
-        const tTopic = useTranslations('topic');
-
-        function handleOnSelectEditFlashcard() {
-            router.push(ROUTES.FLASHCARDS_EDIT(topicId));
-        }
-
         function handleOnSelectBrowse() {
             router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
         }
