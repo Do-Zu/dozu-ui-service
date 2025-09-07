@@ -264,9 +264,6 @@ export default function PersonalTopicLibrary() {
         function handleOnClickStartQuiz() {
             router.push(ROUTES.QUIZ_START(topicId));
         }
-        function handleOnClickEditQuestion() {
-            router.push(ROUTES.QUIZ_EDIT(topicId));
-        }
 
         //TODO: note for update logic calculate remain flashcard remain and get progress
 
