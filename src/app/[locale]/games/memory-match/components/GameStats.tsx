@@ -47,7 +47,7 @@ export default function GameStats() {
   return (
     <div className="space-y-4">
       {/* Current Game Progress */}
-      <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
+      <Card className="bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2 dark:text-gray-100">
             <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
@@ -64,12 +64,12 @@ export default function GameStats() {
           </div>
           
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-              <div className="font-bold text-purple-600 dark:text-purple-400">{stats.score}</div>
+            <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+              <div className="font-bold text-purple-600 dark:text-purple-400 text-xl">{stats.score}</div>
               <div className="text-gray-600 dark:text-gray-400">{t('score')}</div>
             </div>
-            <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-              <div className="font-bold text-blue-600 dark:text-blue-400">{stats.moves}</div>
+            <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+              <div className="font-bold text-blue-600 dark:text-blue-400 text-xl">{stats.moves}</div>
               <div className="text-gray-600 dark:text-gray-400">{t('moves')}</div>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function GameStats() {
 
       {/* Game Timer */}
       {(gameStatus === 'playing' || gameStatus === 'paused' || gameStatus === 'completed') && (
-        <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
+        <Card className="bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2 dark:text-gray-100">
               <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -87,7 +87,7 @@ export default function GameStats() {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
                 {formatTime(stats.timeElapsed)}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -100,7 +100,7 @@ export default function GameStats() {
 
       {/* Performance Stats */}
       {stats.moves > 0 && (
-        <Card className="bg-white dark:bg-gray-800 dark:border-gray-700">
+        <Card className="bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2 dark:text-gray-100">
               <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -140,7 +140,7 @@ export default function GameStats() {
 
       {/* Game Tips */}
       {gameStatus === 'playing' && (
-        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-700">
+        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-700 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2 dark:text-gray-100">
               <Zap className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
@@ -172,7 +172,7 @@ export default function GameStats() {
 
       {/* Achievements */}
       {gameStatus === 'completed' && (
-        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-700">
+        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-700 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2 dark:text-gray-100">
               <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />

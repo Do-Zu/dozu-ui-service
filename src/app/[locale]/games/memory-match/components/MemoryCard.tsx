@@ -28,7 +28,7 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
   return (
     <div
       className={cn(
-        'relative aspect-square transition-all duration-300',
+        'relative w-full h-full transition-all duration-300',
         'hover:scale-105 hover:-translate-y-1',
         isClickable ? 'cursor-pointer' : 'cursor-not-allowed',
         card.isMatched && 'scale-95 opacity-60'
