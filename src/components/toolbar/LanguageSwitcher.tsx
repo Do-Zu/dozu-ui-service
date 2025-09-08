@@ -1,32 +1,5 @@
 'use client';
 
-
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useTransition } from 'react';
-
-const LanguageSwitcher = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
-
-  const changeLocale = (locale: string) => {
-    const segments = pathname?.split('/');
-    // Ensure the first segment is the locale
-    if (segments && segments[1]) {
-      segments[1] = locale;
-      const newPath = segments.join('/');
-      
-      // Preserve query parameters
-      const queryString = searchParams.toString();
-      const fullPath = queryString ? `${newPath}?${queryString}` : newPath;
-
-      startTransition(() => {
-        router.push(fullPath);
-      });
-    }
-  };
-
 import { useRouter, usePathname } from 'next/navigation';
 import { useTransition, useState, useEffect } from 'react';
 import { Globe2, Loader2, Check } from 'lucide-react';
@@ -65,7 +38,6 @@ const LanguageSwitcher = () => {
             });
         }
     };
-
 
     return (
         <TooltipProvider>
