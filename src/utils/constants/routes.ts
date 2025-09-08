@@ -33,6 +33,8 @@ export const ROUTES = Object.freeze({
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
+    CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
+    CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
 
     MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
     MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,

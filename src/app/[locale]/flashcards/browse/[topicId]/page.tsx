@@ -1,6 +1,7 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
+import type { IFlashcard } from '../../../games/memory-match/types/memory-game.types';
 import Flashcard from '../../components/Flashcard';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -9,7 +10,6 @@ import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import BackButton from '../../components/BackButton';
-import { IFlashcard } from '../../types/flashcard.type';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
 import flashcardService from '@/services/flashcard/flashcard.service';
@@ -55,6 +55,7 @@ export default function Page() {
 
     const {
         data: flashcards,
+        setData: setFlashcardsData,
         loading: flashcardsLoading,
         error: flashcardsError,
     } = useFetch<IFlashcard[]>(() => flashcardService.getFlashcardsForTopic(topicId));
@@ -69,6 +70,7 @@ export default function Page() {
     //     isFrontRef.current = isFront;
     // }, [isFront]);
 
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [autoPlayEnabled, setAutoPlayEnabled] = useState<boolean>(false);
     const [autoPlaySpeed, setAutoPlaySpeed] = useState<number>(initialAutoPlaySpeed);
 
@@ -351,6 +353,54 @@ export default function Page() {
                         <ArrowRight className="h-5 w-5" />
                     </Button>
                 </div>
+            </div>
+        );
+    }
+
+    function renderLearningSection() {
+        return (
+            <div className="flex flex-col gap-2">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickLearning}>
+                                <BookOpen className="h-4 w-4 mr-1" />
+                                <span className="text-sm text-muted-foreground">{t('learning')}</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                            <p>Learn Flashcards</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickGame}>
+                                <Gamepad2 className="h-4 w-4 mr-1" />
+                                <span className="text-sm text-muted-foreground">Brain Chase</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                            <p>Play Brain Chase Game</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickMemoryMatch}>
+                                <Brain className="h-4 w-4 mr-1" />
+                                <span className="text-sm text-muted-foreground">Memory</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                            <p>Play Memory Match Game</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
         );
     }

@@ -1,23 +1,68 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 // Hook for managing game animations
 export function useGameAnimations() {
-  const [animationClass, setAnimationClass] = useState('');
+  const [animationClasses, setAnimationClasses] = useState<Map<string, string>>(new Map());
+  const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  // Clear existing timer for a card
+  const clearCardTimer = (cardId: string) => {
+    const existingTimer = timersRef.current.get(cardId);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+      timersRef.current.delete(cardId);
+    }
+  };
+
+  // Set animation class for a specific card
+  const setCardAnimation = (cardId: string, className: string, duration: number) => {
+    // Clear existing timer for this card
+    clearCardTimer(cardId);
+
+    // Set the animation class
+    setAnimationClasses(prev => new Map(prev).set(cardId, className));
+
+    // Set timer to clear the animation
+    const timer = setTimeout(() => {
+      setAnimationClasses(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(cardId);
+        return newMap;
+      });
+      timersRef.current.delete(cardId);
+    }, duration);
+
+    timersRef.current.set(cardId, timer);
+  };
 
   // Trigger matched card animation
   const triggerMatchAnimation = (cardId: string) => {
-    setAnimationClass('animate-bounce');
-    setTimeout(() => setAnimationClass(''), 600);
+    setCardAnimation(cardId, 'animate-bounce', 600);
   };
 
   // Trigger wrong match shake animation
   const triggerWrongMatchAnimation = (cardIds: string[]) => {
-    setAnimationClass('animate-pulse');
-    setTimeout(() => setAnimationClass(''), 500);
+    cardIds.forEach(cardId => {
+      setCardAnimation(cardId, 'animate-pulse', 500);
+    });
   };
 
+  // Get animation class for a specific card
+  const getCardAnimation = (cardId: string): string => {
+    return animationClasses.get(cardId) || '';
+  };
+
+  // Cleanup all timers on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(timer => clearTimeout(timer));
+      timersRef.current.clear();
+    };
+  }, []);
+
   return {
-    animationClass,
+    animationClasses,
+    getCardAnimation,
     triggerMatchAnimation,
     triggerWrongMatchAnimation,
   };
