@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Home, Users, BarChart3 } from 'lucide-react';
+import { Home, Users, BarChart3, Clock, ListChecks } from 'lucide-react';
 
 interface SidebarProps {
     className?: string;
@@ -27,6 +27,16 @@ const navItems = [
         icon: <BarChart3 className="w-4 h-4 mr-2" />,
         href: '/admin/stats',
     },
+    {
+        label: 'Pending Teacher Requests',
+        icon: <Clock className="w-4 h-4 mr-2" />,
+        href: '/admin/teacher-requests/pending'
+    },
+    {
+        label: 'Teacher Requests',
+        icon: <ListChecks className="w-4 h-4 mr-2" />,
+        href: '/admin/teacher-requests'
+    }
 ];
 
 export function Sidebar({ className }: SidebarProps) {

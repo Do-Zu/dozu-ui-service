@@ -10,37 +10,28 @@ import { toast } from '@/hooks/use-toast';
 import { useEventSource } from '@/hooks/useEventSource';
 import usePost from '@/hooks/usePost';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import React, { useEffect, useRef, useState } from 'react';
 import ContentDetailView from '../detail-extract/components/ContentDetailView';
 import { compressContent } from '../helper/compress';
 import { useContentGeneration } from '../hooks/useContentGeneration';
 import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
-import { ISseData } from '../types';
+import { ApiResponsePubGenContent, ISseData } from '../types';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import Import from './import/Import';
+import { URL_API_GENERATE } from '../utils/constant';
+import { ClassPropsInGenerate } from './GeneratePage';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
     onComplete?: (data: any) => void;
+    classProps: ClassPropsInGenerate;
 }
 
-interface ApiResponsePubGenContent {
-    status: string;
-    message: string;
-    data?: {
-        jobId: string;
-        status?: string;
-        data?: object[];
-    };
-    sse: {
-        event: string;
-    };
-}
-
-const URL_API_GENERATE = '/generate/v3/text/llm';
-
-const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
+const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classProps }) => {
     const dispatch = useCardImportDispatch();
+    const t = useTranslations('generate.cardImport');
 
     const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
     const { step, importMethod, files, selectedMethod, isProcessing } = useCardImportSelector(
@@ -64,14 +55,17 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     const {
         dataGenerated,
         setDataGenerated,
-        topicName,
-        setTopicName,
-        topicDescription,
-        setTopicDescription,
         isTopicModalOpen,
         setIsTopicModalOpen,
         handleOnClickSave,
-    } = useContentGeneration({ sseData, sseStatus });
+
+        isCreateFeedModalOpen,
+        setIsCreateFeedModalOpen,
+        handleCreateFeedModalOpen,
+        handleCreateFeedClick,
+        defaultFeed,
+        handleCancelFeedClick,
+    } = useContentGeneration({ sseData, sseStatus, classProps });
 
     const handleRequestGenContent = async () => {
         let content = '';
@@ -158,13 +152,17 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
                         sseData={sseData}
                         dataGenerated={dataGenerated}
                         setDataGenerated={setDataGenerated}
-                        topicName={topicName}
-                        setTopicName={setTopicName}
-                        topicDescription={topicDescription}
-                        setTopicDescription={setTopicDescription}
+                        shouldCreateTopic
                         isTopicModalOpen={isTopicModalOpen}
                         setIsTopicModalOpen={setIsTopicModalOpen}
                         onSave={handleOnClickSave}
+                        shouldCreateFeed={classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased}
+                        isFeedModalOpen={isCreateFeedModalOpen}
+                        setIsFeedModalOpen={setIsCreateFeedModalOpen}
+                        openFeedModal={handleCreateFeedModalOpen}
+                        onSaveFeed={handleCreateFeedClick}
+                        defaultFeed={defaultFeed}
+                        onCancelFeed={handleCancelFeedClick}
                     />
                 );
 
@@ -191,22 +189,15 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
     }, [apiPostContentError]);
 
     useEffect(() => {
-        // console.log({ sseData, sseStatus });
-
         if (sseStatus === 'timeout' || sseStatus === 'error') {
             toast({
-                description:
-                    sseStatus === 'timeout'
-                        ? 'The generation process timed out. Please try again with a smaller file.'
-                        : 'There was an error with the generation process. Please try again.',
+                description: sseStatus === 'timeout' ? t('toasts.timeout') : t('toasts.error'),
                 variant: 'destructive',
             });
         } else if (sseData && sseStatus === 'completed') {
-            console.log({ sseData });
             dispatch(setStep(3));
-
             toast({
-                description: 'Your content has been successfully generated.',
+                description: t('toasts.success'),
                 variant: 'default',
             });
         }
@@ -229,7 +220,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
                 {renderStepContent()}
                 <div className="flex-1 sm:flex-none"></div>
                 <Button className="fixed bottom-4 right-[50%] z-50" onClick={handleContinue} disabled={!isStepValid()}>
-                    Create Learning Content
+                    {t('buttons.createContent')}
                 </Button>
             </div>
         );
@@ -238,8 +229,8 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
         <Card className="max-w-[80vw] max-h-[90vh] overflow-auto mx-auto my-4">
             <CardHeader>
                 <CardTitle className="text-xl font-semibold ">
-                    {step === 1 && 'Import Learning Content'}
-                    {step === 2 && 'Suggested Learning Methods'}
+                    {step === 1 && t('titles.step1')}
+                    {step === 2 && t('titles.step2')}
                 </CardTitle>
             </CardHeader>
 
@@ -248,13 +239,13 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {} }) => {
             <CardFooter className="flex justify-between items-center sm:justify-between">
                 {step > 1 && (
                     <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>
-                        Back
+                        {t('buttons.back')}
                     </Button>
                 )}
                 <div className="flex-1 sm:flex-none"></div>
 
                 <Button onClick={handleContinue} disabled={!isStepValid()}>
-                    Continue
+                    {t('buttons.continue')}
                     <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
             </CardFooter>

@@ -1,8 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dozu- Personalized learning roadmaps and master topics through multiple learning method
+
+Dozu is a comprehensive learning platform that empowers users to build personalized learning roadmaps and master topics through multiple learning methodologies. Our web application combines various learning approaches including flashcards, progress tracking, scheduled learning sessions, and interactive content to create an effective and engaging educational experience.
+
+## Features
+
+- **📚 Learning Roadmaps**: Create and follow structured learning paths tailored to your goals
+- **🎯 Multi-Method Learning**: Combine flashcards, reading materials, interactive content, and more
+- **📊 Progress Tracking**: Monitor your learning journey with detailed analytics and statistics
+- **⏰ Scheduled Learning**: Plan and manage your study sessions with intelligent scheduling
+- **🔄 Adaptive Learning**: AI-powered recommendations based on your learning patterns
+- **🌐 Multi-language Support**: Available in multiple languages for global accessibility
+
+## Learning Methods
+
+Our platform integrates multiple proven learning methodologies:
+
+- **Flashcard System**: Spaced repetition for effective memorization
+- **Class-based Learning**: Structured courses and lessons
+- **Progress-based Learning**: Adaptive content based on your advancement
+- **Interactive Content**: Engaging multimedia learning materials
+- **Schedule Management**: Personalized study planning and reminders
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm, yarn, pnpm, or bun package manager
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. Run the development server:
 
 ```bash
 npm run dev
@@ -14,20 +53,36 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technology Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project is built with modern web technologies:
 
-## Learn More
+- **Frontend**: Next.js 14+ with TypeScript
+- **Styling**: Tailwind CSS for responsive design
+- **UI Components**: Custom component library with shadcn/ui
+- **State Management**: Redux Toolkit for application state
+- **Internationalization**: Multi-language support with next-intl
+- **Authentication**: Secure user authentication and authorization
+- **API Integration**: RESTful API integration with OpenAPI specifications
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/                 # Next.js App Router pages
+├── components/          # Reusable UI components
+├── hooks/              # Custom React hooks
+├── services/           # API service layers
+├── stores/             # Redux store and slices
+├── types/              # TypeScript type definitions
+└── utils/              # Utility functions
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Contributing
+
+We welcome contributions to improve the learning experience! Please read our contributing guidelines and feel free to submit issues or pull requests.
 
 ## Deploy on Vercel
 

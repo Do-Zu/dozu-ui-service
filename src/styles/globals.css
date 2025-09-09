@@ -6,12 +6,20 @@
 @layer base {
 
   :root {
-    --header-height: 10vh;
-    --footer-height: 0vh;
-    --main-height  : calc(100vh - var(--header-height) - var(--footer-height));
+    --font-primary     : var(--font-primary);
+    --font-geist       : var(--font-geist);
+    --font-sans        : var(--font-primary), "Geist", "Inter", "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --header-height    : 10vh;
+    --max-header-height: 75px;
+    --footer-height    : 0vh;
+    --main-height      : calc(100vh - var(--header-height) - var(--footer-height));
+
+    /* Language-specific font optimization */
+    --font-vietnamese: "Inter", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif;
+    --font-english   : "Geist", "Inter", "Segoe UI", sans-serif;
 
     /* --sidebar-background        : 0 0% 98%;
-    --sidebar-foreground        : 240 5.3% 26.1%; */
+    --sidebar-foreground           : 240 5.3% 26.1%; */
     --sidebar-primary           : 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent            : 240 4.8% 95.9%;
@@ -63,7 +71,48 @@
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+
+  /* Language-specific font utilities */
+  .font-vietnamese {
+    font-family          : var(--font-vietnamese);
+    font-feature-settings: "kern"1, "liga"1, "dlig"1;
+    text-rendering       : optimizeLegibility;
   }
+
+  .font-english {
+    font-family          : var(--font-english);
+    font-feature-settings: "kern"1, "liga"1;
+  }
+
+  /* Vietnamese text optimization */
+  .text-vietnamese {
+    font-family   : var(--font-vietnamese);
+    line-height   : 1.6;
+    letter-spacing: 0.01em;
+  }
+
+  /* Ensure proper rendering of Vietnamese diacritics */
+  .vietnamese-text {
+    font-variant-ligatures : common-ligatures;
+    font-kerning           : normal;
+    text-rendering         : optimizeLegibility;
+    -webkit-font-smoothing : antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Shimmer animation used in progress bars */
+  @keyframes shimmer {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    100% {
+      background-position: -200% 50%;
+    }
+  }
+
+}
+
+.text-balance {
+  text-wrap: balance;
 }

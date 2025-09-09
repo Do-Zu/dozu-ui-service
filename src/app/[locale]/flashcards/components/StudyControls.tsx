@@ -1,214 +1,173 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { ShowIf } from '@/components/ui/ShowIf';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-    ArrowLeft,
-    ArrowRight,
-    CheckCircle,
-    Clock,
-    Pause,
-    Play,
-    RotateCcw,
-    Settings,
-    Shuffle,
-    SquareChevronDown,
-    SquarePen,
-    XCircle,
-} from 'lucide-react';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { Clock, RotateCcw, Shuffle, SquarePen, SquareChevronDown, Gamepad2, Brain, BookOpen } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { ReactNode } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Props {
     style?: string;
     currentFlashcardIndex: number;
     flashcardsLength: number;
-    CustomElement?: ReactNode;
-
-    // handleClickBackFlashcard: () => void;
-    // handleClickNextFlashcard: () => void;
-
-    // isPlaying: boolean;
-    // handleClickIsPlaying: () => void;
-
     autoPlayEnabled: boolean;
     handleOnChangeAutoPlayEnabled: () => void;
-
     handleResetProgress: () => void;
-
     autoPlaySpeed: number;
     handleOnChangeAutoPlaySpeed: (value: number[]) => void;
-
     shuffleEnabled: boolean;
     handleOnChangeShuffleEnabled: () => void;
-
     handleClickEditFlashcards: () => void;
+    handleOnClickLearning: () => void;
+    handleOnClickGame: () => void;
+    handleOnClickMemoryMatch: () => void;
 }
 
-const labelStyle = 'text-sm text-foreground font-medium';
-
-export default function StudyControls(props: Props) {
+export default function StudyControls({
+    style,
+    currentFlashcardIndex,
+    flashcardsLength,
+    autoPlayEnabled,
+    handleOnChangeAutoPlayEnabled,
+    handleResetProgress,
+    autoPlaySpeed,
+    handleOnChangeAutoPlaySpeed,
+    shuffleEnabled,
+    handleOnChangeShuffleEnabled,
+    handleClickEditFlashcards,
+    handleOnClickLearning,
+    handleOnClickGame,
+    handleOnClickMemoryMatch,
+}: Props) {
+    const { isTeacher } = useRoleChecker();
     const t = useTranslations('flashcard.study');
-    const { style } = props;
-    const { currentFlashcardIndex, flashcardsLength } = props;
-    const { autoPlayEnabled, handleOnChangeAutoPlayEnabled } = props;
-    const { handleResetProgress } = props;
-    const { autoPlaySpeed, handleOnChangeAutoPlaySpeed } = props;
-    const { shuffleEnabled, handleOnChangeShuffleEnabled } = props;
-    const { handleClickEditFlashcards } = props;
-
-    const { CustomElement } = props;
-
-    function renderProgressSection(style: string) {
-        const progress = parseInt(((currentFlashcardIndex / (flashcardsLength - 1)) * 100).toFixed(0));
-        return (
-            <div className={style}>
-                <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-muted-foreground">
-                        {t('card')} {currentFlashcardIndex + 1} {t('of')} {flashcardsLength}
-                    </span>
-                    <span className="text-sm text-muted-foreground">{progress}% {t('complete')}</span>
-                </div>
-                <Progress value={progress} className="h-2" />
-            </div>
-        );
-    }
-
-    function renderAutoPlaySection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <Clock size={16} />
-                    <Label className="text-sm text-muted-foreground">{t('autoPlay')}</Label>
-                </div>
-                <Switch checked={autoPlayEnabled} onCheckedChange={handleOnChangeAutoPlayEnabled} />
-            </div>
-        );
-    }
-
-    function renderResetProgressSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleResetProgress}
-                                    className="h-8 px-2"
-                                    // disabled={autoPlayEnabled}
-                                >
-                                    <RotateCcw className="h-4 w-4 mr-1" />
-                                    <span className="text-muted-foreground">{t('resetProgress')}</span>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Reset study session</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-            </div>
-        );
-    }
-
-    function renderAutoPlaySpeedSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <Clock size={16} />
-                    <Label className="text-sm text-muted-foreground">{t('speed')}: {autoPlaySpeed}s</Label>
-                </div>
-                <div>
-                    <Slider
-                        min={1}
-                        max={5}
-                        step={1}
-                        value={[autoPlaySpeed]}
-                        onValueChange={handleOnChangeAutoPlaySpeed}
-                    />
-                </div>
-            </div>
-        );
-    }
-
-    function renderShuffleSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <Shuffle size={16} />
-                    <Label className="text-sm text-muted-foreground">{t('shuffle')}</Label>
-                </div>
-                <Switch checked={shuffleEnabled} onCheckedChange={handleOnChangeShuffleEnabled} />
-            </div>
-        );
-    }
-
-    function renderEditSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row-items-center gap-2">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 px-2"
-                                    onClick={handleClickEditFlashcards}
-                                >
-                                    <SquarePen className="h-4 w-4 mr-1" />
-                                    <span className="text-sm text-muted-foreground">{t('edit')}</span>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Edit Flashcards</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-            </div>
-        );
-    }
-
-    function renderBackFirstSection(style: string) {
-        return (
-            <div className={style}>
-                <div className="flex flex-row items-center gap-2">
-                    <SquareChevronDown size={16} />
-                    <Label className="text-sm text-muted-foreground">Back first</Label>
-                </div>
-                <Switch />
-            </div>
-        );
-    }
+    const progress = parseInt(((currentFlashcardIndex / (flashcardsLength - 1)) * 100).toFixed(0));
 
     return (
         <div className={style}>
-            {renderProgressSection('flex flex-col')}
+            <Card>
+                <CardContent className="p-4">
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">
+                                {' '}
+                                {/* Giảm font chữ */}
+                                {t('card')} {currentFlashcardIndex + 1} {t('of')} {flashcardsLength}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                                {progress}% {t('complete')}
+                            </span>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                    </div>
+                </CardContent>
+            </Card>
 
-            <div className="grid grid-cols-12 gap-3">
-                {renderAutoPlaySection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-                {renderResetProgressSection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-                <div className="col-span-6">{renderAutoPlaySpeedSection('flex flex-col gap-2')}</div>
+            <Card>
+                <CardHeader className="p-4">
+                    <CardTitle className="text-sm font-semibold">Study Options</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="autoplay-switch" className="flex items-center gap-2 cursor-pointer text-sm">
+                            <Clock size={16} />
+                            <span>{t('autoPlay')}</span>
+                        </Label>
+                        <Switch
+                            id="autoplay-switch"
+                            checked={autoPlayEnabled}
+                            onCheckedChange={handleOnChangeAutoPlayEnabled}
+                        />
+                    </div>
 
-                <div className="col-span-6">{/* Hi */}</div>
-            </div>
+                    <div className="space-y-2">
+                        <Label className="flex items-center gap-2 text-sm">
+                            <Clock size={16} />
+                            <span>
+                                {t('speed')}: {autoPlaySpeed}s
+                            </span>
+                        </Label>
+                        <Slider
+                            min={1}
+                            max={5}
+                            step={1}
+                            value={[autoPlaySpeed]}
+                            onValueChange={handleOnChangeAutoPlaySpeed}
+                            disabled={!autoPlayEnabled}
+                        />
+                    </div>
 
-            <div className="grid grid-cols-12 gap-3">
-                {renderShuffleSection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-                {renderBackFirstSection('col-span-6 flex flex-row gap-2 items-center justify-between')}
-            </div>
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="shuffle-switch" className="flex items-center gap-2 cursor-pointer text-sm">
+                            <Shuffle size={16} />
+                            <span>{t('shuffle')}</span>
+                        </Label>
+                        <Switch
+                            id="shuffle-switch"
+                            checked={shuffleEnabled}
+                            onCheckedChange={handleOnChangeShuffleEnabled}
+                        />
+                    </div>
 
-            <div className="grid grid-cols-12 gap-3">
-                {renderEditSection('col-span-6')}
-                {/* <div className="col-span-6"></div> */}
-                {CustomElement ? CustomElement : null}
-            </div>
+                    <div className="flex items-center justify-between gap-3">
+                        <Label className="flex items-center gap-2 text-sm">
+                            <RotateCcw size={16} />
+                            <span>{t('resetProgress')}</span>
+                        </Label>
+                        <Button variant="outline" size="sm" onClick={handleResetProgress} className="h-7 px-2 text-xs">
+                            {t('reset')}
+                        </Button>
+                    </div>
+
+                    <ShowIf when={isTeacher}>
+                        <div className="flex items-center justify-between">
+                            <Label className="flex items-center gap-2 text-sm">
+                                <SquarePen size={16} />
+                                <span>{t('edit')}</span>
+                            </Label>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleClickEditFlashcards}
+                                className="h-7 px-2 text-xs"
+                            >
+                                {t('editCards')}
+                            </Button>
+                        </div>
+                    </ShowIf>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader className="p-4">
+                    <CardTitle className="text-sm font-semibold">Other Modes</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                    <div className="flex flex-col space-y-1">
+                        <Button
+                            variant="ghost"
+                            className="justify-start gap-2 h-8 text-sm"
+                            onClick={handleOnClickLearning}
+                        >
+                            <BookOpen className="h-4 w-4" /> <span>{t('learning')}</span>
+                        </Button>
+                        <Button variant="ghost" className="justify-start gap-2 h-8 text-sm" onClick={handleOnClickGame}>
+                            <Gamepad2 className="h-4 w-4" /> <span>Brain Chase</span>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="justify-start gap-2 h-8 text-sm"
+                            onClick={handleOnClickMemoryMatch}
+                        >
+                            <Brain className="h-4 w-4" /> <span>Memory</span>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

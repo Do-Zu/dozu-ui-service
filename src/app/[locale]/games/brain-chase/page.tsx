@@ -7,8 +7,11 @@ import QuestionArea from './components/QuestionArea';
 import Setting from './components/Setting';
 import { BrainChaseProvider, useBrainChase } from './context/brainChaseContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 function BrainChaseGame() {
+  const t = useTranslations('games.brainChase');
   const {
     gameActive,
     gamePaused,
@@ -21,7 +24,34 @@ function BrainChaseGame() {
     startGame,
     resetGame,
     handleShuffledQuestionGame,
+    isLoading,
+    loadError,
+    topicId,
+    topicInfo,
   } = useBrainChase();
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-muted/20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <h2 className="text-xl font-semibold mb-2">{t('loading')}</h2>
+        <p className="text-muted-foreground">{t('loadingMessage')}</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-muted/20">
+        <div className="text-destructive text-6xl mb-4"></div>
+        <h2 className="text-xl font-semibold mb-2 text-destructive">{t('errorTitle')}</h2>
+        <p className="text-muted-foreground mb-4">{t('errorMessage')}</p>
+        <Button onClick={() => window.location.reload()}>{t('tryAgain')}</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-[90%] bg-background">
@@ -30,14 +60,21 @@ function BrainChaseGame() {
         {gameActive ? (
           <GameArea />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full bg-muted/20">
-            <h1 className="text-4xl font-bold mb-4">Knowledge Game</h1>
-            <p className="text-xl mb-6">
-              Select the correct answers as they float across the screen!
+          <div className="flex flex-col items-center justify-center h-full bg-muted/20 px-4">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center max-w-4xl leading-tight whitespace-nowrap">
+              {topicId ? t('title') : t('title')}
+            </h1>
+            <p className="text-lg md:text-xl mb-6 text-center max-w-2xl">
+              {t('description')}
             </p>
+            {topicId && (
+              <p className="text-lg mb-4 text-muted-foreground">
+                Topic: {topicInfo?.name || topicInfo?.title || `ID: ${topicId}`}
+              </p>
+            )}
             <Button size="lg" onClick={startGame} className="flex items-center gap-2">
               <Play className="h-5 w-5" />
-              Start Game
+              {t('start')}
             </Button>
           </div>
         )}
@@ -53,7 +90,7 @@ function BrainChaseGame() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
-                  {gamePaused ? 'Resume Game' : 'Pause Game'}
+                  {gamePaused ? t('resume') : t('pause')}
                 </TooltipContent>
               </Tooltip>
 
@@ -64,7 +101,7 @@ function BrainChaseGame() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
-                  Shuffle Questions
+                  {t('gameSettings.shuffleQuestions')}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -86,7 +123,7 @@ function BrainChaseGame() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
-                  Exit Game
+                  {t('quit')}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -100,7 +137,7 @@ function BrainChaseGame() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom" align="center" className="text-xs px-2 py-1">
-                Game Settings
+                {t('settings')}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -122,15 +159,15 @@ function BrainChaseGame() {
       {!gameActive && score > 0 && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background p-6 rounded-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('gameOver')}</h2>
             <p className="mb-4">
-              Your score: {score} out of {Math.min(settings.questionCount, 5)}
+              {t('finalScore')}: {score} {t('of')} {Math.min(settings.questionCount, 5)}
             </p>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => resetGame()}>
-                Close
+                {t('quit')}
               </Button>
-              <Button onClick={startGame}>Play Again</Button>
+              <Button onClick={startGame}>{t('playAgain')}</Button>
             </div>
           </div>
         </div>
@@ -140,9 +177,12 @@ function BrainChaseGame() {
 }
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const topicId = searchParams.get('topicId');
+
   return (
     <div className="h-full w-full">
-      <BrainChaseProvider>
+      <BrainChaseProvider topicId={topicId}>
         <BrainChaseGame />
       </BrainChaseProvider>
     </div>

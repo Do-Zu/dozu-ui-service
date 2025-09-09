@@ -1,28 +1,47 @@
 'use client';
 
-import { useAuth } from '@/contexts/auth/AuthContext';
-import { useRouter, usePathname } from 'next/navigation';
-import { ROUTES } from '@/utils/constants/routes';
-import { useEffect } from 'react';
 import AuthSkeleton from '@/components/ui/auth-skeleton';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { ILearningMode, setLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { ROUTES } from '@/utils/constants/routes';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 function HomePage() {
-  const { isAuthenticated, user } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
 
-  useEffect(() => {
-    // Get current locale from pathname
-    const locale = pathname?.split('/')[1] || 'en';
+    const [storedValue] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const { isTeacher, isAdmin } = useRoleChecker();
+    const dispatch = useDispatch();
 
-    if (isAuthenticated || user?.isNewUser) {
-      router.push(`/${locale}${ROUTES.HOME}`);
-    } else {
-      router.push(`/${locale}${ROUTES.WELCOME}`);
-    }
-  }, [isAuthenticated, router, pathname]);
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push(ROUTES.WELCOME);
+            return;
+        }
 
-  return <AuthSkeleton />;
+        if (isAdmin) {
+            router.push(ROUTES.ADMIN);
+            return;
+        }
+
+        if (isTeacher) {
+            // dispatch(setLearningMode(MODE_ACCESS_PAGE_ROLE.classBased));
+            router.push(ROUTES.TEACHER.HOME);
+            return;
+        }
+
+        // For regular users, set learning mode and go to home
+        dispatch(setLearningMode(storedValue));
+        router.push(ROUTES.HOME);
+    }, [isAuthenticated, isTeacher, isAdmin]);
+
+    return <AuthSkeleton />;
 }
 
 export default HomePage;

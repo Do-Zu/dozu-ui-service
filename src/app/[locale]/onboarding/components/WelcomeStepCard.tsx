@@ -1,12 +1,20 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface WelcomeStepCardProps {
   proceed: () => void;
 }
 
 const WelcomeStepCard: React.FC<WelcomeStepCardProps> = ({ proceed }) => {
+ const router = useRouter();
+
+  const handleOnClickSkip=()=>{
+      router.push(ROUTES.HOME);
+  }
+
   return (
     <Card className="rounded-2xl shadow-lg">
       <CardContent className="p-6">
@@ -31,7 +39,7 @@ const WelcomeStepCard: React.FC<WelcomeStepCardProps> = ({ proceed }) => {
           style and goals. You can always change these preferences later.
         </div>
         <div className="flex justify-between">
-          <Button variant="outline">Skip for now</Button>
+          <Button onClick={handleOnClickSkip} variant="outline">Skip for now</Button>
           <Button onClick={proceed}>Continue</Button>
         </div>
       </CardContent>

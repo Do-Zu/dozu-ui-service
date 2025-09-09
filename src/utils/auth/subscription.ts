@@ -1,4 +1,4 @@
-import { ICurrentPlan } from '@/contexts/auth/AuthContext';
+import { ICurrentPlan } from '@/services/features/feature.type';
 import { getSessionData } from '../storage';
 
 export const getCurrentPlanUser = () => {

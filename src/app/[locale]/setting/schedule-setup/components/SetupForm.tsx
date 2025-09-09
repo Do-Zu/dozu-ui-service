@@ -1,66 +1,95 @@
 'use client';
 
-import React from 'react';
-import { useState } from 'react';
-import SubjectListInput from '@/components/schedule/SubjectListInput';
+import LoadingPage from '@/app/loading';
 import FreeTimeSelector from '@/components/schedule/FreeTimeSelector';
-import PrioritySelector from '@/components/schedule/PrioritySelector';
 import StudyPreference from '@/components/schedule/StudyPreference';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
+import { useGetSchedulePreferences, useUpdateSchedulePreferences } from '@/hooks/useSchedule';
+import { IFreeTime, IUpdateSchedulePreferencePayload } from '@/services/schedule/schedule.types';
+import React, { useEffect, useState } from 'react';
 
 type Props = {
-  onComplete: () => void;
-};
-
-type SubjectPriority = {
-  subject: string;
-  importance: number;
-  difficulty: 'Dễ' | 'Trung bình' | 'Khó';
+    onComplete: () => void;
 };
 
 export default function SetupForm({ onComplete }: Props) {
+    const [formData, setFormData] = useState<IUpdateSchedulePreferencePayload>({
+        preferences: {
+            studyMethods: [],
+            studyDuration: 60,
+        },
+        studyPreferences: [],
+        avgStudyDuration: null,
+        freeTime: {},
+    });
 
-  const [subjects, setSubjects] = useState<SubjectPriority[]>([]);
+    const { data: existingPreferences, loading: loadingPreferences } = useGetSchedulePreferences();
 
-  const handleSubjectChange = (newSubjects: SubjectPriority[]) => {
-    setSubjects(newSubjects); 
-  };
+    const { execute: updatePreferences, loading: updating, error } = useUpdateSchedulePreferences();
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    onComplete();
-  };
+    useEffect(() => {
+        if (existingPreferences) {
+            setFormData(existingPreferences);
+        }
+    }, [existingPreferences]);
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-8 p-6 bg-white rounded shadow">
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Danh sách môn học</h2>
-        <p className="text-sm text-gray-500 mb-4">Nhập các môn học bạn muốn lên lịch</p>
-        <SubjectListInput subjects={subjects} onSubjectChange={handleSubjectChange} />
-      </section>
+    const handleFreeTimeChange = (freeTime: IFreeTime) => {
+        setFormData((prev) => ({
+            ...prev,
+            freeTime,
+        }));
+    };
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Thời gian rảnh trong tuần</h2>
-        <p className="text-sm text-gray-500 mb-4">Chọn khoảng thời gian bạn có thể học mỗi ngày</p>
-        <FreeTimeSelector />
-      </section>
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Mức độ ưu tiên</h2>
-        <p className="text-sm text-gray-500 mb-4">Đánh giá tầm quan trọng và độ khó của từng môn</p>
-        <PrioritySelector subjects={subjects} />
-      </section>
+        try {
+            const result = await updatePreferences(formData);
+            if (result) {
+                onComplete();
+            }
+        } catch (error) {
+            toast({
+                description: 'Unable to save settings. Please try again later.',
+                variant: 'destructive',
+            });
+        }
+    };
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Thói quen học</h2>
-        <p className="text-sm text-gray-500 mb-4">Hệ thống sẽ gợi ý lịch học phù hợp với bạn hơn</p>
-        <StudyPreference />
-      </section>
+    if (loadingPreferences) {
+        return <LoadingPage />;
+    }
 
-      <div className="text-right">
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Submit
-        </button>
-      </div>
-    </form>
-  );
+    return (
+        <div className="space-y-8 p-6 bg-white rounded shadow">
+            <section>
+                <h2 className="text-xl font-semibold mb-2">Free time during the week</h2>
+                <p className="text-sm text-gray-500 mb-4">Choose a time period you can study each day</p>
+                <FreeTimeSelector initialData={formData?.freeTime} onChange={handleFreeTimeChange} />
+            </section>
+
+            <section>
+                <h2 className="text-xl font-semibold mb-2">Study habits</h2>
+                <p className="text-sm text-gray-500 mb-4">The system will suggest a schedule that suits you better.</p>
+                <StudyPreference initialData={formData} onChange={setFormData} />
+            </section>
+
+            <div className="text-right">
+                <Button
+                    disabled={updating}
+                    onClick={handleSubmit}
+                    className="bg-primary text-white hover:bg-primary-dark transition-colors"
+                >
+                    <span className="text-sm font-medium">{updating ? 'Saving...' : 'Save'}</span>
+                </Button>
+            </div>
+
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    An error occurred: {error}
+                </div>
+            )}
+        </div>
+    );
 }

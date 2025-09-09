@@ -1,0 +1,35 @@
+{
+    "class": {
+        "class": "class",
+        "classWithName": "Class {name}",
+        "myClasses": "My Classes",
+        "classesEnrolling": "You're enrolled in the following classes",
+        "join": {
+            "title": "Join Class",
+            "description": "Enter your Class Id provided by your Teacher to join Class",
+            "label": "Join",
+            "joinSuccess": "Join class successfully"
+        },
+        "leave": {
+            "title": "Leave Class",
+            "description": "Are you sure you want to leave {name}? All your study progress in this class will be deleted.",
+            "label": "Leave",
+            "leaveSuccess": "Leave class successfully"
+        },
+        "invitationCode": "Invitation Code",
+        "manageStudents": "Manage Students",
+        "generateContent": "Generate Content",
+        "studentList": {
+            "title": "Students",
+            "emptyMessage": "No students have enrolled in this class yet.",
+            "description": "List of all students enrolled in this class.",
+            "viewProfile": "View Profile",
+            "removeFromClass": "Remove from Class",
+            "notAvailable": "N/A",
+            "removeSuccess": "Remove student successfully"
+        },
+        "classFeed": {
+            "classFeed": "class feed"
+        }
+    }
+}
