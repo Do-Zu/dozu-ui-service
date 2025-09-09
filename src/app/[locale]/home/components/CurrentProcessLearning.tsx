@@ -93,7 +93,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
 
     if (loading) {
         return (
-            <Card className="max-w-[60%] min-w-[40%] h-[200px] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
+            <Card className="max-w-[600px] min-w-[40%] h-[200px] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
                 <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -126,7 +126,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     }
 
     return (
-        <Card className="max-w-[80%] min-w-[40%] mx-auto mt-2 mb-8  bg-slate-500  dark:bg-gray-700 border-0 shadow-xl">
+        <Card className="max-w-[600px] min-w-[40%] mx-auto mt-2 mb-8 rounded-3xl bg-gradient-to-r from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] border-0 shadow-xl">
             <CardHeader className="pb-3">
                 {data ? (
                     <div className="flex items-center justify-between">
@@ -190,8 +190,8 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                         {data && (
                             <Button
                                 onClick={() => onContinueLearning('current')}
-                                size="default"
-                                className=" text-slate-700 dark:text-zinc-800 hover:bg-slate-100 bg-gray-200  dark:hover:bg-gray-300 font-semibold px-6 py-2"
+                                size="sm"
+                                className=" text-slate-700 dark:text-zinc-800 hover:bg-slate-100 bg-gray-200  dark:hover:bg-gray-300 font-semibold px-4 py-2"
                             >
                                 <Play className="mr-1.5 h-3.5 w-3.5" />
                                 {t('continueButton')}

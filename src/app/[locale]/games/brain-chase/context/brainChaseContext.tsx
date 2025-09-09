@@ -79,7 +79,7 @@ const sampleQuestions: IQuestion[] = [
 
 export const DEFAULT_SETTINGS: GameSettings = {
   speed: 'medium', // slow, medium, fast
-  questionCount: 5, // 5, 10, 20, unlimited
+  questionCount: 10, // Default to 10 questions
   timeLimit: 10, // 5-60 seconds
   errorAllowance: 2, // 1, 2, or 3,
   shuffleQuestions: true,
@@ -107,6 +107,7 @@ interface BrainChaseContextType {
   loadError: any;
   topicId?: string | null;
   topicInfo?: ITopicInfo | null;
+  flashcards?: IFlashcard[] | null;
 
   // Current question data
   currentQuestion: string;
@@ -352,6 +353,7 @@ export function BrainChaseProvider({ children, topicId }: { children: ReactNode;
     loadError: flashcardsError || topicError,
     topicId,
     topicInfo,
+    flashcards,
     currentQuestion,
     formattedAnswers,
     settings,
