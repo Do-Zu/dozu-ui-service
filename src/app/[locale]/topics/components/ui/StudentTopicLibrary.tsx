@@ -31,6 +31,7 @@ import { useTopics } from '../../hooks/useTopics';
 import { useClassBased } from '@/contexts/class-based';
 import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
+import { IFeedGroup, ISubtractedDate } from '@/utils/feeds/feed.helper';
 
 type TopicFilteringAction =
     | 'newest'
@@ -143,7 +144,10 @@ export default function StudentTopicLibrary() {
 
     const mainActionButtons = null;
 
-    const renderFeedCard = (feed: IClassFeed) => <ClassFeedCard key={feed.classFeedId} role="student" feed={feed} />;
+    const renderFeedCard = (feedGroup: IFeedGroup) => {
+        const { feed, group } = feedGroup;
+        return <ClassFeedCard key={feed.classFeedId} role="student" feed={feed} group={group} />;
+    };
 
     const feedContent = (
         <>

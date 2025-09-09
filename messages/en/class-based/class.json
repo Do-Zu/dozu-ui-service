@@ -29,7 +29,17 @@
             "removeSuccess": "Remove student successfully"
         },
         "classFeed": {
-            "classFeed": "class feed"
+            "classFeed": "class feed",
+            "minutesAgo": "minutes ago",
+            "hoursAgo": "hoursAgo",
+            "aFewMinutesAgo": "A few minutes ago",
+            "today": "Today",
+            "thisWeek": "This week",
+            "thisMonth": "This month",
+            "aLongTimeAgo": "A long time ago",
+            "lastEditedAt": "Last edited at",
+            "title": "{contentType} is now available",
+            "content": "The {contentType} has been generated and is now available in the topic {topicName}."
         }
     }
 }
