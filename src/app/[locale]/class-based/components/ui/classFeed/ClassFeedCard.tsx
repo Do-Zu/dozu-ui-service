@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { IClassFeed } from '../../../types/classFeed.type';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { formatDate } from '@/utils';
+import { formatDate, TimeUnit } from '@/utils';
 import Link from 'next/link';
 import { DATETIME_DMY_12H_FORMAT } from '@/utils/date/constant';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
+import { ISubtractedDate } from '@/utils/feeds/feed.helper';
 
 interface TeacherProps {
     role: 'teacher';
@@ -28,12 +29,25 @@ interface StudentProps {
 
 type Props = {
     feed: IClassFeed;
+    group: ISubtractedDate;
 } & (TeacherProps | StudentProps);
 
 export default function ClassFeedCard(props: Props) {
     const tCommon = useTranslations('common');
+    const tClassFeed = useTranslations('class.classFeed');
     const { feed, role } = props;
     const { classFeedId, title, content, createdAt, updatedAt, sender, link } = feed;
+    const { group } = props;
+
+    function getDisplayDate(createdAt: string): string {
+        if (group.unit === TimeUnit.MINUTE && group.unitAgo) {
+            return group.unitAgo + ' ' + tClassFeed('minutesAgo');
+        }
+        if (group.unit === TimeUnit.DAY && group.unitAgo) {
+            return group.unitAgo + ' ' + tClassFeed('hoursAgo');
+        }
+        return formatDate(createdAt, DATETIME_DMY_12H_FORMAT);
+    }
 
     return (
         <Card>
@@ -46,9 +60,7 @@ export default function ClassFeedCard(props: Props) {
                         </Avatar>
                         <div className="flex flex-col">
                             <span className="font-semibold text-foreground">{sender.fullName}</span>
-                            <span className="text-xs text-muted-foreground">
-                                {formatDate(createdAt, DATETIME_DMY_12H_FORMAT)}
-                            </span>
+                            <span className="text-xs text-muted-foreground">{getDisplayDate(createdAt)}</span>
                         </div>
                     </div>
                 ) : null}
@@ -107,12 +119,10 @@ export default function ClassFeedCard(props: Props) {
             {!sender ? (
                 <CardFooter>
                     <div className="flex flex-col gap-2">
-                        <span className="text-xs text-muted-foreground">
-                            {formatDate(createdAt, DATETIME_DMY_12H_FORMAT)}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{getDisplayDate(createdAt)}</span>
                         {updatedAt ? (
                             <span className="text-xs text-muted-foreground">
-                                This post was last edited at '{formatDate(updatedAt, DATETIME_DMY_12H_FORMAT)}'
+                                {tClassFeed('lastEditedAt')} '{formatDate(updatedAt, DATETIME_DMY_12H_FORMAT)}'
                             </span>
                         ) : null}
                     </div>
@@ -120,9 +130,9 @@ export default function ClassFeedCard(props: Props) {
             ) : null}
 
             {sender && updatedAt ? (
-                <CardFooter className='-mt-2'>
+                <CardFooter className="-mt-2">
                     <span className="text-xs text-muted-foreground">
-                        This post was last edited at '{formatDate(updatedAt, DATETIME_DMY_12H_FORMAT)}'
+                        {tClassFeed('lastEditedAt')} '{formatDate(updatedAt, DATETIME_DMY_12H_FORMAT)}'
                     </span>
                 </CardFooter>
             ) : null}
