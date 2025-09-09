@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ProfileService } from '../services/profile/profileService';
 import { ProfileData } from '../types/profile';
 import { handleApiError } from '../app/[locale]/profile/utils/errorHandling';
+import { toast } from './use-toast';
 
 export const useProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -17,7 +18,6 @@ export const useProfile = () => {
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
-      console.error('Failed to fetch profile:', err);
     } finally {
       setLoading(false);
     }
@@ -33,37 +33,36 @@ export const useProfile = () => {
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
-      console.error('Failed to update profile:', err);
       throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const uploadAvatar = useCallback(async (file: File) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await ProfileService.uploadAvatar(file);
+  // const uploadAvatar = useCallback(async (file: File) => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+  //     const result = await ProfileService.uploadAvatar(file);
       
-      // Update profile with new avatar URL
-      if (profile) {
-        setProfile({
-          ...profile,
-          avatar: result.avatarUrl,
-        });
-      }
+  //     // Update profile with new avatar URL
+  //     if (profile) {
+  //       setProfile({
+  //         ...profile,
+  //         avatar: result.avatarUrl,
+  //       });
+  //     }
       
-      return result;
-    } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to upload avatar:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [profile]);
+  //     return result;
+  //   } catch (err) {
+  //     const errorMessage = handleApiError(err);
+  //     setError(errorMessage);
+  //     console.error('Failed to upload avatar:', err);
+  //     throw err;
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [profile]);
 
   const removeAvatar = useCallback(async () => {
     try {
@@ -79,9 +78,7 @@ export const useProfile = () => {
         });
       }
     } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to remove avatar:', err);
+      toast({ description:  'Failed to remove avatar', variant: 'destructive' });
       throw err;
     } finally {
       setLoading(false);
@@ -97,9 +94,7 @@ export const useProfile = () => {
       setError(null);
       await ProfileService.changePassword(data);
     } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to change password:', err);
+      toast({ description:  'Failed to change password', variant: 'destructive' });
       throw err;
     } finally {
       setLoading(false);
@@ -113,9 +108,7 @@ export const useProfile = () => {
       await ProfileService.deleteAccount();
       setProfile(null);
     } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to delete account:', err);
+      toast({ description:  'Failed to delete account', variant: 'destructive' });
       throw err;
     } finally {
       setLoading(false);
@@ -132,7 +125,7 @@ export const useProfile = () => {
     error,
     fetchProfile,
     updateProfile,
-    uploadAvatar,
+    // uploadAvatar,
     removeAvatar,
     changePassword,
     deleteAccount,

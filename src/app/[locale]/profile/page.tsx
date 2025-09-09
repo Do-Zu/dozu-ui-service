@@ -14,6 +14,7 @@ import {
   PrivacySettings
 } from '../../../types/profile';
 import { ProfileService } from '../../../services/profile/profileService';
+import { toast } from '@/hooks/use-toast';
 
 const ProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -59,9 +60,9 @@ const ProfilePage: React.FC = () => {
       setProfileData(safeProfile);
       setIsApiLoaded(true);
     } catch (err: any) {
-      console.error('Failed to load profile:', err);
+      toast({ title: 'Failed to load profile data', description: err.message || 'An error occurred while fetching profile data', variant: 'destructive' });
       setError(err.message || 'Failed to load profile data');
-      
+    
       // Keep default mock data if API fails
       setIsApiLoaded(false);
     } finally {
@@ -76,40 +77,39 @@ const ProfilePage: React.FC = () => {
       setError(null);
       const updated = await ProfileService.updateProfile(updatedProfile);
       setProfileData(updated);
-      console.log('Profile updated successfully');
+      toast({ title: 'Profile updated successfully' });
     } catch (error: any) {
-      console.error('Failed to update profile:', error);
+      toast({ title: 'Failed to update profile', description: error.message || 'An error occurred while updating profile', variant: 'destructive' });
       setError(error.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAvatarUpdate = async (file: File) => {
-    try {
-      setLoading(true);
-      setError(null);
-      console.log('🔄 Uploading avatar file:', file.name, 'Size:', file.size);
+  // const handleAvatarUpdate = async (file: File) => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+  //     toast({ title: 'Uploading avatar...' });
       
-      const result = await ProfileService.uploadAvatar(file);
-      console.log('✅ Avatar upload result:', result);
-      
-      if (result.avatarUrl) {
-        setProfileData(prev => ({
-          ...prev,
-          avatar: result.avatarUrl
-        }));
-        console.log('Avatar updated successfully');
-      } else {
-        throw new Error('No avatar URL returned from upload');
-      }
-    } catch (error: any) {
-      console.error('Failed to update avatar:', error);
-      setError(error.message || 'Failed to update avatar');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     const result = await ProfileService.uploadAvatar(file);
+     
+  //     if (result.avatarUrl) {
+  //       setProfileData(prev => ({
+  //         ...prev,
+  //         avatar: result.avatarUrl
+  //       }));
+  //       toast({ title: 'Avatar updated successfully' });
+  //     } else {
+  //       throw new Error('No avatar URL returned from upload');
+  //     }
+  //   } catch (error: any) {
+  //     toast({ description: 'Failed to update avatar', variant: 'destructive' });
+  //     setError('Failed to update avatar');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleAvatarRemove = async () => {
     try {
@@ -120,10 +120,9 @@ const ProfilePage: React.FC = () => {
         ...prev,
         avatar: ''
       }));
-      console.log('Avatar removed successfully');
+      toast({ title: 'Avatar removed successfully' });
     } catch (error: any) {
-      console.error('Failed to remove avatar:', error);
-      setError(error.message || 'Failed to remove avatar');
+      toast({ title: 'Failed to remove avatar', description: error.message || 'An error occurred while removing avatar', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -135,9 +134,9 @@ const ProfilePage: React.FC = () => {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
-      console.log('Password changed successfully');
+      toast({ title: 'Password changed successfully' });
     } catch (error: any) {
-      console.error('Failed to change password:', error);
+      toast({ title: 'Failed to change password', description: error.message || 'An error occurred while changing password', variant: 'destructive' });
       throw new Error(error.message || 'Failed to change password');
     }
   };
@@ -149,21 +148,19 @@ const ProfilePage: React.FC = () => {
         ProfileService.updateNotificationSettings(notifications),
         ProfileService.updatePrivacySettings(privacy)
       ]);
-      console.log('Settings updated successfully');
+      toast({ title: 'Settings updated successfully' });
     } catch (error: any) {
-      console.error('Failed to update settings:', error);
-      setError(error.message || 'Failed to update settings');
+      toast({ title: 'Failed to update settings', description: error.message || 'An error occurred while updating settings', variant: 'destructive' });
     }
   };
 
   const handleDeleteAccount = async () => {
     try {
       await ProfileService.deleteAccount();
-      console.log('Account deleted successfully');
+      toast({ title: 'Account deleted successfully' });
       // Redirect to login or logout
     } catch (error: any) {
-      console.error('Failed to delete account:', error);
-      setError(error.message || 'Failed to delete account');
+      toast({ title: 'Failed to delete account', description: error.message || 'An error occurred while deleting account', variant: 'destructive' });
     }
   };
 
@@ -183,8 +180,8 @@ const ProfilePage: React.FC = () => {
         <ProfileHeader
           profileData={profileData}
           onProfileUpdate={handleProfileUpdate}
-          onAvatarUpdate={handleAvatarUpdate}
-          onAvatarRemove={handleAvatarRemove}
+          // onAvatarUpdate={handleAvatarUpdate} // Disabled avatar update functionality
+          // onAvatarRemove={handleAvatarRemove} // Disabled avatar remove functionality
         />
 
         {/* Settings Section */}
