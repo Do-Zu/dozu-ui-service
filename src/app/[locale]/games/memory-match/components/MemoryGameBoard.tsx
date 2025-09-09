@@ -10,7 +10,7 @@ export default function MemoryGameBoard() {
   if (!cards || cards.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">No cards available</p>
+        <p className="text-gray-500 dark:text-gray-400">No cards available</p>
       </div>
     );
   }
@@ -24,10 +24,13 @@ export default function MemoryGameBoard() {
   };
 
   return (
-    <div className="w-full relative">
+    <div className="w-full h-full">
       <div 
-        className={`grid ${getGridClass()} gap-4 max-w-4xl mx-auto`}
-        style={{ aspectRatio: '4/3' }}
+        className={`grid ${getGridClass()} gap-1 max-w-4xl mx-auto p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 shadow-lg`}
+        style={{
+          height: 'calc(100vh - 180px)',
+          gridAutoRows: '1fr',
+        }}
       >
         {cards.map((card, index) => (
           <MemoryCard
@@ -38,6 +41,11 @@ export default function MemoryGameBoard() {
           />
         ))}
       </div>
+      
+      {/* Game board info */}
+      {/* <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+        Grid: {getGridClass().replace('grid-cols-', '')} columns • Total Cards: {cards.length}
+      </div> */}
     </div>
   );
 }

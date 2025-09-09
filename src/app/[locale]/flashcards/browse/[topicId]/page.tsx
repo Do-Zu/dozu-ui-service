@@ -1,19 +1,20 @@
 'use client';
 
 import useFetch from '@/hooks/useFetch';
+import type { IFlashcard } from '../../../games/memory-match/types/memory-game.types';
 import Flashcard from '../../components/Flashcard';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, BookOpen, Gamepad2, Brain } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Gamepad2, Brain, Home, Settings, PanelLeft } from 'lucide-react';
 import StudyControls from '../../components/StudyControls';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import BackButton from '../../components/BackButton';
-import { IFlashcard } from '../../types/flashcard.type';
 import { useTranslations } from 'next-intl';
 import { ROUTES } from '@/utils/constants/routes';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
+import { cn } from '@/lib/utils';
 
 const initialAutoPlaySpeed = 3;
 
@@ -54,6 +55,7 @@ export default function Page() {
 
     const {
         data: flashcards,
+        setData: setFlashcardsData,
         loading: flashcardsLoading,
         error: flashcardsError,
     } = useFetch<IFlashcard[]>(() => flashcardService.getFlashcardsForTopic(topicId));
@@ -68,6 +70,7 @@ export default function Page() {
     //     isFrontRef.current = isFront;
     // }, [isFront]);
 
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [autoPlayEnabled, setAutoPlayEnabled] = useState<boolean>(false);
     const [autoPlaySpeed, setAutoPlaySpeed] = useState<number>(initialAutoPlaySpeed);
 
@@ -77,6 +80,8 @@ export default function Page() {
 
     // modals for images preview
     const [isImagesModalOpen, setIsImagesModalOpen] = useState<boolean>(false);
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -125,6 +130,10 @@ export default function Page() {
             cardRef.current.style.transition = 'transform 0.6s';
         }
     }, [flashcards]);
+
+    function handleSidebarOpenToogle() {
+        setIsSidebarOpen(!isSidebarOpen);
+    }
 
     function handleClickBackFlashcard() {
         // chỉnh state isFront thành isFrontRef để ko phụ thuộc vào isFront
@@ -300,15 +309,14 @@ export default function Page() {
     }
 
     function handleAddImageClick(front: string) {
-        if(!front) {
+        if (!front) {
             toastHelper.showErrorMessage("This card's front is empty, cannot search images");
             return;
         }
-        
     }
-    
+
     if (flashcardsError) {
-        return <div>Error: { flashcardsError }</div>;
+        return <div>Error: {flashcardsError}</div>;
     }
 
     if (flashcardsLoading === true || flashcards === null || flashcards === undefined) {
@@ -351,16 +359,16 @@ export default function Page() {
 
     function renderLearningSection() {
         return (
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-col gap-2">
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickLearning}>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickLearning}>
                                 <BookOpen className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">{t('learning')}</span>
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent side="right">
                             <p>Learn Flashcards</p>
                         </TooltipContent>
                     </Tooltip>
@@ -369,12 +377,12 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickGame}>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickGame}>
                                 <Gamepad2 className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">Brain Chase</span>
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent side="right">
                             <p>Play Brain Chase Game</p>
                         </TooltipContent>
                     </Tooltip>
@@ -383,12 +391,12 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleOnClickMemoryMatch}>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickMemoryMatch}>
                                 <Brain className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">Memory</span>
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>
+                        <TooltipContent side="right">
                             <p>Play Memory Match Game</p>
                         </TooltipContent>
                     </Tooltip>
@@ -398,30 +406,43 @@ export default function Page() {
     }
 
     return (
-        <div className="flex bg-gray-100 dark:bg-gray-950 h-[90vh]">
-            <div className="flex flex-1 flex-col m-1.25 mb-0 p-5">
-                <div className="bg-white dark:bg-gray-800 p-2.5">
-                    <BackButton />
-                </div>
-                <div className="flex-1 bg-gray-50 dark:bg-gray-900 p-5 grid grid-cols-11 gap-5">
-                    {/* Main Flashcard Section */}
-                    <div className="bg-gray-100 dark:bg-gray-950 col-span-8 flex flex-col items-center justify-center">
-                        {/* {renderMainFlashcardSection()} */}
-                        <Flashcard
-                            style="relative flex w-[55%] h-[80%] mt-4 "
-                            cardContainerRef={flashcardContainerRef}
-                            cardRef={cardRef}
-                            handleManualFlip={handleManualFlip}
-                            flashcard={currentFlashcard}
-                            
-                        />
-
-                        {renderFlashcardButtonsSection('grid grid-cols-3 mt-4 gap-4')}
+        <div className="flex bg-gray-background w-full h-full">
+            <div className="relative flex-1 p-5 overflow-hidden">
+                {/* Main Flashcard Section */}
+                <div
+                    className={cn(
+                        'relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg',
+                        'transform-all duration-300 ease-in-out',
+                        isSidebarOpen ? 'w-[75%]' : 'w-full',
+                    )}
+                >
+                    <div className="absolute top-8 right-8 z-20">
+                        <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
+                            <PanelLeft size={18} />
+                        </Button>
                     </div>
+                    <Flashcard
+                        style="relative flex w-[55%] h-[80%] mt-4 "
+                        cardContainerRef={flashcardContainerRef}
+                        cardRef={cardRef}
+                        handleManualFlip={handleManualFlip}
+                        flashcard={currentFlashcard}
+                    />
 
-                    {/* Study Control Section */}
+                    {renderFlashcardButtonsSection('grid grid-cols-3 mt-4 gap-4')}
+                </div>
+
+                {/* Study Control Section */}
+
+                <aside
+                    className={cn(
+                        'absolute top-0 right-0 h-full p-5 w-[25%]',
+                        'transform transition-transform duration-300 ease-in-out',
+                        isSidebarOpen ? 'translate-x-0' : 'translate-x-full',
+                    )}
+                >
                     <StudyControls
-                        style="col-span-3 p-6 rounded-lg shadow-sm flex flex-col gap-6 bg-gray-100 dark:bg-gray-950 overflow-hidden"
+                        style="bg-gray-100 dark:bg-gray-850 h-full p-6 rounded-lg shadow-sm flex flex-col gap-6 overflow-hidden"
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcards.length}
                         autoPlayEnabled={autoPlayEnabled}
@@ -432,9 +453,11 @@ export default function Page() {
                         shuffleEnabled={shuffleEnabled}
                         handleOnChangeShuffleEnabled={() => setShuffleEnabled(!shuffleEnabled)}
                         handleClickEditFlashcards={handleClickEditFlashcards}
-                        CustomElement={renderLearningSection()}
+                        handleOnClickLearning={handleOnClickLearning}
+                        handleOnClickGame={handleOnClickGame}
+                        handleOnClickMemoryMatch={handleOnClickMemoryMatch}
                     />
-                </div>
+                </aside>
             </div>
         </div>
     );

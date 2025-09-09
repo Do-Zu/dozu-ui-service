@@ -1,8 +1,10 @@
 {
     "home": {
+        "title": "Thúc đẩy hành trình học tập của bạn",
+
         "coreActionCards": {
             "schedule": {
-                "title": "Xem Lịch Trình",
+                "title": "Lịch Trình",
                 "description": "Quản lý lịch trình học tập và theo dõi tiến độ trên tất cả các chủ đề."
             },
             "library": {
@@ -11,7 +13,7 @@
             },
             "generate": {
                 "title": "Tạo Nội Dung",
-                "description": "Tạo tài liệu học tập mới với khả năng tạo nội dung được hỗ trợ bởi AI."
+                "description": "Tạo nội dung bằng AI, tự động lên lịch thực hành và theo dõi tiến trình lặp lại theo khoảng cách — tất cả trong một không gian làm việc thống nhất."
             }
         },
         "currentProcessLearning": {
@@ -20,7 +22,7 @@
             "description": "Description",
             "progress": "Tiến độ",
             "remaining": "còn lại",
-            "continueButton": "Tiếp Tục Học Tập",
+            "continueButton": "Tiếp Tục",
             "error": {
                 "title": "Không có lịch học tập",
                 "message": "Bạn không có phiên học tập nào đang hoạt động.",

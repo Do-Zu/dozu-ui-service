@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import ClassTopicLibrary from "../components/ui/ClassTopicLibrary";
-import { useParams } from "next/navigation";
+import TeacherTopicLibrary from '@/app/[locale]/topics/components/ui/TeacherTopicLibrary';
+import { useParams } from 'next/navigation';
 
 export default function Page() {
     const params = useParams();
@@ -9,9 +9,7 @@ export default function Page() {
 
     return (
         <div className="flex flex-col h-full mt-4">
-            <ClassTopicLibrary
-                classId={classId}
-            />
+            <TeacherTopicLibrary classId={classId} />
         </div>
-    )
+    );
 }

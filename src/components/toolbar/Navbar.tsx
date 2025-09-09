@@ -1,24 +1,12 @@
 'use client';
 
-import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
-import ThemeToggle from '@/components/toolbar/ThemeToggle';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import Link from 'next/link';
-import { Button } from '../ui/button';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { logout, setCredentials, updateAccessToken } from '@/stores/features/auth/authSlice';
-import { useEffect, Suspense } from 'react';
-import usePost from '@/hooks/usePost';
-import Axios from '@/api/axios';
-import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
-import { ROUTES } from '@/utils/constants/routes';
-import { LearningModeSelect } from './LearningModeSelect';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 import { ShowIf } from '../ui/ShowIf';
-import LoadingPage from '@/app/loading';
-import { toast } from '@/hooks/use-toast';
+import { LearningModeSelect } from './LearningModeSelect';
 
 function TokenHandler() {
     // const dispatch = useAppDispatch();
@@ -36,7 +24,6 @@ function TokenHandler() {
 }
 
 export default function Navbar() {
-    const dispatch = useAppDispatch();
     const { isAuthenticated, clearAuthData } = useAuth();
     const { isStudent } = useRoleChecker();
     const router = useRouter();
@@ -71,58 +58,22 @@ export default function Navbar() {
     //     refreshToken();
     // }, []);
 
-    const handleLogout = async () => {
-        try {
-            await execute({}); // Assumes this calls /auth/logout and clears the cookie
-
-            clearAuthData();
-
-            dispatch(logout());
-
-            router.replace(ROUTES.LANDING);
-        } catch (error) {
-            toast({
-                description: 'There was an error logging you out. Please try again later.',
-            });
-        }
-    };
-
-    const {
-        loading,
-        data: apiResponse,
-        error: apiPostContentError,
-        execute,
-    } = usePost<any, any>('/auth/logout', 'POST');
-
-    if (loading) return <LoadingPage isOverlay={true} />;
-
     return (
         <>
-            <div className="mx-auto flex p-2 justify-between items-center h-full bg-background/95 backdrop-blur-md border-b border-muted dark:border-muted/50">
-                {/* Logo or Home Link */}
-                <div className="flex items-center gap-4">
-                    <Link href="/" className="text-lg font-bold text-primary">
+            <div className="mx-auto flex px-4 py-2 justify-between items-center h-full border-b border-transparent bg-gradient-to-r from-background/70 via-background/40 to-background/70 dark:from-slate-950/60 dark:via-slate-900/40 dark:to-slate-950/60 backdrop-blur-md supports-[backdrop-filter]:bg-background/40">
+                <div className="flex items-center gap-3">
+                    <Link
+                        href="/"
+                        className="text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 dark:from-indigo-300 dark:via-sky-300 dark:to-cyan-300 bg-clip-text text-transparent"
+                    >
                         Dozu
                     </Link>
-                    <ShowIf when={isStudent} children={<LearningModeSelect />} />
-                    {/* <LearningModeSelect /> */}
+                    <ShowIf when={isStudent}>
+                        <LearningModeSelect />
+                    </ShowIf>
                 </div>
-
-                {/* Right side controls */}
-                <div className="flex items-center gap-4">
-                    <ThemeToggle />
-                    <LanguageSwitcher />
-                    {isAuthenticated ? (
-                        <>
-                            <Button disabled={loading} className="w-full" onClick={handleLogout}>
-                                Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <Link href={ROUTES.LOGIN}>
-                            <Button className="w-full">Login</Button>
-                        </Link>
-                    )}
+                <div className="flex items-center gap-3 text-[0.65rem] uppercase tracking-wide text-muted-foreground/70">
+                    {/* <span className="hidden sm:inline">Knowledge Platform</span> */}
                 </div>
             </div>
 

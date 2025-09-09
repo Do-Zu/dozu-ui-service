@@ -10,7 +10,7 @@ export default function MemoryMatchPage() {
   const topicId = searchParams.get('topicId');
 
   return (
-    <div className="h-screen w-full bg-white dark:bg-gray-900">
+    <div className="h-screen w-full fixed">
       <MemoryMatchProvider topicId={topicId}>
         <MemoryMatchGame />
       </MemoryMatchProvider>
