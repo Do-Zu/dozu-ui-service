@@ -72,6 +72,7 @@ import { useFeeds } from '@/app/[locale]/teacher/feeds/hooks/useFeeds';
 import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
+import { IFeedGroup } from '@/utils/feeds/feed.helper';
 
 type TopicFilteringAction =
     | 'newest'
@@ -282,15 +283,19 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         </div>
     );
 
-    const renderFeedCard = (feed: IClassFeed) => (
-        <ClassFeedCard
-            key={feed.classFeedId}
-            role="teacher"
-            feed={feed}
-            onUpdateOpen={handleUpdateFeedModalOpen}
-            onDeleteOpen={handleDeleteFeedModalOpen}
-        />
-    );
+    const renderFeedCard = (feedGroup: IFeedGroup) => {
+        const { feed, group } = feedGroup;
+        return (
+            <ClassFeedCard
+                key={feed.classFeedId}
+                role="teacher"
+                feed={feed}
+                group={group}
+                onUpdateOpen={handleUpdateFeedModalOpen}
+                onDeleteOpen={handleDeleteFeedModalOpen}
+            />
+        );
+    };
 
     const feedContent = (
         <>
@@ -420,7 +425,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     );
 
     const topicContent = (
-        <div className="w-full mx-auto rounded-lg bg-gray-100 shadow-md dark:bg-gray-800 mt-5">
+        <div className="w-full mx-auto mt-5">
             <div className="mb-4 flex flex-row justify-start items-start gap-4">
                 <Button className="bg-background text-foreground" onClick={handleCreateTopicModalOpen}>
                     <Plus className="mr-2 h-4 w-4" />
@@ -431,9 +436,10 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
                     {tClass('generateContent')}
                 </Button>
             </div>
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div className="relative w-full md:w-[300px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />{' '}
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
                         placeholder={t('searchPlaceholder')}
                         value={searchQuery}

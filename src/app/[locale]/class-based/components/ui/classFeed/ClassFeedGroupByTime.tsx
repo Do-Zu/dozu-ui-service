@@ -3,15 +3,17 @@ import { Separator } from '@/components/ui/separator';
 import { TimeUnit } from '@/utils/date/date.util';
 import { IClassFeed } from '../../../types/classFeed.type';
 import { useEffect, useState } from 'react';
-import feedHelper, { IAllowedTimeUnit, unitOrder } from '@/utils/feeds/feed.helper';
+import feedHelper, { IAllowedTimeUnit, IFeedGroup, ISubtractedDate, unitOrder } from '@/utils/feeds/feed.helper';
+import { useFeeds, useGroupLabel } from '@/app/[locale]/teacher/feeds/hooks/useFeeds';
 
 interface FeedGroupProps {
     feeds: IClassFeed[];
-    renderFeedCard: (feed: IClassFeed) => React.ReactNode;
+    renderFeedCard: (feedGroup: IFeedGroup) => React.ReactNode;
 }
 
 export default function ClassFeedGroupedByTime({ feeds, renderFeedCard }: FeedGroupProps) {
-    const [feedGroups, setFeedGroups] = useState<Map<IAllowedTimeUnit, IClassFeed[]>>();
+    const [feedGroups, setFeedGroups] = useState<Map<string, IFeedGroup[]>>();
+    const getGroupLabel = useGroupLabel();
 
     useEffect(() => {
         setFeedGroups(feedHelper.getFeedGroups(feeds));
@@ -22,19 +24,15 @@ export default function ClassFeedGroupedByTime({ feeds, renderFeedCard }: FeedGr
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {unitOrder.map((unit) =>
                 feedGroups.get(unit) ? (
-                    <Card key={unit} className="shadow-sm border border-border">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-base font-semibold text-foreground">
-                                {feedHelper.getGroupLabel(unit)}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {feedGroups.get(unit)!.map((feed) => renderFeedCard(feed))}
-                        </CardContent>
-                    </Card>
+                    <div key={unit} className="space-y-3">
+                        <h3 className="text-sm font-medium text-muted-foreground">{getGroupLabel(unit)}</h3>
+                        <div className="space-y-4">
+                            {feedGroups.get(unit)!.map((feedGroup) => renderFeedCard(feedGroup))}
+                        </div>
+                    </div>
                 ) : null,
             )}
         </div>
