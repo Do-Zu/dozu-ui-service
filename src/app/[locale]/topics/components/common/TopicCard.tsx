@@ -58,7 +58,15 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
                     <div className="flex justify-between items-start">
                         <div className="flex-1 min-w-0">
                             <CardTitle
+                                role="button"
+                                tabIndex={0}
                                 onClick={() => handleNameClick(topic)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleNameClick(topic);
+                                    }
+                                }}
                                 className="text-base font-semibold tracking-tight leading-snug line-clamp-2 bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent cursor-pointer hover:from-indigo-500 hover:via-sky-500 hover:to-cyan-500 dark:hover:from-indigo-300 dark:hover:via-sky-300 dark:hover:to-cyan-300 transition-colors"
                             >
                                 {name}
