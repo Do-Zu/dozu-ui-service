@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import React from 'react';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { IFlashcardWithReviewPrediction } from '../[topicId]/page';
+import Pomodoro from '@/components/pomodoro/Pomodoro';
 
 type TrackingOption = {
     icon: any;
@@ -55,7 +56,7 @@ export function FlashcardLearning({
     ];
 
     function renderTrackingOptionsSection(style: string) {
-        if(!flashcard) return;
+        if (!flashcard) return;
         return (
             <div className={style}>
                 {trackingOptions.map((option, index) => {
@@ -94,8 +95,9 @@ export function FlashcardLearning({
 
     return (
         <div className="flex bg-gray-100 dark:bg-gray-950 h-[95vh]">
-            <div className="flex flex-1 flex-col m-1.25 mb-0 p-5">
+            <div className="relative flex flex-1 flex-col m-1.25 mb-0 p-5">
                 <div className="bg-white dark:bg-gray-800 p-2.5">
+                    <Pomodoro position="top-center" positionX={-10} positionY={-70} />
                     <BackButton />
                 </div>
                 <div className="flex-1 bg-gray-50 dark:bg-gray-900 p-5 grid grid-cols-11 gap-5">

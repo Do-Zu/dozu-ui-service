@@ -8,7 +8,7 @@ import { Clock, Timer, Play, Pause, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
-type TypePosition = 'center-top' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+type TypePosition = 'top-center' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 type TypeMode = 'countdown' | 'stopwatch';
 interface IPropPomodoro {
     position: TypePosition;
@@ -60,10 +60,10 @@ function positionClass(pos: TypePosition) {
             return 'bottom-4 left-4';
         case 'bottom-right':
             return 'bottom-4 right-4';
-        case 'center-top':
-            return ' top-4 left-1/2 -translate-x-1/2';
+        case 'top-center':
+            return 'top-4 left-1/2 -translate-x-1/2';
         case 'bottom-center':
-            return ' bottom-4 left-1/2 -translate-x-1/2';
+            return 'bottom-4 left-1/2 -translate-x-1/2';
         default:
             return 'bottom-4 right-4';
     }
@@ -214,12 +214,11 @@ export default function Pomodoro({
 
     return (
         <motion.div
-            className={cn(` ${className} ${positionClass(position)}`)}
-            style={{ transform: `translate(${positionX}px, ${positionY}px)` }}
+            className={cn(`max-w-[140px] transform absolute z-[99999] ${className} ${positionClass(position)}`)}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
         >
-            <div>
+            <div style={{ transform: `translate(${positionX}px, ${positionY}px)`, willChange: 'transform' }}>
                 {renderClock()}
                 <AnimatePresence>
                     {isOpen && (
