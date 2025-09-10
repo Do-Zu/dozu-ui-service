@@ -37,9 +37,8 @@ const Home: React.FC = () => {
     );
 
     return (
-        <div className="flex flex-col h-full w-full">
+        <div className="relative flex flex-col h-full w-full">
             <BackGroundGradient />
-
             <HeroSection />
 
             {/* Core actions */}

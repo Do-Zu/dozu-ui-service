@@ -117,7 +117,22 @@ export default function PersonalTopicLibrary() {
             return;
         }
 
-        const sorted = [...topics].sort((a, b) => {
+        const filterPattern = searchQuery.trim().toLowerCase();
+
+        let baseFiltered = topics;
+
+        if (filterPattern) {
+            baseFiltered = topics.filter((topic) => {
+                if (!filterPattern) return true;
+
+                const namePattern = topic?.name?.trim().toLowerCase();
+                const descriptionPattern = topic?.description?.trim()?.toLowerCase();
+
+                return namePattern.includes(filterPattern) || descriptionPattern?.includes(filterPattern);
+            });
+        }
+
+        const sorted = [...baseFiltered].sort((a, b) => {
             if (sortBy === 'title-asc') return a.name.localeCompare(b.name, 'vi');
             if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
             const ts = (d?: string | number | Date) => (d ? new Date(d).getTime() : 0);
@@ -128,7 +143,7 @@ export default function PersonalTopicLibrary() {
         });
 
         setTopicsFiltered(sorted);
-    }, [topics, sortBy]);
+    }, [topics, sortBy, searchQuery]);
 
     function handleOnSelectEditFlashcard(topicId: number) {
         router.push(ROUTES.FLASHCARDS_EDIT(topicId));
@@ -237,12 +252,6 @@ export default function PersonalTopicLibrary() {
     const cardFooter = (topic: ITopic) => {
         const { topicId, flashcardsNew = 0, flashcardsDueToday = 0, flashcardsCount = 0 } = topic;
 
-        const tTopic = useTranslations('topic');
-
-        function handleOnSelectEditFlashcard() {
-            router.push(ROUTES.FLASHCARDS_EDIT(topicId));
-        }
-
         function handleOnSelectBrowse() {
             router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
         }
@@ -255,17 +264,17 @@ export default function PersonalTopicLibrary() {
         function handleOnClickStartQuiz() {
             router.push(ROUTES.QUIZ_START(topicId));
         }
-        function handleOnClickEditQuestion() {
-            router.push(ROUTES.QUIZ_EDIT(topicId));
-        }
 
         //TODO: note for update logic calculate remain flashcard remain and get progress
-        const progressValue = flashcardsCount
-            ? Math.min(
-                  100,
-                  Math.round(((flashcardsCount - (flashcardsDueToday + flashcardsNew)) / flashcardsCount) * 100),
-              )
-            : 0;
+
+        let progressValue = 0;
+        if (flashcardsCount) {
+            const completed = flashcardsCount - (flashcardsDueToday + flashcardsNew);
+            const percentage = Math.round((completed / flashcardsCount) * 100);
+
+            // Clamp between 0 and 100
+            progressValue = Math.min(100, Math.max(0, percentage));
+        }
 
         return (
             <div>
