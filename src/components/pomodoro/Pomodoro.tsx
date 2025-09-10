@@ -304,7 +304,7 @@ export default function Pomodoro({
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.98, y: 6 }}
                             transition={{ duration: 0.25 }}
-                            className="absolute z-50 mt-2 w-64"
+                            className="absolute z-50 mt-2 w-64 left-[-6em]"
                         >
                             <Card className="rounded-xl border dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-100 backdrop-blur p-3 shadow-xl">
                                 <div className="flex items-center justify-between">
