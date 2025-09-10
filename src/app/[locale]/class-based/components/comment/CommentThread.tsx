@@ -522,9 +522,7 @@ const CommentThread = ({
 
     const loadMoreComments = useCallback(() => {
         if (isAppending || !hasMore) return;
-        const next = page + 1;
-        setPage(next);
-        handleQueryCommentForNode(next, { append: true });
+        handleQueryCommentForNode(page + 1, { append: true });
     }, [page, isAppending, hasMore, handleQueryCommentForNode]);
 
     useEffect(() => {
