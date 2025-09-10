@@ -15,6 +15,7 @@ import { ROUTES } from '@/utils/constants/routes';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import { cn } from '@/lib/utils';
+import Pomodoro from '@/components/pomodoro/Pomodoro';
 
 const initialAutoPlaySpeed = 3;
 
@@ -363,7 +364,12 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickLearning}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 justify-start"
+                                onClick={handleOnClickLearning}
+                            >
                                 <BookOpen className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">{t('learning')}</span>
                             </Button>
@@ -377,7 +383,12 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickGame}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 justify-start"
+                                onClick={handleOnClickGame}
+                            >
                                 <Gamepad2 className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">Brain Chase</span>
                             </Button>
@@ -391,7 +402,12 @@ export default function Page() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickMemoryMatch}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 justify-start"
+                                onClick={handleOnClickMemoryMatch}
+                            >
                                 <Brain className="h-4 w-4 mr-1" />
                                 <span className="text-sm text-muted-foreground">Memory</span>
                             </Button>
@@ -416,6 +432,8 @@ export default function Page() {
                         isSidebarOpen ? 'w-[75%]' : 'w-full',
                     )}
                 >
+                    <Pomodoro position="top-right" times={0.2} />
+
                     <div className="absolute top-8 right-8 z-20">
                         <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
                             <PanelLeft size={18} />
