@@ -135,7 +135,7 @@ export default function StudyControls({
                                 onClick={handleClickEditFlashcards}
                                 className="h-7 px-2 text-xs"
                             >
-                                {t('editCards')}
+                                {t('edit')}
                             </Button>
                         </div>
                     </ShowIf>

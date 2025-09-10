@@ -4,17 +4,29 @@ import {
     differenceInCalendarDays,
     differenceInCalendarMonths,
     differenceInCalendarWeeks,
+    differenceInDays,
     differenceInHours,
     differenceInMinutes,
+    differenceInMonths,
+    differenceInWeeks,
+    isSameDay,
+    isSameMonth,
+    isSameWeek,
 } from 'date-fns';
 import { getCurrentSystemDateTime, TimeUnit } from '../date/date.util';
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
+import { parseISOToLocalDate } from '../date/timezone';
 
-export type IAllowedTimeUnit = (typeof TimeUnit)['MINUTE' | 'HOUR' | 'WEEK' | 'MONTH' | 'DAY'];
+export type IAllowedTimeUnit = (typeof TimeUnit)['MINUTE' | 'HOUR' | 'WEEK' | 'MONTH' | 'DAY'] | 'longTimeAgo';
 
-interface ISubtractedDate {
+export interface ISubtractedDate {
     unit: IAllowedTimeUnit;
-    unitAgo: number;
+    unitAgo?: number;
+}
+
+export interface IFeedGroup {
+    feed: IClassFeed;
+    group: ISubtractedDate;
 }
 
 class FeedHelper {
@@ -33,54 +45,39 @@ class FeedHelper {
     public getSubtractedDate(createdDate: Date, currentDate: Date): ISubtractedDate {
         const minutesAgo = differenceInMinutes(currentDate, createdDate);
         const hoursAgo = differenceInHours(currentDate, createdDate);
-        const weeksAgo = differenceInCalendarWeeks(currentDate, createdDate);
-        const monthsAgo = differenceInCalendarMonths(currentDate, createdDate);
-        const daysAgo = differenceInCalendarDays(currentDate, createdDate);
+        const sameDay = isSameDay(currentDate, createdDate);
+        const sameWeek = isSameWeek(currentDate, createdDate);
+        const sameMonth = isSameMonth(currentDate, createdDate);
         if (minutesAgo < 60) {
             return { unit: TimeUnit.MINUTE, unitAgo: minutesAgo };
         }
-        if (hoursAgo < 24) {
-            return { unit: TimeUnit.HOUR, unitAgo: hoursAgo };
+        if (sameDay) {
+            return { unit: TimeUnit.DAY, unitAgo: hoursAgo };
         }
-        if (weeksAgo < 7) {
-            return { unit: TimeUnit.WEEK, unitAgo: weeksAgo };
+        if (sameWeek) {
+            return { unit: TimeUnit.WEEK };
         }
-        if (monthsAgo < 1) {
-            return { unit: TimeUnit.MONTH, unitAgo: monthsAgo };
+        if (sameMonth) {
+            return { unit: TimeUnit.MONTH };
         }
-        return { unit: TimeUnit.DAY, unitAgo: daysAgo };
+        return { unit: 'longTimeAgo' };
     }
 
     public getFeedGroups(feeds: IClassFeed[]) {
-        const map = new Map<IAllowedTimeUnit, IClassFeed[]>();
+        const map = new Map<IAllowedTimeUnit, IFeedGroup[]>();
         const currentDate = getCurrentSystemDateTime();
         for (const feed of feeds) {
-            const sub = this.getSubtractedDate(feed.createdAt, currentDate);
+            const sub = this.getSubtractedDate(parseISOToLocalDate(feed.createdAt)!, currentDate);
             const currentFeeds = map.get(sub.unit);
             if (!currentFeeds) {
-                map.set(sub.unit, [feed]);
+                map.set(sub.unit, [{ feed, group: sub }]);
             } else {
-                currentFeeds.push(feed);
+                currentFeeds.push({ feed, group: sub });
             }
         }
         return map;
     }
-
-    public getGroupLabel(unit: string) {
-        switch (unit) {
-            case TimeUnit.MINUTE:
-                return 'A few minutes ago';
-            case TimeUnit.HOUR:
-                return 'Within this day';
-            case TimeUnit.WEEK:
-                return 'Within this week';
-            case TimeUnit.MONTH:
-                return 'Within this month';
-            case TimeUnit.DAY:
-                return 'Earlier';
-        }
-    }
 }
 
 export default new FeedHelper();
-export const unitOrder = [TimeUnit.MINUTE, TimeUnit.HOUR, TimeUnit.WEEK, TimeUnit.MONTH, TimeUnit.DAY];
+export const unitOrder = [TimeUnit.MINUTE, TimeUnit.DAY, TimeUnit.HOUR, TimeUnit.WEEK, TimeUnit.MONTH, 'longTimeAgo'];
