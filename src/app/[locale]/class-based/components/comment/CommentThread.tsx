@@ -74,10 +74,11 @@ const CommentThread = ({
 
     // Infinite scroll pagination state
     const [page, setPage] = useState(1);
-    const PAGE_SIZE = 2; // page size constant
+    const PAGE_SIZE = 20; // page size constant
     const [hasMore, setHasMore] = useState(true);
     const [isAppending, setIsAppending] = useState(false);
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
+    const isLoadingRef = useRef(false); // prevents overlapping fetches
 
     const {
         execute: fetchComments,
@@ -480,8 +481,14 @@ const CommentThread = ({
     const handleQueryCommentForNode = useCallback(
         async (targetPage: number, { append = false }: { append?: boolean } = {}) => {
             if (!classId || !topicId || !nodeId) return;
+
             try {
-                if (append) setIsAppending(true);
+                if (append) {
+                    if (isLoadingRef.current) return;
+                    isLoadingRef.current = true;
+                    setIsAppending(true);
+                }
+
                 const response = await fetchComments({ nodeId, typeNode, page: targetPage, limit: PAGE_SIZE });
                 if (response && response.data) {
                     const fetched: Comment[] = response.data.map((c: IClassTopicComment) => handleFormatComment(c));
@@ -496,14 +503,18 @@ const CommentThread = ({
                         });
                         return merged;
                     });
-                    if (!append) setPage(1);
+                    setPage(append ? targetPage : 1);
                 } else {
                     setHasMore(false);
                 }
             } catch (e) {
+                toast({ description: 'Failed to load comments.' });
                 if (append) setHasMore(false);
             } finally {
-                if (append) setIsAppending(false);
+                if (append) {
+                    setIsAppending(false);
+                    isLoadingRef.current = false;
+                }
             }
         },
         [classId, topicId, nodeId, typeNode, fetchComments],
