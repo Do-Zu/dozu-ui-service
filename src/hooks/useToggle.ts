@@ -16,16 +16,11 @@ export default function useToggle<T extends boolean | string | number>(defaultVa
      */
     const toggleValue = (newValue?: T) => {
         setValue((currentValue) => {
-            if (typeof newValue === 'boolean') {
-                return newValue as T;
-            }
-            if (typeof currentValue == 'boolean') {
-                return !currentValue as T; // Negate for booleans
-            }
+            if (newValue && typeof newValue === 'boolean') return newValue as T;
 
-            if (typeof currentValue === 'string') {
-                return newValue as T;
-            }
+            if (typeof currentValue === 'boolean') return !currentValue as T;
+
+            if (newValue) return newValue as T;
 
             return currentValue;
         });
