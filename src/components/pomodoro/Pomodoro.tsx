@@ -308,44 +308,47 @@ export default function Pomodoro({
                         >
                             <Card className="rounded-xl border dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-100 backdrop-blur p-3 shadow-xl">
                                 <div className="flex items-center justify-between">
-                                    <div className="inline-flex items-center rounded-lg dark:bg-slate-800/60 p-0.5">
-                                        <button
-                                            onClick={() => mode !== 'stopwatch' && handleToggleMode()}
-                                            className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition ${
-                                                !isCountdown
-                                                    ? 'dark:bg-sky-500/20 text-sky-300'
-                                                    : 'text-slate-300 hover:text-white'
-                                            }`}
-                                            aria-label="Stopwatch mode"
+                                    {!isBreakTime && (
+                                        <div className="inline-flex items-center rounded-lg dark:bg-slate-800/60 p-0.5">
+                                            <button
+                                                onClick={() => mode !== 'stopwatch' && handleToggleMode()}
+                                                className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition ${
+                                                    !isCountdown
+                                                        ? 'dark:bg-sky-500/20 text-sky-300'
+                                                        : 'text-slate-300 hover:text-white'
+                                                }`}
+                                                aria-label="Stopwatch mode"
+                                            >
+                                                <Clock className="h-3.5 w-3.5" />
+                                            </button>
+                                            <button
+                                                onClick={() => isCountdown || handleToggleMode()}
+                                                className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition ${
+                                                    isCountdown
+                                                        ? 'bg-amber-500/20 text-amber-300'
+                                                        : 'dark:text-slate-300 dark:hover:text-white hover:bg-gray-600'
+                                                }`}
+                                                aria-label="Timer mode"
+                                            >
+                                                <Timer className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    {!isBreakTime && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={handleProcessRunTimer}
+                                            className="h-8 w-8 rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70"
+                                            aria-label={isActive && !isPause ? 'Pause' : 'Start'}
                                         >
-                                            <Clock className="h-3.5 w-3.5" />
-                                        </button>
-                                        <button
-                                            onClick={() => isCountdown || handleToggleMode()}
-                                            className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition ${
-                                                isCountdown
-                                                    ? 'bg-amber-500/20 text-amber-300'
-                                                    : 'dark:text-slate-300 dark:hover:text-white hover:bg-gray-600'
-                                            }`}
-                                            aria-label="Timer mode"
-                                        >
-                                            <Timer className="h-3.5 w-3.5" />
-                                        </button>
-                                    </div>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={handleProcessRunTimer}
-                                        className="h-8 w-8 rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70"
-                                        aria-label={isActive && !isPause ? 'Pause' : 'Start'}
-                                    >
-                                        {isActive && !isPause ? (
-                                            <Pause className="h-4 w-4 text-slate-100" />
-                                        ) : (
-                                            <Play className="h-4 w-4 text-slate-100" />
-                                        )}
-                                    </Button>
+                                            {isActive && !isPause ? (
+                                                <Pause className="h-4 w-4 text-slate-100" />
+                                            ) : (
+                                                <Play className="h-4 w-4 text-slate-100" />
+                                            )}
+                                        </Button>
+                                    )}
                                 </div>
 
                                 {renderTimer()}
