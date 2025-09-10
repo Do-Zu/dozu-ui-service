@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useInterval } from '@/hooks/useInterval';
 import { Button } from '../ui/button';
 import useToggle from '@/hooks/useToggle';
-import { Clock, Timer, Play, Pause, RotateCcw } from 'lucide-react';
+import { Clock, Timer, Play, Pause, RotateCcw, LucideSkipForward } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
@@ -99,17 +99,23 @@ export default function Pomodoro({
         setCountTimer(mode === 'countdown' ? times * 60 : 0);
     };
 
+    const handleSkipBreakTime = () => {
+        setIsBreakTime(false);
+        reset();
+    };
+
     const handleToggleMode = () => {
         toggleMode(mode === 'countdown' ? 'stopwatch' : 'countdown');
         setIsActive(false);
         setIsPause(false);
-        setCountTimer((prev) => (mode === 'countdown' ? 0 : times * 60));
+        setCountTimer(() => (mode === 'countdown' ? 0 : times * 60));
     };
 
     const handleProcessRunTimer = () => {
         if (!isActive) {
             setIsActive(true);
             setIsPause(false);
+            setIsOpen(false);
         } else if (isPause) {
             setIsPause(false);
             setIsOpen(false);
@@ -119,10 +125,21 @@ export default function Pomodoro({
     };
 
     const handleCompleteSession = () => {
-        toast({
-            description: 'Break Time',
-        });
-        setIsActive(false);
+        // Break time mode
+        if (isBreakTime) {
+            setIsActive(false);
+            setIsBreakTime(false);
+            reset();
+        } else {
+            // Session pomodoro
+            toast({
+                description: 'Break Time',
+            });
+            setIsBreakTime(true);
+            setCountTimer(breakTime * 60);
+            setIsActive(true);
+            setIsOpen(true);
+        }
     };
 
     useInterval(() => {
@@ -212,6 +229,66 @@ export default function Pomodoro({
         );
     };
 
+    const renderTimer = () => {
+        if (!isBreakTime)
+            return (
+                <>
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+                        <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
+                            <div className="text-2xl font-semibold tracking-tight">{pad2(hours)}</div>
+                            <div className="text-[10px] uppercase text-slate-400">hr</div>
+                        </div>
+                        <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
+                            <div className="text-2xl font-semibold tracking-tight">{pad2(minutes)}</div>
+                            <div className="text-[10px] uppercase text-slate-400">min</div>
+                        </div>
+                    </div>
+
+                    <div className="mt-1 text-center font-semibold text-sm text-[10px] text-slate-400">
+                        {pad2(seconds)} sec
+                    </div>
+                </>
+            );
+
+        return (
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+                <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
+                    <div className="text-2xl font-semibold tracking-tight">{pad2(minutes)}</div>
+                    <div className="text-[10px] uppercase text-slate-400">min</div>
+                </div>
+                <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
+                    <div className="text-2xl font-semibold tracking-tight">{pad2(seconds)}</div>
+                    <div className="text-[10px] uppercase text-slate-400">sec</div>
+                </div>
+            </div>
+        );
+    };
+
+    const renderButton = () => {
+        if (!isBreakTime)
+            return (
+                <button
+                    onClick={reset}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-transparent py-1.5 text-xs dark:text-slate-300 dark:hover:text-slate-100"
+                    aria-label="Reset"
+                >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    {isCountdown ? 'Reset Timer' : 'Reset Stopwatch'}
+                </button>
+            );
+
+        return (
+            <button
+                onClick={handleSkipBreakTime}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-transparent py-1.5 text-xs dark:text-slate-300 dark:hover:text-slate-100"
+                aria-label="Skip"
+            >
+                <LucideSkipForward className="h-3.5 w-3.5" />
+                Skip
+            </button>
+        );
+    };
+
     return (
         <motion.div
             className={cn(`max-w-[140px] transform absolute z-[99999] ${className} ${positionClass(position)}`)}
@@ -271,29 +348,9 @@ export default function Pomodoro({
                                     </Button>
                                 </div>
 
-                                <div className="mt-3 grid grid-cols-2 gap-2 text-center">
-                                    <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
-                                        <div className="text-2xl font-semibold tracking-tight">{pad2(hours)}</div>
-                                        <div className="text-[10px] uppercase text-slate-400">hr</div>
-                                    </div>
-                                    <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
-                                        <div className="text-2xl font-semibold tracking-tight">{pad2(minutes)}</div>
-                                        <div className="text-[10px] uppercase text-slate-400">min</div>
-                                    </div>
-                                </div>
+                                {renderTimer()}
 
-                                <div className="mt-1 text-center font-semibold text-sm text-[10px] text-slate-400">
-                                    {pad2(seconds)} sec
-                                </div>
-
-                                <button
-                                    onClick={reset}
-                                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-transparent py-1.5 text-xs dark:text-slate-300 dark:hover:text-slate-100"
-                                    aria-label="Reset"
-                                >
-                                    <RotateCcw className="h-3.5 w-3.5" />
-                                    {isCountdown ? 'Reset Timer' : 'Reset Stopwatch'}
-                                </button>
+                                {renderButton()}
                             </Card>
                         </motion.div>
                     )}
