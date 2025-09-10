@@ -291,7 +291,7 @@ export default function Pomodoro({
 
     return (
         <motion.div
-            className={cn(`max-w-[140px] transform absolute z-[99999] ${className} ${positionClass(position)}`)}
+            className={cn(`max-w-[140px] transform absolute z-[99999] ${positionClass(position)}`, className)}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
         >
