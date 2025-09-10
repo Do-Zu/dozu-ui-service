@@ -432,7 +432,7 @@ export default function Page() {
                         isSidebarOpen ? 'w-[75%]' : 'w-full',
                     )}
                 >
-                    <Pomodoro position="top-center" />
+                    <Pomodoro position="top-right" positionX={-200} />
 
                     <div className="absolute top-8 right-8 z-20">
                         <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
