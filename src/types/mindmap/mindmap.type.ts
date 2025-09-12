@@ -17,6 +17,7 @@ export type CustomNodeData = {
     forceToolbarVisible?: boolean;
     pageStartIndex?: number;
     pageEndIndex?: number;
+    statistics?: NodeStat;
 };
 
 export type AppNode = Node<CustomNodeData>;
@@ -33,3 +34,9 @@ export interface CustomNode {
     };
     type: string;
 }
+
+export type NodeStat = {
+    nodeId: string;
+    total: number;
+    mature: number;
+};

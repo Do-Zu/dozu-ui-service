@@ -7,7 +7,7 @@ import { BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CustomNodeData } from '../mindmap.type';
+import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
 import { EnumNodeComment } from '../../class-based/types/class.type';
 import CommentThread from '../../class-based/components/comment/CommentThread';

@@ -13,8 +13,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { compressContent } from '../../generate/helper/compress';
 import { useMindMapContext } from '../context/MindMapContext';
-import { AppEdge, AppNode } from '../mindmap.type';
-import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
+import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
+import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
 
 const NodeSheet = () => {
     const router = useRouter();

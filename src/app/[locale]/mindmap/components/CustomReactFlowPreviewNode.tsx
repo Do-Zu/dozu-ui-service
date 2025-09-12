@@ -1,6 +1,6 @@
 import { Handle, Node, Position, useEdges, useReactFlow } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
-import { CustomNodeData } from '../mindmap.type';
+import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 
 const CustomReactFlowPreviewNode = ({ data }: { data: CustomNodeData }) => {
     const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
@@ -33,7 +33,6 @@ const CustomReactFlowPreviewNode = ({ data }: { data: CustomNodeData }) => {
     const handleAddChild = () => {
         addNode();
     };
-
 
     return (
         <div
