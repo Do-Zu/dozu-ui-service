@@ -19,6 +19,7 @@ import { ICreateClassFeedBody, ICreateClassFeedPayload } from '@/services/class-
 import { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
 import feedHelper from '@/utils/feeds/feed.helper';
 import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
@@ -53,6 +54,7 @@ export const useContentGeneration = ({
     const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
     const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
 
+    const tClassFeed = useTranslations('class.classFeed');
     const classId = classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased ? classProps.classId : null;
     const useFeedsHook = classId
         ? useFeeds({
@@ -202,8 +204,11 @@ export const useContentGeneration = ({
                     const contentTypeDisplayName = getContentTypeDisplayName(contentType);
                     const link = feedHelper.getLink(result.topicId, contentType);
                     const defaultFeed: IDefaultFeed = {
-                        title: `${contentTypeDisplayName} is now available`,
-                        content: `${contentTypeDisplayName} has been generated and is now available in topic '${result?.topicName}'`,
+                        title: tClassFeed('title', { contentType: contentTypeDisplayName }),
+                        content: tClassFeed('content', {
+                            contentType: contentTypeDisplayName,
+                            topicName: result?.topicName || '',
+                        }),
                         link,
                     };
                     setDefaultFeed(defaultFeed);

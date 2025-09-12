@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -35,6 +35,7 @@ interface Comment {
     replies?: Comment[];
     parentId?: string;
     depth?: number;
+    page: number;
 }
 
 interface CommentThreadProps {
@@ -70,6 +71,14 @@ const CommentThread = ({
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [isAddCommentDialogOpen, setIsAddCommentDialogOpen] = useState(false);
     const [isCommentsDialogOpen, setIsCommentsDialogOpen] = useState(false);
+
+    // Infinite scroll pagination state
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 20; // page size constant
+    const [hasMore, setHasMore] = useState(true);
+    const [isAppending, setIsAppending] = useState(false);
+    const loadMoreRef = useRef<HTMLDivElement | null>(null);
+    const isLoadingRef = useRef(false); // prevents overlapping fetches
 
     const {
         execute: fetchComments,
@@ -288,6 +297,21 @@ const CommentThread = ({
         );
     };
 
+    // Fetch replies for a parent comment (moved above renderComment for scope)
+    const handleFetchReplyComment = async (parentCmtId: string | number) => {
+        try {
+            const response = await fetchReplyComments({ parentCmtId, nodeId, typeNode, page: 1, limit: 20 });
+            if (response && response.data) {
+                const formatted: Comment[] = response.data.map((c: IClassTopicComment) => handleFormatComment(c));
+                setComments((prev) => addReplyToComment(prev, parentCmtId.toString(), formatted, true));
+            }
+        } catch (e) {
+            toast({
+                description: 'Failed to load replies',
+            });
+        }
+    };
+
     // Recursive function to render comments and their nested replies
     const renderComment = (comment: Comment, index: number) => {
         const parentContent = comment.parentId ? findCommentContent(comments, comment.parentId) : undefined;
@@ -358,7 +382,22 @@ const CommentThread = ({
                         </Button>
                     </div>
                 ) : (
-                    <div className="space-y-6">{comments.map((comment, index) => renderComment(comment, index))}</div>
+                    <div className="space-y-6">
+                        {comments.map((comment, index) => renderComment(comment, index))}
+
+                        {/* Sentinel div for infinite scroll */}
+                        {hasMore && (
+                            <div
+                                ref={loadMoreRef}
+                                className="h-10 flex items-center justify-center text-xs text-muted-foreground"
+                            >
+                                {isAppending && <CommentThreadSkeleton amount={1} />}
+                            </div>
+                        )}
+                        {!hasMore && comments.length > 0 && (
+                            <p className="text-center text-xs text-muted-foreground py-2">No more comments</p>
+                        )}
+                    </div>
                 )}
             </div>
         );
@@ -425,7 +464,7 @@ const CommentThread = ({
             id: comment.commentId.toString(),
             userId: comment.author.user_id.toString(),
             userName: comment.author.name,
-            userRole: 'Student', // TODO: You might want to map this from the API
+            userRole: 'Student',
             userAvatar: comment.author.avatar,
             content: comment.content,
             timestamp: comment.createdAt,
@@ -435,49 +474,78 @@ const CommentThread = ({
             parentId: comment.parentCmtId?.toString(),
             replyCount: comment.replyCount,
             replies: [],
+            page: 1,
         };
     };
 
-    const handleQueryCommentForNode = async () => {
-        if (!classId || !topicId || !nodeId) {
-            console.error('Missing required parameters for fetching comments');
-            return;
-        }
+    const handleQueryCommentForNode = useCallback(
+        async (targetPage: number, { append = false }: { append?: boolean } = {}) => {
+            if (!classId || !topicId || !nodeId) return;
 
-        try {
-            const response = await fetchComments({
-                nodeId,
-                typeNode,
-                page: 1,
-                limit: 20,
-            });
+            try {
+                if (append) {
+                    if (isLoadingRef.current) return;
+                    isLoadingRef.current = true;
+                    setIsAppending(true);
+                }
 
-            if (response && response.data) {
-                // Convert API response to local Comment format
-                const formattedComments: Comment[] = response.data?.map((comment) => handleFormatComment(comment));
-                setComments(formattedComments);
+                const response = await fetchComments({ nodeId, typeNode, page: targetPage, limit: PAGE_SIZE });
+                if (response && response.data) {
+                    const fetched: Comment[] = response.data.map((c: IClassTopicComment) => handleFormatComment(c));
+                    if (fetched.length < PAGE_SIZE) setHasMore(false);
+
+                    setComments((prev) => {
+                        if (!append) return fetched; // reset mode
+                        const existing = new Set(prev.map((c) => c.id));
+                        const merged = [...prev];
+                        fetched.forEach((c) => {
+                            if (!existing.has(c.id)) merged.push(c);
+                        });
+                        return merged;
+                    });
+                    setPage(append ? targetPage : 1);
+                } else {
+                    setHasMore(false);
+                }
+            } catch (e) {
+                toast({ description: 'Failed to load comments.' });
+                if (append) setHasMore(false);
+            } finally {
+                if (append) {
+                    setIsAppending(false);
+                    isLoadingRef.current = false;
+                }
             }
-        } catch (error) {
-            console.error('Failed to fetch comments:', error);
-        }
-    };
+        },
+        [classId, topicId, nodeId, typeNode, fetchComments],
+    );
 
-    const handleFetchReplyComment = async (parentCmtId: string | number) => {
-        const response = await fetchReplyComments({ parentCmtId, nodeId, typeNode, page: 1, limit: 20 });
+    const loadMoreComments = useCallback(() => {
+        if (isAppending || !hasMore) return;
+        handleQueryCommentForNode(page + 1, { append: true });
+    }, [page, isAppending, hasMore, handleQueryCommentForNode]);
 
-        if (response && response.data) {
-            const formattedComments: Comment[] = response.data?.map((comment) => handleFormatComment(comment));
-            setComments((prevComments) =>
-                addReplyToComment(prevComments, parentCmtId.toString(), formattedComments, true),
-            );
-        }
-    };
+    useEffect(() => {
+        if (!loadMoreRef.current || !hasMore) return;
+        const sentinel = loadMoreRef.current;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    loadMoreComments();
+                }
+            },
+            { root: null, rootMargin: '200px', threshold: 0 },
+        );
+        observer.observe(sentinel);
+        return () => observer.unobserve(sentinel);
+    }, [hasMore, loadMoreComments]);
 
     useEffect(() => {
         if (!nodeId) return;
-
         if (isCommentsDialogOpen || !showTrigger) {
-            handleQueryCommentForNode();
+            setPage(1);
+            setHasMore(true);
+            handleQueryCommentForNode(1, { append: false });
         }
     }, [nodeId, isCommentsDialogOpen, showTrigger]);
 

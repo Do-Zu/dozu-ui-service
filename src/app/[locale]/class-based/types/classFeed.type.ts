@@ -8,8 +8,8 @@ export interface IClassFeed {
     title: string;
     content: string;
     link?: string | null;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: string;
+    updatedAt: string;
 
     sender?: {
         avatarUrl: string;
