@@ -12,6 +12,7 @@ import { IFlashcardStatusCounts, IFlashcardWithReviewPrediction } from '../[topi
 import { useLearningOptions } from '../hooks/useLearningOptions';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import flashcardHelper from '@/utils/flashcard/flashcard.helper';
+import Pomodoro from '@/components/pomodoro/Pomodoro';
 
 // type TrackingOption = {
 //     icon: any;
@@ -91,6 +92,7 @@ export function FlashcardLearning({
     return (
         <div className="flex bg-gray-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
+                <Pomodoro position="top-center" positionX={-10} positionY={-70} />
                 <div className="relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg">
                     <Flashcard
                         style={`flex w-[55%] mt-2 ${shouldShowTrackingOptions ? 'h-[70%]' : 'h-[80%]'}`}

@@ -15,6 +15,7 @@ import { ROUTES } from '@/utils/constants/routes';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import { cn } from '@/lib/utils';
+import Pomodoro from '@/components/pomodoro/Pomodoro';
 
 const initialAutoPlaySpeed = 3;
 
@@ -368,6 +369,8 @@ export default function Page() {
                         isSidebarOpen ? 'w-[75%]' : 'w-full',
                     )}
                 >
+                    <Pomodoro position="top-right" positionX={-200} />
+
                     <div className="absolute top-8 right-8 z-20">
                         <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
                             <PanelLeft size={18} />
