@@ -1,5 +1,5 @@
 export type IItemType = 'flashcard' | 'question';
-export type IItemStatus = 'new' | 'learning' | 'review';
+export type IItemStatus = 'new' | 'learning' | 'review' | 'relearning';
 export type IFlashcardStatus = IItemStatus;
 
 export interface IItemSpacedRepetition {

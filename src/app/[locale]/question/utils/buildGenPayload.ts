@@ -1,6 +1,7 @@
 import { IFlashcardWithServer } from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import type { IFlashcardWithReviewPrediction } from '@/app/[locale]/flashcards/learning/[topicId]/page';
+import { IDueAnkiCard } from '../../flashcards/types/flashcard.type';
 
 export const buildContentFromFlashcardsForQuiz = (
   topicId: string | number,
@@ -38,7 +39,7 @@ export const buildContentFromQuestionsForFlashcards = (
   });
 };
 
-export const buildPayloadFromLearnedFlashcards = (topicId: string | number, cards: IFlashcardWithReviewPrediction[]) => {
+export const buildPayloadFromLearnedFlashcards = (topicId: string | number, cards: IDueAnkiCard[]) => {
   const items = cards
     .map(c => ({ q: (c.front ?? '').trim(), a: (c.back ?? '').trim() }))
     .filter(x => x.q && x.a);
