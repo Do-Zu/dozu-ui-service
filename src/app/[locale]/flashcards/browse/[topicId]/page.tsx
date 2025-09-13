@@ -357,54 +357,6 @@ export default function Page() {
         );
     }
 
-    function renderLearningSection() {
-        return (
-            <div className="flex flex-col gap-2">
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickLearning}>
-                                <BookOpen className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-muted-foreground">{t('learning')}</span>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            <p>Learn Flashcards</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickGame}>
-                                <Gamepad2 className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-muted-foreground">Brain Chase</span>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            <p>Play Brain Chase Game</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 justify-start" onClick={handleOnClickMemoryMatch}>
-                                <Brain className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-muted-foreground">Memory</span>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            <p>Play Memory Match Game</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-        );
-    }
-
     return (
         <div className="flex bg-gray-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
@@ -422,7 +374,7 @@ export default function Page() {
                         </Button>
                     </div>
                     <Flashcard
-                        style="relative flex w-[55%] h-[80%] mt-4 "
+                        style="relative flex w-[55%] h-[80%] mt-4"
                         cardContainerRef={flashcardContainerRef}
                         cardRef={cardRef}
                         handleManualFlip={handleManualFlip}

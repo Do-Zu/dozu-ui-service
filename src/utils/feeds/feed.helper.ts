@@ -1,14 +1,8 @@
 import { ContentType } from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { ROUTES } from '../constants/routes';
 import {
-    differenceInCalendarDays,
-    differenceInCalendarMonths,
-    differenceInCalendarWeeks,
-    differenceInDays,
     differenceInHours,
     differenceInMinutes,
-    differenceInMonths,
-    differenceInWeeks,
     isSameDay,
     isSameMonth,
     isSameWeek,
@@ -17,7 +11,7 @@ import { getCurrentSystemDateTime, TimeUnit } from '../date/date.util';
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import { parseISOToLocalDate } from '../date/timezone';
 
-export type IAllowedTimeUnit = (typeof TimeUnit)['MINUTE' | 'HOUR' | 'WEEK' | 'MONTH' | 'DAY'] | 'longTimeAgo';
+export type IAllowedTimeUnit = TimeUnit | 'longTimeAgo';
 
 export interface ISubtractedDate {
     unit: IAllowedTimeUnit;
