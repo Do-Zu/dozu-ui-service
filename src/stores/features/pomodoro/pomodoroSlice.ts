@@ -14,7 +14,7 @@ const pomodoroSlice = createSlice({
     name: 'pomodoro',
     initialState,
     reducers: {
-        setDisplayPomodoro: (state, action: PayloadAction<boolean | null | undefined>) => {
+        setDisplayPomodoro: (state, action: PayloadAction<boolean>) => {
             state.isDisplay = !!action.payload;
         },
     },

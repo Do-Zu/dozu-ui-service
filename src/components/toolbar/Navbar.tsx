@@ -1,14 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { RootState } from '@/stores/store';
 import { useSelector } from 'react-redux';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { useRouter } from 'next/navigation';
-import { Suspense } from 'react';
+import { Fragment, Suspense } from 'react';
 import { ShowIf } from '../ui/ShowIf';
 import { LearningModeSelect } from './LearningModeSelect';
-import { RootState } from '@/stores/store';
 import Pomodoro from '../pomodoro/Pomodoro';
 
 function TokenHandler() {
@@ -63,7 +63,7 @@ export default function Navbar() {
     // }, []);
 
     return (
-        <>
+        <Fragment>
             <div className="mx-auto flex px-4 py-2 justify-between items-center h-full border-b border-transparent bg-gradient-to-r from-background/70 via-background/40 to-background/70 dark:from-slate-950/60 dark:via-slate-900/40 dark:to-slate-950/60 backdrop-blur-md supports-[backdrop-filter]:bg-background/40">
                 <div className="flex items-center gap-3">
                     <Link
@@ -82,6 +82,6 @@ export default function Navbar() {
             <Suspense fallback={null}>
                 <TokenHandler />
             </Suspense>
-        </>
+        </Fragment>
     );
 }
