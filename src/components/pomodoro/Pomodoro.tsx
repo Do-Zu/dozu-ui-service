@@ -181,6 +181,9 @@ export default function Pomodoro({
         [defaultMode, times],
     );
 
+    const refSoundPanel = useClickOutSide<HTMLDivElement>(() => setShowSoundPanel(false));
+    const refSettingsPanel = useClickOutSide<HTMLDivElement>(() => setShowSettingsPanel(false));
+
     const [countTimer, setCountTimer] = useState<number>(initialSeconds);
 
     const minuteEditRef = useRef<HTMLDivElement>(null);
@@ -630,6 +633,7 @@ export default function Pomodoro({
         if (!showSoundPanel) return null;
         return (
             <motion.div
+                ref={refSoundPanel}
                 initial={{ opacity: 0, y: 6, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
@@ -711,6 +715,7 @@ export default function Pomodoro({
         if (!showSettingsPanel) return null;
         return (
             <motion.div
+                ref={refSettingsPanel}
                 initial={{ opacity: 0, y: 6, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
