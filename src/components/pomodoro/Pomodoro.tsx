@@ -359,13 +359,34 @@ export default function Pomodoro({
         setHasWarnedFiveSec(false);
     };
 
-    //        ---------- Audio logic ---------- ////
+    const handleCleanUpAudio = () => {
+        if (ambientAudioRef.current) {
+            try {
+                ambientAudioRef.current.pause();
+                ambientAudioRef.current.src = '';
+                ambientAudioRef.current.load();
+            } catch (error) {}
+        }
+        if (bellAudioRef.current) {
+            try {
+                bellAudioRef.current.pause();
+                bellAudioRef.current.src = '';
+                bellAudioRef.current.load();
+            } catch {}
+        }
+    };
+    //        ---------- Audio logic ---------- //
+
     // Initialize defaults merge & bell audio
     useEffect(() => {
         bellAudioRef.current = new Audio(
             'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/School%20Bell%20Sound%20Effect%20No%20Copyright%20-%20YouTube.mp3',
         );
         bellAudioRef.current.preload = 'auto';
+
+        return () => {
+            handleCleanUpAudio();
+        };
     }, []);
 
     // keep volumes in sync
