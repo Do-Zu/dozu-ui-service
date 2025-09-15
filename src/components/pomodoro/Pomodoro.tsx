@@ -537,12 +537,17 @@ export default function Pomodoro({
     const handleUploadSound = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || !files.length) return;
+
         const file = files[0];
-        const id = `${file.name}-${file.size}-${Date.now()}`;
+        const id = `${file.name}-${file.size}`; // stable id for dedup
         // Prevent duplicates by name+size
-        if (ambientSounds.some((s) => s.id.startsWith(file.name) && !s.builtin)) {
+
+        if (ambientSoundsLS?.some((s) => s.id === id && !s.builtin)) {
             toast({ description: tPomodoro('ambient.soundAdded') });
+            e.target.value = '';
+            return;
         }
+
         const sizeMB = file.size / (1024 * 1024);
         if (sizeMB > MAX_CUSTOM_SOUND_SIZE_MB) {
             toast({ description: tPomodoro('ambient.tooLarge', { max: MAX_CUSTOM_SOUND_SIZE_MB }) });
@@ -561,6 +566,7 @@ export default function Pomodoro({
         }
         if (!src) {
             try {
+                // For small files only; larger go to IDB above
                 src = await fileToDataUrl(file);
             } catch {
                 try {
