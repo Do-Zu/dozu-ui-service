@@ -225,11 +225,12 @@ export default function Pomodoro({
         toggleMode(mode === 'countdown' ? 'stopwatch' : 'countdown');
         setIsActive(false);
         setIsPause(false);
-        setCountTimer(() => (mode === 'countdown' ? 0 : countTimer));
+        const defaultUserSettingCountDown = (timerDefaultCount ?? times) * 60;
+        setCountTimer(() => (mode === 'countdown' ? 0 : defaultUserSettingCountDown));
     };
 
     const validateTimer = () => {
-        if (countTimer <= 0) {
+        if (mode == 'countdown' && countTimer <= 0) {
             toast({ description: tPomodoro('timer.setTimeToast') });
             return false;
         }
