@@ -4,7 +4,22 @@ import { InputHTMLAttributes, useEffect, useMemo, useRef, useState } from 'react
 import { useInterval } from '@/hooks/useInterval';
 import { Button } from '../ui/button';
 import useToggle from '@/hooks/useToggle';
-import { Clock, Timer, Play, Pause, RotateCcw, LucideSkipForward } from 'lucide-react';
+import {
+    Clock,
+    Timer,
+    Play,
+    Pause,
+    RotateCcw,
+    LucideSkipForward,
+    Music2,
+    Settings2,
+    Volume2,
+    VolumeX,
+    Trash2,
+    Upload,
+    CirclePause,
+    CirclePlay,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -90,6 +105,32 @@ export default function Pomodoro({
     const [isPause, setIsPause] = useState<boolean>(false);
     const [isBreakTime, setIsBreakTime] = useState<boolean>(false);
 
+    // Sound / audio related state
+    type AmbientSound = { id: string; name: string; src: string; builtin: boolean };
+    const LS_SOUNDS_KEY = 'POMODORO_AMBIENT_SOUNDS';
+    const LS_SELECTED_SOUND_KEY = 'POMODORO_SELECTED_AMBIENT';
+    const LS_VOLUME_KEY = 'POMODORO_VOLUME';
+    const LS_PLAY_BREAK_KEY = 'POMODORO_PLAY_DURING_BREAK';
+
+    const defaultAmbient: AmbientSound[] = [
+        { id: 'rain', name: 'Raining', src: '/sounds/raining.mp3', builtin: true },
+        { id: 'white-noise', name: 'White Noise', src: '/sounds/white-noise.mp3', builtin: true },
+        { id: 'lofi', name: 'Lofi', src: '/sounds/lofi.mp3', builtin: true },
+    ];
+
+    const [ambientSounds, setAmbientSounds] = useState<AmbientSound[]>(defaultAmbient);
+    const [selectedAmbientId, setSelectedAmbientId] = useState<string | null>(null);
+    const [volume, setVolume] = useState<number>(0.4);
+    const [playDuringBreak, setPlayDuringBreak] = useState<boolean>(true);
+    const [isAmbientPlaying, setIsAmbientPlaying] = useState<boolean>(false);
+    const [showSoundPanel, setShowSoundPanel] = useState<boolean>(false);
+    const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
+    const [hasWarnedFiveSec, setHasWarnedFiveSec] = useState<boolean>(false);
+
+    const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
+    const bellAudioRef = useRef<HTMLAudioElement | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
     const initialSeconds = useMemo(() => (defaultMode === 'countdown' ? times * 60 : 0), [defaultMode, times]);
     const [countTimer, setCountTimer] = useState<number>(initialSeconds);
 
@@ -168,6 +209,7 @@ export default function Pomodoro({
             setCountTimer(breakTime * 60);
             setIsActive(true);
             setIsOpen(true);
+            setHasWarnedFiveSec(false);
         }
     };
 
@@ -175,6 +217,7 @@ export default function Pomodoro({
         setCountTimer(defaultMode === 'countdown' ? times * 60 : 0);
         setIsActive(false);
         setIsPause(false);
+        setHasWarnedFiveSec(false);
     }, [defaultMode, times]);
 
     useInterval(() => {
@@ -278,7 +321,316 @@ export default function Pomodoro({
         const seconds = type === 'minute' ? time * 60 : time * 60 * 60;
 
         setCountTimer(seconds);
+        setHasWarnedFiveSec(false);
     };
+
+    // ---------- Audio logic ----------
+    // Load from localStorage on mount
+    useEffect(() => {
+        try {
+            const storedSounds = JSON.parse(localStorage.getItem(LS_SOUNDS_KEY) || '[]');
+            if (Array.isArray(storedSounds)) {
+                // merge defaults (avoid duplicates by id)
+                const merged = [...defaultAmbient];
+                storedSounds.forEach((s: AmbientSound) => {
+                    if (!merged.find((m) => m.id === s.id)) merged.push(s);
+                });
+                setAmbientSounds(merged);
+            }
+            const storedSelected = localStorage.getItem(LS_SELECTED_SOUND_KEY);
+            if (storedSelected) setSelectedAmbientId(storedSelected);
+            const storedVolume = localStorage.getItem(LS_VOLUME_KEY);
+            if (storedVolume) setVolume(Math.min(1, Math.max(0, parseFloat(storedVolume))));
+            const storedPlayBreak = localStorage.getItem(LS_PLAY_BREAK_KEY);
+            if (storedPlayBreak) setPlayDuringBreak(storedPlayBreak === 'true');
+        } catch (err) {
+            // ignore parse errors
+        }
+        // Prepare bell sound
+        bellAudioRef.current = new Audio('/sounds/bell.mp3');
+        bellAudioRef.current.preload = 'auto';
+    }, []);
+
+    // Persist selections
+    useEffect(() => {
+        localStorage.setItem(LS_SELECTED_SOUND_KEY, selectedAmbientId || '');
+    }, [selectedAmbientId]);
+    useEffect(() => {
+        localStorage.setItem(LS_VOLUME_KEY, String(volume));
+        if (ambientAudioRef.current) ambientAudioRef.current.volume = volume;
+        if (bellAudioRef.current) bellAudioRef.current.volume = Math.min(1, volume + 0.15); // bell a little louder
+    }, [volume]);
+    useEffect(() => {
+        localStorage.setItem(LS_PLAY_BREAK_KEY, String(playDuringBreak));
+    }, [playDuringBreak]);
+
+    // Initialize / switch ambient audio
+    useEffect(() => {
+        if (!selectedAmbientId) {
+            if (ambientAudioRef.current) {
+                ambientAudioRef.current.pause();
+            }
+            return;
+        }
+        const selected = ambientSounds.find((s) => s.id === selectedAmbientId);
+        if (!selected) return;
+        if (!ambientAudioRef.current) {
+            ambientAudioRef.current = new Audio(selected.src);
+        } else {
+            ambientAudioRef.current.src = selected.src;
+        }
+        ambientAudioRef.current.loop = true;
+        ambientAudioRef.current.volume = volume;
+        if (isActive && !isPause && (!isBreakTime || playDuringBreak)) {
+            ambientAudioRef.current
+                .play()
+                .then(() => setIsAmbientPlaying(true))
+                .catch(() => setIsAmbientPlaying(false));
+        }
+    }, [selectedAmbientId]);
+
+    // Play / pause ambient when state changes
+    useEffect(() => {
+        const audio = ambientAudioRef.current;
+        if (!audio) return;
+        if (isActive && !isPause && selectedAmbientId && (!isBreakTime || playDuringBreak)) {
+            audio
+                .play()
+                .then(() => setIsAmbientPlaying(true))
+                .catch(() => setIsAmbientPlaying(false));
+        } else {
+            audio.pause();
+            setIsAmbientPlaying(false);
+        }
+    }, [isActive, isPause, isBreakTime, playDuringBreak]);
+
+    // Five-second warning bell
+    useEffect(() => {
+        if (!isActive || isPause) return;
+        if (!isBreakTime && mode === 'countdown') {
+            if (countTimer === 5 && !hasWarnedFiveSec) {
+                if (bellAudioRef.current) {
+                    bellAudioRef.current.currentTime = 0;
+                    bellAudioRef.current.play().catch(() => {});
+                }
+                setHasWarnedFiveSec(true);
+            } else if (countTimer > 5 && hasWarnedFiveSec) {
+                // reset flag if user extends / edits time
+                setHasWarnedFiveSec(false);
+            }
+        }
+    }, [countTimer, isActive, isPause, mode, isBreakTime, hasWarnedFiveSec]);
+
+    // Upload custom sound
+    const handleUploadSound = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || !files.length) return;
+        const file = files[0];
+        const id = `${file.name}-${file.size}-${Date.now()}`;
+        // Prevent duplicates by name+size
+        if (ambientSounds.some((s) => s.id.startsWith(file.name) && !s.builtin)) {
+            toast({ description: 'Sound already added' });
+        }
+        const url = URL.createObjectURL(file);
+        const newSound: AmbientSound = { id, name: file.name.replace(/\.[^.]+$/, ''), src: url, builtin: false };
+        const updated = [...ambientSounds, newSound];
+        setAmbientSounds(updated);
+        try {
+            const custom = updated.filter((s) => !s.builtin);
+            localStorage.setItem(LS_SOUNDS_KEY, JSON.stringify(custom));
+        } catch {}
+        setSelectedAmbientId(id);
+        setShowSoundPanel(true);
+        e.target.value = '';
+    };
+
+    const handleRemoveCustomSound = (id: string) => {
+        setAmbientSounds((prev) => {
+            const target = prev.find((s) => s.id === id);
+            if (target && !target.builtin && target.src.startsWith('blob:')) {
+                URL.revokeObjectURL(target.src);
+            }
+            const next = prev.filter((s) => s.id !== id);
+            try {
+                const custom = next.filter((s) => !s.builtin);
+                localStorage.setItem(LS_SOUNDS_KEY, JSON.stringify(custom));
+            } catch {}
+            if (selectedAmbientId === id) setSelectedAmbientId(null);
+            return next;
+        });
+    };
+
+    const toggleAmbientPlay = () => {
+        if (!selectedAmbientId) return;
+        const audio = ambientAudioRef.current;
+        if (!audio) return;
+        if (isAmbientPlaying) {
+            audio.pause();
+            setIsAmbientPlaying(false);
+        } else {
+            audio
+                .play()
+                .then(() => setIsAmbientPlaying(true))
+                .catch(() => setIsAmbientPlaying(false));
+        }
+    };
+
+    const handleSelectAmbient = (id: string) => {
+        if (id === selectedAmbientId) {
+            toggleAmbientPlay();
+            return;
+        }
+        setSelectedAmbientId(id);
+    };
+
+    const renderSoundPanel = () => {
+        if (!showSoundPanel) return null;
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                transition={{ duration: 0.18 }}
+                className="absolute top-12 left-0 w-60 z-[100]"
+            >
+                <Card className="p-2 rounded-lg border dark:border-white/10 dark:bg-slate-900/95 backdrop-blur">
+                    <div className="flex items-center justify-between mb-1 px-1">
+                        <span className="text-xs font-semibold text-slate-300">Ambient Sounds</span>
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-1 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-700/40"
+                            aria-label="Upload sound"
+                        >
+                            <Upload className="h-3.5 w-3.5" />
+                        </button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="audio/*"
+                            className="hidden"
+                            onChange={handleUploadSound}
+                        />
+                    </div>
+                    <div className="max-h-48 overflow-y-auto pr-1 space-y-1">
+                        {ambientSounds.map((s) => {
+                            const isSel = s.id === selectedAmbientId;
+                            return (
+                                <div
+                                    key={s.id}
+                                    className={cn(
+                                        'group flex items-center justify-between gap-2 rounded-md px-2 py-1 text-xs cursor-pointer transition',
+                                        isSel
+                                            ? 'bg-amber-500/20 text-amber-200'
+                                            : 'dark:text-slate-300 hover:bg-slate-700/40',
+                                    )}
+                                    onClick={() => handleSelectAmbient(s.id)}
+                                >
+                                    <div className="flex items-center gap-2 truncate">
+                                        {isSel ? (
+                                            isAmbientPlaying ? (
+                                                <CirclePause className="h-3.5 w-3.5" />
+                                            ) : (
+                                                <CirclePlay className="h-3.5 w-3.5" />
+                                            )
+                                        ) : (
+                                            <Music2 className="h-3.5 w-3.5 opacity-60" />
+                                        )}
+                                        <span className="truncate max-w-[120px]">{s.name}</span>
+                                    </div>
+                                    {!s.builtin && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemoveCustomSound(s.id);
+                                            }}
+                                            className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-red-300"
+                                            aria-label="Remove sound"
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })}
+                        {ambientSounds.length === 0 && (
+                            <div className="text-[10px] text-slate-400 px-2 py-2">No sounds added.</div>
+                        )}
+                    </div>
+                </Card>
+            </motion.div>
+        );
+    };
+
+    const renderSettingsPanel = () => {
+        if (!showSettingsPanel) return null;
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                transition={{ duration: 0.18 }}
+                className="absolute top-12 right-0 w-60 z-[100]"
+            >
+                <Card className="p-3 rounded-lg border dark:border-white/10 dark:bg-slate-900/95 backdrop-blur space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-300 font-semibold">Settings</span>
+                        <span className="text-[10px] text-slate-500">v1</span>
+                    </div>
+                    <div className="space-y-1">
+                        <div className="flex items-center justify-between text-[11px] text-slate-300">
+                            <span>Volume</span>
+                            <span>{Math.round(volume * 100)}%</span>
+                        </div>
+                        <input
+                            type="range"
+                            min={0}
+                            max={1}
+                            step={0.01}
+                            value={volume}
+                            onChange={(e) => setVolume(parseFloat(e.target.value))}
+                            className="w-full accent-amber-400 cursor-pointer"
+                            aria-label="Ambient volume"
+                        />
+                    </div>
+                    <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={playDuringBreak}
+                            onChange={(e) => setPlayDuringBreak(e.target.checked)}
+                            className="accent-amber-400"
+                        />
+                        <span>Play during break</span>
+                    </label>
+                    <button
+                        onClick={() => {
+                            setSelectedAmbientId(null);
+                            setVolume(0.4);
+                            setPlayDuringBreak(true);
+                            setIsAmbientPlaying(false);
+                        }}
+                        className="w-full text-[11px] mt-1 rounded-md bg-slate-800/60 hover:bg-slate-700/60 py-1 text-slate-300 hover:text-white"
+                    >
+                        Reset Defaults
+                    </button>
+                </Card>
+            </motion.div>
+        );
+    };
+
+    // Close panels when clicking outside
+    const panelContainerRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        if (!showSoundPanel && !showSettingsPanel) return;
+        const handler = (e: MouseEvent) => {
+            if (!panelContainerRef.current) return;
+            if (!panelContainerRef.current.contains(e.target as Node)) {
+                setShowSoundPanel(false);
+                setShowSettingsPanel(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [showSoundPanel, showSettingsPanel]);
 
     // Close edit mode when clicking outside
     useEffect(() => {
@@ -431,7 +783,7 @@ export default function Pomodoro({
                             className="absolute z-50 mt-2 w-64 left-[-6em]"
                         >
                             <Card className="rounded-xl border dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-100 backdrop-blur p-3 shadow-xl">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between relative" ref={panelContainerRef}>
                                     {!isBreakTime && (
                                         <div className="inline-flex items-center rounded-lg dark:bg-slate-800/60 p-0.5">
                                             <button
@@ -458,21 +810,64 @@ export default function Pomodoro({
                                             </button>
                                         </div>
                                     )}
-                                    {!isBreakTime && (
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={handleProcessRunTimer}
-                                            className="h-8 w-8 rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70"
-                                            aria-label={isActive && !isPause ? 'Pause' : 'Start'}
-                                        >
-                                            {isActive && !isPause ? (
-                                                <Pause className="h-4 w-4 text-slate-100" />
-                                            ) : (
-                                                <Play className="h-4 w-4 text-slate-100" />
+                                    <div className="flex items-center gap-1">
+                                        {!isBreakTime && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleProcessRunTimer}
+                                                className="h-8 w-8 rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70"
+                                                aria-label={isActive && !isPause ? 'Pause' : 'Start'}
+                                            >
+                                                {isActive && !isPause ? (
+                                                    <Pause className="h-4 w-4 text-slate-100" />
+                                                ) : (
+                                                    <Play className="h-4 w-4 text-slate-100" />
+                                                )}
+                                            </Button>
+                                        )}
+                                        <button
+                                            onClick={() => {
+                                                setShowSoundPanel((v) => !v);
+                                                setShowSettingsPanel(false);
+                                            }}
+                                            aria-label="Ambient sounds"
+                                            className={cn(
+                                                'h-8 w-8 flex items-center justify-center rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70 transition',
+                                                showSoundPanel && 'ring-1 ring-amber-300/40',
                                             )}
-                                        </Button>
-                                    )}
+                                        >
+                                            <Music2 className="h-4 w-4 text-slate-100" />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowSettingsPanel((v) => !v);
+                                                setShowSoundPanel(false);
+                                            }}
+                                            aria-label="Settings"
+                                            className={cn(
+                                                'h-8 w-8 flex items-center justify-center rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70 transition',
+                                                showSettingsPanel && 'ring-1 ring-amber-300/40',
+                                            )}
+                                        >
+                                            <Settings2 className="h-4 w-4 text-slate-100" />
+                                        </button>
+                                        {selectedAmbientId && (
+                                            <button
+                                                onClick={toggleAmbientPlay}
+                                                aria-label={isAmbientPlaying ? 'Pause ambient' : 'Play ambient'}
+                                                className="h-8 w-8 flex items-center justify-center rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70 transition"
+                                            >
+                                                {isAmbientPlaying ? (
+                                                    <CirclePause className="h-4 w-4 text-slate-100" />
+                                                ) : (
+                                                    <CirclePlay className="h-4 w-4 text-slate-100" />
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <AnimatePresence>{renderSoundPanel()}</AnimatePresence>
+                                    <AnimatePresence>{renderSettingsPanel()}</AnimatePresence>
                                 </div>
 
                                 {renderTimer()}
