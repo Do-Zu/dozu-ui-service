@@ -110,6 +110,7 @@ export default function Pomodoro({
     const LS_SELECTED_SOUND_KEY = 'POMODORO_SELECTED_AMBIENT';
     const LS_VOLUME_KEY = 'POMODORO_VOLUME';
     const LS_PLAY_BREAK_KEY = 'POMODORO_PLAY_DURING_BREAK';
+    const LS_DEFAULT_TIME_COUNT_DOWN = 'POMODORO_DEFAULT_TIME_COUNT_DOWN';
 
     //DEFAULT SOUNDs
     const defaultAmbient: AmbientSound[] = [
@@ -137,6 +138,10 @@ export default function Pomodoro({
     const [selectedAmbientId, setSelectedAmbientId] = useLocalStorage<string | null>(LS_SELECTED_SOUND_KEY, null);
     const [volumeLS, setVolumeLS] = useLocalStorage<number>(LS_VOLUME_KEY, 0.4);
     const [playDuringBreakVal, setPlayDuringBreakVal] = useLocalStorage<boolean>(LS_PLAY_BREAK_KEY, true);
+    const [timerDefaultCount, setTimerDefaultCount] = useLocalStorage<number>(
+        LS_DEFAULT_TIME_COUNT_DOWN,
+        DEFAULT_MINUTE_BREAK_TIME_COUNT_DOWN,
+    );
 
     const ambientSounds: AmbientSound[] = useMemo(() => {
         const custom = ambientSoundsLS && Array.isArray(ambientSoundsLS) ? ambientSoundsLS : [];
@@ -158,7 +163,11 @@ export default function Pomodoro({
     const bellAudioRef = useRef<HTMLAudioElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    const initialSeconds = useMemo(() => (defaultMode === 'countdown' ? times * 60 : 0), [defaultMode, times]);
+    const initialSeconds = useMemo(
+        () => (defaultMode === 'countdown' ? (timerDefaultCount ?? times) * 60 : 0),
+        [defaultMode, times],
+    );
+
     const [countTimer, setCountTimer] = useState<number>(initialSeconds);
 
     const minuteEditRef = useRef<HTMLDivElement>(null);
@@ -186,7 +195,8 @@ export default function Pomodoro({
     const reset = () => {
         setIsActive(false);
         setIsPause(false);
-        setCountTimer(mode === 'countdown' ? times * 60 : 0);
+        const defaultUserSettingCountDown = (timerDefaultCount ?? times) * 60; //second
+        setCountTimer(mode === 'countdown' ? defaultUserSettingCountDown : 0);
     };
 
     const handleSkipBreakTime = () => {
@@ -198,7 +208,7 @@ export default function Pomodoro({
         toggleMode(mode === 'countdown' ? 'stopwatch' : 'countdown');
         setIsActive(false);
         setIsPause(false);
-        setCountTimer(() => (mode === 'countdown' ? 0 : times * 60));
+        setCountTimer(() => (mode === 'countdown' ? 0 : countTimer));
     };
 
     const validateTimer = () => {
@@ -241,13 +251,6 @@ export default function Pomodoro({
             setHasWarnedFiveSec(false);
         }
     };
-
-    useEffect(() => {
-        setCountTimer(defaultMode === 'countdown' ? times * 60 : 0);
-        setIsActive(false);
-        setIsPause(false);
-        setHasWarnedFiveSec(false);
-    }, [defaultMode, times]);
 
     useInterval(() => {
         if (!isActive || isPause) return;
@@ -347,11 +350,12 @@ export default function Pomodoro({
             return toast({ description: tCommon('messages.fillNumberPositiveError') });
         }
 
-        const time = parseFloat(value);
+        const minute = parseFloat(value);
 
-        const seconds = type === 'minute' ? time * 60 : time * 60 * 60;
+        const seconds = type === 'minute' ? minute * 60 : minute * 60 * 60;
 
         setCountTimer(seconds);
+        setTimerDefaultCount(minute);
         setHasWarnedFiveSec(false);
     };
 
