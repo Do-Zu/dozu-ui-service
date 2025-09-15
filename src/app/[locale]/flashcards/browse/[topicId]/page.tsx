@@ -16,6 +16,7 @@ import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import { cn } from '@/lib/utils';
 import Pomodoro from '@/components/pomodoro/Pomodoro';
+import useActivePomodoro from '@/hooks/useActivePomodoro';
 
 const initialAutoPlaySpeed = 3;
 
@@ -83,6 +84,8 @@ export default function Page() {
     const [isImagesModalOpen, setIsImagesModalOpen] = useState<boolean>(false);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
+    useActivePomodoro();
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -369,8 +372,6 @@ export default function Page() {
                         isSidebarOpen ? 'w-[75%]' : 'w-full',
                     )}
                 >
-                    <Pomodoro position="top-right" positionX={-200} />
-
                     <div className="absolute top-8 right-8 z-20">
                         <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
                             <PanelLeft size={18} />
