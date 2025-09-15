@@ -177,15 +177,13 @@ export default function Pomodoro({
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const customBlobUrlsRef = useRef<string[]>([]);
     const idbObjectUrlRef = useRef<string | null>(null);
-    const initialSeconds = useMemo(
-        () => (defaultMode === 'countdown' ? (timerDefaultCount ?? times) * 60 : 0),
-        [defaultMode, times],
-    );
 
     const refSoundPanel = useClickOutSide<HTMLDivElement>(() => setShowSoundPanel(false));
     const refSettingsPanel = useClickOutSide<HTMLDivElement>(() => setShowSettingsPanel(false));
 
-    const [countTimer, setCountTimer] = useState<number>(initialSeconds);
+    const [countTimer, setCountTimer] = useState<number>(() =>
+        defaultMode === 'countdown' ? (timerDefaultCount ?? times) * 60 : 0,
+    );
 
     const minuteEditRef = useRef<HTMLDivElement>(null);
     const hourEditRef = useRef<HTMLDivElement>(null);
