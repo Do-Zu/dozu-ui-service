@@ -100,6 +100,7 @@ export default function Pomodoro({
     className,
 }: IPropPomodoro) {
     const tCommon = useTranslations('common');
+    const tPomodoro = useTranslations('pomodoro');
     const [mode, toggleMode] = useToggle<TypeMode>(defaultMode);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isActive, setIsActive] = useState<boolean>(false);
@@ -231,7 +232,7 @@ export default function Pomodoro({
 
     const validateTimer = () => {
         if (countTimer <= 0) {
-            toast({ description: 'Please set your time session' });
+            toast({ description: tPomodoro('timer.setTimeToast') });
             return false;
         }
         return true;
@@ -261,7 +262,7 @@ export default function Pomodoro({
         } else {
             // Session pomodoro
             toast({
-                description: 'Break Time',
+                description: tPomodoro('timer.breakTime'),
             });
             setIsBreakTime(true);
             setCountTimer(breakTime * 60);
@@ -458,11 +459,11 @@ export default function Pomodoro({
                         idbObjectUrlRef.current = objUrl;
                         src = objUrl;
                     } else {
-                        toast({ description: 'Audio not found in storage' });
+                        toast({ description: tPomodoro('ambient.notFound') });
                         return;
                     }
                 } catch {
-                    toast({ description: 'Failed to load audio from storage' });
+                    toast({ description: tPomodoro('ambient.loadFailed') });
                     return;
                 }
             }
@@ -540,11 +541,11 @@ export default function Pomodoro({
         const id = `${file.name}-${file.size}-${Date.now()}`;
         // Prevent duplicates by name+size
         if (ambientSounds.some((s) => s.id.startsWith(file.name) && !s.builtin)) {
-            toast({ description: 'Sound already added' });
+            toast({ description: tPomodoro('ambient.soundAdded') });
         }
         const sizeMB = file.size / (1024 * 1024);
         if (sizeMB > MAX_CUSTOM_SOUND_SIZE_MB) {
-            toast({ description: `File too large. Max ${MAX_CUSTOM_SOUND_SIZE_MB}MB` });
+            toast({ description: tPomodoro('ambient.tooLarge', { max: MAX_CUSTOM_SOUND_SIZE_MB }) });
             e.target.value = '';
             return;
         }
@@ -555,7 +556,7 @@ export default function Pomodoro({
                 await idbPutAudio(id, baseName, file);
                 src = `indexeddb:${id}`;
             } catch {
-                toast({ description: 'IndexedDB store failed; falling back to base64.' });
+                toast({ description: tPomodoro('ambient.indexedDbFallback') });
             }
         }
         if (!src) {
@@ -567,7 +568,7 @@ export default function Pomodoro({
                     customBlobUrlsRef.current.push(url);
                     src = url;
                 } catch {
-                    toast({ description: 'Upload failed' });
+                    toast({ description: tPomodoro('ambient.uploadFailed') });
                     e.target.value = '';
                     return;
                 }
@@ -646,7 +647,9 @@ export default function Pomodoro({
                 <Card className="p-2 rounded-lg border dark:border-white/10 dark:bg-slate-900/95 backdrop-blur">
                     <div className="flex items-center justify-between mb-1 px-1">
                         <span className="text-xs font-semibold text-slate-300">
-                            Ambient Sounds {isBreakTime && breakSpecificEnabled && '(Break)'}
+                            {isBreakTime && breakSpecificEnabled
+                                ? tPomodoro('ambient.panelTitleBreak')
+                                : tPomodoro('ambient.panelTitle')}
                         </span>
                         <button
                             onClick={() => fileInputRef.current?.click()}
@@ -706,7 +709,7 @@ export default function Pomodoro({
                             );
                         })}
                         {ambientSounds.length === 0 && (
-                            <div className="text-[10px] text-slate-400 px-2 py-2">No sounds added.</div>
+                            <div className="text-[10px] text-slate-400 px-2 py-2">{tPomodoro('ambient.noSounds')}</div>
                         )}
                     </div>
                 </Card>
@@ -727,12 +730,12 @@ export default function Pomodoro({
             >
                 <Card className="p-3 rounded-lg border dark:border-white/10 dark:bg-slate-900/95 backdrop-blur space-y-3">
                     <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-300 font-semibold">Settings</span>
-                        <span className="text-[10px] text-slate-500">v1</span>
+                        <span className="text-slate-300 font-semibold">{tPomodoro('settings.title')}</span>
+                        <span className="text-[10px] text-slate-500">{tPomodoro('settings.version')}</span>
                     </div>
                     <div className="space-y-1">
                         <div className="flex items-center justify-between text-[11px] text-slate-300">
-                            <span>Volume</span>
+                            <span>{tPomodoro('settings.volume')}</span>
                             <span>{Math.round(volume * 100)}%</span>
                         </div>
                         <input
@@ -753,7 +756,7 @@ export default function Pomodoro({
                             onChange={(e) => setPlayDuringBreakVal(e.target.checked)}
                             className="accent-amber-400"
                         />
-                        <span>Play during break</span>
+                        <span>{tPomodoro('settings.playDuringBreak')}</span>
                     </label>
                     <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer select-none">
                         <input
@@ -762,12 +765,10 @@ export default function Pomodoro({
                             onChange={(e) => setBreakSpecificEnabled(e.target.checked)}
                             className="accent-amber-400"
                         />
-                        <span>Distinct break ambient</span>
+                        <span>{tPomodoro('settings.distinctBreakAmbient')}</span>
                     </label>
                     {breakSpecificEnabled && (
-                        <div className="text-[11px] text-slate-400">
-                            Select different sound during break via sound panel.
-                        </div>
+                        <div className="text-[11px] text-slate-400">{tPomodoro('settings.distinctHelp')}</div>
                     )}
                     <button
                         onClick={() => {
@@ -780,7 +781,7 @@ export default function Pomodoro({
                         }}
                         className="w-full text-[11px] mt-1 rounded-md bg-slate-800/60 hover:bg-slate-700/60 py-1 text-slate-300 hover:text-white"
                     >
-                        Reset Defaults
+                        {tPomodoro('settings.resetDefaults')}
                     </button>
                 </Card>
             </motion.div>
@@ -891,7 +892,7 @@ export default function Pomodoro({
                     </div>
 
                     <div className="mt-1 text-center font-semibold text-sm text-[10px] text-slate-400">
-                        {pad2(seconds)} sec
+                        {pad2(seconds)} {tPomodoro('timer.secSuffix')}
                     </div>
                 </>
             );
@@ -900,11 +901,11 @@ export default function Pomodoro({
             <div className="mt-3 grid grid-cols-2 gap-2 text-center">
                 <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
                     <div className="text-2xl font-semibold tracking-tight">{pad2(minutes)}</div>
-                    <div className="text-[10px] uppercase text-slate-400">min</div>
+                    <div className="text-[10px] uppercase text-slate-400">{tPomodoro('timer.minLabel')}</div>
                 </div>
                 <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
                     <div className="text-2xl font-semibold tracking-tight">{pad2(seconds)}</div>
-                    <div className="text-[10px] uppercase text-slate-400">sec</div>
+                    <div className="text-[10px] uppercase text-slate-400">{tPomodoro('timer.secSuffix')}</div>
                 </div>
             </div>
         );
@@ -919,7 +920,7 @@ export default function Pomodoro({
                     aria-label="Reset"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
-                    {isCountdown ? 'Reset Timer' : 'Reset Stopwatch'}
+                    {isCountdown ? tPomodoro('timer.resetTimer') : tPomodoro('timer.resetStopwatch')}
                 </button>
             );
 
@@ -930,7 +931,7 @@ export default function Pomodoro({
                 aria-label="Skip"
             >
                 <LucideSkipForward className="h-3.5 w-3.5" />
-                Skip
+                {tPomodoro('timer.skip')}
             </button>
         );
     };
