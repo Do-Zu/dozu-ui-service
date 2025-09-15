@@ -6,26 +6,22 @@
  *
  */
 const validateDate = (dateStr: string): boolean => {
-  const regex = /^(\d{4})[-\/\.](\d{2})[-\/\.](\d{2})$/;
+    const regex = /^(\d{4})[-\/\.](\d{2})[-\/\.](\d{2})$/;
 
-  const match = dateStr.match(regex);
-  if (!match) {
-    return false;
-  }
+    const match = dateStr.match(regex);
+    if (!match) {
+        return false;
+    }
 
-  const [, year, month, day] = match;
-  const parsedYear = parseInt(year, 10);
-  const parsedMonth = parseInt(month, 10) - 1;
-  const parsedDay = parseInt(day, 10);
+    const [, year, month, day] = match;
+    const parsedYear = parseInt(year, 10);
+    const parsedMonth = parseInt(month, 10) - 1;
+    const parsedDay = parseInt(day, 10);
 
-  // Check if the date is valid by constructing a new Date object
-  const date = new Date(parsedYear, parsedMonth, parsedDay);
+    // Check if the date is valid by constructing a new Date object
+    const date = new Date(parsedYear, parsedMonth, parsedDay);
 
-  return (
-    date.getFullYear() === parsedYear &&
-    date.getMonth() === parsedMonth &&
-    date.getDate() === parsedDay
-  );
+    return date.getFullYear() === parsedYear && date.getMonth() === parsedMonth && date.getDate() === parsedDay;
 };
 
 /**
@@ -35,16 +31,46 @@ const validateDate = (dateStr: string): boolean => {
  * @param num - The value to be checked, which can be of type number, string, undefined, null, or bigint.
  * @returns boolean - Returns true if the input is a valid number, otherwise false.
  */
-const isNumber = (
-  num: number | string | undefined | null | bigint,
-): boolean => {
-  if (num === undefined || num === null) return false;
+const isNumber = (num: number | string | undefined | null | bigint): boolean => {
+    if (num === undefined || num === null) return false;
 
-  if (typeof num === 'string') {
+    if (typeof num === 'string') {
+        return !isNaN(Number(num));
+    }
+
     return !isNaN(Number(num));
-  }
-
-  return !isNaN(Number(num));
 };
 
-export { validateDate, isNumber };
+/**
+ * Checks if the provided value is a positive number (> 0).
+ * Supports number, bigint, and numeric strings.
+ * Returns false for: undefined, null, non-numeric strings, NaN, 0, negatives, Infinity.
+ */
+const isPositiveNumber = (num: number | string | undefined | null | bigint) => {
+    if (!isNumber(num)) return false;
+
+    if (typeof num === 'bigint') return num > BigInt(0);
+
+    const value = typeof num === 'string' ? Number(num.trim()) : num;
+    if (!isFinite(value as number)) return false;
+
+    return (num as number) > 0;
+};
+
+/**
+ * Checks if the provided value is a negative number (< 0).
+ * Supports number, bigint, and numeric strings.
+ * Returns false for: undefined, null, non-numeric strings, NaN, 0, negatives, Infinity.
+ */
+const isNegative = (num: number | string | undefined | null | bigint) => {
+    if (!isNumber(num)) return false;
+
+    if (typeof num === 'bigint') return num < BigInt(0);
+
+    const value = typeof num === 'string' ? Number(num.trim()) : num;
+    if (!isFinite(value as number)) return false;
+
+    return (num as number) < 0;
+};
+
+export { validateDate, isNumber, isPositiveNumber, isNegative };

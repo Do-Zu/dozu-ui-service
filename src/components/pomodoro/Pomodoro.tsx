@@ -1,12 +1,15 @@
 import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { Card } from '../ui/card';
-import { useEffect, useMemo, useState } from 'react';
+import { InputHTMLAttributes, useEffect, useMemo, useRef, useState } from 'react';
 import { useInterval } from '@/hooks/useInterval';
 import { Button } from '../ui/button';
 import useToggle from '@/hooks/useToggle';
 import { Clock, Timer, Play, Pause, RotateCcw, LucideSkipForward } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { Input } from '../ui/input';
+import { isNegative, isNumber, isPositiveNumber } from '@/utils/validators';
+import { useTranslations } from 'next-intl';
 
 export type TypePosition = 'top-center' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type TypeMode = 'countdown' | 'stopwatch';
@@ -19,6 +22,8 @@ export interface IPropPomodoro {
     breakTime?: number; // minutes for countdown
     className?: string;
 }
+
+type TypeEditTimer = 'minute' | 'hour';
 
 const DEFAULT_MINUTE_COUNT_DOWN = 45; // minutes
 const DEFAULT_MINUTE_BREAK_TIME_COUNT_DOWN = 5; // minutes
@@ -78,6 +83,7 @@ export default function Pomodoro({
     breakTime = DEFAULT_MINUTE_BREAK_TIME_COUNT_DOWN,
     className,
 }: IPropPomodoro) {
+    const tCommon = useTranslations('common');
     const [mode, toggleMode] = useToggle<TypeMode>(defaultMode);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isActive, setIsActive] = useState<boolean>(false);
@@ -87,11 +93,25 @@ export default function Pomodoro({
     const initialSeconds = useMemo(() => (defaultMode === 'countdown' ? times * 60 : 0), [defaultMode, times]);
     const [countTimer, setCountTimer] = useState<number>(initialSeconds);
 
-    useEffect(() => {
-        setCountTimer(defaultMode === 'countdown' ? times * 60 : 0);
+    const minuteEditRef = useRef<HTMLDivElement>(null);
+    const hourEditRef = useRef<HTMLDivElement>(null);
+
+    const [editTimer, setEditTimer] = useState<{
+        minute: boolean;
+        hour: boolean;
+    }>({
+        minute: false,
+        hour: false,
+    });
+
+    const handleClickEditTimer = (type: TypeEditTimer) => {
         setIsActive(false);
-        setIsPause(false);
-    }, [defaultMode, times]);
+
+        setEditTimer({
+            minute: type === 'minute',
+            hour: type === 'hour',
+        });
+    };
 
     const reset = () => {
         setIsActive(false);
@@ -141,6 +161,12 @@ export default function Pomodoro({
             setIsOpen(true);
         }
     };
+
+    useEffect(() => {
+        setCountTimer(defaultMode === 'countdown' ? times * 60 : 0);
+        setIsActive(false);
+        setIsPause(false);
+    }, [defaultMode, times]);
 
     useInterval(() => {
         if (!isActive || isPause) return;
@@ -229,19 +255,93 @@ export default function Pomodoro({
         );
     };
 
+    const handleOnChangeTimer = (type: TypeEditTimer, value: string) => {
+        console.log(value);
+
+        if (!isNumber(value)) {
+            return toast({ description: tCommon('messages.fillNumberError') });
+        }
+
+        if (isNegative(value)) {
+            return toast({ description: tCommon('messages.fillNumberPositiveError') });
+        }
+
+        const time = parseFloat(value);
+
+        const seconds = type === 'minute' ? time * 60 : time * 60 * 60;
+
+        setCountTimer(seconds);
+    };
+
+    // Close edit mode when clicking outside
+    useEffect(() => {
+        if (!editTimer.minute && !editTimer.hour) return;
+
+        const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+            const target = e.target as Node;
+            const minuteEl = minuteEditRef.current;
+            const hourEl = hourEditRef.current;
+
+            if (minuteEl && minuteEl.contains(target)) return;
+            if (hourEl && hourEl.contains(target)) return;
+
+            setEditTimer({ minute: false, hour: false });
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [editTimer.minute, editTimer.hour]);
+
+    const renderStatusTimer = (type: TypeEditTimer) => {
+        const prefix = type == 'hour' ? 'hr' : 'min';
+        const times = type == 'hour' ? pad2(hours) : pad2(minutes);
+
+        const renderEditMode = () => {
+            if (editTimer[type])
+                return (
+                    <Input
+                        autoFocus
+                        value={times}
+                        onChange={(e) => handleOnChangeTimer(type, e.target.value)}
+                        onBlur={() => setEditTimer((prev) => ({ ...prev, [type]: false }))}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                (e.target as HTMLInputElement).blur(); // triggers onBlur to close edit mode
+                            } else if (e.key === 'Escape') {
+                                e.preventDefault();
+                                setEditTimer((prev) => ({ ...prev, [type]: false }));
+                            }
+                        }}
+                    />
+                );
+            return times;
+        };
+
+        return (
+            <div
+                ref={type == 'minute' ? minuteEditRef : hourEditRef}
+                onClick={() => handleClickEditTimer(type)}
+                className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2"
+            >
+                <div className="text-2xl font-semibold tracking-tight">{renderEditMode()}</div>
+                <div className="text-[10px] uppercase text-slate-400">{prefix}</div>
+            </div>
+        );
+    };
+
     const renderTimer = () => {
         if (!isBreakTime)
             return (
                 <>
                     <div className="mt-3 grid grid-cols-2 gap-2 text-center">
-                        <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
-                            <div className="text-2xl font-semibold tracking-tight">{pad2(hours)}</div>
-                            <div className="text-[10px] uppercase text-slate-400">hr</div>
-                        </div>
-                        <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
-                            <div className="text-2xl font-semibold tracking-tight">{pad2(minutes)}</div>
-                            <div className="text-[10px] uppercase text-slate-400">min</div>
-                        </div>
+                        {renderStatusTimer('hour')}
+                        {renderStatusTimer('minute')}
                     </div>
 
                     <div className="mt-1 text-center font-semibold text-sm text-[10px] text-slate-400">

@@ -72,7 +72,9 @@
             "createError": "Failed to create {name}",
             "readError": "Failed to load {name}",
             "updateError": "Failed to update {name}",
-            "deleteError": "Failed to delete {name}"
+            "deleteError": "Failed to delete {name}",
+            "fillNumberError": " Please enter numeric",
+            "fillNumberPositiveError": " Please enter positive number"
         },
         "labels": {
             "name": "Name",

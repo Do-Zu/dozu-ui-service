@@ -73,7 +73,10 @@
             "createError": "Không thể tạo {name}",
             "readError": "Không thể tải {name}",
             "updateError": "Không thể cập nhật {name}",
-            "deleteError": "Không thể xóa {name}"
+            "deleteError": "Không thể xóa {name}",
+
+            "fillNumberError": "Chỉ nhập số",
+            "fillNumberPositiveError": "Vui lòng nhập số dương"
         },
         "labels": {
             "name": "Tên",
