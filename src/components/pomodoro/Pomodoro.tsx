@@ -162,7 +162,7 @@ export default function Pomodoro({
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const bellAudioRef = useRef<HTMLAudioElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+    const customBlobUrlsRef = useRef<string[]>([]);
     const initialSeconds = useMemo(
         () => (defaultMode === 'countdown' ? (timerDefaultCount ?? times) * 60 : 0),
         [defaultMode, times],
@@ -365,7 +365,7 @@ export default function Pomodoro({
                 ambientAudioRef.current.pause();
                 ambientAudioRef.current.src = '';
                 ambientAudioRef.current.load();
-            } catch (error) {}
+            } catch {}
         }
         if (bellAudioRef.current) {
             try {
@@ -374,6 +374,13 @@ export default function Pomodoro({
                 bellAudioRef.current.load();
             } catch {}
         }
+        // Revoke any blob: object URLs we created (legacy approach)
+        customBlobUrlsRef.current.forEach((url) => {
+            try {
+                URL.revokeObjectURL(url);
+            } catch {}
+        });
+        customBlobUrlsRef.current = [];
     };
     //        ---------- Audio logic ---------- //
 
@@ -453,7 +460,18 @@ export default function Pomodoro({
     }, [countTimer, isActive, isPause, mode, isBreakTime, hasWarnedFiveSec]);
 
     // Upload custom sound
-    const handleUploadSound = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const MAX_CUSTOM_SOUND_SIZE_MB = 15;
+
+    const fileToDataUrl = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleUploadSound = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || !files.length) return;
         const file = files[0];
@@ -462,22 +480,54 @@ export default function Pomodoro({
         if (ambientSounds.some((s) => s.id.startsWith(file.name) && !s.builtin)) {
             toast({ description: 'Sound already added' });
         }
-        const url = URL.createObjectURL(file);
-        const newSound: AmbientSound = { id, name: file.name.replace(/\.[^.]+$/, ''), src: url, builtin: false };
-        const updated = [...(ambientSoundsLS || []), newSound];
-        // store only custom sounds (exclude builtins)
-        setAmbientSoundsLS(updated.filter((s) => !s.builtin));
-        setSelectedAmbientId(id);
-        setShowSoundPanel(true);
-        e.target.value = '';
+        if (file.size / (1024 * 1024) > MAX_CUSTOM_SOUND_SIZE_MB) {
+            toast({ description: `File too large. Max ${MAX_CUSTOM_SOUND_SIZE_MB}MB` });
+            return;
+        }
+
+        try {
+            // Convert to base64 for persistence instead of blob URL (works across reloads)
+            const dataUrl = await fileToDataUrl(file);
+            const newSound: AmbientSound = {
+                id,
+                name: file.name.replace(/\.[^.]+$/, ''),
+                src: dataUrl,
+                builtin: false,
+            };
+            const updated = [...(ambientSoundsLS || []), newSound];
+            setAmbientSoundsLS(updated.filter((s) => !s.builtin));
+            setSelectedAmbientId(id);
+            setShowSoundPanel(true);
+        } catch (err) {
+            // fallback to blob if FileReader fails unexpectedly
+            try {
+                const url = URL.createObjectURL(file);
+                customBlobUrlsRef.current.push(url);
+                const newSound: AmbientSound = {
+                    id,
+                    name: file.name.replace(/\.[^.]+$/, ''),
+                    src: url,
+                    builtin: false,
+                };
+                const updated = [...(ambientSoundsLS || []), newSound];
+                setAmbientSoundsLS(updated.filter((s) => !s.builtin));
+                setSelectedAmbientId(id);
+                setShowSoundPanel(true);
+            } catch {}
+        } finally {
+            e.target.value = '';
+        }
     };
 
     const handleRemoveCustomSound = (id: string) => {
         setAmbientSoundsLS((prev) => {
             const list = prev && Array.isArray(prev) ? prev : [];
             const target = list.find((s) => s.id === id);
+            // Revoke only if it was a blob (legacy); data URLs do not need revocation
             if (target && !target.builtin && target.src.startsWith('blob:')) {
-                URL.revokeObjectURL(target.src);
+                try {
+                    URL.revokeObjectURL(target.src);
+                } catch {}
             }
             const next = list.filter((s) => s.id !== id);
             if (selectedAmbientId === id) setSelectedAmbientId(null);
