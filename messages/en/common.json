@@ -68,7 +68,6 @@
             "readSuccess": "{name} loaded successfully",
             "updateSuccess": "Update {name} successfully",
             "deleteSuccess": "Delete {name} successfully",
-
             "createError": "Failed to create {name}",
             "readError": "Failed to load {name}",
             "updateError": "Failed to update {name}",
