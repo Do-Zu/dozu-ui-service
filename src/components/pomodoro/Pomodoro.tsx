@@ -111,10 +111,26 @@ export default function Pomodoro({
     const LS_VOLUME_KEY = 'POMODORO_VOLUME';
     const LS_PLAY_BREAK_KEY = 'POMODORO_PLAY_DURING_BREAK';
 
+    //DEFAULT SOUNDs
     const defaultAmbient: AmbientSound[] = [
-        { id: 'rain', name: 'Raining', src: '/sounds/raining.mp3', builtin: true },
-        { id: 'white-noise', name: 'White Noise', src: '/sounds/white-noise.mp3', builtin: true },
-        { id: 'lofi', name: 'Lofi', src: '/sounds/lofi.mp3', builtin: true },
+        {
+            id: 'rain',
+            name: 'Raining',
+            src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/45%20Minutes%20of%20Light%20Rain%20Sounds%20for%20Focus,%20Relaxing%20and%20Sleep%20%20Epidemic%20Ambience%20-%20YouTube.mp3',
+            builtin: true,
+        },
+        {
+            id: 'white-noise',
+            name: 'White Noise',
+            src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/White-Noise-Dozu-Pomodoro.mp3',
+            builtin: true,
+        },
+        {
+            id: 'lofi',
+            name: 'Lofi',
+            src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/Lofi-Timer-Dozo-Pomodoro-Deep-Focus.mp3',
+            builtin: true,
+        },
     ];
 
     const [ambientSoundsLS, setAmbientSoundsLS] = useLocalStorage<AmbientSound[]>(LS_SOUNDS_KEY, []);
