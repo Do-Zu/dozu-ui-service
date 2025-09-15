@@ -367,13 +367,15 @@ export default function Pomodoro({
         if (isNegative(value)) {
             return toast({ description: tCommon('messages.fillNumberPositiveError') });
         }
+        const units = parseInt(value, 10);
+        const safeUnits = isNaN(units) ? 0 : Math.max(0, units);
+        const newHours = type === 'hour' ? safeUnits : hours;
+        const newMinutes = type === 'minute' ? safeUnits : minutes;
 
-        const minute = parseFloat(value);
+        const totalSeconds = newHours * 3600 + newMinutes * 60;
 
-        const seconds = type === 'minute' ? minute * 60 : minute * 60 * 60;
-
-        setCountTimer(seconds);
-        setTimerDefaultCount(minute);
+        setCountTimer(totalSeconds);
+        setTimerDefaultCount(newHours * 60 + newMinutes);
         setHasWarnedFiveSec(false);
     };
 
