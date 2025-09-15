@@ -159,7 +159,7 @@ export default function Pomodoro({
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const initialSeconds = useMemo(() => (defaultMode === 'countdown' ? times * 60 : 0), [defaultMode, times]);
-    const [countTimer, setCountTimer] = useState<number>(initialSeconds);
+    const [countTimer, setCountTimer] = useState<number>(10);
 
     const minuteEditRef = useRef<HTMLDivElement>(null);
     const hourEditRef = useRef<HTMLDivElement>(null);
@@ -171,6 +171,8 @@ export default function Pomodoro({
         minute: false,
         hour: false,
     });
+
+    //---------- Timer edition logic ---------- //
 
     const handleClickEditTimer = (type: TypeEditTimer) => {
         setIsActive(false);
@@ -263,12 +265,14 @@ export default function Pomodoro({
         }
     }, DEFAULT_TIME_SUB_COUNT_DOWN);
 
+    //---------- Render times ---------- //
     const hours = Math.floor(countTimer / 3600);
     const minutes = Math.floor((countTimer % 3600) / 60);
     const seconds = Math.floor(countTimer % 60);
 
     const isCountdown = mode === 'countdown';
 
+    //---------- UI Element in Box  ---------- //
     const renderClock = () => {
         if (isOpen) {
             return (
@@ -351,10 +355,12 @@ export default function Pomodoro({
         setHasWarnedFiveSec(false);
     };
 
-    // ---------- Audio logic ----------
+    //        ---------- Audio logic ---------- ////
     // Initialize defaults merge & bell audio
     useEffect(() => {
-        bellAudioRef.current = new Audio('/sounds/bell.mp3');
+        bellAudioRef.current = new Audio(
+            'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/School%20Bell%20Sound%20Effect%20No%20Copyright%20-%20YouTube.mp3',
+        );
         bellAudioRef.current.preload = 'auto';
     }, []);
 
