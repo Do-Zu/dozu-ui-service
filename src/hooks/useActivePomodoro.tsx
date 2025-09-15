@@ -1,11 +1,7 @@
-/**
- *
- */
-
-import { IPropPomodoro } from '@/components/pomodoro/Pomodoro';
-import { setDisplayPomodoro } from '@/stores/features/pomodoro/pomodoroSlice';
-import { useAppDispatch } from '@/stores/hooks';
 import { useEffect } from 'react';
+import { useAppDispatch } from '@/stores/hooks';
+import { setDisplayPomodoro } from '@/stores/features/pomodoro/pomodoroSlice';
+import { IPropPomodoro } from '@/components/pomodoro/Pomodoro';
 
 type IArgPomodoro = Partial<Pick<IPropPomodoro, 'positionX' | 'positionY' | 'position'>>;
 
@@ -14,8 +10,8 @@ export default function useActivePomodoro(options?: IArgPomodoro) {
 
     useEffect(() => {
         dispatch(setDisplayPomodoro(true));
-        () => {
+        return () => {
             dispatch(setDisplayPomodoro(false));
         };
-    }, []);
+    }, [dispatch]);
 }
