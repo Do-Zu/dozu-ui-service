@@ -202,6 +202,8 @@ export default function Pomodoro({
     const handleClickEditTimer = (type: TypeEditTimer) => {
         setIsActive(false);
 
+        if (mode === 'stopwatch') return;
+
         setEditTimer({
             minute: type === 'minute',
             hour: type === 'hour',
@@ -234,6 +236,7 @@ export default function Pomodoro({
         }
         return true;
     };
+
     const handleProcessRunTimer = () => {
         if (!validateTimer()) return;
 
