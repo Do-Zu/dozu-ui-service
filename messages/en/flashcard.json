@@ -30,7 +30,8 @@
             "showAnswer": "Show answer",
             "flashcardsRemaining": "flashcards remaining",
             "greatJob": "Great job! 🎉",
-            "flashcardsCompleted": "You've completed all the flashcards for this topic. There's nothing more to learn right now."
+            "flashcardsCompleted": "You've completed all the flashcards for this topic. There's nothing more to learn right now.",
+            "flashcardsEmpty": "There are no flashcards for this topic! Try creating a flashcard set."
         },
         "import": {
             "title": "Import your data",
