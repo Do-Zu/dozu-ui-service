@@ -126,7 +126,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     }
 
     return (
-        <Card className="max-w-[200px] min-w-[40%] mx-auto mt-2 mb-8 rounded-3xl bg-gradient-to-r from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] border-0 shadow-xl">
+        <Card className="max-w-[200px] min-w-[40%] mx-auto mt-2 mb-8 rounded-3xl bg-gradient-to-r from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.5)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] border-0 ">
             <CardHeader className="pb-3">
                 {data ? (
                     <div className="flex items-center justify-between">
@@ -135,7 +135,9 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                                 <Target className="h-4 w-4 text-white dark:text-sky-500" />
                             </div>
                             <div>
-                                <CardTitle className="text-slate-200 text-lg font-bold ">{t('title')}</CardTitle>
+                                <CardTitle className="dark:text-slate-200 text-slate-800 text-lg font-bold ">
+                                    {t('title')}
+                                </CardTitle>
                                 <p className="text-slate-400 dark:text-gray-300 text-sm">{t('subtitle')}</p>
                             </div>
                         </div>
@@ -147,7 +149,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             <div className="p-1 bg-white/20 dark:bg-blue-400/20 rounded-lg">
                                 <Target className="h-4 w-4 text-white dark:text-sky-500" />
                             </div>
-                            <CardTitle className="text-slate-200 text-lg font-bold ">{t('error.message')}</CardTitle>
+                            <CardTitle className="text-lg font-bold ">{t('error.message')}</CardTitle>
                         </div>
                     </div>
                 )}
@@ -156,24 +158,22 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     <div className="space-y-2">
                         <div>
-                            <h3 className="text-base text-slate-200 font-semibold mb-0.5 ">
-                                {currentLearning?.topicName}
-                            </h3>
-                            <p className="text-slate-200 dark:text-gray-300 text-sm">{currentLearning?.description}</p>
+                            <h3 className="text-base font-semibold mb-0.5 ">{currentLearning?.topicName}</h3>
+                            <p className=" dark:text-gray-300 text-sm">{currentLearning?.description}</p>
                         </div>
                         <div className="space-y-1">
                             <div className="flex justify-between text-xs text-white dark:text-gray-200">
                                 <span>{t('progress')}</span>
                                 <span>{currentLearning?.progress}%</span>
                             </div>
-                            <div className="w-full bg-white/20 dark:bg-gray-600/30 rounded-full h-1.5">
+                            <div className="w-full  dark:bg-gray-600/30  bg-gray-600/30 rounded-full h-1.5">
                                 <div
-                                    className="bg-white dark:bg-blue-400 rounded-full h-1.5 transition-all duration-300"
+                                    className=" bg-blue-400 rounded-full h-1.5 transition-all duration-300"
                                     style={{ width: `${currentLearning?.progress}%` }}
                                 ></div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-white dark:text-gray-200">
+                        <div className="flex items-center gap-3 text-xs  dark:text-gray-200">
                             <div className="flex items-center gap-1">
                                 <AlignEndHorizontal className="h-3 w-3" />
                                 <span>
@@ -191,7 +191,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             <Button
                                 onClick={() => onContinueLearning('current')}
                                 size="sm"
-                                className=" text-slate-700 dark:text-zinc-800 hover:bg-slate-100 bg-gray-200  dark:hover:bg-gray-300 font-semibold px-4 py-2"
+                                className=" text-slate-700 dark:text-zinc-800 hover:bg-slate-500 hover:text-yellow-50 bg-gray-200  dark:hover:bg-gray-300 font-semibold px-4 py-2"
                             >
                                 <Play className="mr-1.5 h-3.5 w-3.5" />
                                 {t('continueButton')}
