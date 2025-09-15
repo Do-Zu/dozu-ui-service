@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { idbPutAudio, idbGetObjectUrl, idbDeleteAudio } from '@/lib/DBIndex/indexedDbAudio';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
@@ -111,6 +112,8 @@ export default function Pomodoro({
     const LS_VOLUME_KEY = 'POMODORO_VOLUME';
     const LS_PLAY_BREAK_KEY = 'POMODORO_PLAY_DURING_BREAK';
     const LS_DEFAULT_TIME_COUNT_DOWN = 'POMODORO_DEFAULT_TIME_COUNT_DOWN';
+    const LS_BREAK_SPECIFIC_ENABLED = 'POMODORO_BREAK_SPECIFIC_ENABLED';
+    const LS_BREAK_AMBIENT_ID = 'POMODORO_BREAK_AMBIENT_ID';
 
     //DEFAULT SOUNDs
     const defaultAmbient: AmbientSound[] = [
@@ -142,6 +145,8 @@ export default function Pomodoro({
         LS_DEFAULT_TIME_COUNT_DOWN,
         DEFAULT_MINUTE_BREAK_TIME_COUNT_DOWN,
     );
+    const [breakSpecificEnabled, setBreakSpecificEnabled] = useLocalStorage<boolean>(LS_BREAK_SPECIFIC_ENABLED, false);
+    const [breakAmbientId, setBreakAmbientId] = useLocalStorage<string | null>(LS_BREAK_AMBIENT_ID, null);
 
     const ambientSounds: AmbientSound[] = useMemo(() => {
         const custom = ambientSoundsLS && Array.isArray(ambientSoundsLS) ? ambientSoundsLS : [];
@@ -163,6 +168,7 @@ export default function Pomodoro({
     const bellAudioRef = useRef<HTMLAudioElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const customBlobUrlsRef = useRef<string[]>([]);
+    const idbObjectUrlRef = useRef<string | null>(null);
     const initialSeconds = useMemo(
         () => (defaultMode === 'countdown' ? (timerDefaultCount ?? times) * 60 : 0),
         [defaultMode, times],
@@ -381,6 +387,12 @@ export default function Pomodoro({
             } catch {}
         });
         customBlobUrlsRef.current = [];
+        if (idbObjectUrlRef.current) {
+            try {
+                URL.revokeObjectURL(idbObjectUrlRef.current);
+            } catch {}
+            idbObjectUrlRef.current = null;
+        }
     };
     //        ---------- Audio logic ---------- //
 
@@ -402,36 +414,72 @@ export default function Pomodoro({
         if (bellAudioRef.current) bellAudioRef.current.volume = Math.min(1, volume + 0.15);
     }, [volume]);
 
-    // Initialize / switch ambient audio
+    // derive current ambient id (support break-specific)
+    const currentAmbientId = useMemo(
+        () => (isBreakTime && breakSpecificEnabled ? breakAmbientId || selectedAmbientId : selectedAmbientId),
+        [isBreakTime, breakSpecificEnabled, breakAmbientId, selectedAmbientId],
+    );
+
+    // Initialize / switch ambient audio (handles IndexedDB lazy object URL)
     useEffect(() => {
-        if (!selectedAmbientId) {
-            if (ambientAudioRef.current) {
-                ambientAudioRef.current.pause();
-            }
+        const id = currentAmbientId;
+        if (!id) {
+            if (ambientAudioRef.current) ambientAudioRef.current.pause();
             return;
         }
-        const selected = ambientSounds.find((s) => s.id === selectedAmbientId);
+        const selected = ambientSounds.find((s) => s.id === id);
         if (!selected) return;
-        if (!ambientAudioRef.current) {
-            ambientAudioRef.current = new Audio(selected.src);
-        } else {
-            ambientAudioRef.current.src = selected.src;
-        }
-        ambientAudioRef.current.loop = true;
-        ambientAudioRef.current.volume = volume;
-        if (isActive && !isPause && (!isBreakTime || playDuringBreak)) {
-            ambientAudioRef.current
-                .play()
-                .then(() => setIsAmbientPlaying(true))
-                .catch(() => setIsAmbientPlaying(false));
-        }
-    }, [selectedAmbientId]);
+        const prepare = async () => {
+            let src = selected.src;
+            if (src.startsWith('indexeddb:')) {
+                const realId = src.replace('indexeddb:', '');
+                if (idbObjectUrlRef.current) {
+                    try {
+                        URL.revokeObjectURL(idbObjectUrlRef.current);
+                    } catch {}
+                    idbObjectUrlRef.current = null;
+                }
+                try {
+                    const objUrl = await idbGetObjectUrl(realId);
+                    if (objUrl) {
+                        idbObjectUrlRef.current = objUrl;
+                        src = objUrl;
+                    } else {
+                        toast({ description: 'Audio not found in storage' });
+                        return;
+                    }
+                } catch {
+                    toast({ description: 'Failed to load audio from storage' });
+                    return;
+                }
+            }
+            if (!ambientAudioRef.current) {
+                ambientAudioRef.current = new Audio(src);
+            } else {
+                ambientAudioRef.current.src = src;
+            }
+            ambientAudioRef.current.loop = true;
+            ambientAudioRef.current.volume = volume;
+            if (isActive && !isPause && (!isBreakTime || playDuringBreak || (isBreakTime && breakSpecificEnabled))) {
+                ambientAudioRef.current
+                    .play()
+                    .then(() => setIsAmbientPlaying(true))
+                    .catch(() => setIsAmbientPlaying(false));
+            }
+        };
+        prepare();
+    }, [currentAmbientId]);
 
     // Play / pause ambient when state changes
     useEffect(() => {
         const audio = ambientAudioRef.current;
         if (!audio) return;
-        if (isActive && !isPause && selectedAmbientId && (!isBreakTime || playDuringBreak)) {
+        if (
+            isActive &&
+            !isPause &&
+            currentAmbientId &&
+            (!isBreakTime || playDuringBreak || (isBreakTime && breakSpecificEnabled))
+        ) {
             audio
                 .play()
                 .then(() => setIsAmbientPlaying(true))
@@ -440,7 +488,7 @@ export default function Pomodoro({
             audio.pause();
             setIsAmbientPlaying(false);
         }
-    }, [isActive, isPause, isBreakTime, playDuringBreak]);
+    }, [isActive, isPause, isBreakTime, playDuringBreak, breakSpecificEnabled, currentAmbientId]);
 
     // Five-second warning bell
     useEffect(() => {
@@ -460,7 +508,8 @@ export default function Pomodoro({
     }, [countTimer, isActive, isPause, mode, isBreakTime, hasWarnedFiveSec]);
 
     // Upload custom sound
-    const MAX_CUSTOM_SOUND_SIZE_MB = 15;
+    const MAX_CUSTOM_SOUND_SIZE_MB = 30; // allow larger when using IndexedDB
+    const LARGE_FILE_THRESHOLD_MB = 5; // switch to IndexedDB for files larger than this
 
     const fileToDataUrl = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -480,43 +529,43 @@ export default function Pomodoro({
         if (ambientSounds.some((s) => s.id.startsWith(file.name) && !s.builtin)) {
             toast({ description: 'Sound already added' });
         }
-        if (file.size / (1024 * 1024) > MAX_CUSTOM_SOUND_SIZE_MB) {
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_CUSTOM_SOUND_SIZE_MB) {
             toast({ description: `File too large. Max ${MAX_CUSTOM_SOUND_SIZE_MB}MB` });
+            e.target.value = '';
             return;
         }
-
-        try {
-            // Convert to base64 for persistence instead of blob URL (works across reloads)
-            const dataUrl = await fileToDataUrl(file);
-            const newSound: AmbientSound = {
-                id,
-                name: file.name.replace(/\.[^.]+$/, ''),
-                src: dataUrl,
-                builtin: false,
-            };
-            const updated = [...(ambientSoundsLS || []), newSound];
-            setAmbientSoundsLS(updated.filter((s) => !s.builtin));
-            setSelectedAmbientId(id);
-            setShowSoundPanel(true);
-        } catch (err) {
-            // fallback to blob if FileReader fails unexpectedly
+        const baseName = file.name.replace(/\.[^.]+$/, '');
+        let src: string | null = null;
+        if (sizeMB > LARGE_FILE_THRESHOLD_MB) {
             try {
-                const url = URL.createObjectURL(file);
-                customBlobUrlsRef.current.push(url);
-                const newSound: AmbientSound = {
-                    id,
-                    name: file.name.replace(/\.[^.]+$/, ''),
-                    src: url,
-                    builtin: false,
-                };
-                const updated = [...(ambientSoundsLS || []), newSound];
-                setAmbientSoundsLS(updated.filter((s) => !s.builtin));
-                setSelectedAmbientId(id);
-                setShowSoundPanel(true);
-            } catch {}
-        } finally {
-            e.target.value = '';
+                await idbPutAudio(id, baseName, file);
+                src = `indexeddb:${id}`;
+            } catch {
+                toast({ description: 'IndexedDB store failed; falling back to base64.' });
+            }
         }
+        if (!src) {
+            try {
+                src = await fileToDataUrl(file);
+            } catch {
+                try {
+                    const url = URL.createObjectURL(file);
+                    customBlobUrlsRef.current.push(url);
+                    src = url;
+                } catch {
+                    toast({ description: 'Upload failed' });
+                    e.target.value = '';
+                    return;
+                }
+            }
+        }
+        const newSound: AmbientSound = { id, name: baseName, src, builtin: false };
+        const updated = [...(ambientSoundsLS || []), newSound];
+        setAmbientSoundsLS(updated.filter((s) => !s.builtin));
+        setSelectedAmbientId(id);
+        setShowSoundPanel(true);
+        e.target.value = '';
     };
 
     const handleRemoveCustomSound = (id: string) => {
@@ -529,8 +578,12 @@ export default function Pomodoro({
                     URL.revokeObjectURL(target.src);
                 } catch {}
             }
+            if (target && target.src.startsWith('indexeddb:')) {
+                idbDeleteAudio(id).catch(() => {});
+            }
             const next = list.filter((s) => s.id !== id);
             if (selectedAmbientId === id) setSelectedAmbientId(null);
+            if (breakAmbientId === id) setBreakAmbientId(null);
             return next;
         });
     };
@@ -551,6 +604,14 @@ export default function Pomodoro({
     };
 
     const handleSelectAmbient = (id: string) => {
+        if (isBreakTime && breakSpecificEnabled) {
+            if (id === breakAmbientId) {
+                toggleAmbientPlay();
+                return;
+            }
+            setBreakAmbientId(id);
+            return;
+        }
         if (id === selectedAmbientId) {
             toggleAmbientPlay();
             return;
@@ -570,7 +631,9 @@ export default function Pomodoro({
             >
                 <Card className="p-2 rounded-lg border dark:border-white/10 dark:bg-slate-900/95 backdrop-blur">
                     <div className="flex items-center justify-between mb-1 px-1">
-                        <span className="text-xs font-semibold text-slate-300">Ambient Sounds</span>
+                        <span className="text-xs font-semibold text-slate-300">
+                            Ambient Sounds {isBreakTime && breakSpecificEnabled && '(Break)'}
+                        </span>
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             className="p-1 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-700/40"
@@ -588,7 +651,8 @@ export default function Pomodoro({
                     </div>
                     <div className="max-h-48 overflow-y-auto pr-1 space-y-1">
                         {ambientSounds.map((s) => {
-                            const isSel = s.id === selectedAmbientId;
+                            const activeId = isBreakTime && breakSpecificEnabled ? breakAmbientId : selectedAmbientId;
+                            const isSel = s.id === activeId;
                             return (
                                 <div
                                     key={s.id}
@@ -676,11 +740,27 @@ export default function Pomodoro({
                         />
                         <span>Play during break</span>
                     </label>
+                    <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={breakSpecificEnabled}
+                            onChange={(e) => setBreakSpecificEnabled(e.target.checked)}
+                            className="accent-amber-400"
+                        />
+                        <span>Distinct break ambient</span>
+                    </label>
+                    {breakSpecificEnabled && (
+                        <div className="text-[11px] text-slate-400">
+                            Select different sound during break via sound panel.
+                        </div>
+                    )}
                     <button
                         onClick={() => {
                             setSelectedAmbientId(null);
+                            setBreakAmbientId(null);
                             setVolumeLS(0.4);
                             setPlayDuringBreakVal(true);
+                            setBreakSpecificEnabled(false);
                             setIsAmbientPlaying(false);
                         }}
                         className="w-full text-[11px] mt-1 rounded-md bg-slate-800/60 hover:bg-slate-700/60 py-1 text-slate-300 hover:text-white"
