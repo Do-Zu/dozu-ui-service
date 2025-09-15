@@ -25,6 +25,7 @@ import {
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { toast } from '@/hooks/use-toast';
+import useClickOutSide from '@/hooks/useClickOutSide';
 
 export type TypePosition = 'top-center' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type TypeMode = 'countdown' | 'stopwatch';
@@ -164,6 +165,12 @@ export default function Pomodoro({
     const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
     const [hasWarnedFiveSec, setHasWarnedFiveSec] = useState<boolean>(false);
 
+    //---------- Click outside container ---------- //
+    const handleClickOutSideCBoxContainer = () => {
+        setIsOpen(false);
+    };
+
+    const containerRef = useClickOutSide<HTMLDivElement>(handleClickOutSideCBoxContainer);
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const bellAudioRef = useRef<HTMLAudioElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -931,6 +938,7 @@ export default function Pomodoro({
                 <AnimatePresence>
                     {isOpen && (
                         <motion.div
+                            ref={containerRef}
                             initial={{ opacity: 0, scale: 0.98, y: 6 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.98, y: 6 }}
