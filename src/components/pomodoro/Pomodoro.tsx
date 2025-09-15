@@ -131,7 +131,16 @@ export default function Pomodoro({
         setCountTimer(() => (mode === 'countdown' ? 0 : times * 60));
     };
 
+    const validateTimer = () => {
+        if (countTimer <= 0) {
+            toast({ description: 'Please set your time session' });
+            return false;
+        }
+        return true;
+    };
     const handleProcessRunTimer = () => {
+        if (!validateTimer()) return;
+
         if (!isActive) {
             setIsActive(true);
             setIsPause(false);
@@ -256,8 +265,6 @@ export default function Pomodoro({
     };
 
     const handleOnChangeTimer = (type: TypeEditTimer, value: string) => {
-        console.log(value);
-
         if (!isNumber(value)) {
             return toast({ description: tCommon('messages.fillNumberError') });
         }
