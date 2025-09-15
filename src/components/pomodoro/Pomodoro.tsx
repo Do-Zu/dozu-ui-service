@@ -145,7 +145,7 @@ export default function Pomodoro({
     const [playDuringBreakVal, setPlayDuringBreakVal] = useLocalStorage<boolean>(LS_PLAY_BREAK_KEY, true);
     const [timerDefaultCount, setTimerDefaultCount] = useLocalStorage<number>(
         LS_DEFAULT_TIME_COUNT_DOWN,
-        DEFAULT_MINUTE_BREAK_TIME_COUNT_DOWN,
+        DEFAULT_MINUTE_COUNT_DOWN,
     );
     const [breakSpecificEnabled, setBreakSpecificEnabled] = useLocalStorage<boolean>(LS_BREAK_SPECIFIC_ENABLED, false);
     const [breakAmbientId, setBreakAmbientId] = useLocalStorage<string | null>(LS_BREAK_AMBIENT_ID, null);
