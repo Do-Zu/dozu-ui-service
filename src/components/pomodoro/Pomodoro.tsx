@@ -1,30 +1,29 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
-import { Card } from '../ui/card';
-import { InputHTMLAttributes, useEffect, useMemo, useRef, useState } from 'react';
 import { useInterval } from '@/hooks/useInterval';
-import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 import useToggle from '@/hooks/useToggle';
+import { isNegative, isNumber } from '@/utils/validators';
 import {
-    Clock,
-    Timer,
-    Play,
-    Pause,
-    RotateCcw,
-    LucideSkipForward,
-    Music2,
-    Settings2,
-    Volume2,
-    VolumeX,
-    Trash2,
-    Upload,
     CirclePause,
     CirclePlay,
+    Clock,
+    LucideSkipForward,
+    Music2,
+    Pause,
+    Play,
+    RotateCcw,
+    Settings2,
+    Timer,
+    Trash2,
+    Upload,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 import { toast } from '@/hooks/use-toast';
-import { Input } from '../ui/input';
-import { isNegative, isNumber, isPositiveNumber } from '@/utils/validators';
-import { useTranslations } from 'next-intl';
 
 export type TypePosition = 'top-center' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type TypeMode = 'countdown' | 'stopwatch';
@@ -118,10 +117,22 @@ export default function Pomodoro({
         { id: 'lofi', name: 'Lofi', src: '/sounds/lofi.mp3', builtin: true },
     ];
 
-    const [ambientSounds, setAmbientSounds] = useState<AmbientSound[]>(defaultAmbient);
-    const [selectedAmbientId, setSelectedAmbientId] = useState<string | null>(null);
-    const [volume, setVolume] = useState<number>(0.4);
-    const [playDuringBreak, setPlayDuringBreak] = useState<boolean>(true);
+    const [ambientSoundsLS, setAmbientSoundsLS] = useLocalStorage<AmbientSound[]>(LS_SOUNDS_KEY, []);
+    const [selectedAmbientId, setSelectedAmbientId] = useLocalStorage<string | null>(LS_SELECTED_SOUND_KEY, null);
+    const [volumeLS, setVolumeLS] = useLocalStorage<number>(LS_VOLUME_KEY, 0.4);
+    const [playDuringBreakVal, setPlayDuringBreakVal] = useLocalStorage<boolean>(LS_PLAY_BREAK_KEY, true);
+
+    const ambientSounds: AmbientSound[] = useMemo(() => {
+        const custom = ambientSoundsLS && Array.isArray(ambientSoundsLS) ? ambientSoundsLS : [];
+        const merged = [...defaultAmbient];
+        custom.forEach((s) => {
+            if (!merged.find((m) => m.id === s.id)) merged.push(s);
+        });
+        return merged;
+    }, [ambientSoundsLS]);
+
+    const volume: number = typeof volumeLS === 'number' && !isNaN(volumeLS) ? volumeLS : 0.4;
+    const playDuringBreak: boolean = typeof playDuringBreakVal === 'boolean' ? playDuringBreakVal : true;
     const [isAmbientPlaying, setIsAmbientPlaying] = useState<boolean>(false);
     const [showSoundPanel, setShowSoundPanel] = useState<boolean>(false);
     const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
@@ -325,44 +336,17 @@ export default function Pomodoro({
     };
 
     // ---------- Audio logic ----------
-    // Load from localStorage on mount
+    // Initialize defaults merge & bell audio
     useEffect(() => {
-        try {
-            const storedSounds = JSON.parse(localStorage.getItem(LS_SOUNDS_KEY) || '[]');
-            if (Array.isArray(storedSounds)) {
-                // merge defaults (avoid duplicates by id)
-                const merged = [...defaultAmbient];
-                storedSounds.forEach((s: AmbientSound) => {
-                    if (!merged.find((m) => m.id === s.id)) merged.push(s);
-                });
-                setAmbientSounds(merged);
-            }
-            const storedSelected = localStorage.getItem(LS_SELECTED_SOUND_KEY);
-            if (storedSelected) setSelectedAmbientId(storedSelected);
-            const storedVolume = localStorage.getItem(LS_VOLUME_KEY);
-            if (storedVolume) setVolume(Math.min(1, Math.max(0, parseFloat(storedVolume))));
-            const storedPlayBreak = localStorage.getItem(LS_PLAY_BREAK_KEY);
-            if (storedPlayBreak) setPlayDuringBreak(storedPlayBreak === 'true');
-        } catch (err) {
-            // ignore parse errors
-        }
-        // Prepare bell sound
         bellAudioRef.current = new Audio('/sounds/bell.mp3');
         bellAudioRef.current.preload = 'auto';
     }, []);
 
-    // Persist selections
+    // keep volumes in sync
     useEffect(() => {
-        localStorage.setItem(LS_SELECTED_SOUND_KEY, selectedAmbientId || '');
-    }, [selectedAmbientId]);
-    useEffect(() => {
-        localStorage.setItem(LS_VOLUME_KEY, String(volume));
         if (ambientAudioRef.current) ambientAudioRef.current.volume = volume;
-        if (bellAudioRef.current) bellAudioRef.current.volume = Math.min(1, volume + 0.15); // bell a little louder
+        if (bellAudioRef.current) bellAudioRef.current.volume = Math.min(1, volume + 0.15);
     }, [volume]);
-    useEffect(() => {
-        localStorage.setItem(LS_PLAY_BREAK_KEY, String(playDuringBreak));
-    }, [playDuringBreak]);
 
     // Initialize / switch ambient audio
     useEffect(() => {
@@ -433,28 +417,22 @@ export default function Pomodoro({
         }
         const url = URL.createObjectURL(file);
         const newSound: AmbientSound = { id, name: file.name.replace(/\.[^.]+$/, ''), src: url, builtin: false };
-        const updated = [...ambientSounds, newSound];
-        setAmbientSounds(updated);
-        try {
-            const custom = updated.filter((s) => !s.builtin);
-            localStorage.setItem(LS_SOUNDS_KEY, JSON.stringify(custom));
-        } catch {}
+        const updated = [...(ambientSoundsLS || []), newSound];
+        // store only custom sounds (exclude builtins)
+        setAmbientSoundsLS(updated.filter((s) => !s.builtin));
         setSelectedAmbientId(id);
         setShowSoundPanel(true);
         e.target.value = '';
     };
 
     const handleRemoveCustomSound = (id: string) => {
-        setAmbientSounds((prev) => {
-            const target = prev.find((s) => s.id === id);
+        setAmbientSoundsLS((prev) => {
+            const list = prev && Array.isArray(prev) ? prev : [];
+            const target = list.find((s) => s.id === id);
             if (target && !target.builtin && target.src.startsWith('blob:')) {
                 URL.revokeObjectURL(target.src);
             }
-            const next = prev.filter((s) => s.id !== id);
-            try {
-                const custom = next.filter((s) => !s.builtin);
-                localStorage.setItem(LS_SOUNDS_KEY, JSON.stringify(custom));
-            } catch {}
+            const next = list.filter((s) => s.id !== id);
             if (selectedAmbientId === id) setSelectedAmbientId(null);
             return next;
         });
@@ -587,7 +565,7 @@ export default function Pomodoro({
                             max={1}
                             step={0.01}
                             value={volume}
-                            onChange={(e) => setVolume(parseFloat(e.target.value))}
+                            onChange={(e) => setVolumeLS(parseFloat(e.target.value))}
                             className="w-full accent-amber-400 cursor-pointer"
                             aria-label="Ambient volume"
                         />
@@ -596,7 +574,7 @@ export default function Pomodoro({
                         <input
                             type="checkbox"
                             checked={playDuringBreak}
-                            onChange={(e) => setPlayDuringBreak(e.target.checked)}
+                            onChange={(e) => setPlayDuringBreakVal(e.target.checked)}
                             className="accent-amber-400"
                         />
                         <span>Play during break</span>
@@ -604,8 +582,8 @@ export default function Pomodoro({
                     <button
                         onClick={() => {
                             setSelectedAmbientId(null);
-                            setVolume(0.4);
-                            setPlayDuringBreak(true);
+                            setVolumeLS(0.4);
+                            setPlayDuringBreakVal(true);
                             setIsAmbientPlaying(false);
                         }}
                         className="w-full text-[11px] mt-1 rounded-md bg-slate-800/60 hover:bg-slate-700/60 py-1 text-slate-300 hover:text-white"
