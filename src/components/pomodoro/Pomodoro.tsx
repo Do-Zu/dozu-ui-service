@@ -304,33 +304,50 @@ export default function Pomodoro({
         const renderEditMode = () => {
             if (editTimer[type])
                 return (
-                    <Input
+                    <input
                         autoFocus
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        aria-label={type === 'hour' ? 'Edit hours' : 'Edit minutes'}
+                        className="w-full bg-transparent text-center focus:outline-none focus:ring-0 border-none p-0 m-0 text-2xl font-semibold tracking-tight caret-amber-300"
                         value={times}
                         onChange={(e) => handleOnChangeTimer(type, e.target.value)}
                         onBlur={() => setEditTimer((prev) => ({ ...prev, [type]: false }))}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault();
-                                (e.target as HTMLInputElement).blur(); // triggers onBlur to close edit mode
+                                (e.target as HTMLInputElement).blur();
                             } else if (e.key === 'Escape') {
                                 e.preventDefault();
                                 setEditTimer((prev) => ({ ...prev, [type]: false }));
+                            } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                                // Increment / decrement convenience
+                                e.preventDefault();
+                                const numeric = parseInt(times, 10) || 0;
+                                const delta = e.key === 'ArrowUp' ? 1 : -1;
+                                const next = Math.max(0, numeric + delta);
+                                handleOnChangeTimer(type, String(next).padStart(2, '0'));
                             }
                         }}
                     />
                 );
-            return times;
+            return <span className="inline-block w-full select-none">{times}</span>;
         };
 
         return (
             <div
                 ref={type == 'minute' ? minuteEditRef : hourEditRef}
-                onClick={() => handleClickEditTimer(type)}
-                className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2"
+                onClick={() => !editTimer[type] && handleClickEditTimer(type)}
+                className={cn(
+                    'rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2 flex flex-col items-center justify-center transition-all select-none',
+                    editTimer[type] ? 'cursor-pointer ring-1 ring-amber-300/40 shadow-inner' : 'cursor-default',
+                )}
+                style={{ minHeight: '70px' }}
             >
-                <div className="text-2xl font-semibold tracking-tight">{renderEditMode()}</div>
-                <div className="text-[10px] uppercase text-slate-400">{prefix}</div>
+                <div className="text-2xl font-semibold tracking-tight leading-none h-8 flex items-center justify-center w-full">
+                    {renderEditMode()}
+                </div>
+                <div className="text-[10px] uppercase text-slate-400 mt-1">{prefix}</div>
             </div>
         );
     };
