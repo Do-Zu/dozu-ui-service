@@ -942,13 +942,81 @@ export default function Pomodoro({
         );
     };
 
+    // --------------------------- Draggable logic --------------------------- //
+    const [dragPos, setDragPos] = useState<{ x: number; y: number }>({ x: positionX, y: positionY });
+    const dragRef = useRef<HTMLDivElement | null>(null);
+    const dragDataRef = useRef<{
+        startPointerX: number;
+        startPointerY: number;
+        startX: number;
+        startY: number;
+        dragging: boolean;
+    }>({ startPointerX: 0, startPointerY: 0, startX: 0, startY: 0, dragging: false });
+
+    const handlePointerDown = (e: React.PointerEvent) => {
+        // Left button only & ignore if starting on interactive elements
+        if (e.button !== 0) return;
+        const target = e.target as HTMLElement;
+        if (
+            target.closest(
+                'button, input, textarea, select, [role="button"], [contenteditable="true"], a, svg, path, audio',
+            )
+        ) {
+            return; // do not start drag when interacting with controls
+        }
+        dragDataRef.current.startPointerX = e.clientX;
+        dragDataRef.current.startPointerY = e.clientY;
+        dragDataRef.current.startX = dragPos.x;
+        dragDataRef.current.startY = dragPos.y;
+        dragDataRef.current.dragging = true;
+
+        // Add listeners on window to track outside bounds
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp, { once: true });
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+        if (!dragDataRef.current.dragging) return;
+        const dx = e.clientX - dragDataRef.current.startPointerX;
+        const dy = e.clientY - dragDataRef.current.startPointerY;
+        setDragPos({ x: dragDataRef.current.startX + dx, y: dragDataRef.current.startY + dy });
+    };
+
+    const handlePointerUp = () => {
+        dragDataRef.current.dragging = false;
+        window.removeEventListener('pointermove', handlePointerMove);
+    };
+
+    useEffect(() => {
+        return () => {
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerup', handlePointerUp);
+        };
+    }, []);
+
+    const isDragging = dragDataRef.current.dragging;
+
     return (
         <motion.div
-            className={cn(`max-w-[140px] transform absolute z-[99999] ${positionClass(position)}`, className)}
+            className={cn(
+                `max-w-[140px] transform absolute z-[99999] ${positionClass(position)} select-none`,
+                isDragging && 'cursor-grabbing',
+                !isDragging && 'cursor-grab',
+                className,
+            )}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
+            ref={dragRef}
+            onPointerDown={handlePointerDown}
+            style={{ touchAction: 'none' }}
         >
-            <div style={{ transform: `translate(${positionX}px, ${positionY}px)`, willChange: 'transform' }}>
+            <div
+                style={{
+                    transform: `translate(${dragPos.x}px, ${dragPos.y}px)`,
+                    willChange: 'transform',
+                    userSelect: isDragging ? 'none' : undefined,
+                }}
+            >
                 {renderClock()}
                 <AnimatePresence>
                     {isOpen && (
