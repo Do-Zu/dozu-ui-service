@@ -159,7 +159,7 @@ export default function Pomodoro({
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const initialSeconds = useMemo(() => (defaultMode === 'countdown' ? times * 60 : 0), [defaultMode, times]);
-    const [countTimer, setCountTimer] = useState<number>(10);
+    const [countTimer, setCountTimer] = useState<number>(initialSeconds);
 
     const minuteEditRef = useRef<HTMLDivElement>(null);
     const hourEditRef = useRef<HTMLDivElement>(null);
