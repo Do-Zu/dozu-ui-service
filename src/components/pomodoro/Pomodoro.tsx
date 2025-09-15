@@ -8,9 +8,9 @@ import { Clock, Timer, Play, Pause, RotateCcw, LucideSkipForward } from 'lucide-
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
-type TypePosition = 'top-center' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-type TypeMode = 'countdown' | 'stopwatch';
-interface IPropPomodoro {
+export type TypePosition = 'top-center' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+export type TypeMode = 'countdown' | 'stopwatch';
+export interface IPropPomodoro {
     position: TypePosition;
     positionX?: number;
     positionY?: number;

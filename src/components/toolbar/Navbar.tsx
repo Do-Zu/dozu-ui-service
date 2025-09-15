@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useSelector } from 'react-redux';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import { ShowIf } from '../ui/ShowIf';
 import { LearningModeSelect } from './LearningModeSelect';
+import { RootState } from '@/stores/store';
+import Pomodoro from '../pomodoro/Pomodoro';
 
 function TokenHandler() {
     // const dispatch = useAppDispatch();
@@ -27,6 +30,7 @@ export default function Navbar() {
     const { isAuthenticated, clearAuthData } = useAuth();
     const { isStudent } = useRoleChecker();
     const router = useRouter();
+    const { isDisplay: isDisplayPomodoro } = useSelector((state: RootState) => state.pomodoro);
 
     // useEffect(() => {
     //     const refreshToken = async () => {
@@ -72,9 +76,7 @@ export default function Navbar() {
                         <LearningModeSelect />
                     </ShowIf>
                 </div>
-                <div className="flex items-center gap-3 text-[0.65rem] uppercase tracking-wide text-muted-foreground/70">
-                    {/* <span className="hidden sm:inline">Knowledge Platform</span> */}
-                </div>
+                {isDisplayPomodoro && <Pomodoro position="top-center" positionY={-6} positionX={-30} />}
             </div>
 
             <Suspense fallback={null}>
