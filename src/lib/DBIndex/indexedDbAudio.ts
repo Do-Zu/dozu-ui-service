@@ -16,7 +16,15 @@ export interface IndexedDBAudioRecord {
 
 function openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const idbFactory: IDBFactory | undefined =
+            typeof globalThis !== 'undefined' && 'indexedDB' in globalThis
+                ? (globalThis as any).indexedDB
+                : undefined;
+        if (!idbFactory) {
+            reject(new Error('IndexedDB is not available in this environment.'));
+            return;
+        }
+        const request = idbFactory.open(DB_NAME, DB_VERSION);
         request.onupgradeneeded = () => {
             const db = request.result;
             if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -24,7 +32,11 @@ function openDB(): Promise<IDBDatabase> {
             }
         };
         request.onerror = () => reject(request.error);
-        request.onsuccess = () => resolve(request.result);
+        request.onsuccess = () => {
+            const db = request.result;
+            db.onversionchange = () => db.close();
+            resolve(db);
+        };
     });
 }
 
