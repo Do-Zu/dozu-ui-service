@@ -169,7 +169,7 @@ const TeacherNodeSheet = ({ classId }: TeacherNodeSheetProps) => {
                     {/* <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription> */}
                 </SheetHeader>
 
-                <div className="grid w-full gap-3">
+                <div className="flex-1 overflow-y-auto pr-2">
                     <Label>Description</Label>
                     {isEditing ? (
                         <Textarea value={newDescription} onChange={onChangeNewDescription} />

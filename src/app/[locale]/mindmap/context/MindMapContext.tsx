@@ -252,7 +252,6 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
             if (nodeStatsData) {
                 // Load existing mindmap
                 setNodeStats(nodeStatsData);
-                console.log('nodestats', nodeStatsData);
             }
         } catch (error) {
             // If mindmap doesn't exist, create initial mindmap from topic
