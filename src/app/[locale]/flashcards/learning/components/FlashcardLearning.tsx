@@ -84,25 +84,28 @@ export function FlashcardLearning({
                     {shouldShowTrackingOptions ? (
                         <div className="grid grid-cols-12 gap-6 mt-4 w-[55%] h-[18%]">
                             {learningOptions.map((option, index) => {
-                                const nextReviewSchedule = flashcard.nextReviewSchedule;
-                                const nextReviewIntervalForRating =
-                                    nextReviewSchedule.nextReviewIntervalsForRating.find(
-                                        (e) => e.rating === option.rating,
-                                    );
-                                if (!nextReviewIntervalForRating) {
-                                    return <>Rating not found</>;
-                                }
-                                const intervalFormatted = flashcardHelper.formatInterval(
-                                    nextReviewIntervalForRating.interval,
-                                );
+                                // const nextReviewInterval = flashcard?.qualityResponsesNextReviewInterval.find(
+                                //     (element) => element.qualityResponse === option.qualityResponse,
+                                // )?.nextReviewInterval;
+                                // Get the interval list if available, otherwise the array is empty
+                                const intervals = flashcard.nextReviewSchedule?.nextReviewIntervalsForRating ?? [];
+
+                                // Find interval by current rating (can be undefined)
+                                const found = intervals.find((i) => i.rating === option.rating);
+                                const interval = found?.interval;
+
+                                // Display label: if data is missing, use a dash
+                                const intervalFormatted = interval ? flashcardHelper.formatInterval(interval) : '—';
 
                                 return (
                                     <TooltipProvider key={index}>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <div
-                                                    className="col-span-3 h-full flex flex-col gap-0 justify-center items-center rounded-lg bg-white dark:bg-gray-700 cursor-pointer"
+                                                    className="col-span-3 h-full flex flex-col gap-0 justify-center items-center rounded-lg
+                   bg-white dark:bg-gray-700 cursor-pointer"
                                                     onClick={() => handleLearningOptionClick(option.rating)}
+                                                    aria-disabled={!interval}
                                                 >
                                                     {option.icon}
                                                     <Label className="text-lg">{option.label}</Label>
@@ -111,7 +114,7 @@ export function FlashcardLearning({
                                                     </Label>
                                                 </div>
                                             </TooltipTrigger>
-                                            <TooltipContent>Key shortcut: {option.rating} </TooltipContent>
+                                            <TooltipContent>Key shortcut: {option.rating}</TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>
                                 );
