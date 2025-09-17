@@ -175,13 +175,12 @@ const getCurrentTime = (): string => {
 };
 
 export { formatDate, formatDateCustom, formatTime, getCurrentSystemDate, getCurrentSystemDateTime, getCurrentTime };
-export const TimeUnit = {
-    SECOND: 'seconds',
-    MINUTE: 'minutes',
-    HOUR: 'hours',
-    DAY: 'days',
-    WEEK: 'weeks',
-    MONTH: 'months',
-    YEAR: 'years',
-} as const;
-export type TimeUnit = (typeof TimeUnit)[keyof typeof TimeUnit];
+export enum TimeUnit {
+    SECOND = 'seconds',
+    MINUTE = 'minutes',
+    HOUR = 'hours',
+    DAY = 'days',
+    WEEK = 'weeks',
+    MONTH = 'months',
+    YEAR = 'years',
+}

@@ -8,6 +8,9 @@ import {
     IFlashcardsForNodeBatchInput,
     IFlashcardsWithTopicName,
     IFlashcardBatchResult,
+    IAnkiRating,
+    IDueAnkiCard,
+    IAnkiCardReviewed,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { flashcardRoutes } from '@/utils/constants/api.routes';
@@ -16,6 +19,12 @@ export interface IFlashcardReviewPayload {
     topicId: string | number;
     flashcardId: string | number;
     qualityResponse: IQualityResponse;
+}
+
+export interface IFlashcardReviewByAnkiPayload {
+    topicId: string | number;
+    flashcardId: string | number;
+    rating: IAnkiRating;
 }
 
 class FlashcardService {
@@ -42,6 +51,16 @@ class FlashcardService {
 
     public async getDueFlashcardsForTopic(topicId: string | number) {
         const response = await getRequest<unknown, IFlashcardWithReviewPrediction[]>(
+            flashcardRoutes(topicId).GET_DUE_FLASHCARDS,
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async getDueAnkiCardsForTopic(topicId: string | number) {
+        const response = await getRequest<unknown, IDueAnkiCard[]>(
             flashcardRoutes(topicId).GET_DUE_FLASHCARDS,
         );
         if (response.status !== 'success') {
@@ -104,6 +123,17 @@ class FlashcardService {
         const response = await postRequest<{ search: string }, IUnspashImage[]>('/flashcards/search-images', {
             search,
         });
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async reviewFlashcardByAnki({ topicId, flashcardId, rating }: IFlashcardReviewByAnkiPayload) {
+        const response = await patchRequest<{ rating: IAnkiRating }, IAnkiCardReviewed | null>(
+            flashcardRoutes(topicId).REVIEW_FLASHCARD_WITH_QUALITY({ flashcardId }),
+            { rating },
+        );
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
