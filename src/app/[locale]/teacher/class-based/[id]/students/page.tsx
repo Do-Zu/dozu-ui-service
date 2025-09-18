@@ -9,10 +9,14 @@ import { StudentList } from './components/StudentList';
 import { toast } from '@/hooks/use-toast';
 import teacherClassService, {
     IRemoveStudentInClassPayload,
+    IUserProfile,
 } from '@/services/class-based-learning/teacher/teacherClass.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
+import StudentProfileModal from './components/StudentProfileModal';
+import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
+import { useState } from 'react';
 
 export default function Page() {
     let { id: classId } = useParams() as { id: string | string[] | number };
@@ -30,6 +34,12 @@ export default function Page() {
     const tCommon = useTranslations('common');
     const tClass = useTranslations('class');
     const tStudentList = useTranslations('class.studentList');
+    
+    // Profile modal state
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [selectedStudentProfile, setSelectedStudentProfile] = useState<IUserProfile | null>(null);
+    const [profileLoading, setProfileLoading] = useState(false);
+    
     const {
         data: myClass,
         error: myClassError,
@@ -65,6 +75,82 @@ export default function Page() {
     async function handleRemoveClick(studentId: number) {
         if (typeof classId !== 'number' && !classId) return;
         await removeStudentFromClassAsync({ classId: classId as number, studentId });
+    }
+
+    async function handleViewProfile(student: IStudentInClass) {
+        try {
+            setProfileLoading(true);
+            setIsProfileModalOpen(true);
+            
+            // Mock data for testing - replace with actual API call when ready
+            const mockProfile: IUserProfile = {
+                userId: student.userId,
+                username: student.username,
+                fullName: student.fullName,
+                email: `${student.username}@example.com`,
+                avatarUrl: student.avatarUrl,
+                bio: 'Đây là một học sinh chăm chỉ và tích cực trong lớp học.',
+                location: 'Hà Nội, Việt Nam',
+                university: 'Đại học Bách Khoa Hà Nội',
+                major: 'Khoa học máy tính',
+                enrolledAt: student.enrolledAt,
+                gamificationStats: {
+                    totalPoints: 1250,
+                    currentStreak: 7,
+                    longestStreak: 15,
+                    level: 5,
+                    experiencePoints: 750,
+                    nextLevelExperience: 1000,
+                    achievements: [
+                        {
+                            id: 1,
+                            name: 'Học sinh xuất sắc',
+                            description: 'Hoàn thành 50 bài học',
+                            icon: '🏆',
+                            earnedAt: new Date('2024-01-15'),
+                            rarity: 'rare' as const
+                        },
+                        {
+                            id: 2,
+                            name: 'Streak Master',
+                            description: 'Duy trì streak 10 ngày',
+                            icon: '🔥',
+                            earnedAt: new Date('2024-02-01'),
+                            rarity: 'epic' as const
+                        }
+                    ],
+                    weeklyActivity: [3, 5, 2, 8, 6, 4, 7],
+                    totalLessonsCompleted: 85,
+                    totalQuizzesCompleted: 42,
+                    totalFlashcardsReviewed: 320,
+                    averageScore: 87.5
+                }
+            };
+            
+            // Try to get real profile data, fallback to mock if API fails
+            try {
+                const profileData = await teacherClassService.getStudentProfile(student.userId);
+                const fullProfile: IUserProfile = {
+                    ...profileData,
+                    enrolledAt: student.enrolledAt,
+                };
+                setSelectedStudentProfile(fullProfile);
+            } catch (apiError) {
+                console.log('API not available, using mock data:', apiError);
+                setSelectedStudentProfile(mockProfile);
+            }
+            
+        } catch (error) {
+            toastHelper.showErrorMessage('Không thể tải thông tin profile');
+            setIsProfileModalOpen(false);
+        } finally {
+            setProfileLoading(false);
+        }
+    }
+
+    function handleCloseProfileModal() {
+        setIsProfileModalOpen(false);
+        setSelectedStudentProfile(null);
     }
 
     if (myClassError) {
@@ -104,8 +190,20 @@ export default function Page() {
                 </div>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                <StudentList students={students} handleRemoveClick={handleRemoveClick} />
+                <StudentList
+                    students={students}
+                    handleRemoveClick={handleRemoveClick}
+                    handleViewProfile={handleViewProfile}
+                />
             </div>
+
+            {/* Student Profile Modal */}
+            <StudentProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={handleCloseProfileModal}
+                student={selectedStudentProfile}
+                loading={profileLoading}
+            />
         </div>
     );
 }

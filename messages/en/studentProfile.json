@@ -1,0 +1,19 @@
+{
+  "title": "Student Profile",
+  "personalInfo": "Personal Information",
+  "learningStats": "Learning Statistics",
+  "achievements": "Achievements",
+  "level": "Level",
+  "points": "Points",
+  "currentStreak": "Current Streak",
+  "longestStreak": "Longest Streak",
+  "averageScore": "Average Score",
+  "lessonsCompleted": "Lessons Completed",
+  "quizzesCompleted": "Quizzes Completed",
+  "flashcardsReviewed": "Flashcards Reviewed",
+  "joinedClass": "Joined Class",
+  "bio": "Bio",
+  "location": "Location",
+  "university": "University",
+  "major": "Major"
+}

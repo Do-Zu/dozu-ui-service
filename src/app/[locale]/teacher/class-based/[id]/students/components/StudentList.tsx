@@ -17,9 +17,10 @@ import { useTranslations } from 'next-intl';
 interface StudentListProps {
     students: IStudentInClass[];
     handleRemoveClick: (studentId: number) => void;
+    handleViewProfile: (student: IStudentInClass) => void;
 }
 
-export function StudentList({ students, handleRemoveClick }: StudentListProps) {
+export function StudentList({ students, handleRemoveClick, handleViewProfile }: StudentListProps) {
     const tCommon = useTranslations('common');
     const tUser = useTranslations('user');
     const tStudentList = useTranslations('class.studentList');
@@ -94,7 +95,7 @@ export function StudentList({ students, handleRemoveClick }: StudentListProps) {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="start" side="top">
-                                                <DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => handleViewProfile(student)}>
                                                     <User className="mr-2 h-4 w-4" />
                                                     <span>{tStudentList('viewProfile')}</span>
                                                 </DropdownMenuItem>

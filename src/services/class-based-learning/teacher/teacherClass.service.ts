@@ -14,6 +14,42 @@ export type ICreateClassPayload = ICreateClassBody;
 export type IUpdateClassPayload = IUpdateClassBody & { classId: number };
 export type IRemoveStudentInClassPayload = { classId: number; studentId: number };
 
+export interface IUserProfile {
+    userId: number;
+    username: string;
+    fullName: string | null;
+    email: string;
+    avatarUrl: string;
+    bio?: string | null;
+    location?: string | null;
+    university?: string | null;
+    major?: string | null;
+    enrolledAt: Date;
+    
+    // Gamification stats
+    gamificationStats?: {
+        totalPoints: number;
+        currentStreak: number;
+        longestStreak: number;
+        level: number;
+        experiencePoints: number;
+        nextLevelExperience: number;
+        achievements: Array<{
+            id: number;
+            name: string;
+            description: string;
+            icon: string;
+            earnedAt: Date;
+            rarity: 'common' | 'rare' | 'epic' | 'legendary';
+        }>;
+        weeklyActivity: number[];
+        totalLessonsCompleted: number;
+        totalQuizzesCompleted: number;
+        totalFlashcardsReviewed: number;
+        averageScore: number;
+    };
+}
+
 class TeacherClassService {
     public async getClasses() {
         const response = await getRequest<void, IClass[]>(`/classes/teacher`);
@@ -73,6 +109,14 @@ class TeacherClassService {
         const response = await deleteRequest<void, ApiResponse<number>>(
             `/enrollments/${classId}/students/${studentId}`,
         );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async getStudentProfile(userId: number) {
+        const response = await getRequest<void, IUserProfile>(`/profile/${userId}`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }

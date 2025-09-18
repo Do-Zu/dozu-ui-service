@@ -1,0 +1,19 @@
+{
+  "title": "Hồ sơ học sinh",
+  "personalInfo": "Thông tin cá nhân",
+  "learningStats": "Thống kê học tập",
+  "achievements": "Thành tích",
+  "level": "Cấp độ",
+  "points": "Điểm",
+  "currentStreak": "Chuỗi hiện tại",
+  "longestStreak": "Chuỗi dài nhất",
+  "averageScore": "Điểm trung bình",
+  "lessonsCompleted": "Bài học hoàn thành",
+  "quizzesCompleted": "Bài kiểm tra hoàn thành",
+  "flashcardsReviewed": "Thẻ ghi nhớ đã ôn tập",
+  "joinedClass": "Tham gia lớp",
+  "bio": "Tiểu sử",
+  "location": "Địa điểm",
+  "university": "Trường đại học",
+  "major": "Chuyên ngành"
+}
