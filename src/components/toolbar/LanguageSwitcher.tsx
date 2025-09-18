@@ -1,15 +1,14 @@
 'use client';
-
-import { useRouter, usePathname } from 'next/navigation';
-import { useTransition, useState, useEffect } from 'react';
-import { Globe2, Loader2, Check } from 'lucide-react';
+import { useEffect, useState, useTransition } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Check, Loader2 } from 'lucide-react';
 import {
     DropdownMenu,
-    DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const LANGS = [
     { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -19,6 +18,7 @@ const LANGS = [
 const LanguageSwitcher = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
     const [current, setCurrent] = useState('en');
 
@@ -29,14 +29,19 @@ const LanguageSwitcher = () => {
 
     const changeLocale = (locale: string) => {
         if (locale === current) return;
+
         const segments = pathname?.split('/');
-        if (segments && segments[1]) {
-            segments[1] = locale;
-            const newPath = segments.join('/');
-            startTransition(() => {
-                router.push(newPath);
-            });
-        }
+
+        if (!segments || !segments[1]) return;
+
+        segments[1] = locale;
+        const newPath = segments.join('/');
+        const query = searchParams?.toString();
+        const href = query ? `${newPath}?${query}` : newPath;
+
+        startTransition(() => {
+            router.push(href);
+        });
     };
 
     return (
