@@ -30,7 +30,8 @@
             "showAnswer": "Hiện kết quả",
             "flashcardsRemaining": "flashcards còn lại",
             "greatJob": "Làm tốt lắm! 🎉",
-            "flashcardsCompleted": "Bạn đã hoàn thành tất cả flashcard cho chủ đề này. Hiện tại không còn gì để học thêm."
+            "flashcardsCompleted": "Bạn đã hoàn thành tất cả flashcard cho chủ đề này. Hiện tại không còn gì để học thêm.",
+            "flashcardsEmpty": "Không có flashcard nào cho topic này! Bạn hãy thử tạo bộ flashcard"
         },
         "import": {
             "title": "Nhập dữ liệu của bạn",

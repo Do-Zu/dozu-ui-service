@@ -16,6 +16,7 @@ import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import { cn } from '@/lib/utils';
 import Pomodoro from '@/components/pomodoro/Pomodoro';
+import useActivePomodoro from '@/hooks/useActivePomodoro';
 
 const initialAutoPlaySpeed = 3;
 
@@ -48,6 +49,7 @@ function getFlashcardsShuffled(flashcards: IFlashcard[]): IFlashcard[] {
 
 export default function Page() {
     const t = useTranslations('flashcard.study');
+    const tFlashcardLearning = useTranslations('flashcard.learning');
     const router = useRouter();
     const params = useParams();
     if (!params?.topicId) return <div>No topic id is provided</div>;
@@ -83,6 +85,12 @@ export default function Page() {
     const [isImagesModalOpen, setIsImagesModalOpen] = useState<boolean>(false);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
+    useActivePomodoro();
+
+    function handleBackClick() {
+        router.back();
+    }
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -323,9 +331,32 @@ export default function Page() {
     if (flashcardsLoading === true || flashcards === null || flashcards === undefined) {
         return <div>Loading flashcards...</div>;
     }
-
     if (flashcards.length === 0 || !currentFlashcard) {
-        return <div>No Flashcards to study</div>;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+                <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
+                        <svg className="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                    </div>
+                    <p className="text-gray-700 max-w-md">{tFlashcardLearning('flashcardsEmpty')}</p>
+                    <div className="pt-4">
+                        <Button
+                            onClick={handleBackClick}
+                            className="px-6 py-2  rounded-lg hover:bg-muted-foreground transition-colors border border-gray-300"
+                        >
+                            Go Back
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     function renderFlashcardButtonsSection(style: string) {
@@ -358,69 +389,6 @@ export default function Page() {
         );
     }
 
-    function renderLearningSection() {
-        return (
-            <div className="flex flex-col gap-2">
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 px-2 justify-start"
-                                onClick={handleOnClickLearning}
-                            >
-                                <BookOpen className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-muted-foreground">{t('learning')}</span>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            <p>Learn Flashcards</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 px-2 justify-start"
-                                onClick={handleOnClickGame}
-                            >
-                                <Gamepad2 className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-muted-foreground">Brain Chase</span>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            <p>Play Brain Chase Game</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 px-2 justify-start"
-                                onClick={handleOnClickMemoryMatch}
-                            >
-                                <Brain className="h-4 w-4 mr-1" />
-                                <span className="text-sm text-muted-foreground">Memory</span>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                            <p>Play Memory Match Game</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-        );
-    }
-
     return (
         <div className="flex bg-gray-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
@@ -432,15 +400,13 @@ export default function Page() {
                         isSidebarOpen ? 'w-[75%]' : 'w-full',
                     )}
                 >
-                    <Pomodoro position="top-right" positionX={-200} />
-
                     <div className="absolute top-8 right-8 z-20">
                         <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
                             <PanelLeft size={18} />
                         </Button>
                     </div>
                     <Flashcard
-                        style="relative flex w-[55%] h-[80%] mt-4 "
+                        style="relative flex w-[55%] h-[80%] mt-4"
                         cardContainerRef={flashcardContainerRef}
                         cardRef={cardRef}
                         handleManualFlip={handleManualFlip}

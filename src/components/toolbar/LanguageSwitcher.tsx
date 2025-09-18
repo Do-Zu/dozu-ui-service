@@ -1,15 +1,14 @@
 'use client';
-
-import { useRouter, usePathname } from 'next/navigation';
-import { useTransition, useState, useEffect } from 'react';
-import { Globe2, Loader2, Check } from 'lucide-react';
+import { useEffect, useState, useTransition } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Check, Loader2 } from 'lucide-react';
 import {
     DropdownMenu,
-    DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const LANGS = [
     { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -19,6 +18,7 @@ const LANGS = [
 const LanguageSwitcher = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
     const [current, setCurrent] = useState('en');
 
@@ -27,16 +27,39 @@ const LanguageSwitcher = () => {
         if (code && LANGS.find((l) => l.code === code)) setCurrent(code);
     }, [pathname]);
 
+    const buildHref = (basePath: string, query?: string, hash?: string): string => {
+        const queryString = query ? `?${query}` : '';
+        const hashString = hash ?? '';
+        return `${basePath}${queryString}${hashString}`;
+    };
+
     const changeLocale = (locale: string) => {
         if (locale === current) return;
+
         const segments = pathname?.split('/');
-        if (segments && segments[1]) {
+
+        const hasLocal = !!segments![1] && LANGS.some((lang) => lang.code.toLowerCase() === segments![1].toLowerCase());
+
+        let basePath: string;
+
+        if (hasLocal) {
             segments[1] = locale;
-            const newPath = segments.join('/');
-            startTransition(() => {
-                router.push(newPath);
-            });
+            basePath = segments.join('/');
+        } else {
+            const safePath = pathname ?? '';
+            const extendPath = pathname.startsWith('/') ? '' : `${safePath.replace(/^\/+/, '')}`;
+
+            basePath = `/${locale}/${extendPath}`;
         }
+
+        const query = searchParams?.toString();
+        const hash = typeof window !== 'undefined' ? window.location.hash : '';
+
+        const href = buildHref(basePath, query, hash);
+
+        startTransition(() => {
+            router.push(href);
+        });
     };
 
     return (

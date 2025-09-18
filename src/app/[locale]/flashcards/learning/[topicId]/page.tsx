@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useFetch from '@/hooks/useFetch';
 import { putRequest } from '@/api/api';
 import LoadingPage from '@/app/loading';
@@ -8,9 +8,19 @@ import { FlashcardLearning } from '../components/FlashcardLearning';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
-import { IFlashcard, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
-import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
-import flashcardService, { IFlashcardReviewPayload } from '@/services/flashcard/flashcard.service';
+import {
+    IAnkiCardReviewed,
+    IAnkiRating,
+    IAnkiStatus,
+    IDueAnkiCard,
+    IFlashcard,
+    IQualityResponseNextReviewInterval,
+} from '../../types/flashcard.type';
+import { IItemStatus, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
+import flashcardService, {
+    IFlashcardReviewByAnkiPayload,
+    IFlashcardReviewPayload,
+} from '@/services/flashcard/flashcard.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { Button } from '@/components/ui/button';
@@ -21,6 +31,7 @@ import { handleConvertToQuestionsEdited } from '@/app/[locale]/question/utils/ha
 import { CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '@/app/[locale]/generate/types';
 import { writeLocalQuiz } from '@/app/[locale]/quiz/utils/localQuiz.storage';
 import { buildPayloadFromLearnedFlashcards } from '@/app/[locale]/question/utils/buildGenPayload';
+import { isAfter } from 'date-fns';
 
 export type IFlashcardWithReviewPrediction = Pick<
     IFlashcard,
@@ -28,6 +39,8 @@ export type IFlashcardWithReviewPrediction = Pick<
 > & {
     qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
 };
+
+export type IFlashcardStatusCounts = Record<Exclude<IAnkiStatus, IAnkiStatus.RELEARNING>, number>;
 
 export default function Page() {
     const params = useParams();
@@ -41,7 +54,7 @@ export default function Page() {
     // initial total when fetched
     const [initialTotal, setInitialTotal] = useState<number>(0);
     // List of lessons learned (reviewed)
-    const [studied, setStudied] = useState<IFlashcardWithReviewPrediction[]>([]);
+    const [studied, setStudied] = useState<IDueAnkiCard[]>([]);
     // "chunk 20%" completed
     const [chunksDone, setChunksDone] = useState<number>(0);
     // preparing quiz for chunk number (to navigate when SSE is done)
@@ -65,16 +78,45 @@ export default function Page() {
         saveCurrentLearningSession,
     } = useUserTrackingContext();
 
+    // const {
+    //     data: flashcards,
+    //     setData: setFlashcardsData,
+    //     loading: flashcardsLoading,
+    //     error: flashcardsError,
+    // } = useFetch<IFlashcardWithReviewPrediction[]>(() => flashcardService.getDueFlashcardsForTopic(topicId));
+
     const {
         data: flashcards,
         setData: setFlashcardsData,
         loading: flashcardsLoading,
         error: flashcardsError,
-    } = useFetch<IFlashcardWithReviewPrediction[]>(() => flashcardService.getDueFlashcardsForTopic(topicId));
+    } = useFetch<IDueAnkiCard[]>(() => flashcardService.getDueAnkiCardsForTopic(topicId));
+
+    const firstToFetchFlashcards = useRef(true);
+
+    const [flashcardStatusCounts, setFlashcardsStatusCounts] = useState<IFlashcardStatusCounts>({
+        [IAnkiStatus.NEW]: 0,
+        [IAnkiStatus.LEARNING]: 0,
+        [IAnkiStatus.REVIEW]: 0,
+    });
 
     useEffect(() => {
         if (flashcards && flashcards.length > 0) {
             setInitialTotal(flashcards.length);
+            if (firstToFetchFlashcards.current) {
+                const counter: IFlashcardStatusCounts = {
+                    [IAnkiStatus.NEW]: 0,
+                    [IAnkiStatus.LEARNING]: 0,
+                    [IAnkiStatus.REVIEW]: 0,
+                };
+                for (const card of flashcards) {
+                    // number of 'learning' cards equals to both 'learning' and 'relearning' cards
+                    const status = card.status === IAnkiStatus.RELEARNING ? IAnkiStatus.LEARNING : card.status;
+                    counter[status]++;
+                }
+                setFlashcardsStatusCounts(counter);
+                firstToFetchFlashcards.current = false;
+            }
         }
     }, [flashcards]);
 
@@ -116,14 +158,110 @@ export default function Page() {
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
 
-    const { loading: apiLoading, execute } = usePost<IFlashcardReviewPayload, {}>(
-        ({ topicId, flashcardId, qualityResponse }) =>
-            flashcardService.reviewFlashcardWithQuality({ topicId, flashcardId, qualityResponse }),
+    // const { loading: apiLoading, execute } = usePost<IFlashcardReviewPayload, {}>(
+    //     ({ topicId, flashcardId, qualityResponse }) =>
+    //         flashcardService.reviewFlashcardWithQuality({ topicId, flashcardId, qualityResponse }),
+    //     'PATCH',
+    //     {
+    //         onError: toastHelper.showErrorMessage,
+    //         onSuccess: (data) => {
+    //             toastHelper.showSuccessMessage('We have saved Your Progress!');
+    //         },
+    //     },
+    // );
+
+    const { loading: trackFlashcardLoading, execute: trackFlashcard } = usePost<
+        IFlashcardReviewByAnkiPayload,
+        IAnkiCardReviewed | null
+    >(
+        ({ topicId, flashcardId, rating }) => flashcardService.reviewFlashcardByAnki({ topicId, flashcardId, rating }),
         'PATCH',
         {
             onError: toastHelper.showErrorMessage,
-            onSuccess: (data) => {
-                toastHelper.showSuccessMessage('We have saved Your Progress!');
+            onSuccess: async (data) => {
+                if (!flashcards || !currentFlashcard) return;
+                const flashcardsUpdated = [...flashcards];
+                setFlashcardsStatusCounts((prev) => {
+                    const updated = { ...prev };
+                    const currentFlashcardStatus =
+                        currentFlashcard.status === IAnkiStatus.RELEARNING
+                            ? IAnkiStatus.LEARNING
+                            : currentFlashcard.status;
+                    updated[currentFlashcardStatus]--;
+                    if (data) {
+                        // UPDATE flashcard count for each status
+                        const newStatus = data.status === IAnkiStatus.RELEARNING ? IAnkiStatus.LEARNING : data.status;
+                        updated[newStatus]++;
+                    }
+                    return updated;
+                });
+
+                flashcardsUpdated.shift();
+
+                if (data) {
+                    // INSERT this card to a suitable position (to maintain ORDER by nextReview)
+                    let inserted = false;
+                    for (let i = 0; i < flashcardsUpdated.length; ++i) {
+                        const card = flashcardsUpdated[i];
+                        if (isAfter(data.nextReview, card.nextReview)) continue;
+                        flashcardsUpdated.splice(i, 0, {
+                            ...currentFlashcard,
+                            nextReview: data.nextReview,
+                            status: data.status,
+                            nextReviewSchedule: data.nextReviewSchedule,
+                        });
+                        inserted = true;
+                        break;
+                    }
+
+                    if (!inserted) {
+                        flashcardsUpdated.push({
+                            ...currentFlashcard,
+                            nextReview: data.nextReview,
+                            status: data.status,
+                            nextReviewSchedule: data.nextReviewSchedule,
+                        });
+                    }
+                }
+                setFlashcardsData(flashcardsUpdated);
+
+                const newStudied = [...studied, currentFlashcard];
+                setStudied(newStudied);
+
+                // Update learning tracking metrics using context methods
+                updateItemsStudied(itemsStudiedCount + 1);
+                // if (qualityResponse >= 3) {
+                //     updateCorrectAnswers(correctAnswersCount + 1);
+                // }
+
+                // If finish learning the new 20% chunk -> ask gen quiz
+                const studiedCountAfter = newStudied.length;
+                const nextChunk = chunksDone + 1;
+                const nextThreshold = nextChunk * chunkSize;
+                const justReachedNewChunk = studiedCountAfter >= nextThreshold;
+
+                if (justReachedNewChunk && !loading && pendingChunk === null) {
+                    const ok = window.confirm('Bạn đã học xong 20% bài. Bạn có muốn làm quiz nhanh không?');
+                    if (ok) {
+                        const start = chunksDone * chunkSize;
+                        const end = Math.min(start + chunkSize, studiedCountAfter);
+                        const chunkCards = newStudied.slice(start, end);
+
+                        const payload = buildPayloadFromLearnedFlashcards(topicId, chunkCards);
+                        setPendingChunk(nextChunk);
+                        await regenerate(payload, 'quiz'); // SSE completed sẽ redirect
+                    }
+                    setChunksDone(nextChunk);
+                }
+
+                // If this was the last card, save progress to database using context method
+                if (flashcardsUpdated.length === 0) {
+                    await saveCurrentLearningSession(
+                        topicId as string,
+                        flashcards.length,
+                        true, // completed
+                    );
+                }
             },
         },
     );
@@ -172,7 +310,7 @@ export default function Page() {
         setShouldShowTrackingOptions(false);
     }, [flashcards]);
 
-    function handleManualFlip() {
+    const handleManualFlip = useCallback(() => {
         if (isFrontRef.current) {
             setShouldShowTrackingOptions(true);
         } else {
@@ -185,64 +323,20 @@ export default function Page() {
             // setIsFront(prev => !prev);
             isFrontRef.current = !isFrontRef.current;
         }
-    }
+    }, []);
 
-    async function handleReviewFlashcardClick(qualityResponse: IQualityResponse) {
-        if (!flashcards || !currentFlashcard) return;
-        try {
+    const handleReviewFlashcardClick = useCallback(
+        async (rating: IAnkiRating) => {
+            if (!flashcards || !currentFlashcard) return;
             const { flashcardId } = currentFlashcard;
-            await execute({
+            await trackFlashcard({
                 topicId,
                 flashcardId,
-                qualityResponse,
+                rating,
             });
-            const flashcardsFiltered = flashcards.slice(1);
-            setFlashcardsData(flashcardsFiltered);
-
-            const newStudied = [...studied, currentFlashcard];
-            setStudied(newStudied);
-
-            // Update learning tracking metrics using context methods
-            updateItemsStudied(itemsStudiedCount + 1);
-            if (qualityResponse >= 3) {
-                updateCorrectAnswers(correctAnswersCount + 1);
-            }
-
-            // If finish learning the new 20% chunk -> ask gen quiz
-            const studiedCountAfter = newStudied.length;
-            const nextChunk = chunksDone + 1;
-            const nextThreshold = nextChunk * chunkSize;
-            const justReachedNewChunk = studiedCountAfter >= nextThreshold;
-
-            if (justReachedNewChunk && !loading && pendingChunk === null) {
-                const ok = window.confirm('Bạn đã học xong 20% bài. Bạn có muốn làm quiz nhanh không?');
-                if (ok) {
-                    const start = chunksDone * chunkSize;
-                    const end = Math.min(start + chunkSize, studiedCountAfter);
-                    const chunkCards = newStudied.slice(start, end);
-
-                    const payload = buildPayloadFromLearnedFlashcards(topicId, chunkCards);
-                    setPendingChunk(nextChunk);
-                    await regenerate(payload, 'quiz'); // SSE completed sẽ redirect
-                }
-                setChunksDone(nextChunk);
-            }
-
-            // If this was the last card, save progress to database using context method
-            if (flashcardsFiltered.length === 0) {
-                await saveCurrentLearningSession(
-                    topicId as string,
-                    flashcards.length,
-                    true, // completed
-                );
-            }
-        } catch (err) {
-            toast({
-                title: 'Review failed, please try again',
-                variant: 'destructive',
-            });
-        }
-    }
+        },
+        [flashcards, currentFlashcard],
+    );
 
     function handleBackClick() {
         router.back();
@@ -296,7 +390,8 @@ export default function Page() {
                 flashcard={currentFlashcard}
                 handleManualFlip={handleManualFlip}
                 shouldShowTrackingOptions={shouldShowTrackingOptions}
-                handleOnClickTrackingOption={handleReviewFlashcardClick}
+                handleLearningOptionClick={handleReviewFlashcardClick}
+                flashcardStatusCounts={flashcardStatusCounts}
             />
 
             {isGenerating && (
