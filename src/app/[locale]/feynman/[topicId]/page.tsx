@@ -7,7 +7,7 @@ import { ActionBar } from '@/components/feynman/ActionBar';
 import { FeynmanAIRequest, FeynmanAIResponse, FeynmanPracticePageProps } from '@/components/feynman/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 
 type PageProps = {
     params: { locale: string };
@@ -23,15 +23,19 @@ const DEFAULT_PROPS: FeynmanPracticePageProps = {
 
 export default function FeynmanPage(_props: PageProps) {
     const searchParams = useSearchParams();
-    const topicId = (searchParams?.get('topicId') || DEFAULT_PROPS.topicId)!;
-    const origin_content = searchParams?.get('origin_content') || 'flashcard';
-    const initialContent = searchParams?.get('initialContent') || '';
-    const minWordLength = Number(searchParams?.get('minWordLength') || 9);
-    const maxLengthExplain = Number(searchParams?.get('maxLengthExplain') || 4000);
+    const params = useParams();
+
+    const topicId = params?.topicId as string;
+
+    const originContent = searchParams?.get('originContent');
+    const initialContent = searchParams?.get('initialContent') ?? 'a';
+    const minWordLength = 9;
+    const maxLengthExplain = 4000;
 
     const [text, setText] = useState<string>(
         Array.isArray(initialContent) ? initialContent.join('\n') : initialContent,
     );
+
     const [highlightedWords, setHighlightedWords] = useState<string[]>([]);
     const [ai, setAI] = useState<FeynmanAIResponse>({ questions: [], hints: [] });
     const [expanded, setExpanded] = useState(false);
@@ -80,7 +84,7 @@ export default function FeynmanPage(_props: PageProps) {
                 explanation: text,
                 highlightedWords,
                 method: 'feynman',
-                origin_content: String(origin_content || 'flashcard'),
+                origin_content: String(originContent),
             };
             const res = await fetch('/api/feynman/generate', {
                 method: 'POST',
@@ -91,9 +95,6 @@ export default function FeynmanPage(_props: PageProps) {
             setAI({
                 questions: data.questions || [],
                 hints: data.hints || [],
-                feedBack: data.feedBack,
-                detectedGaps: data.detectedGaps || [],
-                clarityScore: data.clarityScore,
             });
             setStep(2);
         } catch (e) {
@@ -101,14 +102,13 @@ export default function FeynmanPage(_props: PageProps) {
         } finally {
             setIsLoading(false);
         }
-    }, [origin_content, text, highlightedWords, topicId]);
+    }, [originContent, text, highlightedWords, topicId]);
 
     // On mount, if initialContent exists, fetch initial questions
     useEffect(() => {
         if (initialContent) {
             callAI();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleSave = () => {
