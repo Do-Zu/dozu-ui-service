@@ -39,26 +39,26 @@ export default function FeynmanPage(_props: PageProps) {
     const [step, setStep] = useState<1 | 2>(1);
 
     // Version history in localStorage
-    const storageKey = `feynman:${topicId}`;
+    // const storageKey = `feynman:${topicId}`;
     const [history, setHistory] = useState<{ content: string; ts: number }[]>([]);
 
-    useEffect(() => {
-        const raw = localStorage.getItem(storageKey);
-        if (raw) {
-            try {
-                setHistory(JSON.parse(raw));
-            } catch {}
-        }
-    }, [storageKey]);
+    // useEffect(() => {
+    //     const raw = localStorage.getItem(storageKey);
+    //     if (raw) {
+    //         try {
+    //             setHistory(JSON.parse(raw));
+    //         } catch {}
+    //     }
+    // }, [storageKey]);
 
-    const saveHistory = useCallback(
-        (content: string) => {
-            const next = [{ content, ts: Date.now() }, ...history].slice(0, 10);
-            setHistory(next);
-            localStorage.setItem(storageKey, JSON.stringify(next));
-        },
-        [history, storageKey],
-    );
+    // const saveHistory = useCallback(
+    //     (content: string) => {
+    //         const next = [{ content, ts: Date.now() }, ...history].slice(0, 10);
+    //         setHistory(next);
+    //         localStorage.setItem(storageKey, JSON.stringify(next));
+    //     },
+    //     [history, storageKey],
+    // );
 
     // Derive clarity: prefer server clarityScore; else simple heuristic
     const clarityScore = useMemo(() => {
@@ -112,7 +112,7 @@ export default function FeynmanPage(_props: PageProps) {
     }, []);
 
     const handleSave = () => {
-        saveHistory(text);
+        // saveHistory(text);
     };
 
     const handleReset = () => {
