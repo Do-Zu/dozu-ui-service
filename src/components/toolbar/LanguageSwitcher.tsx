@@ -27,17 +27,35 @@ const LanguageSwitcher = () => {
         if (code && LANGS.find((l) => l.code === code)) setCurrent(code);
     }, [pathname]);
 
+    const buildHref = (basePath: string, query?: string, hash?: string): string => {
+        const queryString = query ? `?${query}` : '';
+        const hashString = hash ?? '';
+        return `${basePath}${queryString}${hashString}`;
+    };
+
     const changeLocale = (locale: string) => {
         if (locale === current) return;
 
         const segments = pathname?.split('/');
 
-        if (!segments || !segments[1]) return;
+        const hasLocal = !!segments![1] && LANGS.some((lang) => lang.code.toLowerCase() === segments![1].toLowerCase());
 
-        segments[1] = locale;
-        const newPath = segments.join('/');
+        let basePath: string;
+
+        if (hasLocal) {
+            segments[1] = locale;
+            basePath = segments.join('/');
+        } else {
+            const safePath = pathname ?? '';
+            const extendPath = pathname.startsWith('/') ? '' : `${safePath.replace(/^\/+/, '')}`;
+
+            basePath = `/${locale}/${extendPath}`;
+        }
+
         const query = searchParams?.toString();
-        const href = query ? `${newPath}?${query}` : newPath;
+        const hash = typeof window !== 'undefined' ? window.location.hash : '';
+
+        const href = buildHref(basePath, query, hash);
 
         startTransition(() => {
             router.push(href);
