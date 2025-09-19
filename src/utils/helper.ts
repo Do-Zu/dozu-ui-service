@@ -82,4 +82,14 @@ const wait = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export { deepClone, toTitleCase, isNilOrEmpty, isEmpty, mergeObjects, isNullOrEmpty, getPropertyPath, wait };
+/**
+ * Truncates a string to max characters and appends an ellipsis if needed.
+ * @param text - Input string.
+ * @param max  - Maximum length before truncating (default 24).
+ */
+const truncate = (text: string, max = 24): string => {
+    if (typeof text !== 'string') return '';
+    return text.length > max ? text.slice(0, max) + '…' : text;
+};
+
+export { deepClone, toTitleCase, isNilOrEmpty, isEmpty, mergeObjects, isNullOrEmpty, getPropertyPath, wait, truncate };
