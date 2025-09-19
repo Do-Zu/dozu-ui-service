@@ -157,11 +157,6 @@ export default function FeynmanPage(_props: PageProps) {
     };
 
     useEffect(() => {
-        if (!method || !topicId) return;
-        handleGetOriginContent(method);
-    }, [method, topicId]);
-
-    useEffect(() => {
         if (!isRegisterReview && dataFeynmanReviewed && !errorReview) {
             setReview(dataFeynmanReviewed);
             setStep(2);
