@@ -54,6 +54,7 @@ export default function FeynmanPage(_props: PageProps) {
         loading: isRegisterFetchQuestion,
         dataGenerated: dataFeynmanQuestion,
         isGenerating: isGeneratingQuestion,
+        apiPostContentError: errorGenerateQuestion,
     } = useGenerate<IFeynmanResponseQuestion>();
 
     const {
@@ -239,8 +240,8 @@ export default function FeynmanPage(_props: PageProps) {
     };
 
     if (
-        (isFetchDataOriginMethod && !isFetchDataOriginMethod) ||
-        (isRegisterFetchQuestion && !errorFetchDataOriginMethod) ||
+        (isFetchDataOriginMethod && !errorFetchDataOriginMethod) ||
+        (isRegisterFetchQuestion && !errorGenerateQuestion) ||
         (isRegisterReview && !errorReview)
     )
         return <LoadingPage isOverlay={true} />;
