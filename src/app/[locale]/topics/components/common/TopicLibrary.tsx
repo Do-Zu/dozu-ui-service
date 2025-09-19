@@ -36,20 +36,24 @@ export default function TopicLibrary(props: Props) {
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div className="flex items-start gap-4">
                             {mode === 'class-based' ? (
-                                <div className="flex flex-row gap-4 items-center">
-                                    <School />
-                                    <h2 className="text-2xl font-semibold">
+                                <div className="flex flex-row gap-4 items-center text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
+                                    <School className="" />
+                                    <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
                                         {tClass('classWithName', { name: props.myClass.name })}
                                     </h2>
                                 </div>
                             ) : null}
                             {mode === 'personal' ? (
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 ">
                                     <div className="flex flex-row gap-4 items-center">
                                         <CircleUserRound />
-                                        <h2 className="text-2xl font-semibold">{t('title')}</h2>
+                                        <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
+                                            {t('title')}
+                                        </h2>
                                     </div>
-                                    <div>Your topics and personal contents live here</div>
+                                    <div className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                        Your topics and personal contents live here
+                                    </div>
                                 </div>
                             ) : null}
                         </div>
