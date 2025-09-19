@@ -116,7 +116,7 @@ export default function FeynmanPage(_props: PageProps) {
 
     const handleParseReview = () => {
         const hints = dataFeynmanQuestion?.hints;
-        const gaps = dataFeynmanQuestion?.detectedGaps;
+        const gaps = dataFeynmanQuestion?.detectedGaps?.map((gap) => `${gap.word}: ${gap.suggestion}`);
         const questions = dataFeynmanQuestion?.questions.map((q) => q.content.trim());
 
         return [
