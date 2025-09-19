@@ -274,7 +274,7 @@ export default function FeynmanPage(_props: PageProps) {
                     jargonCount={highlightedWords.length}
                     isLoadingFetchQuestion={isGeneratingQuestion}
                     isReview={isGeneratingReview}
-                    isisDisableGetQuestion={isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion}
+                    isDisableGetQuestion={isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion}
                 />
 
                 <FeynmanReviewDialog
