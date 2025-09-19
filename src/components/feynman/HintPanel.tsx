@@ -10,7 +10,6 @@ interface IQuestions {
 type Props = {
     questions: IQuestions[];
     hints: string[];
-    feedback?: string;
     detectedGaps?: { word: string; suggestion: string }[];
     expanded?: boolean;
     onToggle?: () => void;
