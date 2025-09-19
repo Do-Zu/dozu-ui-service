@@ -5,15 +5,29 @@ import { Progress } from '@/components/ui/progress';
 
 type Props = {
     step: 1 | 2;
+    onSubmit: () => void;
     onGetHints: () => void;
     onSave: () => void;
     onReset: () => void;
     clarityScore?: number; // 0..100
     jargonCount?: number;
-    isLoading?: boolean;
+    isLoadingFetchQuestion?: boolean;
+    isReview: boolean;
+    isisDisableGetQuestion: boolean;
 };
 
-export function ActionBar({ step, onGetHints, onSave, onReset, clarityScore = 0, jargonCount = 0, isLoading }: Props) {
+export function ActionBar({
+    step,
+    onGetHints,
+    onSave,
+    onReset,
+    onSubmit,
+    clarityScore = 0,
+    jargonCount = 0,
+    isisDisableGetQuestion,
+    isLoadingFetchQuestion,
+    isReview,
+}: Props) {
     const badge =
         jargonCount === 0 ? (
             <span className="ml-2 inline-flex items-center rounded-full bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 text-[10px] font-medium">
@@ -38,14 +52,17 @@ export function ActionBar({ step, onGetHints, onSave, onReset, clarityScore = 0,
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-                <Button variant="secondary" onClick={onReset} disabled={isLoading}>
+                <Button variant="secondary" onClick={onReset} disabled={isLoadingFetchQuestion || isReview}>
                     Reset
                 </Button>
-                <Button variant="outline" onClick={onSave} disabled={isLoading}>
+                <Button variant="outline" onClick={onSave} disabled={isLoadingFetchQuestion || isReview}>
                     Save Explanation
                 </Button>
-                <Button onClick={onGetHints} disabled={isLoading}>
-                    {isLoading ? 'Thinking…' : 'Get Questions & Hints'}
+                <Button onClick={onGetHints} disabled={isisDisableGetQuestion}>
+                    {isLoadingFetchQuestion ? 'Thinking…' : 'Get Questions & Hints'}
+                </Button>
+                <Button onClick={onSubmit} disabled={isReview}>
+                    {isReview ? 'Review…' : 'Submit'}
                 </Button>
             </div>
         </div>

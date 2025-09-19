@@ -1,45 +1,27 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
+import useGenerate from '@/hooks/generate/useGenerate';
+import useFetch from '@/hooks/useFetch';
+import flashcardService from '@/services/flashcard/flashcard.service';
+import LoadingPage from '@/app/loading';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { FeynmanEditor } from '@/components/feynman/FeynmanEditor';
 import { HintPanel } from '@/components/feynman/HintPanel';
 import { ActionBar } from '@/components/feynman/ActionBar';
-import { FeynmanAIRequest, FeynmanAIResponse, FeynmanPracticePageProps } from '@/components/feynman/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useParams, useSearchParams } from 'next/navigation';
-import useFetch from '@/hooks/useFetch';
-import flashcardService from '@/services/flashcard/flashcard.service';
-import LoadingOverlay from '../../generate/components/import/components/LoadingOverlay';
-import LoadingPage from '@/app/loading';
-import { IFlashcard } from '../../flashcards/types/flashcard.type';
-import { isNilOrEmpty } from '@/utils';
-import useGenerate from '@/hooks/generate/useGenerate';
-import { Loader2 } from 'lucide-react';
+import { isNilOrEmpty, truncate } from '@/utils';
+import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
+import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
+import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
 
 type PageProps = {
     params: { locale: string };
     searchParams?: Record<string, string | string[]>;
 };
-
-const BASE_URL = '/feynman';
-const minWordLength = 9;
-const maxLengthExplain = 4000;
-const TYPE_GENERATE = {
-    QUESTION: 'feynman_question',
-    REVIEW: 'feynman_review',
-};
-
-interface IFeynmanDetectedGap {
-    word: string;
-    suggestion: string;
-}
-
-interface IFeynmanResponseQuestion {
-    questions: { content: string }[];
-    hints: string[];
-    detectedGaps: IFeynmanDetectedGap[];
-}
 
 export default function FeynmanPage(_props: PageProps) {
     const searchParams = useSearchParams();
@@ -50,10 +32,12 @@ export default function FeynmanPage(_props: PageProps) {
     const [text, setText] = useState<string>('');
     const [highlightedWords, setHighlightedWords] = useState<string[]>([]);
     const [ai, setAI] = useState<FeynmanAIResponse>({ questions: [], hints: [] });
+    const [review, setReview] = useState<IFeynmanReviewedResponse>();
     const [expanded, setExpanded] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState<1 | 2>(1);
     const [history, setHistory] = useState<{ content: string; ts: number }[]>([]);
+
+    const [openReview, setOpenReview] = useState(false);
 
     const isValidToFetchOriginDataMethod = (): boolean => {
         return !!method && !!topicId;
@@ -69,9 +53,16 @@ export default function FeynmanPage(_props: PageProps) {
         execute: executeGetQuestion,
         loading: isRegisterFetchQuestion,
         dataGenerated: dataFeynmanQuestion,
-        apiPostContentError,
         isGenerating: isGeneratingQuestion,
     } = useGenerate<IFeynmanResponseQuestion>();
+
+    const {
+        execute: executeReview,
+        loading: isRegisterReview,
+        dataGenerated: dataFeynmanReviewed,
+        isGenerating: isGeneratingReview,
+        apiPostContentError: errorReview,
+    } = useGenerate<IFeynmanReviewedResponse>();
 
     const clarityScore = useMemo(() => {
         if (typeof ai.clarityScore === 'number') return ai.clarityScore;
@@ -98,7 +89,7 @@ export default function FeynmanPage(_props: PageProps) {
 
         return origin
             ?.filter((item) => typeof item === 'object' && item !== null)
-            ?.map((item, index) => {
+            ?.map((item) => {
                 const obj = item as Record<string, string | number | null | undefined | object>;
 
                 const lines = keys.map((key) => {
@@ -114,42 +105,40 @@ export default function FeynmanPage(_props: PageProps) {
             .join('\n\n');
     };
 
-    const callAI = async () => {
+    const handleGenerateQuestion = async () => {
         await executeGetQuestion({
             content: handleParseDataOriginToString(getKeysByMethod()),
             method: 'text',
             type: TYPE_GENERATE.QUESTION,
         });
+    };
 
-        // setIsLoading(true);
-        // try {
-        //     const payload: FeynmanAIRequest = {
-        //         topicId: String(topicId),
-        //         explanation: text,
-        //         highlightedWords,
-        //         method: 'feynman',
-        //         origin_content: handleParseDataOriginToString(getKeysByMethod()),
-        //     };
+    const handleParseReview = () => {
+        const hints = dataFeynmanQuestion?.hints;
+        const gaps = dataFeynmanQuestion?.detectedGaps;
+        const questions = dataFeynmanQuestion?.questions.map((q) => q.content.trim());
 
-        //     const res = await fetch('/api/feynman/generate', {
-        //         method: 'POST',
-        //         headers: { 'content-type': 'application/json' },
-        //         body: JSON.stringify(payload),
-        //     });
+        return [
+            'Questions',
+            questions?.join('\n'),
+            '',
+            'Hints',
+            hints?.join('\n'),
+            '',
+            'Detected Gaps',
+            gaps?.join('\n'),
+            '',
+            'User Explanation',
+            text,
+        ].join('\n');
+    };
 
-        //     const data = (await res.json()) as FeynmanAIResponse;
-
-        //     setAI({
-        //         questions: data.questions || [],
-        //         hints: data.hints || [],
-        //     });
-
-        //     setStep(2);
-        // } catch (e) {
-        //     console.error(e);
-        // } finally {
-        //     setIsLoading(false);
-        // }
+    const handleSubmitEssay = async () => {
+        await executeReview({
+            content: handleParseReview(),
+            method: 'text',
+            type: TYPE_GENERATE.REVIEW,
+        });
     };
 
     const handleGetOriginContentFlashcard = async () => {
@@ -172,10 +161,12 @@ export default function FeynmanPage(_props: PageProps) {
     }, [method, topicId]);
 
     useEffect(() => {
-        if (dataFeynmanQuestion) {
-            console.log;
+        if (!isRegisterReview && dataFeynmanReviewed && !errorReview) {
+            setReview(dataFeynmanReviewed);
+            setStep(2);
+            setOpenReview(true);
         }
-    }, []);
+    }, [isRegisterReview, dataFeynmanReviewed]);
 
     const handleSave = () => {};
 
@@ -187,15 +178,33 @@ export default function FeynmanPage(_props: PageProps) {
     };
 
     const renderLeftSide = () => {
-        if (isGeneratingQuestion) return <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />;
+        if (isGeneratingQuestion || isRegisterReview || isGeneratingReview)
+            return (
+                <Card className="rounded-2xl p-4 space-y-4">
+                    <div className="flex items-center gap-3">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        <p className="text-sm text-muted-foreground">Generating questions & hints…</p>
+                    </div>
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-5/6" />
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-4/5" />
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                        <Skeleton className="h-7 w-20 rounded-full" />
+                        <Skeleton className="h-7 w-24 rounded-full" />
+                        <Skeleton className="h-7 w-16 rounded-full" />
+                        <Skeleton className="h-7 w-28 rounded-full" />
+                    </div>
+                </Card>
+            );
 
         return (
             <div>
                 <HintPanel
-                    questions={ai.questions || []}
-                    hints={ai.hints || []}
-                    feedback={ai.feedBack}
-                    detectedGaps={ai.detectedGaps}
+                    questions={dataFeynmanQuestion?.questions || []}
+                    hints={dataFeynmanQuestion?.hints || []}
+                    detectedGaps={dataFeynmanQuestion?.detectedGaps}
                     expanded={expanded}
                     onToggle={() => setExpanded((s) => !s)}
                 />
@@ -211,14 +220,14 @@ export default function FeynmanPage(_props: PageProps) {
                                 explanation with that analogy.
                             </p>
                             <div className="mt-2 flex flex-wrap gap-2">
-                                {dataFeynmanQuestion.hints.slice(0, 3).map((h, idx) => (
+                                {dataFeynmanQuestion.hints.slice(0, 3).map((hint, idx) => (
                                     <Button
                                         key={idx}
                                         size="sm"
                                         variant="secondary"
-                                        onClick={() => setText((t) => `${t}\n\nAnalogy: ${h}`)}
+                                        onClick={() => setText((t) => `${t}\n\nAnalogy: ${hint}`)}
                                     >
-                                        Use: {h.length > 24 ? h.slice(0, 24) + '…' : h}
+                                        Use: {truncate(hint, 60)}
                                     </Button>
                                 ))}
                             </div>
@@ -231,7 +240,8 @@ export default function FeynmanPage(_props: PageProps) {
 
     if (
         (isFetchDataOriginMethod && !isFetchDataOriginMethod) ||
-        (isRegisterFetchQuestion && !errorFetchDataOriginMethod)
+        (isRegisterFetchQuestion && !errorFetchDataOriginMethod) ||
+        (isRegisterReview && !errorReview)
     )
         return <LoadingPage isOverlay={true} />;
 
@@ -254,12 +264,32 @@ export default function FeynmanPage(_props: PageProps) {
 
                 <ActionBar
                     step={step}
-                    onGetHints={callAI}
+                    onSubmit={handleSubmitEssay}
+                    onGetHints={handleGenerateQuestion}
                     onSave={handleSave}
                     onReset={handleReset}
                     clarityScore={clarityScore}
                     jargonCount={highlightedWords.length}
-                    isLoading={isLoading}
+                    isLoadingFetchQuestion={isGeneratingQuestion}
+                    isReview={isGeneratingReview}
+                    isisDisableGetQuestion={isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion}
+                />
+
+                <FeynmanReviewDialog
+                    open={openReview}
+                    onOpenChange={setOpenReview}
+                    review={review}
+                    loading={isGeneratingReview}
+                    trigger={
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            disabled={!review && !isGeneratingReview}
+                            onClick={() => setOpenReview(true)}
+                        >
+                            View Review
+                        </Button>
+                    }
                 />
 
                 {history.length > 0 && (

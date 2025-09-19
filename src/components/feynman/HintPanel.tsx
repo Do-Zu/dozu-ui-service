@@ -3,8 +3,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+interface IQuestions {
+    content: string;
+}
+
 type Props = {
-    questions: string[];
+    questions: IQuestions[];
     hints: string[];
     feedback?: string;
     detectedGaps?: { word: string; suggestion: string }[];
@@ -12,8 +16,8 @@ type Props = {
     onToggle?: () => void;
 };
 
-export function HintPanel({ questions, hints, feedback, detectedGaps, expanded, onToggle }: Props) {
-    const hasContent = questions.length || hints.length || detectedGaps?.length || feedback;
+export function HintPanel({ questions, hints, detectedGaps, expanded, onToggle }: Props) {
+    const hasContent = questions.length || hints.length || detectedGaps?.length;
     return (
         <div className="space-y-3">
             <AnimatePresence>
@@ -29,19 +33,11 @@ export function HintPanel({ questions, hints, feedback, detectedGaps, expanded, 
                                 <CardTitle className="text-lg">AI Guidance</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {feedback && (
-                                    <div>
-                                        <div className="text-sm font-medium mb-1">Feedback</div>
-                                        <p className="text-sm text-muted-foreground">{feedback}</p>
-                                    </div>
-                                )}
                                 {questions?.length > 0 && (
                                     <div>
                                         <div className="text-sm font-medium mb-1">Questions</div>
                                         <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
-                                            {questions.map((q, i) => (
-                                                <li key={i}>{q}</li>
-                                            ))}
+                                            {questions?.map((question, id) => <li key={id}>{question?.content}</li>)}
                                         </ul>
                                     </div>
                                 )}
