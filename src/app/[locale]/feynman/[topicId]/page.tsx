@@ -153,6 +153,12 @@ export default function FeynmanPage(_props: PageProps) {
                 return await handleGetOriginContentFlashcard();
             case 'quiz':
             case 'mindmap':
+                // TODO: Implement quiz and mindmap fetching
+                console.warn(`Method ${method} not yet implemented`);
+                return null;
+            default:
+                console.error(`Unknown method: ${method}`);
+                return null;
         }
     };
 
