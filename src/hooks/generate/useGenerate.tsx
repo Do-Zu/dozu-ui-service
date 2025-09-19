@@ -47,7 +47,7 @@ export default function useGenerate<TRes = unknown>(
 
     useEffect(() => {
         if (apiResponse) {
-            const { data, sse } = apiResponse;
+            const { data } = apiResponse;
             const jobId = data?.jobId;
             setJobId(jobId);
         }
