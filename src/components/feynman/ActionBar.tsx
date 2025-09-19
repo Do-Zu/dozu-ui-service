@@ -13,7 +13,7 @@ type Props = {
     jargonCount?: number;
     isLoadingFetchQuestion?: boolean;
     isReview: boolean;
-    isisDisableGetQuestion: boolean;
+    isDisableGetQuestion: boolean;
 };
 
 export function ActionBar({
@@ -24,7 +24,7 @@ export function ActionBar({
     onSubmit,
     clarityScore = 0,
     jargonCount = 0,
-    isisDisableGetQuestion,
+    isDisableGetQuestion,
     isLoadingFetchQuestion,
     isReview,
 }: Props) {
@@ -58,7 +58,7 @@ export function ActionBar({
                 <Button variant="outline" onClick={onSave} disabled={isLoadingFetchQuestion || isReview}>
                     Save Explanation
                 </Button>
-                <Button onClick={onGetHints} disabled={isisDisableGetQuestion}>
+                <Button onClick={onGetHints} disabled={isDisableGetQuestion}>
                     {isLoadingFetchQuestion ? 'Thinking…' : 'Get Questions & Hints'}
                 </Button>
                 <Button onClick={onSubmit} disabled={isReview}>
