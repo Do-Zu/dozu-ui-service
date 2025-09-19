@@ -41,8 +41,8 @@ export default function useGenerate<TRes = unknown>(
         });
     };
 
-    const isGenerating = useMemo(() => {
-        return jobId && sseStatus === 'open';
+    const isGenerating: boolean = useMemo(() => {
+        return !!jobId && sseStatus === 'open';
     }, [sseStatus, jobId]);
 
     useEffect(() => {
