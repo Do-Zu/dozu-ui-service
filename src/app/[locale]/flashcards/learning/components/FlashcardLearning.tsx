@@ -14,12 +14,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import flashcardHelper from '@/utils/flashcard/flashcard.helper';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 
-// type TrackingOption = {
-//     icon: any;
-//     label: string;
-//     qualityResponse: IQualityResponse;
-// };
-
 interface Props {
     topicName: string;
     flashcard: IDueAnkiCard;
@@ -29,7 +23,6 @@ interface Props {
     isFrontRef: React.RefObject<boolean>;
     shouldShowTrackingOptions: boolean;
     handleManualFlip: () => void;
-    // handleOnClickTrackingOption: (qualityResponse: IQualityResponse) => void;
     handleLearningOptionClick: (rating: IAnkiRating) => void;
     flashcardStatusCounts: IFlashcardStatusCounts;
 }
@@ -51,19 +44,6 @@ export function FlashcardLearning({
     const learningOptions = useLearningOptions();
 
     useActivePomodoro();
-
-    // const trackingOptions: TrackingOption[] = [
-    //     { icon: <Angry size={24} fill="red" />, label: flashcardT('responseOptions.blackout'), qualityResponse: 0 },
-    //     { icon: <Frown size={24} fill="#F6C908" />, label: flashcardT('responseOptions.wrong'), qualityResponse: 1 },
-    //     {
-    //         icon: <CircleAlert size={24} fill="#FFCC4D" />,
-    //         label: flashcardT('responseOptions.wrongEasy'),
-    //         qualityResponse: 2,
-    //     },
-    //     { icon: <ThumbsUp size={24} fill="blue" />, label: flashcardT('responseOptions.hard'), qualityResponse: 3 },
-    //     { icon: <Smile size={24} fill="yellow" />, label: flashcardT('responseOptions.good'), qualityResponse: 4 },
-    //     { icon: <Laugh size={24} fill="yellow" />, label: flashcardT('responseOptions.perfect'), qualityResponse: 5 },
-    // ];
 
     useEffect(() => {
         function handleKeyShortcut(event: KeyboardEvent) {
@@ -104,9 +84,6 @@ export function FlashcardLearning({
                     {shouldShowTrackingOptions ? (
                         <div className="grid grid-cols-12 gap-6 mt-4 w-[55%] h-[18%]">
                             {learningOptions.map((option, index) => {
-                                // const nextReviewInterval = flashcard?.qualityResponsesNextReviewInterval.find(
-                                //     (element) => element.qualityResponse === option.qualityResponse,
-                                // )?.nextReviewInterval;
                                 const nextReviewSchedule = flashcard.nextReviewSchedule;
                                 const nextReviewIntervalForRating =
                                     nextReviewSchedule.nextReviewIntervalsForRating.find(

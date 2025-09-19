@@ -64,15 +64,18 @@ export default function PersonalTopicLibrary() {
         let due = 0;
         let fresh = 0;
         let totalFlashcards = 0;
+        let learning = 0;
         list.forEach((t) => {
-            due += t.flashcardsDueToday || 0;
-            fresh += t.flashcardsNew || 0;
-            totalFlashcards += t.flashcardsCount || 0;
+            fresh += t.flashcardCounts?.new || 0;
+            learning += t.flashcardCounts?.learning || 0;
+            due += t.flashcardCounts?.dueToday || 0;
+            totalFlashcards += t.flashcardCounts?.total || 0;
         });
         return {
             topics: list.length,
-            due,
             fresh,
+            learning,
+            due,
             totalFlashcards,
         };
     }, [topicsFiltered]);
@@ -138,7 +141,8 @@ export default function PersonalTopicLibrary() {
             const ts = (d?: string | number | Date) => (d ? new Date(d).getTime() : 0);
             if (sortBy === 'newest') return ts(b.createdAt) - ts(a.createdAt);
             if (sortBy === 'oldest') return ts(a.createdAt) - ts(b.createdAt);
-            if (sortBy === 'flashcards-due-today') return (b.flashcardsDueToday || 0) - (a.flashcardsDueToday || 0);
+            if (sortBy === 'flashcards-due-today')
+                return (b.flashcardCounts?.dueToday || 0) - (a.flashcardCounts?.dueToday || 0);
             return 0;
         });
 
@@ -250,7 +254,11 @@ export default function PersonalTopicLibrary() {
     };
 
     const cardFooter = (topic: ITopic) => {
-        const { topicId, flashcardsNew = 0, flashcardsDueToday = 0, flashcardsCount = 0 } = topic;
+        const { topicId } = topic;
+        const newFlashcards = topic.flashcardCounts?.new || 0;
+        const totalFlashcards = topic.flashcardCounts?.total || 0;
+        const learningFlashcards = topic.flashcardCounts?.learning || 0;
+        const dueTodayFlashcards = topic.flashcardCounts?.dueToday || 0;
 
         function handleOnSelectBrowse() {
             router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
@@ -268,9 +276,9 @@ export default function PersonalTopicLibrary() {
         //TODO: note for update logic calculate remain flashcard remain and get progress
 
         let progressValue = 0;
-        if (flashcardsCount) {
-            const completed = flashcardsCount - (flashcardsDueToday + flashcardsNew);
-            const percentage = Math.round((completed / flashcardsCount) * 100);
+        if (totalFlashcards) {
+            const completed = totalFlashcards - (newFlashcards + learningFlashcards + dueTodayFlashcards);
+            const percentage = Math.round((completed / totalFlashcards) * 100);
 
             // Clamp between 0 and 100
             progressValue = Math.min(100, Math.max(0, percentage));
@@ -376,9 +384,12 @@ export default function PersonalTopicLibrary() {
                 </div>
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <Metric label="Topics" value={metrics.topics} />
-                    <Metric label="Due Today" value={metrics.due} />
-                    <Metric label="New" value={metrics.fresh} />
                     <Metric label="Flashcards" value={metrics.totalFlashcards} />
+                </div>
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Metric label="New" value={metrics.fresh} />
+                    <Metric label="Learning" value={metrics.learning} />
+                    <Metric label="Due Today" value={metrics.due} />
                 </div>
                 <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="relative w-full md:max-w-sm group">

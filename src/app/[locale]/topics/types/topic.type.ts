@@ -6,11 +6,16 @@ export interface ITopic {
     createdAt: Date;
     classId?: number;
     imageUrl?: string;
-    flashcardsCount?: number;
-    flashcardsDueToday?: number;
-    flashcardsNew?: number;
+    flashcardCounts?: IFlashcardCounts;
     hasProgress?: boolean;
     inputSetId?: number;
+}
+
+export interface IFlashcardCounts {
+    total?: number;
+    new?: number;
+    learning?: number; // SM-2 algorithm; including learning & RELEARNING states
+    dueToday?: number;
 }
 
 export type ICreateTopicBody = Pick<ITopic, 'name' | 'description'> & {

@@ -78,13 +78,6 @@ export default function Page() {
         saveCurrentLearningSession,
     } = useUserTrackingContext();
 
-    // const {
-    //     data: flashcards,
-    //     setData: setFlashcardsData,
-    //     loading: flashcardsLoading,
-    //     error: flashcardsError,
-    // } = useFetch<IFlashcardWithReviewPrediction[]>(() => flashcardService.getDueFlashcardsForTopic(topicId));
-
     const {
         data: flashcards,
         setData: setFlashcardsData,
@@ -158,18 +151,6 @@ export default function Page() {
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
 
-    // const { loading: apiLoading, execute } = usePost<IFlashcardReviewPayload, {}>(
-    //     ({ topicId, flashcardId, qualityResponse }) =>
-    //         flashcardService.reviewFlashcardWithQuality({ topicId, flashcardId, qualityResponse }),
-    //     'PATCH',
-    //     {
-    //         onError: toastHelper.showErrorMessage,
-    //         onSuccess: (data) => {
-    //             toastHelper.showSuccessMessage('We have saved Your Progress!');
-    //         },
-    //     },
-    // );
-
     const { loading: trackFlashcardLoading, execute: trackFlashcard } = usePost<
         IFlashcardReviewByAnkiPayload,
         IAnkiCardReviewed | null
@@ -230,9 +211,10 @@ export default function Page() {
 
                 // Update learning tracking metrics using context methods
                 updateItemsStudied(itemsStudiedCount + 1);
-                // if (qualityResponse >= 3) {
-                //     updateCorrectAnswers(correctAnswersCount + 1);
-                // }
+                // Identify correct answers by Selecting rating >= HARD
+                if (data?.rating && data.rating >= IAnkiRating.HARD) {
+                    updateCorrectAnswers(correctAnswersCount + 1);
+                }
 
                 // If finish learning the new 20% chunk -> ask gen quiz
                 const studiedCountAfter = newStudied.length;
