@@ -2,6 +2,7 @@ import axios from 'axios';
 import { openUpgradeModal } from '@/stores/features/subscription/subscriptionUtils';
 import { getTimestampWithClientOffset } from '@/utils';
 import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
+import { log } from 'console';
 
 const Axios = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -13,10 +14,19 @@ const Axios = axios.create({
 
 Axios.defaults.withCredentials = true;
 
+const RefreshTokenAxiosClient = axios.create({
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+    // attach headers in requestInterceptor later
+    // headers: {
+    //     'Content-Type': 'application/json',
+    // },
+});
+RefreshTokenAxiosClient.defaults.withCredentials = true;
+
 // Request Interceptor
 const requestInterceptor = Axios.interceptors.request.use(
     (config) => {
-        if(!(config.data instanceof FormData)) {
+        if (!(config.data instanceof FormData)) {
             config.headers['Content-Type'] = 'application/json';
         }
 
@@ -85,12 +95,38 @@ const responseInterceptor = Axios.interceptors.response.use(
 
         return response;
     },
-    (error) => {
+    async (error) => {
         // Global Error Handling: Catch specific error status codes and handle them
+        const originalRequest = error.config;
+        console.log(originalRequest);
+        console.log(originalRequest._retry);
         if (error.response) {
             // Handle errors based on HTTP status codes (e.g., 401 Unauthorized, 500 Server Error)
-            if (error.response.status === 401) {
-                console.error('Unauthorized - Redirecting to login...');
+            if (error.response.status === 401 && !originalRequest._retry) {
+                console.log(error.response.status === 401);
+                console.log(!originalRequest._retry);
+                //checks if already retried
+                console.log(originalRequest._retry);
+                originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
+                try {
+                    const response = await RefreshTokenAxiosClient.post('/auth/refresh-token');
+                    console.log('userdata', response.data);
+                    console.log('response refresh', response.data.data.user);
+
+                    window.localStorage.setItem(
+                        'user',
+                        JSON.stringify({ ...response.data.data.user, accessToken: response.data.data.accessToken }),
+                    );
+                    window.localStorage.setItem('isLoggedIn', 'true');
+                    // Axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
+                    return Axios(originalRequest); // Retry the original request with the new access token.
+
+                    //set new user data and accessToken
+                } catch (refreshTokenError) {
+                    return Promise.reject(refreshTokenError);
+                }
+
+                //handles refresh token logic
                 // Redirect to login page or show login modal
             } else if (error.response.status === 500) {
                 console.error('Server error occurred. Please try again later.');
