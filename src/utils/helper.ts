@@ -38,8 +38,8 @@ const isEmpty = (obj: object): boolean => {
  * @returns True if the value is an string, false otherwise.
  */
 const isNullOrEmpty = (str: string | null | undefined): boolean => {
-    if (!str) return false;
-    return str.length > 0;
+    if (!str) return true;
+    return str.length === 0;
 };
 
 /**
