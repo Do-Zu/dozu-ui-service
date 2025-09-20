@@ -321,11 +321,11 @@ export default function Page() {
         await q.startFullCatchUpAll(cards);
     };
 
-    const onSkipFull = () => {
-        const { onlySecond } = q.getFullRanges();
-        const cards = studied.slice(onlySecond.start, onlySecond.end);
-        q.skipFullQuiz(cards);
-    };
+
+const onSkipFull = () => {
+  const { onlySecond } = q.getFullCards();
+  q.skipFullQuiz(onlySecond);
+};
 
     return (
         <>

@@ -316,6 +316,12 @@ export function useQuizMilestones({
         catchUpAll: { start: 0, end: t100 }, // [0, t100)
     });
 
+    const getFullCards = () => {
+  const onlySecond = dedupeById(baselineOrder.slice(t50, t100));
+  const catchUpAll = dedupeById(baselineOrder.slice(0,  t100));
+  return { onlySecond, catchUpAll };
+};
+
     // Only second: backlog first half (if Later), quiz second half
     const startFullOnlySecond = async (cards: QuizCard[]) => {
         if (!cards?.length) {
@@ -445,6 +451,7 @@ export function useQuizMilestones({
         startFullOnlySecond,
         startFullCatchUpAll,
         skipFullQuiz,
+        getFullCards,
 
         // Backlog
         backlogCount,
