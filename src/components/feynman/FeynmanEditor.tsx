@@ -37,7 +37,7 @@ import { Editor, Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { normalize } from '@/utils';
-import MenuBar from './MeneEdittorBar';
+import MenuBar from './MenuEditorBar';
 
 type EditorProps = {
     value: string;
