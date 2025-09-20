@@ -74,7 +74,8 @@
             "updateError": "Không thể cập nhật {name}",
             "deleteError": "Không thể xóa {name}",
             "fillNumberError": "Chỉ nhập số",
-            "fillNumberPositiveError": "Vui lòng nhập số dương"
+            "fillNumberPositiveError": "Vui lòng nhập số dương",
+            "featureInComing": "Tính năng đang phát triển!"
         },
         "labels": {
             "name": "Tên",

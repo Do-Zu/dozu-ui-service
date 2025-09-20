@@ -13,10 +13,12 @@ import { FeynmanEditor } from '@/components/feynman/FeynmanEditor';
 import { HintPanel } from '@/components/feynman/HintPanel';
 import { ActionBar } from '@/components/feynman/ActionBar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { isNilOrEmpty, truncate } from '@/utils';
+import { isNilOrEmpty, isNullOrEmpty, truncate } from '@/utils';
 import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
 import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
+import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 type PageProps = {
     params: { locale: string };
@@ -28,6 +30,8 @@ export default function FeynmanPage(_props: PageProps) {
     const params = useParams();
     const topicId = params?.topicId as string;
     const method = searchParams?.get('method');
+
+    const tCommon = useTranslations('common');
 
     const [text, setText] = useState<string>('');
     const [highlightedWords, setHighlightedWords] = useState<string[]>([]);
@@ -170,7 +174,11 @@ export default function FeynmanPage(_props: PageProps) {
         }
     }, [isRegisterReview, dataFeynmanReviewed]);
 
-    const handleSave = () => {};
+    const handleSave = () => {
+        toast({
+            description: tCommon('messages.featureInComing'),
+        });
+    };
 
     const handleReset = () => {
         setText('');
@@ -275,6 +283,9 @@ export default function FeynmanPage(_props: PageProps) {
                     isLoadingFetchQuestion={isGeneratingQuestion}
                     isReview={isGeneratingReview}
                     isDisableGetQuestion={isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion}
+                    isDisableSubmit={
+                        !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text)
+                    }
                 />
 
                 <FeynmanReviewDialog
