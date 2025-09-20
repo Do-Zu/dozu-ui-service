@@ -110,19 +110,25 @@ const responseInterceptor = Axios.interceptors.response.use(
                 originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
                 try {
                     const response = await RefreshTokenAxiosClient.post('/auth/refresh-token');
-                    console.log('userdata', response.data);
-                    console.log('response refresh', response.data.data.user);
 
                     window.localStorage.setItem(
                         'user',
                         JSON.stringify({ ...response.data.data.user, accessToken: response.data.data.accessToken }),
                     );
                     window.localStorage.setItem('isLoggedIn', 'true');
+
                     // Axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
                     return Axios(originalRequest); // Retry the original request with the new access token.
 
                     //set new user data and accessToken
                 } catch (refreshTokenError) {
+                    console.log('abc');
+                    try {
+                        window.localStorage.removeItem('user');
+                        window.localStorage.removeItem('isLoggedIn');
+                    } catch (localStorageError) {
+                        console.error(localStorageError);
+                    }
                     return Promise.reject(refreshTokenError);
                 }
 
