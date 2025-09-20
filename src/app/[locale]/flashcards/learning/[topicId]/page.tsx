@@ -117,7 +117,7 @@ export default function Page() {
                 setFlashcardsStatusCounts(counter);
                 firstToFetchFlashcards.current = false;
             }
-            q.ensureBaseline(flashcards.length);
+            q.ensureBaseline(flashcards.length, flashcards.map(toQuizCard));
         }
     }, [flashcards]);
 
@@ -309,42 +309,6 @@ export default function Page() {
         return <LoadingPage />;
     }
 
-    // if (flashcards.length === 0 || !currentFlashcard) {
-    //     return (
-    //         <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-    //             <div className="text-center space-y-4">
-    //                 <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
-    //                     <svg className="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    //                         <path
-    //                             strokeLinecap="round"
-    //                             strokeLinejoin="round"
-    //                             strokeWidth={2}
-    //                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-    //                         />
-    //                     </svg>
-    //                 </div>
-    //                 <h2 className="text-2xl font-semibold text-black">{tFlashcardLearning('greatJob')}</h2>
-    //                 <p className="text-gray-700 max-w-md">{tFlashcardLearning('flashcardsCompleted')}</p>
-    //                 <div className="pt-4">
-    //                     <Button
-    //                         onClick={handleBackClick}
-    //                         className="px-6 py-2 mx-10 rounded-lg transition-colors border border-gray-300"
-    //                     >
-    //                         {tCommon('actions.back')}
-    //                     </Button>
-
-    //                     <Button
-    //                         onClick={handleRedirectFeynmanPage}
-    //                         className="px-6 py-2  rounded-lg transition-colors border border-gray-300"
-    //                     >
-    //                         {tFlashcardLearning('reviewKnowledge')}
-    //                     </Button>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     );
-    // }
-    // Handlers for prompt 100%
     const onConfirmOnlySecond = async () => {
         const { onlySecond } = q.getFullRanges();
         const cards = studied.slice(onlySecond.start, onlySecond.end);

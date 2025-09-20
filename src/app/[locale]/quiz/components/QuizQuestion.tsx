@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface QuizQuestionProps {
   questionNumber: number;
@@ -16,6 +16,10 @@ const QuizQuestion = ({
   onAnswerSelect,
 }: QuizQuestionProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  
+  useEffect(() => {
+     setSelectedAnswer(null);
+  }, [questionNumber]);
 
   const handleAnswerSelect = (index: number) => {
     setSelectedAnswer(index);
