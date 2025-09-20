@@ -370,18 +370,6 @@ export default function PersonalTopicLibrary() {
     const topicContent = (
         <>
             <div className="relative z-10 px-6 pt-6 md:px-8">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                    <div className="flex items-start gap-4">
-                        <div>
-                            <h2 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
-                                {t('title')}
-                            </h2>
-                            <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                Your topics and personal contents live here
-                            </p>
-                        </div>
-                    </div>
-                </div>
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <Metric label="Topics" value={metrics.topics} />
                     <Metric label="Flashcards" value={metrics.totalFlashcards} />
