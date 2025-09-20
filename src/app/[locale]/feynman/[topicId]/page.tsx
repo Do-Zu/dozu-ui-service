@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import useGenerate from '@/hooks/generate/useGenerate';
 import useFetch from '@/hooks/useFetch';
 import flashcardService from '@/services/flashcard/flashcard.service';
@@ -18,14 +19,8 @@ import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
 import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
 import { toast } from '@/hooks/use-toast';
-import { useTranslations } from 'next-intl';
 
-type PageProps = {
-    params: { locale: string };
-    searchParams?: Record<string, string | string[]>;
-};
-
-export default function FeynmanPage(_props: PageProps) {
+export default function FeynmanPage() {
     const searchParams = useSearchParams();
     const params = useParams();
     const topicId = params?.topicId as string;
