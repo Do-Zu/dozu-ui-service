@@ -32,6 +32,8 @@ import { CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '@/app/[locale]/gene
 import { writeLocalQuiz } from '@/app/[locale]/quiz/utils/localQuiz.storage';
 import { buildPayloadFromLearnedFlashcards } from '@/app/[locale]/question/utils/buildGenPayload';
 import { isAfter } from 'date-fns';
+import { ROUTES } from '@/utils/constants/routes';
+import { METHOD_LEARNING } from '@/utils/constants/method';
 
 export type IFlashcardWithReviewPrediction = Pick<
     IFlashcard,
@@ -342,6 +344,10 @@ export default function Page() {
         router.back();
     }
 
+    function handleRedirectFeynmanPage() {
+        router.push(ROUTES.FEYNMAN_REVIEW(topicId, METHOD_LEARNING.FLASHCARD));
+    }
+
     if (flashcardsError) {
         return <div>Error: {flashcardsError}</div>;
     }
@@ -369,9 +375,16 @@ export default function Page() {
                     <div className="pt-4">
                         <Button
                             onClick={handleBackClick}
-                            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors border border-gray-300"
+                            className="px-6 py-2 mx-10 rounded-lg transition-colors border border-gray-300"
                         >
-                            Go Back
+                            {tCommon('actions.back')}
+                        </Button>
+
+                        <Button
+                            onClick={handleRedirectFeynmanPage}
+                            className="px-6 py-2  rounded-lg transition-colors border border-gray-300"
+                        >
+                            {tFlashcardLearning('reviewKnowledge')}
                         </Button>
                     </div>
                 </div>
