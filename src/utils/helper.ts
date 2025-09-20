@@ -92,4 +92,33 @@ const truncate = (text: string, max = 24): string => {
     return text.length > max ? text.slice(0, max) + '…' : text;
 };
 
-export { deepClone, toTitleCase, isNilOrEmpty, isEmpty, mergeObjects, isNullOrEmpty, getPropertyPath, wait, truncate };
+/**
+ *  normalizes and tokenizes the input text into an array of clean word tokens.
+ *  toLowerCase(): makes matching case-insensitive.
+    replace(/[^a-z0-9\s'-]/gi, ' '): replaces any character not a letter a–z, digit, whitespace, apostrophe (') or hyphen (-) with a space (strips punctuation/symbols).
+    split(/\s+/): splits on one or more whitespace chars.
+    filter(Boolean): removes empty strings (caused by multiple spaces).
+ * @param text - Input string.
+ * 
+ */
+const normalize = (text: string | undefined | null): string[] => {
+    if (isNullOrEmpty(text) || typeof text !== 'string') return [];
+    return text
+        .toLocaleLowerCase()
+        .replace(/[^a-z0-9\s'-]/gi, ' ')
+        .split(/\s+/)
+        .filter(Boolean);
+};
+
+export {
+    deepClone,
+    toTitleCase,
+    isNilOrEmpty,
+    isEmpty,
+    mergeObjects,
+    isNullOrEmpty,
+    getPropertyPath,
+    wait,
+    truncate,
+    normalize,
+};
