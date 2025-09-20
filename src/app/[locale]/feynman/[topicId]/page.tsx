@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import useGenerate from '@/hooks/generate/useGenerate';
 import useFetch from '@/hooks/useFetch';
 import flashcardService from '@/services/flashcard/flashcard.service';
@@ -18,14 +19,8 @@ import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
 import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
 import { toast } from '@/hooks/use-toast';
-import { useTranslations } from 'next-intl';
 
-type PageProps = {
-    params: { locale: string };
-    searchParams?: Record<string, string | string[]>;
-};
-
-export default function FeynmanPage(_props: PageProps) {
+export default function FeynmanPage() {
     const searchParams = useSearchParams();
     const params = useParams();
     const topicId = params?.topicId as string;
@@ -82,6 +77,7 @@ export default function FeynmanPage(_props: PageProps) {
 
     const getKeysByMethod = (): string[] => {
         if (method === 'flashcard') return ['front', 'back'];
+        //TODO: implement keys bind for other method learning (quiz, mindmap)
         return [];
     };
 
@@ -166,14 +162,6 @@ export default function FeynmanPage(_props: PageProps) {
         }
     };
 
-    useEffect(() => {
-        if (!isRegisterReview && dataFeynmanReviewed && !errorReview) {
-            setReview(dataFeynmanReviewed);
-            setStep(2);
-            setOpenReview(true);
-        }
-    }, [isRegisterReview, dataFeynmanReviewed]);
-
     const handleSave = () => {
         toast({
             description: tCommon('messages.featureInComing'),
@@ -186,6 +174,14 @@ export default function FeynmanPage(_props: PageProps) {
         setHighlightedWords([]);
         setStep(1);
     };
+
+    useEffect(() => {
+        if (!isRegisterReview && dataFeynmanReviewed && !errorReview) {
+            setReview(dataFeynmanReviewed);
+            setStep(2);
+            setOpenReview(true);
+        }
+    }, [isRegisterReview, dataFeynmanReviewed]);
 
     const renderLeftSide = () => {
         if (isGeneratingQuestion || isRegisterReview || isGeneratingReview)
@@ -259,9 +255,7 @@ export default function FeynmanPage(_props: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
                 <Card className="rounded-2xl">
-                    <CardHeader>
-                        <CardTitle>Explain in Simple Terms</CardTitle>
-                    </CardHeader>
+                    <CardHeader></CardHeader>
                     <CardContent>
                         <FeynmanEditor
                             value={text}
