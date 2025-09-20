@@ -77,6 +77,7 @@ export default function FeynmanPage() {
 
     const getKeysByMethod = (): string[] => {
         if (method === 'flashcard') return ['front', 'back'];
+        //TODO: implement keys bind for other method learning (quiz, mindmap)
         return [];
     };
 
@@ -161,14 +162,6 @@ export default function FeynmanPage() {
         }
     };
 
-    useEffect(() => {
-        if (!isRegisterReview && dataFeynmanReviewed && !errorReview) {
-            setReview(dataFeynmanReviewed);
-            setStep(2);
-            setOpenReview(true);
-        }
-    }, [isRegisterReview, dataFeynmanReviewed]);
-
     const handleSave = () => {
         toast({
             description: tCommon('messages.featureInComing'),
@@ -181,6 +174,14 @@ export default function FeynmanPage() {
         setHighlightedWords([]);
         setStep(1);
     };
+
+    useEffect(() => {
+        if (!isRegisterReview && dataFeynmanReviewed && !errorReview) {
+            setReview(dataFeynmanReviewed);
+            setStep(2);
+            setOpenReview(true);
+        }
+    }, [isRegisterReview, dataFeynmanReviewed]);
 
     const renderLeftSide = () => {
         if (isGeneratingQuestion || isRegisterReview || isGeneratingReview)
@@ -254,9 +255,7 @@ export default function FeynmanPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
                 <Card className="rounded-2xl">
-                    <CardHeader>
-                        <CardTitle>Explain in Simple Terms</CardTitle>
-                    </CardHeader>
+                    <CardHeader></CardHeader>
                     <CardContent>
                         <FeynmanEditor
                             value={text}
