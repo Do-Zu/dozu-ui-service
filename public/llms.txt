@@ -1,0 +1,43 @@
+# Dozu - Personalized Learning Roadmaps & Multi-Method Mastery
+
+Dozu is an AI-powered learning platform that helps learners create **personalized learning roadmaps** and master topics using **multiple proven learning methodologies**.  
+With Dozu, students and professionals can combine flashcards, interactive lessons, progress tracking, and scheduled sessions into a powerful and engaging learning experience.
+
+## Why Choose Dozu?
+
+- **Personalized Roadmaps** – Structured study paths designed for your unique goals.  
+- **Multi-Method Learning** – Combine flashcards, reading materials, interactive modules, and adaptive AI lessons.  
+- **Progress Tracking** – Analytics and insights to measure and improve your learning journey.  
+- **Smart Scheduling** – AI-powered reminders and study session planning.  
+- **Adaptive Learning** – Intelligent content recommendations based on performance and behavior.  
+- **Multi-language Access** – Global platform supporting learners worldwide.  
+
+## Learning Methodologies in Dozu
+
+- **Flashcards & Spaced Repetition** – Scientifically proven method for better retention.  
+- **Class-Based Learning** – Structured lessons and modular course design.  
+- **Progress-Based Learning** – Content adapts as your knowledge grows.  
+- **Interactive Multimedia** – Videos, quizzes, and engaging exercises.  
+- **Schedule Management** – Organize study time efficiently with built-in reminders.  
+
+## SEO Keywords (AI & Search Indexing)
+
+personalized learning platform, learning roadmaps, AI-powered education, adaptive learning, spaced repetition flashcards, progress tracking for students, interactive learning platform, schedule learning sessions, multi-method learning system, Dozu education  
+
+---
+
+Dozu empowers learners to **study smarter, stay consistent, and achieve mastery** through adaptive AI-driven learning methods.
+
+Home
+[Home](https://dozu.blog/home): The main landing page of the application, providing an overview of features and quick access to various sections.
+User Management
+### Login
+[Login](https://dozu.blog/auth/login): The authentication page where users can enter their credentials to access their accounts.
+Progress Tracking
+[Progress](https://dozu.blog/progress): A section dedicated to tracking user progress, displaying metrics and achievements over time.
+Scheduling
+[Calendar](https://dozu.blog/schedule): A calendar interface that allows users to view and manage their schedules, including events and deadlines.
+Application Settings
+[Settings](https://dozu.blog/setting/schedule-setup): The configuration area where users can adjust their preferences and manage application settings.
+Additional Resources
+[Dozu](https://dozu.blog/): A supplementary resource or tool that enhances the functionality of the main application, providing additional features or integrations.

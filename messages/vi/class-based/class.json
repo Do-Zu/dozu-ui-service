@@ -1,0 +1,45 @@
+{
+    "class": {
+        "class": "lớp học",
+        "classWithName": "Lớp {name}",
+        "myClasses": "Lớp học của tôi",
+        "classesEnrolling": "Bạn đang tham gia các lớp sau",
+        "join": {
+            "title": "Tham gia lớp học",
+            "description": "Nhập Mã lớp do Giáo viên cung cấp để tham gia lớp học",
+            "label": "Tham gia",
+            "joinSuccess": "Tham gia lớp học thành công"
+        },
+        "leave": {
+            "title": "Rời lớp học",
+            "description": "Bạn có chắc muốn rời khỏi {name}? Toàn bộ tiến trình học của bạn trong lớp này sẽ bị xóa.",
+            "label": "Rời lớp",
+            "leaveSuccess": "Rời lớp học thành công"
+        },
+        "invitationCode": "Mã mời",
+        "manageStudents": "Quản lý học sinh",
+        "generateContent": "Generate nội dung",
+        "studentList": {
+            "title": "Học sinh",
+            "emptyMessage": "Chưa có học viên nào đăng ký vào lớp này.",
+            "description": "Danh sách tất cả học viên đã đăng ký vào lớp.",
+            "viewProfile": "Xem hồ sơ",
+            "removeFromClass": "Xóa khỏi lớp",
+            "notAvailable": "Không có",
+            "removeSuccess": "Xóa học sinh khỏi lớp học thành công"
+        },
+        "classFeed": {
+            "classFeed": "thông báo lớp học",
+            "minutesAgo": "phút trước",
+            "hoursAgo": "giờ trước",
+            "aFewMinutesAgo": "Một vài phút trước",
+            "today": "Hôm nay",
+            "thisWeek": "Tuần này",
+            "thisMonth": "Tháng này",
+            "aLongTimeAgo": "Trước đó",
+            "lastEditedAt": "Lần cuối chỉnh sửa",
+            "title": "{contentType} đã sẵn sàng",
+            "content": "{contentType} đã được tạo và thêm vào trong chủ đề {topicName}."
+        }
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "pomodoro": {
+        "title": "Pomodoro",
+        "ambient": {
+            "panelTitle": "Âm thanh nền",
+            "panelTitleBreak": "Âm thanh nền (Nghỉ)",
+            "noSounds": "Chưa có âm thanh nào.",
+            "soundAdded": "Âm thanh đã tồn tại",
+            "notFound": "Không tìm thấy âm thanh trong bộ nhớ",
+            "loadFailed": "Tải âm thanh thất bại",
+            "uploadFailed": "Tải lên thất bại",
+            "indexedDbFallback": "Lưu IndexedDB thất bại; chuyển sang base64.",
+            "tooLarge": "Tệp quá lớn. Tối đa {max}MB"
+        },
+        "timer": {
+            "resetTimer": "Đặt lại hẹn giờ",
+            "resetStopwatch": "Đặt lại bấm giờ",
+            "skip": "Bỏ qua",
+            "breakTime": "Thời gian nghỉ",
+            "secSuffix": "giây",
+            "hrLabel": "giờ",
+            "minLabel": "phút",
+            "setTimeToast": "Vui lòng đặt phiên thời gian "
+        },
+        "settings": {
+            "title": "Cài đặt",
+            "version": "v1",
+            "volume": "Âm lượng",
+            "playDuringBreak": "Phát khi nghỉ",
+            "distinctBreakAmbient": "Âm thanh nghỉ riêng",
+            "distinctHelp": "Chọn âm thanh khác khi nghỉ trong bảng âm thanh.",
+            "resetDefaults": "Khôi phục mặc định"
+        }
+    }
+}

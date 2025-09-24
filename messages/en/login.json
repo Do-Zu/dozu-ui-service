@@ -1,0 +1,17 @@
+{
+  "LoginPage": {
+    "title": "Welcome Back",
+    "loginText": "Login to your account",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
+    "loginButtonText": "Login",
+    "noAccountPrompt": "Don't have an account?",
+    "signUpButtonText": "Sign up",
+    "loginGoogleButtonText": "Login with Google",
+    "loginSuccessMessage": "Login successful!",
+    "loginErrorMessage": "Login failed. Please check your credentials.",
+    "forgotPasswordText": "Forgot your password?",
+    "forgotPasswordButtonText": "Reset Password"
+  }
+}

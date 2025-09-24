@@ -1,0 +1,56 @@
+{
+    "home": {
+        "title": "Accelerate Your Adaptive Learning Journey",
+        "coreActionCards": {
+            "schedule": {
+                "title": "View Schedule",
+                "description": "Manage your learning timeline and track progress across all topics."
+            },
+            "library": {
+                "title": "Manage Library",
+                "description": "Organize your learning materials, flashcards, and study content."
+            },
+            "generate": {
+                "title": "Generate Content",
+                "description": "Generate content with AI, schedule deep practice, and track spaced repetition progress — all in one unified workspace."
+            }
+        },
+        "currentProcessLearning": {
+            "title": "Current Learning",
+            "subtitle": "Based on your timeline schedule",
+            "description": "Description",
+            "progress": "Progress",
+            "remaining": "remaining",
+            "continueButton": "Continue",
+            "error": {
+                "title": "No current topic learning",
+                "message": "You have no active learning sessions at the moment.",
+                "noTopicFound": "No topic found for this current learning session."
+            }
+        },
+        "contentLibrary": {
+            "title": "Content Library",
+            "createNewContent": "Create New Content",
+            "searchPlaceholder": "Search content...",
+            "sortBy": "Sort by:",
+            "sortOptions": {
+                "newest": "Newest First",
+                "oldest": "Oldest First",
+                "titleAsc": "Title (A-Z)",
+                "titleDesc": "Title (Z-A)",
+                "recentlyStudied": "Recently Studied"
+            },
+            "tabs": {
+                "all": "All Content",
+                "flashcards": "Flashcards",
+                "notes": "Notes",
+                "quizzes": "Quizzes"
+            },
+            "noContent": {
+                "title": "No content found",
+                "searchMessage": "No results found for \"{query}\". Try a different search term.",
+                "emptyMessage": "You don't have any content in this category yet."
+            }
+        }
+    }
+}

@@ -1,0 +1,106 @@
+{
+    "LocaleSwitcher": {
+        "label": "Select Language",
+        "locale": "{locale} Language"
+    },
+    "home": {
+        "welcome": "Personalized learning ecosystem for you"
+    },
+    "progress": {
+        "title": "Learning Progress",
+        "subtitle": "Track your learning journey and manage your progress",
+        "dashboard": "Dashboard",
+        "totalContents": "Total Contents",
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "averageScore": "Average Score",
+        "studyOverview": "Study Overview",
+        "learningProgress": "Your learning progress this week",
+        "totalStudyHours": "Total Study Hours",
+        "completedTopics": "Completed Topics",
+        "weeklyChange": "Weekly Change",
+        "learningMethods": "Learning Methods",
+        "distribution": "Distribution of your learning activities",
+        "dailyStudyHours": "Daily Study Hours (Last 7 Days)",
+        "studyTimeDistribution": "Your study time distribution",
+        "achievements": "Achievements",
+        "learningMilestones": "Your learning milestones",
+        "topicsCompleted": "Topics Completed",
+        "loading": "Loading progress data...",
+        "error": "Error loading progress data",
+        "export": "Export",
+        "exportPdf": "Export as PDF",
+        "exportExcel": "Export as Excel",
+        "exportCsv": "Export as CSV",
+        "print": "Print",
+        "share": "Share",
+        "reportTitle": "Learning Progress Report",
+        "generatedOn": "Generated on",
+        "overviewStatistics": "Overview Statistics",
+        "shareText": "Check out my learning progress! Total study hours: {hours}h, Completed topics: {topics}",
+        "exportFailed": "Failed to export as {format}. Please try again.",
+        "shareSuccess": "Progress report details copied to clipboard!",
+        "urlCopied": "URL copied to clipboard!",
+        "shareError": "Unable to share. Please copy the URL manually.",
+        "day": "Day",
+        "hours": "Hours",
+        "date": "Date"
+    },
+    "common": {
+        "actions": {
+            "create": "Create",
+            "view": "View",
+            "update": "Update",
+            "delete": "Delete",
+            "edit": "Edit",
+            "save": "Save",
+            "back": "Back",
+            "actions": "Actions"
+        },
+        "titles": {
+            "createNew": "Create new {name}",
+            "updateItem": "Update {name}",
+            "deleteItem": "Delete {name}",
+            "viewDetail": "View {name} details"
+        },
+        "messages": {
+            "createSuccess": "Create {name} successfully",
+            "readSuccess": "{name} loaded successfully",
+            "updateSuccess": "Update {name} successfully",
+            "deleteSuccess": "Delete {name} successfully",
+            "createError": "Failed to create {name}",
+            "readError": "Failed to load {name}",
+            "updateError": "Failed to update {name}",
+            "deleteError": "Failed to delete {name}",
+            "fillNumberError": " Please enter numeric",
+            "fillNumberPositiveError": " Please enter positive number",
+            "featureInComing": "Feature coming soon"
+        },
+        "labels": {
+            "name": "Name",
+            "description": "Description",
+            "noDescription": "No description yet",
+            "status": "Status",
+            "createdAt": "Created at",
+            "updatedAt": "Updated at",
+            "title": "Title",
+            "content": "Content",
+            "noContent": "No content yet"
+        },
+        "status": {
+            "loading": "Loading...",
+            "saving": "Saving...",
+            "noPermission": "You do not have permission to perform this action"
+        },
+        "validation": {
+            "required": "{name} is required",
+            "minLength": "{name} must be at least {min} characters",
+            "maxLength": "{name} must be at most {max} characters",
+            "invalidFormat": "{name} has invalid format"
+        }
+    },
+    "user": {
+        "fullName": "Full Name",
+        "username": "Username"
+    }
+}

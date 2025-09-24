@@ -1,0 +1,17 @@
+{
+  "LoginPage": {
+    "title": "Chào mừng trở lại",
+    "loginText": "Đăng nhập vào tài khoản của bạn",
+    "email": "Email",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "loginButtonText": "Đăng nhập",
+    "noAccountPrompt": "Không có tài khoản?",
+    "signUpButtonText": "Đăng ký",
+    "loginGoogleButtonText": "Đăng nhập bằng Google",
+    "loginSuccessMessage": "Đăng nhập thành công!",
+    "loginErrorMessage": "Đăng nhập không thành công. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
+    "forgotPasswordText": "Quên mật khẩu?",
+    "forgotPasswordButtonText": "Khôi phục mật khẩu"
+  }
+}

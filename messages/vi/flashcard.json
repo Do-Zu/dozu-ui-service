@@ -1,0 +1,50 @@
+{
+    "flashcard": {
+        "edit": {
+            "import": "Tải lên",
+            "save": "Lưu",
+            "addCards": "Thêm thẻ"
+        },
+        "study": {
+            "card": "Thẻ",
+            "of": "trên",
+            "complete": "hoàn thành",
+            "autoPlay": "Tự động",
+            "resetProgress": "Làm lại",
+            "reset": "Reset",
+            "speed": "Tốc độ",
+            "shuffle": "Xáo thẻ",
+            "backFirst": "Mặt sau",
+            "edit": "Chỉnh sửa",
+            "learning": "Thực hành"
+        },
+        "learning": {
+            "responseOptions": {
+                "blackout": "Quên hẳn",
+                "wrong": "Sai",
+                "wrongEasy": "Sai (dễ)",
+                "hard": "Khó",
+                "good": "Tốt",
+                "perfect": "Hoàn hảo"
+            },
+            "showAnswer": "Hiện kết quả",
+            "flashcardsRemaining": "flashcards còn lại",
+            "greatJob": "Làm tốt lắm! 🎉",
+            "flashcardsCompleted": "Bạn đã hoàn thành tất cả flashcard cho chủ đề này. Hiện tại bạn có thể đánh giá kiến thức của mình.",
+            "flashcardsEmpty": "Không có flashcard nào cho topic này! Bạn hãy thử tạo bộ flashcard",
+            "reviewKnowledge": "Đánh giá kiến thức"
+        },
+        "import": {
+            "title": "Nhập dữ liệu của bạn",
+            "importText": {
+                "placeholder": "Khái niệm 1: Định nghĩa 1\nKhái niệm 2: Định nghĩa 2\n...",
+                "sideDividerLabel": "Giữa Khái niệm và Định nghĩa",
+                "cardDividerLabel": "Giữa các Thẻ",
+                "importSuccess": "Thêm Flashcards từ Text thành công"
+            },
+            "importCsv": {
+                "importSuccess": "Thêm Flashcards từ File .csv thành công"
+            }
+        }
+    }
+}
