@@ -27,3 +27,17 @@ personalized learning platform, learning roadmaps, AI-powered education, adaptiv
 ---
 
 Dozu empowers learners to **study smarter, stay consistent, and achieve mastery** through adaptive AI-driven learning methods.
+
+Home
+[Home](https://dozu.blog/home): The main landing page of the application, providing an overview of features and quick access to various sections.
+User Management
+### Login
+[Login](https://dozu.blog/auth/login): The authentication page where users can enter their credentials to access their accounts.
+Progress Tracking
+[Progress](https://dozu.blog/progress): A section dedicated to tracking user progress, displaying metrics and achievements over time.
+Scheduling
+[Calendar](https://dozu.blog/schedule): A calendar interface that allows users to view and manage their schedules, including events and deadlines.
+Application Settings
+[Settings](https://dozu.blog/setting/schedule-setup): The configuration area where users can adjust their preferences and manage application settings.
+Additional Resources
+[Dozu](https://dozu.blog/): A supplementary resource or tool that enhances the functionality of the main application, providing additional features or integrations.
