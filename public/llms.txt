@@ -1,0 +1,29 @@
+# Dozu - Personalized Learning Roadmaps & Multi-Method Mastery
+
+Dozu is an AI-powered learning platform that helps learners create **personalized learning roadmaps** and master topics using **multiple proven learning methodologies**.  
+With Dozu, students and professionals can combine flashcards, interactive lessons, progress tracking, and scheduled sessions into a powerful and engaging learning experience.
+
+## Why Choose Dozu?
+
+- **Personalized Roadmaps** – Structured study paths designed for your unique goals.  
+- **Multi-Method Learning** – Combine flashcards, reading materials, interactive modules, and adaptive AI lessons.  
+- **Progress Tracking** – Analytics and insights to measure and improve your learning journey.  
+- **Smart Scheduling** – AI-powered reminders and study session planning.  
+- **Adaptive Learning** – Intelligent content recommendations based on performance and behavior.  
+- **Multi-language Access** – Global platform supporting learners worldwide.  
+
+## Learning Methodologies in Dozu
+
+- **Flashcards & Spaced Repetition** – Scientifically proven method for better retention.  
+- **Class-Based Learning** – Structured lessons and modular course design.  
+- **Progress-Based Learning** – Content adapts as your knowledge grows.  
+- **Interactive Multimedia** – Videos, quizzes, and engaging exercises.  
+- **Schedule Management** – Organize study time efficiently with built-in reminders.  
+
+## SEO Keywords (AI & Search Indexing)
+
+personalized learning platform, learning roadmaps, AI-powered education, adaptive learning, spaced repetition flashcards, progress tracking for students, interactive learning platform, schedule learning sessions, multi-method learning system, Dozu education  
+
+---
+
+Dozu empowers learners to **study smarter, stay consistent, and achieve mastery** through adaptive AI-driven learning methods.
