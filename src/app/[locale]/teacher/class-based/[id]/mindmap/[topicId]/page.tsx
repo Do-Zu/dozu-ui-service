@@ -1,41 +1,48 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { setRouterRef } from '@/utils/routerService';
-import { Background, BackgroundVariant, Controls, Panel, ReactFlow, ReactFlowProvider } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-
-import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+import { useParams, useRouter } from 'next/navigation';
+import { Background, BackgroundVariant, Controls, Panel, ReactFlow } from '@xyflow/react';
+import { useAppSelector } from '@/stores/hooks';
 import { toast } from '@/hooks/use-toast';
+import { setRouterRef } from '@/utils/routerService';
+
+import { Button } from '@/components/ui/button';
+import { Save } from 'lucide-react';
 import DownloadButton from '@/components/mindmap/button/DownloadButton';
 
-import FileSheet from '../../components/FileSheet';
-import FloatingEdge from '../../components/FloatingEdge';
-import { useMindMapContext } from '../../context/MindMapContext';
-import ViewFileButton from '../../../../../components/mindmap/button/ViewFileButton';
+import LoadingPage from '@/app/loading';
+import flashcardService from '@/services/flashcard/flashcard.service';
+
+// import ContentGenerationPreview from '../../generate/components/ContentGenerationPreview';
+
+import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
+
+import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
 
 import {
     IFlashcardCreateInput,
     IFlashcardsBatchInput,
     IFlashcardUpdateInput,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
-import LoadingPage from '@/app/loading';
-import flashcardService from '@/services/flashcard/flashcard.service';
-import { useAppSelector } from '@/stores/hooks';
-import { IFlashcardWithServer } from '../../../flashcards/components/FlashcardEditor';
-import ContentGenerationPreview from '../../../generate/components/ContentGenerationPreview';
-import { useContentGeneration } from '../../../generate/hooks/useContentGeneration';
-import NodeSheetViewOnly from '../../components/NodeSheetViewOnly';
-import ReactFlowNodeInClass from '../../components/ReactFlowNodeInClass';
+
+import '@xyflow/react/dist/style.css';
+import ViewFileButton from '@/components/mindmap/button/ViewFileButton';
+import CustomReactFlowNode from '@/app/[locale]/mindmap/components/CustomReactFlowNode';
+import FileSheet from '@/app/[locale]/mindmap/components/FileSheet';
+import FloatingEdge from '@/app/[locale]/mindmap/components/FloatingEdge';
+import NodeSheet from '@/app/[locale]/mindmap/components/NodeSheet';
+import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
+import { IFlashcardWithServer } from '@/app/[locale]/flashcards/components/FlashcardEditor';
+import TeacherNodeSheet from '@/components/mindmap/TeacherNodeSheet';
 
 const defaultEdgeOptions = {
     type: 'floating',
 };
 
 const nodeTypes = {
-    'custom-react-flow-node': ReactFlowNodeInClass,
+    'custom-react-flow-node': CustomReactFlowNode,
 };
 
 const edgeTypes = {
@@ -44,9 +51,10 @@ const edgeTypes = {
 
 export default function MindmapContent() {
     const router = useRouter();
+      const params = useParams();
+        const classId = Number(params?.id as string);
 
     const {
-        isLoading,
         topicId,
         nodes,
         edges,
@@ -83,10 +91,6 @@ export default function MindmapContent() {
             });
         }
     }, [sseData, sseStatus]);
-
-    if (isLoading) {
-        return <LoadingPage />;
-    }
 
     if (!topicId) {
         return <div>No topic id is provided</div>;
@@ -222,14 +226,14 @@ export default function MindmapContent() {
                 </Panel>
                 <Panel position="top-center">
                     <div className="flex gap-2 ">
-                        {/* <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
+                        <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
                             <Save />
                             {isSaving ? 'Saving...' : 'Save mindmap'}
-                        </Button> */}
+                        </Button>
                         <DownloadButton />
                     </div>
                     <FileSheet />
-                    <NodeSheetViewOnly />
+                    <TeacherNodeSheet classId={classId} />
                 </Panel>
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />

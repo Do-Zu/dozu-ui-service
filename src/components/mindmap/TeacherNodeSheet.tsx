@@ -11,12 +11,22 @@ import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { compressContent } from '../../generate/helper/compress';
-import { useMindMapContext } from '../context/MindMapContext';
-import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
-import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
+// import { compressContent } from '../../generate/helper/compress';
 
-const NodeSheet = () => {
+// import { useMindMapContext } from '../context/MindMapContext';
+
+import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
+
+import { addChildNode, changeNodeLabel, deleteNode } from '@/utils/mindmap/mindmapUtils';
+import { compressContent } from '@/app/[locale]/generate/helper/compress';
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
+import ProgressDialog from './ProgressDialog';
+
+type TeacherNodeSheetProps = {
+    classId: number;
+};
+
+const TeacherNodeSheet = ({ classId }: TeacherNodeSheetProps) => {
     const router = useRouter();
     const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
@@ -140,7 +150,7 @@ const NodeSheet = () => {
 
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
-            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col">
+            <SheetContent className="w-[400px] sm:w-[540px]">
                 <SheetHeader>
                     <SheetTitle>
                         <div className="flex items-center gap-2">
@@ -166,10 +176,6 @@ const NodeSheet = () => {
                     ) : (
                         <p>{selectedNodeData.description}</p>
                     )}
-                </div>
-
-                {/* <SheetFooter> */}
-                <div className="flex flex-col gap-2 mt-6">
                     <div className="grid grid-cols-2 w-full gap-3">
                         <Label>Starts at page #</Label>
 
@@ -187,6 +193,10 @@ const NodeSheet = () => {
                             selectedNodeData?.pageEndIndex
                         )}
                     </div>
+                </div>
+
+                {/* <SheetFooter> */}
+                <div className="flex flex-col gap-2 mt-6">
                     <Button onClick={handleAddChild} variant="outline" className="w-full">
                         <DiamondPlus />
                         Add child
@@ -211,6 +221,7 @@ const NodeSheet = () => {
                         <Trash />
                         Delete this node
                     </Button>
+                    <ProgressDialog classId={classId} nodeId={selectedNodeData.nodeId} />
                     {/* <SheetClose asChild>
                         <Button variant="outline">
                             <PanelRightClose />
@@ -224,4 +235,4 @@ const NodeSheet = () => {
     );
 };
 
-export default NodeSheet;
+export default TeacherNodeSheet;

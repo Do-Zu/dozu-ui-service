@@ -1,5 +1,5 @@
 import Axios from '@/api/axios';
-import { AppEdge, AppNode } from '../mindmap.type';
+import { AppEdge, AppNode } from '../../types/mindmap/mindmap.type';
 import { v4 as uuidv4 } from 'uuid';
 
 interface IDeleteNodeParams {
