@@ -181,8 +181,6 @@ export default function FeynmanPage() {
 
         const data = await get.fetch({ topicId: toNumber(topicId, -1), method });
 
-        console.log({ data });
-
         if (!data) return;
 
         if (data.questions && data.questions.questions.length > 0) {
