@@ -42,6 +42,7 @@ import MenuBar from './MenuEditorBar';
 type EditorProps = {
     value: string;
     onChange: (next: string, highlighted: string[]) => void;
+    onChangeHtml: (html: string) => void;
     placeholder?: string;
     maxLength?: number;
     minWordLength?: number;
@@ -74,6 +75,7 @@ const JARGON_COLORS = [
 export const FeynmanEditor: React.FC<EditorProps> = ({
     value,
     onChange,
+    onChangeHtml,
     placeholder = 'Explain this topic as if you’re teaching a friend who knows nothing about it…',
     maxLength = 4000,
     minWordLength = 9,
@@ -163,6 +165,8 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
         content: value,
         onUpdate: ({ editor }) => {
             const plain = editor.getText();
+            const html = editor.getHTML();
+            onChangeHtml(html);
             if (plain.length > maxLength) return;
             const jargon = detectJargon(plain, minWordLength);
             setHighlighted(jargon);
