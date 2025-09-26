@@ -12,10 +12,10 @@ const toNumber = (value: unknown, defaultValue: number): number => {
 
     let s = value.trim().replace(/\u2212/g, '-');
 
-    // Reject if contains alphabet
-    if (/[a-zA-Z]/.test(s)) return defaultValue;
-
     s = s.replace(/[^\d.,+\-eE]/g, '');
+
+    // Reject if any characters outside digits, decimal separators, signs, or exponent markers remain
+    if (/[a-zA-Z]/.test(s)) return defaultValue;
 
     if (s.includes(',') && s.includes('.')) {
         s = s.replace(/,/g, '');
