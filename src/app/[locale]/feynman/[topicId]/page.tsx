@@ -18,9 +18,7 @@ import { isNilOrEmpty, isNullOrEmpty, toNumber, truncate } from '@/utils';
 import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
 import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
-import { toast } from '@/hooks/use-toast';
 import { useFeynmanService } from './hooks/useFeynmanService';
-import { GET } from '@/app/api/website-proxy/route';
 
 export default function FeynmanPage() {
     const tCommon = useTranslations('common');
