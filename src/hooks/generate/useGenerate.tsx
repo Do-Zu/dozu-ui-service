@@ -5,7 +5,6 @@ import { useEventSource } from '../useEventSource';
 import { ApiResponsePubGenContent, ISseData } from '@/app/[locale]/generate';
 import { URL_API_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { compressContent } from '@/app/[locale]/generate/helper/compress';
-import { IFeynmanResponseQuestion } from '@/components/feynman/types';
 import { toast } from '../use-toast';
 
 export interface IGenerateRequest {
@@ -19,9 +18,7 @@ export interface UsePostOptions<TReq, TRes> {
     onError?: (error: unknown) => void;
 }
 
-export default function useGenerate<TRes = unknown>(
-    options?: UsePostOptions<IGenerateRequest, IFeynmanResponseQuestion>,
-) {
+export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGenerateRequest, TRes>) {
     const t = useTranslations('generate.cardImport');
     const [jobId, setJobId] = useState<string | undefined>();
     const [dataGenerated, setDataGenerated] = useState<TRes | undefined>();
@@ -76,13 +73,9 @@ export default function useGenerate<TRes = unknown>(
             toast({
                 description: t('toasts.success'),
             });
-            const questionGenerated = sseData?.data?.data as TRes;
+            const dataGenerated = sseData?.data?.data as TRes;
 
-            setDataGenerated(questionGenerated);
-
-            if (options?.onSuccess) {
-                options.onSuccess(questionGenerated as IFeynmanResponseQuestion);
-            }
+            setDataGenerated(dataGenerated);
         }
     }, [sseData, sseStatus]);
 
