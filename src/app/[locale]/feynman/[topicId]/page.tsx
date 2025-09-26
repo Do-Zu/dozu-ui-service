@@ -14,29 +14,31 @@ import { FeynmanEditor } from '@/components/feynman/FeynmanEditor';
 import { HintPanel } from '@/components/feynman/HintPanel';
 import { ActionBar } from '@/components/feynman/ActionBar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { isNilOrEmpty, isNullOrEmpty, truncate } from '@/utils';
+import { isNilOrEmpty, isNullOrEmpty, toNumber, truncate } from '@/utils';
 import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
 import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
-import { toast } from '@/hooks/use-toast';
+import { useFeynmanService } from './hooks/useFeynmanService';
 
 export default function FeynmanPage() {
+    const tCommon = useTranslations('common');
+
     const searchParams = useSearchParams();
     const params = useParams();
     const topicId = params?.topicId as string;
     const method = searchParams?.get('method');
 
-    const tCommon = useTranslations('common');
-
     const [text, setText] = useState<string>('');
+    const [html, setHtml] = useState<string>('');
     const [highlightedWords, setHighlightedWords] = useState<string[]>([]);
     const [ai, setAI] = useState<FeynmanAIResponse>({ questions: [], hints: [] });
     const [review, setReview] = useState<IFeynmanReviewedResponse>();
     const [expanded, setExpanded] = useState(false);
     const [step, setStep] = useState<1 | 2>(1);
     const [history, setHistory] = useState<{ content: string; ts: number }[]>([]);
-
     const [openReview, setOpenReview] = useState(false);
+
+    const { get, storage, update } = useFeynmanService();
 
     const isValidToFetchOriginDataMethod = (): boolean => {
         return !!method && !!topicId;
@@ -54,7 +56,10 @@ export default function FeynmanPage() {
         dataGenerated: dataFeynmanQuestion,
         isGenerating: isGeneratingQuestion,
         apiPostContentError: errorGenerateQuestion,
-    } = useGenerate<IFeynmanResponseQuestion>();
+        setDataGenerated,
+    } = useGenerate<IFeynmanResponseQuestion>({
+        onSuccess: (questions) => handleStorageQuestion(questions),
+    });
 
     const {
         execute: executeReview,
@@ -162,17 +167,67 @@ export default function FeynmanPage() {
         }
     };
 
-    const handleSave = () => {
-        toast({
-            description: tCommon('messages.featureInComing'),
-        });
-    };
-
     const handleReset = () => {
         setText('');
         setAI({ questions: [], hints: [] });
         setHighlightedWords([]);
         setStep(1);
+    };
+
+    const handleFetchFeynmanSession = async () => {
+        if (!topicId || !method) return;
+
+        const data = await get.fetch({ topicId: toNumber(topicId, -1), method });
+
+        if (!data) return;
+
+        if (data.questions && data.questions.questions.length > 0) {
+            setDataGenerated({
+                ...data.questions,
+            });
+        }
+
+        if (data.review) {
+            setReview(data.review);
+        }
+
+        if (data.explanationHtml && data.explanationText) {
+            setHtml(data.explanationHtml);
+            setText(data.explanationText);
+        }
+
+        if (data.highlightedWords) {
+            setHighlightedWords(data.highlightedWords);
+        }
+    };
+
+    const handleUpdateSession = async () => {
+        if (isNullOrEmpty(topicId) || isNullOrEmpty(method)) return;
+
+        await update.execute({
+            method: method!,
+            topicId: toNumber(topicId, -1),
+            explanationHtml: html,
+            explanationText: text,
+            review: review,
+            questions: dataFeynmanQuestion,
+            highlightedWords,
+            step,
+        });
+    };
+
+    async function handleStorageQuestion(questions: IFeynmanResponseQuestion) {
+        if (!topicId || !method) return;
+
+        await update.execute({
+            topicId: toNumber(topicId, -1),
+            method,
+            questions,
+        });
+    }
+
+    const handleSave = async () => {
+        return handleUpdateSession();
     };
 
     useEffect(() => {
@@ -182,6 +237,16 @@ export default function FeynmanPage() {
             setOpenReview(true);
         }
     }, [isRegisterReview, dataFeynmanReviewed]);
+
+    useEffect(() => {
+        handleFetchFeynmanSession();
+    }, [topicId, method]);
+
+    useEffect(() => {
+        return () => {
+            handleUpdateSession();
+        };
+    }, []);
 
     const renderLeftSide = () => {
         if (isGeneratingQuestion || isRegisterReview || isGeneratingReview)
@@ -247,7 +312,8 @@ export default function FeynmanPage() {
     if (
         (isFetchDataOriginMethod && !errorFetchDataOriginMethod) ||
         (isRegisterFetchQuestion && !errorGenerateQuestion) ||
-        (isRegisterReview && !errorReview)
+        (isRegisterReview && !errorReview) ||
+        (get.loading && !get.error)
     )
         return <LoadingPage isOverlay={true} />;
 
@@ -260,6 +326,7 @@ export default function FeynmanPage() {
                         <FeynmanEditor
                             value={text}
                             onChange={handleChange}
+                            onChangeHtml={setHtml}
                             maxLength={maxLengthExplain}
                             minWordLength={minWordLength}
                         />

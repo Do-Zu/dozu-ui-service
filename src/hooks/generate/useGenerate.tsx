@@ -1,11 +1,11 @@
-import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
-import usePost, { UsePostOptions } from '../usePost';
+import { useTranslations } from 'next-intl';
+import usePost from '../usePost';
 import { useEventSource } from '../useEventSource';
 import { ApiResponsePubGenContent, ISseData } from '@/app/[locale]/generate';
 import { URL_API_GENERATE } from '@/app/[locale]/generate/utils/constant';
-import { toast } from '../use-toast';
 import { compressContent } from '@/app/[locale]/generate/helper/compress';
+import { toast } from '../use-toast';
 
 export interface IGenerateRequest {
     content: string;
@@ -13,9 +13,12 @@ export interface IGenerateRequest {
     type: string;
 }
 
-export default function useGenerate<TRes = unknown>(
-    options?: UsePostOptions<IGenerateRequest, ApiResponsePubGenContent>,
-) {
+export interface UsePostOptions<TReq, TRes> {
+    onSuccess?: (data: TRes) => void;
+    onError?: (error: unknown) => void;
+}
+
+export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGenerateRequest, TRes>) {
     const t = useTranslations('generate.cardImport');
     const [jobId, setJobId] = useState<string | undefined>();
     const [dataGenerated, setDataGenerated] = useState<TRes | undefined>();
@@ -25,7 +28,7 @@ export default function useGenerate<TRes = unknown>(
         error: apiPostContentError,
         execute,
         reset,
-    } = usePost<IGenerateRequest, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST', options);
+    } = usePost<IGenerateRequest, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
 
     const { data: sseData, status: sseStatus } = useEventSource<ISseData>(
         jobId ? `/event/generate/job/${jobId}` : null,
@@ -70,7 +73,9 @@ export default function useGenerate<TRes = unknown>(
             toast({
                 description: t('toasts.success'),
             });
-            setDataGenerated(sseData?.data?.data as TRes);
+            const dataGenerated = sseData?.data?.data as TRes;
+
+            setDataGenerated(dataGenerated);
         }
     }, [sseData, sseStatus]);
 
@@ -82,5 +87,6 @@ export default function useGenerate<TRes = unknown>(
         execute: executeGenerate,
         reset,
         dataGenerated,
+        setDataGenerated,
     };
 }
