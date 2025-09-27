@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import useGenerate from '@/hooks/generate/useGenerate';
@@ -16,9 +16,10 @@ import { ActionBar } from '@/components/feynman/ActionBar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isNilOrEmpty, isNullOrEmpty, toNumber, truncate } from '@/utils';
 import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
-import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
+import { IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
 import { useFeynmanService } from './hooks/useFeynmanService';
+import History from '@/components/feynman/History';
 
 export default function FeynmanPage() {
     const tCommon = useTranslations('common');
@@ -31,14 +32,14 @@ export default function FeynmanPage() {
     const [text, setText] = useState<string>('');
     const [html, setHtml] = useState<string>('');
     const [highlightedWords, setHighlightedWords] = useState<string[]>([]);
-    const [ai, setAI] = useState<FeynmanAIResponse>({ questions: [], hints: [] });
+    // const [ai, setAI] = useState<FeynmanAIResponse>({ questions: [], hints: [] });
     const [review, setReview] = useState<IFeynmanReviewedResponse>();
     const [expanded, setExpanded] = useState(false);
     const [step, setStep] = useState<1 | 2>(1);
     const [history, setHistory] = useState<{ content: string; ts: number }[]>([]);
     const [openReview, setOpenReview] = useState(false);
 
-    const { get, storage, update } = useFeynmanService();
+    const { get, update } = useFeynmanService();
 
     const isValidToFetchOriginDataMethod = (): boolean => {
         return !!method && !!topicId;
@@ -170,7 +171,6 @@ export default function FeynmanPage() {
 
     const handleReset = () => {
         setText('');
-        setAI({ questions: [], hints: [] });
         setHighlightedWords([]);
         setStep(1);
     };
@@ -194,7 +194,7 @@ export default function FeynmanPage() {
 
         if (data.explanationHtml && data.explanationText) {
             setHtml(data.explanationHtml);
-            setText(data.explanationText);
+            setText(data.explanationHtml);
         }
 
         if (data.highlightedWords) {
@@ -202,8 +202,8 @@ export default function FeynmanPage() {
         }
     };
 
-    const handleUpdateSession = async () => {
-        if (isNullOrEmpty(topicId) || isNullOrEmpty(method)) return;
+    const handleUpdateSession = useCallback(async () => {
+        if (isNullOrEmpty(topicId) || isNullOrEmpty(method) || isNullOrEmpty(text) || isNullOrEmpty(html)) return;
 
         await update.execute({
             method: method!,
@@ -215,7 +215,7 @@ export default function FeynmanPage() {
             highlightedWords,
             step,
         });
-    };
+    }, [topicId, method, html, text, review, , highlightedWords, step]);
 
     async function handleStorageQuestion(questions: IFeynmanResponseQuestion) {
         if (!topicId || !method) return;
@@ -240,14 +240,22 @@ export default function FeynmanPage() {
     }, [isRegisterReview, dataFeynmanReviewed]);
 
     useEffect(() => {
-        handleFetchFeynmanSession();
+        void handleFetchFeynmanSession();
     }, [topicId, method]);
 
     useEffect(() => {
         return () => {
-            handleUpdateSession();
+            void handleUpdateSession();
         };
-    }, []);
+    }, [handleUpdateSession]);
+
+    const isDisableGetQuestionButton = useMemo(() => {
+        return isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion;
+    }, [isGeneratingQuestion, isGeneratingReview, dataFeynmanQuestion]);
+
+    const isDisableSubmitReviewButton = useMemo(() => {
+        return !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text);
+    }, [isGeneratingQuestion, isGeneratingReview, text]);
 
     const renderLeftSide = () => {
         if (isGeneratingQuestion || isRegisterReview || isGeneratingReview)
@@ -343,10 +351,8 @@ export default function FeynmanPage() {
                     jargonCount={highlightedWords.length}
                     isLoadingFetchQuestion={isGeneratingQuestion}
                     isReview={isGeneratingReview}
-                    isDisableGetQuestion={isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion}
-                    isDisableSubmit={
-                        !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text)
-                    }
+                    isDisableGetQuestion={isDisableGetQuestionButton}
+                    isDisableSubmit={isDisableSubmitReviewButton}
                 />
 
                 <FeynmanReviewDialog
@@ -366,25 +372,7 @@ export default function FeynmanPage() {
                     }
                 />
 
-                {history.length > 0 && (
-                    <Card className="rounded-2xl">
-                        <CardHeader>
-                            <CardTitle className="text-base">Version History</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            {history.map((h, i) => (
-                                <div key={h.ts} className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => setText(h.content)}>
-                                        Restore
-                                    </Button>
-                                    <div className="text-xs text-muted-foreground truncate">
-                                        {new Date(h.ts).toLocaleString()} — {h.content.slice(0, 80)}
-                                    </div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-                )}
+                <History history={history} setText={setText} />
             </div>
 
             {renderLeftSide()}
