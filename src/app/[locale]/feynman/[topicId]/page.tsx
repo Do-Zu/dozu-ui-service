@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import useGenerate from '@/hooks/generate/useGenerate';
@@ -69,6 +69,42 @@ export default function FeynmanPage() {
         isGenerating: isGeneratingReview,
         apiPostContentError: errorReview,
     } = useGenerate<IFeynmanReviewedResponse>();
+
+    const htmlRefOlder = useRef(html);
+
+    const textRef = useRef(text);
+    const htmlRef = useRef(html);
+    const questionsRef = useRef(dataFeynmanQuestion);
+    const reviewRef = useRef(review);
+    const highlightedWordsRef = useRef<string[]>(highlightedWords);
+    const stepRef = useRef(step);
+    const topicIdRef = useRef(topicId);
+    const methodRef = useRef(method);
+
+    useEffect(() => {
+        textRef.current = text;
+    }, [text]);
+    useEffect(() => {
+        htmlRef.current = html;
+    }, [html]);
+    useEffect(() => {
+        questionsRef.current = dataFeynmanQuestion;
+    }, [dataFeynmanQuestion]);
+    useEffect(() => {
+        reviewRef.current = review;
+    }, [review]);
+    useEffect(() => {
+        highlightedWordsRef.current = highlightedWords;
+    }, [highlightedWords]);
+    useEffect(() => {
+        stepRef.current = step;
+    }, [step]);
+    useEffect(() => {
+        topicIdRef.current = topicId;
+    }, [topicId]);
+    useEffect(() => {
+        methodRef.current = method;
+    }, [method]);
 
     //TODO: Calculate clarity after storage success data
     // const clarityScore = useMemo(() => {
@@ -195,6 +231,7 @@ export default function FeynmanPage() {
         if (data.explanationHtml && data.explanationText) {
             setHtml(data.explanationHtml);
             setText(data.explanationHtml);
+            htmlRefOlder.current = data.explanationHtml;
         }
 
         if (data.highlightedWords) {
@@ -217,6 +254,33 @@ export default function FeynmanPage() {
         });
     }, [topicId, method, html, text, review, , highlightedWords, step]);
 
+    const saveLatestSessionOnUnmount = async () => {
+        const m = methodRef.current;
+        const topicIdStr = topicIdRef.current;
+        const t = textRef.current;
+        const h = htmlRef.current;
+
+        if (
+            isNullOrEmpty(topicIdStr) ||
+            isNullOrEmpty(m) ||
+            isNullOrEmpty(t) ||
+            isNullOrEmpty(h) ||
+            h == htmlRefOlder.current
+        )
+            return;
+
+        await update.execute({
+            method: m!,
+            topicId: toNumber(topicIdStr as string, -1),
+            explanationHtml: h!,
+            explanationText: t!,
+            review: reviewRef.current,
+            questions: questionsRef.current ?? undefined,
+            highlightedWords: highlightedWordsRef.current ?? [],
+            step: stepRef.current,
+        });
+    };
+
     async function handleStorageQuestion(questions: IFeynmanResponseQuestion) {
         if (!topicId || !method) return;
 
@@ -227,7 +291,12 @@ export default function FeynmanPage() {
         });
     }
 
+    const isDisableSave = useMemo(() => {
+        return isNullOrEmpty(html) || html == htmlRefOlder.current;
+    }, [html, htmlRefOlder.current]);
+
     const handleSave = async () => {
+        if (isDisableSave) return;
         return handleUpdateSession();
     };
 
@@ -245,9 +314,9 @@ export default function FeynmanPage() {
 
     useEffect(() => {
         return () => {
-            void handleUpdateSession();
+            void saveLatestSessionOnUnmount();
         };
-    }, [handleUpdateSession]);
+    }, []);
 
     const isDisableGetQuestionButton = useMemo(() => {
         return isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion;
@@ -256,6 +325,16 @@ export default function FeynmanPage() {
     const isDisableSubmitReviewButton = useMemo(() => {
         return !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text);
     }, [isGeneratingQuestion, isGeneratingReview, text]);
+
+    const isLoadingPage = useMemo(() => {
+        return (
+            (isFetchDataOriginMethod && !errorFetchDataOriginMethod) ||
+            (isRegisterFetchQuestion && !errorGenerateQuestion) ||
+            (isRegisterReview && !errorReview) ||
+            (get.loading && !get.error) ||
+            (update.loading && !update.error)
+        );
+    }, [isFetchDataOriginMethod, isRegisterFetchQuestion, isRegisterReview, get.loading, update.loading]);
 
     const renderLeftSide = () => {
         if (isGeneratingQuestion || isRegisterReview || isGeneratingReview)
@@ -318,13 +397,7 @@ export default function FeynmanPage() {
         );
     };
 
-    if (
-        (isFetchDataOriginMethod && !errorFetchDataOriginMethod) ||
-        (isRegisterFetchQuestion && !errorGenerateQuestion) ||
-        (isRegisterReview && !errorReview) ||
-        (get.loading && !get.error)
-    )
-        return <LoadingPage isOverlay={true} />;
+    if (isLoadingPage) return <LoadingPage isOverlay={true} />;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -353,6 +426,7 @@ export default function FeynmanPage() {
                     isReview={isGeneratingReview}
                     isDisableGetQuestion={isDisableGetQuestionButton}
                     isDisableSubmit={isDisableSubmitReviewButton}
+                    isDisableSaveButton={isDisableSave}
                 />
 
                 <FeynmanReviewDialog

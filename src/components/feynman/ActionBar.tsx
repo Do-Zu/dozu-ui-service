@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 
 type Props = {
     step: 1 | 2;
@@ -15,6 +14,7 @@ type Props = {
     isReview: boolean;
     isDisableGetQuestion: boolean;
     isDisableSubmit: boolean;
+    isDisableSaveButton: boolean;
 };
 
 export function ActionBar({
@@ -28,6 +28,7 @@ export function ActionBar({
     isDisableGetQuestion,
     isDisableSubmit,
     isLoadingFetchQuestion,
+    isDisableSaveButton,
     isReview,
 }: Props) {
     const badge =
@@ -57,7 +58,7 @@ export function ActionBar({
                 <Button variant="secondary" onClick={onReset} disabled={isLoadingFetchQuestion || isReview}>
                     Reset
                 </Button>
-                <Button variant="outline" onClick={onSave} disabled={isLoadingFetchQuestion || isReview}>
+                <Button variant="outline" onClick={onSave} disabled={isDisableSaveButton}>
                     Save Explanation
                 </Button>
                 <Button onClick={onGetHints} disabled={isDisableGetQuestion}>
