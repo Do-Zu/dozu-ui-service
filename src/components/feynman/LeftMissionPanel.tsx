@@ -147,7 +147,7 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                     <CardContent className="space-y-2">
                         <p className="text-sm text-muted-foreground">{t('missed')}</p>
                         <ul className="text-sm space-y-1 list-disc pl-5">
-                            {detectedGaps.slice(0, 6).map((g, i) => (
+                            {detectedGaps.slice(0, 3).map((g, i) => (
                                 <li key={i}>
                                     <span className="font-medium">{g.word}</span>
                                     {g.suggestion ? (
@@ -158,12 +158,12 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                         </ul>
                         {detectedGaps.length > 3 && (
                             <Button variant="ghost" size="sm" className="mt-1 px-0" onClick={onToggle}>
-                                {expanded ? 'Hide more' : `Show ${detectedGaps.length - 3} more`}
+                                {expanded ? t('hideMore') : t('showMore')}
                             </Button>
                         )}
-                        {expanded && detectedGaps.length > 3 && (
+                        {expanded && (
                             <div className="mt-2 border-t pt-2 space-y-1 text-sm">
-                                {detectedGaps.slice(3).map((g, i) => (
+                                {detectedGaps.map((g, i) => (
                                     <div key={i}>
                                         <span className="font-medium">{g.word}</span>
                                         {g.suggestion ? (

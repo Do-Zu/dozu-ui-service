@@ -46,6 +46,8 @@
         "actionPlan": "Action Plan",
         "noReview": "No review available yet. Submit your explanation to generate one.",
         "closeDialog": "Close",
-        "stepLabel": "Step {index}"
+        "stepLabel": "Step {index}",
+        "hideMore": "Hide more",
+        "showMore": "Show {count} more"
     }
 }

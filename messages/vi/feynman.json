@@ -46,6 +46,8 @@
         "actionPlan": "Kế hoạch hành động",
         "noReview": "Chưa có đánh giá. Hãy gửi bài giải thích để tạo đánh giá.",
         "closeDialog": "Đóng",
-        "stepLabel": "Bước {index}"
+        "stepLabel": "Bước {index}",
+        "hideMore": "Ẩn bớt",
+        "showMore": "Xem thêm"
     }
 }
