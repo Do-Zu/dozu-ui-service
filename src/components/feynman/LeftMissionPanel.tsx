@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { truncate } from '@/utils';
 import { CheckCircle2, ChevronRight, Lightbulb, TriangleAlert } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 type Question = { content: string };
 type Gap = { word: string; suggestion: string };
@@ -35,6 +37,8 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
 }) => {
     const [currentIdx, setCurrentIdx] = useState(0);
     const [showHint, setShowHint] = useState(false);
+    const [hintModalOpen, setHintModalOpen] = useState(false);
+    const [selectedHint, setSelectedHint] = useState<string | null>(null);
     const total = questions.length || 1;
 
     const progress = useMemo(() => Math.min(100, Math.round(((currentIdx + 1) / total) * 100)), [currentIdx, total]);
@@ -43,6 +47,11 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
     const next = () => {
         setShowHint(false);
         setCurrentIdx((i) => (i + 1 < total ? i + 1 : i));
+    };
+
+    const openHintModal = (hint: string) => {
+        setSelectedHint(hint);
+        setHintModalOpen(true);
     };
 
     return (
@@ -100,12 +109,27 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                     {showHint && hints.length > 0 && (
                         <div className="mt-1 rounded-lg border p-3 bg-muted/40">
                             <p className="text-xs text-muted-foreground mb-2">Try one of these prompts:</p>
-                            <div className="flex flex-wrap gap-2">
-                                {hints.slice(0, 3).map((hint, idx) => (
-                                    <Button key={idx} size="sm" variant="secondary" onClick={() => onUseAnalogy(hint)}>
-                                        Use: {truncate(hint, 60)}
-                                    </Button>
-                                ))}
+                            <div className="relative px-6">
+                                <Carousel opts={{ align: 'start', containScroll: 'trimSnaps' }}>
+                                    <CarouselContent>
+                                        {hints.map((hint, idx) => (
+                                            <CarouselItem key={idx} className="min-w-0 basis-1/2 md:basis-1/3">
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="w-full justify-start text-left overflow-hidden"
+                                                    onClick={() => openHintModal(hint)}
+                                                >
+                                                    <span className="truncate" title={hint}>
+                                                        Use: {truncate(hint, 60)}
+                                                    </span>
+                                                </Button>
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="-left-4 md:-left-6" />
+                                    <CarouselNext className="-right-4 md:-right-6" />
+                                </Carousel>
                             </div>
                         </div>
                     )}
@@ -124,7 +148,7 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                     <CardContent className="space-y-2">
                         <p className="text-sm text-muted-foreground">You might have missed:</p>
                         <ul className="text-sm space-y-1 list-disc pl-5">
-                            {detectedGaps.slice(0, 3).map((g, i) => (
+                            {detectedGaps.slice(0, 6).map((g, i) => (
                                 <li key={i}>
                                     <span className="font-medium">{g.word}</span>
                                     {g.suggestion ? (
@@ -178,6 +202,30 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                     </CardContent>
                 </Card>
             )} */}
+
+            {/* Hint Fullscreen Modal */}
+            <Dialog open={hintModalOpen} onOpenChange={setHintModalOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Hint</DialogTitle>
+                        <DialogDescription>Use this hint to improve your explanation.</DialogDescription>
+                    </DialogHeader>
+                    <div className="text-sm whitespace-pre-wrap leading-6">{selectedHint}</div>
+                    <div className="flex justify-end gap-2 pt-2">
+                        <Button variant="ghost" onClick={() => setHintModalOpen(false)}>
+                            Close
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                if (selectedHint) onUseAnalogy(selectedHint);
+                                setHintModalOpen(false);
+                            }}
+                        >
+                            Use this hint
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             {/* Tiny motivation */}
             <div className="text-xs text-muted-foreground text-center">
