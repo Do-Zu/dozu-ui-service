@@ -87,7 +87,6 @@ const requestInterceptor = Axios.interceptors.request.use(
 const responseInterceptor = Axios.interceptors.response.use(
     (response) => {
         // Optionally, log the response for debugging
-        // console.log('Response Received:', response);
 
         // You can transform the response here if needed, e.g., formatting data globally
         // For example, you can transform all response data to lowercase if required
@@ -98,15 +97,11 @@ const responseInterceptor = Axios.interceptors.response.use(
     async (error) => {
         // Global Error Handling: Catch specific error status codes and handle them
         const originalRequest = error.config;
-        console.log(originalRequest);
-        console.log(originalRequest._retry);
         if (error.response) {
             // Handle errors based on HTTP status codes (e.g., 401 Unauthorized, 500 Server Error)
             if (error.response.status === 401 && !originalRequest._retry) {
-                console.log(error.response.status === 401);
-                console.log(!originalRequest._retry);
+
                 //checks if already retried
-                console.log(originalRequest._retry);
                 originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
                 try {
                     const response = await RefreshTokenAxiosClient.post('/auth/refresh-token');
@@ -122,7 +117,6 @@ const responseInterceptor = Axios.interceptors.response.use(
 
                     //set new user data and accessToken
                 } catch (refreshTokenError) {
-                    console.log('abc');
                     try {
                         window.localStorage.removeItem('user');
                         window.localStorage.removeItem('isLoggedIn');
