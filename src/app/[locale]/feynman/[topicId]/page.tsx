@@ -24,6 +24,7 @@ import LeftMissionPanel from '@/components/feynman/LeftMissionPanel';
 
 export default function FeynmanPage() {
     const tCommon = useTranslations('common');
+    const tFeynman = useTranslations('feynman');
 
     const searchParams = useSearchParams();
     const params = useParams();
@@ -343,7 +344,7 @@ export default function FeynmanPage() {
                 <Card className="rounded-2xl p-4 space-y-4">
                     <div className="flex items-center gap-3">
                         <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                        <p className="text-sm text-muted-foreground">Generating questions & hints…</p>
+                        <p className="text-sm text-muted-foreground">{tFeynman('loadingGenerate')}</p>
                     </div>
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-5/6" />
@@ -415,7 +416,7 @@ export default function FeynmanPage() {
                             disabled={!review && !isGeneratingReview}
                             onClick={() => setOpenReview(true)}
                         >
-                            View Review
+                            {tFeynman('viewReview')}
                         </Button>
                     }
                 />

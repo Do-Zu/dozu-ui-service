@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { truncate } from '@/utils';
@@ -27,7 +28,7 @@ export interface LeftMissionPanelProps {
  * inline hint bubble, compact knowledge gaps, and light gamification with progress.
  */
 export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
-    title = 'Mission: Teach it simply',
+    title,
     questions = [],
     hints = [],
     detectedGaps = [],
@@ -35,6 +36,7 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
     onToggle,
     onUseAnalogy,
 }) => {
+    const t = useTranslations('feynman');
     const [currentIdx, setCurrentIdx] = useState(0);
     const [showHint, setShowHint] = useState(false);
     const [hintModalOpen, setHintModalOpen] = useState(false);
@@ -56,13 +58,12 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
 
     return (
         <div className="space-y-4">
-            {/* Mission header + Progress */}
             <Card className="rounded-2xl">
                 <CardHeader className="pb-3">
                     <CardTitle className="text-base flex items-center justify-between">
-                        <span>{title}</span>
+                        <span>{title ?? t('missionTitle')}</span>
                         <span className="text-xs text-muted-foreground">
-                            Step {Math.min(currentIdx + 1, total)} / {total}
+                            {t('stepOf', { current: Math.min(currentIdx + 1, total), total })}
                         </span>
                     </CardTitle>
                 </CardHeader>
@@ -76,14 +77,13 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                 </CardContent>
             </Card>
 
-            {/* Active question card */}
             <Card className="rounded-2xl">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center gap-2">
                         <CheckCircle2
                             className={`h-4 w-4 ${currentIdx > 0 ? 'text-green-500' : 'text-muted-foreground'}`}
                         />
-                        Question
+                        {t('question')}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -92,7 +92,7 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                     <div className="flex items-center gap-2">
                         <Button size="sm" variant="ghost" className="gap-2" onClick={() => setShowHint((s) => !s)}>
                             <Lightbulb className="h-4 w-4" />
-                            Hint
+                            {t('hint')}
                         </Button>
                         <Button
                             size="sm"
@@ -101,14 +101,14 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                             onClick={next}
                             disabled={currentIdx + 1 >= total}
                         >
-                            Next
+                            {t('next')}
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                     </div>
 
                     {showHint && hints.length > 0 && (
                         <div className="mt-1 rounded-lg border p-3 bg-muted/40">
-                            <p className="text-xs text-muted-foreground mb-2">Try one of these prompts:</p>
+                            <p className="text-xs text-muted-foreground mb-2">{t('tryPrompts')}</p>
                             <div className="relative px-6">
                                 <Carousel opts={{ align: 'start', containScroll: 'trimSnaps' }}>
                                     <CarouselContent>
@@ -121,7 +121,7 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                                                     onClick={() => openHintModal(hint)}
                                                 >
                                                     <span className="truncate" title={hint}>
-                                                        Use: {truncate(hint, 60)}
+                                                        {t('use')}: {truncate(hint, 60)}
                                                     </span>
                                                 </Button>
                                             </CarouselItem>
@@ -136,17 +136,16 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                 </CardContent>
             </Card>
 
-            {/* Knowledge gaps (compact) */}
             {detectedGaps && detectedGaps.length > 0 && (
                 <Card className="rounded-2xl">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-base flex items-center gap-2">
                             <TriangleAlert className="h-4 w-4 text-amber-500" />
-                            Knowledge gaps
+                            {t('knowledgeGaps')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <p className="text-sm text-muted-foreground">You might have missed:</p>
+                        <p className="text-sm text-muted-foreground">{t('missed')}</p>
                         <ul className="text-sm space-y-1 list-disc pl-5">
                             {detectedGaps.slice(0, 6).map((g, i) => (
                                 <li key={i}>
@@ -203,17 +202,16 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                 </Card>
             )} */}
 
-            {/* Hint Fullscreen Modal */}
             <Dialog open={hintModalOpen} onOpenChange={setHintModalOpen}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>Hint</DialogTitle>
-                        <DialogDescription>Use this hint to improve your explanation.</DialogDescription>
+                        <DialogTitle>{t('hintModalTitle')}</DialogTitle>
+                        <DialogDescription>{t('hintModalDesc')}</DialogDescription>
                     </DialogHeader>
                     <div className="text-sm whitespace-pre-wrap leading-6">{selectedHint}</div>
                     <div className="flex justify-end gap-2 pt-2">
                         <Button variant="ghost" onClick={() => setHintModalOpen(false)}>
-                            Close
+                            {t('close')}
                         </Button>
                         <Button
                             onClick={() => {
@@ -221,16 +219,13 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
                                 setHintModalOpen(false);
                             }}
                         >
-                            Use this hint
+                            {t('useThisHint')}
                         </Button>
                     </div>
                 </DialogContent>
             </Dialog>
 
-            {/* Tiny motivation */}
-            <div className="text-xs text-muted-foreground text-center">
-                "If you can’t explain it simply, you don’t understand it well enough."
-            </div>
+            <div className="text-xs text-muted-foreground text-center">{t('slogan')}</div>
         </div>
     );
 };

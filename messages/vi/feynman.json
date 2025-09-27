@@ -1,0 +1,29 @@
+{
+    "feynman": {
+        "missionTitle": "Nhiệm vụ: Giải thích thật đơn giản",
+        "question": "Câu hỏi",
+        "hint": "Gợi ý",
+        "tryPrompts": "Hãy thử một trong các gợi ý:",
+        "use": "Sử dụng",
+        "knowledgeGaps": "Lỗ hổng kiến thức",
+        "missed": "Bạn có thể đã bỏ sót:",
+        "hintModalTitle": "Gợi ý",
+        "hintModalDesc": "Dùng gợi ý này để cải thiện phần giải thích của bạn.",
+        "close": "Đóng",
+        "useThisHint": "Dùng gợi ý này",
+        "stepOf": "Bước {current} / {total}",
+        "next": "Tiếp",
+        "viewReview": "Xem đánh giá",
+        "reset": "Làm lại",
+        "save": "Lưu phần giải thích",
+        "getQuestions": "Lấy Câu hỏi & Gợi ý",
+        "submit": "Nhận xét",
+        "thinking": "Đang suy nghĩ…",
+        "reviewing": "Đang đánh giá…",
+        "writeReviewSteps": "Viết → Đánh giá",
+        "loadingGenerate": "Đang tạo questions & gợi ý ...",
+        "remarkableJargon": "Các từ phức tạp sẽ được gạch chân. Chọn văn bản để đánh dấu là thuật ngữ chuyên ngành với màu gạch chân đã chọn.",
+        "removeMark": "Xóa remark",
+        "slogan": "Nếu bạn không thể giải thích một cách đơn giản thì có nghĩa là bạn chưa hiểu đủ rõ. (Albert Einstein)"
+    }
+}

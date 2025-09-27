@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 type Props = {
     step: 1 | 2;
@@ -31,6 +32,7 @@ export function ActionBar({
     isDisableSaveButton,
     isReview,
 }: Props) {
+    const t = useTranslations('feynman');
     const badge =
         jargonCount === 0 ? (
             <span className="ml-2 inline-flex items-center rounded-full bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 text-[10px] font-medium">
@@ -41,8 +43,8 @@ export function ActionBar({
     return (
         <div className="flex flex-col gap-3 lg:items-center lg:justify-between rounded-2xl border bg-card p-3 shadow-sm">
             <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="text-sm font-medium">Step {step} of 2</div>
-                <div className="hidden lg:block text-muted-foreground text-sm">Write → Review</div>
+                <div className="text-sm font-medium">{t('stepOf', { current: step, total: 2 })}</div>
+                <div className="hidden lg:block text-muted-foreground text-sm">{t('writeReviewSteps')}</div>
             </div>
 
             {/* <div className="flex-1 min-w-0 ">
@@ -56,16 +58,16 @@ export function ActionBar({
 
             <div className="flex items-center gap-2 flex-wrap">
                 <Button variant="secondary" onClick={onReset} disabled={isLoadingFetchQuestion || isReview}>
-                    Reset
+                    {t('reset')}
                 </Button>
                 <Button variant="outline" onClick={onSave} disabled={isDisableSaveButton}>
-                    Save Explanation
+                    {t('save')}
                 </Button>
                 <Button onClick={onGetHints} disabled={isDisableGetQuestion}>
-                    {isLoadingFetchQuestion ? 'Thinking…' : 'Get Questions & Hints'}
+                    {isLoadingFetchQuestion ? t('thinking') : t('getQuestions')}
                 </Button>
                 <Button onClick={onSubmit} disabled={isDisableSubmit}>
-                    {isReview ? 'Review…' : 'Submit'}
+                    {isReview ? t('reviewing') : t('submit')}
                 </Button>
             </div>
         </div>

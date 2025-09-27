@@ -38,6 +38,7 @@ import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { normalize } from '@/utils';
 import MenuBar from './MenuEditorBar';
+import { useTranslations } from 'next-intl';
 
 type EditorProps = {
     value: string;
@@ -81,6 +82,8 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
     minWordLength = 9,
     className,
 }) => {
+    const tFeynman = useTranslations('feynman');
+
     const [highlighted, setHighlighted] = useState<string[]>([]);
     // Add: user-selected words with chosen underline color
     const [userWordColors, setUserWordColors] = useState<Record<string, string>>({});
@@ -326,7 +329,6 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
                 </div>
             </TooltipProvider>
 
-            {/* Floating toolbar for left-mouse selection */}
             {selectionMenu.show && (
                 <div
                     id="feynman-selection-toolbar"
@@ -353,15 +355,13 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
                             className="w-full text-left px-2 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 rounded"
                             onClick={handleUnmark}
                         >
-                            Remove mark
+                            {tFeynman('removeMark')}
                         </button>
                     </div>
                 </div>
             )}
 
-            <div className="mt-2 text-xs text-muted-foreground">
-                Complex words are underlined. Select text to mark it as jargon with a chosen underline color.
-            </div>
+            <div className="mt-2 text-xs text-muted-foreground">{tFeynman('remarkableJargon')}</div>
         </div>
     );
 };
