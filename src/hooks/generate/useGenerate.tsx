@@ -75,6 +75,10 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
             });
             const dataGenerated = sseData?.data?.data as TRes;
 
+            if (options && options.onSuccess) {
+                options?.onSuccess(dataGenerated);
+            }
+
             setDataGenerated(dataGenerated);
         }
     }, [sseData, sseStatus]);
