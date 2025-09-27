@@ -44,7 +44,7 @@ export const LeftMissionPanel: React.FC<LeftMissionPanelProps> = ({
     const total = questions.length || 1;
 
     const progress = useMemo(() => Math.min(100, Math.round(((currentIdx + 1) / total) * 100)), [currentIdx, total]);
-    const currentQuestion = questions[currentIdx]?.content ?? "Start by explaining it like I'm 8 years old.";
+    const currentQuestion = questions[currentIdx]?.content ?? t('defaultQuestion');
 
     const next = () => {
         setShowHint(false);
