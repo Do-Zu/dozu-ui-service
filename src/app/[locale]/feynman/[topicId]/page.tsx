@@ -20,6 +20,7 @@ import { IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
 import { useFeynmanService } from './hooks/useFeynmanService';
 import History from '@/components/feynman/History';
+import LeftMissionPanel from '@/components/feynman/LeftMissionPanel';
 
 export default function FeynmanPage() {
     const tCommon = useTranslations('common');
@@ -252,7 +253,7 @@ export default function FeynmanPage() {
             highlightedWords,
             step,
         });
-    }, [topicId, method, html, text, review, , highlightedWords, step]);
+    }, [topicId, method, html, text, review, highlightedWords, step]);
 
     const saveLatestSessionOnUnmount = async () => {
         const m = methodRef.current;
@@ -359,41 +360,14 @@ export default function FeynmanPage() {
             );
 
         return (
-            <div>
-                <HintPanel
-                    questions={dataFeynmanQuestion?.questions || []}
-                    hints={dataFeynmanQuestion?.hints || []}
-                    detectedGaps={dataFeynmanQuestion?.detectedGaps}
-                    expanded={expanded}
-                    onToggle={() => setExpanded((s) => !s)}
-                />
-
-                {dataFeynmanQuestion?.hints && dataFeynmanQuestion?.hints.length > 0 && (
-                    <Card className="rounded-2xl mt-4">
-                        <CardHeader>
-                            <CardTitle className="text-base">Analogy Builder</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">
-                                Compare this topic to something in life. Pick one hint and try rewriting your
-                                explanation with that analogy.
-                            </p>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                                {dataFeynmanQuestion.hints.slice(0, 3).map((hint, idx) => (
-                                    <Button
-                                        key={idx}
-                                        size="sm"
-                                        variant="secondary"
-                                        onClick={() => setText((t) => `${t}\n\nAnalogy: ${hint}`)}
-                                    >
-                                        Use: {truncate(hint, 60)}
-                                    </Button>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
+            <LeftMissionPanel
+                questions={dataFeynmanQuestion?.questions || []}
+                hints={dataFeynmanQuestion?.hints || []}
+                detectedGaps={dataFeynmanQuestion?.detectedGaps}
+                expanded={expanded}
+                onToggle={() => setExpanded((s) => !s)}
+                onUseAnalogy={(hint) => setText((t) => `${t}\n\nAnalogy: ${hint}`)}
+            />
         );
     };
 
