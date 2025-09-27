@@ -24,6 +24,27 @@
         "loadingGenerate": "Generating questions & hints…",
         "remarkableJargon": "Complex words are underlined. Select text to mark it as jargon with a chosen underline color.",
         "removeMark": "Remove remark",
-        "slogan": "If you can’t explain it simply, you don’t understand it well enough. (Albert Einstein)"
+        "slogan": "If you can’t explain it simply, you don’t understand it well enough. (Albert Einstein)",
+        "reviewDialogTitle": "Review Result",
+        "reviewDialogDesc": "A structured analysis of your explanation with actionable improvements.",
+        "scores": "Scores",
+        "scoreOverall": "Overall",
+        "scoreClarity": "Clarity",
+        "scoreCorrectness": "Correctness",
+        "scoreSimplicity": "Simplicity",
+        "scoreStructure": "Structure",
+        "scoreAnalogyUse": "Analogy Use",
+        "feedbackSummary": "Feedback Summary",
+        "strengths": "Strengths",
+        "improvements": "Improvements",
+        "improvedExplanation": "Improved Explanation",
+        "stepByStep": "Step-by-Step Breakdown",
+        "hintsSection": "Hints (Use for Analogy / Refinement)",
+        "detectedGaps": "Detected Gaps (Jargon / Ambiguity)",
+        "glossary": "Glossary",
+        "actionPlan": "Action Plan",
+        "noReview": "No review available yet. Submit your explanation to generate one.",
+        "closeDialog": "Close",
+        "stepLabel": "Step {index}"
     }
 }

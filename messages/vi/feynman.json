@@ -24,6 +24,27 @@
         "loadingGenerate": "Đang tạo questions & gợi ý ...",
         "remarkableJargon": "Các từ phức tạp sẽ được gạch chân. Chọn văn bản để đánh dấu là thuật ngữ chuyên ngành với màu gạch chân đã chọn.",
         "removeMark": "Xóa remark",
-        "slogan": "Nếu bạn không thể giải thích một cách đơn giản thì có nghĩa là bạn chưa hiểu đủ rõ. (Albert Einstein)"
+        "slogan": "Nếu bạn không thể giải thích một cách đơn giản thì có nghĩa là bạn chưa hiểu đủ rõ. (Albert Einstein)",
+        "reviewDialogTitle": "Kết quả đánh giá",
+        "reviewDialogDesc": "Phân tích có cấu trúc về phần giải thích của bạn kèm cải thiện cụ thể.",
+        "scores": "Điểm số",
+        "scoreOverall": "Tổng thể",
+        "scoreClarity": "Rõ ràng",
+        "scoreCorrectness": "Chính xác",
+        "scoreSimplicity": "Đơn giản",
+        "scoreStructure": "Cấu trúc",
+        "scoreAnalogyUse": "Sử dụng so sánh",
+        "feedbackSummary": "Tóm tắt phản hồi",
+        "strengths": "Điểm mạnh",
+        "improvements": "Cần cải thiện",
+        "improvedExplanation": "Bài giải thích đã cải thiện",
+        "stepByStep": "Phân tích từng bước",
+        "hintsSection": "Gợi ý (Dùng cho so sánh / tinh chỉnh)",
+        "detectedGaps": "Lỗ hổng phát hiện (Thuật ngữ / Mơ hồ)",
+        "glossary": "Thuật ngữ",
+        "actionPlan": "Kế hoạch hành động",
+        "noReview": "Chưa có đánh giá. Hãy gửi bài giải thích để tạo đánh giá.",
+        "closeDialog": "Đóng",
+        "stepLabel": "Bước {index}"
     }
 }

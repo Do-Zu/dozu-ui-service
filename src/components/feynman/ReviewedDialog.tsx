@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
     Dialog,
     DialogContent,
@@ -30,16 +31,17 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
     loading,
     trigger,
 }) => {
+    const t = useTranslations('feynman');
     const [expandedSteps, setExpandedSteps] = useState<Record<number, boolean>>({});
     const toggleStep = (i: number) => setExpandedSteps((s) => ({ ...s, [i]: !s[i] }));
 
     const scoreNames: { key: keyof IFeynmanReviewedResponse['scores']; label: string }[] = [
-        { key: 'overall', label: 'Overall' },
-        { key: 'clarity', label: 'Clarity' },
-        { key: 'correctness', label: 'Correctness' },
-        { key: 'simplicity', label: 'Simplicity' },
-        { key: 'structure', label: 'Structure' },
-        { key: 'analogyUse', label: 'Analogy Use' },
+        { key: 'overall', label: t('scoreOverall') },
+        { key: 'clarity', label: t('scoreClarity') },
+        { key: 'correctness', label: t('scoreCorrectness') },
+        { key: 'simplicity', label: t('scoreSimplicity') },
+        { key: 'structure', label: t('scoreStructure') },
+        { key: 'analogyUse', label: t('scoreAnalogyUse') },
     ];
 
     return (
@@ -47,10 +49,8 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
             <DialogContent className="max-h-[90vh] overflow-y-scroll">
                 <DialogHeader>
-                    <DialogTitle>Review Result</DialogTitle>
-                    <DialogDescription>
-                        A structured analysis of your explanation with actionable improvements.
-                    </DialogDescription>
+                    <DialogTitle>{t('reviewDialogTitle')}</DialogTitle>
+                    <DialogDescription>{t('reviewDialogDesc')}</DialogDescription>
                 </DialogHeader>
 
                 {loading && (
@@ -69,17 +69,13 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
                     </div>
                 )}
 
-                {!loading && !review && (
-                    <div className="text-sm text-muted-foreground">
-                        No review available yet. Submit your explanation to generate one.
-                    </div>
-                )}
+                {!loading && !review && <div className="text-sm text-muted-foreground">{t('noReview')}</div>}
 
                 {!loading && review && (
                     <div className="space-y-6">
                         {/* Scores */}
                         <section>
-                            <h3 className="text-sm font-medium mb-2">Scores</h3>
+                            <h3 className="text-sm font-medium mb-2">{t('scores')}</h3>
                             <div className="grid sm:grid-cols-3 grid-cols-2 gap-3">
                                 {scoreNames.map(({ key, label }) => {
                                     const val = review.scores?.[key];
@@ -105,14 +101,14 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
 
                         {/* Feedback */}
                         <section>
-                            <h3 className="text-sm font-medium mb-2">Feedback Summary</h3>
+                            <h3 className="text-sm font-medium mb-2">{t('feedbackSummary')}</h3>
                             <Card>
                                 <CardContent className="p-4 space-y-4">
                                     <p className="text-sm">{review.feedback.summary}</p>
                                     <div className="grid md:grid-cols-2 gap-4">
                                         <div>
                                             <h4 className="text-xs font-semibold mb-1 uppercase tracking-wide">
-                                                Strengths
+                                                {t('strengths')}
                                             </h4>
                                             <ul className="space-y-1">
                                                 {review.feedback.strengths.map((s, i) => (
@@ -125,7 +121,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
                                         </div>
                                         <div>
                                             <h4 className="text-xs font-semibold mb-1 uppercase tracking-wide">
-                                                Improvements
+                                                {t('improvements')}
                                             </h4>
                                             <ul className="space-y-1">
                                                 {review.feedback.improvements.map((s, i) => (
@@ -143,7 +139,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
 
                         {/* Improved Explanation */}
                         <section>
-                            <h3 className="text-sm font-medium mb-2">Improved Explanation</h3>
+                            <h3 className="text-sm font-medium mb-2">{t('improvedExplanation')}</h3>
                             <Card>
                                 <CardContent className="p-4">
                                     <p className="text-sm whitespace-pre-wrap leading-relaxed">
@@ -155,7 +151,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
 
                         {/* Step By Step */}
                         <section>
-                            <h3 className="text-sm font-medium mb-2">Step-by-Step Breakdown</h3>
+                            <h3 className="text-sm font-medium mb-2">{t('stepByStep')}</h3>
                             <div className="space-y-2">
                                 {review.stepByStep.map((stepText, i) => {
                                     const open = !!expandedSteps[i];
@@ -166,7 +162,9 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
                                                 onClick={() => toggleStep(i)}
                                                 className="w-full text-left flex items-center justify-between p-3"
                                             >
-                                                <span className="text-xs font-medium">Step {i + 1}</span>
+                                                <span className="text-xs font-medium">
+                                                    {t('stepLabel', { index: i + 1 })}
+                                                </span>
                                                 {open ? (
                                                     <ChevronUp className="h-4 w-4" />
                                                 ) : (
@@ -189,7 +187,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
                         {/* Hints */}
                         {review.hints?.length > 0 && (
                             <section>
-                                <h3 className="text-sm font-medium mb-2">Hints (Use for Analogy / Refinement)</h3>
+                                <h3 className="text-sm font-medium mb-2">{t('hintsSection')}</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {review.hints.slice(0, 12).map((h, i) => (
                                         <Badge
@@ -208,7 +206,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
                         {/* Detected Gaps */}
                         {review.detectedGaps?.length > 0 && (
                             <section>
-                                <h3 className="text-sm font-medium mb-2">Detected Gaps (Jargon / Ambiguity)</h3>
+                                <h3 className="text-sm font-medium mb-2">{t('detectedGaps')}</h3>
                                 <div className="space-y-2">
                                     {review.detectedGaps.map((g, i) => (
                                         <div
@@ -226,7 +224,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
                         {/* Glossary */}
                         {review.glossary?.length > 0 && (
                             <section>
-                                <h3 className="text-sm font-medium mb-2">Glossary</h3>
+                                <h3 className="text-sm font-medium mb-2">{t('glossary')}</h3>
                                 <div className="space-y-2">
                                     {review.glossary.map((g, i) => (
                                         <div key={i} className="text-xs flex gap-2">
@@ -241,7 +239,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
                         {/* Action Plan */}
                         {review.actionPlan?.length > 0 && (
                             <section>
-                                <h3 className="text-sm font-medium mb-2">Action Plan</h3>
+                                <h3 className="text-sm font-medium mb-2">{t('actionPlan')}</h3>
                                 <ol className="list-decimal ml-5 space-y-1 text-xs">
                                     {review.actionPlan.map((a, i) => (
                                         <li key={i}>{a}</li>
@@ -254,7 +252,7 @@ export const FeynmanReviewDialog: React.FC<FeynmanReviewDialogProps> = ({
 
                 <div className="pt-2 flex justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-                        Close
+                        {t('closeDialog')}
                     </Button>
                 </div>
             </DialogContent>
