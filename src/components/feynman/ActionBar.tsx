@@ -44,14 +44,14 @@ export function ActionBar({
                 <div className="hidden lg:block text-muted-foreground text-sm">Write → Review</div>
             </div>
 
-            <div className="flex-1 min-w-0 ">
+            {/* <div className="flex-1 min-w-0 ">
                 <div className="flex items-center gap-2 text-xs mb-1">
                     <span>Clarity Score</span>
                     {badge}
                     <span className="ml-auto">{Math.round(clarityScore)}%</span>
                 </div>
                 <Progress value={clarityScore} />
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-2 flex-wrap">
                 <Button variant="secondary" onClick={onReset} disabled={isLoadingFetchQuestion || isReview}>

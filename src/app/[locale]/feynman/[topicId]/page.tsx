@@ -69,11 +69,12 @@ export default function FeynmanPage() {
         apiPostContentError: errorReview,
     } = useGenerate<IFeynmanReviewedResponse>();
 
-    const clarityScore = useMemo(() => {
-        if (typeof ai.clarityScore === 'number') return ai.clarityScore;
-        const penalty = Math.min(100, highlightedWords.length * 12);
-        return Math.max(0, 80 - penalty);
-    }, [ai.clarityScore, highlightedWords.length]);
+    //TODO: Calculate clarity after storage success data
+    // const clarityScore = useMemo(() => {
+    //     if (typeof ai.clarityScore === 'number') return ai.clarityScore;
+    //     const penalty = Math.min(100, highlightedWords.length * 12);
+    //     return Math.max(0, 80 - penalty);
+    // }, [ai.clarityScore, highlightedWords.length]);
 
     const handleChange = (val: string, highlights: string[]) => {
         setText(val);
@@ -339,7 +340,6 @@ export default function FeynmanPage() {
                     onGetHints={handleGenerateQuestion}
                     onSave={handleSave}
                     onReset={handleReset}
-                    clarityScore={clarityScore}
                     jargonCount={highlightedWords.length}
                     isLoadingFetchQuestion={isGeneratingQuestion}
                     isReview={isGeneratingReview}
