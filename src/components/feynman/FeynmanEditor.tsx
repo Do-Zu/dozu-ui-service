@@ -169,8 +169,9 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
             onChangeHtml(html);
             if (plain.length > maxLength) return;
             const jargon = detectJargon(plain, minWordLength);
+
             setHighlighted(jargon);
-            onChange(plain, jargon);
+            onChange(html, jargon);
         },
         editorProps: {
             attributes: {
