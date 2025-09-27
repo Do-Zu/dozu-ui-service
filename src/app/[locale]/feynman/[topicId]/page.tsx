@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import useGenerate from '@/hooks/generate/useGenerate';
@@ -16,12 +16,15 @@ import { ActionBar } from '@/components/feynman/ActionBar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isNilOrEmpty, isNullOrEmpty, toNumber, truncate } from '@/utils';
 import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
-import { FeynmanAIResponse, IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
+import { IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
 import { useFeynmanService } from './hooks/useFeynmanService';
+import History from '@/components/feynman/History';
+import LeftMissionPanel from '@/components/feynman/LeftMissionPanel';
 
 export default function FeynmanPage() {
     const tCommon = useTranslations('common');
+    const tFeynman = useTranslations('feynman');
 
     const searchParams = useSearchParams();
     const params = useParams();
@@ -31,14 +34,14 @@ export default function FeynmanPage() {
     const [text, setText] = useState<string>('');
     const [html, setHtml] = useState<string>('');
     const [highlightedWords, setHighlightedWords] = useState<string[]>([]);
-    const [ai, setAI] = useState<FeynmanAIResponse>({ questions: [], hints: [] });
+    // const [ai, setAI] = useState<FeynmanAIResponse>({ questions: [], hints: [] });
     const [review, setReview] = useState<IFeynmanReviewedResponse>();
     const [expanded, setExpanded] = useState(false);
     const [step, setStep] = useState<1 | 2>(1);
     const [history, setHistory] = useState<{ content: string; ts: number }[]>([]);
     const [openReview, setOpenReview] = useState(false);
 
-    const { get, storage, update } = useFeynmanService();
+    const { get, update } = useFeynmanService();
 
     const isValidToFetchOriginDataMethod = (): boolean => {
         return !!method && !!topicId;
@@ -69,11 +72,48 @@ export default function FeynmanPage() {
         apiPostContentError: errorReview,
     } = useGenerate<IFeynmanReviewedResponse>();
 
-    const clarityScore = useMemo(() => {
-        if (typeof ai.clarityScore === 'number') return ai.clarityScore;
-        const penalty = Math.min(100, highlightedWords.length * 12);
-        return Math.max(0, 80 - penalty);
-    }, [ai.clarityScore, highlightedWords.length]);
+    const htmlRefOlder = useRef(html);
+
+    const textRef = useRef(text);
+    const htmlRef = useRef(html);
+    const questionsRef = useRef(dataFeynmanQuestion);
+    const reviewRef = useRef(review);
+    const highlightedWordsRef = useRef<string[]>(highlightedWords);
+    const stepRef = useRef(step);
+    const topicIdRef = useRef(topicId);
+    const methodRef = useRef(method);
+
+    useEffect(() => {
+        textRef.current = text;
+    }, [text]);
+    useEffect(() => {
+        htmlRef.current = html;
+    }, [html]);
+    useEffect(() => {
+        questionsRef.current = dataFeynmanQuestion;
+    }, [dataFeynmanQuestion]);
+    useEffect(() => {
+        reviewRef.current = review;
+    }, [review]);
+    useEffect(() => {
+        highlightedWordsRef.current = highlightedWords;
+    }, [highlightedWords]);
+    useEffect(() => {
+        stepRef.current = step;
+    }, [step]);
+    useEffect(() => {
+        topicIdRef.current = topicId;
+    }, [topicId]);
+    useEffect(() => {
+        methodRef.current = method;
+    }, [method]);
+
+    //TODO: Calculate clarity after storage success data
+    // const clarityScore = useMemo(() => {
+    //     if (typeof ai.clarityScore === 'number') return ai.clarityScore;
+    //     const penalty = Math.min(100, highlightedWords.length * 12);
+    //     return Math.max(0, 80 - penalty);
+    // }, [ai.clarityScore, highlightedWords.length]);
 
     const handleChange = (val: string, highlights: string[]) => {
         setText(val);
@@ -169,12 +209,11 @@ export default function FeynmanPage() {
 
     const handleReset = () => {
         setText('');
-        setAI({ questions: [], hints: [] });
         setHighlightedWords([]);
         setStep(1);
     };
 
-    const handleFetchFeynmanSession = async () => {
+    const handleFetchFeynmanSession = useCallback(async () => {
         if (!topicId || !method) return;
 
         const data = await get.fetch({ topicId: toNumber(topicId, -1), method });
@@ -193,16 +232,17 @@ export default function FeynmanPage() {
 
         if (data.explanationHtml && data.explanationText) {
             setHtml(data.explanationHtml);
-            setText(data.explanationText);
+            setText(data.explanationHtml);
+            htmlRefOlder.current = data.explanationHtml;
         }
 
         if (data.highlightedWords) {
             setHighlightedWords(data.highlightedWords);
         }
-    };
+    }, [topicId, method]);
 
-    const handleUpdateSession = async () => {
-        if (isNullOrEmpty(topicId) || isNullOrEmpty(method)) return;
+    const handleUpdateSession = useCallback(async () => {
+        if (isNullOrEmpty(topicId) || isNullOrEmpty(method) || isNullOrEmpty(text) || isNullOrEmpty(html)) return;
 
         await update.execute({
             method: method!,
@@ -213,6 +253,33 @@ export default function FeynmanPage() {
             questions: dataFeynmanQuestion,
             highlightedWords,
             step,
+        });
+    }, [topicId, method, html, text, review, highlightedWords, step]);
+
+    const saveLatestSessionOnUnmount = async () => {
+        const m = methodRef.current;
+        const topicIdStr = topicIdRef.current;
+        const t = textRef.current;
+        const h = htmlRef.current;
+
+        if (
+            isNullOrEmpty(topicIdStr) ||
+            isNullOrEmpty(m) ||
+            isNullOrEmpty(t) ||
+            isNullOrEmpty(h) ||
+            h == htmlRefOlder.current
+        )
+            return;
+
+        await update.execute({
+            method: m!,
+            topicId: toNumber(topicIdStr as string, -1),
+            explanationHtml: h!,
+            explanationText: t!,
+            review: reviewRef.current,
+            questions: questionsRef.current ?? undefined,
+            highlightedWords: highlightedWordsRef.current ?? [],
+            step: stepRef.current,
         });
     };
 
@@ -226,7 +293,12 @@ export default function FeynmanPage() {
         });
     }
 
+    const isDisableSave = useMemo(() => {
+        return isNullOrEmpty(html) || html == htmlRefOlder.current;
+    }, [html, htmlRefOlder.current]);
+
     const handleSave = async () => {
+        if (isDisableSave) return;
         return handleUpdateSession();
     };
 
@@ -239,14 +311,32 @@ export default function FeynmanPage() {
     }, [isRegisterReview, dataFeynmanReviewed]);
 
     useEffect(() => {
-        handleFetchFeynmanSession();
+        void handleFetchFeynmanSession();
     }, [topicId, method]);
 
     useEffect(() => {
         return () => {
-            handleUpdateSession();
+            void saveLatestSessionOnUnmount();
         };
     }, []);
+
+    const isDisableGetQuestionButton = useMemo(() => {
+        return isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion;
+    }, [isGeneratingQuestion, isGeneratingReview, dataFeynmanQuestion]);
+
+    const isDisableSubmitReviewButton = useMemo(() => {
+        return !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text);
+    }, [isGeneratingQuestion, isGeneratingReview, text]);
+
+    const isLoadingPage = useMemo(() => {
+        return (
+            (isFetchDataOriginMethod && !errorFetchDataOriginMethod) ||
+            (isRegisterFetchQuestion && !errorGenerateQuestion) ||
+            (isRegisterReview && !errorReview) ||
+            (get.loading && !get.error) ||
+            (update.loading && !update.error)
+        );
+    }, [isFetchDataOriginMethod, isRegisterFetchQuestion, isRegisterReview, get.loading, update.loading]);
 
     const renderLeftSide = () => {
         if (isGeneratingQuestion || isRegisterReview || isGeneratingReview)
@@ -254,7 +344,7 @@ export default function FeynmanPage() {
                 <Card className="rounded-2xl p-4 space-y-4">
                     <div className="flex items-center gap-3">
                         <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                        <p className="text-sm text-muted-foreground">Generating questions & hints…</p>
+                        <p className="text-sm text-muted-foreground">{tFeynman('loadingGenerate')}</p>
                     </div>
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-5/6" />
@@ -271,51 +361,18 @@ export default function FeynmanPage() {
             );
 
         return (
-            <div>
-                <HintPanel
-                    questions={dataFeynmanQuestion?.questions || []}
-                    hints={dataFeynmanQuestion?.hints || []}
-                    detectedGaps={dataFeynmanQuestion?.detectedGaps}
-                    expanded={expanded}
-                    onToggle={() => setExpanded((s) => !s)}
-                />
-
-                {dataFeynmanQuestion?.hints && dataFeynmanQuestion?.hints.length > 0 && (
-                    <Card className="rounded-2xl mt-4">
-                        <CardHeader>
-                            <CardTitle className="text-base">Analogy Builder</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">
-                                Compare this topic to something in life. Pick one hint and try rewriting your
-                                explanation with that analogy.
-                            </p>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                                {dataFeynmanQuestion.hints.slice(0, 3).map((hint, idx) => (
-                                    <Button
-                                        key={idx}
-                                        size="sm"
-                                        variant="secondary"
-                                        onClick={() => setText((t) => `${t}\n\nAnalogy: ${hint}`)}
-                                    >
-                                        Use: {truncate(hint, 60)}
-                                    </Button>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
+            <LeftMissionPanel
+                questions={dataFeynmanQuestion?.questions || []}
+                hints={dataFeynmanQuestion?.hints || []}
+                detectedGaps={dataFeynmanQuestion?.detectedGaps}
+                expanded={expanded}
+                onToggle={() => setExpanded((s) => !s)}
+                onUseAnalogy={(hint) => setText((t) => `${t}\n\nAnalogy: ${hint}`)}
+            />
         );
     };
 
-    if (
-        (isFetchDataOriginMethod && !errorFetchDataOriginMethod) ||
-        (isRegisterFetchQuestion && !errorGenerateQuestion) ||
-        (isRegisterReview && !errorReview) ||
-        (get.loading && !get.error)
-    )
-        return <LoadingPage isOverlay={true} />;
+    if (isLoadingPage) return <LoadingPage isOverlay={true} />;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -339,14 +396,12 @@ export default function FeynmanPage() {
                     onGetHints={handleGenerateQuestion}
                     onSave={handleSave}
                     onReset={handleReset}
-                    clarityScore={clarityScore}
                     jargonCount={highlightedWords.length}
                     isLoadingFetchQuestion={isGeneratingQuestion}
                     isReview={isGeneratingReview}
-                    isDisableGetQuestion={isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion}
-                    isDisableSubmit={
-                        !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text)
-                    }
+                    isDisableGetQuestion={isDisableGetQuestionButton}
+                    isDisableSubmit={isDisableSubmitReviewButton}
+                    isDisableSaveButton={isDisableSave}
                 />
 
                 <FeynmanReviewDialog
@@ -361,30 +416,12 @@ export default function FeynmanPage() {
                             disabled={!review && !isGeneratingReview}
                             onClick={() => setOpenReview(true)}
                         >
-                            View Review
+                            {tFeynman('viewReview')}
                         </Button>
                     }
                 />
 
-                {history.length > 0 && (
-                    <Card className="rounded-2xl">
-                        <CardHeader>
-                            <CardTitle className="text-base">Version History</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            {history.map((h, i) => (
-                                <div key={h.ts} className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => setText(h.content)}>
-                                        Restore
-                                    </Button>
-                                    <div className="text-xs text-muted-foreground truncate">
-                                        {new Date(h.ts).toLocaleString()} — {h.content.slice(0, 80)}
-                                    </div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-                )}
+                <History history={history} setText={setText} />
             </div>
 
             {renderLeftSide()}
