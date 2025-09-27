@@ -15,7 +15,7 @@ export interface IGenerateRequest {
 
 export interface UsePostOptions<TReq, TRes> {
     onSuccess?: (data: TRes) => void;
-    onError?: (error: unknown) => void;
+    onError?: (error?: unknown) => void;
 }
 
 export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGenerateRequest, TRes>) {
@@ -49,18 +49,22 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
     }, [sseStatus, jobId]);
 
     useEffect(() => {
-        if (apiResponse) {
+        if (!loading && apiResponse) {
             const { data } = apiResponse;
             const jobId = data?.jobId;
             setJobId(jobId);
         }
-    }, [apiResponse]);
+    }, [apiResponse, loading]);
 
     useEffect(() => {
         if (apiPostContentError) {
             toast({
                 description: apiPostContentError,
             });
+
+            if (options && options.onError) {
+                options.onError(apiPostContentError);
+            }
         }
     }, [apiPostContentError]);
 
@@ -69,6 +73,10 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
             toast({
                 description: sseStatus === 'timeout' ? t('toasts.timeout') : t('toasts.error'),
             });
+
+            if (sseStatus === 'error' && options && options.onError) {
+                options.onError();
+            }
         } else if (sseData && sseStatus === 'completed') {
             toast({
                 description: t('toasts.success'),
