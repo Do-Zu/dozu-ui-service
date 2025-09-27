@@ -175,7 +175,7 @@ export default function FeynmanPage() {
         setStep(1);
     };
 
-    const handleFetchFeynmanSession = async () => {
+    const handleFetchFeynmanSession = useCallback(async () => {
         if (!topicId || !method) return;
 
         const data = await get.fetch({ topicId: toNumber(topicId, -1), method });
@@ -200,7 +200,7 @@ export default function FeynmanPage() {
         if (data.highlightedWords) {
             setHighlightedWords(data.highlightedWords);
         }
-    };
+    }, [topicId, method]);
 
     const handleUpdateSession = useCallback(async () => {
         if (isNullOrEmpty(topicId) || isNullOrEmpty(method) || isNullOrEmpty(text) || isNullOrEmpty(html)) return;
