@@ -31,7 +31,7 @@ const Home: React.FC = () => {
     }
 
     const BackgroundGradient: React.FC = () => (
-        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden select-none">
+        <div aria-hidden className="h-full pointer-events-none absolute inset-0 overflow-hidden select-none">
             {/* Base subtle vertical wash */}
             <div className="absolute inset-0 bg-gradient-to-b from-white via-white/70 to-white dark:from-slate-950 dark:via-slate-950/70 dark:to-slate-950" />
 
@@ -63,10 +63,13 @@ const Home: React.FC = () => {
                 <CurrentProcessLearning />
             </section>
             {/* Only shows topic if logged in */}
-            {isLoggedIn?(<section className="relative z-10">
-                <PersonalTopicLibrary />
-            </section>):''}
-            
+            {isLoggedIn ? (
+                <section className="relative z-10">
+                    <PersonalTopicLibrary />
+                </section>
+            ) : (
+                ''
+            )}
         </div>
     );
 };
