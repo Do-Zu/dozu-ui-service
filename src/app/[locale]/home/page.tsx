@@ -12,11 +12,13 @@ import CoreActionCards from './components/CoreActionCards';
 import CurrentProcessLearning from './components/CurrentProcessLearning';
 import HeroSection from './components/HeroSection';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { useAuthStorage } from '../auth/hooks/useAuthStorage';
 
 // only for user and student
 const Home: React.FC = () => {
     const learningMode = useSelector(selectLearningMode);
     const router = useRouter();
+    const { isLoggedIn } = useAuthStorage();
 
     useEffect(() => {
         if (learningMode === MODE_ACCESS_PAGE_ROLE.classBased) {
@@ -52,21 +54,19 @@ const Home: React.FC = () => {
     return (
         <div className="relative flex flex-col h-full w-full">
             <BackgroundGradient />
-
             <HeroSection />
-
             {/* Core actions */}
             {/* <section className="relative z-10 mt-2">
                 <CoreActionCards />
             </section> */}
-
             <section className="relative z-10">
                 <CurrentProcessLearning />
             </section>
-
-            <section className="relative z-10">
+            {/* Only shows topic if logged in */}
+            {isLoggedIn?(<section className="relative z-10">
                 <PersonalTopicLibrary />
-            </section>
+            </section>):''}
+            
         </div>
     );
 };
