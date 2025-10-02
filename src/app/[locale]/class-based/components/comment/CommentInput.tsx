@@ -140,7 +140,7 @@ export default function CommentInput({
 
     return (
         <div
-            className={cn('w-full transition-all duration-300 animate-in slide-in-from-top-2', isReply && 'mt-3')}
+            className={cn('transition-all duration-300 animate-in slide-in-from-top-2', isReply && 'mt-3')}
             style={{ marginLeft: `${depth * 24}px` }}
         >
             {/* Reply context */}
