@@ -1,6 +1,7 @@
 'use client';
 
 import React, { memo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageCircle, Share2, MoreHorizontal, ChevronDown, ChevronUp, ReplyIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -49,6 +50,7 @@ const CommentCard = ({
     onReply = () => {},
     onReaction = () => {},
 }: CommentCardProps) => {
+    const t = useTranslations('classBased.comment.card');
     const [isExpanded, setIsExpanded] = useState(false);
     const [showReactions, setShowReactions] = useState(false);
 
@@ -88,12 +90,10 @@ const CommentCard = ({
 
     const formatDateTimeComment = (time: Date | string | number): string => {
         try {
-            const prefix = 'ago';
-
             const now = getCurrentSystemDateTime();
             const distance = formatDistanceStrict(time, now);
 
-            return `${distance} ${prefix}`;
+            return `${distance} ${t('timeAgo')}`;
         } catch (error) {
             return 'N/A';
         }
@@ -110,7 +110,7 @@ const CommentCard = ({
             {/* Reply context */}
             {replyTo && (
                 <div className="mb-3 p-2 bg-gray-50/80 dark:bg-gray-700/50 rounded-lg border-l-2 border-gray-300 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-300">
-                    <span className="font-medium">Replying to:</span> {replyTo.slice(0, 60)}...
+                    <span className="font-medium">{t('replyingTo')}</span> {replyTo.slice(0, 60)}...
                 </div>
             )}
 
@@ -158,11 +158,11 @@ const CommentCard = ({
                             >
                                 {isExpanded ? (
                                     <>
-                                        Show less <ChevronUp className="h-3 w-3" />
+                                        {t('showLess')} <ChevronUp className="h-3 w-3" />
                                     </>
                                 ) : (
                                     <>
-                                        Read more <ChevronDown className="h-3 w-3" />
+                                        {t('readMore')} <ChevronDown className="h-3 w-3" />
                                     </>
                                 )}
                             </button>
@@ -211,6 +211,9 @@ const CommentCard = ({
                                             )}
                                         </Button>
                                     </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{t('tooltips.like')}</p>
+                                    </TooltipContent>
                                 </Tooltip>
                             </div>
                             {/* See replyCount button */}
@@ -227,7 +230,7 @@ const CommentCard = ({
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent side="bottom">
-                                    {/* <span className="text-xs">Reply to this comment</span> */}
+                                    <p>{t('tooltips.viewReplies')}</p>
                                 </TooltipContent>
                             </Tooltip>
 
@@ -244,7 +247,7 @@ const CommentCard = ({
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent side="bottom">
-                                    {/* <span className="text-xs">Reply to this comment</span> */}
+                                    <p>{t('tooltips.reply')}</p>
                                 </TooltipContent>
                             </Tooltip>
 
@@ -260,7 +263,7 @@ const CommentCard = ({
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>More options</p>
+                                    <p>{t('tooltips.moreOptions')}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
