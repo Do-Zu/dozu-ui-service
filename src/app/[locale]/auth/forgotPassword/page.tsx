@@ -17,7 +17,7 @@ interface IChangePasswordRequestBody {
     email: string;
 }
 
-const page = () => {
+const ForgotPasswordPage = () => {
     const t = useTranslations('ForgotPasswordPage');
     const [email, setEmail] = useState('');
     const router = useRouter();
@@ -93,4 +93,4 @@ const page = () => {
     );
 };
 
-export default page;
+export default ForgotPasswordPage;

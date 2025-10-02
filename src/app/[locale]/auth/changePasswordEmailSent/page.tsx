@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-const page = () => {
+const ChangePasswordEmailSentPage = () => {
     const t = useTranslations('ChangePasswordEmailSentPage');
 
     const router = useRouter();
@@ -40,4 +40,4 @@ const page = () => {
     );
 };
 
-export default page;
+export default ChangePasswordEmailSentPage;

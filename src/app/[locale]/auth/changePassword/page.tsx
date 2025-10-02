@@ -10,7 +10,7 @@ import usePost from '@/hooks/usePost';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import toastHelper from '@/utils/toast.helper';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Loader2, SendHorizontal } from 'lucide-react';
 
@@ -20,16 +20,16 @@ interface IChangePasswordInfoRequestBody {
     password: string;
 }
 
-const page = () => {
+const ChangePasswordPage = () => {
     const router = useRouter();
 
     const searchParams = useSearchParams();
     const email = searchParams.get('email') || '';
     const verificationCode = searchParams.get('verificationCode') || '';
-    if (!email || !verificationCode) {
-        toastHelper.showErrorMessage('Invalid change password URL.');
-        router.push(`/auth/login`);
-    }
+    // if (!email || !verificationCode) {
+    //     toastHelper.showErrorMessage('Invalid change password URL.');
+    //     router.push(`/auth/login`);
+    // }
 
     const { setAuthData } = useAuth();
 
@@ -70,6 +70,13 @@ const page = () => {
             });
         }
     };
+
+    useEffect(() => {
+        if (!email || !verificationCode) {
+            toastHelper.showErrorMessage(t('invalidUrl'));
+            router.replace(`/auth/login`);
+        }
+    }, [email, verificationCode, router, t]);
 
     return (
         <CentralCard>
@@ -126,4 +133,4 @@ const page = () => {
     );
 };
 
-export default page;
+export default ChangePasswordPage;
