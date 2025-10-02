@@ -45,6 +45,7 @@ export default function CommentInput({
     autoFocus = false,
 }: CommentInputProps) {
     const tCommon = useTranslations('common.messages');
+    const t = useTranslations('classBased.comment.input');
     const [comment, setComment] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -94,19 +95,19 @@ export default function CommentInput({
     const toolbarItems: ToolbarItem[] = [
         {
             key: 'bold',
-            tooltip: 'Bold text',
+            tooltip: t('toolbar.bold'),
             icon: Bold,
             onClick: () => toast({ description: tCommon('featureInComing') }),
         },
         {
             key: 'italic',
-            tooltip: 'Italic text',
+            tooltip: t('toolbar.italic'),
             icon: Italic,
             onClick: () => toast({ description: tCommon('featureInComing') }),
         },
         {
             key: 'list',
-            tooltip: 'Add list',
+            tooltip: t('toolbar.list'),
             icon: List,
             onClick: () => toast({ description: tCommon('featureInComing') }),
         },
@@ -119,7 +120,7 @@ export default function CommentInput({
         // },
         {
             key: 'link',
-            tooltip: 'Add link',
+            tooltip: t('toolbar.link'),
             icon: Link,
             onClick: () => toast({ description: tCommon('featureInComing') }),
         },
@@ -147,7 +148,7 @@ export default function CommentInput({
             {replyTo && (
                 <div className="mb-3 p-3 bg-blue-50/80 backdrop-blur-sm rounded-xl border border-blue-100 text-sm text-blue-800">
                     <div className="flex items-center justify-between">
-                        <span className="font-medium">💬 Replying to:</span>
+                        <span className="font-medium">{t('replyingToLabel')}</span>
                         <Button
                             variant="ghost"
                             size="sm"
@@ -227,7 +228,7 @@ export default function CommentInput({
                                                 onClick={handleCancel}
                                                 className="h-8 px-3 text-xs text-gray-600 hover:text-gray-800 rounded-full transition-all duration-200"
                                             >
-                                                Cancel
+                                                {t('buttons.cancel')}
                                             </Button>
                                         )}
                                         <Button
@@ -240,18 +241,14 @@ export default function CommentInput({
                                             )}
                                         >
                                             <Send className="h-3.5 w-3.5" />
-                                            {isReply ? 'Reply' : 'Comment'}
+                                            {isReply ? t('buttons.reply') : t('buttons.comment')}
                                         </Button>
                                     </div>
                                 </div>
                             )}
 
                             {/* Compact mode hint */}
-                            {!isExpanded && !isFocused && (
-                                <div className="text-xs text-gray-400 mt-2">
-                                    💡 Press Cmd+Enter to send • Click to expand
-                                </div>
-                            )}
+                            {!isExpanded && !isFocused && <div className="text-xs text-gray-400 mt-2">{t('hint')}</div>}
                         </div>
                     </div>
                 </div>
