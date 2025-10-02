@@ -282,10 +282,6 @@ const CommentThread = ({
     };
 
     const renderReplyComment = (comment: Comment) => {
-        // if (isFetchingReplyComment && findCommentDepth(comments, comment.id) !== -1) {
-        //     return <CommentThreadSkeleton amount={1} />;
-        // }
-
         return (
             <>
                 {comment.replies && comment.replies.length > 0 && (
@@ -316,9 +312,14 @@ const CommentThread = ({
     const renderComment = (comment: Comment, index: number) => {
         const parentContent = comment.parentId ? findCommentContent(comments, comment.parentId) : undefined;
 
+        //Attach the infinite-scroll sentinel to the second-to-last comment so we prefetch the next page
+        //before the user reaches the end (only when more pages are available).
+        const isLoadingMoreRefItem = index === comments.length - 2 && hasMore;
+
         return (
             <div key={comment.id} className="space-y-4">
                 <div
+                    ref={isLoadingMoreRefItem ? loadMoreRef : null}
                     className="animate-in slide-in-from-bottom-2 duration-500"
                     style={{ animationDelay: `${index * 100}ms` }}
                 >
@@ -364,13 +365,11 @@ const CommentThread = ({
     };
 
     const renderListComment = () => {
-        if (fetchingComments && !fetchCommentsError) {
-            return <CommentThreadSkeleton />;
-        }
-
+        //Condition for append skeleton loading
+        const isLoadingComment = (fetchingComments && !fetchCommentsError) || isAppending;
         return (
             <div>
-                {comments.length === 0 ? (
+                {!isLoadingComment && comments.length === 0 ? (
                     <div className="text-center py-12">
                         <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200/50 dark:border-blue-700/50">
                             <MessageCircle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
@@ -385,15 +384,8 @@ const CommentThread = ({
                     <div className="space-y-6">
                         {comments.map((comment, index) => renderComment(comment, index))}
 
-                        {/* Sentinel div for infinite scroll */}
-                        {hasMore && (
-                            <div
-                                ref={loadMoreRef}
-                                className="h-10 flex items-center justify-center text-xs text-muted-foreground"
-                            >
-                                {isAppending && <CommentThreadSkeleton amount={1} />}
-                            </div>
-                        )}
+                        {isLoadingComment && <CommentThreadSkeleton amount={1} />}
+
                         {!hasMore && comments.length > 0 && (
                             <p className="text-center text-xs text-muted-foreground py-2">No more comments</p>
                         )}
