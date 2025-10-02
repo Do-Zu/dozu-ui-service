@@ -12,6 +12,7 @@
     "loginSuccessMessage": "Login successful!",
     "loginErrorMessage": "Login failed. Please check your credentials.",
     "forgotPasswordText": "Forgot your password?",
-    "forgotPasswordButtonText": "Reset Password"
+    "forgotPasswordButtonText": "Reset Password",
+    "useAsGuestText":"Use as guest"
   }
 }
