@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Axios from '@/api/axios';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import { User } from '@/types/auth';
+import { AuthState, User } from '@/types/auth';
 import { createGoogleAuthUrl } from '../login/utils/googleAuth';
 
 export const useGoogleAuth = () => {
@@ -52,10 +52,10 @@ export const useGoogleAuth = () => {
         loginWithGoogle();
     }, [code]);
 
-    const handleSuccessfulLogin = (user: User) => {
-        setAuthData(user);
+    const handleSuccessfulLogin = (authState: AuthState) => {
+        setAuthData(authState.user!);
 
-        handlePostLogin(user);
+        handlePostLogin(authState.user!);
     };
 
     return {
