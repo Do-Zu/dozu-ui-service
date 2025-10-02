@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AtSign, Send, Bold, Italic, List, Link, Image, Smile, X } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface CommentInputProps {
     isReply?: boolean;
@@ -22,6 +24,13 @@ interface CommentInputProps {
     autoFocus?: boolean;
 }
 
+type ToolbarItem = {
+    key: string;
+    tooltip: string;
+    icon: React.ComponentType<{ className?: string }>;
+    className?: string;
+    onClick: () => void;
+};
 export default function CommentInput({
     isReply = false,
     parentId,
@@ -35,6 +44,7 @@ export default function CommentInput({
     userName = 'You',
     autoFocus = false,
 }: CommentInputProps) {
+    const tCommon = useTranslations('common.messages');
     const [comment, setComment] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -78,6 +88,55 @@ export default function CommentInput({
             handleCancel();
         }
     };
+
+    // === Formatting helpers ===
+    // TODO: Implement helper function for each item
+    const toolbarItems: ToolbarItem[] = [
+        {
+            key: 'bold',
+            tooltip: 'Bold text',
+            icon: Bold,
+            onClick: () => toast({ description: tCommon('featureInComing') }),
+        },
+        {
+            key: 'italic',
+            tooltip: 'Italic text',
+            icon: Italic,
+            onClick: () => toast({ description: tCommon('featureInComing') }),
+        },
+        {
+            key: 'list',
+            tooltip: 'Add list',
+            icon: List,
+            onClick: () => toast({ description: tCommon('featureInComing') }),
+        },
+        // {
+        //     key: 'mention',
+        //     tooltip: 'Mention someone',
+        //     icon: AtSign,
+        //     className: 'hover:bg-blue-100 text-blue-600',
+        //     onClick: () => toast({ description: tCommon('featureInComing') }),
+        // },
+        {
+            key: 'link',
+            tooltip: 'Add link',
+            icon: Link,
+            onClick: () => toast({ description: tCommon('featureInComing') }),
+        },
+        // {
+        //     key: 'image',
+        //     tooltip: 'Add image',
+        //     icon: Image,
+        //     onClick: () => toast({ description: tCommon('featureInComing') }),
+        // },
+        // {
+        //     key: 'emoji',
+        //     tooltip: 'Add emoji',
+        //     icon: Smile,
+        //     className: 'hover:bg-yellow-100',
+        //     onClick: () => toast({ description: tCommon('featureInComing') }),
+        // },
+    ];
 
     return (
         <div
@@ -137,126 +196,29 @@ export default function CommentInput({
                             {isExpanded && (
                                 <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
                                     <div className="flex gap-1">
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 transition-all duration-200 hover:scale-105"
-                                                    >
-                                                        <Bold className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Bold text</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 transition-all duration-200 hover:scale-105"
-                                                    >
-                                                        <Italic className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Italic text</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 transition-all duration-200 hover:scale-105"
-                                                    >
-                                                        <List className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Add list</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-full hover:bg-blue-100 text-blue-600 transition-all duration-200 hover:scale-105"
-                                                    >
-                                                        <AtSign className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Mention someone</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 transition-all duration-200 hover:scale-105"
-                                                    >
-                                                        <Link className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Add link</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 transition-all duration-200 hover:scale-105"
-                                                    >
-                                                        <Image className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Add image</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-full hover:bg-yellow-100 transition-all duration-200 hover:scale-105"
-                                                    >
-                                                        <Smile className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Add emoji</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
+                                        {toolbarItems.map((item) => (
+                                            <TooltipProvider key={item.key}>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={item.onClick}
+                                                            className={cn(
+                                                                'h-8 w-8 p-0 rounded-full hover:bg-gray-100 transition-all duration-200 hover:scale-105',
+                                                                item.className,
+                                                            )}
+                                                        >
+                                                            <item.icon className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>{item.tooltip}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        ))}
                                     </div>
-
                                     <div className="flex gap-2">
                                         {(isReply || comment) && (
                                             <Button
@@ -274,9 +236,7 @@ export default function CommentInput({
                                             size="sm"
                                             className={cn(
                                                 'h-8 px-4 text-xs gap-1.5 rounded-full transition-all duration-300 transform hover:scale-105 disabled:transform-none',
-                                                comment.trim()
-                                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                                                    : 'bg-gray-100 ',
+                                                comment.trim() ? 'bg-gradient-to-r' : 'bg-gray-100 ',
                                             )}
                                         >
                                             <Send className="h-3.5 w-3.5" />
