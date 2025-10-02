@@ -73,7 +73,8 @@
             "updateError": "Failed to update {name}",
             "deleteError": "Failed to delete {name}",
             "fillNumberError": " Please enter numeric",
-            "fillNumberPositiveError": " Please enter positive number"
+            "fillNumberPositiveError": " Please enter positive number",
+            "featureInComing": "Feature coming soon"
         },
         "labels": {
             "name": "Name",

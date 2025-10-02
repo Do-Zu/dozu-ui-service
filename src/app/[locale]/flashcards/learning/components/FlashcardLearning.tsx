@@ -14,12 +14,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import flashcardHelper from '@/utils/flashcard/flashcard.helper';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 
-// type TrackingOption = {
-//     icon: any;
-//     label: string;
-//     qualityResponse: IQualityResponse;
-// };
-
 interface Props {
     topicName: string;
     flashcard: IDueAnkiCard;
@@ -29,7 +23,6 @@ interface Props {
     isFrontRef: React.RefObject<boolean>;
     shouldShowTrackingOptions: boolean;
     handleManualFlip: () => void;
-    // handleOnClickTrackingOption: (qualityResponse: IQualityResponse) => void;
     handleLearningOptionClick: (rating: IAnkiRating) => void;
     flashcardStatusCounts: IFlashcardStatusCounts;
 }
@@ -51,19 +44,6 @@ export function FlashcardLearning({
     const learningOptions = useLearningOptions();
 
     useActivePomodoro();
-
-    // const trackingOptions: TrackingOption[] = [
-    //     { icon: <Angry size={24} fill="red" />, label: flashcardT('responseOptions.blackout'), qualityResponse: 0 },
-    //     { icon: <Frown size={24} fill="#F6C908" />, label: flashcardT('responseOptions.wrong'), qualityResponse: 1 },
-    //     {
-    //         icon: <CircleAlert size={24} fill="#FFCC4D" />,
-    //         label: flashcardT('responseOptions.wrongEasy'),
-    //         qualityResponse: 2,
-    //     },
-    //     { icon: <ThumbsUp size={24} fill="blue" />, label: flashcardT('responseOptions.hard'), qualityResponse: 3 },
-    //     { icon: <Smile size={24} fill="yellow" />, label: flashcardT('responseOptions.good'), qualityResponse: 4 },
-    //     { icon: <Laugh size={24} fill="yellow" />, label: flashcardT('responseOptions.perfect'), qualityResponse: 5 },
-    // ];
 
     useEffect(() => {
         function handleKeyShortcut(event: KeyboardEvent) {
@@ -107,25 +87,25 @@ export function FlashcardLearning({
                                 // const nextReviewInterval = flashcard?.qualityResponsesNextReviewInterval.find(
                                 //     (element) => element.qualityResponse === option.qualityResponse,
                                 // )?.nextReviewInterval;
-                                const nextReviewSchedule = flashcard.nextReviewSchedule;
-                                const nextReviewIntervalForRating =
-                                    nextReviewSchedule.nextReviewIntervalsForRating.find(
-                                        (e) => e.rating === option.rating,
-                                    );
-                                if (!nextReviewIntervalForRating) {
-                                    return <>Rating not found</>;
-                                }
-                                const intervalFormatted = flashcardHelper.formatInterval(
-                                    nextReviewIntervalForRating.interval,
-                                );
+                                // Get the interval list if available, otherwise the array is empty
+                                const intervals = flashcard.nextReviewSchedule?.nextReviewIntervalsForRating ?? [];
+
+                                // Find interval by current rating (can be undefined)
+                                const found = intervals.find((i) => i.rating === option.rating);
+                                const interval = found?.interval;
+
+                                // Display label: if data is missing, use a dash
+                                const intervalFormatted = interval ? flashcardHelper.formatInterval(interval) : '—';
 
                                 return (
                                     <TooltipProvider key={index}>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <div
-                                                    className="col-span-3 h-full flex flex-col gap-0 justify-center items-center rounded-lg bg-white dark:bg-gray-700 cursor-pointer"
+                                                    className="col-span-3 h-full flex flex-col gap-0 justify-center items-center rounded-lg
+                   bg-white dark:bg-gray-700 cursor-pointer"
                                                     onClick={() => handleLearningOptionClick(option.rating)}
+                                                    aria-disabled={!interval}
                                                 >
                                                     {option.icon}
                                                     <Label className="text-lg">{option.label}</Label>
@@ -134,7 +114,7 @@ export function FlashcardLearning({
                                                     </Label>
                                                 </div>
                                             </TooltipTrigger>
-                                            <TooltipContent>Key shortcut: {option.rating} </TooltipContent>
+                                            <TooltipContent>Key shortcut: {option.rating}</TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>
                                 );
