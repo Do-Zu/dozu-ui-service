@@ -21,8 +21,8 @@ interface ProfileHeaderProps {
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   profileData,
   onProfileUpdate,
-  // onAvatarUpdate, // Disabled avatar update functionality
-  // onAvatarRemove, // Disabled avatar remove functionality
+  onAvatarUpdate,
+  onAvatarRemove,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<ProfileData>(profileData);
@@ -60,6 +60,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <div className="flex flex-col items-center space-y-4">
             <AvatarManager 
               profileData={profileData}
+              onAvatarUpdate={onAvatarUpdate}
+              onAvatarRemove={onAvatarRemove}
             />
             
             <Badge variant="secondary" className="text-xs">
