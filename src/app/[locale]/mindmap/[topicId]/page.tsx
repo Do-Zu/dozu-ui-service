@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Background, BackgroundVariant, Controls, Panel, ReactFlow } from '@xyflow/react';
+import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow } from '@xyflow/react';
 import { useAppSelector } from '@/stores/hooks';
 import { toast } from '@/hooks/use-toast';
 import { setRouterRef } from '@/utils/routerService';
@@ -33,6 +33,7 @@ import {
 } from '../../flashcards/types/flashcard.type';
 
 import '@xyflow/react/dist/style.css';
+import { useTheme } from 'next-themes';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -47,6 +48,8 @@ const edgeTypes = {
 };
 
 export default function MindmapContent() {
+    const { resolvedTheme } = useTheme();
+    const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();
 
     const {
@@ -86,8 +89,6 @@ export default function MindmapContent() {
             });
         }
     }, [sseData, sseStatus]);
-
-    
 
     if (!topicId) {
         return <div>No topic id is provided</div>;
@@ -216,7 +217,7 @@ export default function MindmapContent() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 edgeTypes={edgeTypes}
-                defaultEdgeOptions={defaultEdgeOptions}
+                colorMode={colorMode}
             >
                 <Panel position="top-left">
                     <ViewFileButton />
