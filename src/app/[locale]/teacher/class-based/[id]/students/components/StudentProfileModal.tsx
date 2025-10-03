@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -27,6 +27,9 @@ import {
     GraduationCap,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { gamificationService, GamificationStats } from '@/services/gamification/gamificationService';
+// import lessonCompletionService, { LessonCompletionStats } from '@/services/class-based-learning/lessonCompletion.service';
+import useFetch from '@/hooks/useFetch';
 
 interface UserProfile {
     userId: number;
@@ -71,6 +74,7 @@ interface StudentProfileModalProps {
     onClose: () => void;
     student: UserProfile | null;
     loading?: boolean;
+    classId?: number;
 }
 
 export default function StudentProfileModal({
@@ -78,10 +82,29 @@ export default function StudentProfileModal({
     onClose,
     student,
     loading = false,
+    classId,
 }: StudentProfileModalProps) {
     const tProfile = useTranslations('studentProfile');
     const tCommon = useTranslations('common');
     const tUser = useTranslations('user');
+    
+    // Fetch real gamification stats for the student
+    const {
+        data: realGamificationStats,
+        loading: gamificationLoading,
+        error: gamificationError,
+    } = useFetch<GamificationStats>(() => 
+        student ? gamificationService.getUserGamificationStats(student.userId) : Promise.resolve(null)
+    );
+
+    // Fetch real lesson completion stats for the student
+    // const {
+    //     data: lessonStats,
+    //     loading: lessonStatsLoading,
+    //     error: lessonStatsError,
+    // } = useFetch<LessonCompletionStats>(() => 
+    //     student ? lessonCompletionService.getStudentLessonStats(student.userId, classId) : Promise.resolve(null)
+    // );
 
     const getInitials = (name: string | null, username: string) => {
         return (
@@ -106,9 +129,24 @@ export default function StudentProfileModal({
 
     if (!student) return null;
 
-    const { gamificationStats } = student;
-    const progressPercentage = gamificationStats ? 
-        Math.round((gamificationStats.experiencePoints / gamificationStats.nextLevelExperience) * 100) : 0;
+    // Merge real data with fallback to student's mock data
+    const gamificationStats = realGamificationStats || student.gamificationStats;
+    
+    // Create enhanced gamification stats with real lesson completion data
+    const enhancedGamificationStats = gamificationStats ? {
+        ...gamificationStats,
+        // Use gamification data directly since lesson completion service is removed
+        totalLessonsCompleted: gamificationStats.totalLessonsCompleted,
+        totalQuizzesCompleted: gamificationStats.totalQuizzesCompleted,
+        totalFlashcardsReviewed: gamificationStats.totalFlashcardsReviewed,
+        averageScore: gamificationStats.averageScore,
+    } : null;
+    
+    const progressPercentage = enhancedGamificationStats ? 
+        Math.round((enhancedGamificationStats.experiencePoints / enhancedGamificationStats.nextLevelExperience) * 100) : 0;
+    
+    // Show loading state if we're fetching any data
+    const isLoading = loading || gamificationLoading; // || lessonStatsLoading;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -120,7 +158,7 @@ export default function StudentProfileModal({
                     </DialogTitle>
                 </DialogHeader>
 
-                {loading ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </div>
@@ -145,15 +183,15 @@ export default function StudentProfileModal({
                                             <p className="text-muted-foreground">@{student.username}</p>
                                         </div>
                                         
-                                        {gamificationStats && (
+                                        {enhancedGamificationStats && (
                                             <div className="flex items-center gap-2">
                                                 <Badge variant="secondary" className="flex items-center gap-1">
                                                     <Star className="h-3 w-3" />
-                                                    Level {gamificationStats.level}
+                                                    {tProfile('level')} {enhancedGamificationStats.level}
                                                 </Badge>
                                                 <Badge variant="outline" className="flex items-center gap-1">
                                                     <Trophy className="h-3 w-3" />
-                                                    {gamificationStats.totalPoints} điểm
+                                                    {enhancedGamificationStats.totalPoints} {tProfile('points')}
                                                 </Badge>
                                             </div>
                                         )}
@@ -195,14 +233,14 @@ export default function StudentProfileModal({
                                     
                                     <div className="flex items-center gap-2 text-sm">
                                         <Calendar className="h-4 w-4 text-muted-foreground" />
-                                        <span>Tham gia lớp: {new Date(student.enrolledAt).toLocaleDateString('vi-VN')}</span>
+                                        <span>{tProfile('joinedClass')}: {new Date(student.enrolledAt).toLocaleDateString('vi-VN')}</span>
                                     </div>
                                     
                                     {student.bio && (
                                         <>
                                             <Separator />
                                             <div>
-                                                <p className="text-sm text-muted-foreground mb-1">Bio:</p>
+                                                <p className="text-sm text-muted-foreground mb-1">{tProfile('bio')}:</p>
                                                 <p className="text-sm">{student.bio}</p>
                                             </div>
                                         </>
@@ -212,21 +250,31 @@ export default function StudentProfileModal({
                         </div>
 
                         {/* Middle & Right Columns - Gamification Stats */}
-                        {gamificationStats && (
+                        {enhancedGamificationStats && (
                             <div className="lg:col-span-2 space-y-4">
+                                {/* Show error message if gamification data failed to load */}
+                                {gamificationError && (
+                                    <Card className="border-orange-200 bg-orange-50">
+                                        <CardContent className="pt-4">
+                                            <p className="text-sm text-orange-700">
+                                                {tProfile('gamificationDataError') || 'Unable to load learning statistics. Showing cached data.'}
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                )}
                                 {/* Level Progress */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <TrendingUp className="h-5 w-5" />
-                                            Tiến độ Level
+                                            {tProfile('levelProgress')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-2">
                                             <div className="flex justify-between text-sm">
-                                                <span>Level {gamificationStats.level}</span>
-                                                <span>{gamificationStats.experiencePoints}/{gamificationStats.nextLevelExperience} XP</span>
+                                                <span>{tProfile('level')} {enhancedGamificationStats.level}</span>
+                                                <span>{enhancedGamificationStats.experiencePoints}/{enhancedGamificationStats.nextLevelExperience} XP</span>
                                             </div>
                                             <Progress value={progressPercentage} className="h-2" />
                                         </div>
@@ -239,8 +287,8 @@ export default function StudentProfileModal({
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm text-muted-foreground">Streak hiện tại</p>
-                                                    <p className="text-2xl font-bold">{gamificationStats.currentStreak}</p>
+                                                    <p className="text-sm text-muted-foreground">{tProfile('currentStreak')}</p>
+                                                    <p className="text-2xl font-bold">{enhancedGamificationStats.currentStreak}</p>
                                                 </div>
                                                 <Flame className="h-8 w-8 text-orange-500" />
                                             </div>
@@ -251,8 +299,8 @@ export default function StudentProfileModal({
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm text-muted-foreground">Streak dài nhất</p>
-                                                    <p className="text-2xl font-bold">{gamificationStats.longestStreak}</p>
+                                                    <p className="text-sm text-muted-foreground">{tProfile('longestStreak')}</p>
+                                                    <p className="text-2xl font-bold">{enhancedGamificationStats.longestStreak}</p>
                                                 </div>
                                                 <Target className="h-8 w-8 text-green-500" />
                                             </div>
@@ -263,8 +311,8 @@ export default function StudentProfileModal({
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm text-muted-foreground">Bài học</p>
-                                                    <p className="text-2xl font-bold">{gamificationStats.totalLessonsCompleted}</p>
+                                                    <p className="text-sm text-muted-foreground">{tProfile('lessonsCompleted')}</p>
+                                                    <p className="text-2xl font-bold">{enhancedGamificationStats.totalLessonsCompleted}</p>
                                                 </div>
                                                 <BookOpen className="h-8 w-8 text-blue-500" />
                                             </div>
@@ -275,8 +323,8 @@ export default function StudentProfileModal({
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm text-muted-foreground">Điểm TB</p>
-                                                    <p className="text-2xl font-bold">{gamificationStats.averageScore.toFixed(1)}</p>
+                                                    <p className="text-sm text-muted-foreground">{tProfile('averageScore')}</p>
+                                                    <p className="text-2xl font-bold">{enhancedGamificationStats.averageScore.toFixed(1)}</p>
                                                 </div>
                                                 <Star className="h-8 w-8 text-yellow-500" />
                                             </div>
@@ -288,44 +336,44 @@ export default function StudentProfileModal({
                                 <Card>
                                     <CardHeader>
                                         <CardTitle>{tProfile('learningStats')}</CardTitle>
-                                        <CardDescription>Thống kê hoạt động học tập</CardDescription>
+                                        <CardDescription>{tProfile('learningStatsDescription')}</CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div className="text-center">
                                                 <div className="text-2xl font-bold text-blue-600">
-                                                    {gamificationStats.totalLessonsCompleted}
+                                                    {enhancedGamificationStats.totalLessonsCompleted}
                                                 </div>
-                                                <div className="text-sm text-muted-foreground">Bài học hoàn thành</div>
+                                                <div className="text-sm text-muted-foreground">{tProfile('lessonsCompleted')}</div>
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-2xl font-bold text-green-600">
-                                                    {gamificationStats.totalQuizzesCompleted}
+                                                    {enhancedGamificationStats.totalQuizzesCompleted}
                                                 </div>
-                                                <div className="text-sm text-muted-foreground">Quiz đã làm</div>
+                                                <div className="text-sm text-muted-foreground">{tProfile('quizzesCompleted')}</div>
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-2xl font-bold text-purple-600">
-                                                    {gamificationStats.totalFlashcardsReviewed}
+                                                    {enhancedGamificationStats.totalFlashcardsReviewed}
                                                 </div>
-                                                <div className="text-sm text-muted-foreground">Flashcards ôn tập</div>
+                                                <div className="text-sm text-muted-foreground">{tProfile('flashcardsReviewed')}</div>
                                             </div>
                                         </div>
                                     </CardContent>
                                 </Card>
 
                                 {/* Achievements */}
-                                {gamificationStats.achievements.length > 0 && (
+                                {enhancedGamificationStats.achievements.length > 0 && (
                                     <Card>
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2">
                                                 <Award className="h-5 w-5" />
-                                                Thành tích ({gamificationStats.achievements.length})
+                                                {tProfile('achievements')} ({enhancedGamificationStats.achievements.length})
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                {gamificationStats.achievements.map((achievement) => (
+                                                {enhancedGamificationStats.achievements.map((achievement) => (
                                                     <div
                                                         key={achievement.id}
                                                         className="flex items-center gap-3 p-3 rounded-lg border"
@@ -344,7 +392,7 @@ export default function StudentProfileModal({
                                                                 {achievement.description}
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                Đạt được: {new Date(achievement.earnedAt).toLocaleDateString('vi-VN')}
+                                                                {tProfile('earnedAt')}: {new Date(achievement.earnedAt).toLocaleDateString('vi-VN')}
                                                             </p>
                                                         </div>
                                                     </div>

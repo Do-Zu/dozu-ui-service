@@ -5,6 +5,7 @@ import { quizService } from '../../services/quiz.service';
 import { Button } from '@/components/ui/button';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QuizQuestion from '../../components/QuizQuestion';
+import { useQuizStreakTracking } from '@/hooks/useStreakProgress';
 
 // Define types based on the response structure
 interface Question {
@@ -36,6 +37,7 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { trackQuizCompletion } = useQuizStreakTracking();
 
     const quizId = searchParams.get('quizId');
     const type = searchParams.get('type');
@@ -114,6 +116,34 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                 })),
             });
             const { quizResultId } = response.data as { quizResultId: string };
+            
+            // Track quiz completion for streak progress
+            try {
+                // Get userId from localStorage
+                const userString = localStorage.getItem('user');
+                if (userString) {
+                    const user = JSON.parse(userString);
+                    const userId = user?.userId;
+                    
+                    if (userId) {
+                        // Calculate accuracy based on correct answers
+                        const correctAnswers = quizData.filter(q => q.selectedAnswer === q.correctIndex).length;
+                        const accuracy = quizData.length > 0 ? (correctAnswers / quizData.length) * 100 : 0;
+                        
+                        await trackQuizCompletion(
+                            userId.toString(),
+                            topicId,
+                            accuracy, // score (accuracy percentage)
+                            300 // 5 minutes estimated time for quiz
+                        );
+                        console.log('Quiz completion tracked for streak progress');
+                    }
+                }
+            } catch (error) {
+                console.error('Error tracking quiz completion:', error);
+                // Don't show error to user, just log it
+            }
+            
             router.push(`/quiz/${topicId}/result/${quizResultId}`);
         } catch (error) {
             console.error('Error submitting quiz:', error);

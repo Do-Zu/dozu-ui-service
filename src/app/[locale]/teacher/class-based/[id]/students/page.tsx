@@ -203,6 +203,7 @@ export default function Page() {
                 onClose={handleCloseProfileModal}
                 student={selectedStudentProfile}
                 loading={profileLoading}
+                classId={classId}
             />
         </div>
     );

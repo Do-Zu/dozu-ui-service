@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { readLocalQuiz, clearLocalQuiz, LocalQuizQuestion } from '../utils/localQuiz.storage';
 import QuizQuestion from '@/app/[locale]/quiz/components/QuizQuestion'; 
 import { Button } from '@/components/ui/button';
+import { useQuizStreakTracking } from '@/hooks/useStreakProgress';
 
 type LocalQuestion = LocalQuizQuestion & { selectedAnswer?: number | null };
 
@@ -13,6 +14,7 @@ export default function LocalQuizPage() {
   const search = useSearchParams();
   const topicId = search.get('topicId');
   const chunk = search.get('chunk'); // NEW
+  const { trackQuizCompletion } = useQuizStreakTracking();
 
   const [questions, setQuestions] = useState<LocalQuestion[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -36,10 +38,37 @@ export default function LocalQuizPage() {
     [questions]
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const correct = questions.reduce((acc, q) => acc + (q.selectedAnswer === q.correctIndex ? 1 : 0), 0);
     setScore(correct);
     setSubmitted(true);
+    
+    // Track quiz completion for streak progress
+    if (topicId) {
+      try {
+        // Get userId from localStorage
+        const userString = localStorage.getItem('user');
+        if (userString) {
+          const user = JSON.parse(userString);
+          const userId = user?.userId;
+          
+          if (userId) {
+            const accuracy = questions.length > 0 ? (correct / questions.length) * 100 : 0;
+            
+            await trackQuizCompletion(
+              userId.toString(),
+              topicId,
+              accuracy, // score (accuracy percentage)
+              180 // 3 minutes estimated time for local quiz
+            );
+            console.log('Local quiz completion tracked for streak progress');
+          }
+        }
+      } catch (error) {
+        console.error('Error tracking local quiz completion:', error);
+        // Don't show error to user, just log it
+      }
+    }
   };
 
   const handleExit = () => {

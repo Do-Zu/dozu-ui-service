@@ -94,14 +94,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const hasRole = useCallback(
         (role: string): boolean => {
-            return user?.roles.includes(role) ?? false;
+            return user?.roles?.includes(role) ?? false;
         },
         [user?.roles],
     );
 
     const hasPermission = useCallback(
         (permission: string): boolean => {
-            return user?.permissions.includes(permission) ?? false;
+            return user?.permissions?.includes(permission) ?? false;
         },
         [user?.permissions],
     );
