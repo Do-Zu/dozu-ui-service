@@ -19,7 +19,7 @@ export default function Flashcard(props: Props) {
     return (
         <div className={style} onClick={() => handleManualFlip()} ref={cardContainerRef}>
             <div
-                className="relative w-full h-full bg-white dark:bg-gray-700"
+                className="relative w-full h-full bg-white dark:bg-gray-700 rounded-md"
                 style={{ transformStyle: 'preserve-3d' }}
                 ref={cardRef}
             >

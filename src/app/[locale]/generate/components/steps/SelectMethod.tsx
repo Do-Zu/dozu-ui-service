@@ -46,11 +46,15 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
     };
 
     const suggestMethodSelection = useMemo(() => {
-        if (importMethod === 'file') {
-            return suggestedMethods;
-        }
-        // Exclude mindmap if importMethod is not 'file'
-        return suggestedMethods.filter((method) => method !== 'mindmap');
+        // if (importMethod === 'file') {
+        //     return suggestedMethods;
+        // }
+        // // Exclude mindmap if importMethod is not 'file'
+        // return suggestedMethods.filter((method) => method !== 'mindmap');
+
+        //NOTE: Revert for generate roadmap for all type content
+        //TODO: check for filter specific method need generate roadmap
+        return suggestedMethods;
     }, [selectedMethod]);
 
     return (

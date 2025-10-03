@@ -69,11 +69,13 @@
             "readSuccess": "Tải {name} thành công",
             "updateSuccess": "Cập nhật {name} thành công",
             "deleteSuccess": "Xóa {name} thành công",
-
             "createError": "Không thể tạo {name}",
             "readError": "Không thể tải {name}",
             "updateError": "Không thể cập nhật {name}",
-            "deleteError": "Không thể xóa {name}"
+            "deleteError": "Không thể xóa {name}",
+            "fillNumberError": "Chỉ nhập số",
+            "fillNumberPositiveError": "Vui lòng nhập số dương",
+            "featureInComing": "Tính năng đang phát triển!"
         },
         "labels": {
             "name": "Tên",

@@ -57,7 +57,7 @@ const CommentListSkeleton = ({ showReplies = true, replyCount = 2, depth = 0 }: 
 
 const CommentThreadSkeleton = ({ amount = 2 }: { amount?: number }) => {
     return (
-        <div className="max-w-5xl mx-auto rounded-2xl p-6 space-y-6">
+        <div className="rounded-2xl ">
             <div className="space-y-6">
                 {Array.from({ length: amount }).map((_, index) => {
                     return <CommentListSkeleton showReplies={false} key={index} />;

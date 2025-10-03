@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { File } from 'lucide-react';
 import React from 'react';
-import { useMindMapContext } from '../../context/MindMapContext';
+import { useMindMapContext } from '../../../app/[locale]/mindmap/context/MindMapContext';
 
 const ViewFileButton = () => {
     const { isFileSheetOpen, setIsFileSheetOpen } = useMindMapContext();

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Handle, Node, Position, useEdges, useReactFlow } from '@xyflow/react';
 import { useState } from 'react';
-import { CustomNodeData } from '../mindmap.type';
+import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
 import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
 import { getRouter } from '@/utils/routerService';
@@ -11,8 +11,16 @@ import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { useTranslations } from 'next-intl';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
+    // stats;
+    const tCommon = useTranslations('common.messages');
+    const total = data.statistics?.total || 0;
+    const mature = data.statistics?.mature || 0;
+    const progress = total > 0 ? (mature / total) * 100 : 0;
+
     const dispatch = useDispatch();
     const router = getRouter();
 
@@ -208,22 +216,33 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                             animate="visible"
                             exit="hidden"
                             transition={{ duration: 0.2, delay: 0.1 }}
-                            className="flex items-center justify-between mt-3 pt-3 border-t border-border/40"
+                            className="mt-3 pt-3 border-t border-border/40 space-y-3"
                         >
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast({
-                                        description: 'feature is coming soon!',
-                                    });
-                                }}
-                                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                            >
-                                <BookOpenIcon className="w-3 h-3 mr-1" />
-                                Learn
-                            </Button>
+                            <div className="flex items-center justify-between">
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toast({
+                                            description: tCommon('featureInComing'),
+                                        });
+                                    }}
+                                    className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                                >
+                                    <BookOpenIcon className="w-3 h-3 mr-1" />
+                                    Learn
+                                </Button>
+
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-muted-foreground">Progress</span>
+                                    <span className="text-sm font-medium">
+                                        {mature} / {total}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <Progress value={progress} className="h-2" />
                         </motion.div>
                     )}
                 </AnimatePresence>
