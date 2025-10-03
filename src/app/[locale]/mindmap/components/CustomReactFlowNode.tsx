@@ -100,6 +100,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             transition={{ duration: 0.2, ease: 'easeOut' }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleClickNode}
             className={`
                 relative group min-w-[180px] max-w-[280px]
                 bg-card/95 backdrop-blur-sm
@@ -169,7 +170,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 >
                     {/* Title Section */}
                     <div className="space-y-2">
-                        <div onClick={handleClickNode} className="cursor-pointer group/title">
+                        <div className="cursor-pointer group/title">
                             <motion.h3
                                 className="text-sm font-medium text-foreground leading-relaxed line-height-[1.5] group-hover/title:text-primary transition-colors duration-200"
                                 style={{
