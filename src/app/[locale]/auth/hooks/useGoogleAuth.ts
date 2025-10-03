@@ -6,6 +6,7 @@ import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { AuthState, User } from '@/types/auth';
 import { createGoogleAuthUrl } from '../login/utils/googleAuth';
+import toastHelper from '@/utils/toast.helper';
 
 export const useGoogleAuth = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +45,7 @@ export const useGoogleAuth = () => {
                 handleSuccessfulLogin(userData);
             } catch (error) {
                 console.error('Google auth error:', error);
+                toastHelper.showErrorMessage(error);
             } finally {
                 setIsLoading(false);
             }

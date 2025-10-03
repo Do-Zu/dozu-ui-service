@@ -1,0 +1,64 @@
+{
+    "classBased": {
+        "comment": {
+            "title": "Bình luận",
+            "subtitle": "Chia sẻ suy nghĩ của bạn về {title}",
+            "open": "Mở bình luận",
+            "close": "Đóng",
+            "startDiscussion": "Bắt đầu thảo luận",
+            "noCommentsTitle": "Chưa có bình luận",
+            "noCommentsBody": "Hãy là người đầu tiên chia sẻ suy nghĩ của bạn!",
+            "loadMoreNone": "Không còn bình luận nào",
+            "toast": {
+                "sent": "Đã gửi",
+                "failedCreate": "Thêm bình luận thất bại!",
+                "missingParams": "Thiếu tham số cần thiết để tạo bình luận",
+                "mustLogin": "Bạn cần đăng nhập để bình luận.",
+                "failedLoadComments": "Tải bình luận thất bại.",
+                "failedLoadReplies": "Tải trả lời thất bại",
+                "comingSoon": "Sắp ra mắt!"
+            },
+            "actions": {
+                "comment": "Bình luận",
+                "reply": "Trả lời",
+                "cancel": "Hủy"
+            },
+            "placeholders": {
+                "root": "Chia sẻ suy nghĩ của bạn...",
+                "reply": "Viết một phản hồi chân thành..."
+            },
+            "replyingTo": {
+                "label": "Đang trả lời:",
+                "quoteSuffix": "..."
+            },
+            "shortcutsHint": "Nhấn Cmd+Enter để gửi • Nhấp để mở rộng",
+            "card": {
+                "readMore": "Đọc thêm",
+                "showLess": "Thu gọn",
+                "replyingTo": "Đang trả lời:",
+                "tooltips": {
+                    "like": "Thích bình luận này",
+                    "reply": "Trả lời bình luận này",
+                    "viewReplies": "Xem câu trả lời",
+                    "moreOptions": "Tùy chọn khác"
+                },
+                "timeAgo": "trước"
+            },
+            "input": {
+                "replyingToLabel": "💬 Đang trả lời:",
+                "toolbar": {
+                    "bold": "In đậm",
+                    "italic": "In nghiêng",
+                    "list": "Thêm danh sách",
+                    "link": "Thêm liên kết"
+                },
+                "hint": "💡 Nhấn Cmd+Enter để gửi • Nhấp để mở rộng",
+                "buttons": {
+                    "cancel": "Hủy",
+                    "reply": "Trả lời",
+                    "comment": "Bình luận"
+                }
+            }
+        }
+    }
+}

@@ -231,9 +231,6 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
 
             //set node stats
 
-            console.log('returndata', data);
-            console.log('returndata', data.data);
-
             if (mindmapData) {
                 // Load existing mindmap
                 mindmapData.nodes = mindmapData.nodes.map((node: any) => ({

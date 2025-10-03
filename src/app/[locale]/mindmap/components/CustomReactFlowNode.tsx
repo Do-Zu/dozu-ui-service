@@ -12,9 +12,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
+import { useTranslations } from 'next-intl';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
+    const tCommon = useTranslations('common.messages');
     const total = data.statistics?.total || 0;
     const mature = data.statistics?.mature || 0;
     const progress = total > 0 ? (mature / total) * 100 : 0;
@@ -223,7 +225,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         toast({
-                                            description: 'feature is coming soon!',
+                                            description: tCommon('featureInComing'),
                                         });
                                     }}
                                     className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
