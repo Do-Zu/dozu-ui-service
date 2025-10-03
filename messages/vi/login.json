@@ -12,6 +12,7 @@
     "loginSuccessMessage": "Đăng nhập thành công!",
     "loginErrorMessage": "Đăng nhập không thành công. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
     "forgotPasswordText": "Quên mật khẩu?",
-    "forgotPasswordButtonText": "Khôi phục mật khẩu"
+    "forgotPasswordButtonText": "Khôi phục mật khẩu",
+    "useAsGuestText": "Tiếp tục với tư cách khách"
   }
 }

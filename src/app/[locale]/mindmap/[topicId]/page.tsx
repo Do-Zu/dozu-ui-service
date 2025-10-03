@@ -9,8 +9,8 @@ import { setRouterRef } from '@/utils/routerService';
 
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
-import DownloadButton from '../components/buttons/DownloadButton';
-import ViewFileButton from '../components/buttons/ViewFileButton';
+import DownloadButton from '@/components/mindmap/button/DownloadButton';
+import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
 import FloatingEdge from '../components/FloatingEdge';
@@ -86,6 +86,8 @@ export default function MindmapContent() {
             });
         }
     }, [sseData, sseStatus]);
+
+    
 
     if (!topicId) {
         return <div>No topic id is provided</div>;

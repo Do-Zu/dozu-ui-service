@@ -8,7 +8,7 @@ import Axios from '@/api/axios';
 import { Card } from '@/components/ui/card';
 
 import { v4 as uuidv4 } from 'uuid';
-import { CustomEdge, CustomNode } from '../mindmap.type';
+import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
 
 interface GenerateMindmapCardProps {
     mindmapData: any;
@@ -62,11 +62,9 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
         [mindmapData.nodes, mindmapData.edges],
     );
 
-
     useEffect(() => {
         setDataGenerated(updatedMindmapData);
     }, [updatedMindmapData]);
-
 
     return (
         <div className="w-full flex">

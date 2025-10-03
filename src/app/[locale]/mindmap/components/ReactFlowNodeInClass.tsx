@@ -7,7 +7,7 @@ import { BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CustomNodeData } from '../mindmap.type';
+import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
 import { EnumNodeComment } from '../../class-based/types/class.type';
 import CommentThread from '../../class-based/components/comment/CommentThread';
@@ -15,8 +15,6 @@ import CommentThread from '../../class-based/components/comment/CommentThread';
 const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
     const dispatch = useDispatch();
     const { id: classId } = useParams<{ id: string }>();
-
-    const [isHovered, setIsHovered] = useState(false);
 
     const handleClickNode = () => {
         dispatch(openSheet());
@@ -66,8 +64,8 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
             whileHover="hover"
             whileTap="tap"
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            // onMouseEnter={() => setIsHovered(true)}
+            // onMouseLeave={() => setIsHovered(false)}
             className={`
                 relative group min-w-[180px] max-w-[280px]
                 bg-card/95 backdrop-blur-sm
@@ -75,7 +73,6 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
                 rounded-xl shadow-sm hover:shadow-md
                 transition-all duration-200 ease-out
                 ${data.isRoot ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
-                ${isHovered ? 'shadow-lg' : ''}
             `}
             style={{
                 background: data.isRoot
@@ -172,42 +169,39 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
                 </motion.div>
 
                 <AnimatePresence>
-                    {isHovered && (
-                        <motion.div
-                            variants={iconVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="hidden"
-                            transition={{ duration: 0.2, delay: 0.1 }}
-                            className="flex items-center justify-between mt-3 pt-3 border-t border-border/40"
+                    <motion.div
+                        variants={iconVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                        transition={{ duration: 0.2, delay: 0.1 }}
+                        className="flex items-center justify-between mt-3 pt-3 border-t border-border/40"
+                    >
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toast({
+                                    description: 'feature is coming soon!',
+                                });
+                            }}
+                            className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                         >
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast({
-                                        description: 'feature is coming soon!',
-                                    });
-                                }}
-                                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                            >
-                                <BookOpenIcon className="w-3 h-3 mr-1" />
-                                Learn
-                            </Button>
-
-                            {data.topicId && classId && (
-                                <CommentThread
-                                    triggerComponent={triggerComponent}
-                                    nodeId={data.nodeId}
-                                    nodeTitle={data.label}
-                                    classId={classId}
-                                    topicId={data.topicId}
-                                    typeNode={EnumNodeComment.MINDMAP}
-                                />
-                            )}
-                        </motion.div>
-                    )}
+                            <BookOpenIcon className="w-3 h-3 mr-1" />
+                            Learn
+                        </Button>
+                        {data.topicId && classId && (
+                            <CommentThread
+                                triggerComponent={triggerComponent}
+                                nodeId={data.nodeId}
+                                nodeTitle={data.label}
+                                classId={classId}
+                                topicId={data.topicId}
+                                typeNode={EnumNodeComment.MINDMAP}
+                            />
+                        )}
+                    </motion.div>
                 </AnimatePresence>
             </div>
 

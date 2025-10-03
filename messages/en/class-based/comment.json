@@ -1,0 +1,64 @@
+{
+    "classBased": {
+        "comment": {
+            "title": "Comments",
+            "subtitle": "Share your thoughts about {title}",
+            "open": "Open comments",
+            "close": "Close",
+            "startDiscussion": "Start the Discussion",
+            "noCommentsTitle": "No comments yet",
+            "noCommentsBody": "Be the first to share your thoughts!",
+            "loadMoreNone": "No more comments",
+            "toast": {
+                "sent": "Sent",
+                "failedCreate": "Failed to add your comment!",
+                "missingParams": "Missing required parameters for creating comment",
+                "mustLogin": "You must be logged in to post a comment.",
+                "failedLoadComments": "Failed to load comments.",
+                "failedLoadReplies": "Failed to load replies",
+                "comingSoon": "Coming Soon!"
+            },
+            "actions": {
+                "comment": "Comment",
+                "reply": "Reply",
+                "cancel": "Cancel"
+            },
+            "placeholders": {
+                "root": "Share your thoughts...",
+                "reply": "Write a thoughtful reply..."
+            },
+            "replyingTo": {
+                "label": "Replying to:",
+                "quoteSuffix": "..."
+            },
+            "shortcutsHint": "Press Cmd+Enter to send • Click to expand",
+            "card": {
+                "readMore": "Read more",
+                "showLess": "Show less",
+                "replyingTo": "Replying to:",
+                "tooltips": {
+                    "like": "Like this comment",
+                    "reply": "Reply to this comment",
+                    "viewReplies": "View replies",
+                    "moreOptions": "More options"
+                },
+                "timeAgo": "ago"
+            },
+            "input": {
+                "replyingToLabel": "💬 Replying to:",
+                "toolbar": {
+                    "bold": "Bold text",
+                    "italic": "Italic text",
+                    "list": "Add list",
+                    "link": "Add link"
+                },
+                "hint": "💡 Press Cmd+Enter to send • Click to expand",
+                "buttons": {
+                    "cancel": "Cancel",
+                    "reply": "Reply",
+                    "comment": "Comment"
+                }
+            }
+        }
+    }
+}

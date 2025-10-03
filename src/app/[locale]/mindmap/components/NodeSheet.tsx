@@ -13,8 +13,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { compressContent } from '../../generate/helper/compress';
 import { useMindMapContext } from '../context/MindMapContext';
-import { AppEdge, AppNode } from '../mindmap.type';
-import { addChildNode, changeNodeLabel, deleteNode } from './mindmapUtils';
+import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
+import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
 
 const NodeSheet = () => {
     const router = useRouter();
@@ -140,7 +140,7 @@ const NodeSheet = () => {
 
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
-            <SheetContent className="w-[400px] sm:w-[540px]">
+            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>
                         <div className="flex items-center gap-2">
@@ -159,13 +159,17 @@ const NodeSheet = () => {
                     {/* <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription> */}
                 </SheetHeader>
 
-                <div className="grid w-full gap-3">
+                <div className="flex-1 overflow-y-auto pr-2">
                     <Label>Description</Label>
                     {isEditing ? (
                         <Textarea value={newDescription} onChange={onChangeNewDescription} />
                     ) : (
                         <p>{selectedNodeData.description}</p>
                     )}
+                </div>
+
+                {/* <SheetFooter> */}
+                <div className="flex flex-col gap-2 mt-6">
                     <div className="grid grid-cols-2 w-full gap-3">
                         <Label>Starts at page #</Label>
 
@@ -183,10 +187,6 @@ const NodeSheet = () => {
                             selectedNodeData?.pageEndIndex
                         )}
                     </div>
-                </div>
-
-                {/* <SheetFooter> */}
-                <div className="flex flex-col gap-2 mt-6">
                     <Button onClick={handleAddChild} variant="outline" className="w-full">
                         <DiamondPlus />
                         Add child

@@ -3,17 +3,12 @@ import { Button } from '@/components/ui/button';
 import { ITopic } from '../../types/topic.type';
 import Link from 'next/link';
 
-export type ITopicDetails = Pick<ITopic, 'topicId' | 'name' | 'description' | 'createdAt'> & {
+export type ITopicDetails = Pick<ITopic, 'topicId' | 'name' | 'description' | 'createdAt' | 'flashcardCounts'> & {
     lastStudied?: Date;
-    numbers: {
-        nodes: number;
-        flashcards: number;
-        quizzes: number;
-    };
 };
 
 function TopicDetails({ topic }: { topic: ITopicDetails }) {
-    const { name, description, createdAt, lastStudied, numbers } = topic;
+    const { name, description, createdAt, lastStudied, flashcardCounts } = topic;
     return (
         <div className="space-y-6">
             {/* Title & Description */}
@@ -31,18 +26,25 @@ function TopicDetails({ topic }: { topic: ITopicDetails }) {
             </div>
 
             {/* Group: Numbers */}
-            <div className="border rounded-xl p-4 flex justify-between">
-                <div>
-                    <p className="font-semibold text-muted-foreground">Nodes</p>
-                    <p className="text-lg">{numbers.nodes}</p>
-                </div>
-                <div>
-                    <p className="font-semibold text-muted-foreground">Flashcards</p>
-                    <p className="text-lg">{numbers.flashcards}</p>
-                </div>
-                <div>
-                    <p className="font-semibold text-muted-foreground">Quizzes</p>
-                    <p className="text-lg">{numbers.quizzes}</p>
+            <div className="space-y-2">
+                <p className="text-sm font-semibold text-muted-foreground">Flashcards</p>
+                <div className="border rounded-xl p-3 flex justify-between">
+                    <div>
+                        <p className="font-semibold text-muted-foreground">Total</p>
+                        <p className="text-lg">{flashcardCounts?.total || 0}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold text-muted-foreground">New</p>
+                        <p className="text-lg">{flashcardCounts?.new || 0}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold text-muted-foreground">Learning</p>
+                        <p className="text-lg">{flashcardCounts?.learning || 0}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold text-muted-foreground">Due</p>
+                        <p className="text-lg">{flashcardCounts?.dueToday || 0}</p>
+                    </div>
                 </div>
             </div>
 

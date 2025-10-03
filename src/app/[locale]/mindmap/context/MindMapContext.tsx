@@ -6,7 +6,7 @@ import { useEdgesState, useNodesState, Node, useReactFlow } from '@xyflow/react'
 import { v4 as uuidv4 } from 'uuid';
 import Axios from '@/api/axios';
 import { toast } from '@/hooks/use-toast';
-import { AppNode, AppEdge, CustomNodeData, CustomEdge } from '../mindmap.type';
+import { AppNode, AppEdge, CustomNodeData, CustomEdge, NodeStat } from '../../../../types/mindmap/mindmap.type';
 import useReaderFile from '@/hooks/useReaderFile';
 import { EventSourceStatus, useEventSource } from '@/hooks/useEventSource';
 import usePost from '@/hooks/usePost';
@@ -105,6 +105,9 @@ interface MindMapContextType {
     sseData: ISseData | null;
     sseStatus: EventSourceStatus;
 
+    //Node Stats
+    nodeStats: NodeStat[];
+
     // Cleanup
     cleanup: () => void;
 }
@@ -147,12 +150,15 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
             position: { x: 0, y: 0 },
             data: { nodeId: '1', label: '1', isRoot: true, topicId },
         },
-    ];
+    ]; //todo - Duy: Change to relevant topic name for node label if possible
     const initialEdges: AppEdge[] = [];
 
     // Mindmap State
     const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState<AppEdge>(initialEdges);
+
+    // Stats summary State
+    const [nodeStats, setNodeStats] = useState<NodeStat[]>([]);
 
     // PDF Document State
     const [pdfUrl, setPdfUrl] = useState<string>('');
@@ -220,7 +226,10 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
         try {
             // Try to get existing mindmap first
             const { data } = await Axios.get(`/mindmap/${topicId}`);
-            const mindmapData = data?.data?.resultMindmap?.mindmapData;
+            const mindmapData = data?.data?.mindmap.mindmapData;
+            const nodeStatsData = data.data.nodeStats;
+
+            //set node stats
 
             if (mindmapData) {
                 // Load existing mindmap
@@ -236,6 +245,10 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
                 }));
                 setNodes(mindmapData.nodes);
                 setEdges(mindmapData.edges);
+            }
+            if (nodeStatsData) {
+                // Load existing mindmap
+                setNodeStats(nodeStatsData);
             }
         } catch (error) {
             // If mindmap doesn't exist, create initial mindmap from topic
@@ -509,6 +522,9 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
         addChildNode,
         updateNode,
         deleteNode,
+
+        //Node Stats
+        nodeStats,
 
         //Generate
         executeGenerate: execute,

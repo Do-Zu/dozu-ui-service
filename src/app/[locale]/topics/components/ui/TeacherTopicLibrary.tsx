@@ -217,7 +217,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
                 if (a.createdAt === b.createdAt) return 0;
                 return a.createdAt! < b.createdAt! ? 1 : -1;
             } else if (sortBy === 'flashcards-due-today') {
-                return b.flashcardsDueToday! - a.flashcardsDueToday!;
+                return (b.flashcardCounts?.dueToday || 0) - (a.flashcardCounts?.dueToday || 0);
             } else {
                 return 0;
             }

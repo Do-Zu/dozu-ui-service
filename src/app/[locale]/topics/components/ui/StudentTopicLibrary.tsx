@@ -101,7 +101,7 @@ export default function StudentTopicLibrary() {
                 if (a.createdAt === b.createdAt) return 0;
                 return a.createdAt! < b.createdAt! ? 1 : -1;
             } else if (sortBy === 'flashcards-due-today') {
-                return b.flashcardsDueToday! - a.flashcardsDueToday!;
+                return (b.flashcardCounts?.dueToday || 0) - (a.flashcardCounts?.dueToday || 0);
             } else {
                 return 0;
             }
@@ -237,7 +237,7 @@ export default function StudentTopicLibrary() {
                 <div></div>
                 <div>
                     <ShowIf when={topic.hasProgress != undefined && topic.hasProgress}>
-                        <span className="font-bold">{topic.flashcardsDueToday}</span> flashcards due today
+                        <span className="font-bold">{topic.flashcardCounts?.dueToday}</span> flashcards due today
                     </ShowIf>
 
                     <ShowIf when={topic.hasProgress != undefined && !topic.hasProgress}>

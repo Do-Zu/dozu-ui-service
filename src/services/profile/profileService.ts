@@ -26,12 +26,9 @@ export class ProfileService {
 
   // Get user profile
   static async getProfile(): Promise<ProfileData> {
-    try {
       const response = await getRequest<any, any>('/profile');
       const backendData = response.data;
-      
-      console.log('🔍 Backend profile data:', backendData);
-      
+     
       // Map backend data to frontend ProfileData format
       const mappedProfile: ProfileData = {
         id: backendData.profileId?.toString() || backendData.userId?.toString() || '',
@@ -46,18 +43,12 @@ export class ProfileService {
         notificationSettings: backendData.notificationSettings || undefined,
         privacySettings: backendData.privacySettings || undefined
       };
-      
-      console.log('✅ Mapped profile data:', mappedProfile);
       return mappedProfile;
-    } catch (error) {
-      console.error('❌ Failed to get profile:', error);
-      throw error;
-    }
+ 
   }
 
   // Update user profile
   static async updateProfile(profileData: Partial<ProfileData>): Promise<ProfileData> {
-    try {
       // Map frontend data to backend format before sending
       const backendUpdateData = {
         fullName: profileData.username || '',
@@ -68,8 +59,7 @@ export class ProfileService {
         major: profileData.major
       };
       
-      console.log('🔄 Updating profile with backend data:', backendUpdateData);
-      
+
       const response = await putRequest<any, any>('/profile', backendUpdateData);
       const backendData = response.data;
       
@@ -87,10 +77,7 @@ export class ProfileService {
       };
       
       return mappedProfile;
-    } catch (error) {
-      console.error('❌ Failed to update profile:', error);
-      throw error;
-    }
+   
   }
 
   // Upload avatar
@@ -107,15 +94,7 @@ export class ProfileService {
     }
 
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-    console.log('🔄 Uploading to:', `${API_BASE_URL}/api/profile/avatar`);
-    console.log('🔑 Using token:', token ? 'Present' : 'Missing');
-    console.log('📁 File details:', {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
-    
-    try {
+
       const response = await fetch(`${API_BASE_URL}/api/profile/avatar`, {
         method: 'POST',
         headers: {
@@ -125,24 +104,13 @@ export class ProfileService {
         body: formData,
       });
 
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Upload failed response:', errorText);
-        
-        try {
-          const errorData = JSON.parse(errorText);
-          throw new Error(errorData.message || `Upload failed! status: ${response.status}`);
-        } catch {
-          throw new Error(`Upload failed! status: ${response.status}, response: ${errorText}`);
-        }
       }
 
       const result = await response.json();
-      console.log('🔍 Avatar upload response:', result);
-      
+ 
       // Handle different response formats
       let avatarUrl = '';
       if (result.data && result.data.avatarUrl) {
@@ -154,7 +122,6 @@ export class ProfileService {
       } else if (typeof result === 'string') {
         avatarUrl = result;
       } else {
-        console.error('❌ Unexpected avatar upload response format:', result);
         throw new Error('Invalid response format from avatar upload');
       }
       
@@ -163,13 +130,9 @@ export class ProfileService {
         const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
         avatarUrl = `${API_BASE_URL}${avatarUrl}`;
       }
-      
-      console.log('✅ Extracted avatar URL:', avatarUrl);
+
       return { avatarUrl };
-    } catch (error) {
-      console.error('Avatar upload failed:', error);
-      throw error;
-    }
+  
   }
 
   // Remove avatar

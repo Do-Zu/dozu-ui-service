@@ -93,4 +93,5 @@ export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
     nextReview: string;
     status: IAnkiStatus;
     nextReviewSchedule: ICardNextReviewSchedule;
+    rating: IAnkiRating;
 };

@@ -20,8 +20,8 @@ import {
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
-import DownloadButton from '@/app/[locale]/mindmap/components/buttons/DownloadButton';
-import ViewFileButton from '@/app/[locale]/mindmap/components/buttons/ViewFileButton';
+import DownloadButton from '@/components/mindmap/button/DownloadButton';
+import ViewFileButton from '@/components/mindmap/button/ViewFileButton';
 import FileSheet from '@/app/[locale]/mindmap/components/FileSheet';
 import FloatingEdge from '@/app/[locale]/mindmap/components/FloatingEdge';
 import NodeSheetViewOnly from '@/app/[locale]/mindmap/components/NodeSheetViewOnly';

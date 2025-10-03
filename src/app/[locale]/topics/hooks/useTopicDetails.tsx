@@ -15,7 +15,6 @@ export function useTopicDetails() {
     const open = (topic: ITopic) => {
         const selectingTopic: ITopicDetails = {
             ...topic,
-            numbers: { flashcards: topic.flashcardsCount ? topic.flashcardsCount : 0, nodes: 0, quizzes: 0 },
         };
         setSelectingTopic(selectingTopic);
         setTimeout(() => {
