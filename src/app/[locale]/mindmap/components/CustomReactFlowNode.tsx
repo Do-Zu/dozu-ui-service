@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Handle, Node, Position, useEdges, useReactFlow } from '@xyflow/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
 import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
@@ -27,9 +27,30 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const [editing, setEditing] = useState(false);
     const [label, setLabel] = useState(data.label);
     const [isHovered, setIsHovered] = useState(false);
+    const [isClickedOn, setIsClickedOn] = useState(false);
+    const isActive = isClickedOn || isHovered;
     const [isExpanded, setIsExpanded] = useState(false);
     const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
     const edges = useEdges();
+
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                wrapperRef.current &&
+                event.target instanceof HTMLElement &&
+                !wrapperRef.current.contains(event.target)
+            ) {
+                setIsClickedOn(false);
+            }
+        }
+
+        document.addEventListener('pointerdown', handleClickOutside);
+        return () => {
+            document.removeEventListener('pointerdown', handleClickOutside);
+        };
+    }, []);
 
     const deleteNode = (id: string) => {
         edges.forEach((edge) => {
@@ -59,9 +80,17 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         setEditing(false);
     };
 
-    const handleClickNode = () => {
-        dispatch(openSheet());
+    const handleClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
         dispatch(setSelectedNodeData(data));
+        setIsClickedOn(true);
+        // dispatch(openSheet());
+    };
+
+    const handleRightClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        dispatch(setSelectedNodeData(data));
+        dispatch(openSheet());
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -100,7 +129,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             transition={{ duration: 0.2, ease: 'easeOut' }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            ref={wrapperRef}
             onClick={handleClickNode}
+            onContextMenu={handleRightClickNode}
             className={`
                 relative group min-w-[180px] max-w-[280px]
                 bg-card/95 backdrop-blur-sm
@@ -108,7 +139,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 rounded-xl shadow-sm hover:shadow-md
                 transition-all duration-200 ease-out
                 ${data.isRoot ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
-                ${isHovered ? 'shadow-lg' : ''}
+                ${isActive ? 'shadow-lg' : ''}
             `}
             style={{
                 background: data.isRoot
@@ -210,7 +241,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
 
                 {/* Action Buttons */}
                 <AnimatePresence>
-                    {isHovered && (
+                    {isActive && (
                         <motion.div
                             variants={iconVariants}
                             initial="hidden"
