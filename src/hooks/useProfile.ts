@@ -39,30 +39,29 @@ export const useProfile = () => {
     }
   }, []);
 
-  // const uploadAvatar = useCallback(async (file: File) => {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-  //     const result = await ProfileService.uploadAvatar(file);
+  const uploadAvatar = useCallback(async (file: File) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await ProfileService.uploadAvatar(file);
       
-  //     // Update profile with new avatar URL
-  //     if (profile) {
-  //       setProfile({
-  //         ...profile,
-  //         avatar: result.avatarUrl,
-  //       });
-  //     }
+      // Update profile with new avatar URL
+      if (profile) {
+        setProfile({
+          ...profile,
+          avatar: result.avatarUrl,
+        });
+      }
       
-  //     return result;
-  //   } catch (err) {
-  //     const errorMessage = handleApiError(err);
-  //     setError(errorMessage);
-  //     console.error('Failed to upload avatar:', err);
-  //     throw err;
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [profile]);
+      toast({ description: 'Avatar uploaded successfully' });
+      return result;
+    } catch (err) {
+      toast({ description: 'Failed to upload avatar', variant: 'destructive' });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [profile]);
 
   const removeAvatar = useCallback(async () => {
     try {
@@ -125,7 +124,7 @@ export const useProfile = () => {
     error,
     fetchProfile,
     updateProfile,
-    // uploadAvatar,
+    uploadAvatar,
     removeAvatar,
     changePassword,
     deleteAccount,
