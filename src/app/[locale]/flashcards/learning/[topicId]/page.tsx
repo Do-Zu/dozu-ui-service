@@ -14,9 +14,7 @@ import {
     IFlashcard,
     IQualityResponseNextReviewInterval,
 } from '../../types/flashcard.type';
-import flashcardService, {
-    IFlashcardReviewByAnkiPayload,
-} from '@/services/flashcard/flashcard.service';
+import flashcardService, { IFlashcardReviewByAnkiPayload } from '@/services/flashcard/flashcard.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { Button } from '@/components/ui/button';
@@ -47,16 +45,16 @@ export default function Page() {
     const tFlashcardLearning = useTranslations('flashcard.learning');
     const { topicId } = params as { topicId: string };
 
-    // studied list to slice payload at 100% mark
+    // studied list
     const [studied, setStudied] = useState<QuizCard[]>([]);
 
     // helper to standardize quiz cards
     const toQuizCard = (c: any): QuizCard => ({
-       flashcardId: c.flashcardId,
-       front: c.front,
-       back: c.back,
-       imageUrl: c.imageUrl ?? null,
-       topicName: c.topicName ?? null,
+        flashcardId: c.flashcardId,
+        front: c.front,
+        back: c.back,
+        imageUrl: c.imageUrl ?? null,
+        topicName: c.topicName ?? null,
     });
 
     // Learning tracking integration
@@ -119,9 +117,9 @@ export default function Page() {
             }
             q.ensureBaseline(flashcards.length, flashcards.map(toQuizCard));
         }
-    }, [flashcards]);
+    }, [flashcards, q]);
 
-    // reset studied when starting new session / closing session
+    // reset studied when session changes
     useEffect(() => {
         setStudied([]);
     }, [q.sessionEpoch]);
@@ -276,11 +274,9 @@ export default function Page() {
                 flashcardId,
                 rating,
             });
-            
+
             // Avoid double-remove if refetch is present
-            const next = flashcards[0]?.flashcardId === flashcardId
-                ? flashcards.slice(1)
-                : flashcards;
+            const next = flashcards[0]?.flashcardId === flashcardId ? flashcards.slice(1) : flashcards;
             setFlashcardsData(next);
 
             // update studied
@@ -290,7 +286,7 @@ export default function Page() {
             // Push progress to hook to decide whether to show prompt at 50%/100%
             q.onStudiedProgress(newStudied, next.length);
         },
-        [flashcards, currentFlashcard, studied, q],
+        [flashcards, currentFlashcard, studied, q, topicId, trackFlashcard, setFlashcardsData],
     );
 
     function handleBackClick() {
@@ -310,29 +306,24 @@ export default function Page() {
     }
 
     const onConfirmOnlySecond = async () => {
-        const { onlySecond } = q.getFullRanges();
-        const cards = studied.slice(onlySecond.start, onlySecond.end);
-        await q.startFullOnlySecond(cards);
+        const { onlySecond } = q.getFullCards();
+        await q.startFullOnlySecond(onlySecond);
     };
 
     const onConfirmCatchUpAll = async () => {
-        const { catchUpAll } = q.getFullRanges();
-        const cards = studied.slice(catchUpAll.start, catchUpAll.end);
-        await q.startFullCatchUpAll(cards);
+        const { catchUpAll } = q.getFullCards();
+        await q.startFullCatchUpAll(catchUpAll);
     };
 
-
-const onSkipFull = () => {
-  const { onlySecond } = q.getFullCards();
-  q.skipFullQuiz(onlySecond);
-};
+    const onSkipFull = () => {
+        const { onlySecond } = q.getFullCards();
+        q.skipFullQuiz(onlySecond);
+    };
 
     return (
         <>
             {/* Backlog banner */}
-            {q.backlogCount > 0 && (
-              <BacklogCTA count={q.backlogCount} onClick={q.startBacklogQuiz} />
-            )}
+            {q.backlogCount > 0 && <BacklogCTA count={q.backlogCount} onClick={q.startBacklogQuiz} />}
 
             {/* main content */}
             {flashcards.length === 0 || !currentFlashcard ? (
@@ -355,36 +346,36 @@ const onSkipFull = () => {
                         </div>
                         <h2 className="text-2xl font-semibold text-black">{tFlashcardLearning('greatJob')}</h2>
                         <p className="text-gray-700 max-w-md">{tFlashcardLearning('flashcardsCompleted')}</p>
-                    <div className="pt-4">
-                        <Button
-                            onClick={handleBackClick}
-                            className="px-6 py-2 mx-10 rounded-lg transition-colors border border-gray-300"
-                        >
-                            {tCommon('actions.back')}
-                        </Button>
+                        <div className="pt-4">
+                            <Button
+                                onClick={handleBackClick}
+                                className="px-6 py-2 mx-10 rounded-lg transition-colors border border-gray-300"
+                            >
+                                {tCommon('actions.back')}
+                            </Button>
 
-                        <Button
-                            onClick={handleRedirectFeynmanPage}
-                            className="px-6 py-2  rounded-lg transition-colors border border-gray-300"
-                        >
-                            {tFlashcardLearning('reviewKnowledge')}
-                        </Button>
-                    </div>
+                            <Button
+                                onClick={handleRedirectFeynmanPage}
+                                className="px-6 py-2  rounded-lg transition-colors border border-gray-300"
+                            >
+                                {tFlashcardLearning('reviewKnowledge')}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             ) : (
-            <FlashcardLearning
-                topicName={currentFlashcard.topicName ? currentFlashcard.topicName : ''}
-                total={flashcards.length}
-                flashcardContainerRef={flashcardContainerRef}
-                cardRef={cardRef}
-                isFrontRef={isFrontRef}
-                flashcard={currentFlashcard}
-                handleManualFlip={handleManualFlip}
-                shouldShowTrackingOptions={shouldShowTrackingOptions}
-                handleLearningOptionClick={handleReviewFlashcardClick}
-                flashcardStatusCounts={flashcardStatusCounts}
-            />
+                <FlashcardLearning
+                    topicName={currentFlashcard.topicName ? currentFlashcard.topicName : ''}
+                    total={flashcards.length}
+                    flashcardContainerRef={flashcardContainerRef}
+                    cardRef={cardRef}
+                    isFrontRef={isFrontRef}
+                    flashcard={currentFlashcard}
+                    handleManualFlip={handleManualFlip}
+                    shouldShowTrackingOptions={shouldShowTrackingOptions}
+                    handleLearningOptionClick={handleReviewFlashcardClick}
+                    flashcardStatusCounts={flashcardStatusCounts}
+                />
             )}
 
             {q.isGenerating && (
