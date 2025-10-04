@@ -41,9 +41,13 @@ export function PointSystem({ userId, showHistory = false, compact = false }: Po
 
     const getLevelProgress = () => {
         if (!pointsData) return 0;
-        const currentLevelXP = pointsData.experiencePoints;
-        const nextLevelXP = pointsData.nextLevelExperience;
-        const previousLevelXP = (pointsData.level - 1) * 200; // Assuming 200 XP per level
+        
+        // Calculate level from points if level is 0 or invalid
+        const calculatedLevel = Math.max(1, Math.floor(pointsData.totalPoints / 200) + 1);
+        const currentLevel = pointsData.level > 0 ? pointsData.level : calculatedLevel;
+        const currentLevelXP = pointsData.experiencePoints || (pointsData.totalPoints % 200);
+        const nextLevelXP = pointsData.nextLevelExperience || 200;
+        const previousLevelXP = (currentLevel - 1) * 200;
         
         const progressInLevel = currentLevelXP - previousLevelXP;
         const totalLevelXP = nextLevelXP - previousLevelXP;
@@ -123,16 +127,16 @@ export function PointSystem({ userId, showHistory = false, compact = false }: Po
                         </div>
                         
                         <div className="flex items-center justify-center gap-2 mb-4">
-                            <Trophy className={`w-6 h-6 ${getLevelColor(pointsData.level)}`} />
-                            <span className={`text-xl font-bold ${getLevelColor(pointsData.level)}`}>
-                                Level {pointsData.level}
+                            <Trophy className={`w-6 h-6 ${getLevelColor(pointsData.level > 0 ? pointsData.level : Math.max(1, Math.floor(pointsData.totalPoints / 200) + 1))}`} />
+                            <span className={`text-xl font-bold ${getLevelColor(pointsData.level > 0 ? pointsData.level : Math.max(1, Math.floor(pointsData.totalPoints / 200) + 1))}`}>
+                                Level {pointsData.level > 0 ? pointsData.level : Math.max(1, Math.floor(pointsData.totalPoints / 200) + 1)}
                             </span>
                         </div>
 
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span>Progress to Level {pointsData.level + 1}</span>
-                                <span>{pointsData.experiencePoints}/{pointsData.nextLevelExperience} XP</span>
+                                <span>Progress to Level {(pointsData.level > 0 ? pointsData.level : Math.max(1, Math.floor(pointsData.totalPoints / 200) + 1)) + 1}</span>
+                                <span>{pointsData.experiencePoints || (pointsData.totalPoints % 200)}/{pointsData.nextLevelExperience || 200} XP</span>
                             </div>
                             <Progress value={getLevelProgress()} className="h-3" />
                         </div>
