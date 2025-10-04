@@ -1,36 +1,31 @@
 import React from 'react';
-import { notFound } from 'next/navigation';
-import { hasLocale } from 'next-intl';
+import { LocaleFontProvider } from '@/components/ui/LocaleFontProvider';
+import Providers from '../Providers';
+import DefaultLayout from '@/layouts/DefaultLayout';
+import { getMessages } from '@/i18n/messages';
 import { routing } from '@/i18n/routing';
-import Providers from './Providers';
-import '../../styles/globals.css';
+import { hasLocale } from 'next-intl';
+import { notFound } from 'next/navigation';
 
 export default async function LocaleLayout({
-  children,
-  params,
+    children,
+    params,
 }: {
-  children: React.ReactNode;
-  params: { locale: string };
+    children: React.ReactNode;
+    params: { locale: string };
 }) {
-  const { locale } = params;
+    const { locale } = params;
 
-  if (!hasLocale(routing.locales, locale)) {
-    notFound();
-  }
+    if (!hasLocale(routing.locales, locale)) {
+        notFound();
+    }
 
-  // Load & merge tất cả file JSON trong folder messages/[locale]/
-  const messages = {
-    ...(await import(`../../../messages/${locale}/common.json`)).default,
-    ...(await import(`../../../messages/${locale}/home.json`)).default,
-  };
-
-  return (
-    <html lang={locale}>
-      <body>
+    const messages = await getMessages(locale);
+    return (
         <Providers locale={locale} messages={messages}>
-          {children}
+            <LocaleFontProvider>
+                <DefaultLayout>{children}</DefaultLayout>
+            </LocaleFontProvider>
         </Providers>
-      </body>
-    </html>
-  );
+    );
 }

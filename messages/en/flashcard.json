@@ -1,0 +1,50 @@
+{
+    "flashcard": {
+        "edit": {
+            "import": "Import",
+            "save": "Save",
+            "addCards": "Add Cards"
+        },
+        "study": {
+            "card": "Card",
+            "of": "of",
+            "complete": "complete",
+            "autoPlay": "Auto-play",
+            "resetProgress": "Reset Progress",
+            "reset": "Reset",
+            "speed": "Speed",
+            "shuffle": "Shuffle",
+            "backFirst": "Back First",
+            "edit": "Edit",
+            "learning": "Learning"
+        },
+        "learning": {
+            "responseOptions": {
+                "blackout": "Blackout",
+                "wrong": "Wrong",
+                "wrongEasy": "Wrong (Easy)",
+                "hard": "Hard",
+                "good": "Good",
+                "perfect": "Perfect"
+            },
+            "showAnswer": "Show answer",
+            "flashcardsRemaining": "flashcards remaining",
+            "greatJob": "Great job! 🎉",
+            "flashcardsCompleted": "You've completed all the flashcards for this topic. Now you can assess your knowledge.",
+            "flashcardsEmpty": "There are no flashcards for this topic! Try creating a flashcard set.",
+            "reviewKnowledge": "Review your knowledge."
+        },
+        "import": {
+            "title": "Import your data",
+            "importText": {
+                "placeholder": "Term 1: Definition 1\nTerm 2: Definition 2\n...",
+                "sideDividerLabel": "Between Term and Definition",
+                "cardDividerLabel": "Between Cards",
+                "importSuccess": "Add Flashcards from Text successfully"
+            },
+            "importCsv": {
+                "importSuccess": "Add Flashcards from CSV successfully"
+            }
+        }
+    }
+}

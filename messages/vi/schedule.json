@@ -1,0 +1,36 @@
+{
+    "schedule": {
+        "calendar": {
+            "view": {
+                "day": "Ngày",
+                "week": "Tuần"
+            },
+            "controls": {
+                "previous": "Trước",
+                "today": "Hôm nay",
+                "next": "Tiếp"
+            }
+        },
+        "dialog": {
+            "edit": {
+                "title": "Tiêu đề",
+                "startTime": "Thời gian bắt đầu",
+                "endTime": "Thời gian kết thúc",
+                "cancel": "Hủy",
+                "save": "Lưu"
+            }
+        },
+        "eventCard": {
+            "actions": {
+                "learn": "Học",
+                "edit": "Chỉnh sửa"
+            }
+        },
+        "saveBar": {
+            "message": "Bạn có thay đổi chưa lưu",
+            "save": "Lưu thay đổi",
+            "cancel": "Hủy",
+            "errorSaveMessage": "Có lỗi xảy ra khi lưu thay đổi. Vui lòng thử lại."
+        }
+    }
+}

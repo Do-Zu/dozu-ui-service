@@ -1,58 +1,32 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import ThemeToggle from '@/components/toolbar/ThemeToggle';
+import React from 'react';
+import Navbar from '@/components/toolbar/Navbar';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 interface IHeaderProps {
-  isLoggedIn?: boolean;
-  username?: string;
+    isLoggedIn?: boolean;
+    username?: string;
+    className?: string;
 }
 
-const Header: React.FC<IHeaderProps> = () => {
-  // maybe get from local global state
-  const [title, setTitle] = useState<string>();
-  const isLoggedIn = false;
-  const username = '';
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      setTitle(`Welcome back, ${username}!`);
-    } else {
-      setTitle('Welcome to My Website');
-    }
-  }, [isLoggedIn, username]);
-
-  return (
-    <header className="p-5 bg-gray-800 text-white">
-      <h1 className="text-2xl font-semibold">{title}</h1>
-      <nav>
-        <ul className="list-none flex gap-6">
-          <li>
-            <a href="/" className="hover:text-gray-400">
-              Home
-            </a>
-          </li>
-          <li>
-            <a href="/about" className="hover:text-gray-400">
-              About
-            </a>
-          </li>
-          {isLoggedIn ? (
-            <li>
-              <a href="/profile" className="hover:text-gray-400">
-                Profile
-              </a>
-            </li>
-          ) : (
-            <li>
-              <a href="/login" className="hover:text-gray-400">
-                Login
-              </a>
-            </li>
-          )}
-        </ul>
-      </nav>
-    </header>
-  );
+const Header: React.FC<IHeaderProps> = ({ className = '' }) => {
+    return (
+        <header
+            className={`sticky top-0 w-full border-b border-transparent bg-gradient-to-r from-background/75 via-background/40 to-background/75 dark:from-slate-950/70 dark:via-slate-900/40 dark:to-slate-950/70 backdrop-blur-md supports-[backdrop-filter]:bg-background/40 rounded-sm ${className}`}
+            style={{
+                height: 'var(--header-height)',
+                zIndex: 50,
+                maxHeight: 'var(--max-header-height)',
+            }}
+        >
+            <div className="flex h-full items-center rounded-lg">
+                <div className="flex-1 h-full ">
+                    <Navbar />
+                </div>
+            </div>
+        </header>
+    );
 };
+
 export default Header;

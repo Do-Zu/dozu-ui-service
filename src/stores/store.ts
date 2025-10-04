@@ -1,15 +1,27 @@
-// src/stores/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import bookSlice from './features/book/bookSlice'; // Slice quản lý thông tin book
+import authSlice from './features/auth/authSlice';
+import selectedNodeSlice from './features/mindmap/selectedNodeSlice';
+import subscriptionSlice from './features/subscription/subscriptionSlice';
+import learningModeSlice from './features/class-based-learning/learningModeSlice';
+import inputSetSlice from './features/inputSet/inputSetSlice';
+import pomodoroSlice from './features/pomodoro/pomodoroSlice';
 
-// Cấu hình Redux Store
 export const store = configureStore({
-  reducer: {
-    book: bookSlice, // Thêm bookSlice vào store
-  },
-  devTools: process.env.NODE_ENV !== 'production', // Bật Redux DevTools khi ở môi trường development
+    reducer: {
+        auth: authSlice,
+
+        selectedNodeSlice: selectedNodeSlice,
+
+        subscription: subscriptionSlice,
+
+        learningMode: learningModeSlice,
+
+        inputSet: inputSetSlice,
+
+        pomodoro: pomodoroSlice,
+    },
+    devTools: process.env.NODE_ENV !== 'production',
 });
 
-// Các type cần thiết cho app
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

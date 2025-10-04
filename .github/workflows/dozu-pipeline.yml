@@ -1,81 +1,86 @@
 name: CI/CD pipeline production environment
 
 on:
-  # pull_request:
-  #   paths:
-  #     - 'src/**'
-  #     - 'package.json'
-  #   branches: [main]
-  workflow_dispatch:
-    inputs:
-      branch_to_deploy:
-        description: 'Branch to deploy'
-        required: true
-        default: 'feature/merge'
-        type: choice
-        options:
-          - develop
-          - feature/merge
-      environment:
-        description: 'Environment to deploy'
-        required: true
-        default: 'Development'
-        type: choice
-        options:
-          - Development
-          - Production
-      deploy_to_vercel:
-        description: 'Deploy to Vercel'
-        required: true
-        default: true
-        type: boolean
+    # pull_request:
+    #   paths:
+    #     - 'src/**'
+    #     - 'package.json'
+    #   branches: [main]
+    workflow_dispatch:
+        inputs:
+            branch_to_deploy:
+                description: 'Branch to deploy'
+                required: true
+                default: 'feature/merge'
+                type: choice
+                options:
+                    - develop
+                    - feature/merge
+            environment:
+                description: 'Environment to deploy'
+                required: true
+                default: 'production'
+                type: choice
+                options:
+                    - development
+                    - production
+            deploy_to_vercel:
+                description: 'Deploy to Vercel'
+                required: true
+                default: true
+                type: boolean
 
 env:
-  NODE_VERSION: '20'
-  PM2_APP_NAME: next-app
-  NODE_ENV: production
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  NEXT_PUBLIC_APP_NAME: ${{ github.event.inputs.environment == 'Production' && 'DOZU_PRODUCTION' || 'DOZU_DEVELOPMENT' }}
-  NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-
+    NODE_VERSION: '20'
+    PM2_APP_NAME: next-app
+    NODE_ENV: production
+    VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    NEXT_PUBLIC_APP_NAME: ${{ github.event.inputs.environment == 'production' && 'DOZU_PRODUCTION' || 'DOZU_DEVELOPMENT' }}
+    NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+    NEXT_PUBLIC_API_STREAM_SSE_URL: ${{ secrets.NEXT_PUBLIC_API_STREAM_SSE_URL }}
+    NEXT_PUBLIC_GOOGLE_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_GOOGLE_REDIRECT_URI }}
+    NEXT_PUBLIC_OAUTH_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_OAUTH_CLIENT_ID }}
 jobs:
-  # validate:
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'workflow_dispatch'
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         ref: ${{ github.event.inputs.branch_to_deploy }}
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ env.NODE_VERSION }}
-  #     - name: Install dependencies
-  #       run: npm ci --include=dev
-  #     - name: Lint code
-  #       run: npm run lint
+    # validate:
+    #   runs-on: ubuntu-latest
+    #   if: github.event_name == 'workflow_dispatch'
+    #   steps:
+    #     - uses: actions/checkout@v4
+    #       with:
+    #         ref: ${{ github.event.inputs.branch_to_deploy }}
+    #     - uses: actions/setup-node@v4
+    #       with:
+    #         node-version: ${{ env.NODE_VERSION }}
+    #     - name: Install dependencies
+    #       run: npm ci --include=dev
+    #     - name: Lint code
+    #       run: npm run lint
 
-  vercel-deploy:
-    if: ${{ github.event.inputs.deploy_to_vercel == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.branch_to_deploy }}
-      - name: Setup Environment Variables
-        run: |
-          echo "NEXT_PUBLIC_APP_NAME=${{ env.NEXT_PUBLIC_APP_NAME }}" >> .env.production
-          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env.production
-          echo "NODE_ENV=production" >> .env.production
-      - name: Setup Vercel CLI
-        run: npm install -g vercel
+    vercel-deploy:
+        if: ${{ github.event.inputs.deploy_to_vercel == 'true' }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.inputs.branch_to_deploy }}
+            - name: Setup Environment Variables
+              run: |
+                  echo "NODE_ENV=production" >> .env.production
+                  echo "NEXT_PUBLIC_APP_NAME=${{ env.NEXT_PUBLIC_APP_NAME }}" >> .env.production
+                  echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env.production
+                  echo "NEXT_PUBLIC_API_STREAM_SSE_URL=${{ secrets.NEXT_PUBLIC_API_STREAM_SSE_URL }}" >> .env.production
+                  echo "NEXT_PUBLIC_GOOGLE_REDIRECT_URI=${{ secrets.NEXT_PUBLIC_GOOGLE_REDIRECT_URI }}" >> .env.production
+                  echo "NEXT_PUBLIC_OAUTH_CLIENT_ID=${{ secrets.NEXT_PUBLIC_OAUTH_CLIENT_ID }}" >> .env.production
+            - name: Setup Vercel CLI
+              run: npm install -g vercel
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=${{ github.event.inputs.environment == 'Production' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Pull Vercel Environment Information
+              run: vercel pull --yes --environment=${{ github.event.inputs.environment == 'Production' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build Project Artifacts
-        run: vercel build --prod=${{ github.event.inputs.environment == 'Production' }}
+            - name: Build Project Artifacts
+              run: vercel build --prod=${{ github.event.inputs.environment == 'Production' }}
 
-      - name: Deploy to Vercel
-        run: vercel deploy --prebuilt --prod=${{ github.event.inputs.environment == 'Production' }} --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Deploy to Vercel
+              run: vercel deploy --prebuilt --prod=${{ github.event.inputs.environment == 'Production' }} --token=${{ secrets.VERCEL_TOKEN }}

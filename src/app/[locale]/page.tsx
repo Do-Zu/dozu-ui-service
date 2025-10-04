@@ -1,42 +1,47 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
-import { useAppSelector, useAppDispatch } from '@/stores/hooks';
-import { incrementFloor, decrementFloor } from '@/stores/features/book/bookSlice';
-import WelcomeDemo from '@/components/demo/welcome';
+import AuthSkeleton from '@/components/ui/auth-skeleton';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { ILearningMode, setLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { ROUTES } from '@/utils/constants/routes';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
-export default function HomePage() {
-  const t = useTranslations('HomePage');
-  const floor = useAppSelector((state) => state.book.floor);
-  const dispatch = useAppDispatch();
+function HomePage() {
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
 
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">{t('title')}</h1>
+    const [storedValue] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const { isTeacher, isAdmin } = useRoleChecker();
+    const dispatch = useDispatch();
 
-      <WelcomeDemo />
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push(ROUTES.WELCOME);
+            return;
+        }
 
-      <p className="text-lg">Current floor: {floor}</p>
+        if (isAdmin) {
+            router.push(ROUTES.ADMIN);
+            return;
+        }
 
-      <div className="flex gap-4">
-        <button
-          onClick={() => dispatch(incrementFloor())}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          +
-        </button>
-        <button
-          onClick={() => dispatch(decrementFloor())}
-          className="px-4 py-2 bg-red-500 text-white rounded"
-        >
-          -
-        </button>
-      </div>
+        if (isTeacher) {
+            // dispatch(setLearningMode(MODE_ACCESS_PAGE_ROLE.classBased));
+            router.push(ROUTES.TEACHER.HOME);
+            return;
+        }
 
-      <Link href="/about" className="text-blue-600 underline">
-        {t('about')}
-      </Link>
-    </div>
-  );
+        // For regular users, set learning mode and go to home
+        dispatch(setLearningMode(storedValue));
+        router.push(ROUTES.HOME);
+    }, [isAuthenticated, isTeacher, isAdmin]);
+
+    return <AuthSkeleton />;
 }
+
+export default HomePage;

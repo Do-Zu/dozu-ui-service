@@ -1,51 +1,114 @@
 'use client';
+import { useEffect, useState, useTransition } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Check, Loader2 } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { useState, useEffect } from 'react';
-import { createNavigation } from 'next-intl/navigation';  // Import createNavigation
-import { routing } from '@/i18n/routing'; // Import routing từ file cấu hình của bạn
-
-// Khởi tạo navigation với routing
-const { usePathname, getPathname, redirect } = createNavigation(routing); // Thêm 'routing' vào đây
+const LANGS = [
+    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+];
 
 const LanguageSwitcher = () => {
-  const pathname = usePathname(); // Lấy pathname hiện tại
-  console.log({ pathname });
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const [isPending, startTransition] = useTransition();
+    const [current, setCurrent] = useState('en');
 
-  const [selectedLocale, setSelectedLocale] = useState('en'); // Mặc định là 'en'
-  const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+        const code = pathname?.split('/')[1];
+        if (code && LANGS.find((l) => l.code === code)) setCurrent(code);
+    }, [pathname]);
 
-  useEffect(() => {
-    setIsClient(true); // Đảm bảo code chỉ chạy trên client
-  }, []);
+    const buildHref = (basePath: string, query?: string, hash?: string): string => {
+        const queryString = query ? `?${query}` : '';
+        const hashString = hash ?? '';
+        return `${basePath}${queryString}${hashString}`;
+    };
 
-  const handleChangeLanguage = (locale: string) => {
-    setSelectedLocale(locale); // Cập nhật locale trong state
-    console.log({ locale });
+    const changeLocale = (locale: string) => {
+        if (locale === current) return;
 
-    // Truyền tham số đúng cho getPathname
-    const updatedPathname = getPathname({
-      href: { pathname },  // Đảm bảo 'href' là đối tượng có 'pathname' và không có query
-      locale
-    });
+        const segments = pathname?.split('/');
 
-    console.log({ updatedPathname });
+        const hasLocal = !!segments![1] && LANGS.some((lang) => lang.code.toLowerCase() === segments![1].toLowerCase());
 
-    // Dùng redirect để thay đổi URL và locale
-    redirect({ href: updatedPathname, locale });
-  };
+        let basePath: string;
 
-  if (!isClient) {
-    return null; // Hiển thị loading spinner nếu cần
-  }
+        if (hasLocal) {
+            segments[1] = locale;
+            basePath = segments.join('/');
+        } else {
+            const safePath = pathname ?? '';
+            const extendPath = pathname.startsWith('/') ? '' : `${safePath.replace(/^\/+/, '')}`;
 
-  return (
-    <div>
-      <select value={selectedLocale} onChange={(e) => handleChangeLanguage(e.target.value)}>
-        <option value="en">English</option>
-        <option value="vi">Tiếng Việt</option>
-      </select>
-    </div>
-  );
+            basePath = `/${locale}/${extendPath}`;
+        }
+
+        const query = searchParams?.toString();
+        const hash = typeof window !== 'undefined' ? window.location.hash : '';
+
+        const href = buildHref(basePath, query, hash);
+
+        startTransition(() => {
+            router.push(href);
+        });
+    };
+
+    return (
+        <TooltipProvider>
+            <DropdownMenu>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                            <button
+                                aria-label="Change language"
+                                className="relative h-9 w-9 rounded-lg bg-white/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-700 backdrop-blur hover:bg-white/80 dark:hover:bg-slate-700/70 transition-colors flex items-center justify-center"
+                            >
+                                {isPending ? (
+                                    <Loader2 className="h-4 w-4 animate-spin text-slate-600 dark:text-slate-300" />
+                                ) : (
+                                    <span className="text-base leading-none">
+                                        {LANGS.find((l) => l.code === current)?.flag || '🌐'}
+                                    </span>
+                                )}
+                            </button>
+                        </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="px-2 py-1 text-xs">
+                        Language
+                    </TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent
+                    align="start"
+                    side="right"
+                    className="w-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/85 border border-slate-200 dark:border-slate-700"
+                >
+                    {LANGS.map((lang) => {
+                        const active = lang.code === current;
+                        return (
+                            <DropdownMenuItem
+                                key={lang.code}
+                                onSelect={() => changeLocale(lang.code)}
+                                className="flex items-center gap-2 cursor-pointer"
+                            >
+                                <span className="text-lg leading-none">{lang.flag}</span>
+                                <span className="flex-1 text-sm">{lang.label}</span>
+                                {active && <Check className="h-4 w-4 text-indigo-500" />}
+                            </DropdownMenuItem>
+                        );
+                    })}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </TooltipProvider>
+    );
 };
 
 export default LanguageSwitcher;

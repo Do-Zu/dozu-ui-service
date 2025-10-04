@@ -1,0 +1,25 @@
+{
+  "welcome": {
+    "title": "Welcome to Your Learning Journey",
+    "subtitle": "Discover a smarter way to learn with personalized methods and efficient scheduling",
+    "sections": {
+      "personalizedLearning": {
+        "title": "Personalized Learning",
+        "description": "Customize your learning experience based on your preferences and goals."
+      },
+      "smartScheduling": {
+        "title": "Smart Scheduling",
+        "description": "Plan your study sessions efficiently with our intelligent scheduling system."
+      },
+      "adaptiveMethods": {
+        "title": "Adaptive Methods",
+        "description": "Learn with methods that adapt to your progress and learning style."
+      }
+    },
+    "cta": {
+      "button": "Get Started",
+      "subtitle": "Your personalized learning experience awaits"
+    },
+    "footer": "Learning Platform • Personalized Learning Made Simple"
+  }
+}
