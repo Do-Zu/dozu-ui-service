@@ -35,6 +35,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useTheme } from 'next-themes';
 
+import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
+
 const defaultEdgeOptions = {
     type: 'floating',
 };
@@ -229,6 +231,8 @@ export default function MindmapContent() {
                             {isSaving ? 'Saving...' : 'Save mindmap'}
                         </Button>
                         <DownloadButton />
+         
+                        <DeleteMindmapButton/>
                     </div>
                     <FileSheet />
                     <NodeSheet />
