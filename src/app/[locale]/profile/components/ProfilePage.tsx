@@ -11,7 +11,7 @@ const ProfilePage: React.FC = () => {
     loading, 
     error, 
     updateProfile, 
-    uploadAvatar, 
+    // uploadAvatar, 
     removeAvatar, 
     changePassword 
   } = useProfile();
@@ -80,7 +80,7 @@ const ProfilePage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       try {
-        await uploadAvatar(file);
+        // await uploadAvatar(file);
         alert('Avatar uploaded successfully!');
       } catch (err) {
         alert(`Failed to upload avatar: ${handleApiError(err)}`);

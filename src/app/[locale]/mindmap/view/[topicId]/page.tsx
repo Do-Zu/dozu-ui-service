@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { setRouterRef } from '@/utils/routerService';
-import { Background, BackgroundVariant, Controls, Panel, ReactFlow, ReactFlowProvider } from '@xyflow/react';
+import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow, ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
@@ -29,6 +29,7 @@ import ContentGenerationPreview from '../../../generate/components/ContentGenera
 import { useContentGeneration } from '../../../generate/hooks/useContentGeneration';
 import NodeSheetViewOnly from '../../components/NodeSheetViewOnly';
 import ReactFlowNodeInClass from '../../components/ReactFlowNodeInClass';
+import { useTheme } from 'next-themes';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -43,6 +44,8 @@ const edgeTypes = {
 };
 
 export default function MindmapContent() {
+    const { resolvedTheme } = useTheme();
+    const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();
 
     const {
@@ -216,6 +219,7 @@ export default function MindmapContent() {
                 onEdgesChange={onEdgesChange}
                 edgeTypes={edgeTypes}
                 defaultEdgeOptions={defaultEdgeOptions}
+                colorMode={colorMode}
             >
                 <Panel position="top-left">
                     <ViewFileButton />
