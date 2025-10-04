@@ -10,7 +10,12 @@ export default function MemoryGameBoard() {
   if (!cards || cards.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">No cards available</p>
+        <p 
+          className="text-muted-foreground"
+          style={{ color: 'var(--muted-foreground)' }}
+        >
+          No cards available
+        </p>
       </div>
     );
   }
@@ -30,6 +35,8 @@ export default function MemoryGameBoard() {
         style={{
           height: 'calc(100vh - 180px)',
           gridAutoRows: 'minmax(120px, 1fr)',
+          backgroundColor: 'var(--muted)',
+          borderColor: 'var(--border)',
         }}
       >
         {cards.map((card, index) => (

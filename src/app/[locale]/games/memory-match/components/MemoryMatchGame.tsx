@@ -48,10 +48,13 @@ export default function MemoryMatchGame() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+      <div 
+        className="flex flex-col items-center justify-center min-h-screen bg-background"
+        style={{ backgroundColor: 'var(--background)' }}
+      >
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-        <h2 className="text-xl font-semibold mb-2">{t('loading')}</h2>
-        <p className="text-muted-foreground">{t('loadingMessage')}</p>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--foreground)' }}>{t('loading')}</h2>
+        <p className="text-muted-foreground" style={{ color: 'var(--muted-foreground)' }}>{t('loadingMessage')}</p>
       </div>
     );
   }
@@ -59,10 +62,13 @@ export default function MemoryMatchGame() {
   // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+      <div 
+        className="flex flex-col items-center justify-center min-h-screen bg-background"
+        style={{ backgroundColor: 'var(--background)' }}
+      >
         <div className="text-destructive text-6xl mb-4">⚠️</div>
-        <h2 className="text-xl font-semibold mb-2 text-destructive">{t('errorTitle')}</h2>
-        <p className="text-muted-foreground mb-4">{t('errorMessage')}</p>
+        <h2 className="text-xl font-semibold mb-2 text-destructive" style={{ color: 'var(--destructive)' }}>{t('errorTitle')}</h2>
+        <p className="text-muted-foreground mb-4" style={{ color: 'var(--muted-foreground)' }}>{t('errorMessage')}</p>
         <div className="flex gap-2">
           <Button onClick={() => window.location.reload()} variant="outline">
             {t('tryAgain')}
@@ -78,10 +84,13 @@ export default function MemoryMatchGame() {
   // Game failed (no flashcards)
   if (gameStatus === 'failed') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+      <div 
+        className="flex flex-col items-center justify-center min-h-screen bg-background"
+        style={{ backgroundColor: 'var(--background)' }}
+      >
         <div className="text-yellow-500 text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-semibold mb-2">{t('errorTitle')}</h2>
-        <p className="text-muted-foreground mb-4">{t('errorMessage')}</p>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--foreground)' }}>{t('errorTitle')}</h2>
+        <p className="text-muted-foreground mb-4" style={{ color: 'var(--muted-foreground)' }}>{t('errorMessage')}</p>
         <Button onClick={() => router.back()}>
           {t('backToTopic')}
         </Button>
@@ -95,7 +104,10 @@ export default function MemoryMatchGame() {
   // Fullscreen game layout
   if (isFullscreenGame) {
     return (
-      <div className="relative w-full h-full bg-background overflow-hidden">
+      <div 
+        className="relative w-full h-full bg-background overflow-hidden"
+        style={{ backgroundColor: 'var(--background)' }}
+      >
         {/* Floating control bar - Responsive to sidebar and stats */}
         <div className={`absolute top-4 z-10 flex justify-center items-center transition-all duration-300 ease-in-out ${
           showStats 
@@ -165,7 +177,10 @@ export default function MemoryMatchGame() {
         </div>
 
         {/* Main Content Area - Flex layout */}
-        <div className="relative w-full h-screen bg-background overflow-hidden">
+        <div 
+          className="relative w-full h-screen bg-background overflow-hidden"
+          style={{ backgroundColor: 'var(--background)' }}
+        >
           {/* Game Board - Auto resize based on sidebar state */}
           <div className="flex h-[calc(100vh-2rem)]">
              <div className={`flex items-center justify-center px-4 transition-all duration-300 ease-in-out ${showStats ? 'w-[calc(100%-352px)]' : 'w-full'} flex-1 min-h-0`}>
@@ -176,7 +191,10 @@ export default function MemoryMatchGame() {
 
            {/* Right Sidebar - Fixed width with left margin */}
            {showStats && (
-             <div className="w-80 mr-8 ml-4 bg-background border-l border shadow-lg flex flex-col max-h-[calc(100vh-4rem)] rounded-l-lg">
+             <div 
+               className="w-80 mr-8 ml-4 bg-background border-l border shadow-lg flex flex-col max-h-[calc(100vh-4rem)] rounded-l-lg"
+               style={{ backgroundColor: 'var(--background)' }}
+             >
                <div className="flex-1 overflow-y-auto p-4">
                  <GameStats />
                </div>
@@ -196,7 +214,10 @@ export default function MemoryMatchGame() {
         {/* Game Completed Modal */}
         {gameStatus === 'completed' && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-30">
-            <Card className="w-full max-w-md mx-4 bg-background shadow-2xl">
+            <Card 
+              className="w-full max-w-md mx-4 bg-background shadow-2xl"
+              style={{ backgroundColor: 'var(--background)' }}
+            >
               <CardContent className="p-6 text-center">
                 <div className="text-6xl mb-4">🎉</div>
                 <h2 className="text-2xl font-bold mb-4">{t('congratulations')}</h2>
@@ -245,7 +266,10 @@ export default function MemoryMatchGame() {
 
   // Start screen layout (normal layout)
   return (
-    <div className="min-h-screen p-4 bg-background">
+    <div 
+      className="min-h-screen p-4 bg-background"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
