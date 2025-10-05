@@ -10,10 +10,7 @@ export default function MemoryGameBoard() {
   if (!cards || cards.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p 
-          className="text-muted-foreground"
-          style={{ color: 'var(--muted-foreground)' }}
-        >
+        <p className="text-muted-foreground">
           No cards available
         </p>
       </div>

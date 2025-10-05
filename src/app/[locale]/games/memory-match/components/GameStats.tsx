@@ -49,7 +49,6 @@ export default function GameStats() {
       {/* Current Game Progress */}
       <Card 
         className="bg-card shadow-sm"
-        style={{ backgroundColor: 'var(--card)' }}
       >
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -83,7 +82,6 @@ export default function GameStats() {
       {(gameStatus === 'playing' || gameStatus === 'paused' || gameStatus === 'completed') && (
         <Card 
           className="bg-card shadow-sm"
-          style={{ backgroundColor: 'var(--card)' }}
         >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -108,7 +106,6 @@ export default function GameStats() {
       {stats.moves > 0 && (
         <Card 
           className="bg-card shadow-sm"
-          style={{ backgroundColor: 'var(--card)' }}
         >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -151,7 +148,6 @@ export default function GameStats() {
       {gameStatus === 'playing' && (
         <Card 
           className="bg-muted/50 border shadow-sm"
-          style={{ backgroundColor: 'var(--muted)' }}
         >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -186,7 +182,6 @@ export default function GameStats() {
       {gameStatus === 'completed' && (
         <Card 
           className="bg-muted/50 border shadow-sm"
-          style={{ backgroundColor: 'var(--muted)' }}
         >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">

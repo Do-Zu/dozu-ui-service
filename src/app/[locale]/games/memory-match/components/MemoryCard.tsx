@@ -60,17 +60,12 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
-            backgroundColor: 'var(--muted)',
-            borderColor: 'var(--border)',
           }}
         >
           <CardContent className="flex items-center justify-center h-full p-2">
             <div className="text-center">
               <div className="text-2xl mb-2">🎯</div>
-              <div 
-                className="text-xs text-muted-foreground font-medium"
-                style={{ color: 'var(--muted-foreground)' }}
-              >
+              <div className="text-xs text-muted-foreground font-medium">
                 {t('memoryCard')}
               </div>
             </div>
@@ -90,7 +85,6 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
-            backgroundColor: 'var(--card)',
           }}
         >
           <CardContent className="flex flex-col items-center justify-center h-full p-3 relative">
@@ -115,7 +109,6 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
                   card.content.length > 50 ? 'text-xs' : 
                   card.content.length > 30 ? 'text-sm' : 'text-base'
                 )}
-                style={{ color: 'var(--foreground)' }}
               >
                 {card.content}
               </p>
