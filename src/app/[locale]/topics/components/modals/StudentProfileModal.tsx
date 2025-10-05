@@ -304,41 +304,6 @@ export default function StudentProfileModal({
                                 </div>
                             )}
 
-                            {/* Learning Streak Details */}
-                            {learningStreakData && (
-                                <Card className="border-l-4 border-l-orange-500 dark:border-l-orange-400">
-                                    <CardHeader className="pb-3">
-                                        <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                                            <Flame className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                                            Learning Streak Details
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="pt-0">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="text-center">
-                                                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                    {learningStreakData.currentStreak}
-                                                </div>
-                                                <div className="text-sm text-gray-600 dark:text-gray-400">Current Streak</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                                    {learningStreakData.longestStreak}
-                                                </div>
-                                                <div className="text-sm text-gray-600 dark:text-gray-400">Longest Streak</div>
-                                            </div>
-                                        </div>
-                                        {learningStreakData.lastStudyDate && (
-                                            <div className="mt-4 text-center">
-                                                <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                    Last studied: {new Date(learningStreakData.lastStudyDate).toLocaleDateString()}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            )}
-
                             {/* Learning Statistics */}
                             <Card>
                                 <CardHeader className="pb-3">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import lessonCompletionService, { LessonCompletionStats } from '@/services/class-based-learning/lessonCompletion.service';
+// Import lesson completion service
+import lessonCompletionService, { LessonCompletionStats } from '../services/class-based-learning/lessonCompletion.service';
 
 export function useLessonCompletion(userId?: number, classId?: number) {
     const [lessonStats, setLessonStats] = useState<LessonCompletionStats | null>(null);
