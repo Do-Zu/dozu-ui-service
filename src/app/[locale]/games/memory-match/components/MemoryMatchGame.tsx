@@ -50,7 +50,7 @@ export default function MemoryMatchGame() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-        <h2 className="text-xl font-semibold mb-2">{t('loading')}</h2>
+        <h2 className="text-xl font-semibold mb-2 text-foreground">{t('loading')}</h2>
         <p className="text-muted-foreground">{t('loadingMessage')}</p>
       </div>
     );
@@ -80,7 +80,7 @@ export default function MemoryMatchGame() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <div className="text-yellow-500 text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-semibold mb-2">{t('errorTitle')}</h2>
+        <h2 className="text-xl font-semibold mb-2 text-foreground">{t('errorTitle')}</h2>
         <p className="text-muted-foreground mb-4">{t('errorMessage')}</p>
         <Button onClick={() => router.back()}>
           {t('backToTopic')}
@@ -95,13 +95,13 @@ export default function MemoryMatchGame() {
   // Fullscreen game layout
   if (isFullscreenGame) {
     return (
-      <div className="relative w-full h-full bg-background overflow-hidden">
+        <div className="relative w-full h-full bg-background overflow-hidden">
         {/* Floating control bar - Responsive to sidebar and stats */}
         <div className={`absolute top-4 z-10 flex justify-center items-center transition-all duration-300 ease-in-out ${
           showStats 
             ? sidebarOpen 
-              ? 'left-4 right-[340px]' 
-              : 'left-4 right-[340px]'
+              ? 'left-4 right-4 lg:right-[340px]' 
+              : 'left-4 right-4 lg:right-[340px]'
             : sidebarOpen 
               ? 'left-4 right-4' 
               : 'left-4 right-4'
@@ -168,7 +168,7 @@ export default function MemoryMatchGame() {
         <div className="relative w-full h-screen bg-background overflow-hidden">
           {/* Game Board - Auto resize based on sidebar state */}
           <div className="flex h-[calc(100vh-2rem)]">
-             <div className={`flex items-center justify-center px-4 transition-all duration-300 ease-in-out ${showStats ? 'w-[calc(100%-352px)]' : 'w-full'} flex-1 min-h-0`}>
+             <div className={`flex items-center justify-center px-4 transition-all duration-300 ease-in-out ${showStats ? 'w-full lg:w-[calc(100%-352px)]' : 'w-full'} flex-1 min-h-0`}>
               <div className="w-full max-w-4xl">
                 <MemoryGameBoard />
               </div>

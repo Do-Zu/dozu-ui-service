@@ -47,7 +47,9 @@ export default function GameStats() {
   return (
     <div className="space-y-4">
       {/* Current Game Progress */}
-      <Card className="bg-card shadow-sm">
+      <Card 
+        className="bg-card shadow-sm"
+      >
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Target className="h-5 w-5 text-primary" />
@@ -78,7 +80,9 @@ export default function GameStats() {
 
       {/* Game Timer */}
       {(gameStatus === 'playing' || gameStatus === 'paused' || gameStatus === 'completed') && (
-        <Card className="bg-card shadow-sm">
+        <Card 
+          className="bg-card shadow-sm"
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5 text-blue-600" />
@@ -100,7 +104,9 @@ export default function GameStats() {
 
       {/* Performance Stats */}
       {stats.moves > 0 && (
-        <Card className="bg-card shadow-sm">
+        <Card 
+          className="bg-card shadow-sm"
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-600" />
@@ -140,7 +146,9 @@ export default function GameStats() {
 
       {/* Game Tips */}
       {gameStatus === 'playing' && (
-        <Card className="bg-muted/50 border shadow-sm">
+        <Card 
+          className="bg-muted/50 border shadow-sm"
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Zap className="h-5 w-5 text-yellow-600" />
@@ -172,7 +180,9 @@ export default function GameStats() {
 
       {/* Achievements */}
       {gameStatus === 'completed' && (
-        <Card className="bg-muted/50 border shadow-sm">
+        <Card 
+          className="bg-muted/50 border shadow-sm"
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Trophy className="h-5 w-5 text-yellow-600" />
