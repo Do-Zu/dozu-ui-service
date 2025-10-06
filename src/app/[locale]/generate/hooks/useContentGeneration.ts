@@ -148,7 +148,7 @@ export const useContentGeneration = ({
                 router.replace(ROUTES.QUIZ_START(topicId));
                 break;
             case CONTENT_TYPE_GENERATE.MIND_MAP:
-                router.replace(ROUTES.MINDMAP_VIEW(topicId));
+                router.replace(ROUTES.MINDMAP_EDIT(topicId));
                 break;
             default:
                 router.replace(ROUTES.LANDING);
