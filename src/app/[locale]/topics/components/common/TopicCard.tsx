@@ -45,7 +45,7 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
             className="group relative"
         >
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/30 via-sky-500/25 to-cyan-500/30 dark:from-indigo-500/40 dark:via-sky-500/30 dark:to-cyan-500/40 opacity-0 group-hover:opacity-100 blur-xl transition duration-700" />
-            <div className="absolute inset-px rounded-[0.95rem] bg-gradient-to-br from-white/60 via-white/40 to-white/60 dark:from-indigo-600/40 dark:via-sky-700/30 dark:to-cyan-700/50 backdrop-blur-sm dark:backdrop-blur" />
+            {/* <div className="absolute inset-px rounded-[0.95rem] bg-gradient-to-br from-white/60 via-white/40 to-white/60 dark:from-indigo-600/40 dark:via-sky-700/30 dark:to-cyan-700/50 backdrop-blur-sm dark:backdrop-blur" /> */}
             <Card className="relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/10 bg-gradient-to-br from-white/70 via-white/55 to-white/70 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-900/70 shadow-[0_4px_18px_-6px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_24px_-8px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:shadow-[0_8px_28px_-8px_rgba(0,0,0,0.25)] dark:group-hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.75)]">
                 {mounted && (
                     <motion.div
