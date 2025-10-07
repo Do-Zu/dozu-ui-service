@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ProfileService } from '../services/profile/profileService';
 import { ProfileData } from '../types/profile';
 import { handleApiError } from '../app/[locale]/profile/utils/errorHandling';
+import { toast } from './use-toast';
 
 export const useProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -17,7 +18,6 @@ export const useProfile = () => {
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
-      console.error('Failed to fetch profile:', err);
     } finally {
       setLoading(false);
     }
@@ -33,7 +33,6 @@ export const useProfile = () => {
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
-      console.error('Failed to update profile:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -54,11 +53,10 @@ export const useProfile = () => {
         });
       }
       
+      toast({ description: 'Avatar uploaded successfully' });
       return result;
     } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to upload avatar:', err);
+      toast({ description: 'Failed to upload avatar', variant: 'destructive' });
       throw err;
     } finally {
       setLoading(false);
@@ -79,9 +77,7 @@ export const useProfile = () => {
         });
       }
     } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to remove avatar:', err);
+      toast({ description:  'Failed to remove avatar', variant: 'destructive' });
       throw err;
     } finally {
       setLoading(false);
@@ -97,9 +93,7 @@ export const useProfile = () => {
       setError(null);
       await ProfileService.changePassword(data);
     } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to change password:', err);
+      toast({ description:  'Failed to change password', variant: 'destructive' });
       throw err;
     } finally {
       setLoading(false);
@@ -113,9 +107,7 @@ export const useProfile = () => {
       await ProfileService.deleteAccount();
       setProfile(null);
     } catch (err) {
-      const errorMessage = handleApiError(err);
-      setError(errorMessage);
-      console.error('Failed to delete account:', err);
+      toast({ description:  'Failed to delete account', variant: 'destructive' });
       throw err;
     } finally {
       setLoading(false);

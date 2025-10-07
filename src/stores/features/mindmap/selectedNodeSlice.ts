@@ -1,4 +1,4 @@
-import { CustomNodeData } from '@/app/[locale]/mindmap/mindmap.type';
+import { CustomNodeData } from '@/types/mindmap/mindmap.type';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SelectedNodeState {

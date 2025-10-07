@@ -2,15 +2,15 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Background, BackgroundVariant, Controls, Panel, ReactFlow } from '@xyflow/react';
+import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow } from '@xyflow/react';
 import { useAppSelector } from '@/stores/hooks';
 import { toast } from '@/hooks/use-toast';
 import { setRouterRef } from '@/utils/routerService';
 
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
-import DownloadButton from '../components/buttons/DownloadButton';
-import ViewFileButton from '../components/buttons/ViewFileButton';
+import DownloadButton from '@/components/mindmap/button/DownloadButton';
+import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
 import FloatingEdge from '../components/FloatingEdge';
@@ -33,6 +33,7 @@ import {
 } from '../../flashcards/types/flashcard.type';
 
 import '@xyflow/react/dist/style.css';
+import { useTheme } from 'next-themes';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -47,6 +48,8 @@ const edgeTypes = {
 };
 
 export default function MindmapContent() {
+    const { resolvedTheme } = useTheme();
+    const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();
 
     const {
@@ -214,7 +217,7 @@ export default function MindmapContent() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 edgeTypes={edgeTypes}
-                defaultEdgeOptions={defaultEdgeOptions}
+                colorMode={colorMode}
             >
                 <Panel position="top-left">
                     <ViewFileButton />

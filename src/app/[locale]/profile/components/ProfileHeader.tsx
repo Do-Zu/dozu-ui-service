@@ -14,8 +14,8 @@ import AvatarManager from './AvatarManager';
 interface ProfileHeaderProps {
   profileData: ProfileData;
   onProfileUpdate: (updatedProfile: ProfileData) => void;
-  onAvatarUpdate: (file: File) => void;
-  onAvatarRemove: () => void;
+  onAvatarUpdate?: (file: File) => void;
+  onAvatarRemove?: () => void;
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({

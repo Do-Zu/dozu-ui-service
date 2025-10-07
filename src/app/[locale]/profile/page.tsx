@@ -14,156 +14,88 @@ import {
   PrivacySettings
 } from '../../../types/profile';
 import { ProfileService } from '../../../services/profile/profileService';
+import { useProfile } from '../../../hooks/useProfile';
+import { toast } from '@/hooks/use-toast';
 
 const ProfilePage: React.FC = () => {
-  const [profileData, setProfileData] = useState<ProfileData>({
-    id: '1',
-    username: 'demo',
-    email: 'nguyen.van.an@example.com',
-    location: 'Hồ Chí Minh, Việt Nam',
-    bio: 'Sinh viên năm 3 chuyên ngành Công nghệ thông tin, đam mê học tập và phát triển bản thân.',
-    joinDate: '2024-01-15',
-    avatar: 'https://via.placeholder.com/150x150?text=Demo+User',
-    university: 'Đại học Bách Khoa TP.HCM',
-    major: 'Công nghệ thông tin'
-  });
+  const { 
+    profile, 
+    loading, 
+    error, 
+    updateProfile, 
+    uploadAvatar, 
+    removeAvatar, 
+    changePassword 
+  } = useProfile();
   
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isApiLoaded, setIsApiLoaded] = useState(false);
 
-  // Load profile data on component mount
+  // Set API loaded status when profile loads
   useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const profile = await ProfileService.getProfile();
-      
-      // Ensure all required fields have values
-      const safeProfile = {
-        ...profile,
-        username: profile.username || 'Unknown User',
-        email: profile.email || '',
-        location: profile.location || '',
-        bio: profile.bio || '',
-        avatar: profile.avatar || 'https://via.placeholder.com/150x150?text=No+Avatar',
-        university: profile.university || '',
-        major: profile.major || ''
-      };
-      
-      setProfileData(safeProfile);
+    if (profile) {
       setIsApiLoaded(true);
-    } catch (err: any) {
-      console.error('Failed to load profile:', err);
-      setError(err.message || 'Failed to load profile data');
-      
-      // Keep default mock data if API fails
-      setIsApiLoaded(false);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [profile]);
 
   // Handlers
   const handleProfileUpdate = async (updatedProfile: ProfileData) => {
     try {
-      setLoading(true);
-      setError(null);
-      const updated = await ProfileService.updateProfile(updatedProfile);
-      setProfileData(updated);
-      console.log('Profile updated successfully');
+      await updateProfile(updatedProfile);
     } catch (error: any) {
-      console.error('Failed to update profile:', error);
-      setError(error.message || 'Failed to update profile');
-    } finally {
-      setLoading(false);
+      // Error handling is done in the hook
+      throw error;
     }
   };
 
   const handleAvatarUpdate = async (file: File) => {
     try {
-      setLoading(true);
-      setError(null);
-      console.log('🔄 Uploading avatar file:', file.name, 'Size:', file.size);
-      
-      const result = await ProfileService.uploadAvatar(file);
-      console.log('✅ Avatar upload result:', result);
-      
-      if (result.avatarUrl) {
-        setProfileData(prev => ({
-          ...prev,
-          avatar: result.avatarUrl
-        }));
-        console.log('Avatar updated successfully');
-      } else {
-        throw new Error('No avatar URL returned from upload');
-      }
+      await uploadAvatar(file);
     } catch (error: any) {
-      console.error('Failed to update avatar:', error);
-      setError(error.message || 'Failed to update avatar');
-    } finally {
-      setLoading(false);
+      // Error handling is done in the hook
+      throw error;
     }
   };
 
   const handleAvatarRemove = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      await ProfileService.removeAvatar();
-      setProfileData(prev => ({
-        ...prev,
-        avatar: ''
-      }));
-      console.log('Avatar removed successfully');
+      await removeAvatar();
     } catch (error: any) {
-      console.error('Failed to remove avatar:', error);
-      setError(error.message || 'Failed to remove avatar');
-    } finally {
-      setLoading(false);
+      // Error handling is done in the hook
+      throw error;
     }
   };
 
   const handlePasswordChange = async (data: PasswordData) => {
     try {
-      await ProfileService.changePassword({
+      await changePassword({
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
-      console.log('Password changed successfully');
     } catch (error: any) {
-      console.error('Failed to change password:', error);
-      throw new Error(error.message || 'Failed to change password');
+      // Error handling is done in the hook
+      throw error;
     }
   };
 
   const handleSettingsChange = async (notifications: NotificationSettings, privacy: PrivacySettings) => {
     try {
-      setError(null);
       await Promise.all([
         ProfileService.updateNotificationSettings(notifications),
         ProfileService.updatePrivacySettings(privacy)
       ]);
-      console.log('Settings updated successfully');
+      toast({ title: 'Settings updated successfully' });
     } catch (error: any) {
-      console.error('Failed to update settings:', error);
-      setError(error.message || 'Failed to update settings');
+      toast({ title: 'Failed to update settings', description: error.message || 'An error occurred while updating settings', variant: 'destructive' });
     }
   };
 
   const handleDeleteAccount = async () => {
     try {
       await ProfileService.deleteAccount();
-      console.log('Account deleted successfully');
+      toast({ title: 'Account deleted successfully' });
       // Redirect to login or logout
     } catch (error: any) {
-      console.error('Failed to delete account:', error);
-      setError(error.message || 'Failed to delete account');
+      toast({ title: 'Failed to delete account', description: error.message || 'An error occurred while deleting account', variant: 'destructive' });
     }
   };
 
@@ -181,7 +113,17 @@ const ProfilePage: React.FC = () => {
 
         {/* Profile Header */}
         <ProfileHeader
-          profileData={profileData}
+          profileData={profile || {
+            id: '1',
+            username: 'demo',
+            email: 'nguyen.van.an@example.com',
+            location: 'Hồ Chí Minh, Việt Nam',
+            bio: 'Sinh viên năm 3 chuyên ngành Công nghệ thông tin, đam mê học tập và phát triển bản thân.',
+            joinDate: '2024-01-15',
+            avatar: 'https://via.placeholder.com/150x150?text=Demo+User',
+            university: 'Đại học Bách Khoa TP.HCM',
+            major: 'Công nghệ thông tin'
+          }}
           onProfileUpdate={handleProfileUpdate}
           onAvatarUpdate={handleAvatarUpdate}
           onAvatarRemove={handleAvatarRemove}

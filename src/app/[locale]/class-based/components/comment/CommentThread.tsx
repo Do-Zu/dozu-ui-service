@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -65,6 +66,7 @@ const CommentThread = ({
     showTrigger = true,
     triggerComponent,
 }: CommentThreadProps) => {
+    const t = useTranslations('classBased.comment');
     const { user, isAuthenticated } = useAuth();
 
     const [comments, setComments] = useState<Comment[]>(initialComments);
@@ -115,21 +117,21 @@ const CommentThread = ({
             setIsAddCommentDialogOpen(false);
         },
         onMessageSuccess: () => {
-            toast({ description: 'Sent' });
+            toast({ description: t('toast.sent') });
         },
         onError: () => {
-            toast({ description: 'Failed to add your comment!' });
+            toast({ description: t('toast.failedCreate') });
         },
     });
 
     const handleAddComment = async (content: string) => {
         if (!classId || !topicId || !nodeId) {
-            toast({ description: 'Missing required parameters for creating comment' });
+            toast({ description: t('toast.missingParams') });
             return;
         }
 
         if (!isAuthenticated || !user) {
-            toast({ description: 'You must be logged in to post a comment.' });
+            toast({ description: t('toast.mustLogin') });
             return;
         }
 
@@ -146,7 +148,7 @@ const CommentThread = ({
                 },
             });
         } catch (error) {
-            toast({ description: 'failed to add your comment' });
+            toast({ description: t('toast.failedCreate') });
         }
     };
 
@@ -222,7 +224,7 @@ const CommentThread = ({
 
     const handleAddReply = async (commentId: string, content: string) => {
         if (!isAuthenticated || !user) {
-            toast({ description: 'You must be logged in to post a comment.' });
+            toast({ description: t('toast.mustLogin') });
             return;
         }
 
@@ -272,7 +274,7 @@ const CommentThread = ({
 
     const handleReaction = (commentId: string, reactionType: 'like' | 'heart' | 'laugh' | 'angry') => {
         //TODO: Reaction for comment
-        toast({ description: 'Coming Soon!' });
+        toast({ description: t('toast.comingSoon') });
         // const updatedComments = updateReactionInComments(comments, commentId, reactionType);
         // setComments(updatedComments);
     };
@@ -282,10 +284,6 @@ const CommentThread = ({
     };
 
     const renderReplyComment = (comment: Comment) => {
-        // if (isFetchingReplyComment && findCommentDepth(comments, comment.id) !== -1) {
-        //     return <CommentThreadSkeleton amount={1} />;
-        // }
-
         return (
             <>
                 {comment.replies && comment.replies.length > 0 && (
@@ -307,7 +305,7 @@ const CommentThread = ({
             }
         } catch (e) {
             toast({
-                description: 'Failed to load replies',
+                description: t('toast.failedLoadReplies'),
             });
         }
     };
@@ -316,9 +314,14 @@ const CommentThread = ({
     const renderComment = (comment: Comment, index: number) => {
         const parentContent = comment.parentId ? findCommentContent(comments, comment.parentId) : undefined;
 
+        //Attach the infinite-scroll sentinel to the second-to-last comment so we prefetch the next page
+        //before the user reaches the end (only when more pages are available).
+        const isLoadingMoreRefItem = index === comments.length - 2 && hasMore;
+
         return (
             <div key={comment.id} className="space-y-4">
                 <div
+                    ref={isLoadingMoreRefItem ? loadMoreRef : null}
                     className="animate-in slide-in-from-bottom-2 duration-500"
                     style={{ animationDelay: `${index * 100}ms` }}
                 >
@@ -347,7 +350,7 @@ const CommentThread = ({
                         <CommentInput
                             onSubmit={(content) => handleAddReply(comment.id, content)}
                             onCancel={() => setReplyingTo(null)}
-                            placeholder="Write a thoughtful reply..."
+                            placeholder={t('placeholders.reply')}
                             isReply
                             depth={comment.depth || 0}
                             replyTo={comment.content}
@@ -364,38 +367,31 @@ const CommentThread = ({
     };
 
     const renderListComment = () => {
-        if (fetchingComments && !fetchCommentsError) {
-            return <CommentThreadSkeleton />;
-        }
-
+        //Condition for append skeleton loading
+        const isLoadingComment = (fetchingComments && !fetchCommentsError) || isAppending;
         return (
             <div>
-                {comments.length === 0 ? (
+                {!isLoadingComment && comments.length === 0 ? (
                     <div className="text-center py-12">
                         <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200/50 dark:border-blue-700/50">
                             <MessageCircle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-700 mb-2">No comments yet</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-4">Be the first to share your thoughts!</p>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-700 mb-2">
+                            {t('noCommentsTitle')}
+                        </h3>
+                        <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noCommentsBody')}</p>
                         <Button onClick={() => setIsAddCommentDialogOpen(true)} className="bg-gradient-to-r">
-                            Start the Discussion
+                            {t('startDiscussion')}
                         </Button>
                     </div>
                 ) : (
                     <div className="space-y-6">
                         {comments.map((comment, index) => renderComment(comment, index))}
 
-                        {/* Sentinel div for infinite scroll */}
-                        {hasMore && (
-                            <div
-                                ref={loadMoreRef}
-                                className="h-10 flex items-center justify-center text-xs text-muted-foreground"
-                            >
-                                {isAppending && <CommentThreadSkeleton amount={1} />}
-                            </div>
-                        )}
+                        {isLoadingComment && <CommentThreadSkeleton amount={1} />}
+
                         {!hasMore && comments.length > 0 && (
-                            <p className="text-center text-xs text-muted-foreground py-2">No more comments</p>
+                            <p className="text-center text-xs text-muted-foreground py-2">{t('loadMoreNone')}</p>
                         )}
                     </div>
                 )}
@@ -415,11 +411,10 @@ const CommentThread = ({
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-200 dark:to-gray-300 bg-clip-text text-transparent">
-                                        {nodeTitle ? `Discussion: ${nodeTitle}` : 'Discussion Thread'}
+                                        {t('title')}
                                     </h2>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                        {comments.length} {comments.length === 1 ? 'comment' : 'comments'} • Join the
-                                        conversation
+                                        {t('subtitle', { title: nodeTitle ?? '' })}
                                     </p>
                                 </div>
                             </div>
@@ -430,22 +425,18 @@ const CommentThread = ({
                                 <DialogTrigger asChild>
                                     <Button className="shadow-lg dark:shadow-gray-900/10 dark:hover:shadow-gray-900/10 transition-all duration-300 transform hover:scale-105 gap-2">
                                         <Plus className="h-4 w-4" />
-                                        Add Comment
+                                        {t('actions.comment')}
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[600px]  ">
                                     <DialogHeader>
-                                        <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                                            Share Your Thoughts
+                                        <DialogTitle className="text-lg font-semibold text-muted-foreground">
+                                            {t('subtitle', { title: nodeTitle ?? '' })}
                                         </DialogTitle>
                                     </DialogHeader>
                                     <CommentInput
                                         onSubmit={handleAddComment}
-                                        placeholder={
-                                            nodeId
-                                                ? `What are your thoughts on ${nodeTitle}?`
-                                                : 'Share your insights and join the discussion...'
-                                        }
+                                        placeholder={t('placeholders.root')}
                                         nodeId={nodeId}
                                         avatarUrl={user?.avatarUrl}
                                     />
@@ -508,7 +499,7 @@ const CommentThread = ({
                     setHasMore(false);
                 }
             } catch (e) {
-                toast({ description: 'Failed to load comments.' });
+                toast({ description: t('toast.failedLoadComments') });
                 if (append) setHasMore(false);
             } finally {
                 if (append) {
@@ -517,7 +508,7 @@ const CommentThread = ({
                 }
             }
         },
-        [classId, topicId, nodeId, typeNode, fetchComments],
+        [classId, topicId, nodeId, typeNode, fetchComments, t],
     );
 
     const loadMoreComments = useCallback(() => {
@@ -563,7 +554,7 @@ const CommentThread = ({
                 {triggerComponent ?? (
                     <Button variant="outline" className="gap-2">
                         <MessageCircle className="h-4 w-4" />
-                        {triggerText}
+                        {triggerText ?? t('open')}
                     </Button>
                 )}
             </DialogTrigger>

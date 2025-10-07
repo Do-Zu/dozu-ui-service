@@ -2,8 +2,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Handle, Node, Position, useEdges, useReactFlow } from '@xyflow/react';
-import { useState } from 'react';
-import { CustomNodeData } from '../mindmap.type';
+import { useState, useRef, useEffect } from 'react';
+import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
 import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
 import { getRouter } from '@/utils/routerService';
@@ -11,17 +11,46 @@ import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { useTranslations } from 'next-intl';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
+    // stats;
+    const tCommon = useTranslations('common.messages');
+    const total = data.statistics?.total || 0;
+    const mature = data.statistics?.mature || 0;
+    const progress = total > 0 ? (mature / total) * 100 : 0;
+
     const dispatch = useDispatch();
     const router = getRouter();
 
     const [editing, setEditing] = useState(false);
     const [label, setLabel] = useState(data.label);
     const [isHovered, setIsHovered] = useState(false);
+    const [isClickedOn, setIsClickedOn] = useState(false);
+    const isActive = isClickedOn || isHovered;
     const [isExpanded, setIsExpanded] = useState(false);
     const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
     const edges = useEdges();
+
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                wrapperRef.current &&
+                event.target instanceof HTMLElement &&
+                !wrapperRef.current.contains(event.target)
+            ) {
+                setIsClickedOn(false);
+            }
+        }
+
+        document.addEventListener('pointerdown', handleClickOutside);
+        return () => {
+            document.removeEventListener('pointerdown', handleClickOutside);
+        };
+    }, []);
 
     const deleteNode = (id: string) => {
         edges.forEach((edge) => {
@@ -51,9 +80,17 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         setEditing(false);
     };
 
-    const handleClickNode = () => {
-        dispatch(openSheet());
+    const handleClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
         dispatch(setSelectedNodeData(data));
+        setIsClickedOn(true);
+        // dispatch(openSheet());
+    };
+
+    const handleRightClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        dispatch(setSelectedNodeData(data));
+        dispatch(openSheet());
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -92,6 +129,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             transition={{ duration: 0.2, ease: 'easeOut' }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            ref={wrapperRef}
+            onClick={handleClickNode}
+            onContextMenu={handleRightClickNode}
             className={`
                 relative group min-w-[180px] max-w-[280px]
                 bg-card/95 backdrop-blur-sm
@@ -99,7 +139,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 rounded-xl shadow-sm hover:shadow-md
                 transition-all duration-200 ease-out
                 ${data.isRoot ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
-                ${isHovered ? 'shadow-lg' : ''}
+                ${isActive ? 'shadow-lg' : ''}
             `}
             style={{
                 background: data.isRoot
@@ -161,7 +201,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 >
                     {/* Title Section */}
                     <div className="space-y-2">
-                        <div onClick={handleClickNode} className="cursor-pointer group/title">
+                        <div className="cursor-pointer group/title">
                             <motion.h3
                                 className="text-sm font-medium text-foreground leading-relaxed line-height-[1.5] group-hover/title:text-primary transition-colors duration-200"
                                 style={{
@@ -201,29 +241,40 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
 
                 {/* Action Buttons */}
                 <AnimatePresence>
-                    {isHovered && (
+                    {isActive && (
                         <motion.div
                             variants={iconVariants}
                             initial="hidden"
                             animate="visible"
                             exit="hidden"
                             transition={{ duration: 0.2, delay: 0.1 }}
-                            className="flex items-center justify-between mt-3 pt-3 border-t border-border/40"
+                            className="mt-3 pt-3 border-t border-border/40 space-y-3"
                         >
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast({
-                                        description: 'feature is coming soon!',
-                                    });
-                                }}
-                                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                            >
-                                <BookOpenIcon className="w-3 h-3 mr-1" />
-                                Learn
-                            </Button>
+                            <div className="flex items-center justify-between">
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toast({
+                                            description: tCommon('featureInComing'),
+                                        });
+                                    }}
+                                    className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                                >
+                                    <BookOpenIcon className="w-3 h-3 mr-1" />
+                                    Learn
+                                </Button>
+
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-muted-foreground">Progress</span>
+                                    <span className="text-sm font-medium">
+                                        {mature} / {total}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <Progress value={progress} className="h-2" />
                         </motion.div>
                     )}
                 </AnimatePresence>

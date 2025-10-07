@@ -4,47 +4,57 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { Bold, Italic, Underline as UnderlineIcon, List } from 'lucide-react';
-import { EditorContent, useEditor } from '@tiptap/react';
+import {
+    Bold,
+    Italic,
+    Underline as UnderlineIcon,
+    List,
+    Code,
+    CornerDownLeft,
+    Eraser,
+    Heading1,
+    Heading2,
+    Heading3,
+    Heading4,
+    Heading5,
+    Heading6,
+    ItalicIcon,
+    ListOrdered,
+    Minus,
+    Pilcrow,
+    Quote,
+    Redo2,
+    SquareCode,
+    Strikethrough,
+    Trash2,
+    Undo2,
+} from 'lucide-react';
+import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Extension } from '@tiptap/core';
+import { Editor, Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { normalize } from '@/utils';
+import MenuBar from './MenuEditorBar';
+import { useTranslations } from 'next-intl';
 
 type EditorProps = {
     value: string;
     onChange: (next: string, highlighted: string[]) => void;
+    onChangeHtml: (html: string) => void;
     placeholder?: string;
     maxLength?: number;
     minWordLength?: number;
     className?: string;
 };
 
-const SIMPLE_DIFFICULTY_WORDS = new Set<string>([
-    'quantum',
-    'photosynthesis',
-    'entropy',
-    'epistemology',
-    'metaphor',
-    'algorithm',
-    'paradigm',
-    'orthogonal',
-    'idempotent',
-    'monad',
-]);
-
 function detectJargon(text: string, minWordLength = 9): string[] {
-    const words = text
-        .toLowerCase()
-        .replace(/[^a-z0-9\s'-]/gi, ' ')
-        .split(/\s+/)
-        .filter(Boolean);
-
+    const words = normalize(text);
     const counts = new Map<string, number>();
     for (const w of words) {
-        if (w.length >= minWordLength || SIMPLE_DIFFICULTY_WORDS.has(w)) {
+        if (w.length >= minWordLength) {
             counts.set(w, (counts.get(w) || 0) + 1);
         }
     }
@@ -66,11 +76,14 @@ const JARGON_COLORS = [
 export const FeynmanEditor: React.FC<EditorProps> = ({
     value,
     onChange,
+    onChangeHtml,
     placeholder = 'Explain this topic as if you’re teaching a friend who knows nothing about it…',
     maxLength = 4000,
     minWordLength = 9,
     className,
 }) => {
+    const tFeynman = useTranslations('feynman');
+
     const [highlighted, setHighlighted] = useState<string[]>([]);
     // Add: user-selected words with chosen underline color
     const [userWordColors, setUserWordColors] = useState<Record<string, string>>({});
@@ -155,10 +168,13 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
         content: value,
         onUpdate: ({ editor }) => {
             const plain = editor.getText();
+            const html = editor.getHTML();
+            onChangeHtml(html);
             if (plain.length > maxLength) return;
             const jargon = detectJargon(plain, minWordLength);
+
             setHighlighted(jargon);
-            onChange(plain, jargon);
+            onChange(html, jargon);
         },
         editorProps: {
             attributes: {
@@ -216,11 +232,7 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
         const { from, to } = editor.state.selection;
         if (from === to) return [];
         const text = editor.state.doc.textBetween(from, to, ' ', ' ');
-        return text
-            .toLowerCase()
-            .replace(/[^a-z0-9\s'-]/gi, ' ')
-            .split(/\s+/)
-            .filter(Boolean);
+        return normalize(text);
     }, [editor]);
 
     // Apply underline color for selected words via JargonHighlighter
@@ -298,46 +310,12 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
 
     return (
         <div className={cn('w-full relative', className)}>
+            <div className="ml-auto text-xs text-muted-foreground mb-6">
+                {editor?.getText().length || 0}/{maxLength}
+            </div>
+
             <div className="flex items-center gap-2 rounded-xl border p-2 bg-card shadow-sm">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Bold (Ctrl+B)"
-                    onClick={() => editor?.chain().focus().toggleBold().run()}
-                >
-                    <Bold className="w-4 h-4" />
-                </Button>
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Italic (Ctrl+I)"
-                    onClick={() => editor?.chain().focus().toggleItalic().run()}
-                >
-                    <Italic className="w-4 h-4" />
-                </Button>
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Underline (Ctrl+U)"
-                    onClick={() => editor?.chain().focus().toggleUnderline().run()}
-                >
-                    <UnderlineIcon className="w-4 h-4" />
-                </Button>
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Bulleted list"
-                    onClick={() => editor?.chain().focus().toggleBulletList().run()}
-                >
-                    <List className="w-4 h-4" />
-                </Button>
-                <div className="ml-auto text-xs text-muted-foreground">
-                    {editor?.getText().length || 0}/{maxLength}
-                </div>
+                <MenuBar editor={editor!} />
             </div>
 
             <TooltipProvider>
@@ -351,7 +329,6 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
                 </div>
             </TooltipProvider>
 
-            {/* Floating toolbar for left-mouse selection */}
             {selectionMenu.show && (
                 <div
                     id="feynman-selection-toolbar"
@@ -378,15 +355,13 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
                             className="w-full text-left px-2 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 rounded"
                             onClick={handleUnmark}
                         >
-                            Remove mark
+                            {tFeynman('removeMark')}
                         </button>
                     </div>
                 </div>
             )}
 
-            <div className="mt-2 text-xs text-muted-foreground">
-                Complex words are underlined. Select text to mark it as jargon with a chosen underline color.
-            </div>
+            <div className="mt-2 text-xs text-muted-foreground">{tFeynman('remarkableJargon')}</div>
         </div>
     );
 };

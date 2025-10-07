@@ -1,4 +1,33 @@
 /**
+ * Converts various string formats to a number.
+ * Supports thousand separators, comma decimals, underscores, currency symbols, and scientific notation.
+ * Returns defaultValue (or undefined) when conversion fails or value is not finite.
+ *
+ * @param value - Input value (string or number).
+ * @param defaultValue - Value to return when parsing fails.
+ */
+const toNumber = (value: unknown, defaultValue: number): number => {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : defaultValue;
+    if (typeof value !== 'string' || !value.trim()) return defaultValue;
+
+    let s = value.trim().replace(/\u2212/g, '-');
+
+    s = s.replace(/[^\d.,+\-eE]/g, '');
+
+    // Reject if any characters outside digits, decimal separators, signs, or exponent markers remain
+    if (/[a-zA-Z]/.test(s)) return defaultValue;
+
+    if (s.includes(',') && s.includes('.')) {
+        s = s.replace(/,/g, '');
+    } else if (s.includes(',') && !s.includes('.')) {
+        s = s.replace(/,/g, '.');
+    }
+
+    const n = Number(s);
+    return Number.isFinite(n) ? n : defaultValue;
+};
+
+/**
  * Creates a deep clone of an object.
  *
  * @param obj - The object to be cloned.
@@ -92,4 +121,34 @@ const truncate = (text: string, max = 24): string => {
     return text.length > max ? text.slice(0, max) + '…' : text;
 };
 
-export { deepClone, toTitleCase, isNilOrEmpty, isEmpty, mergeObjects, isNullOrEmpty, getPropertyPath, wait, truncate };
+/**
+ *  normalizes and tokenizes the input text into an array of clean word tokens.
+ *  toLowerCase(): makes matching case-insensitive.
+    replace(/[^a-z0-9\s'-]/gi, ' '): replaces any character not a letter a–z, digit, whitespace, apostrophe (') or hyphen (-) with a space (strips punctuation/symbols).
+    split(/\s+/): splits on one or more whitespace chars.
+    filter(Boolean): removes empty strings (caused by multiple spaces).
+ * @param text - Input string.
+ * 
+ */
+const normalize = (text: string | undefined | null): string[] => {
+    if (isNullOrEmpty(text) || typeof text !== 'string') return [];
+    return text
+        .toLocaleLowerCase()
+        .replace(/[^a-z0-9\s'-]/gi, ' ')
+        .split(/\s+/)
+        .filter(Boolean);
+};
+
+export {
+    deepClone,
+    toTitleCase,
+    isNilOrEmpty,
+    isEmpty,
+    mergeObjects,
+    isNullOrEmpty,
+    getPropertyPath,
+    wait,
+    truncate,
+    normalize,
+    toNumber,
+};
