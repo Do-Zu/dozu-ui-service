@@ -36,6 +36,7 @@ import '@xyflow/react/dist/style.css';
 import { useTheme } from 'next-themes';
 
 import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
+import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -74,6 +75,8 @@ export default function MindmapContent() {
     useEffect(() => {
         setRouterRef(router);
     }, [router]);
+
+    useSetCenterOnRoot({ nodes });
 
     useEffect(() => {
         if (sseStatus === 'timeout' || sseStatus === 'error') {
