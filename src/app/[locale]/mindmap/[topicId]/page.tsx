@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow } from '@xyflow/react';
+import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow, useReactFlow } from '@xyflow/react';
 import { useAppSelector } from '@/stores/hooks';
 import { toast } from '@/hooks/use-toast';
 import { setRouterRef } from '@/utils/routerService';
@@ -10,6 +10,7 @@ import { setRouterRef } from '@/utils/routerService';
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
 import DownloadButton from '@/components/mindmap/button/DownloadButton';
+import HorizontalLayoutButton from '@/components/mindmap/button/HorizontalLayoutButton';
 import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
@@ -34,7 +35,8 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import { useTheme } from 'next-themes';
-
+import VerticalLayoutButton from '@/components/mindmap/button/VerticalLayoutButton';
+import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton';
 import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
 
@@ -59,6 +61,8 @@ export default function MindmapContent() {
         topicId,
         nodes,
         edges,
+        setNodes,
+        setEdges,
         onNodesChange,
         onEdgesChange,
         isSaving,
@@ -68,9 +72,13 @@ export default function MindmapContent() {
         isProcessingRegisterGenerate,
     } = useMindMapContext();
 
+    const { fitView } = useReactFlow();
+
     const { dataGenerated, setDataGenerated } = useContentGeneration({ sseData, sseStatus });
 
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
+
+
 
     useEffect(() => {
         setRouterRef(router);
@@ -223,6 +231,7 @@ export default function MindmapContent() {
                 onEdgesChange={onEdgesChange}
                 edgeTypes={edgeTypes}
                 colorMode={colorMode}
+                fitView
             >
                 <Panel position="top-left">
                     <ViewFileButton />
@@ -234,8 +243,28 @@ export default function MindmapContent() {
                             {isSaving ? 'Saving...' : 'Save mindmap'}
                         </Button>
                         <DownloadButton />
-         
-                        <DeleteMindmapButton/>
+                        <HorizontalLayoutButton
+                            nodes={nodes}
+                            edges={edges}
+                            setNodes={setNodes}
+                            setEdges={setEdges}
+                            fitView={fitView}
+                        />
+                        <VerticalLayoutButton
+                            nodes={nodes}
+                            edges={edges}
+                            setNodes={setNodes}
+                            setEdges={setEdges}
+                            fitView={fitView}
+                        />
+                        <MindmapLayoutButton
+                            nodes={nodes}
+                            edges={edges}
+                            setNodes={setNodes}
+                            setEdges={setEdges}
+                            fitView={fitView}
+                        />
+                        <DeleteMindmapButton />
                     </div>
                     <FileSheet />
                     <NodeSheet />
