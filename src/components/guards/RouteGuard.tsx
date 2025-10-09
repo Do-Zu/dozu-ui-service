@@ -2,10 +2,11 @@
 
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, ReactNode, Suspense, useState } from 'react';
+import { useEffect, ReactNode, Suspense, useState, useMemo } from 'react';
 import { RedirectService } from '@/utils/auth/redirectService';
 import { RedirectChainService } from '@/utils/auth/redirectChainService';
 import LoadingPage from '@/app/loading';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface RouteGuardProps {
     children: ReactNode;
@@ -22,50 +23,42 @@ export function RouteGuard({ children, fallback }: RouteGuardProps) {
     const pathname = usePathname();
     const [isHydrated, setIsHydrated] = useState(false);
 
-    // Ensure hydration is complete before making routing decisions
     useEffect(() => {
         setIsHydrated(true);
     }, []);
 
+    const { locale, pathWithoutLocale } = useMemo(() => {
+        const path = pathname ?? '/';
+        const parts = path.split('/').filter(Boolean);
+        const locale = parts[0] ?? null;
+        const pathWithoutLocale = '/' + parts?.slice(1)?.join('/');
+        return {
+            locale,
+            pathWithoutLocale,
+        };
+    }, [pathname]);
+
+    const decision = useMemo(() => {
+        return RedirectService.shouldRedirect(pathWithoutLocale, userType, isAuthenticated);
+    }, [pathWithoutLocale, userType, isAuthenticated]);
+
     useEffect(() => {
-        if (!isHydrated || isLoading) return;
+        // if (!isHydrated || isLoading || pathname == null) return;
+        // const { shouldRedirect, destination } = decision;
+        // if (!shouldRedirect || !destination) return;
+        // const localizedDestination = locale ? `/${locale}${destination}` : destination;
+        // if (localizedDestination === pathname) return;
+        // router.replace(destination);
+    }, [decision, isHydrated, isLoading, pathname, locale, router]);
 
-        if (pathname == null) {
-            console.error('RouteGuard: pathname is null or undefined');
-            return;
-        }
-
-        // Extract the path without locale
-        // const pathSegments = pathname.split('/');
-        // const locale = pathSegments[1];
-        // const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
-
-        // const { shouldRedirect, destination } = RedirectService.shouldRedirect(
-        //     pathWithoutLocale,
-        //     userType,
-        //     isAuthenticated,
-        // );
-
-        // if (shouldRedirect && destination) {
-        //     router.replace(destination);
-        // }
-    }, [isAuthenticated, userType, user]);
-
-    // Show loading during hydration
-    if (!isHydrated || isLoading) {
+    if (!isHydrated || isLoading || decision.shouldRedirect) {
         return fallback || <LoadingPage />;
     }
 
-    // Check if current route is accessible
-    const pathSegments = pathname?.split('/');
-    const locale = pathSegments?.[1];
-    const pathWithoutLocale = pathname?.replace(`/${locale}`, '') || '/';
-
-    const { shouldRedirect } = RedirectService.shouldRedirect(pathWithoutLocale, userType, isAuthenticated);
-
-    if (shouldRedirect) {
-        return fallback || <LoadingPage />;
-    }
+    // if (decision.shouldRedirect) {
+    //     router.push(ROUTES.LANDING);
+    //     return null;
+    // }
 
     return <Suspense fallback={fallback || <LoadingPage />}>{children}</Suspense>;
 }
