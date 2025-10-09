@@ -16,7 +16,7 @@ export default function GameStatsModal({ isOpen, onOpenChange }: GameStatsModalP
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[999999] pointer-events-auto">
+    <div className="fixed inset-0 z-50 pointer-events-auto">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40"
