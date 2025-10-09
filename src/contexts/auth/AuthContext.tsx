@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!user) {
                 //TODO: Refresh user data from API or session
             }
-       
         } catch (error) {
             console.error('Error checking authentication status:', error);
         } finally {
@@ -101,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const hasPermission = useCallback(
         (permission: string): boolean => {
-            return user?.permissions.includes(permission) ?? false;
+            return user?.permissions?.includes(permission) ?? false;
         },
         [user?.permissions],
     );
