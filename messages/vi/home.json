@@ -18,7 +18,6 @@
         },
         "currentProcessLearning": {
             "title": "Học Tập Hiện Tại",
-            "subtitle": "Dựa trên lịch trình thời khóa biểu của bạn",
             "description": "Description",
             "progress": "Tiến độ",
             "remaining": "còn lại",
