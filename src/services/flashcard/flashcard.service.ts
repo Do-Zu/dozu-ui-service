@@ -8,10 +8,11 @@ import {
     IFlashcardsForNodeBatchInput,
     IFlashcardsWithTopicName,
     IFlashcardBatchResult,
-    IAnkiRating,
     IDueAnkiCard,
     IAnkiCardReviewed,
+    IAnkiResult,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
+import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { flashcardRoutes } from '@/utils/constants/api.routes';
 
@@ -25,6 +26,7 @@ export interface IFlashcardReviewByAnkiPayload {
     topicId: string | number;
     flashcardId: string | number;
     rating: IAnkiRating;
+    ankiResult?: IAnkiResult;
 }
 
 class FlashcardService {
@@ -129,10 +131,10 @@ class FlashcardService {
         return response.data;
     }
 
-    public async reviewFlashcardByAnki({ topicId, flashcardId, rating }: IFlashcardReviewByAnkiPayload) {
-        const response = await patchRequest<{ rating: IAnkiRating }, IAnkiCardReviewed | null>(
+    public async reviewFlashcardByAnki({ topicId, flashcardId, rating, ankiResult }: IFlashcardReviewByAnkiPayload) {
+        const response = await patchRequest<{ rating: IAnkiRating, ankiResult?: IAnkiResult }, IAnkiCardReviewed | null>(
             flashcardRoutes(topicId).REVIEW_FLASHCARD_WITH_QUALITY({ flashcardId }),
-            { rating },
+            { rating, ankiResult },
         );
         if (response.status !== 'success') {
             throw new Error(response.message);

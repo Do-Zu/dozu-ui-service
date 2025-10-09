@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { withAuth } from '@/hoc/withAuth';
 import { useParams } from 'next/navigation';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { USER_ROLES } from '@/utils/constants/roles';
 
 // Dynamically import CardImport with no SSR
 const GeneratePage = dynamic(() => import('@/app/[locale]/generate/components/GeneratePage'), {
@@ -19,7 +20,7 @@ const GeneratePage = dynamic(() => import('@/app/[locale]/generate/components/Ge
     ),
 });
 
-const AuthComponent = withAuth(GeneratePage, { requiredRole: 'teacher' });
+const AuthComponent = withAuth(GeneratePage, { requiredRole: USER_ROLES.TEACHER });
 
 export default function HomePage() {
     let { id: classId } = useParams() as { id: string | string[] | number };
