@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +47,7 @@ interface ICurrentLearningProgressResponse {
 const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     const t = useTranslations('home.currentProcessLearning');
     const router = useRouter();
+    const isMobile = useIsMobile();
     const { data, loading, error } = useFetch<ICurrentLearningProgressResponse>('/tracking/current-learning');
 
     const adapterDataCurrentLearning = (data: ICurrentLearningProgressResponse | null): CurrentLearning => {
@@ -93,7 +95,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
 
     if (loading) {
         return (
-            <Card className="max-w-[400px] min-w-[40%] h-[200px] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
+            <Card className="w-full max-w-full sm:max-w-[480px] min-h-[200px] mx-auto mt-2 mb-8 bg-slate-500 dark:bg-gray-700 border-0 shadow-xl">
                 <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -109,10 +111,10 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             </div>
                         </div>
 
-                        <Skeleton className="h-4 w-1/6 mb-2 p-1" />
+                        <Skeleton className="h-4 w-1/3 sm:w-1/6 mb-2 p-1" />
                     </div>
                 </CardHeader>
-                <CardContent className="text-center text-slate-200">
+                <CardContent className="text-center text-slate-200 sm:text-start">
                     <Skeleton className="h-6 w-1/2 mb-4 p-1" />
                     <Skeleton className="h-4 w-3/4 mb-2 p-1" />
                     <Skeleton className="h-4 w-1/4  " />
@@ -126,23 +128,26 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     }
 
     return (
-        <Card className="max-w-[200px] min-w-[40%] mx-auto mt-2 mb-8 rounded-3xl bg-gradient-to-r from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.5)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] border-0 ">
+        <Card className="w-full max-w-[80vw] sm:max-w-[480px] mx-auto mt-2 mb-8 rounded-3xl bg-gradient-to-r from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.5)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] border-0 ">
             <CardHeader className="pb-3">
                 {data ? (
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <div className="p-1 bg-white/20 dark:bg-blue-400/20 rounded-lg">
-                                <Target className="h-4 w-4 text-white dark:text-sky-500" />
+                    isMobile ? (
+                        <div className="flex justify-end"></div>
+                    ) : (
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="p-1 bg-white/20 dark:bg-blue-400/20 rounded-lg">
+                                    <Target className="h-4 w-4 text-white dark:text-sky-500" />
+                                </div>
+                                <div>
+                                    <CardTitle className="dark:text-slate-200 text-slate-800 text-lg font-bold ">
+                                        {t('title')}
+                                    </CardTitle>
+                                </div>
                             </div>
-                            <div>
-                                <CardTitle className="dark:text-slate-200 text-slate-800 text-lg font-bold ">
-                                    {t('title')}
-                                </CardTitle>
-                                <p className="text-slate-400 dark:text-gray-300 text-sm">{t('subtitle')}</p>
-                            </div>
+                            <Badge className="text-sm max-w-28">{currentLearning?.type || 'N/A'}</Badge>
                         </div>
-                        <Badge className=" text-sm">{currentLearning?.type || 'N/A'}</Badge>
-                    </div>
+                    )
                 ) : (
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -155,7 +160,7 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                 )}
             </CardHeader>
             <CardContent className="pt-0">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 lg:items-center">
                     <div className="space-y-2">
                         <div>
                             <h3 className="text-base font-semibold mb-0.5 ">{currentLearning?.topicName}</h3>
@@ -186,12 +191,12 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center justify-center lg:justify-end">
+                    <div className="flex items-center justify-center sm:justify-end">
                         {data && (
                             <Button
                                 onClick={() => onContinueLearning('current')}
                                 size="sm"
-                                className=" text-slate-700 dark:text-zinc-800 hover:bg-slate-500 hover:text-yellow-50 bg-gray-200  dark:hover:bg-gray-300 font-semibold px-4 py-2"
+                                className="w-full sm:w-auto text-slate-700 dark:text-zinc-800 hover:bg-slate-500 hover:text-yellow-50 bg-gray-200  dark:hover:bg-gray-300 font-semibold px-4 py-2 sm:px-5"
                             >
                                 <Play className="mr-1.5 h-3.5 w-3.5" />
                                 {t('continueButton')}
