@@ -13,20 +13,10 @@ import teacherClassService, {
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
+import { withAuth } from '@/hoc/withAuth';
+import { USER_ROLES } from '@/utils/constants/roles';
 
-export default function Page() {
-    let { id: classId } = useParams() as { id: string | string[] | number };
-
-    if (typeof classId !== 'string') {
-        return <div>Invalid Params, classId must be a valid number</div>;
-    }
-
-    classId = Number(classId);
-
-    if (isNaN(classId)) {
-        return <div>Invalid Params, classId must be a valid number</div>;
-    }
-
+function StudentsManagementComponent({ classId }: { classId: number }) {
     const tCommon = useTranslations('common');
     const tClass = useTranslations('class');
     const tStudentList = useTranslations('class.studentList');
@@ -108,4 +98,22 @@ export default function Page() {
             </div>
         </div>
     );
+}
+
+const AuthComponent = withAuth(StudentsManagementComponent, { requiredRole: USER_ROLES.TEACHER });
+
+export default function Page() {
+    let { id: classId } = useParams() as { id: string | string[] | number };
+
+    if (typeof classId !== 'string') {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
+    classId = Number(classId);
+
+    if (isNaN(classId)) {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
+    return <AuthComponent classId={classId} />;
 }

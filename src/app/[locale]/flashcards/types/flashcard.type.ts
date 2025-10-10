@@ -1,4 +1,5 @@
-import { IItemSpacedRepetition, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
+import { IAnkiRating, IAnkiStatus, INextReviewInterval, INextReviewIntervalForRating } from '@/types/anki';
+import { IFlashcardStatus, IItemSpacedRepetition, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { TimeUnit } from '@/utils';
 
 export interface IFlashcard {
@@ -54,37 +55,13 @@ export interface IImageSaveInput {
     downloadLocation: string;
 }
 
-export enum IAnkiRating {
-    AGAIN = 1,
-    HARD = 2,
-    GOOD = 3,
-    EASY = 4,
-}
-
-export enum IAnkiStatus {
-    NEW = 'new',
-    LEARNING = 'learning',
-    REVIEW = 'review',
-    RELEARNING = 'relearning',
-}
-
-export interface INextReviewInterval {
-    interval: number;
-    timeUnit: TimeUnit;
-}
-
-export interface INextReviewIntervalForRating {
-    rating: IAnkiRating;
-    interval: INextReviewInterval;
-}
-
 export type ICardNextReviewSchedule = {
     flashcardId: number;
     nextReviewIntervalsForRating: INextReviewIntervalForRating[];
 };
 
 export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName'> & {
-    nextReviewSchedule: ICardNextReviewSchedule;
+    nextReviewDataByRatings: INextReviewDataByRating[];
     nextReview: string;
     status: IAnkiStatus;
 };
@@ -92,6 +69,27 @@ export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | '
 export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
     nextReview: string;
     status: IAnkiStatus;
-    nextReviewSchedule: ICardNextReviewSchedule;
+    nextReviewDataByRatings: INextReviewDataByRating[];
     rating: IAnkiRating;
 };
+
+export interface INextReviewDataByRating {
+    rating: IAnkiRating;
+    data: IAnkiResult;
+}
+
+export interface IAnkiCard {
+    flashcardId: number;
+    status: IFlashcardStatus;
+
+    step: number | null; // should start at 0
+    easinessFactor: string;
+    lastReviewed: Date | null;
+    nextReview: Date;
+    reviewInterval: number;
+}
+
+export interface IAnkiResult extends IAnkiCard {
+    nextReview: Date;
+    nextReviewInterval: INextReviewInterval;
+}

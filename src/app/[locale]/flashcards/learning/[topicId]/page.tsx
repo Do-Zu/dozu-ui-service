@@ -8,8 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
 import {
     IAnkiCardReviewed,
-    IAnkiRating,
-    IAnkiStatus,
+    IAnkiResult,
     IDueAnkiCard,
     IFlashcard,
     IQualityResponseNextReviewInterval,
@@ -26,6 +25,7 @@ import { METHOD_LEARNING } from '@/utils/constants/method';
 import QuickQuizPrompt from '@/app/[locale]/flashcards/learning/components/QuickQuizPrompt';
 import { useQuizMilestones, type QuizCard } from '@/app/[locale]/flashcards/learning/hooks/useQuizMilestones';
 import BacklogCTA from '@/app/[locale]/flashcards/learning/components/BacklogCTA';
+import { IAnkiRating, IAnkiStatus } from '@/types/anki';
 
 export type IFlashcardWithReviewPrediction = Pick<
     IFlashcard,
@@ -73,7 +73,7 @@ export default function Page() {
 
     const {
         data: flashcards,
-        setData: setFlashcardsData,
+        setData: setFlashcards,
         loading: flashcardsLoading,
         error: flashcardsError,
     } = useFetch<IDueAnkiCard[]>(() => flashcardService.getDueAnkiCardsForTopic(topicId));
@@ -132,11 +132,12 @@ export default function Page() {
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
 
-    const { loading: trackFlashcardLoading, execute: trackFlashcard } = usePost<
+    const { loading: reviewFlashcardLoading, execute: reviewFlashcard } = usePost<
         IFlashcardReviewByAnkiPayload,
         IAnkiCardReviewed | null
     >(
-        ({ topicId, flashcardId, rating }) => flashcardService.reviewFlashcardByAnki({ topicId, flashcardId, rating }),
+        ({ topicId, flashcardId, rating, ankiResult }) =>
+            flashcardService.reviewFlashcardByAnki({ topicId, flashcardId, rating, ankiResult }),
         'PATCH',
         {
             onError: toastHelper.showErrorMessage,
@@ -170,7 +171,7 @@ export default function Page() {
                             ...currentFlashcard,
                             nextReview: data.nextReview,
                             status: data.status,
-                            nextReviewSchedule: data.nextReviewSchedule,
+                            nextReviewDataByRatings: data.nextReviewDataByRatings,
                         });
                         inserted = true;
                         break;
@@ -181,11 +182,12 @@ export default function Page() {
                             ...currentFlashcard,
                             nextReview: data.nextReview,
                             status: data.status,
-                            nextReviewSchedule: data.nextReviewSchedule,
+                            nextReviewDataByRatings: data.nextReviewDataByRatings,
                         });
+                        inserted = true;
                     }
                 }
-                setFlashcardsData(flashcardsUpdated);
+                setFlashcards(flashcardsUpdated);
 
                 // Update learning tracking metrics using context methods
                 updateItemsStudied(itemsStudiedCount + 1);
@@ -281,13 +283,15 @@ export default function Page() {
         async (rating: IAnkiRating) => {
             if (!flashcards || !currentFlashcard) return;
             const { flashcardId } = currentFlashcard;
-            await trackFlashcard({
+            const ankiResult = currentFlashcard.nextReviewDataByRatings.find((e) => e.rating === rating)?.data;
+            await reviewFlashcard({
                 topicId,
                 flashcardId,
                 rating,
+                ankiResult,
             });
         },
-        [flashcards, currentFlashcard, studied, q, topicId, trackFlashcard, setFlashcardsData],
+        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards],
     );
 
     function handleBackClick() {

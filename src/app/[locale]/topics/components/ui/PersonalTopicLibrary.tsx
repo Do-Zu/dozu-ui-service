@@ -27,6 +27,7 @@ import {
     Play,
     Plus,
     Search,
+    Settings,
     Trash2,
 } from 'lucide-react';
 
@@ -161,6 +162,10 @@ export default function PersonalTopicLibrary() {
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
+    async function handleOnSelectSettings(topicId: number) {
+        router.push(ROUTES.ANKI_SETTINGS(topicId));
+    }
+
     function handleOnClickMindmap(topicId: number) {
         router.push(ROUTES.MINDMAP_EDIT(topicId));
     }
@@ -203,6 +208,10 @@ export default function PersonalTopicLibrary() {
                         <DropdownMenuItem onSelect={() => handleOnSelectLearning(topicId)}>
                             <GraduationCap className="mr-2 h-4 w-4" />
                             <span>{tTopic('learning')}</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleOnSelectSettings(topicId)}>
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>{tTopic('settings')}</span>
                         </DropdownMenuItem>
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>

@@ -1,6 +1,6 @@
 import { Angry, ThumbsUp, Smile, Laugh, Frown, Meh } from 'lucide-react';
-import { IAnkiRating, INextReviewInterval } from '../../types/flashcard.type';
 import { TimeUnit } from '@/utils';
+import { IAnkiRating } from '@/types/anki';
 
 type ILearningOptionElement = {
     icon: any;
