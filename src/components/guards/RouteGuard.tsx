@@ -17,7 +17,7 @@ interface RouteGuardProps {
  * based on their authentication status and onboarding completion
  */
 export function RouteGuard({ children, fallback }: RouteGuardProps) {
-    const { isLoading, isAuthenticated, userType } = useAuth();
+    const { isLoading, isAuthenticated, userType, user } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
     const [isHydrated, setIsHydrated] = useState(false);
@@ -36,20 +36,20 @@ export function RouteGuard({ children, fallback }: RouteGuardProps) {
         }
 
         // Extract the path without locale
-        const pathSegments = pathname.split('/');
-        const locale = pathSegments[1];
-        const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
+        // const pathSegments = pathname.split('/');
+        // const locale = pathSegments[1];
+        // const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
 
-        const { shouldRedirect, destination } = RedirectService.shouldRedirect(
-            pathWithoutLocale,
-            userType,
-            isAuthenticated,
-        );
+        // const { shouldRedirect, destination } = RedirectService.shouldRedirect(
+        //     pathWithoutLocale,
+        //     userType,
+        //     isAuthenticated,
+        // );
 
-        if (shouldRedirect && destination) {
-            router.replace(destination);
-        }
-    }, [isHydrated, isLoading, isAuthenticated, userType, pathname, router]);
+        // if (shouldRedirect && destination) {
+        //     router.replace(destination);
+        // }
+    }, [isAuthenticated, userType, user]);
 
     // Show loading during hydration
     if (!isHydrated || isLoading) {

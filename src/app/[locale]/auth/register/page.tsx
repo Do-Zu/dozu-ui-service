@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import usePost from '@/hooks/usePost';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { withRouteGuard } from '@/components/guards/RouteGuard';
 import { useGoogleAuth } from '../hooks/useGoogleAuth';
@@ -18,6 +18,7 @@ import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { User } from '@/types/auth';
 import CentralCard from '@/components/auth/CentralCard';
 import { Mail, UserPlus } from 'lucide-react';
+import toastHelper from '@/utils/toast.helper';
 
 const RegisterPage = () => {
     const { setAuthData } = useAuth();
@@ -25,17 +26,17 @@ const RegisterPage = () => {
     const searchParams = useSearchParams();
 
     const handleSuccessfulLogin = (user: User) => {
-        setAuthData(user);
-
-        const redirectTo = searchParams?.get('redirect');
-
-        if (redirectTo) {
-            const decodedPath = decodeURIComponent(redirectTo);
-            handlePostLogin(user, decodedPath);
-        } else {
-            handlePostLogin(user);
-        }
+        // setAuthData(user);
+        // const redirectTo = searchParams?.get('redirect');
+        // if (redirectTo) {
+        // const decodedPath = decodeURIComponent(redirectTo);
+        // handlePostLogin(user, decodedPath);
+        // } else {
+        // handlePostLogin(user);
+        // }
     };
+
+    const router = useRouter();
 
     const { googleAuthUrl } = useGoogleAuth();
     const handleGoogleLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -64,9 +65,10 @@ const RegisterPage = () => {
         e.preventDefault();
         try {
             const result = await execute(body);
+            toastHelper.showSuccessMessage(t('registerSuccessMessage'));
+            router.push('/auth/login');
 
-            console.log(result.data);
-            handleSuccessfulLogin(result.data);
+            // handleSuccessfulLogin(result.data);
         } catch (err) {
             console.error('Login error:', err);
         }

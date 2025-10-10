@@ -181,7 +181,7 @@ const useReaderFile = () => {
                     setNumPages(pdf.numPages);
                 }
 
-                let fullText = '';
+                let fullText = ` ----------------------------------------- Total Pages:  ${pdf.numPages} ----------------------------------------- \n\n`;
 
                 // Loop through each page
                 for (let i = 1; i <= pdf.numPages; i++) {
@@ -193,6 +193,8 @@ const useReaderFile = () => {
                     textItems.forEach((item: TextItem) => {
                         fullText += item.str + ' ';
                     });
+
+                    fullText += `\n\n ---------------------------------------- Page ${i} ------------------------------------------ \n\n`;
                 }
 
                 setText(fullText.trim());

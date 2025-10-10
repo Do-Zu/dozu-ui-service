@@ -137,7 +137,9 @@
         "frontCardsAreQuestions": "Front cards are questions",
         "backCardsAreAnswers": "Back cards are answers",
         "fewerMovesHigherScore": "Fewer moves = higher score"
-      }
+      },
+      "gameStats": "Game Statistics",
+      "gameStatsDescription": "View your current game progress and performance metrics"
     },
     "common": {
       "noFlashcards": "No flashcards available for this topic",

@@ -1,18 +1,28 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleConvertToQuestionsEdited } from '@/app/[locale]/question/utils/handleConvertToQuestionsEdited';
 import { IQuestionsFromSSERaw } from '@/app/[locale]/generate/types';
 import { writeLocalQuiz } from '@/app/[locale]/quiz/utils/localQuiz.storage';
 import { buildPayloadFromLearnedFlashcards } from '@/app/[locale]/question/utils/buildGenPayload';
 
+// FE Backlog client (BE returns enriched data)
+import { backlogService } from '../services/backlog.service';
+import type {
+  BacklogReserveItem,
+  BacklogAddReq,
+  BacklogReserveReq,
+  BacklogCommitReq,
+  BacklogReleaseReq,
+} from '../services/backlog.service';
+
 export type QuizCard = {
-    flashcardId: number | string;
-    front: string;
-    back: string;
-    imageUrl?: string | null;
-    topicName?: string | null;
+  flashcardId: number | string;
+  front: string;
+  back: string;
+  imageUrl?: string | null;
+  topicName?: string | null;
 };
 
 type HalfStatus = 'pending' | 'quizzed' | 'deferred';
@@ -20,30 +30,29 @@ type PromptVariant = 'half' | 'full';
 type PendingAction = 'half' | 'onlySecond' | 'catchUpAll' | 'backlog' | null;
 
 type UseQuizMilestonesParams = {
-    topicId: string;
-    regenerate: (payload: any, type: 'quiz') => Promise<void>;
-    sseData: any;
-    sseStatus: string;
-    loading: boolean;
-    chunkRatio?: number;
+  topicId: string;
+  regenerate: (payload: any, type: 'quiz') => Promise<void>;
+  sseData: any;
+  sseStatus: string;
+  loading: boolean;
+  chunkRatio?: number;
 };
 
-/* ---------- localStorage helpers ---------- */
+/* ---------- localStorage: ONLY keep baseline/progress status UI ---------- */
 const keyBaseline = (topicId: string) => `progressive_quiz_baseline_total:${topicId}`;
 const keyLastRemaining = (topicId: string) => `progressive_quiz_last_remaining:${topicId}`;
-const keyHalf = (topicId: string, which: 'first' | 'second') => `progressive_quiz_half_status:${topicId}:${which}`;
-const keyBacklog = (topicId: string) => `progressive_quiz_backlog:${topicId}`;
-const keyPendingFirst = (topicId: string) => `progressive_quiz_pending_first:${topicId}`;
+const keyHalf = (topicId: string, which: 'first' | 'second') =>
+  `progressive_quiz_half_status:${topicId}:${which}`;
 
 const readNum = (key: string, def = 0) => {
-    if (typeof window === 'undefined') return def;
-    const raw = window.localStorage.getItem(key);
-    const n = raw ? parseInt(raw, 10) : def;
-    return Number.isFinite(n) ? n : def;
+  if (typeof window === 'undefined') return def;
+  const raw = window.localStorage.getItem(key);
+  const n = raw ? parseInt(raw, 10) : def;
+  return Number.isFinite(n) ? n : def;
 };
 const writeNum = (key: string, n: number) => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(key, String(n));
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(key, String(n));
 };
 
 const readBaseline = (topicId: string) => readNum(keyBaseline(topicId), 0);
@@ -53,414 +62,457 @@ const readLastRemaining = (topicId: string) => readNum(keyLastRemaining(topicId)
 const writeLastRemaining = (topicId: string, n: number) => writeNum(keyLastRemaining(topicId), n);
 
 const loadStatus = (topicId: string, which: 'first' | 'second'): HalfStatus => {
-    if (typeof window === 'undefined') return 'pending';
-    const raw = window.localStorage.getItem(keyHalf(topicId, which));
-    return (raw as HalfStatus) || 'pending';
+  if (typeof window === 'undefined') return 'pending';
+  const raw = window.localStorage.getItem(keyHalf(topicId, which));
+  return (raw as HalfStatus) || 'pending';
 };
 const saveStatus = (topicId: string, which: 'first' | 'second', val: HalfStatus) => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(keyHalf(topicId, which), val);
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(keyHalf(topicId, which), val);
 };
 
-/* ---------- Backlog & pending-first helpers ---------- */
-const readBacklog = (topicId: string): QuizCard[] => {
-    if (typeof window === 'undefined') return [];
-    const raw = window.localStorage.getItem(keyBacklog(topicId));
-    if (!raw) return [];
-    try {
-        return JSON.parse(raw) as QuizCard[];
-    } catch {
-        return [];
-    }
-};
-const writeBacklog = (topicId: string, cards: QuizCard[]) => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(keyBacklog(topicId), JSON.stringify(cards));
-};
-
-const readPendingFirst = (topicId: string): QuizCard[] => {
-    if (typeof window === 'undefined') return [];
-    const raw = window.localStorage.getItem(keyPendingFirst(topicId));
-    if (!raw) return [];
-    try {
-        return JSON.parse(raw) as QuizCard[];
-    } catch {
-        return [];
-    }
-};
-const writePendingFirst = (topicId: string, cards: QuizCard[]) => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(keyPendingFirst(topicId), JSON.stringify(cards));
-};
-const clearPendingFirst = (topicId: string) => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.removeItem(keyPendingFirst(topicId));
-};
-
+/* ---------- helpers ---------- */
 const dedupeById = (arr: QuizCard[]) => {
-    const seen = new Set<string>();
-    return arr.filter((c) => {
-        const id = String(c.flashcardId);
-        if (seen.has(id)) return false;
-        seen.add(id);
-        return true;
-    });
+  const seen = new Set<string>();
+  return arr.filter((c) => {
+    const id = String(c.flashcardId);
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 };
 
-/* ---------- Standardize QuizCard -> builder type needed ---------- */
 type DueCardLike = {
-    flashcardId: number;
-    front: string;
-    back: string;
-    imageUrl?: string | null;
-    topicName?: string | null;
+  flashcardId: number;
+  front: string;
+  back: string;
+  imageUrl?: string | null;
+  topicName?: string | null;
 };
-
 const normalizeToDue = (c: QuizCard): DueCardLike => ({
-    flashcardId: typeof c.flashcardId === 'string' ? Number(c.flashcardId) : c.flashcardId,
-    front: c.front,
-    back: c.back,
-    imageUrl: c.imageUrl ?? null,
-    topicName: c.topicName ?? null,
+  flashcardId: typeof c.flashcardId === 'string' ? Number(c.flashcardId) : c.flashcardId,
+  front: c.front,
+  back: c.back,
+  imageUrl: c.imageUrl ?? null,
+  topicName: c.topicName ?? null,
 });
-
-/** Always use this helper instead of calling the builder directly to avoid type errors */
 const buildPayloadFromQuizCards = (topicId: string, cards: QuizCard[]) => {
-    const normalized = cards.map(normalizeToDue);
-    return buildPayloadFromLearnedFlashcards(topicId, normalized as any);
+  const normalized = cards.map(normalizeToDue);
+  return buildPayloadFromLearnedFlashcards(topicId, normalized as any);
 };
 
 export function useQuizMilestones({
-    topicId,
-    regenerate,
-    sseData,
-    sseStatus,
-    loading,
-    chunkRatio = 0.5,
+  topicId,
+  regenerate,
+  sseData,
+  sseStatus,
+  loading,
+  chunkRatio = 0.5,
 }: UseQuizMilestonesParams) {
-    const router = useRouter();
-    const [sessionEpoch, setSessionEpoch] = useState<number>(0);
+  const router = useRouter();
+  const [sessionEpoch, setSessionEpoch] = useState<number>(0);
 
-    // Baseline (persisted): “fixed” total of the session
-    const [baselineTotal, setBaselineTotal] = useState<number>(() => readBaseline(topicId));
-    const [lastRemaining, setLastRemaining] = useState<number>(() => readLastRemaining(topicId));
+  // Baseline (persisted UI state)
+  const [baselineTotal, setBaselineTotal] = useState<number>(() => readBaseline(topicId));
+  const [lastRemaining, setLastRemaining] = useState<number>(() => readLastRemaining(topicId));
+  const [firstHalfStatus, setFirstHalfStatus] = useState<HalfStatus>(() =>
+    loadStatus(topicId, 'first'),
+  );
+  const [secondHalfStatus, setSecondHalfStatus] = useState<HalfStatus>(() =>
+    loadStatus(topicId, 'second'),
+  );
 
-    // Persisted state
-    const [firstHalfStatus, setFirstHalfStatus] = useState<HalfStatus>(() => loadStatus(topicId, 'first'));
-    const [secondHalfStatus, setSecondHalfStatus] = useState<HalfStatus>(() => loadStatus(topicId, 'second'));
+  // Backlog count from BE
+  const [backlogCount, setBacklogCount] = useState<number>(0);
+  const refreshBacklogCount = useCallback(async () => {
+    try {
+      const res = await backlogService.getCount(Number(topicId));
+      setBacklogCount(res.data?.count ?? 0);
+    } catch {
+      // ignore
+    }
+  }, [topicId]);
 
-    // Backlog (persisted)
-    const [backlogCount, setBacklogCount] = useState<number>(() => readBacklog(topicId).length);
+  useEffect(() => {
+    writeBaseline(topicId, baselineTotal);
+  }, [topicId, baselineTotal]);
+  useEffect(() => {
+    writeLastRemaining(topicId, lastRemaining);
+  }, [topicId, lastRemaining]);
+  useEffect(() => saveStatus(topicId, 'first', firstHalfStatus), [topicId, firstHalfStatus]);
+  useEffect(() => saveStatus(topicId, 'second', secondHalfStatus), [topicId, secondHalfStatus]);
 
-    useEffect(() => {
-        writeBaseline(topicId, baselineTotal);
-    }, [topicId, baselineTotal]);
-    useEffect(() => {
-        writeLastRemaining(topicId, lastRemaining);
-    }, [topicId, lastRemaining]);
-    useEffect(() => saveStatus(topicId, 'first', firstHalfStatus), [topicId, firstHalfStatus]);
-    useEffect(() => saveStatus(topicId, 'second', secondHalfStatus), [topicId, secondHalfStatus]);
+  // UI Prompt
+  const [promptOpen, setPromptOpen] = useState(false);
+  const [promptVariant, setPromptVariant] = useState<PromptVariant>('half');
+  const showCatchUp = useMemo(() => firstHalfStatus !== 'quizzed', [firstHalfStatus]);
 
-    // UI Prompt
-    const [promptOpen, setPromptOpen] = useState(false);
-    const [promptVariant, setPromptVariant] = useState<PromptVariant>('half');
+  // Queue chunk/cards
+  const [queuedChunkCards, setQueuedChunkCards] = useState<QuizCard[] | null>(null);
+  const [queuedChunkNumber, setQueuedChunkNumber] = useState<number | null>(null); // 1: 50%, 2: 100%
 
-    // Show Catch-up option at 100% if first half is not quizzed
-    const showCatchUp = useMemo(() => firstHalfStatus !== 'quizzed', [firstHalfStatus]);
+  // SSE pending
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [pendingChunk, setPendingChunk] = useState<number | null>(null);
 
-    // Queue chunk/cards when user confirm
-    const [queuedChunkCards, setQueuedChunkCards] = useState<QuizCard[] | null>(null);
-    const [queuedChunkNumber, setQueuedChunkNumber] = useState<number | null>(null); // 1: 50%, 2: 100%
+  // Baseline split
+  const [t50, t100] = useMemo(() => {
+    if (baselineTotal <= 0) return [0, 0] as const;
+    const half = Math.ceil(baselineTotal * chunkRatio);
+    return [half, baselineTotal] as const;
+  }, [baselineTotal, chunkRatio]);
 
-    // Monitor the generating action to update the state correctly when SSE is finished
-    const [pendingAction, setPendingAction] = useState<PendingAction>(null);
-    const [pendingChunk, setPendingChunk] = useState<number | null>(null);
+  const percentLabel = promptVariant === 'half' ? Math.round(chunkRatio * 100) : 100;
+  const isGenerating = pendingChunk !== null && (loading || sseStatus === 'open');
 
-    // Milestones theo baseline
-    const [t50, t100] = useMemo(() => {
-        if (baselineTotal <= 0) return [0, 0] as const;
-        const half = Math.ceil(baselineTotal * chunkRatio);
-        return [half, baselineTotal] as const;
-    }, [baselineTotal, chunkRatio]);
+  // Baseline order (lock)
+  const [baselineOrder, setBaselineOrder] = useState<QuizCard[]>([]);
 
-    const percentLabel = promptVariant === 'half' ? Math.round(chunkRatio * 100) : 100;
-    const isGenerating = pendingChunk !== null && (loading || sseStatus === 'open');
+  /* ---------- session helpers ---------- */
+  const closeSession = useCallback(() => {
+    setBaselineTotal(0);
+    setFirstHalfStatus('pending');
+    setSecondHalfStatus('pending');
+    setPromptOpen(false);
+    setQueuedChunkCards(null);
+    setQueuedChunkNumber(null);
+    setLastRemaining(0);
+    setBaselineOrder([]);
+    setSessionEpoch((x) => x + 1);
+  }, []);
 
-    /* ---------- session helpers ---------- */
-    const closeSession = () => {
-        setBaselineTotal(0);
-        setFirstHalfStatus('pending');
-        setSecondHalfStatus('pending');
-        setPromptOpen(false);
-        setQueuedChunkCards(null);
-        setQueuedChunkNumber(null);
-        setLastRemaining(0);
-        setBaselineOrder([]);
-        setSessionEpoch((x) => x + 1); // increase epoch at session close
+  /* ---------- API for Page: fix/reset baseline ---------- */
+  const ensureBaseline = (currentRemainingCount: number, baselineCards?: QuizCard[]) => {
+    if (currentRemainingCount < 0) return;
+    setLastRemaining(currentRemainingCount);
+    if (currentRemainingCount === 0) return;
+
+    const resetTo = () => {
+      setBaselineTotal(currentRemainingCount);
+      setFirstHalfStatus('pending');
+      setSecondHalfStatus('pending');
+      setPromptOpen(false);
+      setQueuedChunkCards(null);
+      setQueuedChunkNumber(null);
+      setBaselineOrder(baselineCards ? dedupeById(baselineCards) : []);
+      setSessionEpoch((x) => x + 1);
     };
 
-    /* ---------- Backlog API ---------- */
-    const appendToBacklog = (cards: QuizCard[]) => {
-        if (!cards?.length) return;
-        const cur = readBacklog(topicId);
-        const next = dedupeById([...cards, ...cur]); // newest first
-        writeBacklog(topicId, next);
-        setBacklogCount(next.length);
+    if (baselineTotal === 0) {
+      resetTo();
+      return;
+    }
+    if (currentRemainingCount > baselineTotal || currentRemainingCount > lastRemaining) {
+      resetTo();
+    }
+  };
+
+  /* ---------- progress ---------- */
+  const onStudiedProgress = (studied: QuizCard[], currentRemainingCount: number) => {
+    if (!baselineTotal || isGenerating || promptOpen) return;
+
+    setLastRemaining(currentRemainingCount);
+    const studiedSoFar = baselineTotal - currentRemainingCount;
+
+    // 50%
+    if (t50 > 0 && studiedSoFar >= t50 && firstHalfStatus === 'pending') {
+      const hasBaseline = baselineOrder.length >= t50;
+      const firstSlice = dedupeById((hasBaseline ? baselineOrder : studied).slice(0, t50));
+      if (!firstSlice.length) return;
+
+      setQueuedChunkCards(firstSlice);
+      setQueuedChunkNumber(1);
+      setPromptVariant('half');
+      setPromptOpen(true);
+      return;
+    }
+
+    // 100%
+    if (t100 > 0 && studiedSoFar >= t100 && secondHalfStatus === 'pending') {
+      setQueuedChunkCards(null);
+      setQueuedChunkNumber(2);
+      setPromptVariant('full');
+      setPromptOpen(true);
+    }
+  };
+
+  /* ---------- 50% actions ---------- */
+  const confirmHalfQuiz = async () => {
+    if (queuedChunkNumber !== 1 || !queuedChunkCards?.length) {
+      setPromptOpen(false);
+      return;
+    }
+    const payload = buildPayloadFromQuizCards(topicId, queuedChunkCards);
+    setPendingChunk(1);
+    setPendingAction('half');
+    setPromptOpen(false);
+    setQueuedChunkCards(null);
+    setQueuedChunkNumber(null);
+    await regenerate(payload, 'quiz');
+  };
+
+  // LATER @50% → push thẳng lên BE backlog (source = 'first_half')
+  const skipHalfQuiz = async () => {
+    if (queuedChunkNumber === 1 && queuedChunkCards?.length) {
+      const addReq: BacklogAddReq = {
+        topicId: Number(topicId),
+        items: queuedChunkCards.map((c, idx) => ({
+          flashcardId: Number(c.flashcardId),
+          source: 'first_half',
+          sessionEpoch,
+          orderIndex: idx,
+        })),
+      };
+      try {
+        await backlogService.add(addReq);
+      } finally {
+        await refreshBacklogCount();
+      }
+    }
+    setFirstHalfStatus('deferred');
+    setPromptOpen(false);
+    setQueuedChunkCards(null);
+    setQueuedChunkNumber(null);
+  };
+
+  /* ---------- 100% actions ---------- */
+  const getFullRanges = () => ({
+    onlySecond: { start: Math.max(0, t50), end: t100 },
+    catchUpAll: { start: 0, end: t100 },
+  });
+
+  const getFullCards = () => {
+    const onlySecond = dedupeById(baselineOrder.slice(t50, t100));
+    const catchUpAll = dedupeById(baselineOrder.slice(0, t100));
+    return { onlySecond, catchUpAll };
+  };
+
+  const startFullOnlySecond = async (cards: QuizCard[]) => {
+    if (!cards?.length) {
+      setPromptOpen(false);
+      return;
+    }
+    const payload = buildPayloadFromQuizCards(topicId, cards);
+    setPendingChunk(2);
+    setPendingAction('onlySecond');
+    setPromptOpen(false);
+    await regenerate(payload, 'quiz');
+  };
+
+  const startFullCatchUpAll = async (cards: QuizCard[]) => {
+    if (!cards?.length) {
+      setPromptOpen(false);
+      return;
+    }
+    const payload = buildPayloadFromQuizCards(topicId, cards);
+    setPendingChunk(2);
+    setPendingAction('catchUpAll');
+    setPromptOpen(false);
+    await regenerate(payload, 'quiz');
+  };
+
+  // LATER @100% → push nửa sau lên BE (source='second_half'), nửa trước đã đẩy lúc 50% nếu có
+  const skipFullQuiz = async (secondHalfCards: QuizCard[]) => {
+    let second = secondHalfCards;
+    if (!second?.length && baselineOrder.length >= t100) {
+      second = dedupeById(baselineOrder.slice(t50, t100));
+    }
+    if (second?.length) {
+      const addReq: BacklogAddReq = {
+        topicId: Number(topicId),
+        items: second.map((c, idx) => ({
+          flashcardId: Number(c.flashcardId),
+          source: 'second_half',
+          sessionEpoch,
+          orderIndex: idx,
+        })),
+      };
+      try {
+        await backlogService.add(addReq);
+      } finally {
+        await refreshBacklogCount();
+      }
+    }
+
+    setSecondHalfStatus('deferred');
+    setPromptOpen(false);
+    setQueuedChunkCards(null);
+    setQueuedChunkNumber(null);
+    closeSession();
+  };
+
+  /* ---------- CTA Backlog: reserve → generate → commit/release ---------- */
+  const [reservedIdsForBacklog, setReservedIdsForBacklog] = useState<number[] | null>(null);
+  const inFlightReserveRef = useRef<string | null>(null);
+
+  const startBacklogQuiz = async () => {
+    if (isGenerating) return;
+
+    // 1) reserve từ BE
+    const clientRequestId = `bl-${Math.random().toString(36).slice(2, 10)}`;
+    inFlightReserveRef.current = clientRequestId;
+
+    let reserved: BacklogReserveItem[] = [];
+    try {
+      const res = await backlogService.reserve({
+        topicId: Number(topicId),
+        limit: 80,
+        clientRequestId,
+      } as BacklogReserveReq);
+      reserved = res.data?.items ?? [];
+    } catch {
+      await refreshBacklogCount();
+      return;
+    }
+
+    if (!reserved.length) {
+      await refreshBacklogCount();
+      return;
+    }
+
+    // 2) BE đã enrich → map trực tiếp thành QuizCard
+    const cards: QuizCard[] = reserved.map((r) => ({
+      flashcardId: r.flashcardId,
+      front: r.front,
+      back: r.back,
+      imageUrl: r.imageUrl ?? null,
+      topicName: r.topicName ?? null,
+    }));
+
+    const payload = buildPayloadFromQuizCards(topicId, cards);
+
+    setPendingChunk(3);
+    setPendingAction('backlog');
+    setPromptOpen(false);
+    setReservedIdsForBacklog(reserved.map((r) => r.id));
+
+    try {
+      await regenerate(payload, 'quiz');
+    } catch {
+      // lỗi trước khi SSE → release ngay
+      try {
+        if (reserved.length) {
+          await backlogService.release({
+            topicId: Number(topicId),
+            itemIds: reserved.map((r) => r.id),
+          } as BacklogReleaseReq);
+        }
+      } finally {
+        await refreshBacklogCount();
+      }
+      setReservedIdsForBacklog(null);
+      setPendingAction(null);
+      setPendingChunk(null);
+    }
+  };
+
+  // đồng bộ count theo vòng đời phiên
+  useEffect(() => {
+    refreshBacklogCount();
+  }, [sessionEpoch, topicId, refreshBacklogCount]);
+
+  /* ---------- SSE complete ---------- */
+  useEffect(() => {
+    if (pendingChunk === null) return;
+
+    const raw = (sseData as any)?.data?.data as IQuestionsFromSSERaw | undefined;
+    const payloadStatus = (sseData as any)?.data?.status ?? (sseData as any)?.status;
+    const terminal = new Set(['completed', 'closed', 'error', 'failed']);
+    const done = terminal.has(sseStatus) || terminal.has(payloadStatus);
+    if (!done) return;
+
+    const hasQuestions = Array.isArray(raw) && raw.length > 0;
+
+    // Backlog: commit/release theo kết quả
+    const finishBacklog = async (commit: boolean) => {
+      const ids = reservedIdsForBacklog ?? [];
+      setReservedIdsForBacklog(null);
+      if (!ids.length) return;
+      try {
+        if (commit) {
+          await backlogService.commit({ topicId: Number(topicId), itemIds: ids } as BacklogCommitReq);
+        } else {
+          await backlogService.release({ topicId: Number(topicId), itemIds: ids } as BacklogReleaseReq);
+        }
+      } finally {
+        await refreshBacklogCount();
+      }
     };
-    const clearBacklog = () => {
-        writeBacklog(topicId, []);
-        setBacklogCount(0);
-    };
-    const startBacklogQuiz = async () => {
-        if (isGenerating) return;
-        const cards = readBacklog(topicId);
-        if (cards.length === 0) return;
-        const payload = buildPayloadFromQuizCards(topicId, cards);
-        setPendingChunk(3); // 3 = type "backlog"
-        setPendingAction('backlog');
-        setPromptOpen(false);
-        await regenerate(payload, 'quiz');
-    };
 
-    /* ---------- API for Page: fix/reset baseline ---------- */
-    const [baselineOrder, setBaselineOrder] = useState<QuizCard[]>([]);
-    const ensureBaseline = (currentRemainingCount: number, baselineCards?: QuizCard[]) => {
-        if (currentRemainingCount < 0) return;
-        setLastRemaining(currentRemainingCount);
-        if (currentRemainingCount === 0) return;
+    if (!hasQuestions) {
+      if (pendingAction === 'backlog') {
+        finishBacklog(false).finally(() => void 0);
+      }
+      setPendingAction(null);
+      setPendingChunk(null);
+      setPromptOpen(false);
+      return;
+    }
 
-        const resetTo = () => {
-            setBaselineTotal(currentRemainingCount);
-            setFirstHalfStatus('pending');
-            setSecondHalfStatus('pending');
-            setPromptOpen(false);
-            setQueuedChunkCards(null);
-            setQueuedChunkNumber(null);
-            // lock baseline order if provided
-            setBaselineOrder(baselineCards ? dedupeById(baselineCards) : []);
-            setSessionEpoch((x) => x + 1);
-        };
+    const parsed = handleConvertToQuestionsEdited({ type: 'generative', questionsProp: raw });
+    const toStore = parsed.map((q) => ({
+      questionText: q.questionText,
+      choices: q.choices,
+      correctIndex: q.correctIndex,
+    }));
+    writeLocalQuiz(topicId, toStore);
 
-        if (baselineTotal === 0) {
-            resetTo();
-            return;
-        }
-        if (currentRemainingCount > baselineTotal || currentRemainingCount > lastRemaining) {
-            const pf = readPendingFirst(topicId);
-            if (pf.length) {
-                appendToBacklog(pf);
-                clearPendingFirst(topicId);
-            }
-            resetTo();
-        }
-    };
+    if (pendingAction === 'half') {
+      setFirstHalfStatus('quizzed');
+    } else if (pendingAction === 'onlySecond') {
+      setSecondHalfStatus('quizzed');
+      closeSession();
+    } else if (pendingAction === 'catchUpAll') {
+      setFirstHalfStatus('quizzed');
+      setSecondHalfStatus('quizzed');
+      closeSession();
+    } else if (pendingAction === 'backlog') {
+      finishBacklog(true).finally(() => void 0);
+    }
 
-    /* ---------- API for Page: progress after each review ---------- */
-    const onStudiedProgress = (studied: QuizCard[], currentRemainingCount: number) => {
-        if (!baselineTotal || isGenerating || promptOpen) return;
+    const chunk = pendingChunk;
+    setPendingAction(null);
+    setPendingChunk(null);
+    router.push(`/quiz/local?topicId=${topicId}&chunk=${chunk}`);
+  }, [
+    sseStatus,
+    sseData,
+    pendingChunk,
+    pendingAction,
+    topicId,
+    router,
+    closeSession,
+    refreshBacklogCount,
+    reservedIdsForBacklog,
+  ]);
 
-        setLastRemaining(currentRemainingCount);
+  return {
+    // UI state
+    promptOpen,
+    promptVariant,
+    percentLabel,
+    isGenerating,
+    showCatchUp,
 
-        const studiedSoFar = baselineTotal - currentRemainingCount;
+    // HALF
+    confirmHalfQuiz,
+    skipHalfQuiz,
 
-        // 50% if first half is pending
-        if (t50 > 0 && studiedSoFar >= t50 && firstHalfStatus === 'pending') {
-            const hasBaseline = baselineOrder.length >= t50;
-            const firstSlice = dedupeById((hasBaseline ? baselineOrder : studied).slice(0, t50));
-            if (firstSlice.length === 0) return;
+    // FULL
+    getFullRanges,
+    getFullCards,
+    startFullOnlySecond,
+    startFullCatchUpAll,
+    skipFullQuiz,
 
-            setQueuedChunkCards(firstSlice);
-            setQueuedChunkNumber(1);
-            setPromptVariant('half');
-            setPromptOpen(true);
-            return;
-        }
+    // Backlog
+    backlogCount,
+    startBacklogQuiz,
 
-        // 100% if the second half is pending
-        if (t100 > 0 && studiedSoFar >= t100 && secondHalfStatus === 'pending') {
-            setQueuedChunkCards(null); // full: let Page slice
-            setQueuedChunkNumber(2);
-            setPromptVariant('full');
-            setPromptOpen(true);
-        }
-    };
+    // Page API
+    ensureBaseline,
+    onStudiedProgress,
 
-    /* ---------- 50% actions ---------- */
-    const confirmHalfQuiz = async () => {
-        if (queuedChunkNumber !== 1 || !queuedChunkCards?.length) {
-            setPromptOpen(false);
-            return;
-        }
-        const payload = buildPayloadFromQuizCards(topicId, queuedChunkCards);
-        setPendingChunk(1);
-        setPendingAction('half');
-        setPromptOpen(false);
-        setQueuedChunkCards(null);
-        setQueuedChunkNumber(null);
-        await regenerate(payload, 'quiz');
-    };
-
-    const skipHalfQuiz = () => {
-        if (queuedChunkNumber === 1 && queuedChunkCards?.length) {
-            writePendingFirst(topicId, dedupeById(queuedChunkCards));
-        }
-        setFirstHalfStatus('deferred');
-        setPromptOpen(false);
-        setQueuedChunkCards(null);
-        setQueuedChunkNumber(null);
-    };
-
-    /* ---------- 100% actions ---------- */
-    const getFullRanges = () => ({
-        onlySecond: { start: Math.max(0, t50), end: t100 }, // [t50, t100)
-        catchUpAll: { start: 0, end: t100 }, // [0, t100)
-    });
-
-    const getFullCards = () => {
-  const onlySecond = dedupeById(baselineOrder.slice(t50, t100));
-  const catchUpAll = dedupeById(baselineOrder.slice(0,  t100));
-  return { onlySecond, catchUpAll };
-};
-
-    // Only second: backlog first half (if Later), quiz second half
-    const startFullOnlySecond = async (cards: QuizCard[]) => {
-        if (!cards?.length) {
-            setPromptOpen(false);
-            return;
-        }
-
-        if (firstHalfStatus === 'deferred') {
-            const pf = readPendingFirst(topicId);
-            if (pf.length) appendToBacklog(pf);
-            clearPendingFirst(topicId);
-        }
-
-        const payload = buildPayloadFromQuizCards(topicId, cards);
-        setPendingChunk(2);
-        setPendingAction('onlySecond');
-        setPromptOpen(false);
-        await regenerate(payload, 'quiz');
-    };
-
-    // Catch-up all: quiz both halves, clear pending-first
-    const startFullCatchUpAll = async (cards: QuizCard[]) => {
-        if (!cards?.length) {
-            setPromptOpen(false);
-            return;
-        }
-        clearPendingFirst(topicId);
-        const payload = buildPayloadFromQuizCards(topicId, cards);
-        setPendingChunk(2);
-        setPendingAction('catchUpAll');
-        setPromptOpen(false);
-        await regenerate(payload, 'quiz');
-    };
-
-    // Later at 100%: backlog second half + (if any) first half pending, then close session
-
-    const skipFullQuiz = (secondHalfCards: QuizCard[]) => {
-        // If parameter is empty, get from baselineOrder (make sure there is data)
-        let second = secondHalfCards;
-        if (!second?.length && baselineOrder.length >= t100) {
-            second = dedupeById(baselineOrder.slice(t50, t100));
-        }
-
-        if (second?.length) appendToBacklog(second);
-
-        if (firstHalfStatus === 'deferred') {
-            const pf = readPendingFirst(topicId);
-            if (pf.length) appendToBacklog(pf);
-            clearPendingFirst(topicId);
-        }
-
-        // Force resync count from storage just before closing session
-        setBacklogCount(readBacklog(topicId).length);
-
-        setSecondHalfStatus('deferred');
-        setPromptOpen(false);
-        setQueuedChunkCards(null);
-        setQueuedChunkNumber(null);
-        closeSession();
-    };
-
-    useEffect(() => {
-        // resynchronize backlog number every time session closes/opens
-        setBacklogCount(readBacklog(topicId).length);
-    }, [sessionEpoch, topicId]);
-
-    /* ---------- SSE complete ---------- */
-    useEffect(() => {
-        if (pendingChunk === null) return;
-
-        const raw = (sseData as any)?.data?.data as IQuestionsFromSSERaw | undefined;
-        const payloadStatus = (sseData as any)?.data?.status ?? (sseData as any)?.status;
-        const terminal = new Set(['completed', 'closed', 'error', 'failed']);
-        const done = terminal.has(sseStatus) || terminal.has(payloadStatus);
-        if (!done) return;
-
-        const hasQuestions = Array.isArray(raw) && raw.length > 0;
-        if (!hasQuestions) {
-            // Clear pending to avoid getting stuck
-            setPendingAction(null);
-            setPendingChunk(null);
-            setPromptOpen(false);
-            return; // // no navigation
-        }
-
-        const parsed = handleConvertToQuestionsEdited({ type: 'generative', questionsProp: raw });
-        const toStore = parsed.map((q) => ({
-            questionText: q.questionText,
-            choices: q.choices,
-            correctIndex: q.correctIndex,
-        }));
-        writeLocalQuiz(topicId, toStore);
-
-        if (pendingAction === 'half') {
-            setFirstHalfStatus('quizzed'); // continue session
-        } else if (pendingAction === 'onlySecond') {
-            setSecondHalfStatus('quizzed'); // finished second half → close session
-            closeSession();
-        } else if (pendingAction === 'catchUpAll') {
-            setFirstHalfStatus('quizzed');
-            setSecondHalfStatus('quizzed'); // both done → close session
-            closeSession();
-        } else if (pendingAction === 'backlog') {
-            clearBacklog(); // quiz backlog done → clear
-        }
-
-        const chunk = pendingChunk;
-        setPendingAction(null);
-        setPendingChunk(null);
-        router.push(`/quiz/local?topicId=${topicId}&chunk=${chunk}`);
-    }, [sseStatus, sseData, pendingChunk, pendingAction, topicId, router]);
-
-    return {
-        // UI state
-        promptOpen,
-        promptVariant,
-        percentLabel,
-        isGenerating,
-        showCatchUp,
-
-        // HALF
-        confirmHalfQuiz,
-        skipHalfQuiz,
-
-        // FULL
-        getFullRanges,
-        startFullOnlySecond,
-        startFullCatchUpAll,
-        skipFullQuiz,
-        getFullCards,
-
-        // Backlog
-        backlogCount,
-        startBacklogQuiz,
-
-        // API for Page
-        ensureBaseline,
-        onStudiedProgress,
-
-        sessionEpoch,
-    };
+    sessionEpoch,
+  };
 }
