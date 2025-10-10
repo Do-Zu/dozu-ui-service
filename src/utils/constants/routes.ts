@@ -25,6 +25,7 @@ export const ROUTES = Object.freeze({
     PROFILE_SETTINGS: '/setting/profile/settings',
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
     FEYNMAN_REVIEW: (topicId: string | number, method: string) => `/feynman/${topicId}?method=${method}`,
+    ANKI_SETTINGS: (topicId: string | number) => `/topics/${topicId}/settings/anki`,
 
     // ======================= ADMIN ROUTES ========================
 
