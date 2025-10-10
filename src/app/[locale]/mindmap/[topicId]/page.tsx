@@ -49,7 +49,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-    floating: FloatingEdge,
+    'floating': FloatingEdge,
 };
 
 export default function MindmapContent() {
