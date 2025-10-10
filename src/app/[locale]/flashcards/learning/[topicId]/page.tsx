@@ -196,6 +196,18 @@ export default function Page() {
                     updateCorrectAnswers(correctAnswersCount + 1);
                 }
 
+                // Sync studied + milestone according to updated list from BE
+                setStudied((prev) => {
+                    const last = prev[prev.length - 1];
+                    if (last && String(last.flashcardId) === String(currentFlashcard.flashcardId)) {
+                        q.onStudiedProgress(prev, flashcardsUpdated.length);
+                        return prev;
+                    }
+                    const newStudied = [...prev, toQuizCard(currentFlashcard)];
+                    q.onStudiedProgress(newStudied, flashcardsUpdated.length);
+                    return newStudied;
+                });
+
                 // If this was the last card, save progress to database using context method
                 if (flashcardsUpdated.length === 0) {
                     await saveCurrentLearningSession(
@@ -278,17 +290,6 @@ export default function Page() {
                 rating,
                 ankiResult,
             });
-
-            // Avoid double-remove if refetch is present
-            const next = flashcards[0]?.flashcardId === flashcardId ? flashcards.slice(1) : flashcards;
-            setFlashcards(next);
-
-            // update studied
-            const newStudied = [...studied, toQuizCard(currentFlashcard)];
-            setStudied(newStudied);
-
-            // Push progress to hook to decide whether to show prompt at 50%/100%
-            q.onStudiedProgress(newStudied, next.length);
         },
         [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards],
     );
