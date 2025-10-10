@@ -26,7 +26,7 @@ const VerticalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }:Layo
                 fitView();
             });
         },
-        [nodes, edges],
+        [nodes, edges, setNodes, setEdges, fitView],
     );
 
     return (

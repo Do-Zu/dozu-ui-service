@@ -85,11 +85,11 @@ const RegisterPage = () => {
 
     return (
         <CentralCard>
-            <CardContent className="p-6 space-y-6">
                 <CardHeader className="text-center space-y-2">
                     <CardTitle className="text-3xl font-bold">{t('title')}</CardTitle>
                     <CardDescription className="text-base text-muted-foreground">{t('subtitle')}</CardDescription>
                 </CardHeader>
+            <CardContent className="p-6 space-y-6">
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

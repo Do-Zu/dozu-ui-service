@@ -32,7 +32,7 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }:Layou
                 fitView();
             });
         },
-        [nodes, edges],
+          [nodes, edges, setNodes, setEdges, fitView],
     );
 
     return (

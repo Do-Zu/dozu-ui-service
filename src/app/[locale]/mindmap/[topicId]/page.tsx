@@ -39,7 +39,7 @@ import VerticalLayoutButton from '@/components/mindmap/button/VerticalLayoutButt
 import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton';
 import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
-import ExportToCSVButton from '../components/buttons/ExportToCSV';
+import ExportToCSVButton from '../components/buttons/ExportToCSVButton';
 
 const defaultEdgeOptions = {
     type: 'floating',

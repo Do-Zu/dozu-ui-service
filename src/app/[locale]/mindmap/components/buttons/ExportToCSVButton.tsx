@@ -5,7 +5,6 @@ import React from 'react';
 import { useMindMapContext } from '../../context/MindMapContext';
 import toastHelper from '@/utils/toast.helper';
 
-
 interface FindOuterLeafsParams {
     nodes: AppNode[];
     edges: AppEdge[];
@@ -57,7 +56,7 @@ const ExportToCSVButton = () => {
         const pathArrays = retracePaths({ edges, outerLeafs });
         const maxLength = Math.max(...pathArrays.map((path) => path.length));
 
-        const handleDownloadCSV = (pathArrays: string[][], maxLength: any) => {
+        const handleDownloadCSV = (pathArrays: string[][], maxLength: number) => {
             //convert to csv string
             const header = Array.from({ length: maxLength }, (_, i) => i.toString());
             const paddedPaths = pathArrays.map((path) => {
@@ -67,13 +66,25 @@ const ExportToCSVButton = () => {
                 }
                 return padded;
             });
+            // const escapeCSVField = (val: unknown) => {
+            //     const s = String(val ?? '');
+            //     // Escape quotes and wrap if needed; prefix formulas
+            //     const needsWrap = /[",\n\r]/.test(s) || /^[=+\-@]/.test(s);
+            //     const safe = s.replace(/"/g, '""');
+            //     return needsWrap ? `"${safe}"` : safe;
+            // };
+
             const csvContent = [header, ...paddedPaths].map((row) => row.join(',')).join('\n');
+            // const csvContent = [header, ...paddedPaths].map((row) => row.map(escapeCSVField).join(',')).join('\n');
+
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.download = 'mindmap.csv';
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
             URL.revokeObjectURL(url);
         };
         handleDownloadCSV(pathArrays, maxLength);

@@ -7,13 +7,11 @@ import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import { FitView } from '@xyflow/react';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
 
-
 const elkOptions = {
     'elk.algorithm': 'mrtree',
     'elk.layered.spacing.nodeNodeBetweenLayers': '100',
     // 'elk.spacing.nodeNode': '80',
 };
-
 
 const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }: LayoutButtonProps) => {
     const onLayout = useCallback(
@@ -28,7 +26,7 @@ const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }: L
                 fitView();
             });
         },
-        [nodes, edges],
+        [nodes, edges, setNodes, setEdges, fitView],
     );
 
     return (
