@@ -9,6 +9,7 @@
     "registerButtonTextLoading": "Registering...",
     "haveAccountPrompt": "Already have an account?",
     "loginButtonText": "Login",
-    "registerGoogleButtonText": "Register with Google"
+    "registerGoogleButtonText": "Register with Google",
+    "registerSuccessMessage":"Registered successfully, verify email to continue"
   }
 }
