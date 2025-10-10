@@ -223,7 +223,12 @@ class GamificationService {
             return sessionId;
         }
         
-        const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        // Use crypto.getRandomValues() for cryptographically secure random ID
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+        const randomPart = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        
+        const newSessionId = `session_${Date.now()}_${randomPart}`;
         sessionStorage.setItem('gamification_session_id', newSessionId);
         return newSessionId;
     }
