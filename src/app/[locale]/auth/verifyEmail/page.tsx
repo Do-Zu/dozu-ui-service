@@ -41,7 +41,7 @@ export default function VerifyEmailPage() {
 
     useEffect(() => {
         if (!email || !verificationCode) {
-            toastHelper.showErrorMessage('invalidUrlErrorMessage');
+            toastHelper.showErrorMessage(t('invalidUrlErrorMessage'));
             router.push('/auth/login');
             return;
         }
