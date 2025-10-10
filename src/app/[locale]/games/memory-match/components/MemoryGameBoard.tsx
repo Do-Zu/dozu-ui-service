@@ -28,10 +28,10 @@ export default function MemoryGameBoard() {
   return (
     <div className="w-full h-full">
       <div 
-        className={`grid ${getGridClass()} gap-2 max-w-4xl mx-auto p-4 bg-muted/20 rounded-lg border shadow-lg`}
+        className={`grid ${getGridClass()} gap-3 max-w-6xl mx-auto p-6 bg-muted/20 rounded-lg border shadow-lg`}
         style={{
-          height: 'calc(100vh - 180px)',
-          gridAutoRows: 'minmax(120px, 1fr)',
+          height: '100%',
+          gridAutoRows: 'minmax(155px, 1fr)',
           backgroundColor: 'var(--muted)',
           borderColor: 'var(--border)',
         }}

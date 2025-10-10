@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useMemoryMatch } from '../context/MemoryMatchContext';
 import MemoryGameBoard from './MemoryGameBoard';
-import GameStats from './GameStats';
+import GameStatsModal from './GameStatsModal';
 import { useTranslations } from 'next-intl';
 
 export default function MemoryMatchGame() {
@@ -95,17 +95,10 @@ export default function MemoryMatchGame() {
   // Fullscreen game layout
   if (isFullscreenGame) {
     return (
-        <div className="relative w-full h-full bg-background overflow-hidden">
+      <>
+        <div className="relative w-full h-full bg-background">
         {/* Floating control bar - Responsive to sidebar and stats */}
-        <div className={`absolute top-4 z-10 flex justify-center items-center transition-all duration-300 ease-in-out ${
-          showStats 
-            ? sidebarOpen 
-              ? 'left-4 right-4 lg:right-[340px]' 
-              : 'left-4 right-4 lg:right-[340px]'
-            : sidebarOpen 
-              ? 'left-4 right-4' 
-              : 'left-4 right-4'
-        }`}>
+        <div className="absolute top-4 left-4 right-4 z-10 flex justify-center items-center">
           <div className="flex items-center gap-4 bg-background/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border">
             <Button 
               variant="outline" 
@@ -165,33 +158,17 @@ export default function MemoryMatchGame() {
         </div>
 
         {/* Main Content Area - Flex layout */}
-        <div className="relative w-full h-screen bg-background overflow-hidden">
+        <div className="relative w-full h-screen bg-background">
           {/* Game Board - Auto resize based on sidebar state */}
           <div className="flex h-[calc(100vh-2rem)]">
-             <div className={`flex items-center justify-center px-4 transition-all duration-300 ease-in-out ${showStats ? 'w-full lg:w-[calc(100%-352px)]' : 'w-full'} flex-1 min-h-0`}>
+             <div className="flex items-center justify-center px-4 w-full flex-1 min-h-0">
               <div className="w-full max-w-4xl">
                 <MemoryGameBoard />
               </div>
             </div>
-
-           {/* Right Sidebar - Fixed width with left margin */}
-           {showStats && (
-             <div className="w-80 mr-8 ml-4 bg-background border-l border shadow-lg flex flex-col max-h-[calc(100vh-4rem)] rounded-l-lg">
-               <div className="flex-1 overflow-y-auto p-4">
-                 <GameStats />
-               </div>
-             </div>
-           )}
           </div>
         </div>
 
-        {/* Overlay for mobile */}
-        {showStats && (
-          <div 
-            className="absolute inset-0 bg-black/50 z-15 lg:hidden"
-            onClick={() => setShowStats(false)}
-          />
-        )}
 
         {/* Game Completed Modal */}
         {gameStatus === 'completed' && (
@@ -239,7 +216,16 @@ export default function MemoryMatchGame() {
             </Card>
           </div>
         )}
-      </div>
+
+        {/* Game Stats Modal */}
+        </div>
+        
+        {/* Game Stats Modal - Render at top level */}
+        <GameStatsModal 
+          isOpen={showStats} 
+          onOpenChange={setShowStats} 
+        />
+      </>
     );
   }
 
@@ -323,6 +309,12 @@ export default function MemoryMatchGame() {
           </div>
         </div>
       </div>
+
+      {/* Game Stats Modal */}
+      <GameStatsModal 
+        isOpen={showStats} 
+        onOpenChange={setShowStats} 
+      />
     </div>
   );
 }
