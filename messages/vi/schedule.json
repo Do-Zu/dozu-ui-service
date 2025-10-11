@@ -8,6 +8,7 @@
             "controls": {
                 "previous": "Trước",
                 "today": "Hôm nay",
+                "currentWeek": "Tuần hiện tại",
                 "next": "Tiếp"
             }
         },
