@@ -85,14 +85,20 @@ const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps)
                         >
                             <GripVertical size={12} />
                         </div>
-                        <span className={cn('flex-1 min-w-0 text-xs text-left truncate')}>{event?.title}</span>
+                        <span
+                            className={cn(
+                                'flex-1 min-w-0 text-xs text-left truncate text-slate-800 dark:text-slate-50',
+                            )}
+                        >
+                            {event?.title}
+                        </span>
                     </div>
                 </HoverCardTrigger>
                 <HoverCardContent className="w-80">
                     <div className="space-y-1">
-                        <h4 className="text-sm font-semibold">{event.title}</h4>
+                        <h4 className="text-sm font-semibold">{event?.title}</h4>
                         <p className="text-xs">
-                            {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+                            {format(event?.start, 'HH:mm')} - {format(event?.end, 'HH:mm')}
                         </p>
                         <DialogFooter>
                             <Button onClick={handleRedirectLearningPage} variant="outline" className="text-sm">
