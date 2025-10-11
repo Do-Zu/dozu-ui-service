@@ -13,7 +13,7 @@ const ScheduleSetupPage = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-md shadow-sm">
+        <div className="max-w-full p-6 bg-white rounded-md shadow-sm overflow-auto">
             <h1 className="text-xl font-semibold">Schedule Setup</h1>
             <SetupForm onComplete={handleComplete} />
         </div>
