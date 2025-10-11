@@ -103,11 +103,13 @@ export default function MemoryCard({ card, index, disabled = false }: MemoryCard
 
             {/* Card content */}
             <div className="text-center flex-1 flex items-center justify-center">
-              <p className={cn(
-                'font-medium leading-tight text-foreground',
-                card.content.length > 50 ? 'text-xs' : 
-                card.content.length > 30 ? 'text-sm' : 'text-base'
-              )}>
+              <p 
+                className={cn(
+                  'font-medium leading-tight text-foreground',
+                  card.content.length > 50 ? 'text-xs' : 
+                  card.content.length > 30 ? 'text-sm' : 'text-base'
+                )}
+              >
                 {card.content}
               </p>
             </div>

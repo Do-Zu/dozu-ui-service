@@ -94,16 +94,6 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                     rank: student.points > 0 ? index + 1 : null, // Only rank students with points > 0
                 }));
 
-                // Debug logging
-                console.log('Students with ranking:', studentsWithStreakData.map(s => ({
-                    username: s.username,
-                    points: s.points,
-                    rank: s.rank,
-                    freeze: s.streakFreezeCount,
-                    currentStreak: s.currentStreak,
-                    note: classId ? 'This is CLASS-SPECIFIC streak' : 'This is GLOBAL streak'
-                })));
-
                 setStudentsWithStreaks(studentsWithStreakData);
                 setLeaderboardData(leaderboard?.entries || []);
             } catch (error) {

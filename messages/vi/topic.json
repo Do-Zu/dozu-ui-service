@@ -4,6 +4,7 @@
         "browse": "Lướt",
         "learning": "Học tập",
         "start-quiz": "Làm Quiz",
-        "deleteConfirmation": "Bạn có chắc muốn xóa chủ đề {name} không? Tất cả dữ liệu trong topic này sẽ bị xóa theo."
+        "deleteConfirmation": "Bạn có chắc muốn xóa chủ đề {name} không? Tất cả dữ liệu trong topic này sẽ bị xóa theo.",
+        "settings": "Settings"
     }
 }

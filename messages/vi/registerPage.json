@@ -9,6 +9,7 @@
     "registerButtonTextLoading": "Đang tải...",
     "haveAccountPrompt": "Bạn đã có tài khoản?",
     "loginButtonText": "Đăng nhập",
-    "registerGoogleButtonText": "Đăng ký với Google"
+    "registerGoogleButtonText": "Đăng ký với Google",
+    "registerSuccessMessage": "Đăng ký thành công, xác nhận email để tiếp tục"
   }
 }

@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useFetch from '@/hooks/useFetch';
-import { IFlashcard, IQualityResponseNextReviewInterval } from '../types/flashcard.type';
+import { IFlashcard, IQualityResponseNextReviewInterval, IDueAnkiCard } from '../types/flashcard.type';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
+import { IAnkiRating, IAnkiStatus } from '@/types/anki';
 import LoadingPage from '@/app/loading';
 import { FlashcardLearning } from './components/FlashcardLearning';
 import NoFlashcardsMessage from './components/NoFlashcardsMessage';
 import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
-import { IAnkiRating, IAnkiStatus, IDueAnkiCard } from '../types/flashcard.type';
 import flashcardService, { IFlashcardReviewByAnkiPayload } from '@/services/flashcard/flashcard.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
@@ -269,7 +269,7 @@ export default function Page() {
                             ...currentFlashcard,
                             nextReview: data.nextReview,
                             status: data.status,
-                            nextReviewSchedule: data.nextReviewSchedule,
+                            nextReviewDataByRatings: data.nextReviewDataByRatings,
                         });
                         inserted = true;
                         break;
@@ -280,7 +280,7 @@ export default function Page() {
                             ...currentFlashcard,
                             nextReview: data.nextReview,
                             status: data.status,
-                            nextReviewSchedule: data.nextReviewSchedule,
+                            nextReviewDataByRatings: data.nextReviewDataByRatings,
                         });
                     }
                 }

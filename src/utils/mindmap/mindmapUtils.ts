@@ -97,5 +97,7 @@ export const addChildNode = ({ screenToFlowPosition, setNodes, setEdges, current
     };
 
     setNodes((nds) => nds.concat([newNode]));
-    setEdges((eds) => eds.concat({ id: `${id}-${currentNodeId}`, source: currentNodeId, target: id }));
+    setEdges((eds) =>
+        eds.concat({ id: `${id}-${currentNodeId}`, source: currentNodeId, target: id, type: 'floating' }),
+    );
 };

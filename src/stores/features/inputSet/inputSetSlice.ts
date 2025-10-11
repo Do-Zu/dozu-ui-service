@@ -10,7 +10,7 @@ const initialState: InputSetState = {
 };
 
 export const inputSetSlice = createSlice({
-    name: 'auth',
+    name: 'inputSet',
     initialState,
     reducers: {
         updateInputSetId: (state, action: PayloadAction<number>) => {

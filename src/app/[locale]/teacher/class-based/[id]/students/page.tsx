@@ -8,29 +8,19 @@ import LoadingPage from '@/app/loading';
 import { StudentList } from './components/StudentList';
 import { toast } from '@/hooks/use-toast';
 import teacherClassService, {
-    IRemoveStudentInClassPayload,
-    IUserProfile,
+    IRemoveStudentInClassPayload
 } from '@/services/class-based-learning/teacher/teacherClass.service';
+import { IUserProfile } from '@/types/profile';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
 import StudentProfileModal from './components/StudentProfileModal';
 import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { withAuth } from '@/hoc/withAuth';
+import { USER_ROLES } from '@/utils/constants/roles';
 
-export default function Page() {
-    let { id: classId } = useParams() as { id: string | string[] | number };
-
-    if (typeof classId !== 'string') {
-        return <div>Invalid Params, classId must be a valid number</div>;
-    }
-
-    classId = Number(classId);
-
-    if (isNaN(classId)) {
-        return <div>Invalid Params, classId must be a valid number</div>;
-    }
-
+function StudentsManagementComponent({ classId }: { classId: number }) {
     const tCommon = useTranslations('common');
     const tClass = useTranslations('class');
     const tStudentList = useTranslations('class.studentList');
@@ -39,6 +29,7 @@ export default function Page() {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [selectedStudentProfile, setSelectedStudentProfile] = useState<IUserProfile | null>(null);
     const [profileLoading, setProfileLoading] = useState(false);
+    
     
     const {
         data: myClass,
@@ -82,10 +73,14 @@ export default function Page() {
         setIsProfileModalOpen(true);
         try {
             const profileData = await teacherClassService.getStudentProfile(student.userId);
+            
             const fullProfile: IUserProfile = {
                 ...profileData,
-                enrolledAt: student.enrolledAt,
+                enrolledAt: student.enrolledAt instanceof Date 
+                    ? student.enrolledAt.toISOString() 
+                    : student.enrolledAt || new Date().toISOString(),
             };
+            
             setSelectedStudentProfile(fullProfile);
         } catch (error) {
             toastHelper.showErrorMessage('Không thể tải thông tin profile');
@@ -154,4 +149,22 @@ export default function Page() {
             />
         </div>
     );
+}
+
+const AuthComponent = withAuth(StudentsManagementComponent, { requiredRole: USER_ROLES.TEACHER });
+
+export default function Page() {
+    let { id: classId } = useParams() as { id: string | string[] | number };
+
+    if (typeof classId !== 'string') {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
+    classId = Number(classId);
+
+    if (isNaN(classId)) {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
+    return <AuthComponent classId={classId} />;
 }

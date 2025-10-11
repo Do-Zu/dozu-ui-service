@@ -1,4 +1,4 @@
-import { IAnkiRating, INextReviewInterval } from "@/app/[locale]/flashcards/types/flashcard.type";
+import { INextReviewInterval } from "@/types/anki";
 import { TimeUnit } from "../date/date.util";
 
 class FlashcardHelper {

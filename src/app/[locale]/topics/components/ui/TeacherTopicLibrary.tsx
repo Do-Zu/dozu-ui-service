@@ -250,7 +250,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     }
 
     function handleOnClickEditMindmap(topicId: number) {
-        router.push(ROUTES.MINDMAP_EDIT(topicId));
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_MINDMAP_EDIT(classId, topicId));
     }
 
     function handleOnClickStartQuiz(topicId: number) {

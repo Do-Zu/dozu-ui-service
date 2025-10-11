@@ -90,7 +90,7 @@ export default function PaymentPage() {
                             Order Code: {orderCode}
                         </Badge>
                         <div className="pt-4">
-                            <Button onClick={() => router.push('/home')} className="w-full">
+                            <Button onClick={() => router.push(ROUTES.HOME)} className="w-full">
                                 Continue to Dashboard
                             </Button>
                         </div>

@@ -121,8 +121,9 @@ export default function StudentProfileModal({
     // Show loading state if we're fetching any data
     const isLoading = loading || gamificationLoading; // || lessonStatsLoading;
     
-    // Don't return null during loading or when modal is open - show the modal with loading state
-    if (!student && !isLoading && !isOpen) return null;
+    
+    // Don't render modal if it's not open
+    if (!isOpen) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>

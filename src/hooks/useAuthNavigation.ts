@@ -115,7 +115,7 @@ export function useAuthNavigation() {
                 }
 
                 if (isTeacher(user)) {
-                    return navigate(ROUTES.LANDING);
+                    return navigate(ROUTES.TEACHER.HOME);
                 }
 
                 // Create redirect chain for users who need intermediate steps
@@ -154,6 +154,27 @@ export function useAuthNavigation() {
         },
         [navigate],
     );
+
+    /**
+     * Handles completion of the onboarding process
+     * Marks onboarding as complete and redirects to next step or final destination
+     */
+    const handleSkipOnboarding = useCallback(() => {
+        try {
+            // Check if we're in a redirect chain
+            const nextDestination = RedirectChainService.handlePageCompletion(ROUTES.ONBOARDING);
+
+            if (nextDestination) {
+                navigate(nextDestination);
+            } else {
+                // Fallback to home if no chain
+                navigate(ROUTES.HOME);
+            }
+        } catch (error) {
+            console.error('Onboarding completion error:', error);
+            navigate(ROUTES.HOME);
+        }
+    }, [navigate]);
 
     /**
      * Handles completion of the onboarding process
@@ -368,6 +389,7 @@ export function useAuthNavigation() {
         // Authentication flow handlers
         handlePostLogin,
         handlePostRegistration,
+        handleSkipOnboarding,
         handleOnboardingComplete,
         handleWelcomeComplete,
 

@@ -17,7 +17,6 @@
         },
         "currentProcessLearning": {
             "title": "Current Learning",
-            "subtitle": "Based on your timeline schedule",
             "description": "Description",
             "progress": "Progress",
             "remaining": "remaining",

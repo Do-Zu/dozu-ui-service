@@ -13,12 +13,16 @@ import toastHelper from '@/utils/toast.helper';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Loader2, SendHorizontal } from 'lucide-react';
+import { User } from '@/types/auth';
+import { ApiResponse } from '@/api/type';
 
 interface IChangePasswordInfoRequestBody {
     email: string;
     verificationCode: string;
     password: string;
 }
+
+
 
 const ChangePasswordPage = () => {
     const router = useRouter();
@@ -49,7 +53,7 @@ const ChangePasswordPage = () => {
         data: apiResponse,
         error: apiPostContentError,
         execute: sendChangePasswordRequest,
-    } = usePost<IChangePasswordInfoRequestBody, any>('/auth/change-password', 'POST', {
+    } = usePost<IChangePasswordInfoRequestBody, ApiResponse<User>>('/auth/change-password', 'POST', {
         onError(error) {
             toastHelper.showErrorMessage(error);
         },

@@ -22,9 +22,27 @@ interface GenerateMindmapCardProps {
     ) => void;
 }
 
+interface GeneratedEdge {
+    id: string;
+    source: string;
+    target: string;
+}
+
+interface GeneratedNode {
+    id: string;
+    position: { x: number; y: number };
+    data: {
+        label: string;
+        description: string;
+        pageStartIndex: number;
+        pageEndIndex: number;
+        isRoot: boolean;
+    };
+}
+
 const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGenerated }: GenerateMindmapCardProps) => {
-    const getUpdatedEdges = (oldId: any, newId: any, edges: any) => {
-        const updatedEdges = edges.map((edge: any) => {
+    const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEdge[]) => {
+        const updatedEdges = edges.map((edge: GeneratedEdge) => {
             if (edge.source === oldId) {
                 edge.source = newId;
             }
@@ -36,8 +54,11 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
         return updatedEdges;
     };
 
-    const getUpdatedMindmapData = (nodes: any, edges: any) => {
-        let updatedEdges = edges;
+    const getUpdatedMindmapData = (nodes: GeneratedNode[], edges: GeneratedEdge[]) => {
+        let updatedEdges = edges.map((edge: any) => ({
+            ...edge,
+            type: 'floating',
+        }));
 
         const updatedNodes = mindmapData?.nodes?.map((node: any) => {
             const oldId = node.id;

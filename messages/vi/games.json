@@ -137,7 +137,9 @@
         "frontCardsAreQuestions": "Mặt trước của thẻ là câu hỏi (Q)",
         "backCardsAreAnswers": "Mặt sau của thẻ là câu trả lời (A)",
         "fewerMovesHigherScore": "Ít lượt di chuyển = điểm cao hơn"
-      }
+      },
+      "gameStats": "Thống Kê Trò Chơi",
+      "gameStatsDescription": "Xem tiến độ trò chơi hiện tại và các chỉ số hiệu suất"
     },
     "common": {
       "noFlashcards": "Không có flashcard nào cho chủ đề này",

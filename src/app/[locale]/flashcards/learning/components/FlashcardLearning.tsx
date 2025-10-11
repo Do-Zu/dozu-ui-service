@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 import BackButton from '../../components/BackButton';
-import { IAnkiRating, IDueAnkiCard, IFlashcard, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
+import { IDueAnkiCard, IFlashcard, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
 import Flashcard from '../../components/Flashcard';
 import { Angry, CircleAlert, Eye, Frown, Laugh, Smile, ThumbsUp } from 'lucide-react';
 import { putRequest } from '@/api/api';
@@ -13,6 +13,7 @@ import { useLearningOptions } from '../hooks/useLearningOptions';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import flashcardHelper from '@/utils/flashcard/flashcard.helper';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
+import { IAnkiRating } from '@/types/anki';
 
 interface Props {
     topicName: string;
@@ -84,15 +85,12 @@ export function FlashcardLearning({
                     {shouldShowTrackingOptions ? (
                         <div className="grid grid-cols-12 gap-6 mt-4 w-[55%] h-[18%]">
                             {learningOptions.map((option, index) => {
-                                // const nextReviewInterval = flashcard?.qualityResponsesNextReviewInterval.find(
-                                //     (element) => element.qualityResponse === option.qualityResponse,
-                                // )?.nextReviewInterval;
                                 // Get the interval list if available, otherwise the array is empty
-                                const intervals = flashcard.nextReviewSchedule?.nextReviewIntervalsForRating ?? [];
+                                const intervals = flashcard.nextReviewDataByRatings;
 
                                 // Find interval by current rating (can be undefined)
                                 const found = intervals.find((i) => i.rating === option.rating);
-                                const interval = found?.interval;
+                                const interval = found?.data.nextReviewInterval;
 
                                 // Display label: if data is missing, use a dash
                                 const intervalFormatted = interval ? flashcardHelper.formatInterval(interval) : '—';
