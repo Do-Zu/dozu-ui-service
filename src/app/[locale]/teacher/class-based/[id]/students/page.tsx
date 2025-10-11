@@ -8,11 +8,15 @@ import LoadingPage from '@/app/loading';
 import { StudentList } from './components/StudentList';
 import { toast } from '@/hooks/use-toast';
 import teacherClassService, {
-    IRemoveStudentInClassPayload,
+    IRemoveStudentInClassPayload
 } from '@/services/class-based-learning/teacher/teacherClass.service';
+import { IUserProfile } from '@/types/profile';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
+import StudentProfileModal from './components/StudentProfileModal';
+import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
+import { useState, useEffect } from 'react';
 import { withAuth } from '@/hoc/withAuth';
 import { USER_ROLES } from '@/utils/constants/roles';
 
@@ -20,6 +24,13 @@ function StudentsManagementComponent({ classId }: { classId: number }) {
     const tCommon = useTranslations('common');
     const tClass = useTranslations('class');
     const tStudentList = useTranslations('class.studentList');
+    
+    // Profile modal state
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [selectedStudentProfile, setSelectedStudentProfile] = useState<IUserProfile | null>(null);
+    const [profileLoading, setProfileLoading] = useState(false);
+    
+    
     const {
         data: myClass,
         error: myClassError,
@@ -55,6 +66,33 @@ function StudentsManagementComponent({ classId }: { classId: number }) {
     async function handleRemoveClick(studentId: number) {
         if (typeof classId !== 'number' && !classId) return;
         await removeStudentFromClassAsync({ classId: classId as number, studentId });
+    }
+
+    async function handleViewProfile(student: IStudentInClass) {
+        setProfileLoading(true);
+        setIsProfileModalOpen(true);
+        try {
+            const profileData = await teacherClassService.getStudentProfile(student.userId);
+            
+            const fullProfile: IUserProfile = {
+                ...profileData,
+                enrolledAt: student.enrolledAt instanceof Date 
+                    ? student.enrolledAt.toISOString() 
+                    : student.enrolledAt || new Date().toISOString(),
+            };
+            
+            setSelectedStudentProfile(fullProfile);
+        } catch (error) {
+            toastHelper.showErrorMessage('Không thể tải thông tin profile');
+            setSelectedStudentProfile(null);
+            setIsProfileModalOpen(false);
+        } finally {
+            setProfileLoading(false);
+        }
+    }
+    function handleCloseProfileModal() {
+        setIsProfileModalOpen(false);
+        setSelectedStudentProfile(null);
     }
 
     if (myClassError) {
@@ -94,8 +132,21 @@ function StudentsManagementComponent({ classId }: { classId: number }) {
                 </div>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                <StudentList students={students} handleRemoveClick={handleRemoveClick} />
+                <StudentList
+                    students={students}
+                    handleRemoveClick={handleRemoveClick}
+                    handleViewProfile={handleViewProfile}
+                />
             </div>
+
+            {/* Student Profile Modal */}
+            <StudentProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={handleCloseProfileModal}
+                student={selectedStudentProfile}
+                loading={profileLoading}
+                classId={classId}
+            />
         </div>
     );
 }
