@@ -28,6 +28,8 @@ import {
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { gamificationService } from '@/services/gamification/gamification.service';
+import { progressService } from '@/services/progress/progress.service';
+import { streakProgressService } from '@/services/progress/streakProgress.service';
 import { GamificationStats } from '@/types/streaks/gamification.type';
 import { IUserProfile } from '@/types/profile';
 // import lessonCompletionService, { LessonCompletionStats } from '@/services/class-based-learning/lessonCompletion.service';
@@ -55,14 +57,38 @@ export default function StudentProfileModal({
     const tCommon = useTranslations('common');
     const tUser = useTranslations('user');
     
-    // Fetch real gamification stats for the student
+    // Fetch real gamification stats for the student using updated streak calculation
     const {
         data: realGamificationStats,
         loading: gamificationLoading,
         error: gamificationError,
-    } = useFetch<GamificationStats>(() => 
-        student ? gamificationService.getUserGamificationStats(student.userId) : Promise.resolve(null)
-    );
+    } = useFetch<GamificationStats>(async () => {
+        if (!student) return null;
+        
+        try {
+            // Get updated streak data using new calculation logic
+            const streakData = await streakProgressService.getUserLearningStreak(student.userId.toString());
+            
+            // Get base gamification stats
+            const baseStats = await gamificationService.getUserGamificationStats(student.userId);
+            if (baseStats) {
+                // Update with calculated streak data
+                return {
+                    ...baseStats,
+                    currentStreak: streakData.currentStreak,
+                    longestStreak: streakData.longestStreak,
+                    lastStudyDate: streakData.lastStudyDate
+                };
+            }
+            
+            // Fallback to original API if no progress data
+            return await gamificationService.getUserGamificationStats(student.userId);
+        } catch (error) {
+            console.error('Error calculating updated gamification stats:', error);
+            // Fallback to original API
+            return await gamificationService.getUserGamificationStats(student.userId);
+        }
+    });
 
     // Fetch real lesson completion stats for the student
     // const {

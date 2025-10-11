@@ -56,7 +56,7 @@ class LearningStatsService {
 
             // Filter progress by content that belongs to this class
             const filteredProgress = allProgress.filter(progress => {
-                return classTopicIds.has(progress.contentId);
+                return classTopicIds.has(progress.topicId);
             });
 
             const stats = this.calculateLearningStats(filteredProgress);

@@ -1,7 +1,7 @@
 export interface IProgress {
   id: string;
   userId: string;
-  contentId: string;
+  topicId: string;
   contentType: ContentType;
   completionPercentage: number;
   status: ProgressStatus;

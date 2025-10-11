@@ -110,13 +110,24 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
 
     const handleSubmitQuiz = async () => {
         try {
+            // Calculate score and duration
+            const correctAnswers = quizData.filter(q => q.selectedAnswer === q.correctIndex).length;
+            const totalQuestions = quizData.length;
+            const score = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+            const duration = quizStartTime ? Math.round((Date.now() - quizStartTime) / 1000) : 0;
+            
             const response = await quizService.submitQuiz({
                 quizId: Number(quizId),
+                topicId: Number(topicId),
                 results: quizData.map((q: Question) => ({
                     questionId: q.questionId,
                     correct: q.selectedAnswer === q.correctIndex,
                     userAnswerIndex: typeof q.selectedAnswer === 'number' ? q.selectedAnswer : null
                 })),
+                score: score,
+                duration: duration,
+                correctAnswers: correctAnswers,
+                totalQuestions: totalQuestions
             });
             const { quizResultId } = response.data as { quizResultId: string };
             

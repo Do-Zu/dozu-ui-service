@@ -5,6 +5,7 @@ import { ContentType, ProgressStatus } from '@/types/progress';
 export interface StreakProgressData {
     userId: string;
     contentId: string;
+    topicId?: string;
     contentType: ContentType;
     status: ProgressStatus;
     completionPercentage?: number;
@@ -64,7 +65,7 @@ class StreakProgressService {
             // Check if progress record exists
             const existingProgress = await progressService.getAllProgress({
                 userId: data.userId,
-                contentId: data.contentId,
+                contentId: data.topicId || data.contentId,
                 contentType: data.contentType
             });
 
@@ -88,9 +89,9 @@ class StreakProgressService {
                 await progressService.updateProgress(progressId, updateData);
             } else {
                 // Create new progress record
-                const createData: IProgressCreate = {
+                const createData = {
                     userId: data.userId,
-                    contentId: data.contentId,
+                    topicId: data.topicId || data.contentId, // Server expects topicId, not contentId
                     contentType: data.contentType,
                     status: data.status,
                     completionPercentage: data.completionPercentage || 0,
@@ -99,9 +100,10 @@ class StreakProgressService {
                         ...data.metadata,
                         timeSpent: data.timeSpent,
                     }
-                };
+                } as IProgressCreate;
                 
                 console.log('StreakProgress: Creating new progress record:', createData);
+                console.log('StreakProgress: Data being sent to progress API:', JSON.stringify(createData, null, 2));
                 await progressService.createProgress(createData);
             }
             
@@ -212,39 +214,43 @@ class StreakProgressService {
             const dateString = checkDate.toDateString();
             
             if (dailyActivity.has(dateString)) {
-                if (i === 0) {
-                    currentStreak++;
+                currentStreak++;
+                if (!lastStudyDate) {
                     lastStudyDate = checkDate;
-                } else if (currentStreak > 0) {
-                    currentStreak++;
                 }
             } else {
-                if (i === 0) {
-                    // No activity today, check if yesterday had activity
-                    continue;
-                } else {
-                    break;
+                // Allow grace period: streak continues if studied yesterday
+                if (i > 1) {
+                    break;  // Break if gap is more than 1 day
                 }
             }
         }
 
-        // Calculate longest streak
-        for (let i = 0; i < dates.length; i++) {
-            const currentDate = new Date(dates[i]);
-            const nextDate = i < dates.length - 1 ? new Date(dates[i + 1]) : null;
+        // Calculate longest streak by checking consecutive days
+        const sortedDates = Array.from(dailyActivity.keys()).sort((a, b) => 
+            new Date(a).getTime() - new Date(b).getTime() // Sort from oldest to newest
+        );
+        
+        tempStreak = 1; // Start with 1 for the first date
+        longestStreak = 1; // Minimum streak is 1
+        
+        for (let i = 1; i < sortedDates.length; i++) {
+            const currentDate = new Date(sortedDates[i]);
+            const previousDate = new Date(sortedDates[i - 1]);
+            const dayDiff = Math.floor((currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24));
             
-            if (nextDate) {
-                const dayDiff = Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24));
-                if (dayDiff === 1) {
-                    tempStreak++;
-                } else {
-                    longestStreak = Math.max(longestStreak, tempStreak + 1);
-                    tempStreak = 0;
-                }
+            if (dayDiff === 1) {
+                // Consecutive day
+                tempStreak++;
             } else {
-                longestStreak = Math.max(longestStreak, tempStreak + 1);
+                // Gap found, update longest streak and reset
+                longestStreak = Math.max(longestStreak, tempStreak);
+                tempStreak = 1; // Reset to 1 for the current date
             }
         }
+        
+        // Update longest streak with the final temp streak
+        longestStreak = Math.max(longestStreak, tempStreak);
 
         return {
             currentStreak,
@@ -293,11 +299,13 @@ class StreakProgressService {
         userId: string,
         quizId: string,
         score: number,
-        timeSpent: number
+        timeSpent: number,
+        topicId?: string
     ): Promise<{ progressUpdated: boolean; streakUpdated: boolean; message: string }> {
         return this.trackLearningActivity({
             userId,
             contentId: quizId,
+            topicId: topicId || quizId, // Use topicId if provided, otherwise fallback to quizId
             contentType: ContentType.QUIZ,
             status: ProgressStatus.COMPLETED,
             completionPercentage: 100,
