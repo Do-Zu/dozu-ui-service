@@ -8,6 +8,7 @@
             "controls": {
                 "previous": "Previous",
                 "today": "Today",
+                "currentWeek": "Current Week",
                 "next": "Next"
             }
         },
