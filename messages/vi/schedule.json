@@ -32,6 +32,25 @@
             "save": "Lưu thay đổi",
             "cancel": "Hủy",
             "errorSaveMessage": "Có lỗi xảy ra khi lưu thay đổi. Vui lòng thử lại."
+        },
+        "setup": {
+            "pageTitle": "Thiết lập lịch học",
+            "freeTime": {
+                "title": "Thời gian rảnh trong tuần",
+                "description": "Chọn khung giờ bạn có thể học mỗi ngày"
+            },
+            "studyHabits": {
+                "title": "Thói quen học",
+                "description": "Hệ thống sẽ gợi ý lịch học phù hợp với bạn hơn."
+            },
+            "actions": {
+                "save": "Lưu",
+                "saving": "Đang lưu..."
+            },
+            "messages": {
+                "saveError": "Không thể lưu cài đặt. Vui lòng thử lại sau.",
+                "errorOccurred": "Đã xảy ra lỗi: {error}"
+            }
         }
     }
 }
