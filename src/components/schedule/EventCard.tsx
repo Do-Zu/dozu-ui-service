@@ -85,11 +85,9 @@ const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps)
                         >
                             <GripVertical size={12} />
                         </div>
-                        <Button
-                            variant="link"
-                            className={cn('flex-1 min-w-0 text-xs justify-start text-left p-0 truncate')}
-                        >
+                        <span className={cn('flex-1 min-w-0 text-xs text-left truncate')}>
                             {event?.title}
+                        </span>
                         </Button>
                     </div>
                 </HoverCardTrigger>
