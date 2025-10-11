@@ -40,6 +40,7 @@ import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton
 import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
 import ExportToCSVButton from '../components/buttons/ExportToCSVButton';
+import ImportMindmapButton from '../components/buttons/ImportMindMapButton';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -244,6 +245,7 @@ export default function MindmapContent() {
                             {isSaving ? 'Saving...' : 'Save mindmap'}
                         </Button>
                         <DownloadButton />
+                        <ImportMindmapButton />
                         <ExportToCSVButton />
                         <HorizontalLayoutButton
                             nodes={nodes}
