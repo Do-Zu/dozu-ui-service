@@ -24,6 +24,8 @@
     "averageLabel": "Average",
     "learningStatsDescription": "Learning activity statistics",
     "achievementsCount": "Achievements",
-    "earnedAt": "Earned"
+    "earnedAt": "Earned",
+    "noStudentData": "No student data available",
+    "gamificationDataError": "Unable to load learning statistics. Showing cached data."
   }
 }

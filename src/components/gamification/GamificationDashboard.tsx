@@ -7,8 +7,9 @@ import { Trophy, Flame, Star, TrendingUp, Users, Calendar } from 'lucide-react';
 import { StreakDisplay } from './StreakDisplay';
 import { PointSystem } from './PointSystem';
 import { Leaderboard } from './Leaderboard';
-import { gamificationService, GamificationStats } from '@/services/gamification/gamificationService';
-import { leaderboardService } from '@/services/gamification/leaderboardService';
+import { gamificationService } from '@/services/gamification/gamification.service';
+import { GamificationStats } from '@/types/streaks/gamification.type';
+import { leaderboardService } from '@/services/gamification/leaderboard.service';
 
 interface GamificationDashboardProps {
     classId?: number;
@@ -25,6 +26,7 @@ export function GamificationDashboard({
 }: GamificationDashboardProps) {
     const [personalStats, setPersonalStats] = useState<GamificationStats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('overview');
 
     useEffect(() => {
@@ -35,11 +37,13 @@ export function GamificationDashboard({
         if (!userId) return;
         
         try {
+            setError(null);
             setLoading(true);
             const stats = await gamificationService.getUserGamificationStats(userId);
             setPersonalStats(stats);
         } catch (error) {
             console.error('Error fetching personal stats:', error);
+            setError('Failed to load gamification data. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -60,6 +64,32 @@ export function GamificationDashboard({
                     <CardContent className="p-6">
                         <div className="flex items-center justify-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="space-y-4">
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="flex flex-col items-center justify-center text-center space-y-4">
+                            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                                <span className="text-red-600 text-xl">⚠️</span>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Data</h3>
+                                <p className="text-gray-600 mb-4">{error}</p>
+                                <Button 
+                                    onClick={fetchPersonalStats}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                    Retry
+                                </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

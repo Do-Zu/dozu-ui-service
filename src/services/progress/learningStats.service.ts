@@ -1,5 +1,7 @@
 import { progressService } from './progress.service';
 import { ContentType, ProgressStatus } from '@/types/progress';
+import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
+import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 
 export interface LearningStats {
     totalLessonsCompleted: number;
@@ -21,35 +23,13 @@ class LearningStatsService {
                 userId: userId
             });
 
-            console.log(`LearningStats: Found ${allProgress.length} progress records for user ${userId}`);
-            console.log('Progress records:', allProgress.map(p => ({
-                id: p.id,
-                contentType: p.contentType,
-                status: p.status,
-                completionPercentage: p.completionPercentage,
-                score: p.score,
-                lastInteractionAt: p.lastInteractionAt
-            })));
-
             // Calculate statistics
             const stats = this.calculateLearningStats(allProgress);
-            
-            console.log('Calculated stats:', stats);
             
             return stats;
         } catch (error) {
             console.error('Error getting user learning stats:', error);
-            
-            // Fallback: Return mock data for testing
-            console.log('LearningStats: Using fallback data for testing');
-            return {
-                totalLessonsCompleted: 5, // Mock data for testing
-                totalQuizzesCompleted: 2,
-                totalFlashcardsReviewed: 10,
-                averageScore: 85.5,
-                totalStudyTime: 120, // 2 hours
-                lastActivityDate: new Date()
-            };
+            throw new Error(`Failed to get learning statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -58,15 +38,25 @@ class LearningStatsService {
      */
     async getClassLearningStats(userId: string, classId: number): Promise<LearningStats> {
         try {
-            // Get progress records for the user in this class
-            const classProgress = await progressService.getAllProgress({
+            // Get all progress records for the user
+            const allProgress = await progressService.getAllProgress({
                 userId: userId
             });
 
-            // Filter by class-related content (you might need to adjust this based on your data structure)
-            const filteredProgress = classProgress.filter(progress => {
-                // This is a placeholder - adjust based on how you identify class-related content
-                return true; // For now, include all progress
+            // Get topics for this class to determine which content belongs to the class
+            const classTopics: ITopic[] = await studentTopicService.getTopicsInClass(classId);
+            
+            // Handle case where class has no topics
+            if (!classTopics || classTopics.length === 0) {
+                console.warn(`No topics found for class ${classId}`);
+                return this.calculateLearningStats([]);
+            }
+
+            const classTopicIds = new Set(classTopics.map((topic: ITopic) => topic.topicId.toString()));
+
+            // Filter progress by content that belongs to this class
+            const filteredProgress = allProgress.filter(progress => {
+                return classTopicIds.has(progress.contentId);
             });
 
             const stats = this.calculateLearningStats(filteredProgress);
@@ -74,14 +64,7 @@ class LearningStatsService {
             return stats;
         } catch (error) {
             console.error('Error getting class learning stats:', error);
-            return {
-                totalLessonsCompleted: 0,
-                totalQuizzesCompleted: 0,
-                totalFlashcardsReviewed: 0,
-                averageScore: 0,
-                totalStudyTime: 0,
-                lastActivityDate: null
-            };
+            throw new Error(`Failed to get class learning statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -119,9 +102,22 @@ class LearningStatsService {
                 }
             }
 
-            // Calculate average score
-            if (progress.score !== undefined && progress.score !== null) {
+            // Calculate average score - only for completed items with valid scores
+            if (progress.status === ProgressStatus.COMPLETED && 
+                progress.score !== undefined && 
+                progress.score !== null && 
+                progress.score >= 0) {
                 totalScore += progress.score;
+                scoreCount++;
+            }
+            
+            // For flashcard completion, use completion percentage as a score proxy
+            if (progress.status === ProgressStatus.COMPLETED && 
+                progress.contentType === ContentType.FLASHCARD && 
+                progress.score === null &&
+                progress.completionPercentage > 0) {
+                // Use completion percentage as score (0-100 scale)
+                totalScore += progress.completionPercentage;
                 scoreCount++;
             }
 
@@ -140,6 +136,25 @@ class LearningStatsService {
         });
 
         const averageScore = scoreCount > 0 ? totalScore / scoreCount : 0;
+
+        // Debug logging
+        console.log('Learning Stats Calculation:', {
+            totalProgressItems: progressData.length,
+            scoreCount,
+            totalScore,
+            averageScore,
+            totalLessonsCompleted,
+            totalQuizzesCompleted,
+            totalFlashcardsReviewed,
+            progressDetails: progressData.map(p => ({
+                id: p.progressId,
+                contentType: p.contentType,
+                status: p.status,
+                score: p.score,
+                completionPercentage: p.completionPercentage,
+                timeSpent: p.metadata?.timeSpent
+            }))
+        });
 
         return {
             totalLessonsCompleted,
@@ -166,14 +181,7 @@ class LearningStatsService {
             return stats;
         } catch (error) {
             console.error('Error getting topic learning stats:', error);
-            return {
-                totalLessonsCompleted: 0,
-                totalQuizzesCompleted: 0,
-                totalFlashcardsReviewed: 0,
-                averageScore: 0,
-                totalStudyTime: 0,
-                lastActivityDate: null
-            };
+            throw new Error(`Failed to get topic learning statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 

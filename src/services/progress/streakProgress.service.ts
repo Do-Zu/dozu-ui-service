@@ -1,5 +1,5 @@
 import { progressService, IProgressCreate, IProgressUpdate } from './progress.service';
-import { gamificationService } from '../gamification/gamificationService';
+import { gamificationService } from '../gamification/gamification.service';
 import { ContentType, ProgressStatus } from '@/types/progress';
 
 export interface StreakProgressData {

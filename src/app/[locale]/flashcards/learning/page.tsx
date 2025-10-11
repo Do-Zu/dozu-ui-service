@@ -106,8 +106,27 @@ export default function Page() {
     const flashcardContainerRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const isFrontRef = useRef<boolean>(true);
+    const initializedRef = useRef(false);
+    
+    // Refs to store latest values for cleanup function
+    const itemsStudiedCountRef = useRef(itemsStudiedCount);
+    const correctAnswersCountRef = useRef(correctAnswersCount);
+    const flashcardsRef = useRef(flashcards);
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
+
+    // Update refs whenever values change
+    useEffect(() => {
+        itemsStudiedCountRef.current = itemsStudiedCount;
+    }, [itemsStudiedCount]);
+
+    useEffect(() => {
+        correctAnswersCountRef.current = correctAnswersCount;
+    }, [correctAnswersCount]);
+
+    useEffect(() => {
+        flashcardsRef.current = flashcards;
+    }, [flashcards]);
 
     // Update status counts when flashcards change
     useEffect(() => {
@@ -154,15 +173,16 @@ export default function Page() {
             }
         };
 
-        // Only initialize if we have a user ID
-        if (currentUserId) {
+        // Run once when we have both user and first card
+        if (currentUserId && currentFlashcard && !initializedRef.current) {
+            initializedRef.current = true;
             initializeSession();
         }
 
         return () => {
-            const accuracy = itemsStudiedCount > 0 ? (correctAnswersCount / itemsStudiedCount) * 100 : 0;
-            endStudySession(itemsStudiedCount, accuracy);
-            saveCurrentLearningSession('general', flashcards?.length || 0, false);
+            const accuracy = itemsStudiedCountRef.current > 0 ? (correctAnswersCountRef.current / itemsStudiedCountRef.current) * 100 : 0;
+            endStudySession(itemsStudiedCountRef.current, accuracy);
+            saveCurrentLearningSession('general', flashcardsRef.current?.length || 0, false);
         };
     }, [currentUserId, currentFlashcard]);
 

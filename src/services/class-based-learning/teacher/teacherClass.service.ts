@@ -8,47 +8,12 @@ import {
     IUpdateClassBody,
     IUpdateClassResponse,
 } from '@/app/[locale]/class-based/types/class.type';
+import { IUserProfile } from '@/types/profile';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 
 export type ICreateClassPayload = ICreateClassBody;
 export type IUpdateClassPayload = IUpdateClassBody & { classId: number };
 export type IRemoveStudentInClassPayload = { classId: number; studentId: number };
-
-export interface IUserProfile {
-    userId: number;
-    username: string;
-    fullName: string | null;
-    email: string;
-    avatarUrl: string;
-    bio?: string | null;
-    location?: string | null;
-    university?: string | null;
-    major?: string | null;
-    enrolledAt: Date;
-    
-    // Gamification stats
-    gamificationStats?: {
-        totalPoints: number;
-        currentStreak: number;
-        longestStreak: number;
-        level: number;
-        experiencePoints: number;
-        nextLevelExperience: number;
-        achievements: Array<{
-            id: number;
-            name: string;
-            description: string;
-            icon: string;
-            earnedAt: Date;
-            rarity: 'common' | 'rare' | 'epic' | 'legendary';
-        }>;
-        weeklyActivity: number[];
-        totalLessonsCompleted: number;
-        totalQuizzesCompleted: number;
-        totalFlashcardsReviewed: number;
-        averageScore: number;
-    };
-}
 
 class TeacherClassService {
     public async getClasses() {

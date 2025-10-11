@@ -1,53 +1,12 @@
 import { postRequest, getRequest } from '@/api/api';
 import { API_GAMIFICATION_ROUTES } from '@/utils/constants/api.routes';
-
-export interface StreakData {
-    currentStreak: number;
-    longestStreak: number;
-    lastStudyDate: Date | null;
-    streakFreezeActive: boolean;
-    streakFreezeCount: number;
-}
-
-export interface StreakUpdateResult {
-    currentStreak: number;
-    isNewStreak: boolean;
-    pointsEarned: number;
-    streakBroken: boolean;
-    message: string;
-}
-
-export interface PointsData {
-    totalPoints: number;
-    availablePoints: number;
-    level: number;
-    experiencePoints: number;
-    nextLevelExperience: number;
-}
-
-export interface GamificationStats {
-    totalPoints: number;
-    currentStreak: number;
-    longestStreak: number;
-    level: number;
-    experiencePoints: number;
-    nextLevelExperience: number;
-    achievements: any[];
-    weeklyActivity: number[];
-    totalLessonsCompleted: number;
-    totalQuizzesCompleted: number;
-    totalFlashcardsReviewed: number;
-    averageScore: number;
-    streakFreezeActive?: boolean;
-    streakFreezeCount?: number;
-    lastStudyDate?: Date | null;
-}
-
-export interface ApiResponse<T = any> {
-    status: string;
-    data: T;
-    message: string;
-}
+import { 
+    StreakData, 
+    StreakUpdateResult, 
+    PointsData, 
+    GamificationStats, 
+    ApiResponse 
+} from '@/types/streaks/gamification.type';
 
 class GamificationService {
     // Streak-related methods

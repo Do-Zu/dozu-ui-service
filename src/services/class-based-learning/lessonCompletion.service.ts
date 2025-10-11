@@ -1,33 +1,50 @@
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
+import { 
+    ILessonCompletionStats, 
+    ILessonCompletionStatsResponse, 
+    ITopicLessonStats, 
+    ITopicLessonStatsResponse,
+    IClassLessonStatsResponse 
+} from '@/types/streaks/lessonCompletion.type';
 
-export interface LessonCompletionStats {
-    isCompleted: boolean;
-    completionPercentage: number;
-    timeSpent: number; // in milliseconds
-    lastAccessed: Date;
-    score?: number;
-    totalLessons: number;
-    completedLessons: number;
-}
+/**
+ * Transforms a date string or Date object to a Date object
+ */
+const transformDate = (date: string | Date): Date => {
+    return typeof date === 'string' ? new Date(date) : date;
+};
+
+/**
+ * Transforms lesson completion stats to ensure lastAccessed is a Date object
+ */
+const transformLessonStats = (stats: ILessonCompletionStatsResponse): ILessonCompletionStats => {
+    return {
+        ...stats,
+        lastAccessed: transformDate(stats.lastAccessed)
+    };
+};
+
+// Re-export the interface for backward compatibility
+export type LessonCompletionStats = ILessonCompletionStats;
 
 class LessonCompletionService {
     /**
      * Get lesson completion statistics for a student in a specific class
      */
-    async getStudentLessonStats(userId: number, classId?: number): Promise<LessonCompletionStats> {
+    async getStudentLessonStats(userId: number, classId?: number): Promise<ILessonCompletionStats> {
         try {
             const endpoint = classId 
                 ? `/students/${userId}/classes/${classId}/lesson-stats`
                 : `/students/${userId}/lesson-stats`;
             
-            const response = await getRequest<void, LessonCompletionStats>(endpoint);
+            const response = await getRequest<void, ILessonCompletionStatsResponse>(endpoint);
             
             if (response.status !== 'success') {
                 throw new Error(response.message);
             }
             
-            return response.data;
+            return transformLessonStats(response.data);
         } catch (error) {
             console.error('Error fetching student lesson stats:', error);
             
@@ -47,9 +64,9 @@ class LessonCompletionService {
     /**
      * Get lesson completion statistics for all students in a class
      */
-    async getClassLessonStats(classId: number): Promise<Map<number, LessonCompletionStats>> {
+    async getClassLessonStats(classId: number): Promise<Map<number, ILessonCompletionStats>> {
         try {
-            const response = await getRequest<void, Record<string, LessonCompletionStats>>(
+            const response = await getRequest<void, IClassLessonStatsResponse>(
                 `/classes/${classId}/lesson-stats`
             );
             
@@ -57,10 +74,10 @@ class LessonCompletionService {
                 throw new Error(response.message);
             }
             
-            // Convert the response to a Map
-            const statsMap = new Map<number, LessonCompletionStats>();
+            // Convert the response to a Map and transform dates
+            const statsMap = new Map<number, ILessonCompletionStats>();
             Object.entries(response.data).forEach(([userId, stats]) => {
-                statsMap.set(parseInt(userId), stats);
+                statsMap.set(parseInt(userId), transformLessonStats(stats));
             });
             
             return statsMap;
@@ -75,27 +92,20 @@ class LessonCompletionService {
     /**
      * Get lesson completion statistics for a specific topic
      */
-    async getTopicLessonStats(userId: number, topicId: number): Promise<{
-        isCompleted: boolean;
-        completionPercentage: number;
-        timeSpent: number;
-        lastAccessed: Date;
-        score?: number;
-    }> {
+    async getTopicLessonStats(userId: number, topicId: number): Promise<ITopicLessonStats> {
         try {
-            const response = await getRequest<void, {
-                isCompleted: boolean;
-                completionPercentage: number;
-                timeSpent: number;
-                lastAccessed: Date;
-                score?: number;
-            }>(`/students/${userId}/topics/${topicId}/lesson-stats`);
+            const response = await getRequest<void, ITopicLessonStatsResponse>(`/students/${userId}/topics/${topicId}/lesson-stats`);
             
             if (response.status !== 'success') {
                 throw new Error(response.message);
             }
             
-            return response.data;
+            const transformedData: ITopicLessonStats = {
+                ...response.data,
+                lastAccessed: transformDate(response.data.lastAccessed)
+            };
+            
+            return transformedData;
         } catch (error) {
             console.error('Error fetching topic lesson stats:', error);
             

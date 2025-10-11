@@ -26,7 +26,8 @@ import {
     CheckCircle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { gamificationService, GamificationStats } from '@/services/gamification/gamificationService';
+import { gamificationService } from '@/services/gamification/gamification.service';
+import { GamificationStats } from '@/types/streaks/gamification.type';
 // import lessonCompletionService, { LessonCompletionStats } from '@/services/class-based-learning/lessonCompletion.service';
 import useFetch from '@/hooks/useFetch';
 import { useLearningStreak, LearningStreakData } from '@/hooks/useStreakProgress';
@@ -87,12 +88,10 @@ export default function StudentProfileModal({
         loading: learningStreakLoading,
         error: learningStreakError,
     } = useFetch<LearningStreakData>(() => {
-        try {
-            return user ? getUserLearningStreak(user.userId.toString()) : Promise.resolve(null);
-        } catch (error) {
-            console.error('StudentProfileModal: Error in learning streak fetch:', error);
+        if (!user) {
             return Promise.resolve(null);
         }
+        return getUserLearningStreak(user.userId.toString());
     });
 
     // Fetch learning statistics from progress data
@@ -101,12 +100,10 @@ export default function StudentProfileModal({
         loading: learningStatsLoading,
         error: learningStatsError,
     } = useFetch<LearningStats>(() => {
-        try {
-            return user ? getUserLearningStats(user.userId.toString()) : Promise.resolve(null);
-        } catch (error) {
-            console.error('StudentProfileModal: Error in learning stats fetch:', error);
+        if (!user) {
             return Promise.resolve(null);
         }
+        return getUserLearningStats(user.userId.toString());
     });
 
     // const {
@@ -126,12 +123,19 @@ export default function StudentProfileModal({
     // Create enhanced gamification stats with real learning data
     const enhancedGamificationStats = gamificationStats ? {
         ...gamificationStats,
-        // Use learning stats for real data, fallback to calculated values from points
-        totalLessonsCompleted: learningStats?.totalLessonsCompleted || Math.floor((pointsData?.totalPoints || 0) / 10), // Estimate from points
-        totalQuizzesCompleted: learningStats?.totalQuizzesCompleted || Math.floor((pointsData?.totalPoints || 0) / 20), // Estimate from points
-        totalFlashcardsReviewed: learningStats?.totalFlashcardsReviewed || Math.floor((pointsData?.totalPoints || 0) / 2), // Estimate from points
-        averageScore: learningStats?.averageScore || Math.min(95, 60 + ((pointsData?.totalPoints || 0) / 10)), // Estimate from points
+        // Use learning stats for real data, fallback to zero when data is unavailable
+        totalLessonsCompleted: learningStats?.totalLessonsCompleted || 0,
+        totalQuizzesCompleted: learningStats?.totalQuizzesCompleted || 0,
+        totalFlashcardsReviewed: learningStats?.totalFlashcardsReviewed || 0,
+        averageScore: learningStats?.averageScore || 0,
     } : null;
+
+    // Check if we have any errors
+    const hasErrors = gamificationError || learningStreakError || learningStatsError;
+    const errorMessages = [];
+    if (gamificationError) errorMessages.push('Failed to load gamification data');
+    if (learningStreakError) errorMessages.push('Failed to load streak data');
+    if (learningStatsError) errorMessages.push('Failed to load learning statistics');
 
     const isLoading = gamificationLoading || learningStreakLoading || learningStatsLoading;
 
@@ -237,8 +241,30 @@ export default function StudentProfileModal({
                         </div>
                     </div>
 
-                    {/* Loading State */}
-                    {isLoading ? (
+                    {/* Error State */}
+                    {hasErrors && !isLoading ? (
+                        <div className="space-y-3">
+                            {errorMessages.map((message, index) => (
+                                <div key={index} className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                    <div className="flex items-center">
+                                        <div className="flex-shrink-0">
+                                            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="ml-3">
+                                            <p className="text-sm text-red-600 dark:text-red-400">{message}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="text-center py-4">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Some data may not be available. Please try refreshing the page.
+                                </p>
+                            </div>
+                        </div>
+                    ) : isLoading ? (
                         <div className="flex items-center justify-center py-12">
                             <div className="text-center">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
@@ -430,22 +456,6 @@ export default function StudentProfileModal({
                                 </CardContent>
                             </Card>
 
-                            {/* Error Messages */}
-                            {/* {gamificationError && (
-                                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                                    <p className="text-sm text-red-600 dark:text-red-400">
-                                        Failed to load gamification data. Please try again.
-                                    </p>
-                                </div>
-                            )}
-                            
-                            {learningStatsError && (
-                                <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
-                                    <p className="text-sm text-orange-700 dark:text-orange-400">
-                                        Error loading learning statistics: {learningStatsError}
-                                    </p>
-                                </div>
-                            )} */}
                         </>
                     )}
                 </div>

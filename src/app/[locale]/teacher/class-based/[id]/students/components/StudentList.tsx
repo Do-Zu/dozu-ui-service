@@ -1,6 +1,7 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { MoreHorizontal, MoreVertical, User, UserMinus, Trophy, Star, TrendingUp, Shield, Flame } from 'lucide-react';
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,28 +13,16 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { IStudentInClass } from '../../../../../class-based/types/class.type';
+import { IStudentInClass, StudentWithStreak } from '../../../../../class-based/types/class.type';
 import { useTranslations } from 'next-intl';
 import AvatarWithStreak from '@/components/ui/AvatarWithStreak';
 import { useStreakListener, useGamification } from '@/contexts/gamification/GamificationContext';
 import { useGamification as useGamificationHook } from '@/hooks/useGamification';
 import { Leaderboard } from '@/components/gamification/Leaderboard';
-import { leaderboardService } from '@/services/gamification/leaderboardService';
-import { LeaderboardEntry } from '@/types/leaderboard.types';
-import { GamificationStats } from '@/services/gamification/gamificationService';
+import { leaderboardService } from '@/services/gamification/leaderboard.service';
+import { LeaderboardEntry } from '@/types/streaks/leaderboard.types';
+import { GamificationStats } from '@/types/streaks/gamification.type';
 import StreakStatusBadge from './StreakStatusBadge';
-
-interface StudentWithStreak extends IStudentInClass {
-    currentStreak?: number;
-    points?: number;
-    rank?: number | null;
-    lessonsCompleted?: number;
-    quizzesCompleted?: number;
-    averageScore?: number;
-    streakFreezeActive?: boolean;
-    streakFreezeCount?: number;
-    lastStudyDate?: Date | null;
-}
 
 interface StudentListProps {
     students: IStudentInClass[];

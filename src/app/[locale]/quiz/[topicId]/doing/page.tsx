@@ -35,6 +35,7 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
     const [quizData, setQuizData] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [quizStartTime, setQuizStartTime] = useState<number | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
     const { trackQuizCompletion } = useQuizStreakTracking();
@@ -95,6 +96,8 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                 }
 
                 setQuizData(formattedData);
+                // Initialize quiz start time when quiz data is loaded
+                setQuizStartTime(Date.now());
             } catch (error) {
                 console.error('Error fetching quiz:', error);
             } finally {
@@ -130,11 +133,15 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                         const correctAnswers = quizData.filter(q => q.selectedAnswer === q.correctIndex).length;
                         const accuracy = quizData.length > 0 ? (correctAnswers / quizData.length) * 100 : 0;
                         
+                        // Calculate actual quiz duration in seconds
+                        const currentTime = Date.now();
+                        const duration = quizStartTime ? Math.round((currentTime - quizStartTime) / 1000) : 300; // fallback to 5 minutes if start time is undefined
+                        
                         await trackQuizCompletion(
                             userId.toString(),
                             topicId,
                             accuracy, // score (accuracy percentage)
-                            300 // 5 minutes estimated time for quiz
+                            duration // actual time taken in seconds
                         );
                         console.log('Quiz completion tracked for streak progress');
                     }

@@ -19,6 +19,7 @@ export default function LocalQuizPage() {
   const [questions, setQuestions] = useState<LocalQuestion[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [startTime] = useState(Date.now());
 
   useEffect(() => {
     if (!topicId) return;
@@ -46,27 +47,38 @@ export default function LocalQuizPage() {
     // Track quiz completion for streak progress
     if (topicId) {
       try {
-        // Get userId from localStorage
         const userString = localStorage.getItem('user');
-        if (userString) {
-          const user = JSON.parse(userString);
-          const userId = user?.userId;
-          
-          if (userId) {
-            const accuracy = questions.length > 0 ? (correct / questions.length) * 100 : 0;
-            
-            await trackQuizCompletion(
-              userId.toString(),
-              topicId,
-              accuracy, // score (accuracy percentage)
-              180 // 3 minutes estimated time for local quiz
-            );
-            console.log('Local quiz completion tracked for streak progress');
-          }
+        if (!userString) {
+          console.warn('No user data found in localStorage');
+          return;
         }
+        
+        let user;
+        try {
+          user = JSON.parse(userString);
+        } catch (parseError) {
+          console.error('Invalid user data in localStorage:', parseError);
+          return;
+        }
+        
+        const userId = user?.userId;
+        if (!userId) {
+          console.warn('No userId found in user data');
+          return;
+        }
+        
+        const accuracy = questions.length > 0 ? (correct / questions.length) * 100 : 0;
+        const actualDuration = Math.round((Date.now() - startTime) / 1000); // seconds
+        
+        await trackQuizCompletion(
+          userId.toString(),
+          topicId,
+          accuracy,
+          actualDuration
+        );
+        console.log('Local quiz completion tracked for streak progress');
       } catch (error) {
         console.error('Error tracking local quiz completion:', error);
-        // Don't show error to user, just log it
       }
     }
   };

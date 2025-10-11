@@ -18,9 +18,14 @@ export default function StreakTracker() {
 
     useEffect(() => {
         // Check if current route is a learning activity
-        const isLearningActivity = LEARNING_ROUTES.some(route => 
-            pathname.includes(route)
-        );
+        const isLearningActivity = LEARNING_ROUTES.some(route => {
+            // Normalize both pathname and route to ensure consistent matching
+            const normalizedPathname = pathname.startsWith('/') ? pathname : `/${pathname}`;
+            const normalizedRoute = route.startsWith('/') ? route : `/${route}`;
+            
+            // Use startsWith to ensure pathname begins with the learning route pattern
+            return normalizedPathname.startsWith(normalizedRoute);
+        });
 
         if (isLearningActivity && !hasUpdatedStreakToday) {
             // Delay to ensure user actually engages with content

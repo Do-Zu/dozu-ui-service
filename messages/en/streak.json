@@ -57,5 +57,7 @@
   "motivateStudents": "Motivate Students",
   "considerGiftingFreezes": "Consider gifting streak freezes to struggling students.",
   "celebrate": "Celebrate Success",
-  "recognizeTopPerformers": "Recognize and celebrate top performing students."
+  "recognizeTopPerformers": "Recognize and celebrate top performing students.",
+  "purchaseSuccess": "Streak Freeze Purchased!",
+  "purchaseSuccessDescription": "Your streak is now protected for 24 hours"
 }

@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!user) {
                 //TODO: Refresh user data from API or session
             }
-       
         } catch (error) {
             console.error('Error checking authentication status:', error);
         } finally {
@@ -94,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const hasRole = useCallback(
         (role: string): boolean => {
-            return user?.roles?.includes(role) ?? false;
+            return user?.roles.includes(role) ?? false;
         },
         [user?.roles],
     );

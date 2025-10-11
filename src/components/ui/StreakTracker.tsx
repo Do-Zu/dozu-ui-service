@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useStreakTracking } from '@/contexts/gamification/GamificationContext';
 
 interface StreakTrackerProps {
@@ -16,6 +17,7 @@ interface StreakTrackerProps {
  */
 export default function StreakTracker({ autoTrack = true, updateDelay = 10000 }: StreakTrackerProps) {
     const { updateStreak, isLoading, error, hasUpdatedStreakToday } = useStreakTracking();
+    const pathname = usePathname();
 
     // Auto-update streak when user accesses learning pages
     useEffect(() => {
@@ -29,8 +31,7 @@ export default function StreakTracker({ autoTrack = true, updateDelay = 10000 }:
             '/mindmap/',
         ];
 
-        const currentPath = window.location.pathname;
-        const isLearningPage = learningRoutes.some(route => currentPath.includes(route));
+        const isLearningPage = learningRoutes.some(route => pathname.includes(route));
         
         if (isLearningPage && !hasUpdatedStreakToday) {
             // Delay to ensure user actually engages with content
@@ -40,7 +41,7 @@ export default function StreakTracker({ autoTrack = true, updateDelay = 10000 }:
             
             return () => clearTimeout(timer);
         }
-    }, [autoTrack, hasUpdatedStreakToday, updateDelay, updateStreak]);
+    }, [autoTrack, hasUpdatedStreakToday, updateDelay, updateStreak, pathname]);
 
     // Log errors in development
     useEffect(() => {

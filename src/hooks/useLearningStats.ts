@@ -2,24 +2,33 @@ import { useState, useCallback } from 'react';
 import { learningStatsService, LearningStats } from '@/services/progress/learningStats.service';
 
 export const useLearningStats = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    // Per-operation loading states
+    const [loadingUser, setLoadingUser] = useState(false);
+    const [loadingClass, setLoadingClass] = useState(false);
+    const [loadingTopic, setLoadingTopic] = useState(false);
+    const [loadingWeekly, setLoadingWeekly] = useState(false);
+    
+    // Per-operation error states
+    const [errorUser, setErrorUser] = useState<string | null>(null);
+    const [errorClass, setErrorClass] = useState<string | null>(null);
+    const [errorTopic, setErrorTopic] = useState<string | null>(null);
+    const [errorWeekly, setErrorWeekly] = useState<string | null>(null);
 
     /**
      * Get user's learning statistics
      */
     const getUserLearningStats = useCallback(async (userId: string): Promise<LearningStats> => {
         try {
-            setLoading(true);
-            setError(null);
+            setLoadingUser(true);
+            setErrorUser(null);
             const result = await learningStatsService.getUserLearningStats(userId);
             return result;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to get learning stats';
-            setError(errorMessage);
+            setErrorUser(errorMessage);
             throw err;
         } finally {
-            setLoading(false);
+            setLoadingUser(false);
         }
     }, []);
 
@@ -28,16 +37,16 @@ export const useLearningStats = () => {
      */
     const getClassLearningStats = useCallback(async (userId: string, classId: number): Promise<LearningStats> => {
         try {
-            setLoading(true);
-            setError(null);
+            setLoadingClass(true);
+            setErrorClass(null);
             const result = await learningStatsService.getClassLearningStats(userId, classId);
             return result;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to get class learning stats';
-            setError(errorMessage);
+            setErrorClass(errorMessage);
             throw err;
         } finally {
-            setLoading(false);
+            setLoadingClass(false);
         }
     }, []);
 
@@ -46,16 +55,16 @@ export const useLearningStats = () => {
      */
     const getTopicLearningStats = useCallback(async (userId: string, topicId: string): Promise<LearningStats> => {
         try {
-            setLoading(true);
-            setError(null);
+            setLoadingTopic(true);
+            setErrorTopic(null);
             const result = await learningStatsService.getTopicLearningStats(userId, topicId);
             return result;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to get topic learning stats';
-            setError(errorMessage);
+            setErrorTopic(errorMessage);
             throw err;
         } finally {
-            setLoading(false);
+            setLoadingTopic(false);
         }
     }, []);
 
@@ -67,16 +76,16 @@ export const useLearningStats = () => {
         totalThisWeek: number;
     }> => {
         try {
-            setLoading(true);
-            setError(null);
+            setLoadingWeekly(true);
+            setErrorWeekly(null);
             const result = await learningStatsService.getWeeklyLearningActivity(userId);
             return result;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to get weekly learning activity';
-            setError(errorMessage);
+            setErrorWeekly(errorMessage);
             throw err;
         } finally {
-            setLoading(false);
+            setLoadingWeekly(false);
         }
     }, []);
 
@@ -85,8 +94,19 @@ export const useLearningStats = () => {
         getClassLearningStats,
         getTopicLearningStats,
         getWeeklyLearningActivity,
-        loading,
-        error
+        // Per-operation loading states
+        loadingUser,
+        loadingClass,
+        loadingTopic,
+        loadingWeekly,
+        // Per-operation error states
+        errorUser,
+        errorClass,
+        errorTopic,
+        errorWeekly,
+        // Convenience properties for backward compatibility
+        loading: loadingUser || loadingClass || loadingTopic || loadingWeekly,
+        error: errorUser || errorClass || errorTopic || errorWeekly
     };
 };
 

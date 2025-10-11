@@ -1,4 +1,5 @@
-import { gamificationService } from './gamificationService';
+import { gamificationService } from './gamification.service';
+import { StudySessionParams, StudySessionResult } from '@/types/streaks/gamification.type';
 
 export enum ActivityType {
     FLASHCARD_REVIEW = 'flashcard_review',
@@ -140,6 +141,35 @@ class ActivityTrackingService {
     }
 
     /**
+     * Track study session
+     */
+    async trackStudySession(params: StudySessionParams): Promise<StudySessionResult> {
+            this.validateStudySessionParams(params);
+
+            // Calculate points based on duration and quality
+            const pointsEarned = this.calculateStudySessionPoints(params);
+
+            // Track the activity
+            await this.trackActivity({
+                type: ActivityType.STUDY_SESSION,
+                timestamp: Date.now(),
+                metadata: {
+                    topicId: params.topicId,
+                    duration: params.duration,
+                    pointsEarned,
+                    ...params.metadata
+                }
+            });
+
+            return {
+                success: true,
+                pointsEarned,
+                streakUpdated: true, // Study sessions always update streak
+                message: `Study session tracked! Earned ${pointsEarned} points.`
+            };
+    }
+
+    /**
      * Manual streak update (for testing)
      */
     async manualStreakUpdate(): Promise<void> {
@@ -152,7 +182,8 @@ class ActivityTrackingService {
             ActivityType.FLASHCARD_REVIEW,
             ActivityType.QUIZ_COMPLETION,
             ActivityType.LESSON_COMPLETION,
-            ActivityType.MINDMAP_INTERACTION
+            ActivityType.MINDMAP_INTERACTION,
+            ActivityType.STUDY_SESSION
         ];
 
         const todayMeaningfulActivities = Array.from(this.dailyActivities)
@@ -216,6 +247,43 @@ class ActivityTrackingService {
     private calculateMindmapPoints(duration: number): number {
         // Award points based on interaction duration (minutes)
         return Math.min(Math.round(duration * 5), 100); // Max 100 points for 20+ minutes
+    }
+
+    private calculateStudySessionPoints(params: StudySessionParams): number {
+        const basePoints = Math.min(params.duration * 2, 200); // 2 points per minute, max 200 for 100+ minutes
+        
+        // Bonus points for longer sessions
+        let bonusPoints = 0;
+        if (params.duration >= 60) bonusPoints += 50; // 1+ hour bonus
+        if (params.duration >= 120) bonusPoints += 50; // 2+ hour bonus
+        
+        // Difficulty bonus
+        if (params.metadata?.difficulty === 'hard') bonusPoints += 25;
+        else if (params.metadata?.difficulty === 'medium') bonusPoints += 10;
+        
+        return Math.round(basePoints + bonusPoints);
+    }
+
+    private validateStudySessionParams(params: StudySessionParams): void {
+        if (!params.userId || typeof params.userId !== 'string') {
+            throw new Error('Valid userId is required');
+        }
+        
+        if (!params.duration || params.duration <= 0) {
+            throw new Error('Duration must be greater than 0');
+        }
+        
+        if (params.duration > 480) { // 8 hours max
+            throw new Error('Duration cannot exceed 480 minutes (8 hours)');
+        }
+        
+        if (params.topicId && (typeof params.topicId !== 'number' || params.topicId <= 0)) {
+            throw new Error('topicId must be a positive number if provided');
+        }
+        
+        if (params.metadata?.difficulty && !['easy', 'medium', 'hard'].includes(params.metadata.difficulty)) {
+            throw new Error('Difficulty must be easy, medium, or hard');
+        }
     }
 }
 

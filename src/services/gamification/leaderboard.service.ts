@@ -1,5 +1,6 @@
 import { getRequest, postRequest } from '@/api/api';
-import { LeaderboardEntry, WeeklyLeaderboard, MonthlyLeaderboard, ClassLeaderboard, LeaderboardFilter } from '@/types/leaderboard.types';
+import { LeaderboardEntry, WeeklyLeaderboard, MonthlyLeaderboard, ClassLeaderboard, LeaderboardFilter } from '@/types/streaks/leaderboard.types';
+import { ApiResponse, AwardPointsRequest, AwardPointsResponse, FlashcardAwardPayload, LessonAwardPayload, QuizAwardPayload, StreakAwardPayload, LoginAwardPayload } from '@/types/streaks/gamification.type';
 
 class LeaderboardService {
     async getWeeklyLeaderboard(classId: number): Promise<WeeklyLeaderboard | null> {
@@ -157,57 +158,52 @@ class LeaderboardService {
         return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
     }
 
-    async awardPoints(activity: {
-        userId: number;
-        action: 'lesson_completed' | 'quiz_high_score' | 'streak_maintained' | 'flashcard_reviewed' | 'daily_login';
-        points: number;
-        metadata?: any;
-    }): Promise<boolean> {
+    async awardPoints(activity: AwardPointsRequest): Promise<boolean> {
         try {
-            // Map actions to correct API endpoints
+            // Map actions to correct API endpoints with proper typing
             let endpoint = '';
-            let payload: any = {};
+            let payload: FlashcardAwardPayload | LessonAwardPayload | QuizAwardPayload | StreakAwardPayload | LoginAwardPayload = {};
 
             switch (activity.action) {
                 case 'flashcard_reviewed':
                     endpoint = '/gamification/points/award/flashcard';
                     payload = {
-                        flashcardId: activity.metadata?.flashcardId,
-                        rating: activity.metadata?.rating,
-                        topicName: activity.metadata?.topicName
-                    };
+                        flashcardId: activity.metadata?.flashcardId as number,
+                        rating: activity.metadata?.rating as number,
+                        topicName: activity.metadata?.topicName as string
+                    } as FlashcardAwardPayload;
                     break;
                 case 'lesson_completed':
                     endpoint = '/gamification/points/award/lesson';
                     payload = {
-                        lessonId: activity.metadata?.lessonId
-                    };
+                        lessonId: activity.metadata?.lessonId as number
+                    } as LessonAwardPayload;
                     break;
                 case 'quiz_high_score':
                     endpoint = '/gamification/points/award/quiz';
                     payload = {
-                        quizId: activity.metadata?.quizId,
-                        score: activity.metadata?.score
-                    };
+                        quizId: activity.metadata?.quizId as number,
+                        score: activity.metadata?.score as number
+                    } as QuizAwardPayload;
                     break;
                 case 'streak_maintained':
                     endpoint = '/gamification/points/award/daily-goal';
                     payload = {
-                        streakDays: activity.metadata?.streakDays
-                    };
+                        streakDays: activity.metadata?.streakDays as number
+                    } as StreakAwardPayload;
                     break;
                 case 'daily_login':
                     endpoint = '/gamification/points/award/daily-goal';
                     payload = {
                         type: 'login'
-                    };
+                    } as LoginAwardPayload;
                     break;
                 default:
                     console.error('Unknown action type:', activity.action);
                     return false;
             }
 
-            const response = await postRequest(endpoint, payload) as any;
+            const response = await postRequest(endpoint, payload) as ApiResponse<AwardPointsResponse>;
             return response.status === 'success';
         } catch (error) {
             console.error('Error awarding points:', error);

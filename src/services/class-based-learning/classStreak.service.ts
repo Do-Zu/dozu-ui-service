@@ -1,37 +1,28 @@
 import { progressService } from '@/services/progress/progress.service';
+import { ContentType, IProgress } from '@/types/progress';
+import { IClassStreakData, IStreakCalculationResult, IProgressByDate } from '@/types/streaks/classStreaks.type';
 
-// Define ContentType locally since it might not exist
-enum ContentType {
-    FLASHCARD = 'flashcard',
-    QUIZ = 'quiz',
-    LESSON = 'lesson'
-}
-
-export interface ClassStreakData {
-    userId: number;
-    currentStreak: number;
-    longestStreak: number;
-    lastStudyDate: Date | null;
-    streakActive: boolean;
-    streakFreezeCount: number;
-    streakFreezeActive: boolean;
-}
+// Re-export the interface for backward compatibility
+export type ClassStreakData = IClassStreakData;
 
 class ClassStreakService {
     /**
      * Get class-specific streak for a single student
      */
-    async getStudentClassStreak(userId: number, classId: number): Promise<ClassStreakData> {
+    async getStudentClassStreak(userId: number, classId: number): Promise<IClassStreakData> {
         try {
             // Get progress data for the last 30 days for this specific class
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             
+            // TODO: classId is currently not being used and must be wired into progressService.getAllProgress 
+            // once progress service supports class filtering; in the interim, classId filtering will need to be 
+            // implemented at the service level or in the progress service interface
             const progressData = await progressService.getAllProgress({
                 userId: userId.toString(),
                 fromDate: thirtyDaysAgo,
-                contentType: 'flashcard' as any // Focus on flashcard learning
-                // Note: classId filtering will be implemented in progress service
+                // Note: Remove contentType filter to include both flashcard and quiz learning activities
+                // TODO: Add classId filtering once progress service supports it
             });
 
             // Calculate streak based on daily learning activity in this class
@@ -63,8 +54,8 @@ class ClassStreakService {
     /**
      * Get class-specific streaks for multiple students
      */
-    async getClassStudentStreaks(classId: number, userIds: number[]): Promise<Map<number, ClassStreakData>> {
-        const results = new Map<number, ClassStreakData>();
+    async getClassStudentStreaks(classId: number, userIds: number[]): Promise<Map<number, IClassStreakData>> {
+        const results = new Map<number, IClassStreakData>();
         
         try {
             // Use Promise.allSettled to handle partial failures
@@ -95,12 +86,7 @@ class ClassStreakService {
     /**
      * Calculate streak from progress data for a specific class
      */
-    private calculateClassStreakFromProgress(progressData: any[]): {
-        currentStreak: number;
-        longestStreak: number;
-        lastStudyDate: Date | null;
-        streakActive: boolean;
-    } {
+    private calculateClassStreakFromProgress(progressData: IProgress[]): IStreakCalculationResult {
         if (!progressData || progressData.length === 0) {
             return {
                 currentStreak: 0,
@@ -111,7 +97,7 @@ class ClassStreakService {
         }
 
         // Group progress by date
-        const progressByDate = new Map<string, any[]>();
+        const progressByDate = new Map<string, IProgress[]>();
         progressData.forEach(progress => {
             const date = new Date(progress.createdAt).toDateString();
             if (!progressByDate.has(date)) {
@@ -182,7 +168,7 @@ class ClassStreakService {
         const yesterdayStr = yesterday.toDateString();
         const studiedYesterday = progressByDate.has(yesterdayStr);
         
-        const streakActive = studiedToday || (currentStreak > 0 && studiedYesterday);
+        const streakActive = studiedToday || studiedYesterday || currentStreak > 0;
 
         return {
             currentStreak,

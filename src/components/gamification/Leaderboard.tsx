@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Medal, Crown, Star, TrendingUp, Users, Calendar } from 'lucide-react';
-import { LeaderboardEntry, WeeklyLeaderboard, MonthlyLeaderboard } from '@/types/leaderboard.types';
-import { leaderboardService } from '@/services/gamification/leaderboardService';
+import { LeaderboardEntry, WeeklyLeaderboard, MonthlyLeaderboard } from '@/types/streaks/leaderboard.types';
+import { leaderboardService } from '@/services/gamification/leaderboard.service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

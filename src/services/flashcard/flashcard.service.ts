@@ -14,7 +14,7 @@ import {
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { flashcardRoutes } from '@/utils/constants/api.routes';
-import { activityTrackingService } from '@/services/gamification/activityTrackingService';
+import { activityTrackingService } from '@/services/gamification/activityTracking.service';
 
 export interface IFlashcardReviewPayload {
     topicId: string | number;

@@ -26,53 +26,19 @@ import {
     MapPin,
     GraduationCap,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { gamificationService, GamificationStats } from '@/services/gamification/gamificationService';
+import { useTranslations, useLocale } from 'next-intl';
+import { gamificationService } from '@/services/gamification/gamification.service';
+import { GamificationStats } from '@/types/streaks/gamification.type';
+import { IUserProfile } from '@/types/profile';
 // import lessonCompletionService, { LessonCompletionStats } from '@/services/class-based-learning/lessonCompletion.service';
 import useFetch from '@/hooks/useFetch';
 
-interface UserProfile {
-    userId: number;
-    username: string;
-    fullName: string | null;
-    email: string;
-    avatarUrl: string;
-    bio?: string | null;
-    location?: string | null;
-    university?: string | null;
-    major?: string | null;
-    enrolledAt: Date;
-    
-    // Gamification stats
-    gamificationStats?: {
-        totalPoints: number;
-        currentStreak: number;
-        longestStreak: number;
-        level: number;
-        experiencePoints: number;
-        nextLevelExperience: number;
-        achievements: Achievement[];
-        weeklyActivity: number[];
-        totalLessonsCompleted: number;
-        totalQuizzesCompleted: number;
-        totalFlashcardsReviewed: number;
-        averageScore: number;
-    };
-}
-
-interface Achievement {
-    id: number;
-    name: string;
-    description: string;
-    icon: string;
-    earnedAt: Date;
-    rarity: 'common' | 'rare' | 'epic' | 'legendary';
-}
+type Achievement = NonNullable<IUserProfile['gamificationStats']>['achievements'][number];
 
 interface StudentProfileModalProps {
     isOpen: boolean;
     onClose: () => void;
-    student: UserProfile | null;
+    student: IUserProfile | null;
     loading?: boolean;
     classId?: number;
 }
@@ -85,6 +51,7 @@ export default function StudentProfileModal({
     classId,
 }: StudentProfileModalProps) {
     const tProfile = useTranslations('studentProfile');
+    const locale = useLocale();
     const tCommon = useTranslations('common');
     const tUser = useTranslations('user');
     
@@ -127,30 +94,35 @@ export default function StudentProfileModal({
         }
     };
 
-    if (!student) return null;
-
     // Merge real data with fallback to student's mock data
-    const gamificationStats = realGamificationStats || student.gamificationStats;
+    const gamificationStats = realGamificationStats || student?.gamificationStats;
     
     // Create enhanced gamification stats with real lesson completion data
     const enhancedGamificationStats = gamificationStats ? {
         ...gamificationStats,
         // Calculate level from points if level is 0 or invalid
-        level: gamificationStats.level > 0 ? gamificationStats.level : Math.max(1, Math.floor(gamificationStats.totalPoints / 200) + 1),
-        experiencePoints: gamificationStats.level > 0 ? gamificationStats.experiencePoints : gamificationStats.totalPoints % 200,
-        nextLevelExperience: gamificationStats.nextLevelExperience || 200,
+        level: gamificationStats.level > 0
+            ? gamificationStats.level
+            : Math.max(1, Math.floor(gamificationStats.totalPoints / 200) + 1),
+        experiencePoints:
+            gamificationStats.level > 0
+                ? gamificationStats.experiencePoints ?? (gamificationStats.totalPoints % 200)
+                : gamificationStats.totalPoints % 200,
+        nextLevelExperience: gamificationStats.nextLevelExperience ?? 200,
         // Use gamification data directly, fallback to calculated values from points
-        totalLessonsCompleted: gamificationStats.totalLessonsCompleted || Math.floor(gamificationStats.totalPoints / 10),
-        totalQuizzesCompleted: gamificationStats.totalQuizzesCompleted || Math.floor(gamificationStats.totalPoints / 20),
-        totalFlashcardsReviewed: gamificationStats.totalFlashcardsReviewed || Math.floor(gamificationStats.totalPoints / 2),
-        averageScore: gamificationStats.averageScore || Math.min(95, 60 + (gamificationStats.totalPoints / 10)),
-    } : null;
-    
+        totalLessonsCompleted: gamificationStats.totalLessonsCompleted ?? Math.floor(gamificationStats.totalPoints / 10),
+        totalQuizzesCompleted: gamificationStats.totalQuizzesCompleted ?? Math.floor(gamificationStats.totalPoints / 20),
+        totalFlashcardsReviewed: gamificationStats.totalFlashcardsReviewed ?? Math.floor(gamificationStats.totalPoints / 2),
+        averageScore: gamificationStats.averageScore ?? Math.min(95, 60 + (gamificationStats.totalPoints / 10)),
+    } : null;    
     const progressPercentage = enhancedGamificationStats ? 
         Math.round((enhancedGamificationStats.experiencePoints / enhancedGamificationStats.nextLevelExperience) * 100) : 0;
     
     // Show loading state if we're fetching any data
     const isLoading = loading || gamificationLoading; // || lessonStatsLoading;
+    
+    // Don't return null during loading or when modal is open - show the modal with loading state
+    if (!student && !isLoading && !isOpen) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -165,6 +137,10 @@ export default function StudentProfileModal({
                 {isLoading ? (
                     <div className="flex items-center justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                ) : !student ? (
+                    <div className="flex items-center justify-center py-8">
+                        <p className="text-muted-foreground">{tProfile('noStudentData') || 'No student data available'}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -237,7 +213,7 @@ export default function StudentProfileModal({
                                     
                                     <div className="flex items-center gap-2 text-sm">
                                         <Calendar className="h-4 w-4 text-muted-foreground" />
-                                        <span>{tProfile('joinedClass')}: {new Date(student.enrolledAt).toLocaleDateString('vi-VN')}</span>
+                                        <span>{tProfile('joinedClass')}: {new Date(student.enrolledAt).toLocaleDateString(locale)}</span>
                                     </div>
                                     
                                     {student.bio && (
@@ -396,7 +372,7 @@ export default function StudentProfileModal({
                                                                 {achievement.description}
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                {tProfile('earnedAt')}: {new Date(achievement.earnedAt).toLocaleDateString('vi-VN')}
+                                                                {tProfile('earnedAt')}: {new Date(achievement.earnedAt).toLocaleDateString(locale)}
                                                             </p>
                                                         </div>
                                                     </div>

@@ -1,12 +1,13 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import gamificationService, { 
+import gamificationService from '@/services/gamification/gamification.service';
+import { 
     StreakData, 
     PointsData, 
     GamificationStats,
     StreakUpdateResult 
-} from '@/services/gamification/gamificationService';
+} from '@/types/streaks/gamification.type';
 import { classStreakService, ClassStreakData } from '@/services/class-based-learning/classStreak.service';
 
 interface GamificationContextType {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Flame, Shield, Clock, Trophy, Zap } from 'lucide-react';
-import { gamificationService, StreakData } from '@/services/gamification/gamificationService';
+import { gamificationService } from '@/services/gamification/gamification.service';
+import { StreakData } from '@/types/streaks/gamification.type';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,10 +25,34 @@ export function StreakDisplay({ userId, showFreezeOption = true, compact = false
     }, [userId]);
 
     const fetchStreakData = async () => {
+        // Guard against null/undefined userId
+        if (userId === null || userId === undefined) {
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
-            const data = await gamificationService.getUserStreak();
-            setStreakData(data);
+            let data;
+            
+            if (userId) {
+                // Get streak data for specific user
+                const stats = await gamificationService.getUserGamificationStats(userId);
+                if (stats) {
+                    data = {
+                        currentStreak: stats.currentStreak,
+                        longestStreak: stats.longestStreak,
+                        lastStudyDate: stats.lastStudyDate ?? null,
+                        streakFreezeActive: stats.streakFreezeActive || false,
+                        streakFreezeCount: stats.streakFreezeCount || 0
+                    };
+                }
+            } else {
+                // Get streak data for current authenticated user
+                data = await gamificationService.getUserStreak();
+            }
+            
+            setStreakData(data || null);
         } catch (error) {
             console.error('Error fetching streak data:', error);
             toast({
@@ -76,11 +101,40 @@ export function StreakDisplay({ userId, showFreezeOption = true, compact = false
         return { name: "Getting Started", color: "text-gray-600", icon: Clock };
     };
 
+    // Define milestone thresholds to match getStreakMilestone logic
+    const MILESTONE_THRESHOLDS = [7, 30, 100, 365];
+
+    const getNextMilestone = (currentStreak: number) => {
+        // Find the next threshold greater than current streak
+        const nextThreshold = MILESTONE_THRESHOLDS.find(threshold => threshold > currentStreak);
+        return nextThreshold || null; // null if already at highest milestone
+    };
+
+    const getPreviousMilestone = (currentStreak: number) => {
+        // Find the previous threshold (or 0 if none)
+        const previousThresholds = MILESTONE_THRESHOLDS.filter(threshold => threshold <= currentStreak);
+        return previousThresholds.length > 0 ? previousThresholds[previousThresholds.length - 1] : 0;
+    };
+
+    const calculateProgress = (currentStreak: number) => {
+        const nextThreshold = getNextMilestone(currentStreak);
+        if (!nextThreshold) return 100; // Already at highest milestone
+        
+        const previousThreshold = getPreviousMilestone(currentStreak);
+        const progress = ((currentStreak - previousThreshold) / (nextThreshold - previousThreshold)) * 100;
+        return Math.min(Math.max(progress, 0), 100); // Clamp between 0 and 100
+    };
+
     if (loading) {
         return (
             <Card className={compact ? "p-4" : ""}>
-                <div className="flex items-center justify-center py-4">
+                <div 
+                    className="flex items-center justify-center py-4"
+                    role="status"
+                    aria-label="Loading streaks"
+                >
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span className="sr-only">Loading…</span>
                 </div>
             </Card>
         );
@@ -167,18 +221,23 @@ export function StreakDisplay({ userId, showFreezeOption = true, compact = false
                     </div>
                 </div>
 
-                {streakData.currentStreak > 0 && (
-                    <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                            <span>Next milestone</span>
-                            <span>{Math.ceil(streakData.currentStreak / 7) * 7} days</span>
+                {streakData.currentStreak > 0 && (() => {
+                    const nextMilestone = getNextMilestone(streakData.currentStreak);
+                    const progress = calculateProgress(streakData.currentStreak);
+                    
+                    return (
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span>Next milestone</span>
+                                <span>{nextMilestone ? `${nextMilestone} days` : 'Max milestone reached!'}</span>
+                            </div>
+                            <Progress 
+                                value={progress} 
+                                className="h-2"
+                            />
                         </div>
-                        <Progress 
-                            value={(streakData.currentStreak % 7) * 14.28} 
-                            className="h-2"
-                        />
-                    </div>
-                )}
+                    );
+                })()}
 
                 {showFreezeOption && !streakData.streakFreezeActive && (
                     <div className="pt-4 border-t">

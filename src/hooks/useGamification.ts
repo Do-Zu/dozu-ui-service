@@ -1,7 +1,8 @@
  import { useState, useEffect, useCallback } from 'react';
-import { gamificationService, StreakData, PointsData, GamificationStats } from '@/services/gamification/gamificationService';
-import { leaderboardService } from '@/services/gamification/leaderboardService';
-import { LeaderboardEntry } from '@/types/leaderboard.types';
+import { gamificationService } from '@/services/gamification/gamification.service';
+import { StreakData, PointsData, GamificationStats } from '@/types/streaks/gamification.type';
+import { leaderboardService } from '@/services/gamification/leaderboard.service';
+import { LeaderboardEntry } from '@/types/streaks/leaderboard.types';
 
 export function useGamification(userId?: number) {
     const [streakData, setStreakData] = useState<StreakData | null>(null);
@@ -75,8 +76,12 @@ export function useGamification(userId?: number) {
         metadata?: any;
     }) => {
         try {
+            if (!userId) {
+                throw new Error('No userId');
+            }
+            
             const success = await leaderboardService.awardPoints({
-                userId: userId!,
+                userId,
                 ...activity
             });
             if (success) {
@@ -90,6 +95,11 @@ export function useGamification(userId?: number) {
     }, [userId, fetchAllData]);
 
     const fetchRank = useCallback(async (classId?: number) => {
+        if (!userId) {
+            setRank(null);
+            return;
+        }
+        
         try {
             
             let leaderboardData: LeaderboardEntry[] = [];

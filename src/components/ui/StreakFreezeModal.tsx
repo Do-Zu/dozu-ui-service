@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Flame, Shield, Coins } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePointsManagement } from '@/contexts/gamification/GamificationContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface StreakFreezeModalProps {
     isOpen: boolean;
@@ -35,6 +36,7 @@ export default function StreakFreezeModal({
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { buyStreakFreeze } = usePointsManagement();
+    const { toast } = useToast();
 
     const freezeCost = 100; // Default cost, could be dynamic
     const canAfford = currentPoints >= freezeCost;
@@ -50,7 +52,10 @@ export default function StreakFreezeModal({
                 onClose();
                 
                 // Show success notification
-                console.log('Streak freeze purchased successfully!');
+                toast({
+                    title: t('purchaseSuccess'),
+                    description: t('purchaseSuccessDescription'),
+                });
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to purchase streak freeze';
