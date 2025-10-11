@@ -10,7 +10,13 @@ class AnkiSettingService {
         return response.data;
     }
 
-    public async updateSetting({ settingId, data }: { settingId: number; data: IUpdateAnkiSettingBody }) {
+    public async updateSetting({
+        settingId,
+        data,
+    }: {
+        settingId: number;
+        data: IUpdateAnkiSettingBody;
+    }): Promise<IAnkiSetting> {
         const response = await patchRequest<IUpdateAnkiSettingBody, IAnkiSetting>(`/anki_settings/${settingId}`, data);
         if (response.status !== 'success') {
             throw new Error(response.message);
