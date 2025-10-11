@@ -17,7 +17,9 @@ const CustomReactFlowPreviewNode = ({ data }: { data: CustomNodeData }) => {
         };
 
         setNodes((nds) => nds.concat([newNode]));
-        setEdges((eds) => eds.concat({ id: `${id}-${data.nodeId}`, source: data.nodeId, target: id }));
+        setEdges((eds) =>
+            eds.concat({ id: `${id}-${data.nodeId}`, source: data.nodeId, target: id, type: 'floating' }),
+        );
     };
     const deleteNode = (id: string) => {
         edges.forEach((edge) => {
