@@ -1,34 +1,39 @@
 import { useTranslations } from 'next-intl';
 import { DeleteConfirmationModal } from '@/components/modal/DeleteComfirmationModal';
 import { Button } from '@/components/ui/button';
-import { ITopic } from '../../types/topic.type';
+import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 
-export type IDeletingTopic = Pick<ITopic, 'topicId' | 'name'>;
+export type IDeletingSetting = Pick<IAnkiSetting, 'ankiSettingId' | 'name'>;
 
 interface Props {
     isOpen: boolean;
     setIsOpen: (value: boolean) => void;
 
-    topic?: IDeletingTopic | null;
-    handleDeleteClick: (topicId: number) => void;
+    setting?: IDeletingSetting | null;
+    onSubmit: ({ ankiSettingId }: { ankiSettingId: number }) => void;
 
     loading?: boolean;
 }
 
-export function DeleteTopicModal({ isOpen, setIsOpen, topic, handleDeleteClick, loading }: Props) {
-    if (!topic) {
+export function DeleteSettingModal({ isOpen, setIsOpen, setting, onSubmit, loading }: Props) {
+    if (!setting) {
         return null;
     }
     const tCommon = useTranslations('common');
-    const tTopic = useTranslations('topic');
-    const { topicId, name } = topic;
+    const tAnkiSetting = useTranslations('ankiSetting');
+    const { ankiSettingId, name } = setting;
+
+    function handleSubmit() {
+        onSubmit({ ankiSettingId });
+    }
+
     return (
         <DeleteConfirmationModal
             title={tCommon('titles.deleteItem', { name })}
-            description={tTopic('deleteConfirmation', { name })}
+            description={tAnkiSetting('deleteConfirmation', { name })}
             body={
                 <div className="flex justify-end">
-                    <Button variant="destructive" onClick={() => handleDeleteClick(topicId)} disabled={loading}>
+                    <Button variant="destructive" onClick={handleSubmit} disabled={loading}>
                         {loading ? tCommon('status.saving') : tCommon('actions.delete')}
                     </Button>
                 </div>
