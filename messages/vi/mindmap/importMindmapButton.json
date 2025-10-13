@@ -1,0 +1,6 @@
+{
+  "ExportToCSVButton": {
+    "noRootNodeError": "Không có root node",
+    "ExportToCSVButtonText": "Export"
+  }
+}

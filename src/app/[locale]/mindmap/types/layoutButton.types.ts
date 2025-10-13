@@ -7,4 +7,7 @@ export interface LayoutButtonProps {
     setNodes: (nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void;
     setEdges: (edges: AppEdge[] | ((edges: AppEdge[]) => AppEdge[])) => void;
     fitView: FitView;
+ 
+    isPanelExpanded: boolean;
+
 }

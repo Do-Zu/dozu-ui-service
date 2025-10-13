@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRightFromLine } from 'lucide-react';
+import { ArrowRightFromLine, CircleDashed } from 'lucide-react';
 import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
@@ -18,8 +18,7 @@ const elkOptions = {
     'elk.spacing.nodeNode': '80',
 };
 
-
-const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }:LayoutButtonProps) => {
+const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
             const opts = { 'elk.direction': direction, ...elkOptions };
@@ -32,7 +31,7 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }:Layou
                 fitView();
             });
         },
-          [nodes, edges, setNodes, setEdges, fitView],
+        [nodes, edges, setNodes, setEdges, fitView],
     );
 
     return (
@@ -42,8 +41,8 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }:Layou
                 onLayout({ direction: 'DOWN' });
             }}
         >
-            <ArrowRightFromLine />
-            Set Mindmap layout
+            <CircleDashed />
+            {isPanelExpanded ? 'Set Mindmap layout' : ''}
         </Button>
     );
 };

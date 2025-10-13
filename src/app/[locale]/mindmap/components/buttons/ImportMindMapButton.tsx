@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
-import { addChildNode, deleteNode } from '@/utils/mindmap/mindmapUtils';
 import { useReactFlow } from '@xyflow/react';
-import { Import, Plus, Trash } from 'lucide-react';
-import React, { useState } from 'react';
-import { useMindMapContext } from '../../context/MindMapContext';
+import { Import } from 'lucide-react';
+import React, { useContext, useState } from 'react';
+import Papa from 'papaparse';
+
 import {
     Dialog,
     DialogClose,
@@ -17,48 +17,85 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
+import { useSetMindmapLayout } from '../../hooks/useSetMindmapLayout';
 
-const ImportMindmapButton = () => {
+interface ImportMindMapButtonProps {
+    isPanelExpanded: boolean;
+}
+
+const ImportMindmapButton = ({ isPanelExpanded }: ImportMindMapButtonProps) => {
+    // const t = useTranslations();
+
     const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
     const [csvInput, setCsvInput] = useState('');
 
+    const onLayout = useSetMindmapLayout();
+
     const handleOnClickImport = () => {
-        // e.preventDefault();
-        // deleteNode({ nodeId: nodeId, edges, setNodes, setEdges });
-        console.log('csv', csvInput);
         handleImportCSV(csvInput);
     };
     const handleImportCSV = (text: string) => {
         if (!text.trim()) return;
 
-        const rows = text
-            .trim()
-            .split('\n')
-            .map((row) => row.split(','));
-        const dataRows = rows.slice(1); // skip header (0,1,2,...)
+        try {
+            // const rows = text
+            //     .trim()
+            //     .split('\n')
+            //     .map((row) => row.split(','));
+            const parsedData = Papa.parse<string[]>(text);
 
-        const { nodes, edges } = reconstructGraphFromCSV(dataRows);
-        console.log('Imported graph:', { nodes, edges });
+            const dataRows = parsedData.data.slice(1); // skip header (0,1,2,...)
 
-        setNodes(nodes);
-        setEdges(edges);
+            if (dataRows.length === 0) {
+                // toast({
+                //     title: 'Import failed',
+                //     description: 'CSV file contains no data rows',
+                //     variant: 'destructive',
+                // });
+                // toastHelper.showErrorMessage();
+                return;
+            }
+
+            const { nodes, edges } = reconstructGraphFromCSV(dataRows);
+
+            setNodes(nodes);
+            setEdges(edges);
+            onLayout({ direction: 'DOWN' });
+
+            // toast({
+            //     title: 'Import successful',
+            //     description: `Imported ${nodes.length} nodes and ${edges.length} edges`,
+            // });
+        } catch (error) {
+            console.error('CSV import error:', error);
+            // toast({
+            //     title: 'Import failed',
+            //     description: 'Failed to parse CSV. Please check the format.',
+            //     variant: 'destructive',
+            // });
+        }
     };
 
     const reconstructGraphFromCSV = (rows: string[][]) => {
         const nodes: AppNode[] = [];
         const edges: AppEdge[] = [];
         const nodeSet = new Map<string, string>(); // label -> id
+        let hasRoot = false;
 
         const getNodeId = (label: string) => {
+            //needs isRoot mechanism
             if (!nodeSet.has(label)) {
                 const id = crypto.randomUUID();
                 nodeSet.set(label, id);
                 nodes.push({
                     id,
-                    data: { label, nodeId: id },
+                    data: { label, nodeId: id, isRoot: hasRoot ? false : true },
                     type: 'custom-react-flow-node',
                     position: { x: 0, y: 0 },
                 });
+                hasRoot = true;
             }
             return nodeSet.get(label)!;
         };
@@ -83,11 +120,11 @@ const ImportMindmapButton = () => {
 
     return (
         <Dialog>
-            <form >
-                <DialogTrigger asChild>
+            <form>
+                <DialogTrigger asChild className="w-full">
                     <Button variant="outline">
                         <Import />
-                        Import
+                        {isPanelExpanded ? 'Import' : ''}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
@@ -114,14 +151,16 @@ const ImportMindmapButton = () => {
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
-                        <Button
-                            type="submit"
-                            onClick={() => {
-                                handleOnClickImport();
-                            }}
-                        >
-                            Import
-                        </Button>
+                        <DialogClose asChild>
+                            <Button
+                                type="submit"
+                                onClick={() => {
+                                    handleOnClickImport();
+                                }}
+                            >
+                                Import
+                            </Button>
+                        </DialogClose>
                     </DialogFooter>
                 </DialogContent>
             </form>

@@ -38,9 +38,11 @@ import { useTheme } from 'next-themes';
 import VerticalLayoutButton from '@/components/mindmap/button/VerticalLayoutButton';
 import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton';
 import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
+import EditMindmapButton from '@/components/mindmap/button/EditMindmapButton';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
-import ExportToCSVButton from '../components/buttons/ExportToCSVButton';
-import ImportMindmapButton from '../components/buttons/ImportMindMapButton';
+
+import { Card } from '@/components/ui/card';
+import MindmapButtonsPanel from '../components/MindmapButtonsPanel';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -51,7 +53,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-    'floating': FloatingEdge,
+    floating: FloatingEdge,
 };
 
 export default function MindmapContent() {
@@ -74,13 +76,11 @@ export default function MindmapContent() {
         isProcessingRegisterGenerate,
     } = useMindMapContext();
 
-    const { fitView } = useReactFlow();
+
 
     const { dataGenerated, setDataGenerated } = useContentGeneration({ sseData, sseStatus });
 
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
-
-
 
     useEffect(() => {
         setRouterRef(router);
@@ -238,41 +238,46 @@ export default function MindmapContent() {
                 <Panel position="top-left">
                     <ViewFileButton />
                 </Panel>
-                <Panel position="top-center">
-                    <div className="flex gap-2 ">
-                        <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                            <Save />
-                            {isSaving ? 'Saving...' : 'Save mindmap'}
-                        </Button>
-                        <DownloadButton />
-                        <ImportMindmapButton />
-                        <ExportToCSVButton />
-                        <HorizontalLayoutButton
-                            nodes={nodes}
-                            edges={edges}
-                            setNodes={setNodes}
-                            setEdges={setEdges}
-                            fitView={fitView}
-                        />
-                        <VerticalLayoutButton
-                            nodes={nodes}
-                            edges={edges}
-                            setNodes={setNodes}
-                            setEdges={setEdges}
-                            fitView={fitView}
-                        />
-                        <MindmapLayoutButton
-                            nodes={nodes}
-                            edges={edges}
-                            setNodes={setNodes}
-                            setEdges={setEdges}
-                            fitView={fitView}
-                        />
-                        <DeleteMindmapButton />
-                    </div>
-                    <FileSheet />
-                    <NodeSheet />
-                </Panel>
+                {/* <Panel position="center-left">
+                    <Card>
+                        <div className="flex gap-2 flex-col">
+                            <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
+                                <Save />
+                                {isSaving ? 'Saving...' : 'Save mindmap'}
+                            </Button>
+                            <EditMindmapButton />
+                            <DownloadButton />
+                            <ImportMindmapButton />
+                            <ExportToCSVButton />
+                            <HorizontalLayoutButton
+                                nodes={nodes}
+                                edges={edges}
+                                setNodes={setNodes}
+                                setEdges={setEdges}
+                                fitView={fitView}
+                            />
+                            <VerticalLayoutButton
+                                nodes={nodes}
+                                edges={edges}
+                                setNodes={setNodes}
+                                setEdges={setEdges}
+                                fitView={fitView}
+                            />
+                            <MindmapLayoutButton
+                                nodes={nodes}
+                                edges={edges}
+                                setNodes={setNodes}
+                                setEdges={setEdges}
+                                fitView={fitView}
+                            />
+
+                            <DeleteMindmapButton />
+                        </div>
+                    </Card>
+                </Panel> */}
+                <MindmapButtonsPanel />
+                <FileSheet />
+                <NodeSheet />
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
