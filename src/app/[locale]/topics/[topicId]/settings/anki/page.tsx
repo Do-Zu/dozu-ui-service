@@ -219,7 +219,7 @@ function AnkiSettingsPage() {
     }
 
     function handleFieldChange(
-        field: keyof Omit<IAnkiSetting, 'ankiSettingId' | 'userId' | 'isDefault'>,
+        field: keyof Omit<IAnkiSetting, 'ankiSettingId' | 'userId' | 'isDefault' | 'name'>,
         event: ChangeEvent<HTMLInputElement>,
     ) {
         if (field === 'learningSteps') {
@@ -289,7 +289,7 @@ function AnkiSettingsPage() {
     }
 
     function handleResetToDefaultClick() {
-        const defaultSettingValue = DEFAULT_ANKI_SETTING;
+        const { isDefault: _omit, ...defaultSettingValue } = DEFAULT_ANKI_SETTING;
         setSelectedAnkiSetting((prev) => {
             if (!prev) return null;
             return { ...prev, ...defaultSettingValue };

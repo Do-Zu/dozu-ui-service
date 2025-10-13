@@ -48,7 +48,10 @@ class AnkiSettingUtil {
     }
 
     public getValidatedAnkiValue(
-        field: keyof Omit<IAnkiSetting, 'ankiSettingId' | 'userId' | 'isDefault' | 'learningSteps' | 'relearningSteps'>,
+        field: keyof Omit<
+            IAnkiSetting,
+            'ankiSettingId' | 'userId' | 'isDefault' | 'name' | 'learningSteps' | 'relearningSteps'
+        >,
         value: string,
     ): number {
         const num = parseFloat(value);

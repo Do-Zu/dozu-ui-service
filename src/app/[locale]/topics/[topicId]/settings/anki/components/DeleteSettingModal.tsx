@@ -16,11 +16,12 @@ interface Props {
 }
 
 export function DeleteSettingModal({ isOpen, setIsOpen, setting, onSubmit, loading }: Props) {
+    const tCommon = useTranslations('common');
+    const tAnkiSetting = useTranslations('ankiSetting');
+
     if (!setting) {
         return null;
     }
-    const tCommon = useTranslations('common');
-    const tAnkiSetting = useTranslations('ankiSetting');
     const { ankiSettingId, name } = setting;
 
     function handleSubmit() {

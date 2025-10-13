@@ -16,10 +16,11 @@ interface Props {
 }
 
 export default function UpdateSettingModal({ isOpen, setIsOpen, setting, onSubmit, loading }: Props) {
+    const tCommon = useTranslations('common');
+
     if (!setting) {
         return null;
     }
-    const tCommon = useTranslations('common');
     const { ankiSettingId, name: nameSelected } = setting;
 
     const [name, setName] = useState<string>('');
