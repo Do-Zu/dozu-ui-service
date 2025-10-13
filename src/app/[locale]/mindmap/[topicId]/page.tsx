@@ -8,9 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { setRouterRef } from '@/utils/routerService';
 
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
-import DownloadButton from '@/components/mindmap/button/DownloadButton';
-import HorizontalLayoutButton from '@/components/mindmap/button/HorizontalLayoutButton';
+
 import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
@@ -35,13 +33,9 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import { useTheme } from 'next-themes';
-import VerticalLayoutButton from '@/components/mindmap/button/VerticalLayoutButton';
-import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton';
-import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
-import EditMindmapButton from '@/components/mindmap/button/EditMindmapButton';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
 
-import { Card } from '@/components/ui/card';
+
 import MindmapButtonsPanel from '../components/MindmapButtonsPanel';
 
 const defaultEdgeOptions = {
