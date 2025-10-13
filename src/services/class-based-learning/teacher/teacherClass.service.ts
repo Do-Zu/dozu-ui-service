@@ -8,6 +8,7 @@ import {
     IUpdateClassBody,
     IUpdateClassResponse,
 } from '@/app/[locale]/class-based/types/class.type';
+import { IUserProfile } from '@/types/profile';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 
 export type ICreateClassPayload = ICreateClassBody;
@@ -73,6 +74,14 @@ class TeacherClassService {
         const response = await deleteRequest<void, ApiResponse<number>>(
             `/enrollments/${classId}/students/${studentId}`,
         );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async getStudentProfile(userId: number) {
+        const response = await getRequest<void, IUserProfile>(`/profile/${userId}`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }

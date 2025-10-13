@@ -38,3 +38,43 @@ export interface PrivacySettings {
   showAchievements: boolean;
   allowMessages: boolean;
 }
+
+export interface IAchievement {
+    id: number;
+    name: string;
+    description: string;
+    icon: string;
+    earnedAt: string;
+    rarity: 'common' | 'rare' | 'epic' | 'legendary';
+}
+
+export interface IGamificationStats {
+    totalPoints: number;
+    currentStreak: number;
+    longestStreak: number;
+    level: number;
+    experiencePoints: number;
+    nextLevelExperience: number;
+    achievements: IAchievement[];
+    weeklyActivity: number[];
+    totalLessonsCompleted: number;
+    totalQuizzesCompleted: number;
+    totalFlashcardsReviewed: number;
+    averageScore: number;
+}
+
+export interface IUserProfile {
+    userId: number;
+    username: string;
+    fullName: string | null;
+    email: string;
+    avatarUrl: string;
+    bio?: string | null;
+    location?: string | null;
+    university?: string | null;
+    major?: string | null;
+    enrolledAt: string;
+    
+    // Gamification stats
+    gamificationStats?: IGamificationStats;
+}

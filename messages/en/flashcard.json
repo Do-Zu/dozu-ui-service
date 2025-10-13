@@ -32,7 +32,17 @@
             "greatJob": "Great job! 🎉",
             "flashcardsCompleted": "You've completed all the flashcards for this topic. Now you can assess your knowledge.",
             "flashcardsEmpty": "There are no flashcards for this topic! Try creating a flashcard set.",
-            "reviewKnowledge": "Review your knowledge."
+            "reviewKnowledge": "Review your knowledge.",
+            "noFlashcardsAvailable": "No Flashcards Available",
+            "noFlashcardsToStudy": "No Flashcards to Study",
+            "noFlashcardsAvailableBody": "There are no flashcards available for learning at the moment. Please check back later or contact your teacher.",
+            "noFlashcardsToStudyBody": "You don't have any flashcards scheduled for review right now. Come back later when new cards are available.",
+            "sessionSummaryTitle": "Session Summary",
+            "cardsReviewedLabel": "Cards Reviewed:",
+            "correctAnswersLabel": "Correct Answers:",
+            "pointsEarnedLabel": "Points Earned:",
+            "accuracyLabel": "Accuracy:",
+            "goBack": "Go Back"
         },
         "import": {
             "title": "Import your data",

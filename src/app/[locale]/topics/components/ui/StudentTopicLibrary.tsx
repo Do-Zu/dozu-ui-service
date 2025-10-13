@@ -18,7 +18,9 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import { BookOpen, ClipboardCheck, Edit, Filter, GitFork, GraduationCap, Layers, Play, Search } from 'lucide-react';
+import { BookOpen, ClipboardCheck, Edit, Filter, GitFork, GraduationCap, Layers, Play, Search, BarChart3 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import StudentProfileModal from '../modals/StudentProfileModal';
 import { ROUTES } from '@/utils/constants/routes';
 import topicService from '@/services/topic/topic.service';
 import { useRouter } from 'next/navigation';
@@ -47,8 +49,10 @@ export default function StudentTopicLibrary() {
     const t = useTranslations('home.contentLibrary');
     const tTopic = useTranslations('topic');
     const tCommon = useTranslations('common');
+    const tClass = useTranslations('class');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
+    const [isStudentProfileModalOpen, setIsStudentProfileModalOpen] = useState(false);
 
     const {
         data: myClass,
@@ -142,7 +146,18 @@ export default function StudentTopicLibrary() {
 
     // UI Section
 
-    const mainActionButtons = null;
+    const handleViewMyProgress = () => {
+        setIsStudentProfileModalOpen(true);
+    };
+
+    const mainActionButtons = (
+        <div className="flex flex-col gap-4">
+            <Button className="bg-background text-foreground" onClick={handleViewMyProgress}>
+                <BarChart3 className="mr-2 h-4 w-4" />
+                <span>{tClass('viewMyProgress')}</span>
+            </Button>
+        </div>
+    );
 
     const renderFeedCard = (feedGroup: IFeedGroup) => {
         const { feed, group } = feedGroup;
@@ -292,6 +307,12 @@ export default function StudentTopicLibrary() {
                 isOpen={isTopicDetailsModalOpen}
                 setIsOpen={setIsTopicDetailsModalOpen}
                 topic={selectingTopic}
+            />
+
+            <StudentProfileModal
+                isOpen={isStudentProfileModalOpen}
+                onClose={() => setIsStudentProfileModalOpen(false)}
+                classId={classId}
             />
         </>
     );

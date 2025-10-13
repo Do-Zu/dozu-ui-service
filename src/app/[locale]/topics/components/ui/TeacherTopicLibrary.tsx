@@ -44,7 +44,6 @@ import { IUpdatingTopic, UpdateTopicModal } from '@/app/[locale]/topics/componen
 import { DeleteTopicModal, IDeletingTopic } from '@/app/[locale]/topics/components/modals/DeleteTopicModal';
 import { Button } from '@/components/ui/button';
 import { ShowIf } from '@/components/ui/ShowIf';
-import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
