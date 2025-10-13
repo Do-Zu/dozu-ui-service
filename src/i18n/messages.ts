@@ -36,6 +36,7 @@ export async function getMessages(locale: string) {
         ...(await import(`../../messages/${locale}/studentProfile.json`)).default,
         ...(await import(`../../messages/${locale}/feynman.json`)).default,
         ...(await import(`../../messages/${locale}/class-based/comment.json`)).default,
+        ...(await import(`../../messages/${locale}/ankiSetting.json`)).default,
     };
 
     // You can dynamically load additional message files based on routes/features
