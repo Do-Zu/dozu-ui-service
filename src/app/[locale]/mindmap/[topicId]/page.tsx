@@ -238,43 +238,7 @@ export default function MindmapContent() {
                 <Panel position="top-left">
                     <ViewFileButton />
                 </Panel>
-                {/* <Panel position="center-left">
-                    <Card>
-                        <div className="flex gap-2 flex-col">
-                            <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                                <Save />
-                                {isSaving ? 'Saving...' : 'Save mindmap'}
-                            </Button>
-                            <EditMindmapButton />
-                            <DownloadButton />
-                            <ImportMindmapButton />
-                            <ExportToCSVButton />
-                            <HorizontalLayoutButton
-                                nodes={nodes}
-                                edges={edges}
-                                setNodes={setNodes}
-                                setEdges={setEdges}
-                                fitView={fitView}
-                            />
-                            <VerticalLayoutButton
-                                nodes={nodes}
-                                edges={edges}
-                                setNodes={setNodes}
-                                setEdges={setEdges}
-                                fitView={fitView}
-                            />
-                            <MindmapLayoutButton
-                                nodes={nodes}
-                                edges={edges}
-                                setNodes={setNodes}
-                                setEdges={setEdges}
-                                fitView={fitView}
-                            />
 
-                            <DeleteMindmapButton />
-                        </div>
-                    </Card>
-                </Panel> */}
                 <MindmapButtonsPanel />
                 <FileSheet />
                 <NodeSheet />
