@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
-import { useSetMindmapLayout } from '../../hooks/useSetMindmapLayout';
+import { useSetMindmapLayout } from '@/app/[locale]/mindmap/hooks/useSetMindmapLayout';
 
 interface ImportMindMapButtonProps {
     isPanelExpanded: boolean;
@@ -62,7 +62,7 @@ const ImportMindmapButton = ({ isPanelExpanded }: ImportMindMapButtonProps) => {
 
             setNodes(nodes);
             setEdges(edges);
-            onLayout({ direction: 'DOWN' });
+            // onLayout({ direction: 'DOWN' });
 
             // toast({
             //     title: 'Import successful',
