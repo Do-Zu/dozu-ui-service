@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import { useReactFlow } from '@xyflow/react';
 import { Import } from 'lucide-react';
-import React, {  useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -28,6 +28,7 @@ interface ImportButtonProps {
 
 const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
     // const t = useTranslations();
+    const [shouldLayout, setShouldLayout] = useState(false);
 
     const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
     const [csvInput, setCsvInput] = useState('');
@@ -63,6 +64,7 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
 
             setNodes(nodes);
             setEdges(edges);
+            setShouldLayout(true);
             // onLayout({ direction: 'DOWN' });
 
             // toast({
@@ -118,6 +120,14 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
 
         return { nodes, edges };
     };
+
+    // Watch nodes — when they change *and* the flag is true, trigger layout
+    useEffect(() => {
+        if (shouldLayout) {
+            onLayout({ direction: 'DOWN' });
+            setShouldLayout(false); // reset flag
+        }
+    }, [shouldLayout, onLayout]);
 
     return (
         <Dialog>
