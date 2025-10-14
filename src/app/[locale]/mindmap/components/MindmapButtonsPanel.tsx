@@ -12,8 +12,8 @@ import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton
 import { useMindMapContext } from '../context/MindMapContext';
 import { Expand, Save } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
+import ImportMindmapButton from './buttons/ImportMindmapButton';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
-
 
 // import { Toggle } from "@/components/ui/toggle"
 
@@ -56,7 +56,7 @@ const MindmapButtonsPanel = ({}) => {
                     </Button>
                     <EditMindmapButton isPanelExpanded={isPanelExpanded} />
                     <DownloadButton isPanelExpanded={isPanelExpanded} />
-                    {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
+                    <ImportMindmapButton isPanelExpanded={isPanelExpanded} />
                     <ExportToCSVButton isPanelExpanded={isPanelExpanded} />
                     <HorizontalLayoutButton
                         nodes={nodes}

@@ -4,6 +4,7 @@ import { useReactFlow } from '@xyflow/react';
 import { Import } from 'lucide-react';
 import React, { useContext, useState } from 'react';
 import Papa from 'papaparse';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
     Dialog,
@@ -87,7 +88,7 @@ const ImportMindmapButton = ({ isPanelExpanded }: ImportMindMapButtonProps) => {
         const getNodeId = (label: string) => {
             //needs isRoot mechanism
             if (!nodeSet.has(label)) {
-                const id = crypto.randomUUID();
+                const id = uuidv4();
                 nodeSet.set(label, id);
                 nodes.push({
                     id,
