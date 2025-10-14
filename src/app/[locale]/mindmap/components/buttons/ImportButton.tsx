@@ -22,11 +22,11 @@ import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
 import { useSetMindmapLayout } from '@/app/[locale]/mindmap/hooks/useSetMindmapLayout';
 
-interface ImportMindMapButtonProps {
+interface ImportButtonProps {
     isPanelExpanded: boolean;
 }
 
-const ImportMindmapButton = ({ isPanelExpanded }: ImportMindMapButtonProps) => {
+const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
     // const t = useTranslations();
 
     const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
@@ -169,4 +169,4 @@ const ImportMindmapButton = ({ isPanelExpanded }: ImportMindMapButtonProps) => {
     );
 };
 
-export default ImportMindmapButton;
+export default ImportButton;
