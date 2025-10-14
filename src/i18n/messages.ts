@@ -19,6 +19,7 @@ export async function getMessages(locale: string) {
         ...(await import(`../../messages/${locale}/home.json`)).default,
         ...(await import(`../../messages/${locale}/login.json`)).default,
         ...(await import(`../../messages/${locale}/registerPage.json`)).default,
+        ...(await import(`../../messages/${locale}/payment.json`)).default,
         ...(await import(`../../messages/${locale}/auth/forgotPasswordPage.json`)).default,
         ...(await import(`../../messages/${locale}/auth/changePasswordEmailSentPage.json`)).default,
         ...(await import(`../../messages/${locale}/auth/changePasswordPage.json`)).default,
