@@ -71,11 +71,12 @@ function useFetch<T, Z = T>(
             // apply in here to select customized param
             if (selector && rawData) rawData = selector(rawData);
 
+            let finalData: Z;
+
             // Apply Zod validation if schema is provided
             if (schema) {
                 try {
-                    const validatedData = schema.parse(rawData);
-                    setData(validatedData);
+                    finalData = schema.parse(rawData);
                 } catch (validationError) {
                     if (validationError instanceof z.ZodError) {
                         throw new Error(
@@ -85,11 +86,12 @@ function useFetch<T, Z = T>(
                     throw validationError;
                 }
             } else {
-                // If no schema provided, cast the data as Z
-                setData(rawData as Z);
+                finalData = rawData as Z;
             }
 
-            if (isEmpty(rawData)) {
+            setData(finalData);
+
+            if (isEmpty(finalData as unknown)) {
                 options?.onEmpty?.();
             } else {
                 options?.onSuccess?.(data);
