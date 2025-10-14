@@ -333,14 +333,8 @@ export default function FeynmanPage() {
     }, []);
 
     const isDisableGetQuestionButton = useMemo(() => {
-        return (
-            isGeneratingQuestion ||
-            isGeneratingReview ||
-            !!dataFeynmanQuestion ||
-            !originContent ||
-            isFetchDataOriginMethod
-        );
-    }, [isGeneratingQuestion, isGeneratingReview, dataFeynmanQuestion]);
+        return isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion || !originContent;
+    }, [isGeneratingQuestion, isGeneratingReview, dataFeynmanQuestion, originContent]);
 
     const isDisableSubmitReviewButton = useMemo(() => {
         return !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text);
