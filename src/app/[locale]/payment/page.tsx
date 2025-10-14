@@ -159,9 +159,9 @@ export default function PaymentPage() {
                                     {t('orderCode')}: {orderCode}
                                 </Badge>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                                    <Button onClick={handleRetry} variant="outline" className="w-full">
+                                    {/* <Button onClick={handleRetry} variant="outline" className="w-full">
                                         {t('error.tryAgain')}
-                                    </Button>
+                                    </Button> */}
                                     <Button onClick={handleBackToPlans} className="w-full">
                                         {t('backToPlans')}
                                     </Button>
@@ -183,9 +183,9 @@ export default function PaymentPage() {
                         <CardContent className="text-center space-y-4">
                             <p className="text-muted-foreground">{error}</p>
                             <div className="flex gap-2 pt-4">
-                                <Button onClick={handleRetry} variant="outline" className="flex-1">
+                                {/* <Button onClick={handleRetry} variant="outline" className="flex-1">
                                     {t('error.tryAgain')}
-                                </Button>
+                                </Button> */}
                                 <Button onClick={handleBackToPlans} className="flex-1">
                                     <ArrowLeft className="w-4 h-4 mr-2" />
                                     {t('backToPlans')}
@@ -345,7 +345,7 @@ export default function PaymentPage() {
                                 )}
 
                                 {/* QR method */}
-                                <TabsContent value="qr">
+                                {/* <TabsContent value="qr">
                                     <div className="grid place-items-center gap-4">
                                         <AnimatePresence>
                                             <motion.div
@@ -373,7 +373,7 @@ export default function PaymentPage() {
                                         </AnimatePresence>
                                         <p className="text-center text-xs text-muted-foreground">{t('qrHint')}</p>
                                     </div>
-                                </TabsContent>
+                                </TabsContent> */}
                             </Tabs>
                         </CardContent>
                     </Card>
