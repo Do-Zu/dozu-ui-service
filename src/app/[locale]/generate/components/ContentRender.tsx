@@ -1,9 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import FlashcardEditor, { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { GeneratedContent, TypeDataGenerated } from './ContentGenerationPreview';
+import QuestionEditor from '../../question/components/QuestionEditor';
+import { IQuestion } from '../../question/types/question.type';
 import { CONTENT_TYPE_GENERATE } from '../types';
+import GenerateMindmapCard from '../../mindmap/components/GenerateMindmapCard';
 
 interface ContentRenderProps {
     content: GeneratedContent;
@@ -21,24 +24,16 @@ const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, s
                         setFlashcards={setDataGenerated}
                     />
                 );
-            case CONTENT_TYPE_GENERATE.QUIZ || CONTENT_TYPE_GENERATE.MULTIPLE_CHOICE:
-                return <QuizRenderer data={content.data} />;
+            case CONTENT_TYPE_GENERATE.QUIZ:
+                return <QuestionRenderer questions={dataGenerated as IQuestion[]} setQuestions={setDataGenerated} />;
             case CONTENT_TYPE_GENERATE.MIND_MAP:
-                return <MindmapRenderer data={content.data} />;
+                return <MindmapRenderer data={content.data} setDataGenerated={setDataGenerated} />;
             default:
                 return <div className="p-4 text-center text-gray-500">Unsupported content type: {content.type}</div>;
         }
     };
 
-    return (
-        <div className="w-full">
-            <div className="mb-4">
-                <h3 className="text-lg font-semibold capitalize">Generated {content.type}</h3>
-                <p className="text-sm text-gray-600">Review and customize your {content.type} before saving</p>
-            </div>
-            {renderContent()}
-        </div>
-    );
+    return <div className="w-full">{renderContent()}</div>;
 };
 
 // Individual content type renderers
@@ -62,34 +57,45 @@ const FlashcardRenderer: React.FC<FlashcardRendererProps> = ({ flashcards, setFl
     );
 };
 
-interface QuizRendererProps {
-    //TODO: Define the structure of quiz data
-    data: any;
+interface QuestionRendererProps {
+    questions: IQuestion[] | null;
+    setQuestions: (questions: IQuestion[] | null) => void;
 }
 
-const QuizRenderer: React.FC<QuizRendererProps> = ({ data }) => {
-    // TODO: Implement quiz renderer component
+const QuestionRenderer: React.FC<QuestionRendererProps> = ({ questions, setQuestions }) => {
+    if (!questions) {
+        return <div className="p-4 text-center text-gray-500">No quiz questions generated</div>;
+    }
+
     return (
-        <div className="p-4 border rounded-lg">
-            <h4 className="font-medium mb-2">Quiz Content</h4>
-            <p className="text-sm text-gray-600">Quiz renderer will be implemented here</p>
-            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">{JSON.stringify(data, null, 2)}</pre>
-        </div>
+        <QuestionEditor
+            questions={questions}
+            setQuestions={setQuestions}
+            shouldShowBackButton={false}
+            shouldShowSaveButton={false}
+        />
     );
 };
 
 interface MindmapRendererProps {
-    //TODO: Define the structure of mindmap data
+    //TODO: Define the structure of mindmap data (don't use any type)
     data: any;
+    setDataGenerated: (data: any) => void;
+    //original is object[] but mindmapData is object so it doesn't work, changing requires changing useContentGeneration hook
+    // and that's too hard - DuyND
 }
 
-const MindmapRenderer: React.FC<MindmapRendererProps> = ({ data }) => {
-    // TODO: Implement mindmap renderer component
+const MindmapRenderer: React.FC<MindmapRendererProps> = ({ data, setDataGenerated }) => {
+    const [topicName, setTopicName] = useState<string>('');
+
     return (
         <div className="p-4 border rounded-lg">
-            <h4 className="font-medium mb-2">Mindmap Content</h4>
-            <p className="text-sm text-gray-600">Mindmap renderer will be implemented here</p>
-            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">{JSON.stringify(data, null, 2)}</pre>
+            <GenerateMindmapCard
+                mindmapData={data}
+                topicName={topicName}
+                setTopicName={setTopicName}
+                setDataGenerated={setDataGenerated}
+            />
         </div>
     );
 };

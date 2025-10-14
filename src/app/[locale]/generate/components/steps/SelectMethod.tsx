@@ -1,15 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Sparkles, BookOpen, FileText, Lightbulb, Check, Map } from 'lucide-react';
 import { useCardImportSelector, useCardImportDispatch } from '../../hooks/useReduxStore';
 import { setSelectedMethod } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import { useTranslations } from 'next-intl';
 
 interface SelectMethodProps {}
 
 const SelectMethod: React.FC<SelectMethodProps> = () => {
     const dispatch = useCardImportDispatch();
-    const { suggestedMethods, selectedMethod } = useCardImportSelector((state) => state.importDialog);
+    const t = useTranslations('generate.selectMethod');
+    const { suggestedMethods, selectedMethod, importMethod } = useCardImportSelector((state) => state.importDialog);
 
     const handleMethodSelection = (method: string) => {
         dispatch(setSelectedMethod(method));
@@ -33,15 +35,27 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
     const getMethodDescription = (method: string) => {
         switch (method) {
             case 'flashcards':
-                return 'Perfect for memorization and quick review';
+                return t('descriptions.flashcards');
             case 'quiz':
-                return 'Great for testing your knowledge';
+                return t('descriptions.quiz');
             case 'mindmap':
-                return 'Visual organization to connect ideas and concepts';
+                return t('descriptions.mindmap');
             default:
-                return 'Ideal for detailed study and reference';
+                return t('descriptions.default');
         }
     };
+
+    const suggestMethodSelection = useMemo(() => {
+        // if (importMethod === 'file') {
+        //     return suggestedMethods;
+        // }
+        // // Exclude mindmap if importMethod is not 'file'
+        // return suggestedMethods.filter((method) => method !== 'mindmap');
+
+        //NOTE: Revert for generate roadmap for all type content
+        //TODO: check for filter specific method need generate roadmap
+        return suggestedMethods;
+    }, [selectedMethod]);
 
     return (
         <div className="space-y-6">
@@ -51,17 +65,14 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
                         <Sparkles className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <h3 className="font-medium mb-1">Content Analysis</h3>
-                        <p className="text-sm text-muted-foreground">
-                            We've analyzed your content and identified the following learning methods that would work
-                            best:
-                        </p>
+                        <h3 className="font-medium mb-1">{t('header.title')}</h3>
+                        <p className="text-sm text-muted-foreground">{t('header.description')}</p>
                     </div>
                 </div>
             </div>
 
             <div className="space-y-3">
-                {suggestedMethods.map((method) => (
+                {suggestMethodSelection?.map((method) => (
                     <div
                         key={method}
                         className={`p-4 rounded-lg border ${selectedMethod === method ? 'border-border bg-muted' : 'border-border'} cursor-pointer transition-all`}
@@ -71,7 +82,7 @@ const SelectMethod: React.FC<SelectMethodProps> = () => {
                             <div className="flex items-center gap-3">
                                 {getMethodIcon(method)}
                                 <div>
-                                    <h4 className="font-medium capitalize">{method}</h4>
+                                    <h4 className="font-medium capitalize">{t(`methods.${method}`)}</h4>
                                     <p className="text-sm">{getMethodDescription(method)}</p>
                                 </div>
                             </div>

@@ -19,21 +19,6 @@ function ProgressPage() {
             {t('subtitle')}
           </p>
         </div>
-
-        {/* <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="dashboard">{t('dashboard')}</TabsTrigger>
-            <TabsTrigger value="manage">{t('manage')}</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="dashboard" className="space-y-4">
-            <ProgressDashboard />
-          </TabsContent>
-          
-          <TabsContent value="manage" className="space-y-4">
-            <ProgressManager />
-          </TabsContent>
-        </Tabs> */}
         <ProgressDashboard/>
       </div>
     </div>

@@ -16,7 +16,51 @@ export const ROUTES = Object.freeze({
     SCHEDULE: '/schedule',
     LIBRARY: '/library',
     PROGRESS: '/progress',
+    PROFILE: '/setting/profile',
+    PROFILE_EDIT: '/setting/profile/edit',
+    PROFILE_AVATAR: '/setting/profile/avatar',
+    PROFILE_PASSWORD: '/setting/profile/password',
+    PROFILE_NOTIFICATIONS: '/setting/profile/notifications',
+    PROFILE_PRIVACY: '/setting/profile/privacy',
+    PROFILE_SETTINGS: '/setting/profile/settings',
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
+    FEYNMAN_REVIEW: (topicId: string | number, method: string) => `/feynman/${topicId}?method=${method}`,
+    ANKI_SETTINGS: (topicId: string | number) => `/topics/${topicId}/settings/anki`,
+
+    // ======================= ADMIN ROUTES ========================
+
+    ADMIN: '/admin',
+    ADMIN_STATISTICS: '/admin/stats',
+
+    // ======================= CLASS BASED ROUTES ========================
+    CLASS_BASED: '/class-based',
+    CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
+    CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
+    CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
+
+    MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
+    MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
+    CLASS_MINDMAP_VIEW: (classId: string | number, topicId: string | number) =>
+        `/class-based/${classId}/mindmap/${topicId}`,
+
+    QUIZ_START: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
+    QUIZ_EDIT: (topicId: string | number) => `/question/edit/${topicId}`,
+
+    // ======================= GAMES ========================
+    FLASHCARDS_BRAIN_CHASE: (topicId: string | number) => `/games/brain-chase?topicId=${topicId}`,
+    FLASHCARDS_MEMORY_MATCH: (topicId: string | number) => `/games/memory-match?topicId=${topicId}`,
+
+    // ======================= TEACHER ROUTES ========================
+
+    TEACHER: {
+        HOME: '/teacher/home',
+        CLASS_BASED: '/teacher/class-based',
+        CLASS_BASED_ID: (classId: string | number) => `/teacher/class-based/${classId}`,
+        CLASS_BASED_ID_GENERATE: (classId: string | number) => `/teacher/class-based/${classId}/generate`,
+        CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
+        CLASS_BASED_ID_MINDMAP_EDIT: (classId: string | number, topicId: string | number) =>
+            `/teacher/class-based/${classId}/mindmap/${topicId}`,
+    },
 });
 
 // Route groups for easier management
@@ -53,4 +97,5 @@ export const ROUTE_CONFIG = {
     [ROUTES.SCHEDULE]: ROUTE_ACCESS.ONBOARDED,
     [ROUTES.PROGRESS]: ROUTE_ACCESS.ONBOARDED,
     [ROUTES.UNAUTHORIZED]: ROUTE_ACCESS.PUBLIC,
+    [ROUTES.PROFILE]: ROUTE_ACCESS.ONBOARDED,
 } as const;

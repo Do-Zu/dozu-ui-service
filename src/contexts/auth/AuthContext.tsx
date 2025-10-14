@@ -2,8 +2,9 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { getRequest, postRequest } from '@/api/api';
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
+import { getAllFeatureBelongPlan, getCurrentPlanSubscription } from '@/services/features/feature.service';
+import { ICurrentPlan } from '@/services/features/feature.type';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
 import { storeSessionData } from '@/utils/storage';
@@ -21,57 +22,6 @@ interface AuthContextType {
     hasPermission: (permission: string) => boolean;
     updateUser: (userData: Partial<User>) => void;
     markOnboardingComplete: () => void;
-}
-
-interface IPlanResponse {
-    planId: number;
-    name: string;
-    description: string;
-    isActive: boolean;
-}
-interface IPlan extends IPlanResponse {}
-interface ISuccessResponse {
-    subscriptionId: number;
-    userId: number;
-    planId: number;
-    status: 'active' | 'cancelled' | 'expired' | 'pending' | 'suspended' | 'trialing';
-    currentPeriodStart: Date;
-    currentPeriodEnd: Date;
-    trialStart: Date | null;
-    trialEnd: Date | null;
-    cancelAt: Date | null;
-    canceledAt: Date | null;
-    cancellationReason: string | null;
-    paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
-    amount: string;
-    currency: string;
-    externalSubscriptionId: string | null;
-    autoRenew: boolean;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-}
-interface ICurrentPlanSubscriptionResponse {
-    subscription: ISuccessResponse;
-    plan: IPlanResponse;
-}
-
-interface IFeatureRequest {
-    planId: number;
-}
-interface IFeatureResponse {
-    featureId: number;
-    name: string;
-    description: string | null;
-    featureType: 'boolean' | 'usage' | 'size_limit';
-    featureIntervalExpire: 'daily' | 'weekly' | 'monthly' | 'yearly';
-    category: 'core' | 'storage' | 'integrations' | 'customization';
-    unit: 'GB' | 'MB' | 'count' | null;
-    apiUrl: string | null;
-}
-
-export interface ICurrentPlan {
-    plan: IPlan;
-    features: IFeatureResponse[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -97,32 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!user) {
                 //TODO: Refresh user data from API or session
             }
-
-            // Get current subscription plan of user
-            const { data } = await getCurrentPlanSubscription();
-
-            const { plan } = data;
-
-            if (!plan || !plan?.planId) {
-                setCurrentPlanUser(null);
-                return;
-            }
-
-            const { data: features } = await getAllFeatureBelongPlan(plan.planId);
-
-            if (!features || features.length === 0) {
-                setCurrentPlanUser(null);
-                return;
-            }
-
-            const planWithFeatures = {
-                plan,
-                features,
-            };
-
-            storeSessionData<ICurrentPlan>('currentPlanUser', planWithFeatures);
-
-            setCurrentPlanUser(planWithFeatures);
         } catch (error) {
             console.error('Error checking authentication status:', error);
         } finally {
@@ -130,34 +54,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const getCurrentPlanSubscription = async () => {
-        const result = await getRequest<ICurrentPlanSubscriptionResponse, ICurrentPlanSubscriptionResponse>(
-            '/subscription/current-plan',
-        );
-        return result;
-    };
+    const getUserCurrentPlan = useCallback(async () => {
+        const { data } = await getCurrentPlanSubscription();
 
-    const getAllFeatureBelongPlan = async (planId: number) => {
-        const result = await postRequest<IFeatureRequest, IFeatureResponse[]>(`/subscription/plan/features`, {
-            planId,
-        });
-        return result;
-    };
+        const { plan } = data;
 
-    const getFeatureByApiUrl = useCallback(
-        (apiUrl: string): IFeatureResponse | null => {
-            if (!currentPlanUser?.features) return null;
+        if (!plan || !plan?.planId) {
+            setCurrentPlanUser(null);
+            return;
+        }
 
-            return (
-                currentPlanUser.features.find((feature) => feature?.apiUrl && apiUrl.includes(feature.apiUrl)) || null
-            );
-        },
-        [currentPlanUser?.features],
-    );
+        const { data: features } = await getAllFeatureBelongPlan(plan.planId);
+
+        if (!features || features.length === 0) {
+            setCurrentPlanUser(null);
+            return;
+        }
+
+        const planWithFeatures = {
+            plan,
+            features,
+        };
+
+        storeSessionData<ICurrentPlan>('currentPlanUser', planWithFeatures);
+
+        setCurrentPlanUser(planWithFeatures);
+    }, []);
 
     useEffect(() => {
         checkAuthStatus();
-    }, [checkAuthStatus]);
+    }, []);
+
+    useEffect(() => {
+        if (isAuthenticated && !currentPlanUser) {
+            getUserCurrentPlan();
+        }
+    }, [isAuthenticated]);
 
     const hasRole = useCallback(
         (role: string): boolean => {
@@ -168,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const hasPermission = useCallback(
         (permission: string): boolean => {
-            return user?.permissions.includes(permission) ?? false;
+            return user?.permissions?.includes(permission) ?? false;
         },
         [user?.permissions],
     );

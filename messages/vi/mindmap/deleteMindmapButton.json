@@ -1,0 +1,9 @@
+{
+  "DeleteMindmapButton": {
+    "deleteMindmapButtonText": "Xóa mindmap",
+    "deleteSuccessMessage": "Xóa thành công",
+    "confirmationTitle": "Xác nhận xóa",
+    "confirmationProceed": "Ok",
+    "confirmationCancel": "Hủy"
+  }
+}

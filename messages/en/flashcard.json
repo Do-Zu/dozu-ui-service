@@ -11,6 +11,7 @@
             "complete": "complete",
             "autoPlay": "Auto-play",
             "resetProgress": "Reset Progress",
+            "reset": "Reset",
             "speed": "Speed",
             "shuffle": "Shuffle",
             "backFirst": "Back First",
@@ -26,8 +27,34 @@
                 "good": "Good",
                 "perfect": "Perfect"
             },
-            "showAnswer": "Show answwer",
-            "flashcardsRemaining": "flashcards remaining"
+            "showAnswer": "Show answer",
+            "flashcardsRemaining": "flashcards remaining",
+            "greatJob": "Great job! 🎉",
+            "flashcardsCompleted": "You've completed all the flashcards for this topic. Now you can assess your knowledge.",
+            "flashcardsEmpty": "There are no flashcards for this topic! Try creating a flashcard set.",
+            "reviewKnowledge": "Review your knowledge.",
+            "noFlashcardsAvailable": "No Flashcards Available",
+            "noFlashcardsToStudy": "No Flashcards to Study",
+            "noFlashcardsAvailableBody": "There are no flashcards available for learning at the moment. Please check back later or contact your teacher.",
+            "noFlashcardsToStudyBody": "You don't have any flashcards scheduled for review right now. Come back later when new cards are available.",
+            "sessionSummaryTitle": "Session Summary",
+            "cardsReviewedLabel": "Cards Reviewed:",
+            "correctAnswersLabel": "Correct Answers:",
+            "pointsEarnedLabel": "Points Earned:",
+            "accuracyLabel": "Accuracy:",
+            "goBack": "Go Back"
+        },
+        "import": {
+            "title": "Import your data",
+            "importText": {
+                "placeholder": "Term 1: Definition 1\nTerm 2: Definition 2\n...",
+                "sideDividerLabel": "Between Term and Definition",
+                "cardDividerLabel": "Between Cards",
+                "importSuccess": "Add Flashcards from Text successfully"
+            },
+            "importCsv": {
+                "importSuccess": "Add Flashcards from CSV successfully"
+            }
         }
     }
 }

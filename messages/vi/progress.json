@@ -17,5 +17,21 @@
   "studyTimeDistribution": "Phân bố thời gian học của bạn",
   "achievements": "Thành tích",
   "learningMilestones": "Cột mốc học tập của bạn",
-  "topicsCompleted": "Chủ đề đã hoàn thành"
+  "topicsCompleted": "Chủ đề đã hoàn thành",
+  "loading": "Đang tải dữ liệu tiến trình...",
+  "error": "Lỗi khi tải dữ liệu tiến trình",
+  "loadingChart": "Đang tải dữ liệu biểu đồ...",
+  "reportGenerated": "Báo cáo được tạo vào",
+  "exportPdf": "Xuất dưới dạng PDF",
+  "exportExcel": "Xuất dưới dạng Excel",
+  "exportCsv": "Xuất dưới dạng CSV",
+  "print": "In",
+  "share": "Chia sẻ",
+  "export": "Xuất",
+  "progressReportTitle": "Báo cáo tiến trình học tập",
+  "progressReportText": "Xem tiến trình học tập của tôi! Tổng giờ học: {hours}h, Chủ đề hoàn thành: {topics}",
+  "reportDetailsCopied": "Chi tiết báo cáo đã được sao chép vào clipboard!",
+  "urlCopied": "URL đã được sao chép vào clipboard!",
+  "shareError": "Không thể chia sẻ. Vui lòng sao chép URL thủ công.",
+  "exportError": "Lỗi khi xuất dưới dạng {format}. Vui lòng thử lại."
 }

@@ -1,0 +1,9 @@
+{
+  "DeleteMindmapButton": {
+    "deleteMindmapButtonText": "Delete mindmap",
+    "deleteSuccessMessage": "Deleted successfully",
+  "confirmationTitle": "Are you sure?",
+  "confirmationProceed":"Yes",
+  "confirmationCancel":"No"
+  }
+}

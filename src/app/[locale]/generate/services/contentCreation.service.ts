@@ -1,11 +1,22 @@
 import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
-import { handleCreateTopic } from '../../topics/components/TopicCreatedForm';
+import { handleConvertToQuestionsSubmitted } from '../../question/utils/handleConvertToQuestionsSubmitted';
 import { ContentType } from '../components/ContentGenerationPreview';
+import Axios from '@/api/axios';
+import topicService, { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/topic/topic.service';
+import { store } from '@/stores/store';
+import { IQuestion } from '@/app/[locale]/question/types/question.type';
+import flashcardService from '@/services/flashcard/flashcard.service';
+import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 
 export interface CreateContentParams {
-    topicName: string;
-    topicDescription: string;
+    topic: ICreateTopicPayload;
+    contentType: ContentType | null;
+    contentData: any;
+}
+
+export interface CreateContentForClassParams {
+    topic: ICreateTopicForClassPayload;
     contentType: ContentType | null;
     contentData: any;
 }
@@ -13,6 +24,7 @@ export interface CreateContentParams {
 export interface ContentCreationResult {
     success: boolean;
     topicId?: string | number;
+    topicName?: string;
     error?: string;
 }
 
@@ -24,14 +36,20 @@ export class ContentCreationService {
      * Creates a topic and saves the generated content
      */
     static async createContent(params: CreateContentParams): Promise<ContentCreationResult> {
-        const { topicName, topicDescription, contentType, contentData } = params;
+        const { topic, contentType, contentData } = params;
+        const { name, description, imageFile } = topic;
+
+        const state = store.getState(); //get state to get inputSetId saved on file upload - DuyND
 
         try {
             // Phase 1: Create topic
-            const topic = await handleCreateTopic({
-                name: topicName,
-                description: topicDescription,
+            const data = await topicService.createTopic({
+                name,
+                description,
+                imageFile,
+                inputSetId: state.inputSet.inputSetId,
             });
+            const topic = data;
 
             if (!topic) {
                 return { success: false, error: 'Failed to create topic' };
@@ -45,7 +63,7 @@ export class ContentCreationService {
                     await this.saveFlashcards(topicId, contentData);
                     break;
                 case 'quiz':
-                    await this.saveQuiz(topicId, contentData);
+                    await this.saveQuiz(topicId, contentData as IQuestion[]);
                     break;
                 case 'mindmap':
                     await this.saveMindmap(topicId, contentData);
@@ -55,6 +73,53 @@ export class ContentCreationService {
             }
 
             return { success: true, topicId };
+        } catch (error) {
+            console.error('Content creation failed:', error);
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error occurred',
+            };
+        }
+    }
+
+    static async createContentForClass(params: CreateContentForClassParams): Promise<ContentCreationResult> {
+        const { topic, contentType, contentData } = params;
+        const { classId, name, description, imageFile } = topic;
+        const state = store.getState();
+
+        try {
+            // Phase 1: Create topic in a specific class
+            const data = await teacherTopicService.createTopicForClass({
+                classId,
+                name,
+                description,
+                imageFile,
+                inputSetId: state.inputSet.inputSetId,
+            });
+            const topic = data;
+
+            if (!topic) {
+                return { success: false, error: 'Failed to create topic' };
+            }
+
+            const { topicId } = topic;
+
+            // Phase 2: Save content based on type
+            switch (contentType) {
+                case 'flashcard':
+                    await this.saveFlashcards(topicId, contentData);
+                    break;
+                case 'quiz':
+                    await this.saveQuiz(topicId, contentData as IQuestion[]);
+                    break;
+                case 'mindmap':
+                    await this.saveMindmap(topicId, contentData);
+                    break;
+                default:
+                    return { success: false, error: `Unsupported content type: ${contentType}` };
+            }
+
+            return { success: true, topicId, topicName: topic.name };
         } catch (error) {
             console.error('Content creation failed:', error);
             return {
@@ -78,17 +143,28 @@ export class ContentCreationService {
             throw new Error('No valid flashcards to submit');
         }
 
-        await postRequest(`/flashcards/batch?topicId=${topicId}`, flashcardsSubmitted);
+        // await postRequest(`/flashcards/batch?topicId=${topicId}`, flashcardsSubmitted);
+        await flashcardService.batchFlashcardsForTopic({ topicId, flashcards: flashcardsSubmitted }); // CHANGE FOR USING FLASHCARD SERVICE
     }
 
     /**
      * Saves quiz to a topic
      * TODO: Implement quiz saving logic
      */
-    private static async saveQuiz(topicId: string | number, quizData: any): Promise<void> {
-        // TODO: Implement quiz API endpoint
-        console.log('Saving quiz for topic:', topicId, quizData);
-        throw new Error('Quiz saving not implemented yet');
+    private static async saveQuiz(topicId: string | number, quizData: IQuestion[]): Promise<void> {
+        if (!quizData || quizData.length === 0) {
+            throw new Error('No quiz data provided');
+        }
+
+        console.log({ quizData });
+
+        const questionsSubmitted = handleConvertToQuestionsSubmitted(quizData);
+
+        if (!questionsSubmitted) {
+            throw new Error('No valid quiz questions to submit');
+        }
+
+        await postRequest(`/questions/batch?topicId=${topicId}`, questionsSubmitted);
     }
 
     /**
@@ -97,7 +173,16 @@ export class ContentCreationService {
      */
     private static async saveMindmap(topicId: string | number, mindmapData: any): Promise<void> {
         // TODO: Implement mindmap API endpoint
-        console.log('Saving mindmap for topic:', topicId, mindmapData);
-        throw new Error('Mindmap saving not implemented yet');
+        if (!mindmapData) {
+            throw new Error('No mindmap data provided');
+        }
+        const options: any = {
+            body: {
+                title: 'a', //temp value
+                nodes: mindmapData.nodes,
+                edges: mindmapData.edges,
+            },
+        };
+        const response = await Axios.post(`/mindmap/${topicId}`, options.body);
     }
 }

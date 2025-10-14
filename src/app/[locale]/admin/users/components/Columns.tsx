@@ -22,21 +22,30 @@ function ActionButtons({ user, refetch }: { user: UserBasic; refetch: () => void
     const { execute: toggleActive, loading: toggleLoading } = usePost(
         `/admin/users/${user.id}/toggle-active`,
         'PATCH',
-        undefined,
-        undefined,
-        undefined,
-        () => toast({ description: 'Failed to toggle active', variant: 'destructive' }),
-        refetch,
+        // undefined,
+        // undefined,
+        // undefined,
+        // () => toast({ description: 'Failed to toggle active', variant: 'destructive' }),
+        // refetch,
+        {
+            onMessageError: () => toast({ description: 'Failed to toggle active', variant: 'destructive' }),
+            onMessageSuccess: refetch,
+        },
     );
 
     const { execute: updateRole, loading: roleLoading } = usePost(
         `/admin/users/${user.id}/role`,
         'PATCH',
-        updateUserRoleSchema,
-        undefined,
-        undefined,
-        () => toast({ description: 'Failed to change role', variant: 'destructive' }),
-        refetch,
+        // updateUserRoleSchema,
+        // undefined,
+        // undefined,
+        // () => toast({ description: 'Failed to change role', variant: 'destructive' }),
+        // refetch,
+        {
+            requestSchema: updateUserRoleSchema,
+            onMessageError: () => toast({ description: 'Failed to change role', variant: 'destructive' }),
+            onMessageSuccess: refetch,
+        },
     );
 
     const handleToggleActive = async () => {

@@ -12,13 +12,12 @@ interface EventSourceOptions {
 }
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_STREAM_SSE_URL}/api`;
 const DEFAULT_TIMEOUT_MS = 5 * 60000; // 5 minutes
+export type EventSourceStatus = 'idle' | 'connecting' | 'open' | 'closed' | 'timeout' | 'error' | 'completed';
 
 export function useEventSource<T>(url: string | null, options: EventSourceOptions = {}) {
     const eventSourceRef = useRef<EventSource | null>(null);
     const [data, setData] = useState<T | null>(null);
-    const [status, setStatus] = useState<'idle' | 'connecting' | 'open' | 'closed' | 'error' | 'timeout' | 'completed'>(
-        'idle',
-    );
+    const [status, setStatus] = useState<EventSourceStatus>('idle');
 
     useEffect(() => {
         if (!url) {

@@ -17,5 +17,21 @@
   "studyTimeDistribution": "Your study time distribution",
   "achievements": "Achievements",
   "learningMilestones": "Your learning milestones",
-  "topicsCompleted": "Topics Completed"
+  "topicsCompleted": "Topics Completed",
+  "loading": "Loading progress data...",
+  "error": "Error loading progress data",
+  "loadingChart": "Loading chart data...",
+  "reportGenerated": "Report generated on",
+  "exportPdf": "Export as PDF",
+  "exportExcel": "Export as Excel",
+  "exportCsv": "Export as CSV",
+  "print": "Print",
+  "share": "Share",
+  "export": "Export",
+  "progressReportTitle": "Learning Progress Report",
+  "progressReportText": "Check out my learning progress! Total study hours: {hours}h, Completed topics: {topics}",
+  "reportDetailsCopied": "Progress report details copied to clipboard!",
+  "urlCopied": "URL copied to clipboard!",
+  "shareError": "Unable to share. Please copy the URL manually.",
+  "exportError": "Failed to export as {format}. Please try again."
 }

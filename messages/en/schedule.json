@@ -1,0 +1,56 @@
+{
+    "schedule": {
+        "calendar": {
+            "view": {
+                "day": "Day",
+                "week": "Week"
+            },
+            "controls": {
+                "previous": "Previous",
+                "today": "Today",
+                "currentWeek": "Current Week",
+                "next": "Next"
+            }
+        },
+        "dialog": {
+            "edit": {
+                "title": "Title",
+                "startTime": "Start Time",
+                "endTime": "End Time",
+                "cancel": "Cancel",
+                "save": "Save"
+            }
+        },
+        "eventCard": {
+            "actions": {
+                "learn": "Learn",
+                "edit": "Edit"
+            }
+        },
+        "saveBar": {
+            "message": "You have unsaved changes",
+            "save": "Save changes",
+            "cancel": "Cancel",
+            "errorSaveMessage": "There was an error saving your changes. Please try again."
+        },
+        "setup": {
+            "pageTitle": "Schedule Setup",
+            "freeTime": {
+                "title": "Free time during the week",
+                "description": "Choose a time period you can study each day"
+            },
+            "studyHabits": {
+                "title": "Study habits",
+                "description": "The system will suggest a schedule that suits you better."
+            },
+            "actions": {
+                "save": "Save",
+                "saving": "Saving..."
+            },
+            "messages": {
+                "saveError": "Unable to save settings. Please try again later.",
+                "errorOccurred": "An error occurred: {error}"
+            }
+        }
+    }
+}

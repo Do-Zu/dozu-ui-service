@@ -1,8 +1,9 @@
-import axios from 'axios';
-import { uploadApi } from './upload.api';
+import axios, { HttpStatusCode } from 'axios';
 import Axios from '@/api/axios';
-import { ApiResponse } from '@/api/type';
 import { UploadApiResponse, UploadFileResponse } from '@/components/generative/types';
+import { updateInputSetId } from '@/stores/features/inputSet/inputSetSlice';
+import { store } from '@/stores/store';
+import { uploadApi } from './upload.api';
 // Types for upload functionality
 export interface PresignedUrlRequest {
     fileName: string;
@@ -14,6 +15,7 @@ export interface PresignedUrlRequest {
 export interface PresignedUrlResponse {
     uploadUrl: string;
     fileId: string;
+    fileKey: string;
     expiresIn: number; // seconds
     conditions?: {
         maxFileSize: number;
@@ -57,6 +59,17 @@ export interface CompletionNotification {
     metadata?: Record<string, any>;
 }
 
+export interface ICompleteResponseInsertInputSet {
+    userId: number;
+    setId: number;
+    createdAt: Date | null;
+    topicId: number | null;
+    description: string | null;
+    title: string;
+    contentType: string | null;
+    metadata: unknown;
+}
+
 // Configuration
 const MULTIPART_THRESHOLD = 100 * 1024 * 1024; // 100MB - use multipart for files larger than this
 const PART_SIZE = 10 * 1024 * 1024; // 10MB per part
@@ -94,21 +107,109 @@ class UploadService {
             //Presigned URL request
             const { data: presignedResponse } = await this.apiUpload.requestPresignedUrl(presignedUrlRequest);
 
-            // Upload file
-            let uploadResult: UploadFileResponse;
-
-            uploadResult = await this.uploadSmallFile(file, presignedResponse, fileId);
+            const uploadResult = await this.uploadFileOnCloudflareR2(file, presignedResponse, fileId);
 
             // Step 3: Notify server of completion
-            //   await this.notifyUploadCompletion({
-            //     fileId: presignedResponse.fileId,
-            //     fileName: file.name,
-            //     fileSize: file.size,
-            //     contentType: file.type,
-            //     uploadUrl: presignedResponse.uploadUrl,
-            //   });
+            const { data: completeNotify } = await this.apiUpload.notifyUploadComplete({
+                fileName: file?.name,
+                fileSize: file?.size,
+                contentType: file?.type,
+                fileKey: presignedResponse?.fileKey,
+            });
+
+            if (completeNotify?.setId) {
+                //set inputSetId if logged in (setId is only returned when logged in) - DuyND
+                store.dispatch(updateInputSetId(completeNotify.setId));
+            }
 
             return uploadResult;
+        } catch (error) {
+            this.updateProgress(fileId, {
+                fileId,
+                fileName: file?.name,
+                progress: 0,
+                uploadedBytes: 0,
+                totalBytes: file.size,
+                status: 'error',
+                error: error instanceof Error ? error.message : 'Upload failed',
+            });
+            throw error;
+        } finally {
+            // Cleanup
+            this.uploadProgressCallbacks.delete(fileId);
+            this.activeUploads.delete(fileId);
+        }
+    }
+
+    private async uploadFileOnCloudflareR2(
+        file: File,
+        presignedResponse: PresignedUrlResponse,
+        fileId: string,
+    ): Promise<UploadFileResponse> {
+        const abortController = new AbortController();
+        this.activeUploads.set(fileId, abortController);
+
+        const startTime = new Date();
+        this.updateProgress(fileId, {
+            fileId,
+            fileName: file.name,
+            progress: 0,
+            uploadedBytes: 0,
+            totalBytes: file.size,
+            status: 'uploading',
+            startTime,
+        });
+
+        try {
+            const response = await axios.put(presignedResponse.uploadUrl, file, {
+                headers: {
+                    'Content-Type': file.type,
+                },
+                signal: abortController.signal,
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const progress = (progressEvent.loaded / progressEvent.total) * 100;
+                        const elapsedTime = (Date.now() - startTime.getTime()) / 1000;
+                        const uploadSpeed = progressEvent.loaded / elapsedTime;
+                        const remainingBytes = progressEvent.total - progressEvent.loaded;
+                        const estimatedTimeRemaining = remainingBytes / uploadSpeed;
+
+                        this.updateProgress(fileId, {
+                            fileId,
+                            fileName: file.name,
+                            progress: Math.round(progress),
+                            uploadedBytes: progressEvent.loaded,
+                            totalBytes: progressEvent.total,
+                            status: 'uploading',
+                            startTime,
+                            estimatedTimeRemaining: Math.round(estimatedTimeRemaining),
+                        });
+                    }
+                },
+            });
+
+            if (response && response?.status !== HttpStatusCode.Ok) {
+                throw new Error(`Upload failed!`);
+            }
+
+            // Update progress to completed
+            this.updateProgress(fileId, {
+                fileId,
+                fileName: file.name,
+                progress: 100,
+                uploadedBytes: file.size,
+                totalBytes: file.size,
+                status: 'completed',
+                startTime,
+            });
+
+            return {
+                fileName: file.name,
+                originalName: file.name,
+                size: file.size,
+                mimeType: file.type,
+                status: 'completed',
+            };
         } catch (error) {
             this.updateProgress(fileId, {
                 fileId,
@@ -121,7 +222,6 @@ class UploadService {
             });
             throw error;
         } finally {
-            // Cleanup
             this.uploadProgressCallbacks.delete(fileId);
             this.activeUploads.delete(fileId);
         }
@@ -326,6 +426,7 @@ class UploadService {
     //     throw error;
     //   }
     // }
+
     /**
      * Upload a single part of a multipart upload
      */
@@ -509,4 +610,3 @@ class UploadService {
 
 // Export singleton instance
 export const uploadService = new UploadService();
-export default UploadService;

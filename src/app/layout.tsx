@@ -1,21 +1,81 @@
 'use client';
 
 import { useRef } from 'react';
-import ErrorBoundary from '@/core/ErrorBoundary';
+import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import { Provider as ReduxProvider } from 'react-redux';
-import { store } from '@/stores/store';
-import { ThemeProvider } from '@/lib/providers/theme';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
-import { Toaster } from '@/components/ui/toaster';
-import '../styles/globals.css';
+import { ThemeProvider } from '@/lib/providers/theme';
+import { store } from '@/stores/store';
 import { ReactFlowProvider } from '@xyflow/react';
+import { Toaster } from '@/components/ui/toaster';
+import ErrorBoundary from '@/core/ErrorBoundary';
 import UpgradePlanModal from '@/components/upgrade-plan/UpgradePlanModal';
+import '../styles/globals.css';
+
+const inter = Inter({
+    subsets: ['latin', 'vietnamese'],
+    variable: '--font-primary',
+    display: 'swap',
+});
+
+const geist = localFont({
+    src: [
+        {
+            path: '../fonts/static/Geist-Thin.ttf',
+            weight: '100',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-ExtraLight.ttf',
+            weight: '200',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-Light.ttf',
+            weight: '300',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-Regular.ttf',
+            weight: '400',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-Medium.ttf',
+            weight: '500',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-SemiBold.ttf',
+            weight: '600',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-Bold.ttf',
+            weight: '700',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-ExtraBold.ttf',
+            weight: '800',
+            style: 'normal',
+        },
+        {
+            path: '../fonts/static/Geist-Black.ttf',
+            weight: '900',
+            style: 'normal',
+        },
+    ],
+    variable: '--font-geist',
+    display: 'swap',
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const storeRef = useRef(store);
     return (
-        <html lang="en" suppressHydrationWarning>
-            <body>
+        <html lang="en" suppressHydrationWarning className={`${inter.variable} ${geist.variable}`}>
+            <body className="font-sans">
                 <ReduxProvider store={storeRef.current}>
                     <ErrorBoundary>
                         <ReduxProvider store={store}>

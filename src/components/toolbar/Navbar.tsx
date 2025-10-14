@@ -1,19 +1,15 @@
 'use client';
 
-import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
-import ThemeToggle from '@/components/toolbar/ThemeToggle';
-import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import Link from 'next/link';
-import { Button } from '../ui/button';
-import { useSearchParams } from 'next/navigation';
-import { logout, setCredentials, updateAccessToken } from '@/stores/features/auth/authSlice';
-import { useEffect, Suspense } from 'react';
-import usePost from '@/hooks/usePost';
-import Axios from '@/api/axios';
-import { jwtDecode } from 'jwt-decode';
+import { RootState } from '@/stores/store';
+import { useSelector } from 'react-redux';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
-import { ROUTES } from '@/utils/constants/routes';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { useRouter } from 'next/navigation';
+import { Fragment, Suspense } from 'react';
+import { ShowIf } from '../ui/ShowIf';
+import { LearningModeSelect } from './LearningModeSelect';
+import Pomodoro from '../pomodoro/Pomodoro';
 
 function TokenHandler() {
     // const dispatch = useAppDispatch();
@@ -31,90 +27,61 @@ function TokenHandler() {
 }
 
 export default function Navbar() {
-    const dispatch = useAppDispatch();
     const { isAuthenticated, clearAuthData } = useAuth();
+    const { isStudent } = useRoleChecker();
+    const router = useRouter();
+    const { isDisplay: isDisplayPomodoro } = useSelector((state: RootState) => state.pomodoro);
 
-    useEffect(() => {
-        const refreshToken = async () => {
-            try {
-                const result = await Axios.post(
-                    '/auth/refresh-token',
-                    {},
-                    {
-                        withCredentials: true,
-                    },
-                );
-                // Handle success (e.g., store new token)
-                const decoded: any = jwtDecode(result.data.data.accessToken);
-                const userId = decoded.user.userId;
-                const username = decoded.user.username;
+    // useEffect(() => {
+    //     const refreshToken = async () => {
+    //         try {
+    //             const result = await Axios.post(
+    //                 '/auth/refresh-token',
+    //                 {},
+    //                 {
+    //                     withCredentials: true,
+    //                 },
+    //             );
+    //             // Handle success (e.g., store new token)
+    //             const decoded: any = jwtDecode(result.data.data.accessToken);
+    //             const userId = decoded.user.userId;
+    //             const username = decoded.user.username;
 
-                dispatch(
-                    setCredentials({
-                        accessToken: result.data.data.accessToken,
-                        userId,
-                        username,
-                    }),
-                );
-            } catch (error) {
-                console.error('Failed to refresh token', error);
-                // Optional: redirect to login
-            }
-        };
-        refreshToken();
-    }, []);
+    //             dispatch(
+    //                 setCredentials({
+    //                     accessToken: result.data.data.accessToken,
+    //                     userId,
+    //                     username,
+    //                 }),
+    //             );
+    //         } catch (error) {
+    //             console.error('Failed to refresh token', error);
+    //             // Optional: redirect to login
+    //         }
+    //     };
+    //     refreshToken();
+    // }, []);
 
-    const handleLogout = async () => {
-        try {
-            await execute({}); // Assumes this calls /auth/logout and clears the cookie
-
-            clearAuthData();
-
-            dispatch(logout());
-            // router.push('/auth/login'); //todo:router not working
-        } catch (error) {
-            console.error('Logout failed:', error);
-            //todo:catch error
-        }
-    };
-
-    const {
-        loading,
-        data: apiResponse,
-        error: apiPostContentError,
-        execute,
-    } = usePost<any, any>('/auth/logout', 'POST');
-
-    const accessToken = useAppSelector((state) => state.auth.accessToken);
     return (
-        <>
-            <div className="mx-auto flex p-2 justify-between items-center h-full bg-background/95 backdrop-blur-md border-b border-muted dark:border-muted/50">
-                {/* Logo or Home Link */}
-                <Link href="/" className="text-lg font-bold text-primary">
-                    Dozu
-                </Link>
-
-                {/* Right side controls */}
-                <div className="flex items-center gap-4">
-                    <ThemeToggle />
-                    <LanguageSwitcher />
-                    {isAuthenticated ? (
-                        <>
-                            <Button disabled={loading} className="w-full" onClick={handleLogout}>
-                                Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <Link href={ROUTES.LOGIN}>
-                            <Button className="w-full">Login</Button>
-                        </Link>
-                    )}
+        <Fragment>
+            <div className="mx-auto flex px-4 py-2 justify-between items-center h-full border-b border-transparent bg-gradient-to-r from-background/70 via-background/40 to-background/70 dark:from-slate-950/60 dark:via-slate-900/40 dark:to-slate-950/60 backdrop-blur-md supports-[backdrop-filter]:bg-background/40">
+                <div className="flex items-center gap-3">
+                    <Link
+                        href="/"
+                        className="text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 dark:from-indigo-300 dark:via-sky-300 dark:to-cyan-300 bg-clip-text text-transparent"
+                    >
+                        Dozu
+                    </Link>
+                    <ShowIf when={isStudent}>
+                        <LearningModeSelect />
+                    </ShowIf>
                 </div>
+                {isDisplayPomodoro && <Pomodoro position="top-center" positionY={-6} positionX={-30} />}
             </div>
 
             <Suspense fallback={null}>
                 <TokenHandler />
             </Suspense>
-        </>
+        </Fragment>
     );
 }

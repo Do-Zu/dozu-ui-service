@@ -1,6 +1,9 @@
 {
   "VerifyEmailPage": {
     "title": "Xác thực email thành công",
-    "subtitle": "Hãy đăng nhập lại"
+    "subtitle": "Hãy đăng nhập lại",
+    "invalidUrlErrorMessage": "URL không hợp lệ",
+    "errorTitle": "Xác nhận thất bại",
+    "verifySuccessMessage": "Xác nhận thành công"
   }
 }
