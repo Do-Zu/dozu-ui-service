@@ -4,6 +4,8 @@ import { FileDown } from 'lucide-react';
 import React from 'react';
 import { toPng } from 'html-to-image';
 import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
+import toastHelper from '@/utils/toast.helper';
 
 function downloadImage(dataUrl: string) {
     const a = document.createElement('a');
@@ -16,7 +18,12 @@ function downloadImage(dataUrl: string) {
 const imageWidth = 3840;//hardcoded, change later if needed - DuyND
 const imageHeight = 2160;
 
-const DownloadButton = () => {
+interface DownloadButtonProps  {
+     isPanelExpanded:boolean
+}
+
+const DownloadButton = ({ isPanelExpanded}:DownloadButtonProps) => {
+    const t = useTranslations('DownloadMindmapButton')
     const { getNodes } = useReactFlow();
     const onClick = () => {
         // we calculate a transform for the nodes so that all nodes are visible
@@ -27,7 +34,8 @@ const DownloadButton = () => {
         const mindmapElement = document.querySelector('.react-flow__viewport') as HTMLElement | null;
 
         if (!mindmapElement) {
-            toast({ description: 'Error downloading' });
+            // toast({ description: 'Error downloading' });
+            toastHelper.showErrorMessage(t('ErrorDownloadingMessage'))
             return;
         }
 
@@ -46,7 +54,8 @@ const DownloadButton = () => {
     return (
         <Button variant="outline" onClick={onClick}>
             <FileDown />
-            Download mindmap
+            { isPanelExpanded?t("DownloadMindmapButtonText"):''}
+       
         </Button>
     );
 };

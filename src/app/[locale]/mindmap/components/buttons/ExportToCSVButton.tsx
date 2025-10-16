@@ -4,6 +4,8 @@ import { ChevronRight } from 'lucide-react';
 import React from 'react';
 import { useMindMapContext } from '../../context/MindMapContext';
 import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
+import Papa from 'papaparse';
 
 interface FindOuterLeafsParams {
     nodes: AppNode[];
@@ -16,12 +18,17 @@ interface RetracePathsParams {
     outerLeafs: string[];
 }
 
-const ExportToCSVButton = () => {
+interface ExportToCSVButtonProps {
+    isPanelExpanded: boolean;
+}
+
+const ExportToCSVButton = ({ isPanelExpanded }: ExportToCSVButtonProps) => {
+    const t = useTranslations('');
     const { nodes, edges } = useMindMapContext();
     const handleOnClickCSV = () => {
         let originNode = nodes.find((node) => node.data.isRoot);
         if (!originNode) {
-            toastHelper.showErrorMessage('No root node');
+            toastHelper.showErrorMessage(t('noRootNodeError'));
             return;
         }
         let outerLeafs: string[] = [];
@@ -74,7 +81,8 @@ const ExportToCSVButton = () => {
             //     return needsWrap ? `"${safe}"` : safe;
             // };
 
-            const csvContent = [header, ...paddedPaths].map((row) => row.join(',')).join('\n');
+            // const csvContent = [header, ...paddedPaths].map((row) => row.join(',')).join('\n');
+            const csvContent = Papa.unparse([header, ...paddedPaths]);
             // const csvContent = [header, ...paddedPaths].map((row) => row.map(escapeCSVField).join(',')).join('\n');
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -91,9 +99,9 @@ const ExportToCSVButton = () => {
     };
 
     return (
-        <Button onClick={handleOnClickCSV}>
+        <Button variant="outline" onClick={handleOnClickCSV}>
             <ChevronRight />
-            Export - CHANGE TO USE TRANSLATION
+            {isPanelExpanded ? <> {t('ExportToCSVButtonText')}</> : ''}
         </Button>
     );
 };

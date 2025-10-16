@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Handle, Node, Position, useEdges, useReactFlow } from '@xyflow/react';
+import { Handle, Node, NodeToolbar, Position, useEdges, useReactFlow } from '@xyflow/react';
 import { useState, useRef, useEffect } from 'react';
 import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
@@ -9,10 +9,13 @@ import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/select
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
+import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
+import { useAppSelector } from '@/stores/hooks';
+import AddChildNodeButton from './buttons/AddChildNodeButton';
+import DeleteNodeButton from './buttons/DeleteNodeButton';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
@@ -100,6 +103,8 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             handleCancel();
         }
     };
+
+    const isEditingMindmap = useAppSelector((state) => state.isEditingMindmapSlice.isEditingMindmap);
 
     // Animation variants
     const nodeVariants = {
@@ -284,6 +289,10 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 className="absolute inset-0 rounded-xl ring-2 ring-primary/0 group-focus-within:ring-primary/40 transition-all duration-200 pointer-events-none"
                 aria-hidden="true"
             />
+            <NodeToolbar isVisible={isEditingMindmap} position={Position.Top}>
+                <AddChildNodeButton nodeId={data.nodeId} />
+                <DeleteNodeButton nodeId={data.nodeId} />
+            </NodeToolbar>
         </motion.div>
     );
 };
