@@ -40,7 +40,6 @@ type YoutubeResourceMetadata = {
     url: string;
     videoInfo: VideoInfo | null;
     content: string | null;
-    transcriptSegments: TranscriptSegment[];
 };
 
 type WebsiteResourceMetadata = {
@@ -213,8 +212,8 @@ export class ContentCreationService {
 
             await postRequest(INPUT_SET_RESOURCES_ENDPOINT, {
                 topicId: params.topicId,
-                metadata,
                 contentType: params.contentType,
+                metadata,
             });
         } catch (error) {
             throw error;
@@ -247,7 +246,6 @@ export class ContentCreationService {
                     url,
                     videoInfo: params.payload?.videoInfo ?? null,
                     content: params.payload?.content ?? null,
-                    transcriptSegments: params.payload?.transcriptSegments ?? [],
                 };
             }
             case RESOURCE_CONTENT_TYPE.WEBSITE: {
