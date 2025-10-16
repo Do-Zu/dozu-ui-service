@@ -8,6 +8,8 @@ import { store } from '@/stores/store';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
+import { RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
+import { TranscriptSegment, VideoInfo } from '../stores/features/contentExtractionSlice';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -27,6 +29,66 @@ export interface ContentCreationResult {
     topicName?: string;
     error?: string;
 }
+
+const INPUT_SET_RESOURCES_ENDPOINT = '/input-set/resources';
+
+type FileResourceMetadata = {
+    inputSetId: string | number;
+};
+
+type YoutubeResourceMetadata = {
+    url: string;
+    videoInfo: VideoInfo | null;
+    content: string | null;
+    transcriptSegments: TranscriptSegment[];
+};
+
+type WebsiteResourceMetadata = {
+    url: string;
+    content: string;
+};
+
+type TextResourceMetadata = {
+    content: string;
+};
+
+type ResourceMetadataMap = {
+    [RESOURCE_CONTENT_TYPE.FILE]: FileResourceMetadata;
+    [RESOURCE_CONTENT_TYPE.YOUTUBE]: YoutubeResourceMetadata;
+    [RESOURCE_CONTENT_TYPE.WEBSITE]: WebsiteResourceMetadata;
+    [RESOURCE_CONTENT_TYPE.TEXT]: TextResourceMetadata;
+};
+
+type InsertContentTopicParams =
+    | {
+          topicId: string | number;
+          contentType: typeof RESOURCE_CONTENT_TYPE.FILE;
+          payload: Partial<FileResourceMetadata>;
+      }
+    | {
+          topicId: string | number;
+          contentType: typeof RESOURCE_CONTENT_TYPE.YOUTUBE;
+          payload: Partial<YoutubeResourceMetadata>;
+      }
+    | {
+          topicId: string | number;
+          contentType: typeof RESOURCE_CONTENT_TYPE.WEBSITE;
+          payload: Partial<WebsiteResourceMetadata>;
+      }
+    | {
+          topicId: string | number;
+          contentType: typeof RESOURCE_CONTENT_TYPE.TEXT;
+          payload: Partial<TextResourceMetadata>;
+      }
+    | {
+          topicId: string | number;
+          contentType: null;
+          payload: undefined;
+      };
+
+type NonNullableInsertParams = Exclude<InsertContentTopicParams, { contentType: null }>;
+
+type RootState = ReturnType<typeof store.getState>;
 
 /**
  * Service class to handle content creation operations
@@ -136,27 +198,79 @@ export class ContentCreationService {
      * - url (website): attach url + extracted content
      * - text: attach raw text
      */
-    public static async insertContentTopic<Z>({
-        topicId,
-        contentType,
-        payload,
-    }: {
-        topicId: string | number;
-        payload: Z;
-        contentType: 'youtube' | 'website' | 'file' | 'text' | null;
-    }): Promise<void> {
+    public static async insertContentTopic(params: InsertContentTopicParams): Promise<void> {
+        if (!this.hasValidContentType(params)) {
+            return;
+        }
+
         try {
-            const BASE_API = `/input-set/resources`;
+            const state = store.getState();
+            const metadata = this.resolveResourceMetadata(params, state);
 
-            const body = {
-                topicId,
-                metadata: payload,
-                contentType,
-            };
+            if (!metadata) {
+                return;
+            }
 
-            await postRequest(BASE_API, body);
+            await postRequest(INPUT_SET_RESOURCES_ENDPOINT, {
+                topicId: params.topicId,
+                metadata,
+                contentType: params.contentType,
+            });
         } catch (error) {
             throw error;
+        }
+    }
+
+    private static hasValidContentType(params: InsertContentTopicParams): params is NonNullableInsertParams {
+        return params.contentType !== null;
+    }
+
+    private static resolveResourceMetadata(
+        params: NonNullableInsertParams,
+        state: RootState,
+    ): ResourceMetadataMap[ResourceContentType] | null {
+        switch (params.contentType) {
+            case RESOURCE_CONTENT_TYPE.FILE: {
+                const inputSetId = params.payload?.inputSetId ?? state?.inputSet?.inputSetId;
+                if (!inputSetId) {
+                    return null;
+                }
+                return { inputSetId };
+            }
+            case RESOURCE_CONTENT_TYPE.YOUTUBE: {
+                const url = params.payload?.url;
+                if (!url) {
+                    return null;
+                }
+
+                return {
+                    url,
+                    videoInfo: params.payload?.videoInfo ?? null,
+                    content: params.payload?.content ?? null,
+                    transcriptSegments: params.payload?.transcriptSegments ?? [],
+                };
+            }
+            case RESOURCE_CONTENT_TYPE.WEBSITE: {
+                const url = params.payload?.url;
+                const content = params.payload?.content;
+
+                if (!url || !content) {
+                    return null;
+                }
+
+                return { url, content };
+            }
+            case RESOURCE_CONTENT_TYPE.TEXT: {
+                const content = params.payload?.content;
+
+                if (!content) {
+                    return null;
+                }
+
+                return { content };
+            }
+            default:
+                return null;
         }
     }
 

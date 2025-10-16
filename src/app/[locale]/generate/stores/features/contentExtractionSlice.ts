@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
+import { EXTRACTION_TAB, ExtractionTab, ResourceContentType, RESOURCE_CONTENT_TYPE } from '../../constants/resource';
+
 interface IEmbedVideoInfo {
     iframe_url: string;
     flash_url: string;
@@ -28,8 +30,8 @@ export interface ContentExtractionState {
     isLoading: boolean;
     error: string | null;
     videoInfo: VideoInfo | null;
-    contentType: 'youtube' | 'website' | 'text' | null;
-    activeTab: string;
+    contentType: ResourceContentType | null;
+    activeTab: ExtractionTab;
     textContent: string;
     transcriptSegments: TranscriptSegment[];
 }
@@ -41,7 +43,7 @@ const initialState: ContentExtractionState = {
     error: null,
     videoInfo: null,
     contentType: null,
-    activeTab: 'url',
+    activeTab: EXTRACTION_TAB.URL,
     textContent: '',
     transcriptSegments: [],
 };
@@ -122,7 +124,7 @@ const contentExtractionSlice = createSlice({
             state.inputUrl = action.payload;
         },
 
-        setActiveTab: (state, action: PayloadAction<string>) => {
+        setActiveTab: (state, action: PayloadAction<ExtractionTab>) => {
             state.activeTab = action.payload;
         },
         setTextContent: (state, action: PayloadAction<string>) => {
@@ -136,7 +138,7 @@ const contentExtractionSlice = createSlice({
             state.inputUrl = '';
             state.error = null;
             state.isLoading = false;
-            state.activeTab = 'url';
+            state.activeTab = EXTRACTION_TAB.URL;
             state.videoInfo = null;
             state.contentType = null;
             state.textContent = '';
@@ -154,7 +156,7 @@ const contentExtractionSlice = createSlice({
                 state.isLoading = false;
                 state.extractedContent = action.payload?.transcript;
                 state.videoInfo = action.payload.metadata;
-                state.contentType = 'youtube';
+                state.contentType = RESOURCE_CONTENT_TYPE.YOUTUBE;
                 // state.textContent = action.payload.transcript;
                 state.transcriptSegments = action.payload.transcriptSegments || [];
             })
@@ -170,7 +172,7 @@ const contentExtractionSlice = createSlice({
             .addCase(extractWebsiteContent.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.extractedContent = action.payload;
-                state.contentType = 'website';
+                state.contentType = RESOURCE_CONTENT_TYPE.WEBSITE;
                 state.textContent = action.payload;
             })
             .addCase(extractWebsiteContent.rejected, (state, action) => {

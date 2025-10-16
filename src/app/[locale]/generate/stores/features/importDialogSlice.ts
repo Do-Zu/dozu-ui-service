@@ -1,8 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// Define types for the dialog state management
+import {
+    DEFAULT_METHOD_SELECT,
+    IMPORT_METHOD,
+    ImportMethod,
+    LIST_METHOD_LEARNING_GENERATE,
+} from '../../constants/resource';
 
-export type TypeMethodImport = 'file' | 'text' | 'media';
+export type TypeMethodImport = ImportMethod;
 export interface ImportDialogState {
     step: number;
     importMethod: TypeMethodImport;
@@ -14,11 +19,11 @@ export interface ImportDialogState {
 
 const initialState: ImportDialogState = {
     step: 1,
-    importMethod: 'file',
+    importMethod: IMPORT_METHOD.FILE,
     files: [],
     isProcessing: false,
-    suggestedMethods: ['flashcards', 'quiz', 'mindmap'],
-    selectedMethod: 'flashcards',
+    suggestedMethods: LIST_METHOD_LEARNING_GENERATE,
+    selectedMethod: DEFAULT_METHOD_SELECT,
 };
 
 const importDialogSlice = createSlice({
@@ -28,8 +33,8 @@ const importDialogSlice = createSlice({
         setStep: (state, action: PayloadAction<number>) => {
             state.step = action.payload;
         },
-        setImportMethod: (state, action: PayloadAction<string>) => {
-            state.importMethod = action.payload as TypeMethodImport;
+        setImportMethod: (state, action: PayloadAction<ImportMethod>) => {
+            state.importMethod = action.payload;
         },
         setFiles: (state, action: PayloadAction<File[]>) => {
             state.files = action.payload;

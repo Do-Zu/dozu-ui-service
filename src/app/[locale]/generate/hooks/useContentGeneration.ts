@@ -21,6 +21,24 @@ import feedHelper from '@/utils/feeds/feed.helper';
 import toastHelper from '@/utils/toast.helper';
 import { isNilOrEmpty } from '@/utils';
 import { toast } from '@/hooks/use-toast';
+import { EXTRACTION_TAB, IMPORT_METHOD, RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
+import { TranscriptSegment, VideoInfo } from '../stores/features/contentExtractionSlice';
+
+type YoutubeResourcePayload = {
+    url: string;
+    videoInfo: VideoInfo | null;
+    content: string | null;
+    transcriptSegments: TranscriptSegment[];
+};
+
+type WebsiteResourcePayload = {
+    url: string;
+    content: string;
+};
+
+type TextResourcePayload = {
+    content: string;
+};
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
@@ -62,6 +80,7 @@ export const useContentGeneration = ({
         inputUrl,
         contentType: contentTypeResourceImport,
         videoInfo,
+        transcriptSegments,
     } = useCardImportSelector((state) => state.contentExtraction);
 
     const { importMethod } = useCardImportSelector((state) => state.importDialog);
@@ -177,49 +196,79 @@ export const useContentGeneration = ({
                 return;
             }
 
-            let contentTypeResource: 'file' | 'youtube' | 'website' | 'text' | null = null;
+            let contentTypeResource: ResourceContentType | null = null;
 
             switch (importMethod) {
-                case 'file':
-                    contentTypeResource = 'file';
+                case IMPORT_METHOD.FILE:
+                    contentTypeResource = RESOURCE_CONTENT_TYPE.FILE;
                     break;
-                case 'text':
-                    contentTypeResource = activeTab === 'url' ? contentTypeResourceImport : 'text';
+                case IMPORT_METHOD.TEXT: {
+                    const resolvedContentType =
+                        activeTab === EXTRACTION_TAB.URL ? contentTypeResourceImport : RESOURCE_CONTENT_TYPE.TEXT;
+                    contentTypeResource = resolvedContentType ?? null;
                     break;
-                case 'media':
-                    // In Comming
+                }
+                case IMPORT_METHOD.MEDIA:
+                    // Upcoming import method support can plug in here
                     break;
                 default:
                     contentTypeResource = null;
                     break;
             }
 
-            let payload;
-
-            if (contentTypeResource === 'youtube') {
-                payload = {
-                    url: inputUrl,
-                    videoInfo,
-                    content: extractedContent || null,
-                };
-            } else if (contentTypeResource === 'website') {
-                payload = {
-                    url: inputUrl,
-                    content: extractedContent,
-                };
-            } else if (contentTypeResource === 'text') {
-                payload = {
-                    content: textContent,
-                };
-            } else if (contentTypeResource === 'file') {
-                //TODO: Move upload file here
+            if (!contentTypeResource) {
+                return;
             }
 
-            await ContentCreationService.insertContentTopic({
-                topicId: topicId!,
-                contentType: contentTypeResource,
-                payload,
-            });
+            switch (contentTypeResource) {
+                case RESOURCE_CONTENT_TYPE.FILE:
+                    //TODO: Move upload file here
+                    // await ContentCreationService.insertContentTopic({
+                    //     topicId: topicId!,
+                    //     contentType: RESOURCE_CONTENT_TYPE.FILE,
+                    //     payload: {},
+                    // });
+                    break;
+                case RESOURCE_CONTENT_TYPE.YOUTUBE: {
+                    const youtubePayload: YoutubeResourcePayload = {
+                        url: inputUrl,
+                        videoInfo,
+                        content: extractedContent || null,
+                        transcriptSegments,
+                    };
+                    await ContentCreationService.insertContentTopic({
+                        topicId: topicId!,
+                        contentType: RESOURCE_CONTENT_TYPE.YOUTUBE,
+                        payload: youtubePayload,
+                    });
+                    break;
+                }
+                case RESOURCE_CONTENT_TYPE.WEBSITE: {
+                    const websitePayload: WebsiteResourcePayload = {
+                        url: inputUrl,
+                        content: extractedContent,
+                    };
+                    await ContentCreationService.insertContentTopic({
+                        topicId: topicId!,
+                        contentType: RESOURCE_CONTENT_TYPE.WEBSITE,
+                        payload: websitePayload,
+                    });
+                    break;
+                }
+                case RESOURCE_CONTENT_TYPE.TEXT: {
+                    const textPayload: TextResourcePayload = {
+                        content: textContent,
+                    };
+                    await ContentCreationService.insertContentTopic({
+                        topicId: topicId!,
+                        contentType: RESOURCE_CONTENT_TYPE.TEXT,
+                        payload: textPayload,
+                    });
+                    break;
+                }
+                default:
+                    break;
+            }
         } catch (error) {
             toast({
                 description: tCommon('messages.createError'),
