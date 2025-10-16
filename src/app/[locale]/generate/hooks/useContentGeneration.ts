@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '../types';
 import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
@@ -9,7 +9,7 @@ import { detectContentType, getContentTypeDisplayName } from '../utils/contentTy
 import { ContentType, TypeDataGenerated } from '../components/ContentGenerationPreview';
 import { ContentCreationService } from '../services/contentCreation.service';
 import { resetImportDialog } from '../stores/features/importDialogSlice';
-import { useCardImportDispatch } from './useReduxStore';
+import { useCardImportDispatch, useCardImportSelector } from './useReduxStore';
 import { ROUTES } from '@/utils/constants/routes';
 import { ClassPropsInGenerate } from '../components/GeneratePage';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
@@ -19,7 +19,8 @@ import { ICreateClassFeedBody, ICreateClassFeedPayload } from '@/services/class-
 import { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
 import feedHelper from '@/utils/feeds/feed.helper';
 import toastHelper from '@/utils/toast.helper';
-import { useTranslations } from 'next-intl';
+import { isNilOrEmpty } from '@/utils';
+import { toast } from '@/hooks/use-toast';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
@@ -54,6 +55,21 @@ export const useContentGeneration = ({
     const [dataGenerated, setDataGenerated] = useState<TypeDataGenerated>(null);
     const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
 
+    const {
+        textContent,
+        extractedContent,
+        activeTab,
+        inputUrl,
+        contentType: contentTypeResourceImport,
+        videoInfo,
+    } = useCardImportSelector((state) => state.contentExtraction);
+
+    const { importMethod } = useCardImportSelector((state) => state.importDialog);
+
+    const router = useRouter();
+    const dispatch = useCardImportDispatch();
+
+    const tCommon = useTranslations('common');
     const tClassFeed = useTranslations('class.classFeed');
     const classId = classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased ? classProps.classId : null;
     const useFeedsHook = classId
@@ -104,9 +120,6 @@ export const useContentGeneration = ({
 
     const [defaultFeed, setDefaultFeed] = useState<IDefaultFeed | null>(null);
 
-    const router = useRouter();
-    const dispatch = useCardImportDispatch();
-
     const contentType = detectContentType(sseData);
     const isContentReady = Boolean(sseData?.data?.data) && sseStatus === 'completed';
 
@@ -155,49 +168,123 @@ export const useContentGeneration = ({
         }
     };
 
-    const handleOnClickSave = async (topic: ICreateTopicPayload) => {
-        const contentData = dataGenerated;
+    const handleInsertResourceContent = async (topicId: string | number | undefined) => {
+        try {
+            if (isNilOrEmpty(topicId as string)) {
+                toast({
+                    description: 'Not found topic',
+                });
+                return;
+            }
 
-        if (!contentData) {
+            let contentTypeResource: 'file' | 'youtube' | 'website' | 'text' | null = null;
+
+            switch (importMethod) {
+                case 'file':
+                    contentTypeResource = 'file';
+                    break;
+                case 'text':
+                    contentTypeResource = activeTab === 'url' ? contentTypeResourceImport : 'text';
+                    break;
+                case 'media':
+                    // In Comming
+                    break;
+                default:
+                    contentTypeResource = null;
+                    break;
+            }
+
+            let payload;
+
+            if (contentTypeResource === 'youtube') {
+                payload = {
+                    url: inputUrl,
+                    videoInfo,
+                    content: extractedContent || null,
+                };
+            } else if (contentTypeResource === 'website') {
+                payload = {
+                    url: inputUrl,
+                    content: extractedContent,
+                };
+            } else if (contentTypeResource === 'text') {
+                payload = {
+                    content: textContent,
+                };
+            } else if (contentTypeResource === 'file') {
+                //TODO: Move upload file here
+            }
+
+            await ContentCreationService.insertContentTopic({
+                topicId: topicId!,
+                contentType: contentTypeResource,
+                payload,
+            });
+        } catch (error) {
             toast({
-                description: 'No content to save',
-                variant: 'destructive',
+                description: tCommon('messages.createError'),
             });
-            return;
         }
+    };
 
-        let result;
+    const handleOnClickSave = async (topic: ICreateTopicPayload) => {
+        try {
+            const contentData = dataGenerated;
 
-        if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
-            result = await ContentCreationService.createContent({
-                topic,
-                contentType,
-                contentData,
-            });
-        } else if (classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased) {
-            const { classId } = classProps;
-            const topicInClass: ICreateTopicForClassPayload = { ...topic, classId };
-            result = await ContentCreationService.createContentForClass({
-                topic: topicInClass,
-                contentType,
-                contentData,
-            });
-        } else {
-            result = {
-                success: false,
-                error: `Unsupported learning mode`,
-            };
-        }
+            if (!contentData) {
+                toast({
+                    description: 'No content to save',
+                    variant: 'destructive',
+                });
+                return;
+            }
 
-        if (result.success) {
+            let result;
+
+            // Create topic based on learning mode
+            if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
+                result = await ContentCreationService.createContent({
+                    topic,
+                    contentType,
+                    contentData,
+                });
+            } else if (classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased) {
+                const { classId } = classProps;
+                const topicInClass: ICreateTopicForClassPayload = { ...topic, classId };
+                result = await ContentCreationService.createContentForClass({
+                    topic: topicInClass,
+                    contentType,
+                    contentData,
+                });
+            } else {
+                result = {
+                    success: false,
+                    error: `Unsupported learning mode`,
+                };
+            }
+
+            if (!result.success) {
+                toast({
+                    description: result.error || 'Failed to create content',
+                    variant: 'destructive',
+                });
+                return;
+            }
+
+            const topicId = result?.topicId;
+
+            //Save content resource for reusable
+            await handleInsertResourceContent(topicId);
+
             toast({
                 description: 'Your content has been attached to the new topic.',
-                variant: 'default',
             });
+
+            //Reset state and redirect based on mode learning
             if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
                 dispatch(resetImportDialog());
                 handleRedirectAfterGenerateSuccess(result?.topicId);
-            } else {
+            } else if (classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased) {
                 setIsTopicModalOpen(false);
                 const contentType = detectContentType(sseData);
                 if (contentType !== null && result.topicId) {
@@ -215,11 +302,8 @@ export const useContentGeneration = ({
                 }
                 openCreateFeedModal?.();
             }
-        } else {
-            toast({
-                description: result.error || 'Failed to create content',
-                variant: 'destructive',
-            });
+        } catch (error) {
+            //TODO: Handle error for steps
         }
     };
 

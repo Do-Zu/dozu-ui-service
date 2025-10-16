@@ -1,10 +1,19 @@
-import { reduceTokenInput } from '../../helper/reduceTokenInput';
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
-interface VideoInfo {
+interface IEmbedVideoInfo {
+    iframe_url: string;
+    flash_url: string;
+    flash_secure_url: string;
+    width: any;
+    height: any;
+}
+export interface VideoInfo {
     title: string;
     thumbnailUrl: string;
+    videoId: string;
+    duration: number;
+    embed: IEmbedVideoInfo;
 }
 
 export interface TranscriptSegment {
@@ -19,7 +28,7 @@ export interface ContentExtractionState {
     isLoading: boolean;
     error: string | null;
     videoInfo: VideoInfo | null;
-    contentType: 'youtube' | 'website' | null;
+    contentType: 'youtube' | 'website' | 'text' | null;
     activeTab: string;
     textContent: string;
     transcriptSegments: TranscriptSegment[];
@@ -67,14 +76,14 @@ export const extractYouTubeTranscript = createAsyncThunk(
                 throw new Error(data.error || 'Failed to fetch transcript');
             }
 
-            const optimizeText = reduceTokenInput(data.transcript).text;
+            const { transcript, transcriptSegments, metadata } = data;
 
             return {
-                transcript: optimizeText,
-                transcriptSegments: data.transcriptSegments || [],
+                transcript,
+                transcriptSegments: transcriptSegments || [],
                 metadata: {
-                    title: data.metadata.title,
-                    thumbnailUrl: data.metadata.thumbnailUrl,
+                    ...metadata,
+                    videoId,
                 },
             };
         } catch (err: any) {

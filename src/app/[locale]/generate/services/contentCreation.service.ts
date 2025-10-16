@@ -47,8 +47,9 @@ export class ContentCreationService {
                 name,
                 description,
                 imageFile,
-                inputSetId: state.inputSet.inputSetId,
+                inputSetId: state.inputSet?.inputSetId,
             });
+
             const topic = data;
 
             if (!topic) {
@@ -74,7 +75,6 @@ export class ContentCreationService {
 
             return { success: true, topicId };
         } catch (error) {
-            console.error('Content creation failed:', error);
             return {
                 success: false,
                 error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -127,6 +127,35 @@ export class ContentCreationService {
                 error: error instanceof Error ? error.message : 'Unknown error occurred',
             };
         }
+    }
+
+    /**
+     * Insert the original imported resource into the topic, based on how the user imported it.
+     * - file: attach by from upload flow
+     * - url (youtube): attach url + video metadata + transcript/segments
+     * - url (website): attach url + extracted content
+     * - text: attach raw text
+     */
+    public static async insertContentTopic<Z>({
+        topicId,
+        contentType,
+        payload,
+    }: {
+        topicId: string | number;
+        payload: Z;
+        contentType: 'youtube' | 'website' | 'file' | 'text' | null;
+    }): Promise<void> {
+        try {
+            const BASE_API = `/input-set/resources`;
+
+            const body = {
+                topicId,
+                metadata: payload,
+                contentType,
+            };
+
+            await postRequest(BASE_API, body);
+        } catch {}
     }
 
     /**
