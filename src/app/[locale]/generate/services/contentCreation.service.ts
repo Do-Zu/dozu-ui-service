@@ -155,7 +155,9 @@ export class ContentCreationService {
             };
 
             await postRequest(BASE_API, body);
-        } catch {}
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
