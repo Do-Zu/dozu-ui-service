@@ -27,7 +27,7 @@ interface ImportButtonProps {
 }
 
 const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
-    // const t = useTranslations();
+    const t = useTranslations('ImportButton');
     const [shouldLayout, setShouldLayout] = useState(false);
 
     const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
@@ -51,12 +51,7 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
             const dataRows = parsedData.data.slice(1); // skip header (0,1,2,...)
 
             if (dataRows.length === 0) {
-                // toast({
-                //     title: 'Import failed',
-                //     description: 'CSV file contains no data rows',
-                //     variant: 'destructive',
-                // });
-                // toastHelper.showErrorMessage();
+                toastHelper.showErrorMessage(t('DataErrorText'));
                 return;
             }
 
@@ -65,12 +60,7 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
             setNodes(nodes);
             setEdges(edges);
             setShouldLayout(true);
-            // onLayout({ direction: 'DOWN' });
-
-            // toast({
-            //     title: 'Import successful',
-            //     description: `Imported ${nodes.length} nodes and ${edges.length} edges`,
-            // });
+            toastHelper.showSuccessMessage(t('ImportSuccessfulText'));
         } catch (error) {
             console.error('CSV import error:', error);
             // toast({
@@ -78,6 +68,7 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
             //     description: 'Failed to parse CSV. Please check the format.',
             //     variant: 'destructive',
             // });
+            toastHelper.showErrorMessage(t('FailedToImportErrorText'));
         }
     };
 
@@ -135,13 +126,13 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
                 <DialogTrigger asChild className="w-full">
                     <Button variant="outline">
                         <Import />
-                        {isPanelExpanded ? 'Import' : ''}
+                        {isPanelExpanded ? t('ImportButtonLabel') : ''}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>Import mindmap</DialogTitle>
-                        <DialogDescription>Import mindmap from csv</DialogDescription>
+                        <DialogTitle>{t('ImportDialogTitle')}</DialogTitle>
+                        <DialogDescription>{t('ImportDialogDesc')}</DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4">
                         <div className="grid gap-3">
@@ -153,14 +144,10 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
                                 onChange={(e) => setCsvInput(e.target.value)}
                             />
                         </div>
-                        {/* <div className="grid gap-3">
-              <Label htmlFor="username-1">Username</Label>
-              <Input id="username-1" name="username" defaultValue="@peduarte" />
-            </div> */}
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
+                            <Button variant="outline">{t('CancelButtonLabel')}</Button>
                         </DialogClose>
                         <DialogClose asChild>
                             <Button
@@ -169,7 +156,7 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
                                     handleOnClickImport();
                                 }}
                             >
-                                Import
+                                {t('ConfirmImportButtonLabel')}
                             </Button>
                         </DialogClose>
                     </DialogFooter>
