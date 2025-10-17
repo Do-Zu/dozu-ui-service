@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import feedHelper from '@/utils/feeds/feed.helper';
+import toastHelper from '@/utils/toast.helper';
+import { toast } from '@/hooks/use-toast';
 
 import { ISseData, IFlashcardsFromSSE, CONTENT_TYPE_GENERATE, IQuestionsFromSSERaw } from '../types';
-import { handleConvertToFlashcardsEdited, IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
+import { handleConvertToFlashcardsEdited } from '../../flashcards/components/FlashcardEditor';
 import { handleConvertToQuestionsEdited } from '../../question/utils/handleConvertToQuestionsEdited';
 import { detectContentType, getContentTypeDisplayName } from '../utils/contentTypeDetector';
 import { ContentType, TypeDataGenerated } from '../components/ContentGenerationPreview';
 import { ContentCreationService } from '../services/contentCreation.service';
-import { resetImportDialog } from '../stores/features/importDialogSlice';
+import { resetImportDialog, startUploading, stopUploading } from '../stores/features/importDialogSlice';
 import { useCardImportDispatch, useCardImportSelector } from './useReduxStore';
 import { ROUTES } from '@/utils/constants/routes';
 import { ClassPropsInGenerate } from '../components/GeneratePage';
@@ -17,28 +20,10 @@ import { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/top
 import { useFeeds } from '../../teacher/feeds/hooks/useFeeds';
 import { ICreateClassFeedBody, ICreateClassFeedPayload } from '@/services/class-based-learning/classFeed.service';
 import { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
-import feedHelper from '@/utils/feeds/feed.helper';
-import toastHelper from '@/utils/toast.helper';
 import { isNilOrEmpty } from '@/utils';
-import { toast } from '@/hooks/use-toast';
 import { EXTRACTION_TAB, IMPORT_METHOD, RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
-import { TranscriptSegment, VideoInfo } from '../stores/features/contentExtractionSlice';
-
-type YoutubeResourcePayload = {
-    url: string;
-    videoInfo: VideoInfo | null;
-    content: string | null;
-    transcriptSegments: TranscriptSegment[];
-};
-
-type WebsiteResourcePayload = {
-    url: string;
-    content: string;
-};
-
-type TextResourcePayload = {
-    content: string;
-};
+import { uploadService } from '@/services/upload/upload.service';
+import { YoutubeResourcePayload, WebsiteResourcePayload, TextResourcePayload } from '../types/content.type';
 
 export interface UseContentGenerationProps {
     sseData: ISseData | null;
@@ -83,7 +68,7 @@ export const useContentGeneration = ({
         transcriptSegments,
     } = useCardImportSelector((state) => state.contentExtraction);
 
-    const { importMethod } = useCardImportSelector((state) => state.importDialog);
+    const { importMethod, files: filesImport } = useCardImportSelector((state) => state.importDialog);
 
     const router = useRouter();
     const dispatch = useCardImportDispatch();
@@ -189,6 +174,8 @@ export const useContentGeneration = ({
 
     const handleInsertResourceContent = async (topicId: string | number | undefined): Promise<boolean> => {
         try {
+            dispatch(startUploading());
+
             if (isNilOrEmpty(topicId as string)) {
                 toast({
                     description: tCommon('labels.noContent'),
@@ -222,12 +209,19 @@ export const useContentGeneration = ({
 
             switch (contentTypeResource) {
                 case RESOURCE_CONTENT_TYPE.FILE:
-                    //TODO: Move upload file here
-                    // await ContentCreationService.insertContentTopic({
-                    //     topicId: topicId!,
-                    //     contentType: RESOURCE_CONTENT_TYPE.FILE,
-                    //     payload: {},
-                    // });
+                    const file = filesImport[0];
+
+                    const result = await uploadService.uploadFile(file);
+
+                    if (isNilOrEmpty(result)) {
+                        throw new Error('File upload failed');
+                    }
+
+                    await ContentCreationService.insertContentTopic({
+                        topicId: topicId!,
+                        contentType: RESOURCE_CONTENT_TYPE.FILE,
+                        payload: {},
+                    });
                     break;
                 case RESOURCE_CONTENT_TYPE.YOUTUBE: {
                     const youtubePayload: YoutubeResourcePayload = {
@@ -276,6 +270,8 @@ export const useContentGeneration = ({
                 description: tCommon('messages.createError'),
             });
             return false;
+        } finally {
+            dispatch(stopUploading());
         }
     };
 
