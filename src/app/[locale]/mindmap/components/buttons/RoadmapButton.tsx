@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Sign } from 'crypto';
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import OutlineTree from './OutlineTree';
+import RoadmapList from '../RoadmapList';
 
 interface RoadmapButtonProps {
     isPanelExpanded: boolean;
@@ -30,6 +31,15 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges }: RoadmapButtonProps) =>
     const t = useTranslations('RoadmapButton');
 
     const handleOnClickRoadmap = () => {};
+
+    const rootNode = nodes.find((node) => node.data.isRoot === true);
+    const baseNodes:string[] = [];
+    const baseEdges = edges.filter((edge) => edge.source === rootNode?.data.nodeId);
+    baseEdges.forEach((edge) => {
+        baseNodes.push(edge.target);
+    });
+    console.log(rootNode);
+    console.log(baseNodes);
 
     return (
         // <Button variant="outline" onClick={handleOnClickRoadmap}>
@@ -50,7 +60,7 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges }: RoadmapButtonProps) =>
                     </SheetDescription> */}
                 </SheetHeader>
                 <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                    <OutlineTree
+                    {/* <OutlineTree
                         root="Present Tense in English"
                         children={[
                             'The Simple Present',
@@ -58,14 +68,18 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges }: RoadmapButtonProps) =>
                             'Present Perfect',
                             'Stative vs Dynamic Verbs',
                         ]}
+                    /> */}
+                    <RoadmapList
+                        initialItems={baseNodes}
+                        nodes={nodes}
                     />
                 </div>
-                <SheetFooter>
+                {/* <SheetFooter>
                     <Button type="submit">Save changes</Button>
                     <SheetClose asChild>
                         <Button variant="outline">Close</Button>
                     </SheetClose>
-                </SheetFooter>
+                </SheetFooter> */}
             </SheetContent>
         </Sheet>
     );
