@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { setRouterRef } from '@/utils/routerService';
@@ -47,6 +47,7 @@ export default function MindmapContent() {
     const { resolvedTheme } = useTheme();
     const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
     const {
         isLoading,
@@ -230,7 +231,7 @@ export default function MindmapContent() {
                             <Save />
                             {isSaving ? 'Saving...' : 'Save mindmap'}
                         </Button> */}
-                        <DownloadButton />
+                        <DownloadButton isPanelExpanded={isPanelExpanded} />
                     </div>
                     <FileSheet />
                     <NodeSheetViewOnly />

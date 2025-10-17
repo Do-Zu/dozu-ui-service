@@ -48,6 +48,10 @@
         "closeDialog": "Đóng",
         "stepLabel": "Bước {index}",
         "hideMore": "Ẩn bớt",
-        "showMore": "Xem thêm"
+        "showMore": "Xem thêm",
+        "messages": {
+            "emptyOriginContent": "Không có nội dung",
+            "flashcard": "flashcard"
+        }
     }
 }

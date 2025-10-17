@@ -5,12 +5,15 @@ import subscriptionSlice from './features/subscription/subscriptionSlice';
 import learningModeSlice from './features/class-based-learning/learningModeSlice';
 import inputSetSlice from './features/inputSet/inputSetSlice';
 import pomodoroSlice from './features/pomodoro/pomodoroSlice';
+import isEditingMindmapSlice from './features/mindmap/isEditingMindmapSlice';
 
 export const store = configureStore({
     reducer: {
         auth: authSlice,
 
         selectedNodeSlice: selectedNodeSlice,
+
+        isEditingMindmapSlice: isEditingMindmapSlice,
 
         subscription: subscriptionSlice,
 

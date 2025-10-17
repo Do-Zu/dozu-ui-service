@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppSelector } from '@/stores/hooks';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -41,7 +41,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-    'floating': FloatingEdge,
+    floating: FloatingEdge,
 };
 
 export default function MindmapContent() {
@@ -60,6 +60,8 @@ export default function MindmapContent() {
         sseStatus,
         isProcessingRegisterGenerate,
     } = useMindMapContext();
+
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
     const { dataGenerated, setDataGenerated } = useContentGeneration({ sseData, sseStatus });
 
@@ -158,7 +160,7 @@ export default function MindmapContent() {
                 </Panel>
                 <Panel position="top-center">
                     <div className="flex gap-2 ">
-                        <DownloadButton />
+                        <DownloadButton isPanelExpanded={isPanelExpanded} />
                     </div>
                     <FileSheet />
                     <NodeSheetViewOnly />

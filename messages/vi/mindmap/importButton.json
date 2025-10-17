@@ -1,0 +1,12 @@
+{
+  "ImportButton": {
+    "DataErrorText": "Data không phù hợp",
+    "ImportSuccessfulText": "Tải thành công",
+    "FailedToImportErrorText": "Tải không thành công",
+    "ImportButtonLabel": "Import",
+    "ImportDialogTitle": "Import mindmap",
+    "ImportDialogDesc": "Import mindmap với csv",
+    "CancelButtonLabel": "Hủy",
+    "ConfirmImportButtonLabel": "Ok"
+  }
+}

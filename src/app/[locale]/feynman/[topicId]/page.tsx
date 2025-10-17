@@ -11,16 +11,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FeynmanEditor } from '@/components/feynman/FeynmanEditor';
-import { HintPanel } from '@/components/feynman/HintPanel';
 import { ActionBar } from '@/components/feynman/ActionBar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { isNilOrEmpty, isNullOrEmpty, toNumber, truncate } from '@/utils';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { isNilOrEmpty, isNullOrEmpty, toNumber } from '@/utils';
 import { FeynmanReviewDialog } from '@/components/feynman/ReviewedDialog';
 import { IFeynmanResponseQuestion, IFeynmanReviewedResponse } from '@/components/feynman/types';
 import { TYPE_GENERATE, maxLengthExplain, minWordLength } from '@/components/feynman/config';
 import { useFeynmanService } from './hooks/useFeynmanService';
 import History from '@/components/feynman/History';
 import LeftMissionPanel from '@/components/feynman/LeftMissionPanel';
+import { toast } from '@/hooks/use-toast';
 
 export default function FeynmanPage() {
     const tCommon = useTranslations('common');
@@ -51,7 +51,19 @@ export default function FeynmanPage() {
         data: originContent,
         loading: isFetchDataOriginMethod,
         error: errorFetchDataOriginMethod,
-    } = useFetch(() => handleGetOriginContent(method!), { shouldRun: isValidToFetchOriginDataMethod() });
+    } = useFetch(() => handleGetOriginContent(method!), {
+        shouldRun: isValidToFetchOriginDataMethod(),
+        onError: () => {
+            toast({
+                description: tCommon('messages.readError', { name: tFeynman('messages.flashcard') }),
+            });
+        },
+        onEmpty: () => {
+            toast({
+                description: tFeynman('messages.emptyOriginContent'),
+            });
+        },
+    });
 
     const {
         execute: executeGetQuestion,
@@ -321,8 +333,8 @@ export default function FeynmanPage() {
     }, []);
 
     const isDisableGetQuestionButton = useMemo(() => {
-        return isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion;
-    }, [isGeneratingQuestion, isGeneratingReview, dataFeynmanQuestion]);
+        return isGeneratingQuestion || isGeneratingReview || !!dataFeynmanQuestion || !originContent;
+    }, [isGeneratingQuestion, isGeneratingReview, dataFeynmanQuestion, originContent]);
 
     const isDisableSubmitReviewButton = useMemo(() => {
         return !dataFeynmanQuestion || isGeneratingQuestion || isGeneratingReview || isNullOrEmpty(text);

@@ -8,9 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { setRouterRef } from '@/utils/routerService';
 
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
-import DownloadButton from '@/components/mindmap/button/DownloadButton';
-import HorizontalLayoutButton from '@/components/mindmap/button/HorizontalLayoutButton';
+
 import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
@@ -35,11 +33,10 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import { useTheme } from 'next-themes';
-import VerticalLayoutButton from '@/components/mindmap/button/VerticalLayoutButton';
-import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton';
-import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
-import ExportToCSVButton from '../components/buttons/ExportToCSVButton';
+
+
+import MindmapButtonsPanel from '../components/MindmapButtonsPanel';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -50,7 +47,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-    'floating': FloatingEdge,
+    floating: FloatingEdge,
 };
 
 export default function MindmapContent() {
@@ -73,13 +70,11 @@ export default function MindmapContent() {
         isProcessingRegisterGenerate,
     } = useMindMapContext();
 
-    const { fitView } = useReactFlow();
+
 
     const { dataGenerated, setDataGenerated } = useContentGeneration({ sseData, sseStatus });
 
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
-
-
 
     useEffect(() => {
         setRouterRef(router);
@@ -237,40 +232,10 @@ export default function MindmapContent() {
                 <Panel position="top-left">
                     <ViewFileButton />
                 </Panel>
-                <Panel position="top-center">
-                    <div className="flex gap-2 ">
-                        <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                            <Save />
-                            {isSaving ? 'Saving...' : 'Save mindmap'}
-                        </Button>
-                        <DownloadButton />
-                        <ExportToCSVButton />
-                        <HorizontalLayoutButton
-                            nodes={nodes}
-                            edges={edges}
-                            setNodes={setNodes}
-                            setEdges={setEdges}
-                            fitView={fitView}
-                        />
-                        <VerticalLayoutButton
-                            nodes={nodes}
-                            edges={edges}
-                            setNodes={setNodes}
-                            setEdges={setEdges}
-                            fitView={fitView}
-                        />
-                        <MindmapLayoutButton
-                            nodes={nodes}
-                            edges={edges}
-                            setNodes={setNodes}
-                            setEdges={setEdges}
-                            fitView={fitView}
-                        />
-                        <DeleteMindmapButton />
-                    </div>
-                    <FileSheet />
-                    <NodeSheet />
-                </Panel>
+
+                <MindmapButtonsPanel />
+                <FileSheet />
+                <NodeSheet />
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
