@@ -26,16 +26,16 @@
             },
             "loading": {
                 "uploading": {
-                    "title": "Đang tải tệp của bạn...",
+                    "title": "Đang tải nội dung của bạn...",
                     "description": "Vui lòng chờ trong khi chúng tôi tải nội dung lên"
                 },
                 "processing": {
-                    "title": "Đang xử lý tệp của bạn...",
+                    "title": "Đang xử lý nội dung của bạn...",
                     "description": "Vui lòng chờ trong khi chúng tôi trích xuất nội dung"
                 }
             },
             "toasts": {
-                "uploadFailed": "Tải tệp lên thất bại. Vui lòng thử lại."
+                "uploadFailed": "Tải nội dung lên thất bại. Vui lòng thử lại."
             },
             "validations": {
                 "fileRejected": "Tệp bị từ chối. Chỉ cho phép các tệp {types} dung lượng tối đa {size}MB."

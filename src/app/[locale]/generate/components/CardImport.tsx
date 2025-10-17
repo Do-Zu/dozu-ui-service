@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '@/stores/hooks';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -16,6 +16,7 @@ import Import from './import/Import';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import LoadingPage from '@/app/loading';
+import LoadingOverlay from './import/components/LoadingOverlay';
 import { compressContent } from '../helper/compress';
 import { useContentGeneration } from '../hooks/useContentGeneration';
 import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
@@ -33,9 +34,10 @@ interface CardImportProps {
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classProps }) => {
     const dispatch = useCardImportDispatch();
     const t = useTranslations('generate.cardImport');
+    const tFileTab = useTranslations('generate.fileTab');
 
     const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
-    const { step, importMethod, files, selectedMethod, isProcessing } = useCardImportSelector(
+    const { step, importMethod, files, selectedMethod, isProcessing, isUploading } = useCardImportSelector(
         (state) => state.importDialog,
     );
 
@@ -227,30 +229,38 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
         );
 
     return (
-        <Card className="max-w-[80vw] max-h-[90vh] overflow-auto mx-auto my-4">
-            <CardHeader>
-                <CardTitle className="text-xl font-semibold ">
-                    {step === 1 && t('titles.step1')}
-                    {step === 2 && t('titles.step2')}
-                </CardTitle>
-            </CardHeader>
+        <Fragment>
+            <Card className="max-w-[80vw] max-h-[90vh] overflow-auto mx-auto my-4">
+                <CardHeader>
+                    <CardTitle className="text-xl font-semibold ">
+                        {step === 1 && t('titles.step1')}
+                        {step === 2 && t('titles.step2')}
+                    </CardTitle>
+                </CardHeader>
 
-            <CardContent className="">{renderStepContent()}</CardContent>
-            {loading && <LoadingPage isOverlay={true} size={120} />}
-            <CardFooter className="flex justify-between items-center sm:justify-between">
-                {step > 1 && (
-                    <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>
-                        {t('buttons.back')}
+                <CardContent className="">{renderStepContent()}</CardContent>
+                {loading && <LoadingPage isOverlay={true} size={120} />}
+                <CardFooter className="flex justify-between items-center sm:justify-between">
+                    {step > 1 && (
+                        <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>
+                            {t('buttons.back')}
+                        </Button>
+                    )}
+                    <div className="flex-1 sm:flex-none"></div>
+
+                    <Button onClick={handleContinue} disabled={!isStepValid()}>
+                        {t('buttons.continue')}
+                        <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
-                )}
-                <div className="flex-1 sm:flex-none"></div>
-
-                <Button onClick={handleContinue} disabled={!isStepValid()}>
-                    {t('buttons.continue')}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-            </CardFooter>
-        </Card>
+                </CardFooter>
+            </Card>
+            {isUploading && (
+                <LoadingOverlay
+                    title={tFileTab('loading.uploading.title')}
+                    description={tFileTab('loading.uploading.description')}
+                />
+            )}
+        </Fragment>
     );
 };
 
