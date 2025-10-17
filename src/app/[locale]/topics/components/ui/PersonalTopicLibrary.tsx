@@ -69,7 +69,7 @@ export default function PersonalTopicLibrary() {
         list.forEach((t) => {
             fresh += t.flashcardCounts?.new || 0;
             learning += t.flashcardCounts?.learning || 0;
-            due += t.flashcardCounts?.dueToday || 0;
+            due += t.flashcardCounts?.review || 0;
             totalFlashcards += t.flashcardCounts?.total || 0;
         });
         return {
@@ -143,7 +143,7 @@ export default function PersonalTopicLibrary() {
             if (sortBy === 'newest') return ts(b.createdAt) - ts(a.createdAt);
             if (sortBy === 'oldest') return ts(a.createdAt) - ts(b.createdAt);
             if (sortBy === 'flashcards-due-today')
-                return (b.flashcardCounts?.dueToday || 0) - (a.flashcardCounts?.dueToday || 0);
+                return (b.flashcardCounts?.review || 0) - (a.flashcardCounts?.review || 0);
             return 0;
         });
 
@@ -267,7 +267,7 @@ export default function PersonalTopicLibrary() {
         const newFlashcards = topic.flashcardCounts?.new || 0;
         const totalFlashcards = topic.flashcardCounts?.total || 0;
         const learningFlashcards = topic.flashcardCounts?.learning || 0;
-        const dueTodayFlashcards = topic.flashcardCounts?.dueToday || 0;
+        const dueTodayFlashcards = topic.flashcardCounts?.review || 0;
 
         function handleOnSelectBrowse() {
             router.push(ROUTES.FLASHCARDS_BROWSE(topicId));

@@ -1,3 +1,5 @@
+import { IAnkiStatus } from "@/types/anki";
+
 export interface ITopic {
     topicId: number;
     userId: number;
@@ -11,12 +13,7 @@ export interface ITopic {
     inputSetId?: number;
 }
 
-export interface IFlashcardCounts {
-    total?: number;
-    new?: number;
-    learning?: number; // SM-2 algorithm; including learning & RELEARNING states
-    dueToday?: number;
-}
+export type IFlashcardCounts = Record<Exclude<IAnkiStatus, IAnkiStatus.RELEARNING> | 'total', number>;
 
 export type ICreateTopicBody = Pick<ITopic, 'name' | 'description'> & {
     inputSetId?: number;

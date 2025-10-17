@@ -1,9 +1,20 @@
-import { INextReviewInterval } from "@/types/anki";
-import { TimeUnit } from "../date/date.util";
+import { IBaseIntervalWithDeviation, INextReviewInterval } from '@/types/anki';
+import { TimeUnit } from '../date/date.util';
 
 class FlashcardHelper {
-    public formatInterval(nextInterval: INextReviewInterval): string {
+    public formatInterval({
+        nextInterval,
+        baseIntervalWithDeviation,
+    }: {
+        nextInterval: INextReviewInterval;
+        baseIntervalWithDeviation: IBaseIntervalWithDeviation | null;
+    }): string {
         const { interval, timeUnit } = nextInterval;
+
+        if (baseIntervalWithDeviation) {
+            const { baseInterval, deviation } = baseIntervalWithDeviation;
+            return `${baseInterval} ${deviation > 0 ? ` ± ${deviation}` : ''} days`;
+        }
 
         switch (timeUnit) {
             case TimeUnit.MINUTE:

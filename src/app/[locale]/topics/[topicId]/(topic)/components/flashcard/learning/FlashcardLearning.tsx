@@ -1,49 +1,39 @@
-'use client';
-
-import { useCallback, useEffect, useRef, useState } from 'react';
-import useFetch from '@/hooks/useFetch';
-import LoadingPage from '@/app/loading';
-import { FlashcardLearning } from '../components/FlashcardLearning';
-import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { IAnkiCardReviewed, IAnkiCardStatusCounts, IDueAnkiCard } from '@/app/[locale]/flashcards/types/flashcard.type';
+import { Button } from '@/components/ui/button';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { IAnkiRating, IAnkiStatus } from '@/types/anki';
+import { useRouter } from 'next/navigation';
+import { QuizCard, useQuizMilestones } from '@/app/[locale]/flashcards/learning/hooks/useQuizMilestones';
 import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
-import {
-    IAnkiCardReviewed,
-    IAnkiResult,
-    IDueAnkiCard,
-    IFlashcard,
-    IQualityResponseNextReviewInterval,
-} from '../../types/flashcard.type';
+import useFetch from '@/hooks/useFetch';
 import flashcardService, { IFlashcardReviewByAnkiPayload } from '@/services/flashcard/flashcard.service';
+import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
-import { Button } from '@/components/ui/button';
-import { useTranslations } from 'next-intl';
-import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
 import { isAfter } from 'date-fns';
 import { ROUTES } from '@/utils/constants/routes';
 import { METHOD_LEARNING } from '@/utils/constants/method';
-import QuickQuizPrompt from '@/app/[locale]/flashcards/learning/components/QuickQuizPrompt';
-import { useQuizMilestones, type QuizCard } from '@/app/[locale]/flashcards/learning/hooks/useQuizMilestones';
+import LoadingPage from '@/app/loading';
 import BacklogCTA from '@/app/[locale]/flashcards/learning/components/BacklogCTA';
-import { IAnkiRating, IAnkiStatus } from '@/types/anki';
+import QuickQuizPrompt from '@/app/[locale]/flashcards/learning/components/QuickQuizPrompt';
+import LearningCard from '../LearningCard';
+import { store } from '../../../store/store';
+import { useTopicDispatch } from '../../../hooks/hooks';
+import { reviewCard } from '../../../store/features/learningFlashcardSlice';
 
-export type IFlashcardWithReviewPrediction = Pick<
-    IFlashcard,
-    'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName'
-> & {
-    qualityResponsesNextReviewInterval: IQualityResponseNextReviewInterval[];
-};
-
-export type IFlashcardStatusCounts = Record<Exclude<IAnkiStatus, IAnkiStatus.RELEARNING>, number>;
-
-export default function Page() {
-    const params = useParams();
-    if (!params?.topicId) return <div>No topic id is provided</div>;
-
+export default function FlashcardLearning({
+    topicId,
+    flashcards,
+    ankiCardStatusCounts,
+}: {
+    topicId: string;
+    flashcards: IDueAnkiCard[];
+    ankiCardStatusCounts: IAnkiCardStatusCounts;
+}) {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const tFlashcardLearning = useTranslations('flashcard.learning');
-    const { topicId } = params as { topicId: string };
 
     // studied list
     const [studied, setStudied] = useState<QuizCard[]>([]);
@@ -71,21 +61,6 @@ export default function Page() {
         saveCurrentLearningSession,
     } = useUserTrackingContext();
 
-    const {
-        data: flashcards,
-        setData: setFlashcards,
-        loading: flashcardsLoading,
-        error: flashcardsError,
-    } = useFetch<IDueAnkiCard[]>(() => flashcardService.getDueAnkiCardsForTopic(topicId));
-
-    const firstToFetchFlashcards = useRef(true);
-
-    const [flashcardStatusCounts, setFlashcardsStatusCounts] = useState<IFlashcardStatusCounts>({
-        [IAnkiStatus.NEW]: 0,
-        [IAnkiStatus.LEARNING]: 0,
-        [IAnkiStatus.REVIEW]: 0,
-    });
-
     // gen & SSE
     const { regenerate, sseData, sseStatus, loading } = useGenerateFromExisting();
 
@@ -99,24 +74,12 @@ export default function Page() {
         chunkRatio: 0.5,
     });
 
+    const [isFlipped, setIsFlipped] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(true);
+    const dispatch = useTopicDispatch();
+
     useEffect(() => {
-        if (flashcards && flashcards.length > 0) {
-            if (firstToFetchFlashcards.current) {
-                const counter: IFlashcardStatusCounts = {
-                    [IAnkiStatus.NEW]: 0,
-                    [IAnkiStatus.LEARNING]: 0,
-                    [IAnkiStatus.REVIEW]: 0,
-                };
-                for (const card of flashcards) {
-                    // number of 'learning' cards equals to both 'learning' and 'relearning' cards
-                    const status = card.status === IAnkiStatus.RELEARNING ? IAnkiStatus.LEARNING : card.status;
-                    counter[status]++;
-                }
-                setFlashcardsStatusCounts(counter);
-                firstToFetchFlashcards.current = false;
-            }
-            q.ensureBaseline(flashcards.length, flashcards.map(toQuizCard));
-        }
+        q.ensureBaseline(flashcards.length, flashcards.map(toQuizCard));
     }, [flashcards, q]);
 
     // reset studied when session changes
@@ -124,15 +87,11 @@ export default function Page() {
         setStudied([]);
     }, [q.sessionEpoch]);
 
-    const currentFlashcard = flashcards ? flashcards[0] : null;
-
-    const flashcardContainerRef = useRef<HTMLDivElement>(null);
-    const cardRef = useRef<HTMLDivElement>(null);
-    const isFrontRef = useRef<boolean>(true);
+    const currentFlashcard = flashcards[0];
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
 
-    const { loading: reviewFlashcardLoading, execute: reviewFlashcard } = usePost<
+    const { loading: reviewFlashcardLoading, execute: reviewFlashcardAsync } = usePost<
         IFlashcardReviewByAnkiPayload,
         IAnkiCardReviewed | null
     >(
@@ -142,51 +101,16 @@ export default function Page() {
             onError: toastHelper.showErrorMessage,
             onSuccess: async (data) => {
                 if (!flashcards || !currentFlashcard) return;
-                const flashcardsUpdated = [...flashcards];
-                setFlashcardsStatusCounts((prev) => {
-                    const updated = { ...prev };
-                    const currentFlashcardStatus =
-                        currentFlashcard.status === IAnkiStatus.RELEARNING
-                            ? IAnkiStatus.LEARNING
-                            : currentFlashcard.status;
-                    updated[currentFlashcardStatus]--;
-                    if (data) {
-                        // UPDATE flashcard count for each status
-                        const newStatus = data.status === IAnkiStatus.RELEARNING ? IAnkiStatus.LEARNING : data.status;
-                        updated[newStatus]++;
-                    }
-                    return updated;
-                });
-
-                flashcardsUpdated.shift();
-
-                if (data) {
-                    // INSERT this card to a suitable position (to maintain ORDER by nextReview)
-                    let inserted = false;
-                    for (let i = 0; i < flashcardsUpdated.length; ++i) {
-                        const card = flashcardsUpdated[i];
-                        if (isAfter(data.nextReview, card.nextReview)) continue;
-                        flashcardsUpdated.splice(i, 0, {
-                            ...currentFlashcard,
-                            nextReview: data.nextReview,
-                            status: data.status,
-                            nextReviewDataByRatings: data.nextReviewDataByRatings,
-                        });
-                        inserted = true;
-                        break;
-                    }
-
-                    if (!inserted) {
-                        flashcardsUpdated.push({
-                            ...currentFlashcard,
-                            nextReview: data.nextReview,
-                            status: data.status,
-                            nextReviewDataByRatings: data.nextReviewDataByRatings,
-                        });
-                        inserted = true;
-                    }
+                // Ky Anh section - handle updating flashcards & flashcardsStatuCounts & relevant states related to 'Learning'
+                setFlipInstantly(false);
+                setShouldShowTrackingOptions(false);
+                dispatch(reviewCard({ currentCard: currentFlashcard, reviewedCard: data }));
+                // get the latest learning flashcards
+                const flashcardsUpdated = store.getState().learningFlashcards.data;
+                if (!flashcardsUpdated) {
+                    throw new Error('Cannot get learningFlashcards from store (Redux), please try again.');
                 }
-                setFlashcards(flashcardsUpdated);
+                // ending Ky Anh section - handle updating flashcards & flashcardsStatuCounts
 
                 // Update learning tracking metrics using context methods
                 updateItemsStudied(itemsStudiedCount + 1);
@@ -243,53 +167,34 @@ export default function Page() {
         };
     }, []); // Empty dependency array - only run on mount/unmount
 
-    // useEffect(() => {
-    //     if(cardRef.current) {
-    //         cardRef.current.style.transform = 'rotateX(0deg)';
-    //         cardRef.current.style.transition = 'transform 0.6s';
-    //     }
-    // }, []);
+    function flipWithAnimation() {
+        if (shouldShowTrackingOptions) return;
+        setIsAnimating(true);
+        setIsFlipped((prev) => !prev);
+        setShouldShowTrackingOptions(true);
+    }
 
-    useEffect(() => {
-        isFrontRef.current = true;
-        if (cardRef.current) {
-            cardRef.current.style.transition = 'none';
-            cardRef.current.style.transform = 'rotateX(0deg)';
+    function setFlipWithAnimation(isFlipped: boolean) {
+        setIsAnimating(true);
+        setIsFlipped(isFlipped);
+    }
 
-            setTimeout(() => {
-                if (cardRef.current) cardRef.current.style.transition = 'transform 0.6s';
-            }, 100);
-        }
-        setShouldShowTrackingOptions(false);
-    }, [flashcards]);
-
-    const handleManualFlip = useCallback(() => {
-        if (isFrontRef.current) {
-            setShouldShowTrackingOptions(true);
-        } else {
-            return;
-        }
-
-        // if(cardRef.current && !autoPlayEnabled) {
-        if (cardRef.current) {
-            cardRef.current.style.transform = isFrontRef.current ? 'rotateX(180deg)' : 'rotateX(0deg)';
-            // setIsFront(prev => !prev);
-            isFrontRef.current = !isFrontRef.current;
-        }
-    }, []);
+    function setFlipInstantly(isFlipped: boolean) {
+        setIsAnimating(false);
+        setIsFlipped(isFlipped);
+    }
 
     const handleReviewFlashcardClick = useCallback(
         async (rating: IAnkiRating) => {
-            if (!flashcards || !currentFlashcard) return;
             if (!shouldShowTrackingOptions) return;
             const { flashcardId } = currentFlashcard;
-            await reviewFlashcard({
+            await reviewFlashcardAsync({
                 topicId,
                 flashcardId,
                 rating,
             });
         },
-        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards],
+        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcardAsync, shouldShowTrackingOptions],
     );
 
     function handleBackClick() {
@@ -298,14 +203,6 @@ export default function Page() {
 
     function handleRedirectFeynmanPage() {
         router.push(ROUTES.FEYNMAN_REVIEW(topicId, METHOD_LEARNING.FLASHCARD));
-    }
-
-    if (flashcardsError) {
-        return <div>Error: {flashcardsError}</div>;
-    }
-
-    if (flashcardsLoading === true || flashcards === null || flashcards === undefined) {
-        return <LoadingPage />;
     }
 
     const onConfirmOnlySecond = async () => {
@@ -367,17 +264,14 @@ export default function Page() {
                     </div>
                 </div>
             ) : (
-                <FlashcardLearning
-                    topicName={currentFlashcard.topicName ? currentFlashcard.topicName : ''}
-                    total={flashcards.length}
-                    flashcardContainerRef={flashcardContainerRef}
-                    cardRef={cardRef}
-                    isFrontRef={isFrontRef}
+                <LearningCard
                     flashcard={currentFlashcard}
-                    handleManualFlip={handleManualFlip}
                     shouldShowTrackingOptions={shouldShowTrackingOptions}
-                    handleLearningOptionClick={handleReviewFlashcardClick}
-                    flashcardStatusCounts={flashcardStatusCounts}
+                    isFlipped={isFlipped}
+                    isAnimating={isAnimating}
+                    onFlip={flipWithAnimation}
+                    handleRatingClick={handleReviewFlashcardClick}
+                    flashcardStatusCounts={ankiCardStatusCounts}
                 />
             )}
 
