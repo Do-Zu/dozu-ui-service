@@ -38,8 +38,7 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges }: RoadmapButtonProps) =>
     baseEdges.forEach((edge) => {
         baseNodes.push(edge.target);
     });
-    console.log(rootNode);
-    console.log(baseNodes);
+
 
     return (
         // <Button variant="outline" onClick={handleOnClickRoadmap}>
