@@ -20,7 +20,7 @@ import { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/top
 import { useFeeds } from '../../teacher/feeds/hooks/useFeeds';
 import { ICreateClassFeedBody, ICreateClassFeedPayload } from '@/services/class-based-learning/classFeed.service';
 import { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
-import { isNilOrEmpty } from '@/utils';
+import { isEmpty, isNilOrEmpty, isNullOrEmpty } from '@/utils';
 import { EXTRACTION_TAB, IMPORT_METHOD, RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
 import { uploadService } from '@/services/upload/upload.service';
 import { YoutubeResourcePayload, WebsiteResourcePayload, TextResourcePayload } from '../types/content.type';
@@ -209,18 +209,24 @@ export const useContentGeneration = ({
 
             switch (contentTypeResource) {
                 case RESOURCE_CONTENT_TYPE.FILE:
+                    if (isEmpty(filesImport)) {
+                        throw new Error('No files to upload');
+                    }
+
                     const file = filesImport[0];
 
-                    const result = await uploadService.uploadFile(file);
+                    const fileInfo = await uploadService.uploadFile(file);
 
-                    if (isNilOrEmpty(result)) {
+                    if (isNilOrEmpty(fileInfo)) {
                         throw new Error('File upload failed');
                     }
 
                     await ContentCreationService.insertContentTopic({
                         topicId: topicId!,
                         contentType: RESOURCE_CONTENT_TYPE.FILE,
-                        payload: {},
+                        payload: {
+                            ...fileInfo,
+                        },
                     });
                     break;
                 case RESOURCE_CONTENT_TYPE.YOUTUBE: {

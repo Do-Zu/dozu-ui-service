@@ -243,7 +243,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
                 <CardFooter className="flex justify-between items-center sm:justify-between">
                     {step > 1 && (
                         <Button variant="outline" onClick={handleBackPreviousStep} disabled={isProcessing}>
-                            {'buttons.back'}
+                            {t('buttons.back')}
                         </Button>
                     )}
                     <div className="flex-1 sm:flex-none"></div>

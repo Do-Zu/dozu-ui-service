@@ -10,6 +10,7 @@ import flashcardService from '@/services/flashcard/flashcard.service';
 import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 import { RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
 import { TranscriptSegment, VideoInfo } from '../stores/features/contentExtractionSlice';
+import { UploadFileResponse } from '@/components/generative/types';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -52,7 +53,7 @@ type TextResourceMetadata = {
 };
 
 type ResourceMetadataMap = {
-    [RESOURCE_CONTENT_TYPE.FILE]: FileResourceMetadata;
+    [RESOURCE_CONTENT_TYPE.FILE]: UploadFileResponse;
     [RESOURCE_CONTENT_TYPE.YOUTUBE]: YoutubeResourceMetadata;
     [RESOURCE_CONTENT_TYPE.WEBSITE]: WebsiteResourceMetadata;
     [RESOURCE_CONTENT_TYPE.TEXT]: TextResourceMetadata;
@@ -62,7 +63,7 @@ type InsertContentTopicParams =
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.FILE;
-          payload: Partial<FileResourceMetadata>;
+          payload: UploadFileResponse;
       }
     | {
           topicId: string | number;
@@ -230,11 +231,9 @@ export class ContentCreationService {
     ): ResourceMetadataMap[ResourceContentType] | null {
         switch (params.contentType) {
             case RESOURCE_CONTENT_TYPE.FILE: {
-                const inputSetId = params.payload?.inputSetId ?? state?.inputSet?.inputSetId;
-                if (!inputSetId) {
-                    return null;
-                }
-                return { inputSetId };
+                return {
+                    ...params.payload,
+                };
             }
             case RESOURCE_CONTENT_TYPE.YOUTUBE: {
                 const url = params.payload?.url;
