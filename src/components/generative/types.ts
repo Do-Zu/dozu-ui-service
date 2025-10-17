@@ -73,7 +73,6 @@ export interface UploadFileResponse {
     uploadedAt?: string;
     setId?: string;
     fileKey: string;
-    formatFile?: string;
 }
 
 /**
