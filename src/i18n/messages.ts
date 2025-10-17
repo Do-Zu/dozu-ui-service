@@ -26,6 +26,7 @@ export async function getMessages(locale: string) {
         ...(await import(`../../messages/${locale}/mindmap/exportToCSVButton.json`)).default,
         ...(await import(`../../messages/${locale}/mindmap/downloadMindmapButton.json`)).default,
         ...(await import(`../../messages/${locale}/mindmap/importButton.json`)).default,
+        ...(await import(`../../messages/${locale}/mindmap/roadmapButton.json`)).default,
         ...(await import(`../../messages/${locale}/verifyEmailPage.json`)).default,
         ...(await import(`../../messages/${locale}/welcome.json`)).default,
         ...(await import(`../../messages/${locale}/topic.json`)).default,
