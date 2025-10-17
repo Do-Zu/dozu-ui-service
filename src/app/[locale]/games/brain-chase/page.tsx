@@ -161,7 +161,7 @@ function BrainChaseGame() {
           <div className="bg-background p-6 rounded-lg max-w-md w-full">
             <h2 className="text-2xl font-bold mb-4">{t('gameOver')}</h2>
             <p className="mb-4">
-              {t('finalScore')}: {score} {t('of')} {Math.min(settings.questionCount, 5)}
+              {t('finalScore')}: {score} {t('of')} {settings.questionCount}
             </p>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => resetGame()}>

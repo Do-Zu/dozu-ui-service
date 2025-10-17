@@ -179,7 +179,12 @@ export default function Setting({ onOpenChange }: SettingProps) {
               min={5}
               max={60}
               step={5}
-              onValueChange={(value) => setSettings({ ...settings, timeLimit: value[0] })}
+              onValueChange={(value) => {
+                const newSettings = { ...settings, timeLimit: value[0] };
+                setSettings(newSettings);
+                // Apply time limit change immediately to active game
+                updateSettings(newSettings);
+              }}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
