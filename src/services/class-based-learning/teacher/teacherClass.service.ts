@@ -10,7 +10,7 @@ import {
 } from '@/app/[locale]/class-based/types/class.type';
 import { IUserProfile } from '@/types/profile';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-import { HttpStatusCode } from 'axios';
+import { HttpStatusCode, isAxiosError } from 'axios';
 
 export type ICreateClassPayload = ICreateClassBody;
 export type IUpdateClassPayload = IUpdateClassBody & { classId: number };
@@ -41,14 +41,17 @@ class TeacherClassService {
         if (imageFile) {
             formData.append('file', imageFile);
         }
-        const response = await postRequest<FormData, ICreateClassResponse>('/classes/teacher', formData);
-        if (response.code === HttpStatusCode.PayloadTooLarge) {
-            throw new Error('The size of your image is too large, please try with another image.');
+        try {
+            const response = await postRequest<FormData, ICreateClassResponse>('/classes/teacher', formData);
+            if (response.status !== 'created') {
+                throw new Error(response.message);
+            }
+            return response.data;
+        } catch (e) {
+            if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
+                throw new Error('The size of your image is too large, please try with another image.');
+            }
         }
-        if (response.status !== 'created') {
-            throw new Error(response.message);
-        }
-        return response.data;
     }
 
     public async updateClass(data: IUpdateClassPayload) {
@@ -59,14 +62,17 @@ class TeacherClassService {
         if (imageFile) {
             formData.append('file', imageFile);
         }
-        const response = await putRequest<FormData, IUpdateClassResponse>(`/classes/teacher/${classId}`, formData);
-        if (response.code === HttpStatusCode.PayloadTooLarge) {
-            throw new Error('The size of your image is too large, please try with another image.');
+        try {
+            const response = await putRequest<FormData, IUpdateClassResponse>(`/classes/teacher/${classId}`, formData);
+            if (response.status !== 'success') {
+                throw new Error(response.message);
+            }
+            return response.data;
+        } catch (e) {
+            if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
+                throw new Error('The size of your image is too large, please try with another image.');
+            }
         }
-        if (response.status !== 'success') {
-            throw new Error(response.message);
-        }
-        return response.data;
     }
 
     public async getStudentsInClass(classId: number) {

@@ -13,7 +13,7 @@ class FlashcardHelper {
 
         if (baseIntervalWithDeviation) {
             const { baseInterval, deviation } = baseIntervalWithDeviation;
-            return `${baseInterval} ${deviation > 0 ? ` ± ${deviation}` : ''} days`;
+            return `${baseInterval}${deviation > 0 ? ` ± ${deviation}` : ''} days`;
         }
 
         switch (timeUnit) {

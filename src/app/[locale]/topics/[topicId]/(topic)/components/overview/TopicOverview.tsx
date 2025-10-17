@@ -24,6 +24,7 @@ import topicService, { IUpdateTopicPayload } from '@/services/topic/topic.servic
 import { IUpdateTopicResponse } from '@/app/[locale]/topics/types/topic.type';
 import toastHelper from '@/utils/toast.helper';
 import { useValidateTopic } from '@/app/[locale]/topics/hooks/useTopics';
+import FetchBoundary from '@/components/common/FetchBoundary2';
 
 interface StatCardProps {
     icon: React.ReactNode;
@@ -99,89 +100,83 @@ export default function TopicOverview() {
         return <div className="p-8">TopicId is not valid, please try again.</div>;
     }
 
-    if (topicOverviewStatus === 'idle' || topicOverviewStatus === 'pending') {
-        return <LoadingPage />;
-    }
-
-    if (topicOverviewStatus === 'failed' || topicOverviewError) {
-        return <div className="p-8">Error: {topicOverviewError}</div>;
-    }
-
-    if (!topicOverview) {
-        return <div className="p-8">No topic is found, please try again.</div>;
-    }
-
     return (
-        <div className="container mx-auto py-10 max-w-4xl space-y-8">
-            {/* --- GROUP 1: HEADER --- */}
-            <div>
-                <div className="flex items-center gap-4">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">{topicOverview.name}</h1>
+        <FetchBoundary data={topicOverview} status={topicOverviewStatus} error={topicOverviewError}>
+            {(topicOverview) => (
+                <div className="container mx-auto py-10 max-w-4xl space-y-8">
+                    {/* --- GROUP 1: HEADER --- */}
+                    <div>
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">{topicOverview.name}</h1>
 
-                    <Button variant="ghost" size="icon" onClick={handleUpdateModalOpen}>
-                        <SquarePen className="h-6 w-6 text-muted-foreground" />
-                        <span className="sr-only">Edit Topic</span>
-                    </Button>
+                            <Button variant="ghost" size="icon" onClick={handleUpdateModalOpen}>
+                                <SquarePen className="h-6 w-6 text-muted-foreground" />
+                                <span className="sr-only">Edit Topic</span>
+                            </Button>
 
-                    <UpdateTopicModal
-                        isOpen={isEditOpen}
-                        setIsOpen={setIsEditOpen}
-                        topic={editingTopic}
-                        onSubmit={handleUpdateSubmit}
-                        loading={updateTopicLoading}
-                    />
-                </div>
+                            <UpdateTopicModal
+                                isOpen={isEditOpen}
+                                setIsOpen={setIsEditOpen}
+                                topic={editingTopic}
+                                onSubmit={handleUpdateSubmit}
+                                loading={updateTopicLoading}
+                            />
+                        </div>
 
-                <p className="text-lg text-muted-foreground mt-2">
-                    {topicOverview.description || tCommon('labels.noDescription')}
-                </p>
-                <p className="text-sm text-muted-foreground mt-4">Created on {formatDate(topicOverview.createdAt)}</p>
-            </div>
-
-            <Separator />
-
-            {/* --- GROUP 2: STATS OVERVIEW --- */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Flashcard Stats</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-32">
-                        <StatCard
-                            icon={<Sparkles size={20} />}
-                            value={topicOverview.flashcardCounts?.new || 0}
-                            label="New"
-                            description="Cards to learn"
-                            bgColorClass="bg-blue-500"
-                            dotColorClass="bg-blue-300"
-                        />
-                        <StatCard
-                            icon={<Clock size={20} />}
-                            value={topicOverview.flashcardCounts?.learning || 0}
-                            label="Learning"
-                            description="Currently studying"
-                            bgColorClass="bg-red-500"
-                            dotColorClass="bg-red-300"
-                        />
-                        <StatCard
-                            icon={<CheckCircle size={20} />}
-                            value={topicOverview.flashcardCounts?.review || 0}
-                            label="Review"
-                            description="Ready to review"
-                            bgColorClass="bg-green-500"
-                            dotColorClass="bg-green-300"
-                        />
-                        <StatCard
-                            icon={<BookCopy size={20} />}
-                            value={topicOverview.flashcardCounts?.total || 0}
-                            label="Total"
-                            description="All cards in topic"
-                            bgColorClass="bg-gray-700 dark:bg-gray-600"
-                            dotColorClass="bg-gray-400"
-                        />
+                        <p className="text-lg text-muted-foreground mt-2">
+                            {topicOverview.description || tCommon('labels.noDescription')}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-4">
+                            Created on {formatDate(topicOverview.createdAt)}
+                        </p>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+
+                    <Separator />
+
+                    {/* --- GROUP 2: STATS OVERVIEW --- */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Flashcard Stats</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-32">
+                                <StatCard
+                                    icon={<Sparkles size={20} />}
+                                    value={topicOverview.flashcardCounts?.new || 0}
+                                    label="New"
+                                    description="Cards to learn"
+                                    bgColorClass="bg-blue-500"
+                                    dotColorClass="bg-blue-300"
+                                />
+                                <StatCard
+                                    icon={<Clock size={20} />}
+                                    value={topicOverview.flashcardCounts?.learning || 0}
+                                    label="Learning"
+                                    description="Currently studying"
+                                    bgColorClass="bg-red-500"
+                                    dotColorClass="bg-red-300"
+                                />
+                                <StatCard
+                                    icon={<CheckCircle size={20} />}
+                                    value={topicOverview.flashcardCounts?.review || 0}
+                                    label="Review"
+                                    description="Ready to review"
+                                    bgColorClass="bg-green-500"
+                                    dotColorClass="bg-green-300"
+                                />
+                                <StatCard
+                                    icon={<BookCopy size={20} />}
+                                    value={topicOverview.flashcardCounts?.total || 0}
+                                    label="Total"
+                                    description="All cards in topic"
+                                    bgColorClass="bg-gray-700 dark:bg-gray-600"
+                                    dotColorClass="bg-gray-400"
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+        </FetchBoundary>
     );
 }
