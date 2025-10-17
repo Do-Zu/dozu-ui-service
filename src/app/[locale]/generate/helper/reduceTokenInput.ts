@@ -1,4 +1,4 @@
-import { removeStopwords, eng, vie } from 'stopword';
+import { removeStopwords } from 'stopword';
 
 export interface TokenReductionOptions {
     removeStopWords: boolean;
