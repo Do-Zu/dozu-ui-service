@@ -1,6 +1,6 @@
 'use client';
 
-const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     const showDebugInfo = isDevelopment && (error?.message || error?.digest || error?.stack);
