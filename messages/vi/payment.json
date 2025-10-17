@@ -19,13 +19,19 @@
         "redirectNotice": "Bạn sẽ được chuyển đến trang PayOS an toàn để hoàn tất thanh toán.",
         "qrUnavailable": "Không có mã QR",
         "qrHint": "Quét bằng ứng dụng ngân hàng để thanh toán ngay.",
-        "success.title": "Thanh toán thành công",
-        "success.subtitle": "Gói đăng ký của bạn đã được kích hoạt.",
-        "success.cta": "Tiếp tục đến bảng điều khiển",
-        "cancel.title": "Hủy thanh toán",
-        "cancel.subtitle": "Tài khoản của bạn không bị trừ tiền.",
-        "error.title": "Lỗi thanh toán",
-        "error.tryAgain": "Thử lại",
+        "success": {
+            "title": "Thanh toán thành công",
+            "subtitle": "Gói đăng ký của bạn đã được kích hoạt.",
+            "cta": "Tiếp tục đến bảng điều khiển"
+        },
+        "cancel": {
+            "title": "Hủy thanh toán",
+            "subtitle": "Tài khoản của bạn không bị trừ tiền."
+        },
+        "error": {
+            "title": "Lỗi thanh toán",
+            "tryAgain": "Thử lại"
+        },
         "backToPlans": "Quay lại gói",
         "payNow": "Thanh toán ngay",
         "completePurchase": "Hoàn tất thanh toán",
@@ -44,9 +50,6 @@
         "orScanToPay": "Hoặc quét để thanh toán",
         "promoApplied": "Áp dụng mã giảm giá",
         "promoInvalid": "Mã khuyến mãi không hợp lệ",
-        "dashboard": "Trang chủ",
-        "error": {
-            "tryAgain": "Thử lại"
-        }
+        "dashboard": "Trang chủ"
     }
 }

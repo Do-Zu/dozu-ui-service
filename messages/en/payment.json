@@ -19,13 +19,19 @@
         "redirectNotice": "You’ll be redirected to a secure PayOS page to complete your payment.",
         "qrUnavailable": "QR code unavailable",
         "qrHint": "Scan with your banking app to pay instantly.",
-        "success.title": "Payment Successful",
-        "success.subtitle": "Your subscription has been activated successfully.",
-        "success.cta": "Continue to dashboard",
-        "cancel.title": "Payment Cancelled",
-        "cancel.subtitle": "No charges were made to your account.",
-        "error.title": "Payment Error",
-        "error.tryAgain": "Try again",
+        "success": {
+            "title": "Payment Successful",
+            "subtitle": "Your subscription has been activated successfully.",
+            "cta": "Continue to dashboard"
+        },
+        "cancel": {
+            "title": "Payment Cancelled",
+            "subtitle": "No charges were made to your account."
+        },
+        "error": {
+            "title": "Payment Error",
+            "tryAgain": "Try again"
+        },
         "backToPlans": "Back to plans",
         "payNow": "Pay now",
         "completePurchase": "Complete Purchase",
@@ -44,9 +50,6 @@
         "orScanToPay": "Or scan to pay",
         "promoApplied": "Promo applied",
         "promoInvalid": "Promo code not valid",
-        "dashboard": "Dashboard",
-        "error": {
-            "tryAgain": " Try Again"
-        }
+        "dashboard": "Dashboard"
     }
 }
