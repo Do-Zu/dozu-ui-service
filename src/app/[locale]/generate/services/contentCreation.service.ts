@@ -1,15 +1,15 @@
+import Axios from '@/api/axios';
+import { store } from '@/stores/store';
 import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
 import { handleConvertToQuestionsSubmitted } from '../../question/utils/handleConvertToQuestionsSubmitted';
 import { ContentType } from '../components/ContentGenerationPreview';
-import Axios from '@/api/axios';
 import topicService, { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/topic/topic.service';
-import { store } from '@/stores/store';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 import { RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
-import { TranscriptSegment, VideoInfo } from '../stores/features/contentExtractionSlice';
+import { VideoInfo } from '../stores/features/contentExtractionSlice';
 import { UploadFileResponse } from '@/components/generative/types';
 
 export interface CreateContentParams {
@@ -32,10 +32,6 @@ export interface ContentCreationResult {
 }
 
 const INPUT_SET_RESOURCES_ENDPOINT = '/input-set/resources';
-
-type FileResourceMetadata = {
-    inputSetId: string | number;
-};
 
 type YoutubeResourceMetadata = {
     url: string;
