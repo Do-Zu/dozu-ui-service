@@ -10,6 +10,7 @@ import {
 } from '@/app/[locale]/class-based/types/class.type';
 import { IUserProfile } from '@/types/profile';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
+import { HttpStatusCode } from 'axios';
 
 export type ICreateClassPayload = ICreateClassBody;
 export type IUpdateClassPayload = IUpdateClassBody & { classId: number };
@@ -41,6 +42,9 @@ class TeacherClassService {
             formData.append('file', imageFile);
         }
         const response = await postRequest<FormData, ICreateClassResponse>('/classes/teacher', formData);
+        if (response.code === HttpStatusCode.PayloadTooLarge) {
+            throw new Error('The size of your image is too large, please try with another image.');
+        }
         if (response.status !== 'created') {
             throw new Error(response.message);
         }
@@ -56,6 +60,9 @@ class TeacherClassService {
             formData.append('file', imageFile);
         }
         const response = await putRequest<FormData, IUpdateClassResponse>(`/classes/teacher/${classId}`, formData);
+        if (response.code === HttpStatusCode.PayloadTooLarge) {
+            throw new Error('The size of your image is too large, please try with another image.');
+        }
         if (response.status !== 'success') {
             throw new Error(response.message);
         }

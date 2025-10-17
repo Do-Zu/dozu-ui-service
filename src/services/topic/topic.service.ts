@@ -8,6 +8,7 @@ import {
     IUpdateTopicResponse,
     ITopic,
 } from '@/app/[locale]/topics/types/topic.type';
+import { HttpStatusCode } from 'axios';
 
 export type ICreateTopicPayload = ICreateTopicBody;
 export type IUpdateTopicPayload = IUpdateTopicBody & { topicId: number };
@@ -45,6 +46,9 @@ class TopicService {
             formData.append('file', imageFile);
         }
         const response = await postRequest<FormData, ICreateTopicResponse>('/topics', formData);
+        if (response.code === HttpStatusCode.PayloadTooLarge) {
+            throw new Error('The size of your image is too large, please try with another image.');
+        }
         if (response.status !== 'created') {
             throw new Error(response.message);
         }
@@ -61,6 +65,9 @@ class TopicService {
         }
 
         const response = await putRequest<FormData, IUpdateTopicResponse>(`/topics/${topicId}`, formData);
+        if (response.code === HttpStatusCode.PayloadTooLarge) {
+            throw new Error('The size of your image is too large, please try with another image.');
+        }
         if (response.status !== 'success') {
             throw new Error(response.message);
         }

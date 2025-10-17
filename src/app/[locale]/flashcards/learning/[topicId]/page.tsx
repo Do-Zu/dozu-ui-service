@@ -289,7 +289,7 @@ export default function Page() {
                 rating,
             });
         },
-        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards],
+        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards, shouldShowTrackingOptions],
     );
 
     function handleBackClick() {
