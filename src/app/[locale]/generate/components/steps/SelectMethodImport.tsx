@@ -5,7 +5,7 @@ import { FileText, Link, Video, Upload, File, Mic } from 'lucide-react';
 import { setActiveTab } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
 import { setImportMethod } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import TabContent from '../import/components/TextUrlContentTab';
-import { ExtractionTab, ImportMethod } from '../../constants/resource';
+import { EXTRACTION_TAB, ExtractionTab, IMPORT_METHOD, ImportMethod } from '../../constants/resource';
 
 interface SelectMethodImportProps {
     className?: string;
@@ -35,17 +35,23 @@ export const SelectMethodImport = ({ className }: SelectMethodImportProps) => {
         }
     };
 
+    const onChangeTab = (value: string) => {
+        if (!Object.values(IMPORT_METHOD).includes(value as ImportMethod)) return;
+
+        dispatch(setImportMethod(value as ImportMethod));
+
+        if (value === 'file') {
+            dispatch(setActiveTab(EXTRACTION_TAB.FILE));
+        } else if (value === 'text') {
+            dispatch(setActiveTab(EXTRACTION_TAB.URL));
+        } else if (value === 'media') {
+            //TODO: set to media tab when have
+        }
+    };
+
     return (
         <div className="space-y-4">
-            <Tabs
-                defaultValue="file"
-                value={importMethod}
-                onValueChange={(value) => {
-                    dispatch(setImportMethod(value as ImportMethod));
-                    dispatch(setActiveTab(value as ExtractionTab));
-                }}
-                className="w-full"
-            >
+            <Tabs defaultValue="file" value={importMethod} onValueChange={(e) => onChangeTab(e)} className="w-full">
                 <TabsList className="grid grid-cols-3 w-full">
                     <TabsTrigger value="file" className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
