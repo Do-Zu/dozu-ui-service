@@ -13,6 +13,7 @@ interface CreateQuizModalProps {
     quizType: string;
     defaultName?: string;
     defaultDescription?: string;
+    setGlobalLoading?: (loading: boolean) => void;
 }
 
 const CreateQuizModal = ({
@@ -22,10 +23,10 @@ const CreateQuizModal = ({
     quizType,
     defaultName = '',
     defaultDescription = '',
+    setGlobalLoading,
 }: CreateQuizModalProps) => {
     const [name, setName] = useState(defaultName);
     const [description, setDescription] = useState(defaultDescription);
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -37,12 +38,10 @@ const CreateQuizModal = ({
     const handleSubmit = async () => {
         if (!name.trim()) return;
         try {
-            setLoading(true);
+            setGlobalLoading?.(true);
             await onSubmit({ name: name.trim(), description: description?.trim() });
-            setLoading(false);
-            onClose();
         } finally {
-            setLoading(false);
+            onClose();
         }
     };
 
@@ -63,8 +62,8 @@ const CreateQuizModal = ({
                 </div>
 
                 <DialogFooter className="mt-4">
-                    <Button onClick={handleSubmit} disabled={loading || !name.trim()}>
-                        {loading ? 'Creating...' : 'Save Quiz'}
+                    <Button onClick={handleSubmit} disabled={!name.trim()}>
+                         Save Quiz
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -32,6 +32,7 @@ const QuizTypePage = () => {
     const [statistics, setStatistics] = useState<IQuizStatistics | null>(null);
     const [defaultName, setDefaultName] = useState('');
     const [defaultDescription, setDefaultDescription] = useState('');
+    const [globalLoading, setGlobalLoading] = useState(false);
 
     useEffect(() => {
         const fetchStatistics = async () => {
@@ -114,6 +115,8 @@ const QuizTypePage = () => {
                 description: `${err}`,
                 variant: 'destructive',
             });
+        } finally {
+            setGlobalLoading(false);
         }
     };
 
@@ -153,7 +156,15 @@ const QuizTypePage = () => {
     };
 
     return (
-        <div className="px-8 py-12 bg-background text-foreground">
+        <div className="relative px-8 py-12 bg-background text-foreground">
+            {/* Loading overlay */}
+            {globalLoading && (
+                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center z-50 text-white">
+                    <div className="animate-spin h-10 w-10 border-4 border-t-transparent border-white rounded-full mb-3"></div>
+                    <span className="text-lg font-medium tracking-wide">Creating your quiz...</span>
+                </div>
+            )}
+
             <div className="mb-8">
                 <header className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-semibold text-primary">Select Type Quiz</h2>
@@ -192,6 +203,7 @@ const QuizTypePage = () => {
                 quizType={selectedType}
                 defaultName={defaultName}
                 defaultDescription={defaultDescription}
+                setGlobalLoading={setGlobalLoading}
             />
 
             <QuizOnboarding open={showOnboarding} onOpenChange={setShowOnboarding} />
