@@ -41,7 +41,7 @@ export function usePayment() {
                 setError(null);
 
                 // Find the selected plan
-                const selectedPlan = plans.find((p) => p.planId.toString() === planId);
+                const selectedPlan = plans?.find((p) => p?.planId?.toString() === planId);
 
                 if (!selectedPlan) {
                     throw new Error('Plan not found');
@@ -64,10 +64,8 @@ export function usePayment() {
                 // Poll for payment status
                 //startStatusPolling(paymentData.orderCode.toString());
             } catch (err: any) {
-                console.error('Payment initialization error:', err);
                 setError(err.response?.data?.message || err.message || 'Failed to initialize payment');
                 toast({
-                    title: 'Payment Error',
                     description: err.response?.data?.message || err.message || 'Failed to initialize payment',
                     variant: 'destructive',
                 });

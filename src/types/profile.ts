@@ -2,6 +2,7 @@ export interface ProfileData {
   id: string;
   username: string;
   email: string;
+  fullName?: string;
   location: string;
   bio: string;
   joinDate: string;

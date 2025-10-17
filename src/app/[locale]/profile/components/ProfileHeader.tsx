@@ -73,8 +73,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             {!isEditing ? (
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold">
-                  {profileData?.username || 'Unknown User'}
+                  {profileData?.fullName || profileData?.username || 'Unknown User'}
                 </h1>
+                {profileData?.fullName && (
+                  <p className="text-sm text-muted-foreground">
+                    @{profileData?.username}
+                  </p>
+                )}
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Mail className="h-4 w-4" />
                   <span>{profileData?.email || 'No email'}</span>
@@ -89,6 +94,16 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               </div>
             ) : (
               <div className="space-y-4">
+                <div>
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    value={editData.fullName || ''}
+                    onChange={(e) => handleInputChange('fullName', e.target.value)}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                
                 <div>
                   <Label htmlFor="username">Username</Label>
                   <Input
