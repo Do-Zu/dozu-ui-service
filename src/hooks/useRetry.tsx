@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from 'react';
 
-interface IUserRetryProps<T> {
-    retry: (...args: unknown[]) => Promise<T>;
+interface IUserRetryProps<T, TArgs extends unknown[] = unknown[]> {
+    retry: (...args: TArgs) => Promise<T>;
     options?: {
         maxRetries?: number;
         delay?: number;
@@ -23,7 +23,7 @@ const DEFAULT_DELAY = 1000;
  * @param   options - Configuration options for retry behavior.
  * @returns  function for execute
  */
-export default function useRetry<T>({ retry, options }: IUserRetryProps<T>) {
+export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry, options }: IUserRetryProps<T>) {
     const {
         maxRetries = DEFAULT_MAX_RETRIES,
         delay = DEFAULT_DELAY,
@@ -35,7 +35,7 @@ export default function useRetry<T>({ retry, options }: IUserRetryProps<T>) {
     const [error, setError] = useState<unknown | null>(null);
 
     const execute = useCallback(
-        async (...args: T[]) => {
+        async (...args: TArgs[]) => {
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
                     const result = await retry(...args);
