@@ -310,7 +310,7 @@ export default function PaymentPage() {
                             <CardTitle className="text-base">{t('paymentMethods')}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Tabs defaultValue={paymentData?.checkoutUrl ? 'link' : 'qr'} className="w-full">
+                            <Tabs defaultValue={'link'} className="w-full">
                                 <TabsList className="mb-4">
                                     {paymentData?.checkoutUrl && (
                                         <TabsTrigger value="link" className="gap-2">
@@ -318,10 +318,10 @@ export default function PaymentPage() {
                                             {t('payosLink')}
                                         </TabsTrigger>
                                     )}
-                                    <TabsTrigger value="qr" className="gap-2">
+                                    {/* <TabsTrigger value="qr" className="gap-2">
                                         <QrCode className="h-4 w-4" />
                                         {t('scanQR')}
-                                    </TabsTrigger>
+                                    </TabsTrigger> */}
                                 </TabsList>
 
                                 {/* PayOS link */}
