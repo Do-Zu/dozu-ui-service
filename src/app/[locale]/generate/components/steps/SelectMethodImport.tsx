@@ -40,11 +40,11 @@ export const SelectMethodImport = ({ className }: SelectMethodImportProps) => {
 
         dispatch(setImportMethod(value as ImportMethod));
 
-        if (value === 'file') {
+        if (value === IMPORT_METHOD.FILE) {
             dispatch(setActiveTab(EXTRACTION_TAB.FILE));
-        } else if (value === 'text') {
+        } else if (value === IMPORT_METHOD.TEXT) {
             dispatch(setActiveTab(EXTRACTION_TAB.URL));
-        } else if (value === 'media') {
+        } else if (value === IMPORT_METHOD.MEDIA) {
             //TODO: set to media tab when have
         }
     };

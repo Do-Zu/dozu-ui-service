@@ -1,15 +1,16 @@
+import Axios from '@/api/axios';
+import { store } from '@/stores/store';
 import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
 import { handleConvertToQuestionsSubmitted } from '../../question/utils/handleConvertToQuestionsSubmitted';
 import { ContentType } from '../components/ContentGenerationPreview';
-import Axios from '@/api/axios';
 import topicService, { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/topic/topic.service';
-import { store } from '@/stores/store';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import teacherTopicService from '@/services/class-based-learning/teacher/teacherTopic.service';
 import { RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
-import { TranscriptSegment, VideoInfo } from '../stores/features/contentExtractionSlice';
+import { VideoInfo } from '../stores/features/contentExtractionSlice';
+import { UploadFileResponse } from '@/components/generative/types';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -32,10 +33,6 @@ export interface ContentCreationResult {
 
 const INPUT_SET_RESOURCES_ENDPOINT = '/input-set/resources';
 
-type FileResourceMetadata = {
-    inputSetId: string | number;
-};
-
 type YoutubeResourceMetadata = {
     url: string;
     videoInfo: VideoInfo | null;
@@ -52,7 +49,7 @@ type TextResourceMetadata = {
 };
 
 type ResourceMetadataMap = {
-    [RESOURCE_CONTENT_TYPE.FILE]: FileResourceMetadata;
+    [RESOURCE_CONTENT_TYPE.FILE]: UploadFileResponse;
     [RESOURCE_CONTENT_TYPE.YOUTUBE]: YoutubeResourceMetadata;
     [RESOURCE_CONTENT_TYPE.WEBSITE]: WebsiteResourceMetadata;
     [RESOURCE_CONTENT_TYPE.TEXT]: TextResourceMetadata;
@@ -62,7 +59,7 @@ type InsertContentTopicParams =
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.FILE;
-          payload: Partial<FileResourceMetadata>;
+          payload: UploadFileResponse;
       }
     | {
           topicId: string | number;
@@ -230,11 +227,9 @@ export class ContentCreationService {
     ): ResourceMetadataMap[ResourceContentType] | null {
         switch (params.contentType) {
             case RESOURCE_CONTENT_TYPE.FILE: {
-                const inputSetId = params.payload?.inputSetId ?? state?.inputSet?.inputSetId;
-                if (!inputSetId) {
-                    return null;
-                }
-                return { inputSetId };
+                return {
+                    ...params.payload,
+                };
             }
             case RESOURCE_CONTENT_TYPE.YOUTUBE: {
                 const url = params.payload?.url;

@@ -67,11 +67,12 @@ export interface UploadFileResponse {
     fileName: string;
     originalName: string;
     filePath?: string;
-    size: number;
+    fileSize: number;
     mimeType?: string;
     status: 'completed' | 'processing' | 'failed';
     uploadedAt?: string;
     setId?: string;
+    fileKey: string;
 }
 
 /**

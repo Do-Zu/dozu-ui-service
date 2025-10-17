@@ -26,16 +26,16 @@
             },
             "loading": {
                 "uploading": {
-                    "title": "Uploading your file...",
+                    "title": "Uploading your content...",
                     "description": "Please wait while we upload the content"
                 },
                 "processing": {
-                    "title": "Processing your file...",
+                    "title": "Processing your content...",
                     "description": "Please wait while we extract the content"
                 }
             },
             "toasts": {
-                "uploadFailed": "Failed to upload file. Please try again."
+                "uploadFailed": "Failed to upload content. Please try again."
             },
             "validations": {
                 "fileRejected": "File rejected. Only {types} files up to {size}MB are allowed."
