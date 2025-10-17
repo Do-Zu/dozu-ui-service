@@ -32,31 +32,29 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry
         onFailureEachTry,
     } = options || {};
 
-    const [error, setError] = useState<unknown | null>(null);
-
     const execute = useCallback(
         async (...args: TArgs[]) => {
+            let lastError: unknown = null;
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
                     const result = await retry(...args);
                     onSuccess?.();
-                    setError(null);
                     return result;
                 } catch (error) {
                     onFailureEachTry?.(error);
-                    setError(error);
+                    lastError = error;
                     if (attempt < maxRetries - 1) {
                         await new Promise((resolve) => setTimeout(resolve, delay));
                     }
                 }
             }
 
-            if (error) {
-                onFailure?.(error);
-                throw error;
+            if (lastError) {
+                onFailure?.(lastError);
+                throw lastError;
             }
         },
-        [retry, maxRetries, delay, onSuccess, onFailureEachTry],
+        [retry, maxRetries, delay, onSuccess, onFailureEachTry, onFailure],
     );
 
     return { execute };
