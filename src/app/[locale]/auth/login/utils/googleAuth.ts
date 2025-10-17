@@ -6,8 +6,7 @@ export const createGoogleAuthUrl = (redirectTo?: string | null): string => {
     ? `${googleRedirectUri}&redirect_path=${encodeURIComponent(redirectTo)}`
     : googleRedirectUri;
 
-  const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&include_granted_scopes=true&response_type=code
-&client_id=${googleClientId}&redirect_uri=${redirectUri}`;
+  const googleOAuthURL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20email%20profile&access_type=offline&include_granted_scopes=true&response_type=code&client_id=${googleClientId}&redirect_uri=${redirectUri}`;
 
   return googleOAuthURL;
 };
