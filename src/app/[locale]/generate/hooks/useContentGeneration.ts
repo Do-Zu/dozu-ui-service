@@ -187,13 +187,13 @@ export const useContentGeneration = ({
         }
     };
 
-    const handleInsertResourceContent = async (topicId: string | number | undefined) => {
+    const handleInsertResourceContent = async (topicId: string | number | undefined): Promise<boolean> => {
         try {
             if (isNilOrEmpty(topicId as string)) {
                 toast({
-                    description: 'Not found topic',
+                    description: tCommon('labels.noContent'),
                 });
-                return;
+                return false;
             }
 
             let contentTypeResource: ResourceContentType | null = null;
@@ -217,7 +217,7 @@ export const useContentGeneration = ({
             }
 
             if (!contentTypeResource) {
-                return;
+                return false;
             }
 
             switch (contentTypeResource) {
@@ -267,12 +267,15 @@ export const useContentGeneration = ({
                     break;
                 }
                 default:
-                    break;
+                    return false;
             }
+
+            return true;
         } catch (error) {
             toast({
                 description: tCommon('messages.createError'),
             });
+            return false;
         }
     };
 
@@ -282,8 +285,7 @@ export const useContentGeneration = ({
 
             if (!contentData) {
                 toast({
-                    description: 'No content to save',
-                    variant: 'destructive',
+                    description: tCommon('labels.noContent'),
                 });
                 return;
             }
@@ -314,7 +316,7 @@ export const useContentGeneration = ({
 
             if (!result.success) {
                 toast({
-                    description: result.error || 'Failed to create content',
+                    description: result?.error || tCommon('messages.createError'),
                     variant: 'destructive',
                 });
                 return;
@@ -322,14 +324,16 @@ export const useContentGeneration = ({
 
             const topicId = result?.topicId;
 
-            //Save content resource for reusable
-            await handleInsertResourceContent(topicId);
+            // Save original resource for reuse
+            const attached = await handleInsertResourceContent(topicId);
 
-            toast({
-                description: 'Your content has been attached to the new topic.',
-            });
+            if (attached) {
+                toast({
+                    description: 'Your content has been attached to the new topic.',
+                });
+            }
 
-            //Reset state and redirect based on mode learning
+            // Reset state and redirect based on mode learning
             if (classProps.mode === MODE_ACCESS_PAGE_ROLE.personal) {
                 dispatch(resetImportDialog());
                 handleRedirectAfterGenerateSuccess(result?.topicId);
@@ -352,7 +356,10 @@ export const useContentGeneration = ({
                 openCreateFeedModal?.();
             }
         } catch (error) {
-            //TODO: Handle error for steps
+            toast({
+                description: tCommon('messages.createError'),
+                variant: 'destructive',
+            });
         }
     };
 
