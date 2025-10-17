@@ -55,6 +55,7 @@ class TopicService {
             if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
                 throw new Error('The size of your image is too large, please try with another image.');
             }
+            throw e;
         }
     }
 
@@ -76,6 +77,7 @@ class TopicService {
             if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
                 throw new Error('The size of your image is too large, please try with another image.');
             }
+            throw e;
         }
     }
 
