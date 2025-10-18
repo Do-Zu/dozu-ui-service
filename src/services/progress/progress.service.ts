@@ -41,7 +41,7 @@ export interface IProgressUpdate {
 
 export interface IProgressQuery {
   userId?: string;
-  contentId?: string;
+  topicId?: string;
   contentType?: ContentType;
   status?: ProgressStatus;
   fromDate?: Date;
@@ -71,7 +71,7 @@ class ProgressService {
     const queryParams = new URLSearchParams();
     
     if (query.userId) queryParams.append('userId', query.userId);
-    if (query.contentId) queryParams.append('contentId', query.contentId);
+    if (query.topicId) queryParams.append('topicId', query.topicId);
     if (query.contentType) queryParams.append('contentType', query.contentType);
     if (query.status) queryParams.append('status', query.status);
     if (query.fromDate) queryParams.append('fromDate', query.fromDate.toISOString());

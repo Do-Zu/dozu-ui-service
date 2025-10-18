@@ -6,7 +6,7 @@ import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 export interface LearningStats {
     totalLessonsCompleted: number;
     totalQuizzesCompleted: number;
-    totalFlashcardsReviewed: number;
+    totalFlashcardsCompleted: number;
     averageScore: number;
     totalStudyTime: number; // in minutes
     lastActivityDate: Date | null;
@@ -74,7 +74,7 @@ class LearningStatsService {
     private calculateLearningStats(progressData: any[]): LearningStats {
         let totalLessonsCompleted = 0;
         let totalQuizzesCompleted = 0;
-        let totalFlashcardsReviewed = 0;
+        let totalFlashcardsCompleted = 0;
         let totalScore = 0;
         let scoreCount = 0;
         let totalStudyTime = 0;
@@ -88,7 +88,7 @@ class LearningStatsService {
                         totalQuizzesCompleted++;
                         break;
                     case ContentType.FLASHCARD:
-                        totalFlashcardsReviewed++;
+                        totalFlashcardsCompleted++;
                         break;
                     // Add other content types as needed
                 }
@@ -145,7 +145,7 @@ class LearningStatsService {
             averageScore,
             totalLessonsCompleted,
             totalQuizzesCompleted,
-            totalFlashcardsReviewed,
+            totalFlashcardsCompleted,
             progressDetails: progressData.map(p => ({
                 id: p.progressId,
                 contentType: p.contentType,
@@ -159,7 +159,7 @@ class LearningStatsService {
         return {
             totalLessonsCompleted,
             totalQuizzesCompleted,
-            totalFlashcardsReviewed,
+            totalFlashcardsCompleted,
             averageScore: Math.round(averageScore * 10) / 10, // Round to 1 decimal place
             totalStudyTime,
             lastActivityDate
@@ -173,7 +173,7 @@ class LearningStatsService {
         try {
             const topicProgress = await progressService.getAllProgress({
                 userId: userId,
-                contentId: topicId
+                topicId: topicId
             });
 
             const stats = this.calculateLearningStats(topicProgress);

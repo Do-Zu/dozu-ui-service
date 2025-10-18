@@ -75,7 +75,7 @@ export default function StudentProfileModal({
         streakFreezeActive: streakData.streakFreezeActive,
         totalLessonsCompleted: 0, // Will be filled by learning stats
         totalQuizzesCompleted: 0, // Will be filled by learning stats
-        totalFlashcardsReviewed: 0, // Will be filled by learning stats
+        totalFlashcardsCompleted: 0, // Will be filled by learning stats
         averageScore: 0, // Will be filled by learning stats
         achievements: [] // Empty for now
     } : null;
@@ -126,7 +126,7 @@ export default function StudentProfileModal({
         // Use learning stats for real data, fallback to zero when data is unavailable
         totalLessonsCompleted: learningStats?.totalLessonsCompleted || 0,
         totalQuizzesCompleted: learningStats?.totalQuizzesCompleted || 0,
-        totalFlashcardsReviewed: learningStats?.totalFlashcardsReviewed || 0,
+        totalFlashcardsCompleted: learningStats?.totalFlashcardsCompleted || 0,
         averageScore: learningStats?.averageScore || 0,
     } : null;
 
@@ -365,7 +365,7 @@ export default function StudentProfileModal({
                                                 <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                                             </div>
                                             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                                {learningStats?.totalFlashcardsReviewed || 0}
+                                                {learningStats?.totalFlashcardsCompleted || 0}
                                             </div>
                                             <div className="text-xs text-gray-600 dark:text-gray-400">Flashcards</div>
                                         </div>

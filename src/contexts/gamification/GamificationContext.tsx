@@ -214,7 +214,7 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
                     weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
                     totalLessonsCompleted: 0,
                     totalQuizzesCompleted: 0,
-                    totalFlashcardsReviewed: 0,
+                    totalFlashcardsCompleted: 0,
                     averageScore: 0,
                     streakFreezeActive: classStreakData.streakFreezeActive,
                     streakFreezeCount: classStreakData.streakFreezeCount,
