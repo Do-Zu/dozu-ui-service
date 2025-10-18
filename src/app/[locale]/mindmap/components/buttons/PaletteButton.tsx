@@ -11,8 +11,8 @@ interface PaletteButtonParams {
 }
 
 const PaletteButton = ({ nodeId }: PaletteButtonParams) => {
-    const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
-    const { nodes, edges } = useMindMapContext();
+    // const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
+    const { nodes, edges ,setNodes,setEdges} = useMindMapContext();
 
     const handleSetColor = (color: string) => {
         const newNodes = nodes.map((node) =>
