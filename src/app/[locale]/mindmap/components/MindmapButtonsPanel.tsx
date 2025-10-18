@@ -14,6 +14,7 @@ import { Expand, Save } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 // import ImportMindmapButton from './buttons/ImportMindmapButton';
 import ImportButton from './buttons/ImportButton';
+import RoadmapButton from './buttons/RoadmapButton';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
@@ -55,7 +56,9 @@ const MindmapButtonsPanel = ({}) => {
                         <Save />
                         {isPanelExpanded ? <> {isSaving ? 'Saving...' : 'Save mindmap'}</> : ''}
                     </Button>
+
                     <EditMindmapButton isPanelExpanded={isPanelExpanded} />
+                    <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} />
                     <DownloadButton isPanelExpanded={isPanelExpanded} />
                     {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
                     <ImportButton isPanelExpanded={isPanelExpanded} />
