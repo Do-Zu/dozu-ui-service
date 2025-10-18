@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRightFromLine } from 'lucide-react';
+import { ArrowDownFromLine, ArrowRightFromLine } from 'lucide-react';
 import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
@@ -13,7 +13,7 @@ const elkOptions = {
     'elk.spacing.nodeNode': '80',
 };
 
-const VerticalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }:LayoutButtonProps) => {
+const VerticalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
             const opts = { 'elk.direction': direction, ...elkOptions };
@@ -36,8 +36,8 @@ const VerticalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }:Layo
                 onLayout({ direction: 'DOWN' });
             }}
         >
-            <ArrowRightFromLine />
-            Set vertical layout
+            <ArrowDownFromLine />
+            {isPanelExpanded ? 'Set vertical layout' : ''}
         </Button>
     );
 };

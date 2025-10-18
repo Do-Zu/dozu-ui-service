@@ -12,12 +12,16 @@ import {
 import { Button } from '@/components/ui/button';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
-import {  Trash } from 'lucide-react';
+import { Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 
-const DeleteMindmapButton = () => {
+interface DeleteMindmapButtonProps {
+    isPanelExpanded: boolean;
+}
+
+const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
     const params = useParams();
     const { topicId } = params as { topicId: string };
     const router = useRouter();
@@ -41,7 +45,7 @@ const DeleteMindmapButton = () => {
             <AlertDialogTrigger asChild>
                 <Button variant="destructive">
                     <Trash />
-                    {t('deleteMindmapButtonText')}
+                    {isPanelExpanded ? <>{t('deleteMindmapButtonText')}</> : ''}
                 </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>

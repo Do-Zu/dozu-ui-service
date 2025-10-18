@@ -90,20 +90,24 @@ export function FlashcardLearning({
 
                                 // Find interval by current rating (can be undefined)
                                 const found = intervals.find((i) => i.rating === option.rating);
-                                const interval = found?.data.nextReviewInterval;
 
                                 // Display label: if data is missing, use a dash
-                                const intervalFormatted = interval ? flashcardHelper.formatInterval(interval) : '—';
+                                const intervalFormatted = found
+                                    ? flashcardHelper.formatInterval({
+                                          nextInterval: found.interval,
+                                          baseIntervalWithDeviation: found.baseIntervalWithDeviation,
+                                      })
+                                    : '—';
 
                                 return (
                                     <TooltipProvider key={index}>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <div
-                                                    className="col-span-3 h-full flex flex-col gap-0 justify-center items-center rounded-lg
-                   bg-white dark:bg-gray-700 cursor-pointer"
+                                                    className="col-span-3 h-full flex flex-col gap-0 justify-center items-center rounded-lg p-2
+                     bg-white dark:bg-gray-700 cursor-pointer"
                                                     onClick={() => handleLearningOptionClick(option.rating)}
-                                                    aria-disabled={!interval}
+                                                    aria-disabled={!found?.interval}
                                                 >
                                                     {option.icon}
                                                     <Label className="text-lg">{option.label}</Label>

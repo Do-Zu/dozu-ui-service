@@ -13,7 +13,7 @@ const elkOptions = {
     // 'elk.spacing.nodeNode': '80',
 };
 
-const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }: LayoutButtonProps) => {
+const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
             const opts = { 'elk.direction': direction, ...elkOptions };
@@ -37,7 +37,7 @@ const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView }: L
             }}
         >
             <ArrowRightFromLine />
-            Set horizontal layout
+            {isPanelExpanded ? 'Set horizontal layout' : ''}
         </Button>
     );
 };

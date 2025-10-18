@@ -48,6 +48,10 @@
         "closeDialog": "Close",
         "stepLabel": "Step {index}",
         "hideMore": "Hide more",
-        "showMore": "Show {count} more"
+        "showMore": "Show {count} more",
+        "messages": {
+            "emptyOriginContent": "Origin content empty",
+            "flashcard": "flashcard"
+        }
     }
 }

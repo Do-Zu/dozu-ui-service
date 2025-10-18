@@ -18,7 +18,18 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import { BookOpen, ClipboardCheck, Edit, Filter, GitFork, GraduationCap, Layers, Play, Search, BarChart3 } from 'lucide-react';
+import {
+    BookOpen,
+    ClipboardCheck,
+    Edit,
+    Filter,
+    GitFork,
+    GraduationCap,
+    Layers,
+    Play,
+    Search,
+    BarChart3,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StudentProfileModal from '../modals/StudentProfileModal';
 import { ROUTES } from '@/utils/constants/routes';
@@ -101,7 +112,7 @@ export default function StudentTopicLibrary() {
                 if (a.createdAt === b.createdAt) return 0;
                 return a.createdAt! < b.createdAt! ? 1 : -1;
             } else if (sortBy === 'flashcards-due-today') {
-                return (b.flashcardCounts?.dueToday || 0) - (a.flashcardCounts?.dueToday || 0);
+                return (b.flashcardCounts?.review || 0) - (a.flashcardCounts?.review || 0);
             } else {
                 return 0;
             }
@@ -237,7 +248,7 @@ export default function StudentTopicLibrary() {
                 <div></div>
                 <div>
                     <ShowIf when={topic.hasProgress != undefined && topic.hasProgress}>
-                        <span className="font-bold">{topic.flashcardCounts?.dueToday}</span> flashcards due today
+                        <span className="font-bold">{topic.flashcardCounts?.review}</span> flashcards due today
                     </ShowIf>
 
                     <ShowIf when={topic.hasProgress != undefined && !topic.hasProgress}>

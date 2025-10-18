@@ -1,0 +1,12 @@
+{
+  "ImportButton": {
+    "DataErrorText": "Invalid data",
+    "ImportSuccessfulText": "Import successful",
+    "FailedToImportErrorText": "Failed to import",
+    "ImportButtonLabel": "Import",
+    "ImportDialogTitle": "Import mindmap",
+    "ImportDialogDesc": "Import mindmap from csv",
+    "CancelButtonLabel": "Cancel",
+    "ConfirmImportButtonLabel": "Import"
+  }
+}
