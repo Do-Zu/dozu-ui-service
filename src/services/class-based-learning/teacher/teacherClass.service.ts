@@ -11,6 +11,7 @@ import {
 import { IUserProfile } from '@/types/profile';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { HttpStatusCode, isAxiosError } from 'axios';
+import fileHelper from '@/utils/file.helper';
 
 export type ICreateClassPayload = ICreateClassBody;
 export type IUpdateClassPayload = IUpdateClassBody & { classId: number };
@@ -39,6 +40,7 @@ class TeacherClassService {
         formData.append('name', name);
         formData.append('description', description);
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
         try {
@@ -61,6 +63,7 @@ class TeacherClassService {
         formData.append('name', name);
         formData.append('description', description);
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
         try {
