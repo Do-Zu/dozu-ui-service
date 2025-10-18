@@ -8,11 +8,6 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { cn } from '@/lib/utils';
 
-// Import icons from Heroicons. If you don’t already have this dependency
-// installed, run: `npm install @heroicons/react` in your project.
-
-// Define an optional action object. It can either trigger a callback or link
-// the user to another route.
 export interface DataStatusAction {
     /**
      * The label shown on the action button. Keep it short and clear.
@@ -62,21 +57,17 @@ export interface DataStatusProps {
      */
     icon?: React.ReactNode;
     /**
-     * Custom class names to apply to the outer container. Use this to
-     * override styles or integrate with your CSS framework of choice.
+     * Custom styles  to apply to the outer container.
      */
     className?: string;
 }
-
 /**
- * DataStatus is a small, reusable component for displaying error or empty
+ * DataStatus is a reusable component for displaying error or empty
  * results. It adheres to established guidelines for error and empty
- * state design: it uses clear language, provides context, and offers
  * constructive next steps to the user. The component
- * accepts optional props to customise its content and integrates
- * seamlessly with Tailwind CSS out of the box. If your project does
- * not use Tailwind, you can override the styles via the `className`
- * prop.
+ * accepts optional props to customize its content and integrates
+ * @param object
+ * @returns ReactNode
  */
 export default function DataStatus({ variant, title, description, action, icon, className = '' }: DataStatusProps) {
     // Default icons based on variant
@@ -86,7 +77,7 @@ export default function DataStatus({ variant, title, description, action, icon, 
     };
 
     // Button variant mapping using shadcn/ui
-    const buttonVariant = variant === 'error' ? 'destructive' : 'default' as const;
+    const buttonVariant = variant === 'error' ? 'destructive' : ('default' as const);
 
     const renderAction = () => {
         if (!action) return null;
@@ -132,7 +123,12 @@ export default function DataStatus({ variant, title, description, action, icon, 
                     </motion.div>
                 </motion.div>
 
-                <CardTitle className={cn('mt-3 text-balance text-xl font-semibold', variant === 'error' ? 'text-destructive' : '')}>
+                <CardTitle
+                    className={cn(
+                        'mt-3 text-balance text-xl font-semibold',
+                        variant === 'error' ? 'text-destructive' : '',
+                    )}
+                >
                     {title || (variant === 'error' ? 'Something went wrong' : 'No data found')}
                 </CardTitle>
             </CardHeader>
