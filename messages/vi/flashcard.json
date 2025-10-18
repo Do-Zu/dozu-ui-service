@@ -3,7 +3,10 @@
         "edit": {
             "import": "Tải lên",
             "save": "Lưu",
-            "addCards": "Thêm thẻ"
+            "addCards": "Thêm thẻ",
+            "messages": {
+                "noFlashcardChanges": "Không phát hiện thay đổi nào. Vui lòng chỉnh sửa một số thẻ ghi nhớ."
+            }
         },
         "study": {
             "card": "Thẻ",

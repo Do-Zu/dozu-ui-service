@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { useAppSelector } from '@/stores/hooks';
 import AddChildNodeButton from './buttons/AddChildNodeButton';
 import DeleteNodeButton from './buttons/DeleteNodeButton';
+import PaletteButton from './buttons/PaletteButton';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
@@ -63,7 +64,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         });
         setNodes((nds) => nds.filter((node) => node.id !== id));
         setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
-        console.log(edges);
     };
 
     const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,6 +147,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 ${isActive ? 'shadow-lg' : ''}
             `}
             style={{
+                borderColor: data.color || 'hsl(var(--border))', // use custom color or fallback
                 background: data.isRoot
                     ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
                     : undefined,
@@ -292,6 +293,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             <NodeToolbar isVisible={isEditingMindmap} position={Position.Top}>
                 <AddChildNodeButton nodeId={data.nodeId} />
                 <DeleteNodeButton nodeId={data.nodeId} />
+                <PaletteButton nodeId={data.nodeId} />
             </NodeToolbar>
         </motion.div>
     );

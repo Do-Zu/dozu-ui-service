@@ -136,7 +136,9 @@ const QuestionEditor = ({
         try {
             await postRequest(`/questions/batch?topicId=${topic?.topicId}`, dataSubmitted);
             toast({ title: 'Questions saved successfully' });
-            router.push(ROUTES.HOME);
+            if (topic?.topicId !== undefined) {
+                router.push(ROUTES.QUIZ_DASBOARD(topic.topicId));
+            }
         } catch (err) {
             console.error(err);
             toast({ title: 'Error saving questions', variant: 'destructive' });

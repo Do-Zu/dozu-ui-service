@@ -1,5 +1,3 @@
-import { object } from 'zod';
-
 export interface ApiResponsePubGenContent {
     status: string;
     message: string;
@@ -21,9 +19,9 @@ export interface IGenerateFlashcardItem {
 export type IFlashcardsFromSSE = IGenerateFlashcardItem[];
 
 export interface IGenerateQuestionItemRaw {
-  q: string;
-  o: string[];
-  idx: number;
+    q: string;
+    o: string[];
+    idx: number;
 }
 
 export type IQuestionsFromSSERaw = IGenerateQuestionItemRaw[];

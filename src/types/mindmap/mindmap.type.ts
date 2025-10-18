@@ -6,6 +6,7 @@ export type CustomEdge = {
     type?: string;
     source: string;
     target: string;
+    color?: string;
 };
 
 export type CustomNodeData = {
@@ -18,6 +19,7 @@ export type CustomNodeData = {
     pageStartIndex?: number;
     pageEndIndex?: number;
     statistics?: NodeStat;
+    color?: string;
 };
 
 export type AppNode = Node<CustomNodeData>;
@@ -40,4 +42,3 @@ export type NodeStat = {
     total: number;
     mature: number;
 };
-

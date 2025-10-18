@@ -136,8 +136,7 @@ export default function Page() {
         IFlashcardReviewByAnkiPayload,
         IAnkiCardReviewed | null
     >(
-        ({ topicId, flashcardId, rating, ankiResult }) =>
-            flashcardService.reviewFlashcardByAnki({ topicId, flashcardId, rating, ankiResult }),
+        ({ topicId, flashcardId, rating }) => flashcardService.reviewFlashcardByAnki({ topicId, flashcardId, rating }),
         'PATCH',
         {
             onError: toastHelper.showErrorMessage,
@@ -282,16 +281,15 @@ export default function Page() {
     const handleReviewFlashcardClick = useCallback(
         async (rating: IAnkiRating) => {
             if (!flashcards || !currentFlashcard) return;
+            if (!shouldShowTrackingOptions) return;
             const { flashcardId } = currentFlashcard;
-            const ankiResult = currentFlashcard.nextReviewDataByRatings.find((e) => e.rating === rating)?.data;
             await reviewFlashcard({
                 topicId,
                 flashcardId,
                 rating,
-                ankiResult,
             });
         },
-        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards],
+        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards, shouldShowTrackingOptions],
     );
 
     function handleBackClick() {

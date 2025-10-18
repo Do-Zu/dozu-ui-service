@@ -27,7 +27,6 @@ export interface IFlashcardReviewByAnkiPayload {
     topicId: string | number;
     flashcardId: string | number;
     rating: IAnkiRating;
-    ankiResult?: IAnkiResult;
 }
 
 class FlashcardService {
@@ -63,9 +62,7 @@ class FlashcardService {
     }
 
     public async getDueAnkiCardsForTopic(topicId: string | number) {
-        const response = await getRequest<unknown, IDueAnkiCard[]>(
-            flashcardRoutes(topicId).GET_DUE_FLASHCARDS,
-        );
+        const response = await getRequest<unknown, IDueAnkiCard[]>(flashcardRoutes(topicId).GET_DUE_FLASHCARDS);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -121,14 +118,15 @@ class FlashcardService {
         }
 
         // Track flashcard review activity for streak
-            const score = this.calculateFlashcardScore(qualityResponse);
-            await activityTrackingService.trackFlashcardReview(
-                Number(flashcardId),
-                score,
-                0 // Duration - you might want to track this in the future
-            );
-         
-        return response.data;    }
+        const score = this.calculateFlashcardScore(qualityResponse);
+        await activityTrackingService.trackFlashcardReview(
+            Number(flashcardId),
+            score,
+            0, // Duration - you might want to track this in the future
+        );
+
+        return response.data;
+    }
 
     public async searchImages(search: string): Promise<IUnspashImage[]> {
         const response = await postRequest<{ search: string }, IUnspashImage[]>('/flashcards/search-images', {
@@ -140,10 +138,10 @@ class FlashcardService {
         return response.data;
     }
 
-    public async reviewFlashcardByAnki({ topicId, flashcardId, rating, ankiResult }: IFlashcardReviewByAnkiPayload) {
-        const response = await patchRequest<{ rating: IAnkiRating, ankiResult?: IAnkiResult }, IAnkiCardReviewed | null>(
+    public async reviewFlashcardByAnki({ topicId, flashcardId, rating }: IFlashcardReviewByAnkiPayload) {
+        const response = await patchRequest<{ rating: IAnkiRating }, IAnkiCardReviewed | null>(
             flashcardRoutes(topicId).REVIEW_FLASHCARD_WITH_QUALITY({ flashcardId }),
-            { rating, ankiResult },
+            { rating },
         );
         if (response.status !== 'success') {
             throw new Error(response.message);
@@ -155,7 +153,7 @@ class FlashcardService {
             await activityTrackingService.trackFlashcardReview(
                 Number(flashcardId),
                 score,
-                0 // Duration - you might want to track this in the future
+                0, // Duration - you might want to track this in the future
             );
         } catch (error) {
             console.error('Error tracking flashcard review activity:', error);
@@ -171,17 +169,17 @@ class FlashcardService {
         // Quality response mapping to score:
         // 0: Complete blackout -> 0
         // 1: Incorrect; easy interval -> 20
-        // 2: Incorrect; normal interval -> 40 
+        // 2: Incorrect; normal interval -> 40
         // 3: Correct; difficult -> 60
         // 4: Correct; normal -> 80
         // 5: Correct; easy -> 100
         const scoreMap = {
-            0: 0,   // Complete blackout
-            1: 20,  // Incorrect; easy interval
-            2: 40,  // Incorrect; normal interval  
-            3: 60,  // Correct; difficult
-            4: 80,  // Correct; normal
-            5: 100  // Correct; easy
+            0: 0, // Complete blackout
+            1: 20, // Incorrect; easy interval
+            2: 40, // Incorrect; normal interval
+            3: 60, // Correct; difficult
+            4: 80, // Correct; normal
+            5: 100, // Correct; easy
         };
 
         return scoreMap[qualityResponse as keyof typeof scoreMap] || 0;
@@ -197,10 +195,10 @@ class FlashcardService {
         // 3: Good -> 80
         // 4: Easy -> 100
         const scoreMap = {
-            1: 0,   // Again
-            2: 40,  // Hard 
-            3: 80,  // Good
-            4: 100  // Easy
+            1: 0, // Again
+            2: 40, // Hard
+            3: 80, // Good
+            4: 100, // Easy
         };
 
         return scoreMap[rating as keyof typeof scoreMap] || 0;

@@ -1,4 +1,10 @@
-import { IAnkiRating, IAnkiStatus, INextReviewInterval, INextReviewIntervalForRating } from '@/types/anki';
+import {
+    IAnkiRating,
+    IAnkiStatus,
+    IBaseIntervalWithDeviation,
+    INextReviewInterval,
+    INextReviewIntervalForRating,
+} from '@/types/anki';
 import { IFlashcardStatus, IItemSpacedRepetition, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { TimeUnit } from '@/utils';
 
@@ -75,7 +81,8 @@ export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
 
 export interface INextReviewDataByRating {
     rating: IAnkiRating;
-    data: IAnkiResult;
+    interval: INextReviewInterval;
+    baseIntervalWithDeviation: IBaseIntervalWithDeviation | null;
 }
 
 export interface IAnkiCard {
@@ -92,4 +99,7 @@ export interface IAnkiCard {
 export interface IAnkiResult extends IAnkiCard {
     nextReview: Date;
     nextReviewInterval: INextReviewInterval;
+    baseIntervalWithDeviation: IBaseIntervalWithDeviation | null;
 }
+
+export type IAnkiCardStatusCounts = Record<Exclude<IAnkiStatus, IAnkiStatus.RELEARNING>, number>;
