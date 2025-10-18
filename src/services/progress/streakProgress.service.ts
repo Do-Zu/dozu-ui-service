@@ -50,7 +50,6 @@ class StreakProgressService {
             };
             
         } catch (error) {
-            console.error('Error tracking learning activity:', error);
             throw new Error('Failed to track learning activity');
         }
     }
@@ -60,16 +59,14 @@ class StreakProgressService {
      */
     private async updateProgressRecord(data: StreakProgressData): Promise<boolean> {
         try {
-            console.log('StreakProgress: Updating progress record for:', data);
             
             // Check if progress record exists
             const existingProgress = await progressService.getAllProgress({
                 userId: data.userId,
-                contentId: data.topicId || data.contentId,
+                topicId: data.topicId || data.contentId,
                 contentType: data.contentType
             });
 
-            console.log(`StreakProgress: Found ${existingProgress.length} existing progress records`);
 
             if (existingProgress.length > 0) {
                 // Update existing progress
@@ -85,7 +82,6 @@ class StreakProgressService {
                     }
                 };
                 
-                console.log('StreakProgress: Updating existing progress:', progressId, updateData);
                 await progressService.updateProgress(progressId, updateData);
             } else {
                 // Create new progress record
@@ -102,15 +98,11 @@ class StreakProgressService {
                     }
                 } as IProgressCreate;
                 
-                console.log('StreakProgress: Creating new progress record:', createData);
-                console.log('StreakProgress: Data being sent to progress API:', JSON.stringify(createData, null, 2));
                 await progressService.createProgress(createData);
             }
             
-            console.log('StreakProgress: Progress record updated successfully');
             return true;
         } catch (error) {
-            console.error('Error updating progress record:', error);
             return false;
         }
     }
@@ -139,7 +131,6 @@ class StreakProgressService {
             await gamificationService.updateStreak();
             return true;
         } catch (error) {
-            console.error('Error updating streak:', error);
             return false;
         }
     }
@@ -169,7 +160,6 @@ class StreakProgressService {
             
             return streakData;
         } catch (error) {
-            console.error('Error getting learning streak:', error);
             return {
                 currentStreak: 0,
                 longestStreak: 0,
@@ -270,7 +260,6 @@ class StreakProgressService {
         accuracy: number,
         timeSpent: number
     ): Promise<{ progressUpdated: boolean; streakUpdated: boolean; message: string }> {
-        console.log(`StreakProgress: Tracking flashcard session for user ${userId}, topic ${topicId}, studied ${flashcardsStudied}, accuracy ${accuracy}`);
         
         const status = flashcardsStudied > 0 ? ProgressStatus.IN_PROGRESS : ProgressStatus.NOT_STARTED;
         
@@ -288,7 +277,6 @@ class StreakProgressService {
             }
         });
         
-        console.log('StreakProgress: Tracking result:', result);
         return result;
     }
 

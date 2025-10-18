@@ -28,7 +28,6 @@ class LearningStatsService {
             
             return stats;
         } catch (error) {
-            console.error('Error getting user learning stats:', error);
             throw new Error(`Failed to get learning statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
@@ -48,7 +47,6 @@ class LearningStatsService {
             
             // Handle case where class has no topics
             if (!classTopics || classTopics.length === 0) {
-                console.warn(`No topics found for class ${classId}`);
                 return this.calculateLearningStats([]);
             }
 
@@ -63,7 +61,6 @@ class LearningStatsService {
             
             return stats;
         } catch (error) {
-            console.error('Error getting class learning stats:', error);
             throw new Error(`Failed to get class learning statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
@@ -137,25 +134,6 @@ class LearningStatsService {
 
         const averageScore = scoreCount > 0 ? totalScore / scoreCount : 0;
 
-        // Debug logging
-        console.log('Learning Stats Calculation:', {
-            totalProgressItems: progressData.length,
-            scoreCount,
-            totalScore,
-            averageScore,
-            totalLessonsCompleted,
-            totalQuizzesCompleted,
-            totalFlashcardsCompleted,
-            progressDetails: progressData.map(p => ({
-                id: p.progressId,
-                contentType: p.contentType,
-                status: p.status,
-                score: p.score,
-                completionPercentage: p.completionPercentage,
-                timeSpent: p.metadata?.timeSpent
-            }))
-        });
-
         return {
             totalLessonsCompleted,
             totalQuizzesCompleted,
@@ -180,7 +158,6 @@ class LearningStatsService {
             
             return stats;
         } catch (error) {
-            console.error('Error getting topic learning stats:', error);
             throw new Error(`Failed to get topic learning statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
@@ -228,7 +205,6 @@ class LearningStatsService {
 
             return { week, totalThisWeek };
         } catch (error) {
-            console.error('Error getting weekly learning activity:', error);
             return { week: [], totalThisWeek: 0 };
         }
     }

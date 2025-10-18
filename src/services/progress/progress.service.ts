@@ -90,9 +90,7 @@ class ProgressService {
   }
 
   async createProgress(data: IProgressCreate): Promise<IProgress> {
-    console.log('ProgressService: Creating progress with data:', JSON.stringify(data, null, 2));
     const response = await postRequest<IProgressCreate, IProgress>('/progress', data);
-    console.log('ProgressService: API response:', response);
     return response.data;
   }
 
