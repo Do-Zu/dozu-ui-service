@@ -147,11 +147,11 @@ const RegisterPage = () => {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="password">{t('registerAsLabel')}</Label>
-                        <Select onValueChange={handleRoleValueChange} value={role}>
+                     <div className="space-y-2">
+                       <Label>{t('registerAsLabel')}</Label>
+                       <Select onValueChange={handleRoleValueChange} value={role}>
                             <SelectTrigger>
-                                <SelectValue />
+                                  <SelectValue placeholder={t('registerAsLabel')} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
