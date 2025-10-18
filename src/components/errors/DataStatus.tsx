@@ -102,7 +102,6 @@ export default function DataStatus({
     // Provide a safe default action and avoid mutating props
     const effectiveAction: DataStatusAction = action ?? { label: t('actions.back'), onClick: () => router.back() };
 
-    // Button variant mapping using shadcn/ui
     const buttonVariant = variant === 'error' ? 'destructive' : ('default' as const);
 
     const renderAction = (act: DataStatusAction) => {
@@ -133,10 +132,10 @@ export default function DataStatus({
 
     return (
         <div className={containerClass} style={containerStyle}>
-            <Card
+            <div
                 className={cn(
-                    'w-full  max-w-md  mx-auto ',
-                    variant === 'error' ? 'border-destructive/40 bg-destructive/5' : 'border-muted/60 bg-muted/20',
+                    'w-full max-w-md  mx-auto  ',
+                    variant === 'error' ? 'border-destructive/40 bg-destructive/5' : '',
                     className,
                 )}
             >
@@ -160,11 +159,9 @@ export default function DataStatus({
                         </motion.div>
                     </motion.div>
 
-                    <CardTitle
-                        className={cn('mt-3 text-lg text-center', variant === 'error' ? 'text-destructive' : '')}
-                    >
+                    <p className="text-gray-800 dark:text-gray-400 max-w-md">
                         {title || (variant === 'error' ? 'Something went wrong' : 'No data found')}
-                    </CardTitle>
+                    </p>
                 </CardHeader>
 
                 {description ? (
@@ -186,7 +183,7 @@ export default function DataStatus({
                         {renderAction(effectiveAction)}
                     </motion.div>
                 </CardContent>
-            </Card>
+            </div>
         </div>
     );
 }
