@@ -6,19 +6,13 @@ import { useTranslations } from 'next-intl';
 import { Signpost } from 'lucide-react';
 import {
     Sheet,
-    SheetClose,
     SheetContent,
-    SheetDescription,
-    SheetFooter,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Sign } from 'crypto';
+
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
-import OutlineTree from './OutlineTree';
 import RoadmapList from '../RoadmapList';
 
 interface RoadmapButtonProps {
