@@ -8,6 +8,7 @@ import {
     IUpdateTopicResponse,
     ITopic,
 } from '@/app/[locale]/topics/types/topic.type';
+import fileHelper from '@/utils/file.helper';
 import { HttpStatusCode, isAxiosError } from 'axios';
 
 export type ICreateTopicPayload = ICreateTopicBody;
@@ -43,6 +44,7 @@ class TopicService {
             formData.append('inputSetId', inputSetId.toString());
         }
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
         try {
@@ -65,6 +67,7 @@ class TopicService {
         formData.append('name', name);
         formData.append('description', description);
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
         try {

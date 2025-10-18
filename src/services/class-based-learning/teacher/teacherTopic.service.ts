@@ -6,6 +6,7 @@ import {
     IDeleteTopicInClassPayload,
     IUpdateTopicInClassPayload,
 } from '@/services/topic/topic.service';
+import fileHelper from '@/utils/file.helper';
 import { HttpStatusCode, isAxiosError } from 'axios';
 
 class TeacherTopicService {
@@ -26,6 +27,7 @@ class TeacherTopicService {
             formData.append('inputSetId', inputSetId.toString());
         }
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
         try {
@@ -51,6 +53,7 @@ class TeacherTopicService {
         formData.append('name', name);
         formData.append('description', description);
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
         try {

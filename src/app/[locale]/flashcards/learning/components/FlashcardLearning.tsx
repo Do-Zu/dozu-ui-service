@@ -173,10 +173,10 @@ export function FlashcardLearning({
                             <div className="w-full flex justify-center">
                                 <Button
                                     onClick={handleManualFlip}
-                                    className="flex flex-row items-center bg-white dark:bg-gray-700 text-black dark:text-white"
+                                    className="flex flex-row items-center dark:bg-gray-700"
                                 >
-                                    <Eye className="text-foreground w-4 h-4 mr-2" />
-                                    <div className="text-foreground">{tFlashcard('showAnswer')}</div>
+                                    <Eye className="dark:text-foreground w-4 h-4 mr-2" />
+                                    <div className="dark:text-foreground">{tFlashcard('showAnswer')}</div>
                                 </Button>
                             </div>
                         </div>
