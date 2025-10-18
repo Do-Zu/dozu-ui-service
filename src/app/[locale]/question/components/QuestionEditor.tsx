@@ -49,7 +49,7 @@ const QuestionEditor = ({
     topic,
 }: Props) => {
     const router = useRouter();
-    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus } = useGenerateFromExisting();
+    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
     const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({
         sseData,
         sseStatus,
@@ -270,7 +270,7 @@ const QuestionEditor = ({
                     </h1>
                 </div>
                 <div className="flex gap-4">
-                    <Button onClick={handleGenerateFlashcards} disabled={!hasAnyValidQuestion(questions)}>
+                    <Button onClick={handleGenerateFlashcards} disabled={!hasAnyValidQuestion(questions) || loading}>
                         Generate Flashcards
                     </Button>
                     <Button>
@@ -304,6 +304,15 @@ const QuestionEditor = ({
                     <Button onClick={handleAddQuestions}>+ Add Questions</Button>
                 </div>
             </div>
+
+            {loading && (
+                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">
+                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p className="text-gray-800 font-medium">Generating flashcards...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
