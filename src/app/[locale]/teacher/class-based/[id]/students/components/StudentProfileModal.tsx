@@ -57,7 +57,7 @@ export default function StudentProfileModal({
     const tCommon = useTranslations('common');
     const tUser = useTranslations('user');
     
-    // Fetch real gamification stats for the student using updated streak calculation
+    // Fetch real gamification stats for the student using authoritative gamification API
     const {
         data: realGamificationStats,
         loading: gamificationLoading,
@@ -66,27 +66,28 @@ export default function StudentProfileModal({
         if (!student) return null;
         
         try {
-            // Get updated streak data using new calculation logic
-            const streakData = await streakProgressService.getUserLearningStreak(student.userId.toString());
+            // Get authoritative data from gamification API
+            const gamificationStats = await gamificationService.getUserGamificationStats(student.userId);
             
-            // Get base gamification stats
-            const baseStats = await gamificationService.getUserGamificationStats(student.userId);
-            if (baseStats) {
-                // Update with calculated streak data
+            if (gamificationStats) {
+                // Ensure we have the most up-to-date data
                 return {
-                    ...baseStats,
-                    currentStreak: streakData.currentStreak,
-                    longestStreak: streakData.longestStreak,
-                    lastStudyDate: streakData.lastStudyDate
+                    ...gamificationStats,
+                    // Calculate level from points if level is 0 or invalid
+                    level: gamificationStats.level > 0
+                        ? gamificationStats.level
+                        : Math.max(1, Math.floor(gamificationStats.totalPoints / 200) + 1),
+                    experiencePoints: gamificationStats.level > 0
+                        ? gamificationStats.experiencePoints ?? (gamificationStats.totalPoints % 200)
+                        : gamificationStats.totalPoints % 200,
+                    nextLevelExperience: gamificationStats.nextLevelExperience ?? 200,
                 };
             }
             
-            // Fallback to original API if no progress data
-            return await gamificationService.getUserGamificationStats(student.userId);
+            return null;
         } catch (error) {
-            console.error('Error calculating updated gamification stats:', error);
-            // Fallback to original API
-            return await gamificationService.getUserGamificationStats(student.userId);
+            console.error('Error fetching gamification stats:', error);
+            return null;
         }
     });
 
@@ -138,7 +139,7 @@ export default function StudentProfileModal({
         // Use gamification data directly, fallback to calculated values from points
         totalLessonsCompleted: gamificationStats.totalLessonsCompleted ?? Math.floor(gamificationStats.totalPoints / 10),
         totalQuizzesCompleted: gamificationStats.totalQuizzesCompleted ?? Math.floor(gamificationStats.totalPoints / 20),
-        totalFlashcardsReviewed: gamificationStats.totalFlashcardsReviewed ?? Math.floor(gamificationStats.totalPoints / 2),
+        totalFlashcardsCompleted: gamificationStats.totalFlashcardsCompleted ?? Math.floor(gamificationStats.totalPoints / 2),
         averageScore: gamificationStats.averageScore ?? Math.min(95, 60 + (gamificationStats.totalPoints / 10)),
     } : null;    
     const progressPercentage = enhancedGamificationStats ? 
@@ -361,7 +362,7 @@ export default function StudentProfileModal({
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-2xl font-bold text-purple-600">
-                                                    {enhancedGamificationStats.totalFlashcardsReviewed}
+                                                    {enhancedGamificationStats.totalFlashcardsCompleted}
                                                 </div>
                                                 <div className="text-sm text-muted-foreground">{tProfile('flashcardsReviewed')}</div>
                                             </div>

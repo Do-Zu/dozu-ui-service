@@ -19,6 +19,15 @@ import { User } from '@/types/auth';
 import CentralCard from '@/components/auth/CentralCard';
 import { Mail, UserPlus } from 'lucide-react';
 import toastHelper from '@/utils/toast.helper';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 const RegisterPage = () => {
     const { setAuthData } = useAuth();
@@ -52,8 +61,13 @@ const RegisterPage = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [role, setRole] = useState('user');
 
-    const body = { username: username, email: email, password: password };
+    const handleRoleValueChange = (role: string) => {
+        setRole(role);
+    };
+
+    const body = { username: username, email: email, password: password, role: role };
     const {
         loading,
         data: apiResponse,
@@ -85,12 +99,11 @@ const RegisterPage = () => {
 
     return (
         <CentralCard>
-                <CardHeader className="text-center space-y-2">
-                    <CardTitle className="text-3xl font-bold">{t('title')}</CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">{t('subtitle')}</CardDescription>
-                </CardHeader>
+            <CardHeader className="text-center space-y-2">
+                <CardTitle className="text-3xl font-bold">{t('title')}</CardTitle>
+                <CardDescription className="text-base text-muted-foreground">{t('subtitle')}</CardDescription>
+            </CardHeader>
             <CardContent className="p-6 space-y-6">
-
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="username">{t('username')}</Label>
@@ -132,6 +145,22 @@ const RegisterPage = () => {
                                 setPassword(e.target.value);
                             }}
                         />
+                    </div>
+
+                     <div className="space-y-2">
+                       <Label>{t('registerAsLabel')}</Label>
+                       <Select onValueChange={handleRoleValueChange} value={role}>
+                            <SelectTrigger>
+                                  <SelectValue placeholder={t('registerAsLabel')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>{t('selectRoleLabel')}</SelectLabel>
+                                    <SelectItem value="user">User</SelectItem>
+                                    <SelectItem value="teacher">Teacher</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <Button

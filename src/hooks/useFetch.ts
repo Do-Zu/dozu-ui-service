@@ -3,6 +3,7 @@ import { FetchOptions, METHOD } from './type';
 import { callApiAsync } from './helper';
 import { z } from 'zod';
 import { AxiosError } from 'axios';
+import { isEmpty } from '@/utils';
 
 /**
  * Custom hook for fetching data from an API or via a provided function with Zod validation
@@ -22,6 +23,9 @@ interface Options<Z> {
     selector?: Function;
     schema?: z.ZodType<Z>;
     shouldRun?: boolean | ((...args: any[]) => boolean);
+    onSuccess?: (...args: any[]) => void;
+    onError?: (...args: any[]) => void;
+    onEmpty?: (...args: any[]) => void;
 }
 
 function useFetch<T, Z = T>(
@@ -67,11 +71,12 @@ function useFetch<T, Z = T>(
             // apply in here to select customized param
             if (selector && rawData) rawData = selector(rawData);
 
+            let finalData: Z;
+
             // Apply Zod validation if schema is provided
             if (schema) {
                 try {
-                    const validatedData = schema.parse(rawData);
-                    setData(validatedData);
+                    finalData = schema.parse(rawData);
                 } catch (validationError) {
                     if (validationError instanceof z.ZodError) {
                         throw new Error(
@@ -81,18 +86,27 @@ function useFetch<T, Z = T>(
                     throw validationError;
                 }
             } else {
-                // If no schema provided, cast the data as Z
-                setData(rawData as Z);
+                finalData = rawData as Z;
+            }
+
+            setData(finalData);
+
+            if (isEmpty(finalData as unknown)) {
+                options?.onEmpty?.();
+            } else {
+                options?.onSuccess?.(data);
             }
         } catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') {
                 return;
             }
-            if(error instanceof AxiosError) {
+            if (error instanceof AxiosError) {
                 setError(error.response?.data.message);
             } else {
                 setError(error instanceof Error ? error.message : 'Unknown error');
             }
+
+            options?.onError?.(error);
         } finally {
             // Check the signal from our local controller variable
             if (!currentController.signal.aborted) {

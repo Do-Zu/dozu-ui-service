@@ -75,7 +75,7 @@ export default function StudentProfileModal({
         streakFreezeActive: streakData.streakFreezeActive,
         totalLessonsCompleted: 0, // Will be filled by learning stats
         totalQuizzesCompleted: 0, // Will be filled by learning stats
-        totalFlashcardsReviewed: 0, // Will be filled by learning stats
+        totalFlashcardsCompleted: 0, // Will be filled by learning stats
         averageScore: 0, // Will be filled by learning stats
         achievements: [] // Empty for now
     } : null;
@@ -126,7 +126,7 @@ export default function StudentProfileModal({
         // Use learning stats for real data, fallback to zero when data is unavailable
         totalLessonsCompleted: learningStats?.totalLessonsCompleted || 0,
         totalQuizzesCompleted: learningStats?.totalQuizzesCompleted || 0,
-        totalFlashcardsReviewed: learningStats?.totalFlashcardsReviewed || 0,
+        totalFlashcardsCompleted: learningStats?.totalFlashcardsCompleted || 0,
         averageScore: learningStats?.averageScore || 0,
     } : null;
 
@@ -232,7 +232,7 @@ export default function StudentProfileModal({
                             <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 px-3 py-1 rounded-full">
                                 <Flame className="w-4 h-4" />
                                 <span className="font-semibold">
-                                    {learningStreakData?.currentStreak || enhancedGamificationStats?.currentStreak || 0}
+                                    {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
                                 </span>
                             </div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -303,10 +303,10 @@ export default function StudentProfileModal({
                                                 <div>
                                                     <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Streak</p>
                                                     <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                        {learningStreakData?.currentStreak || enhancedGamificationStats?.currentStreak || 0}
+                                                        {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
                                                     </p>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                        Best: {learningStreakData?.longestStreak || enhancedGamificationStats?.longestStreak || 0}
+                                                        Best: {enhancedGamificationStats?.longestStreak || learningStreakData?.longestStreak || 0}
                                                     </p>
                                                 </div>
                                                 <Flame className="h-6 w-6 text-orange-500 dark:text-orange-400" />
@@ -365,7 +365,7 @@ export default function StudentProfileModal({
                                                 <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                                             </div>
                                             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                                {learningStats?.totalFlashcardsReviewed || 0}
+                                                {learningStats?.totalFlashcardsCompleted || 0}
                                             </div>
                                             <div className="text-xs text-gray-600 dark:text-gray-400">Flashcards</div>
                                         </div>
@@ -399,7 +399,7 @@ export default function StudentProfileModal({
                                                 <Flame className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                                             </div>
                                             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                {learningStreakData?.currentStreak || enhancedGamificationStats?.currentStreak || 0}
+                                                {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
                                             </div>
                                             <div className="text-sm text-gray-600 dark:text-gray-400">Current Streak</div>
                                             <div className="mt-2">

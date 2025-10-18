@@ -23,3 +23,8 @@ export interface INextReviewIntervalForRating {
     rating: IAnkiRating;
     interval: INextReviewInterval;
 }
+
+export type IBaseIntervalWithDeviation = {
+    baseInterval: number;
+    deviation: number;
+};

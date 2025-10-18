@@ -11,6 +11,7 @@ export const ROUTES = Object.freeze({
     FLASHCARDS_EDIT: (topicId: string | number) => `/flashcards/edit/${topicId}`,
     FLASHCARDS_BROWSE: (topicId: string | number) => `/flashcards/browse/${topicId}`,
     FLASHCARDS_LEARNING: (topicId: string | number) => `/flashcards/learning/${topicId}`,
+    QUIZ_DASBOARD: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     SETTING_SCHEDULE_SETUP: '/setting/schedule-setup',
     UNAUTHORIZED: '/unauthorized',
     SCHEDULE: '/schedule',

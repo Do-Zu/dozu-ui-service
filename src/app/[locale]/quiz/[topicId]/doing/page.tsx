@@ -3,46 +3,54 @@
 import { useEffect, useState } from 'react';
 import { quizService } from '../../services/quiz.service';
 import { Button } from '@/components/ui/button';
+import ConfirmSubmitDialog from '@/app/[locale]/quiz/components/ConfirmSubmitDialog';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QuizQuestion from '../../components/QuizQuestion';
 import { useQuizStreakTracking } from '@/hooks/useStreakProgress';
+import { toast } from '@/hooks/use-toast';
 
 // Define types based on the response structure
 interface Question {
-  questionId: number;
-  topicId: number;
-  questionText: string;
-  choices: string[];
-  correctIndex: number;
-  createdAt: string;
-  selectedAnswer?: number | null;
+    questionId: number;
+    topicId: number;
+    questionText: string;
+    choices: string[];
+    correctIndex: number;
+    createdAt: string;
+    selectedAnswer?: number | null;
 }
 
 interface QuestionResult {
-  quizId: number;
-  questionId: number;
-  userId: number;
-  correct: boolean;
-  answeredAt: string;
+    quizId: number;
+    questionId: number;
+    userId: number;
+    correct: boolean;
+    answeredAt: string;
 }
 
 interface QuizData {
-  question_result: QuestionResult;
-  questions: Question;
+    question_result: QuestionResult;
+    questions: Question;
 }
 
 const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
     const [quizData, setQuizData] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [quizStartTime, setQuizStartTime] = useState<number | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
     const { trackQuizCompletion } = useQuizStreakTracking();
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [pendingSubmit, setPendingSubmit] = useState(false);
 
     const quizId = searchParams.get('quizId');
     const type = searchParams.get('type');
     const { topicId } = params;
+
+    // Derived values
+    const answeredCount = quizData.filter((q) => q.selectedAnswer !== null && q.selectedAnswer !== undefined).length;
+    const totalQuestions = quizData.length;
 
     useEffect(() => {
         const fetchQuiz = async () => {
@@ -74,7 +82,7 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                         }));
                         break;
                     }
-                    case 'wrong': 
+                    case 'wrong':
                     case 'initial':
                     case 'new':
                     case 'random': {
@@ -85,7 +93,7 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                             choices: item.choices,
                             correctIndex: item.correctIndex,
                             createdAt: item.createdAt,
-                            selectedAnswer: null, 
+                            selectedAnswer: null,
                         }));
                         break;
                     }
@@ -108,29 +116,22 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
         fetchQuiz();
     }, [topicId, quizId, type]);
 
-    const handleSubmitQuiz = async () => {
+    // Submit the quiz
+    const submitQuiz = async () => {
         try {
-            // Calculate score and duration
-            const correctAnswers = quizData.filter(q => q.selectedAnswer === q.correctIndex).length;
-            const totalQuestions = quizData.length;
-            const score = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
-            const duration = quizStartTime ? Math.round((Date.now() - quizStartTime) / 1000) : 0;
-            
+            setSubmitting(true);
             const response = await quizService.submitQuiz({
                 quizId: Number(quizId),
-                topicId: Number(topicId),
                 results: quizData.map((q: Question) => ({
                     questionId: q.questionId,
                     correct: q.selectedAnswer === q.correctIndex,
-                    userAnswerIndex: typeof q.selectedAnswer === 'number' ? q.selectedAnswer : null
+                    userAnswerIndex: typeof q.selectedAnswer === 'number' ? q.selectedAnswer : null,
                 })),
-                score: score,
-                duration: duration,
-                correctAnswers: correctAnswers,
-                totalQuestions: totalQuestions
+
             });
+
             const { quizResultId } = response.data as { quizResultId: string };
-            
+
             // Track quiz completion for streak progress
             try {
                 // Get userId from localStorage
@@ -138,34 +139,56 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                 if (userString) {
                     const user = JSON.parse(userString);
                     const userId = user?.userId;
-                    
+
                     if (userId) {
                         // Calculate accuracy based on correct answers
-                        const correctAnswers = quizData.filter(q => q.selectedAnswer === q.correctIndex).length;
+                        const correctAnswers = quizData.filter((q) => q.selectedAnswer === q.correctIndex).length;
                         const accuracy = quizData.length > 0 ? (correctAnswers / quizData.length) * 100 : 0;
-                        
+
                         // Calculate actual quiz duration in seconds
                         const currentTime = Date.now();
                         const duration = quizStartTime ? Math.round((currentTime - quizStartTime) / 1000) : 300; // fallback to 5 minutes if start time is undefined
-                        
+
                         await trackQuizCompletion(
                             userId.toString(),
                             topicId,
                             accuracy, // score (accuracy percentage)
-                            duration // actual time taken in seconds
+                            duration, // actual time taken in seconds
                         );
                         console.log('Quiz completion tracked for streak progress');
                     }
                 }
             } catch (error) {
                 console.error('Error tracking quiz completion:', error);
-                // Don't show error to user, just log it
             }
-            
+
             router.push(`/quiz/${topicId}/result/${quizResultId}`);
-        } catch (error) {
-            console.error('Error submitting quiz:', error);
+        } catch (err) {
+            toast({
+                title: 'Submission failed',
+                description: 'Something went wrong. Please try again.',
+                variant: 'destructive',
+            });
+        } finally {
+            setSubmitting(false);
         }
+    };
+
+    // Validate before submit
+    const handleSubmitQuiz = () => {
+        if (answeredCount === 0) {
+            toast({
+                title: 'No answers selected',
+                description: 'Please answer at least one question before submitting.',
+                variant: 'destructive',
+            });
+            return;
+        }
+        if (answeredCount < totalQuestions) {
+            setShowConfirmDialog(true);
+            return;
+        }
+        submitQuiz();
     };
 
     if (loading) return <div>Loading...</div>;
@@ -176,6 +199,13 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
 
     return (
         <div className="px-6 py-8">
+            {submitting && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex flex-col items-center justify-center text-white">
+                    <div className="animate-spin h-10 w-10 border-4 border-t-transparent border-white rounded-full mb-3"></div>
+                    <span className="text-lg font-medium">Submitting your quiz...</span>
+                </div>
+            )}
+
             <h2 className="text-2xl font-semibold mb-4">Take the quiz</h2>
             <div className="space-y-4">
                 {quizData.map((question: Question, index: number) => (
@@ -192,9 +222,22 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
                     />
                 ))}
             </div>
-            <Button onClick={handleSubmitQuiz} className="mt-4">
-                Submit
+
+            <Button variant="destructive" onClick={handleSubmitQuiz} className="mt-4" disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Submit'}
             </Button>
+
+            <ConfirmSubmitDialog
+                open={showConfirmDialog}
+                answeredCount={answeredCount}
+                totalQuestions={totalQuestions}
+                loading={submitting}
+                onCancel={() => setShowConfirmDialog(false)}
+                onConfirm={async () => {
+                    setShowConfirmDialog(false);
+                    await submitQuiz();
+                }}
+            />
         </div>
     );
 };

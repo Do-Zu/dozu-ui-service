@@ -2,6 +2,7 @@ export interface ProfileData {
   id: string;
   username: string;
   email: string;
+  fullName?: string;
   location: string;
   bio: string;
   joinDate: string;
@@ -59,7 +60,7 @@ export interface IGamificationStats {
     weeklyActivity: number[];
     totalLessonsCompleted: number;
     totalQuizzesCompleted: number;
-    totalFlashcardsReviewed: number;
+    totalFlashcardsCompleted: number;
     averageScore: number;
 }
 

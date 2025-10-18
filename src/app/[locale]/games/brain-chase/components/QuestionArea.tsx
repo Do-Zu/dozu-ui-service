@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { useBrainChase } from '../context/brainChaseContext';
@@ -24,18 +24,19 @@ const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionArea
     currentQuestionIndex,
     handleNextQuestion,
     flashcards,
+      questions,
   } = useBrainChase();
 
   const [timeRemaining, setTimeRemaining] = useState(settings.timeLimit);
   const [timeProgress, setTimeProgress] = useState(0);
   
-  // Calculate total questions based on settings and available flashcards
+  // Calculate total questions based on settings and available questions
   const totalQuestions = (() => {
-    const availableFlashcards = flashcards?.length || 0;
+    const availableQuestions = questions?.length || 0;
     
     // If setting is more than available, use all available
-    if (settings.questionCount > availableFlashcards) {
-      return availableFlashcards;
+    if (settings.questionCount > availableQuestions) {
+      return availableQuestions;
     }
     
     // Otherwise use the set limit
@@ -44,9 +45,24 @@ const QuestionArea = ({ question = '', currentQuestionNumber = 1 }: QuestionArea
   
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
+  // Restart timer when time limit changes during active game
+  const restartTimer = useCallback(() => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    
     setTimeRemaining(settings.timeLimit);
-  }, [settings.timeLimit]);
+    setTimeProgress(0);
+    
+    if (gameActive && !gamePaused && !showSettings) {
+      handleTimeoutQuestion();
+    }
+  }, [settings.timeLimit, gameActive, gamePaused, showSettings]);
+
+  useEffect(() => {
+    restartTimer();
+  }, [restartTimer]);
 
   const handleTimeoutQuestion = () => {
     if (timerIntervalRef.current) {

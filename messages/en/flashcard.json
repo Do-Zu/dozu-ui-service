@@ -3,7 +3,10 @@
         "edit": {
             "import": "Import",
             "save": "Save",
-            "addCards": "Add Cards"
+            "addCards": "Add Cards",
+            "messages": {
+                "noFlashcardChanges": "No changes detected. Please make some edits to your flashcards."
+            }
         },
         "study": {
             "card": "Card",

@@ -20,6 +20,7 @@ export interface PaymentData {
     checkoutUrl: string;
     qrCode: string;
     baseUrlRedirect: string;
+    jobId: string;
 }
 
 export interface PaymentStatusRequest {
@@ -37,11 +38,35 @@ export interface PaymentStatusData {
     transactions: any[];
 }
 
+export interface IPaymentResponseSePayRegister {
+    orderCode: number | string;
+    amount: number;
+    currency: string;
+    qrCode: string;
+    expireAt?: string;
+    jobId: string;
+    transactionId?: number;
+}
+
 export interface UpdateSubscriptionRequest {
     planId: string | number | null;
     orderCode?: string | number;
     paymentStatus?: string;
     paymentId?: string;
+}
+
+export interface WebhookRegistrationRequest {
+    webhookUrl: string;
+}
+
+export interface PaymentWebhookData {
+    orderCode: number;
+    status: 'PAID' | 'CANCELLED' | 'PENDING';
+    amount: number;
+    paymentLinkId: string;
+    transactionDateTime?: string;
+    description?: string;
+    currency?: string;
 }
 
 class PaymentService {

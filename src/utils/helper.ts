@@ -1,3 +1,5 @@
+import { object } from 'zod';
+
 /**
  * Converts various string formats to a number.
  * Supports thousand separators, comma decimals, underscores, currency symbols, and scientific notation.
@@ -51,13 +53,41 @@ const toTitleCase = (str: string): string => {
 };
 
 /**
+ *
+ * @param value
+ * @returns True if list is empty, false otherwise.
+ */
+const isListEmpty = (value: unknown[]): boolean => {
+    return value.length === 0;
+};
+
+/**
+ *
+ * @param obj
+ * @returns True if the object is empty, false otherwise.
+ */
+const isObjectEmpty = (obj: object): boolean => {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+};
+
+/**
  * Checks if an object is empty (has no own properties).
  *
  * @param obj - The object to be checked.
- * @returns True if the object is empty, false otherwise.
+ * @returns return empty for unknown type
  */
-const isEmpty = (obj: object): boolean => {
-    return Object.keys(obj).length === 0 && obj.constructor === Object;
+const isEmpty = (value: unknown): boolean => {
+    if (value === null || value === undefined) return true;
+
+    if (typeof value === 'string') return isNullOrEmpty(value);
+
+    if (Array.isArray(value)) return isListEmpty(value);
+
+    if (typeof value === 'object') {
+        return isObjectEmpty(value);
+    }
+
+    return false;
 };
 
 /**
