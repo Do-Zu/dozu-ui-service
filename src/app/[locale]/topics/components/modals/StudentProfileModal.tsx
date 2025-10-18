@@ -232,7 +232,7 @@ export default function StudentProfileModal({
                             <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 px-3 py-1 rounded-full">
                                 <Flame className="w-4 h-4" />
                                 <span className="font-semibold">
-                                    {learningStreakData?.currentStreak || enhancedGamificationStats?.currentStreak || 0}
+                                    {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
                                 </span>
                             </div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -303,10 +303,10 @@ export default function StudentProfileModal({
                                                 <div>
                                                     <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Streak</p>
                                                     <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                        {learningStreakData?.currentStreak || enhancedGamificationStats?.currentStreak || 0}
+                                                        {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
                                                     </p>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                        Best: {learningStreakData?.longestStreak || enhancedGamificationStats?.longestStreak || 0}
+                                                        Best: {enhancedGamificationStats?.longestStreak || learningStreakData?.longestStreak || 0}
                                                     </p>
                                                 </div>
                                                 <Flame className="h-6 w-6 text-orange-500 dark:text-orange-400" />
@@ -399,7 +399,7 @@ export default function StudentProfileModal({
                                                 <Flame className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                                             </div>
                                             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                {learningStreakData?.currentStreak || enhancedGamificationStats?.currentStreak || 0}
+                                                {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
                                             </div>
                                             <div className="text-sm text-gray-600 dark:text-gray-400">Current Streak</div>
                                             <div className="mt-2">
