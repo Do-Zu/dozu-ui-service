@@ -3,7 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface QuizCardProps {
-    quizResultId: number;
     quizId: number;
     correctAnswersCount: number;
     questionsCount: number;
@@ -14,7 +13,6 @@ interface QuizCardProps {
 
 const QuizCard = ({
     quizId,
-    quizResultId,
     correctAnswersCount,
     questionsCount,
     timeReviewed,
@@ -40,7 +38,6 @@ const QuizCard = ({
     <CardTitle className="text-lg font-bold text-primary leading-snug flex items-center gap-2">
       {quizTitle || `Quiz #${quizId}`}
     </CardTitle>
-    <p className="text-sm text-muted-foreground">Result ID: {quizResultId}</p>
   </CardHeader>
 
   <CardContent className="text-sm text-muted-foreground space-y-1">
