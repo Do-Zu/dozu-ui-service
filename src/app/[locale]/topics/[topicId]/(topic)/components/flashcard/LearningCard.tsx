@@ -1,45 +1,36 @@
-import { useTranslations } from 'next-intl';
-import BackButton from '../../components/BackButton';
-import { IDueAnkiCard, IFlashcard, IQualityResponseNextReviewInterval } from '../../types/flashcard.type';
-import Flashcard from '../../components/Flashcard';
-import { Angry, CircleAlert, Eye, Frown, Laugh, Smile, ThumbsUp } from 'lucide-react';
-import { putRequest } from '@/api/api';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import React, { useEffect } from 'react';
-import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
-import { IFlashcardStatusCounts, IFlashcardWithReviewPrediction } from '../[topicId]/page';
-import { useLearningOptions } from '../hooks/useLearningOptions';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import flashcardHelper from '@/utils/flashcard/flashcard.helper';
+import { useLearningOptions } from '@/app/[locale]/flashcards/learning/hooks/useLearningOptions';
+import { IFlashcardStatusCounts } from '@/app/[locale]/flashcards/learning/page';
+import { IDueAnkiCard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 import { IAnkiRating } from '@/types/anki';
+import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
+import Flashcard from './Flashcard';
+import flashcardHelper from '@/utils/flashcard/flashcard.helper';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
 
 interface Props {
-    topicName: string;
     flashcard: IDueAnkiCard;
-    total: number;
-    flashcardContainerRef: React.RefObject<HTMLDivElement>;
-    cardRef: React.RefObject<HTMLDivElement>;
-    isFrontRef: React.RefObject<boolean>;
     shouldShowTrackingOptions: boolean;
-    handleManualFlip: () => void;
-    handleLearningOptionClick: (rating: IAnkiRating) => void;
+    isFlipped: boolean;
+    isAnimating: boolean;
+    onFlip: () => void;
+    handleRatingClick: (rating: IAnkiRating) => void;
     flashcardStatusCounts: IFlashcardStatusCounts;
 }
 
-export function FlashcardLearning({
-    topicName,
+export default function LearningCard({
     flashcard,
-    total,
-    flashcardContainerRef,
-    cardRef,
     shouldShowTrackingOptions,
-    handleManualFlip,
-    handleLearningOptionClick,
+    isFlipped,
+    isAnimating,
+    onFlip,
+    handleRatingClick,
     flashcardStatusCounts,
 }: Props) {
-    const tTopic = useTranslations('topic');
     const tFlashcard = useTranslations('flashcard.learning');
 
     const learningOptions = useLearningOptions();
@@ -57,11 +48,11 @@ export function FlashcardLearning({
             };
 
             if (key in keyToRating) {
-                handleLearningOptionClick(keyToRating[key]);
+                handleRatingClick(keyToRating[key]);
             }
 
             if (key === 'Enter' || key === ' ') {
-                handleManualFlip();
+                onFlip();
             }
         }
 
@@ -70,20 +61,21 @@ export function FlashcardLearning({
         return () => {
             window.removeEventListener('keydown', handleKeyShortcut);
         };
-    }, [handleLearningOptionClick, handleManualFlip]);
+    }, [handleRatingClick, onFlip]);
 
     return (
         <div className="flex bg-gray-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
                 <div className="relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg">
                     <Flashcard
-                        style={`flex w-[55%] mt-2 ${shouldShowTrackingOptions ? 'h-[70%]' : 'h-[80%]'}`}
-                        cardContainerRef={flashcardContainerRef}
-                        cardRef={cardRef}
-                        flashcard={flashcard}
+                        front={flashcard.front}
+                        back={flashcard.back}
+                        isFlipped={isFlipped}
+                        isAnimating={isAnimating}
+                        onClick={onFlip}
                     />
                     {shouldShowTrackingOptions ? (
-                        <div className="grid grid-cols-12 gap-6 mt-4 w-[55%] h-[18%]">
+                        <div className="grid grid-cols-12 gap-6 mt-4 w-[55%] h-[18%] mb-2">
                             {learningOptions.map((option, index) => {
                                 // Get the interval list if available, otherwise the array is empty
                                 const intervals = flashcard.nextReviewDataByRatings;
@@ -105,8 +97,8 @@ export function FlashcardLearning({
                                             <TooltipTrigger asChild>
                                                 <div
                                                     className="col-span-3 h-full flex flex-col gap-0 justify-center items-center rounded-lg p-2
-                     bg-white dark:bg-gray-700 cursor-pointer"
-                                                    onClick={() => handleLearningOptionClick(option.rating)}
+                   bg-white dark:bg-gray-700 cursor-pointer"
+                                                    onClick={() => handleRatingClick(option.rating)}
                                                     aria-disabled={!found?.interval}
                                                 >
                                                     {option.icon}
@@ -172,7 +164,7 @@ export function FlashcardLearning({
 
                             <div className="w-full flex justify-center">
                                 <Button
-                                    onClick={handleManualFlip}
+                                    onClick={onFlip}
                                     className="flex flex-row items-center bg-white dark:bg-gray-700 text-black dark:text-white"
                                 >
                                     <Eye className="text-foreground w-4 h-4 mr-2" />
