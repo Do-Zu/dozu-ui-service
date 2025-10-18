@@ -66,9 +66,9 @@ export const useContentGeneration = ({
         contentType: contentTypeResourceImport,
         videoInfo,
         transcriptSegments,
-    } = useCardImportSelector((state) => state.contentExtraction);
+    } = useCardImportSelector((state) => state.contentExtraction ?? {} );
 
-    const { importMethod, files: filesImport } = useCardImportSelector((state) => state.importDialog);
+    const { importMethod, files: filesImport } = useCardImportSelector((state) => state.importDialog ?? {} );
 
     const router = useRouter();
     const dispatch = useCardImportDispatch();
