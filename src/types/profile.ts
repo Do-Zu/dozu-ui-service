@@ -60,7 +60,7 @@ export interface IGamificationStats {
     weeklyActivity: number[];
     totalLessonsCompleted: number;
     totalQuizzesCompleted: number;
-    totalFlashcardsReviewed: number;
+    totalFlashcardsCompleted: number;
     averageScore: number;
 }
 
