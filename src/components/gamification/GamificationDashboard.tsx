@@ -137,7 +137,7 @@ export function GamificationDashboard({
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm text-gray-600">Flashcards</span>
-                                            <span className="font-semibold">{personalStats.totalFlashcardsReviewed}</span>
+                                            <span className="font-semibold">{personalStats.totalFlashcardsCompleted}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-sm text-gray-600">Avg Score</span>

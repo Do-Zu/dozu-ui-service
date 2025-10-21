@@ -20,7 +20,7 @@ import { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/top
 import { useFeeds } from '../../teacher/feeds/hooks/useFeeds';
 import { ICreateClassFeedBody, ICreateClassFeedPayload } from '@/services/class-based-learning/classFeed.service';
 import { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
-import { isEmpty, isNilOrEmpty, isNullOrEmpty } from '@/utils';
+import { isEmpty, isNilOrEmpty, isNullOrEmpty, safeDestructure } from '@/utils';
 import { EXTRACTION_TAB, IMPORT_METHOD, RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
 import { uploadService } from '@/services/upload/upload.service';
 import { YoutubeResourcePayload, WebsiteResourcePayload, TextResourcePayload } from '../types/content.type';
@@ -66,9 +66,9 @@ export const useContentGeneration = ({
         contentType: contentTypeResourceImport,
         videoInfo,
         transcriptSegments,
-    } = useCardImportSelector((state) => state.contentExtraction ?? {} );
+    } = useCardImportSelector((state) => safeDestructure(state.contentExtraction));
 
-    const { importMethod, files: filesImport } = useCardImportSelector((state) => state.importDialog ?? {} );
+    const { importMethod, files: filesImport } = safeDestructure(useCardImportSelector((state) => state.importDialog));
 
     const router = useRouter();
     const dispatch = useCardImportDispatch();

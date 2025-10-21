@@ -4,7 +4,7 @@ import Axios from '@/api/axios';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { flashcardRoutes } from '@/utils/constants/api.routes';
@@ -27,10 +27,16 @@ const AddFlashcardPage = () => {
     const topicId = searchParams.get('topicId');
     const nodeId = searchParams.get('nodeId');
 
+    const [isEmpty, setIsEmpty] = useState(false);
+
     useEffect(() => {
         const getFlashcardsOfTopic = async () => {
-            const result = await Axios.get(flashcardRoutes(topicId!).GET_DUE_FLASHCARDS); // CHANGE FOR USING UPDATED API
+            // const result = await Axios.get(flashcardRoutes(topicId!).GET_DUE_FLASHCARDS); // ! wrong logic
+            const result = await Axios.get(flashcardRoutes(topicId!).GET_FLASHCARDS_WITHOUT_TOPIC_INFO);
             console.log(result.data.data);
+            if (result.data.data.length == 0) {
+                setIsEmpty(true);
+            }
             setFlashcards(result.data.data);
         };
         getFlashcardsOfTopic();
@@ -46,9 +52,9 @@ const AddFlashcardPage = () => {
         }
     };
 
-    const checkIfSelected = (flashcardId: number): boolean => {
-        const selected = selectedFlashcards?.includes(flashcardId);
-        console.log('flash', flashcardId, selected);
+    const checkIfSelected = (flashcardId: number, flashcardNodeId: string): boolean => {
+        const selected = selectedFlashcards?.includes(flashcardId) || flashcardNodeId === nodeId;
+
         return selected;
     };
 
@@ -62,38 +68,60 @@ const AddFlashcardPage = () => {
         const response = await Axios.put(`/mindmap/${topicId}/nodes/${nodeId}`, options.body);
         console.log(response);
     };
+    const router = useRouter();
+
+    const handleAddFlashcardsToTopic = () => {
+        router.push(`/flashcards/edit/${topicId}`);
+    };
 
     return (
         <div className="w-full h-full">
             <h2 className="text-lg font-semibold mb-4">Flashcards</h2>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[1%] px-2">
-                            {/* <Checkbox onCheckedChange={handleOnCheckedAll} /> */}
-                        </TableHead>
-                        <TableHead>Front</TableHead>
-                        <TableHead>Back</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {flashcards.map((flashcard) => (
-                        <TableRow key={flashcard.flashcardId}>
-                            <TableCell className="w-[1%] px-2">
-                                <Checkbox
-                                    checked={checkIfSelected(flashcard.flashcardId)}
-                                    onCheckedChange={(checked) => {
-                                        handleOnCheckedSingle(checked, flashcard);
-                                    }}
-                                />
-                            </TableCell>
-                            <TableCell className="max-w-[300px] whitespace-pre-wrap">{flashcard.front}</TableCell>
-                            <TableCell className="max-w-[300px] whitespace-pre-wrap">{flashcard.back}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <Button onClick={handleClickAdd}>Add to node</Button>
+            {isEmpty ? (
+                <>
+                    {' '}
+                    <div>No flashcard found</div>
+                    <div>
+                        <Button onClick={handleAddFlashcardsToTopic}>Add flashcards to topic</Button>
+                    </div>
+                </>
+            ) : (
+                <>
+                    {' '}
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[1%] px-2">
+                                    {/* <Checkbox onCheckedChange={handleOnCheckedAll} /> */}
+                                </TableHead>
+                                <TableHead>Front</TableHead>
+                                <TableHead>Back</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {flashcards.map((flashcard) => (
+                                <TableRow key={flashcard.flashcardId}>
+                                    <TableCell className="w-[1%] px-2">
+                                        <Checkbox
+                                            checked={checkIfSelected(flashcard.flashcardId, flashcard.nodeId)}
+                                            onCheckedChange={(checked) => {
+                                                handleOnCheckedSingle(checked, flashcard);
+                                            }}
+                                        />
+                                    </TableCell>
+                                    <TableCell className="max-w-[300px] whitespace-pre-wrap">
+                                        {flashcard.front}
+                                    </TableCell>
+                                    <TableCell className="max-w-[300px] whitespace-pre-wrap">
+                                        {flashcard.back}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    <Button onClick={handleClickAdd}>Add to node</Button>
+                </>
+            )}
         </div>
     );
 };

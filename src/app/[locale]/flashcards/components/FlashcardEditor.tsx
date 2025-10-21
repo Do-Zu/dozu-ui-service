@@ -224,7 +224,7 @@ const FlashcardEditor = ({
     const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false);
     const [selectingFlashcard, setSelectingFlashcard] = useState<IFlashcard | null>();
     const [imagesPreview, setImagesPreview] = useState<IUnspashImage[] | null>(null);
-    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus } = useGenerateFromExisting();
+    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
     const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({
         sseData,
         sseStatus,
@@ -589,7 +589,7 @@ const FlashcardEditor = ({
                     <Button
                         className="flex flex-row items-center"
                         onClick={handleGenerateQuiz}
-                        disabled={!hasAnyValidFlashcard(flashcards)}
+                        disabled={!hasAnyValidFlashcard(flashcards) || loading}
                     >
                         Generate Quiz
                     </Button>
@@ -683,6 +683,14 @@ const FlashcardEditor = ({
                 loading={searchImagesLoading}
                 handleSaveClick={handleSaveImageClick}
             />
+            {loading && (
+                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">
+                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p className="text-gray-800 font-medium">Generating quiz...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

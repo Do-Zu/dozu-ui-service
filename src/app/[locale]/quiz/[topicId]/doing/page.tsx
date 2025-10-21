@@ -122,11 +122,12 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
             setSubmitting(true);
             const response = await quizService.submitQuiz({
                 quizId: Number(quizId),
-                results: quizData.map((q) => ({
+                results: quizData.map((q: Question) => ({
                     questionId: q.questionId,
                     correct: q.selectedAnswer === q.correctIndex,
                     userAnswerIndex: typeof q.selectedAnswer === 'number' ? q.selectedAnswer : null,
                 })),
+
             });
 
             const { quizResultId } = response.data as { quizResultId: string };

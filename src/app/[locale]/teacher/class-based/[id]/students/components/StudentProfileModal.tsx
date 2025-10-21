@@ -28,6 +28,8 @@ import {
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { gamificationService } from '@/services/gamification/gamification.service';
+import { progressService } from '@/services/progress/progress.service';
+import { streakProgressService } from '@/services/progress/streakProgress.service';
 import { GamificationStats } from '@/types/streaks/gamification.type';
 import { IUserProfile } from '@/types/profile';
 // import lessonCompletionService, { LessonCompletionStats } from '@/services/class-based-learning/lessonCompletion.service';
@@ -55,14 +57,39 @@ export default function StudentProfileModal({
     const tCommon = useTranslations('common');
     const tUser = useTranslations('user');
     
-    // Fetch real gamification stats for the student
+    // Fetch real gamification stats for the student using authoritative gamification API
     const {
         data: realGamificationStats,
         loading: gamificationLoading,
         error: gamificationError,
-    } = useFetch<GamificationStats>(() => 
-        student ? gamificationService.getUserGamificationStats(student.userId) : Promise.resolve(null)
-    );
+    } = useFetch<GamificationStats>(async () => {
+        if (!student) return null;
+        
+        try {
+            // Get authoritative data from gamification API
+            const gamificationStats = await gamificationService.getUserGamificationStats(student.userId);
+            
+            if (gamificationStats) {
+                // Ensure we have the most up-to-date data
+                return {
+                    ...gamificationStats,
+                    // Calculate level from points if level is 0 or invalid
+                    level: gamificationStats.level > 0
+                        ? gamificationStats.level
+                        : Math.max(1, Math.floor(gamificationStats.totalPoints / 200) + 1),
+                    experiencePoints: gamificationStats.level > 0
+                        ? gamificationStats.experiencePoints ?? (gamificationStats.totalPoints % 200)
+                        : gamificationStats.totalPoints % 200,
+                    nextLevelExperience: gamificationStats.nextLevelExperience ?? 200,
+                };
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Error fetching gamification stats:', error);
+            return null;
+        }
+    });
 
     // Fetch real lesson completion stats for the student
     // const {
@@ -112,7 +139,7 @@ export default function StudentProfileModal({
         // Use gamification data directly, fallback to calculated values from points
         totalLessonsCompleted: gamificationStats.totalLessonsCompleted ?? Math.floor(gamificationStats.totalPoints / 10),
         totalQuizzesCompleted: gamificationStats.totalQuizzesCompleted ?? Math.floor(gamificationStats.totalPoints / 20),
-        totalFlashcardsReviewed: gamificationStats.totalFlashcardsReviewed ?? Math.floor(gamificationStats.totalPoints / 2),
+        totalFlashcardsCompleted: gamificationStats.totalFlashcardsCompleted ?? Math.floor(gamificationStats.totalPoints / 2),
         averageScore: gamificationStats.averageScore ?? Math.min(95, 60 + (gamificationStats.totalPoints / 10)),
     } : null;    
     const progressPercentage = enhancedGamificationStats ? 
@@ -335,7 +362,7 @@ export default function StudentProfileModal({
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-2xl font-bold text-purple-600">
-                                                    {enhancedGamificationStats.totalFlashcardsReviewed}
+                                                    {enhancedGamificationStats.totalFlashcardsCompleted}
                                                 </div>
                                                 <div className="text-sm text-muted-foreground">{tProfile('flashcardsReviewed')}</div>
                                             </div>
