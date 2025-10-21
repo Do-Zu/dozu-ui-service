@@ -72,6 +72,9 @@ import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/Cl
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 import { IFeedGroup } from '@/utils/feeds/feed.helper';
+import AssignmentsList from '../../../class-based/(assignment)/components/AssignmentsList';
+import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/services/teacher/teacherAssignment.service';
 
 type TopicFilteringAction =
     | 'newest'
@@ -183,6 +186,12 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         deletingFeed,
     } = deleteFeed;
 
+    const {
+        data: assignments,
+        loading: assignmentsLoading,
+        error: assignmentsError,
+    } = useFetch<IAssignment[]>(() => teacherAssignmentService.getAssignmentsForClass({ classId }));
+
     async function handleCreateTopicClick(topic: ICreateTopicPayload) {
         if (!validateTopic(topic)) {
             return;
@@ -199,6 +208,18 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
             handleNotifyModalOpen();
         }
     }
+
+    const assignmentContent = useMemo(() => {
+        if (!topics) return null;
+        const value = topics.map(({ topicId, name }) => ({ topicId, name }));
+        return (
+            <>
+                {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
+                {assignmentsLoading ? <LoadingPage /> : null}
+                {assignments ? <AssignmentsList topics={value} assignments={assignments} /> : null}
+            </>
+        );
+    }, [topics, assignments, assignmentsError, assignmentsLoading]);
 
     useEffect(() => {
         if (!topics) {
@@ -535,6 +556,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
             mainActionButtons={mainActionButtons}
             feedContent={feedContent}
             topicContent={topicContent}
+            assignmentContent={assignmentContent}
         />
     );
 }
