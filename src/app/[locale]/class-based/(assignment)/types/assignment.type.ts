@@ -5,7 +5,7 @@ export enum AssignmentStatusEnum {
     CLOSED = 'closed',
 }
 
-export type IASsignmentStatus = 'draft' | 'scheduled' | 'published' | 'closed';
+export type IAssignmentStatus = 'draft' | 'scheduled' | 'published' | 'closed';
 
 export type IAssignment = {
     assignmentId: number;
@@ -40,3 +40,6 @@ export type InsertAssignment = {
 };
 
 export type InsertAssignmentBody = Omit<InsertAssignment, 'teacherId' | 'classId'>;
+
+// 'closed' is omitted, server will handle it
+export type InsertAssignmentStatus = 'draft' | 'scheduled' | 'published';
