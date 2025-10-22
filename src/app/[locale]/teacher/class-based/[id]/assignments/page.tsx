@@ -10,11 +10,17 @@ import { useParams } from 'next/navigation';
 
 export default function Page() {
     const params = useParams();
-    if (typeof params.id !== 'string' || isNaN(Number(params.id))) {
-        return <div>Invalid classId, please try again.</div>;
+    const isValidId = typeof params.id === 'string' && !isNaN(Number(params.id)) && Number(params.id) > 0;
+    if (!isValidId) {
+        return <div className="p-8">Invalid classId, please try again.</div>;
     }
+
     const classId = Number(params.id);
-    
+
+    return <ValidPage classId={classId} />;
+}
+
+function ValidPage({ classId }: { classId: number }) {
     // temporarily fetch data from server, will change to getting data from global state, avoiding refetching data
     const {
         data: myClass,

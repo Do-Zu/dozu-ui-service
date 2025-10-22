@@ -15,7 +15,7 @@ import DetailsPanel, { NO_TOPIC } from './DetailsPanel';
 import { useRouter } from 'next/navigation';
 import { IClass } from '../../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-import { InsertAssignmentStatus } from '../../types/assignment.type';
+import { AssignmentStatusEnum, InsertAssignmentStatus } from '../../types/assignment.type';
 
 interface Props {
     myClass: IClass;
@@ -23,14 +23,14 @@ interface Props {
 }
 
 const DEFAULT_TOTAL_GRADE = 100;
-const DEFAULT_ASSIGNMENT_STATUS = 'draft';
+const DEFAULT_ASSIGNMENT_STATUS = AssignmentStatusEnum.PUBLISHED;
 
 // create another component for implementing your feature
 export function EditAssignment({ myClass, topics }: Props) {
     const router = useRouter();
 
     // Assignment Status selection states
-    const [selectedStatus, setSelectedStatus] = useState<InsertAssignmentStatus>('published');
+    const [selectedStatus, setSelectedStatus] = useState<InsertAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
 
     // Content Section states
     const [title, setTitle] = useState<string>('');
