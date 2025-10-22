@@ -22,7 +22,7 @@ interface ClassBasedModeProps {
 
 type Props = BaseProps & (PersonalModeProps | ClassBasedModeProps);
 
-export default function TopicLibrary(props: Props) {
+export default function LearningSpace(props: Props) {
     const { mode, topicContent, mainActionButtons } = props;
     const t = useTranslations('home.contentLibrary');
     const tCommon = useTranslations('common');

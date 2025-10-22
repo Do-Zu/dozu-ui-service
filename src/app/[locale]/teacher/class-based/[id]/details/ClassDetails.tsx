@@ -1,6 +1,6 @@
 'use client';
 
-import TopicLibrary from '../common/TopicLibrary';
+import LearningSpace from '@/app/[locale]/topics/components/common/LearningSpace';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Search,
@@ -55,7 +55,7 @@ import TopicDetailsModal, { ITopicDetails } from '@/app/[locale]/topics/componen
 import UpdateFeedModal, { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
 import CreateFeedModal, { IDefaultFeed } from '@/app/[locale]/teacher/feeds/components/modals/CreateFeedModal';
 import { DeleteFeedModal } from '@/app/[locale]/teacher/feeds/components/modals/DeleteFeedModal';
-import TopicCard from '../common/TopicCard';
+import TopicCard from '@/app/[locale]/topics/components/common/TopicCard';
 import { formatDate } from '@/utils';
 import {
     DropdownMenu,
@@ -66,13 +66,13 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import { useTopics, useValidateTopic } from '../../hooks/useTopics';
+import { useTopics, useValidateTopic } from '@/app/[locale]/topics/hooks/useTopics';
 import { useFeeds } from '@/app/[locale]/teacher/feeds/hooks/useFeeds';
 import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 import { IFeedGroup } from '@/utils/feeds/feed.helper';
-import AssignmentsList from '../../../class-based/(assignment)/components/AssignmentsList';
+import AssignmentsList from '@/app/[locale]/class-based/(assignment)/components/AssignmentsList';
 import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/services/teacher/teacherAssignment.service';
 
@@ -84,7 +84,7 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function TeacherTopicLibrary({ classId }: { classId: number }) {
+export default function ClassDetails({ classId }: { classId: number }) {
     const router = useRouter();
     const validateTopic = useValidateTopic();
 
@@ -210,16 +210,16 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     }
 
     const assignmentContent = useMemo(() => {
-        if (!topics) return null;
+        if (!myClass || !topics) return null;
         const value = topics.map(({ topicId, name }) => ({ topicId, name }));
         return (
             <>
                 {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
                 {assignmentsLoading ? <LoadingPage /> : null}
-                {assignments ? <AssignmentsList topics={value} assignments={assignments} /> : null}
+                {assignments ? <AssignmentsList myClass={myClass} topics={value} assignments={assignments} /> : null}
             </>
         );
-    }, [topics, assignments, assignmentsError, assignmentsLoading]);
+    }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);
 
     useEffect(() => {
         if (!topics) {
@@ -550,7 +550,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
     );
 
     return (
-        <TopicLibrary
+        <LearningSpace
             mode="class-based"
             myClass={myClass}
             mainActionButtons={mainActionButtons}

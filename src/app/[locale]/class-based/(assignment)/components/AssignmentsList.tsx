@@ -16,6 +16,9 @@ import { AssignmentStatusEnum, IAssignment } from '../types/assignment.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { formatDate } from '@/utils';
 import assignmentUtils, { ALL_TOPICS, NO_TOPIC } from '../utils/assignment.utils';
+import { useRouter } from 'next/navigation';
+import { IClass } from '../../types/class.type';
+import { ROUTES } from '@/utils/constants/routes';
 
 const AssignmentItem = ({ assignment }: { assignment: IAssignment }) => {
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
@@ -75,11 +78,13 @@ const AssignmentItem = ({ assignment }: { assignment: IAssignment }) => {
 };
 
 interface Props {
+    myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
     assignments: IAssignment[];
 }
 
-function AssignmentsList({ topics: topicsData, assignments }: Props) {
+function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
+    const router = useRouter();
     const topics = useMemo(() => {
         return [...topicsData, NO_TOPIC];
     }, [topicsData]);
@@ -95,6 +100,10 @@ function AssignmentsList({ topics: topicsData, assignments }: Props) {
 
     function handleTopicSelect(value: string) {
         setSelectedTopic(value);
+    }
+
+    function handleCreateClick() {
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENTS(myClass.classId));
     }
 
     return (
@@ -118,7 +127,7 @@ function AssignmentsList({ topics: topicsData, assignments }: Props) {
                             })}
                         </SelectContent>
                     </Select>
-                    <Button>
+                    <Button onClick={handleCreateClick}>
                         <Plus className="mr-2 h-4 w-4" /> Tạo
                     </Button>
                 </div>

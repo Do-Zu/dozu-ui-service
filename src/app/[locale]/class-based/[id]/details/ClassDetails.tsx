@@ -1,14 +1,14 @@
 import LoadingPage from '@/app/loading';
 import { useEffect, useState } from 'react';
-import { ITopic } from '../../types/topic.type';
-import TopicDetailsModal, { ITopicDetails } from '../modals/TopicDetailsModal';
+import { ITopic } from '../../../topics/types/topic.type';
+import TopicDetailsModal, { ITopicDetails } from '../../../topics/components/modals/TopicDetailsModal';
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import useFetch from '@/hooks/useFetch';
 import classFeedService from '@/services/class-based-learning/classFeed.service';
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTranslations } from 'next-intl';
-import TopicLibrary from '../common/TopicLibrary';
+import LearningSpace from '../../../topics/components/common/LearningSpace';
 import {
     DropdownMenu,
     DropdownMenuItem,
@@ -31,16 +31,16 @@ import {
     BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import StudentProfileModal from '../modals/StudentProfileModal';
+import StudentProfileModal from '../../../topics/components/modals/StudentProfileModal';
 import { ROUTES } from '@/utils/constants/routes';
 import topicService from '@/services/topic/topic.service';
 import { useRouter } from 'next/navigation';
 import { ShowIf } from '@/components/ui/ShowIf';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import TopicCard from '../common/TopicCard';
+import TopicCard from '../../../topics/components/common/TopicCard';
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
-import { useTopics } from '../../hooks/useTopics';
+import { useTopics } from '../../../topics/hooks/useTopics';
 import { useClassBased } from '@/contexts/class-based';
 import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
@@ -54,7 +54,7 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function StudentTopicLibrary() {
+export default function ClassDetails() {
     const { classId } = useClassBased();
     const router = useRouter();
     const t = useTranslations('home.contentLibrary');
@@ -329,7 +329,7 @@ export default function StudentTopicLibrary() {
     );
 
     return (
-        <TopicLibrary
+        <LearningSpace
             mode="class-based"
             myClass={myClass}
             mainActionButtons={mainActionButtons}
