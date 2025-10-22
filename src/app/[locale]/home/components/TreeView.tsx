@@ -43,7 +43,6 @@ import {
     Paperclip,
     Pencil,
 } from 'lucide-react';
-import { TypographyP } from '@/components/ui/typography/TypographyP';
 
 export interface ITreeTopicItem {
     topicId: number | string;
