@@ -216,16 +216,17 @@ export default function FlashcardBrowse({ topicId, flashcards }: { topicId: numb
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcards.length}
                         autoPlayEnabled={autoPlayEnabled}
-                        handleOnChangeAutoPlayEnabled={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                        handleAutoPlayToggle={() => setAutoPlayEnabled(!autoPlayEnabled)}
                         handleResetProgress={resetProgress}
                         autoPlaySpeed={autoPlaySpeed}
-                        handleOnChangeAutoPlaySpeed={(value) => setAutoPlaySpeed(value[0])}
+                        handleAutoPlaySpeedChange={(value) => setAutoPlaySpeed(value[0])}
                         shuffleEnabled={shuffleEnabled}
-                        handleOnChangeShuffleEnabled={() => setShuffleEnabled(!shuffleEnabled)}
-                        handleClickEditFlashcards={handleEditFlashcardsClick}
-                        handleOnClickLearning={handleLearningClick}
-                        handleOnClickGame={handleGameClick}
-                        handleOnClickMemoryMatch={handleMemoryMatchClick}
+                        handleShuffleToggle={() => setShuffleEnabled(!shuffleEnabled)}
+                        handleEditFlashcardsClick={handleEditFlashcardsClick}
+                        handleLearningClick={handleLearningClick}
+                        handleGameClick={handleGameClick}
+                        handleMemoryMatchClick={handleMemoryMatchClick}
+                        isFullScreen={false}
                     />
                 </aside>
             </div>

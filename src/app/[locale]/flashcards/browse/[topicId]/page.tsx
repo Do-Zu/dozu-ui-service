@@ -422,16 +422,16 @@ export default function Page() {
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcards.length}
                         autoPlayEnabled={autoPlayEnabled}
-                        handleOnChangeAutoPlayEnabled={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                        handleAutoPlayToggle={() => setAutoPlayEnabled(!autoPlayEnabled)}
                         handleResetProgress={handleResetProgress}
                         autoPlaySpeed={autoPlaySpeed}
-                        handleOnChangeAutoPlaySpeed={(value) => setAutoPlaySpeed(value[0])}
+                        handleAutoPlaySpeedChange={(value) => setAutoPlaySpeed(value[0])}
                         shuffleEnabled={shuffleEnabled}
-                        handleOnChangeShuffleEnabled={() => setShuffleEnabled(!shuffleEnabled)}
-                        handleClickEditFlashcards={handleClickEditFlashcards}
-                        handleOnClickLearning={handleOnClickLearning}
-                        handleOnClickGame={handleOnClickGame}
-                        handleOnClickMemoryMatch={handleOnClickMemoryMatch}
+                        handleShuffleToggle={() => setShuffleEnabled(!shuffleEnabled)}
+                        handleEditFlashcardsClick={handleClickEditFlashcards}
+                        handleLearningClick={handleOnClickLearning}
+                        handleGameClick={handleOnClickGame}
+                        handleMemoryMatchClick={handleOnClickMemoryMatch}
                     />
                 </aside>
             </div>
