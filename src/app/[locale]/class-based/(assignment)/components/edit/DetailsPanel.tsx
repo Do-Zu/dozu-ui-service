@@ -59,7 +59,7 @@ export default function DetailsPanel(props: Props) {
     function handleGradeChange(e: React.ChangeEvent<HTMLInputElement>) {
         if (!withGrade) return;
         const value = Number(e.target.value);
-        props.setGrade(isNaN(value) ? 0 : Math.max(value, 1));
+        props.setGrade(Math.max(isNaN(value) ? 1 : value, 1));
     }
 
     function handleDueDateSelect(value: Date | undefined) {
