@@ -24,6 +24,7 @@ import {
     GitFork,
     GraduationCap,
     Layers,
+    Package,
     Play,
     Plus,
     Search,
@@ -40,7 +41,7 @@ import { CreateTopicModal } from '../modals/CreateTopicModal';
 import { DeleteTopicModal } from '../modals/DeleteTopicModal';
 import TopicDetailsModal from '../modals/TopicDetailsModal';
 import { UpdateTopicModal } from '../modals/UpdateTopicModal';
-import { useMotionTemplate, useMotionValue } from 'framer-motion';
+import { Modal } from '@/components/modal/Modal';
 
 type TopicFilteringAction =
     | 'newest'
@@ -59,6 +60,7 @@ export default function PersonalTopicLibrary() {
     const [sortBy, setSortBy] = useState<TopicFilteringAction>('newest');
 
     const [topicsFiltered, setTopicsFiltered] = useState<ITopic[]>();
+    const [isOpenListPackage, setIsOpenListPackage] = useState<boolean>(false);
 
     const metrics = useMemo(() => {
         const list = topicsFiltered ?? [];
@@ -158,11 +160,11 @@ export default function PersonalTopicLibrary() {
         router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
     }
 
-    async function handleOnSelectLearning(topicId: number) {
+    function handleOnSelectLearning(topicId: number) {
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
-    async function handleOnSelectSettings(topicId: number) {
+    function handleOnSelectSettings(topicId: number) {
         router.push(ROUTES.ANKI_SETTINGS(topicId));
     }
 
@@ -252,6 +254,16 @@ export default function PersonalTopicLibrary() {
                 <DropdownMenuItem onSelect={() => handleUpdateTopicModalOpen({ topicId, name, description, imageUrl })}>
                     <Edit className="mr-2 h-4 w-4" />
                     <span>{tCommon('actions.edit')}</span>
+                </DropdownMenuItem>
+
+                {/* TODO: implement list package for add */}
+                <DropdownMenuItem
+                    onSelect={() => {
+                        setIsOpenListPackage(true);
+                    }}
+                >
+                    <Package className="mr-2 h-4 w-4" />
+                    <span>{tTopic('addPackage')}</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onSelect={() => handleDeleteTopicModalOpen({ topicId, name })}>
@@ -450,6 +462,14 @@ export default function PersonalTopicLibrary() {
                 isOpen={isTopicDetailsModalOpen}
                 setIsOpen={setIsTopicDetailsModalOpen}
                 topic={selectingTopic}
+            />
+            {/** push list package dialog here for user select*/}
+            <Modal
+                body={<div>List Package</div>}
+                title=""
+                isOpen={isOpenListPackage}
+                setIsOpen={setIsOpenListPackage}
+                contentStyle="max-w-[500px]"
             />
         </>
     );
