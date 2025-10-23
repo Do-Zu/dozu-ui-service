@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Lottie from 'lottie-react';
-import { Spinner } from '../ui/spinner';
+import Spinner from '../ui/spinner';
 
 const Animation404 = ({ size = 500 }: { size?: number }) => {
     const [animationData, setAnimationData] = useState<any>(null);

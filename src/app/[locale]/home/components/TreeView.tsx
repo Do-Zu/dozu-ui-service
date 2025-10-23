@@ -50,7 +50,7 @@ import {
 import { isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
 import { Modal } from '@/components/modal/Modal';
 import { toast } from '@/hooks/use-toast';
-import { Spinner } from '@/components/ui/spinner';
+import Spinner from '@/components/ui/spinner';
 import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
 
 export interface ITreeTopicItem {
