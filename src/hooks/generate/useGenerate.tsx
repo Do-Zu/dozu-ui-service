@@ -18,6 +18,46 @@ export interface UsePostOptions<TReq, TRes> {
     onError?: (error?: unknown) => void;
 }
 
+/**
+ * Custom hook for handling content generation with Server-Sent Events (SSE) streaming.
+ *
+ * This hook manages the complete lifecycle of content generation:
+ * - Compresses and sends content to the generation API
+ * - Receives a job ID and establishes an SSE connection
+ * - Monitors the generation progress via SSE
+ * - Handles success/error states and displays toast notifications
+ *
+ * @template TRes - The expected type of the generated data response
+ *
+ * @param {UsePostOptions<IGenerateRequest, TRes>} [options] - Optional callbacks for success and error handling
+ * @param {(data: TRes) => void} [options.onSuccess] - Callback invoked when generation completes successfully
+ * @param {(error?: unknown) => void} [options.onError] - Callback invoked when an error occurs
+ *
+ * @returns {Object} Hook utilities and state
+ * @returns {boolean} isGenerating - Whether content is currently being generated
+ * @returns {boolean} loading - Whether the initial API request is in progress
+ * @returns {ApiResponsePubGenContent | undefined} apiResponse - The API response containing the job ID
+ * @returns {unknown} apiPostContentError - Any error from the initial API request
+ * @returns {(params: IGenerateRequest) => Promise<void>} execute - Function to trigger content generation
+ * @returns {() => void} reset - Function to reset the hook state
+ * @returns {TRes | undefined} dataGenerated - The final generated data after completion
+ * @returns {React.Dispatch<React.SetStateAction<TRes | undefined>>} setDataGenerated - Setter for the generated data
+ *
+ * @example
+ * ```tsx
+ * const { execute, isGenerating, dataGenerated } = useGenerate<GeneratedContent>({
+ *   onSuccess: (data) => console.log('Generated:', data),
+ *   onError: (error) => console.error('Failed:', error)
+ * });
+ *
+ * // Trigger generation
+ * await execute({
+ *   content: 'Raw content to generate from',
+ *   method: 'file',
+ *   type: 'flashcard'
+ * });
+ * ```
+ */
 export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGenerateRequest, TRes>) {
     const t = useTranslations('generate.cardImport');
     const [jobId, setJobId] = useState<string | undefined>();

@@ -169,6 +169,26 @@ const normalize = (text: string | undefined | null): string[] => {
         .filter(Boolean);
 };
 
+/**
+ * Utility function for safe destructuring without React hooks.
+ * Can be used in any TypeScript/JavaScript context.
+ *
+ * @template T - The expected type of the object
+ * @param {T | undefined | null} object - The object to safely destructure
+ * @param {Partial<T>} defaultValues - Default values for missing properties
+ * @returns {T} A safe object that won't crash on destructuring
+ *
+ * @example
+ * ```tsx
+ * const { name, age } = safeDestructure(user, { name: '', age: 0 });
+ * ```
+ */
+const safeDestructure = <T extends object>(object: T | undefined | null, defaultValues: Partial<T> = {}): T => {
+    if (isNilOrEmpty(object)) return defaultValues as T;
+
+    return { ...defaultValues, ...object } as T;
+};
+
 export {
     deepClone,
     toTitleCase,
@@ -181,4 +201,5 @@ export {
     truncate,
     normalize,
     toNumber,
+    safeDestructure,
 };
