@@ -72,6 +72,7 @@ import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/Cl
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 import { IFeedGroup } from '@/utils/feeds/feed.helper';
+import ActivityTab from './ActivityTab';
 
 type TopicFilteringAction =
     | 'newest'
@@ -341,6 +342,10 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
         </>
     );
 
+    const activityContent = (
+        <ActivityTab classId={classId} />
+    );
+
     const menuContentInCard = (topic: ITopic) => {
         const { topicId, name, description, imageUrl } = topic;
         return (
@@ -535,6 +540,7 @@ export default function TeacherTopicLibrary({ classId }: { classId: number }) {
             mainActionButtons={mainActionButtons}
             feedContent={feedContent}
             topicContent={topicContent}
+            activityContent={activityContent}
         />
     );
 }
