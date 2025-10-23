@@ -1,4 +1,4 @@
-import { store } from '@/stores/store';
+import { store } from '@/stores/registry.store';
 import { openModal } from './subscriptionSlice';
 
 /**
@@ -6,12 +6,12 @@ import { openModal } from './subscriptionSlice';
  * This can be used in axios interceptors, utility functions, etc.
  */
 export const openUpgradeModal = () => {
-    store.dispatch(openModal());
+    store?.dispatch(openModal());
 };
 
 /**
  * Utility function to get the current subscription state from outside React components
  */
 export const getSubscriptionState = () => {
-    return store.getState().subscription;
+    return store?.getState().subscription;
 };
