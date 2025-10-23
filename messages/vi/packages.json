@@ -1,0 +1,53 @@
+{
+    "packages": {
+        "new": "Gói mới",
+        "createTitle": "Tạo gói",
+        "field": {
+            "name": "Tên"
+        },
+        "placeholder": {
+            "name": "ví dụ: Phát triển"
+        },
+        "action": {
+            "create": "Tạo",
+            "creating": "Đang tạo...",
+            "cancel": "Hủy",
+            "save": "Lưu",
+            "delete": "Xóa",
+            "saving": "Đang lưu..."
+        },
+        "menu": {
+            "rename": "Đổi tên",
+            "delete": "Xóa gói",
+            "removeFromPackage": "Xóa khỏi gói"
+        },
+        "dialog": {
+            "renameTitle": "Đổi tên gói",
+            "deleteTitle": "Xóa gói này?",
+            "deleteBody": "Hành động này không thể hoàn tác. Gói sẽ bị xóa. Các chủ đề sẽ không bị xóa trừ khi logic bên trên của bạn thực hiện hành động đó."
+        },
+        "topics": {
+            "none": "Không có chủ đề"
+        },
+        "search": {
+            "placeholder": "Tìm kiếm gói..."
+        },
+        "list": {
+            "loading": "Đang tải gói…",
+            "empty": "Không tìm thấy gói nào."
+        },
+        "submenu": {
+            "changePackage": "Chuyển gói"
+        },
+        "toast": {
+            "createFail": "Tạo gói thất bại!",
+            "removeFail": "Xóa thất bại!",
+            "renameFail": "Đổi tên thất bại",
+            "moveSuccess": "Di chuyển chủ đề thành công.",
+            "moveFail": {
+                "title": "Di chuyển chủ đề thất bại",
+                "desc": "Vui lòng thử lại."
+            }
+        }
+    }
+}

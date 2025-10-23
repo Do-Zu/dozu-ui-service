@@ -1,6 +1,7 @@
 'use client';
 
 import { Modal } from '@/components/modal/Modal';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -22,6 +23,7 @@ interface IProps {
 }
 export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, topic }: IProps) {
     const dispatch = useAppDispatch();
+    const t = useTranslations('packages');
 
     const { packages, isLoading } = useAppSelector((state) => safeDestructure(state.package));
 
@@ -35,7 +37,7 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
 
     const handleAddTopicInPackage = async (packageId: PackageId) => {
         if (isNilOrEmpty(topic)) {
-            toast({ description: 'Select topic first, please.' });
+            toast({ description: t('toast.moveFail.desc') });
             return;
         }
 
@@ -47,13 +49,13 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
                 }),
             );
 
-            toast({ description: 'Topic moved successfully.' });
+            toast({ description: t('toast.moveSuccess') });
             setIsOpenListPackage(false);
         } catch (error: any) {
             toast({
                 variant: 'destructive',
-                title: 'Failed to move topic',
-                description: typeof error === 'string' ? error : 'Please try again.',
+                title: t('toast.moveFail.title'),
+                description: typeof error === 'string' ? error : t('toast.moveFail.desc'),
             });
         }
     };
@@ -75,7 +77,7 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
                                 autoFocus
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Search packages..."
+                                placeholder={t('search.placeholder')}
                                 className="pl-8"
                             />
                             {query && (
@@ -95,7 +97,7 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
                     <ScrollArea className="max-h-72 pr-2">
                         <AnimatePresence mode="popLayout">
                             {isLoading && (!packages || packages.length === 0) ? (
-                                <div className="text-sm text-muted-foreground p-4">Loading packages…</div>
+                                <div className="text-sm text-muted-foreground p-4">{t('list.loading')}</div>
                             ) : filtered.length === 0 ? (
                                 <motion.div
                                     initial={{ opacity: 0 }}
@@ -103,7 +105,7 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
                                     exit={{ opacity: 0 }}
                                     className="text-sm text-muted-foreground p-4"
                                 >
-                                    No packages found.
+                                    {t('list.empty')}
                                 </motion.div>
                             ) : (
                                 <ul className="grid grid-cols-1 gap-2">

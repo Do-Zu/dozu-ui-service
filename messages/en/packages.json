@@ -1,0 +1,59 @@
+{
+    "packages": {
+        "new": "New package",
+        "createTitle": "Create package",
+
+        "field": {
+            "name": "Name"
+        },
+        "placeholder": {
+            "name": "e.g. Development"
+        },
+
+        "action": {
+            "create": "Create",
+            "creating": "Creating...",
+            "cancel": "Cancel",
+            "save": "Save",
+            "delete": "Delete",
+            "saving": "Saving..."
+        },
+
+        "menu": {
+            "rename": "Change name",
+            "delete": "Delete package",
+            "removeFromPackage": "Remove from package"
+        },
+
+        "dialog": {
+            "deleteBody": "This action can’t be undone. The package will be removed. Topics won’t be deleted unless your parent logic performs that action.",
+            "renameTitle": "Rename package",
+            "deleteTitle": "Delete this package?"
+        },
+
+        "topics": {
+            "none": "No topics"
+        },
+        "search": {
+            "placeholder": "Search packages..."
+        },
+        "list": {
+            "loading": "Loading packages…",
+            "empty": "No packages found."
+        },
+        "submenu": {
+            "changePackage": "Change package"
+        },
+
+        "toast": {
+            "createFail": "Create package failed!",
+            "removeFail": "Remove failed!",
+            "renameFail": "Rename failed",
+            "moveSuccess": "Topic moved successfully.",
+            "moveFail": {
+                "title": "Failed to move topic",
+                "desc": "Please try again."
+            }
+        }
+    }
+}
