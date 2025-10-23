@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -43,22 +43,26 @@ import {
     Paperclip,
     Pencil,
 } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '@/stores/hooks';
+import { PackageItem } from '@/services/package/package.type';
+import {
+    createPackage,
+    deletePackage,
+    fetchPackages,
+    fetchTopicsByPackage,
+} from '@/stores/features/package/package.thunk';
+import { isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
+import { Modal } from '@/components/modal/Modal';
+import { toast } from '@/hooks/use-toast';
+import { Spinner } from '@/components/ui/spinner';
+import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
 
 export interface ITreeTopicItem {
     topicId: number | string;
     name: string;
 }
 
-export interface ITreePackageItem {
-    id: number | string;
-    name: string;
-    color?: string;
-    topics: ITreeTopicItem[];
-}
-
-type CreatePackageHandler = (name: string) => void | Promise<void>;
-type DeletePackageHandler = (id: string | number) => void | Promise<void>;
-type SelectTopicHandler = (topic: ITreeTopicItem, pkg: ITreePackageItem) => void;
+type SelectTopicHandler = (topic: ITreeTopicItem, pkg: PackageItem) => void;
 type RenamePackageHandler = (id: string | number, name: string) => void | Promise<void>;
 type RemoveTopicHandler = (topicId: string | number, pkgId: string | number) => void | Promise<void>;
 type MoveTopicHandler = (
@@ -68,9 +72,6 @@ type MoveTopicHandler = (
 ) => void | Promise<void>;
 
 export interface TreeViewProps {
-    packages?: ITreePackageItem[];
-    onCreatePackage?: CreatePackageHandler;
-    onDeletePackage?: DeletePackageHandler;
     onRenamePackage?: RenamePackageHandler;
     onRemoveTopic?: RemoveTopicHandler;
     onMoveTopic?: MoveTopicHandler;
@@ -78,56 +79,8 @@ export interface TreeViewProps {
     className?: string;
     selectedTopicId?: string | number;
 }
-const samplePackages: ITreePackageItem[] = [
-    {
-        id: 1,
-        name: 'P1',
-        topics: [],
-    },
-    {
-        id: 2,
-        name: 'Package 2',
-        topics: [
-            {
-                name: 'FUnction',
-                topicId: 1,
-            },
-            {
-                name: 'Material',
-                topicId: 2,
-            },
-            {
-                name: 'Helper',
-                topicId: 3,
-            },
-            {
-                name: 'Helper',
-                topicId: 4,
-            },
-            {
-                name: 'Helper',
-                topicId: 5,
-            },
-            {
-                name: 'Helper',
-                topicId: 6,
-            },
-            {
-                name: 'Helper',
-                topicId: 7,
-            },
-            {
-                name: 'Helper',
-                topicId: 8,
-            },
-        ],
-    },
-];
 
 const TreeView: React.FC<TreeViewProps> = ({
-    packages = samplePackages,
-    onCreatePackage,
-    onDeletePackage,
     onSelectTopic,
     onRenamePackage,
     onRemoveTopic,
@@ -135,32 +88,61 @@ const TreeView: React.FC<TreeViewProps> = ({
     className,
     selectedTopicId,
 }) => {
-    const [expanded, setExpanded] = useState<Record<string | number, boolean>>({});
-    const [creating, setCreating] = useState(false);
+    const dispatch = useAppDispatch();
+
+    const { isLoading, packages, topicsByPackage, error, expendPackage } = useAppSelector((state) => state.package);
+
     const [newPackageName, setNewPackageName] = useState('');
     const [pendingDeleteId, setPendingDeleteId] = useState<string | number | null>(null);
     const [pkgMenu, setPkgMenu] = useState<string | number | null>(null);
     const [topicMenu, setTopicMenu] = useState<{ pkgId: string | number; topicId: string | number } | null>(null);
     const [renaming, setRenaming] = useState<{ pkgId: string | number; name: string } | null>(null);
 
-    const toggle = (id: string | number) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+    const toggle = async (id: string | number) => {
+        const willOpen = !(expendPackage[id] ?? false);
+
+        dispatch(toggleExpendPackage(id));
+
+        if (willOpen) {
+            const topics = topicsByPackage[id];
+            if (isEmpty(topics)) {
+                await dispatch(fetchTopicsByPackage(id));
+            }
+        }
+    };
 
     const handleCreate = async () => {
-        if (!newPackageName.trim()) return;
-        if (!onCreatePackage) return;
-        setCreating(true);
+        const title = newPackageName.trim();
+
+        if (isNilOrEmpty(title)) return;
+
         try {
-            await onCreatePackage(newPackageName.trim());
+            await dispatch(
+                createPackage({
+                    title,
+                    parentId: null,
+                }),
+            ).unwrap();
+
+            await dispatch(fetchPackages());
+
             setNewPackageName('');
-        } finally {
-            setCreating(false);
+            setIsCreateOpen(false);
+        } catch {
+            toast({
+                description: 'create package fail!',
+            });
         }
     };
 
     const handleDelete = async (id: string | number) => {
-        if (!onDeletePackage) return;
-        await onDeletePackage(id);
-        setPendingDeleteId(null);
+        await dispatch(
+            deletePackage({
+                packageId: id,
+            }),
+        );
     };
 
     const handleRename = async () => {
@@ -175,17 +157,17 @@ const TreeView: React.FC<TreeViewProps> = ({
 
     const renderCreatePackage = () => (
         <div className="px-1 pb-2">
-            <Dialog>
-                <DialogTrigger asChild>
+            <Modal
+                isOpen={isCreateOpen}
+                setIsOpen={setIsCreateOpen}
+                title={'Create package'}
+                trigger={
                     <Button size="sm" variant="ghost" className="w-full justify-start gap-2">
                         <Plus className="h-4 w-4 rounded-full" />
                         <span className="text-xs">New package</span>
                     </Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Create package</DialogTitle>
-                    </DialogHeader>
+                }
+                body={
                     <div className="space-y-2">
                         <label className="text-sm text-muted-foreground" htmlFor="pkg-name">
                             Name
@@ -198,25 +180,33 @@ const TreeView: React.FC<TreeViewProps> = ({
                             placeholder="e.g. Development"
                         />
                     </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <Button onClick={handleCreate} disabled={creating || !newPackageName.trim()}>
-                            {creating ? 'Creating...' : 'Create'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                }
+                footer={
+                    <Button onClick={handleCreate} disabled={isLoading || !newPackageName.trim()}>
+                        {isLoading ? 'Creating...' : 'Create'}
+                    </Button>
+                }
+                cancel={<Button variant="outline">Cancel</Button>}
+            />
         </div>
     );
+
+    useEffect(() => {
+        dispatch(fetchPackages());
+    }, []);
+
+    if (isLoading) return <Spinner className="size-4 text-center mx-auto" />;
 
     return (
         <div className={cn('w-full text-sm', className)}>
             <div className="space-y-1">
                 {packages?.map((pkg) => {
-                    const isOpen = expanded[pkg.id] ?? true; // default open
-                    const count = pkg.topics?.length ?? 0;
+                    const isOpen = expendPackage[pkg.id] ?? false;
+
+                    const { topics, isFetchingTopic } = safeDestructure(topicsByPackage[pkg.id]);
+
+                    if (isFetchingTopic) return <Spinner className="size-4 text-center mx-auto" />;
+
                     return (
                         <div key={pkg.id} className="rounded-md">
                             <DropdownMenu open={pkgMenu === pkg.id} onOpenChange={(o) => !o && setPkgMenu(null)}>
@@ -240,7 +230,7 @@ const TreeView: React.FC<TreeViewProps> = ({
 
                                             <span
                                                 className="inline-flex h-2 w-2 rounded-full"
-                                                style={{ backgroundColor: pkg.color || '#94a3b8' }}
+                                                style={{ backgroundColor: '#94a3b8' }}
                                             />
 
                                             {isOpen ? (
@@ -249,8 +239,7 @@ const TreeView: React.FC<TreeViewProps> = ({
                                                 <Folder className="h-4 w-4 text-primary" />
                                             )}
 
-                                            <span className="font-medium">{pkg.name}</span>
-                                            <span className="ml-1 text-xs text-muted-foreground">{count}</span>
+                                            <span className="font-medium">{pkg?.title}</span>
                                         </div>
                                         <Button
                                             variant="ghost"
@@ -269,7 +258,7 @@ const TreeView: React.FC<TreeViewProps> = ({
                                     <DropdownMenuItem
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setRenaming({ pkgId: pkg.id, name: pkg.name });
+                                            setRenaming({ pkgId: pkg.id, name: pkg?.title });
                                             setPkgMenu(null);
                                         }}
                                         className="text-xs"
@@ -293,9 +282,10 @@ const TreeView: React.FC<TreeViewProps> = ({
                             {/* Topics */}
                             {isOpen && (
                                 <div className="ml-6 border-l pl-3">
-                                    {pkg.topics && pkg.topics.length > 0 ? (
+                                    {}
+                                    {topics && topics.length > 0 ? (
                                         <ul className="py-1">
-                                            {pkg.topics.map((t) => {
+                                            {topics.map((t) => {
                                                 const selected = selectedTopicId === t.topicId;
                                                 return (
                                                     <li key={t.topicId}>
@@ -363,7 +353,7 @@ const TreeView: React.FC<TreeViewProps> = ({
                                                                                     className="text-xs"
                                                                                 >
                                                                                     <Folder className="mr-2 h-4 w-4" />{' '}
-                                                                                    {target.name}
+                                                                                    {target.title}
                                                                                 </DropdownMenuItem>
                                                                             ))}
                                                                     </DropdownMenuSubContent>
@@ -384,7 +374,6 @@ const TreeView: React.FC<TreeViewProps> = ({
                 })}
                 {renderCreatePackage()}
             </div>
-
             {/* Delete confirmation */}
             {pendingDeleteId != null && (
                 <AlertDialog open onOpenChange={(open) => !open && setPendingDeleteId(null)}>
