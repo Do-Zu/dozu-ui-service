@@ -13,6 +13,8 @@ export interface TopicItem {
     topicId: TopicId;
     packageId: PackageId;
     name: string;
+    description?: string | null;
+    classId?: number | string | null;
 }
 
 /* Requests */
@@ -20,7 +22,6 @@ export interface CreatePackageRequest {
     title: string;
     parentId?: PackageId | null;
 }
-
 export interface GetTopicBelongPackageRequest {
     packageId: PackageId;
 }
@@ -30,12 +31,17 @@ export interface DeletePackageRequest {
 }
 
 export interface UpdateTopicInPackageRequest {
-    topicId: number | string;
+    topicId: TopicId;
     packageId: PackageId;
 }
 
 export interface UpdateTopicInPackagePayload {
-    topic: ITopic;
+    topic: Partial<ITopic>;
+    packageId: PackageId;
+}
+
+export type UpdateTopicInPackageResponse = TopicItem;
+export interface UpdatePackageRequest extends CreatePackageRequest {
     packageId: PackageId;
 }
 
@@ -43,4 +49,10 @@ export interface UpdateTopicInPackagePayload {
 export interface GetPackagesQuery {
     limit?: number;
     offset?: number;
+}
+
+export interface IUpdatePackageResponse {
+    id: number;
+    title: string;
+    parentId: number | null;
 }

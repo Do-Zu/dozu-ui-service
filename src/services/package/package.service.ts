@@ -9,6 +9,9 @@ import {
     UpdateTopicInPackageRequest,
     PackageId,
     GetTopicBelongPackageRequest,
+    UpdateTopicInPackageResponse,
+    UpdatePackageRequest,
+    IUpdatePackageResponse,
 } from './package.type';
 
 const BASE = '/package';
@@ -26,6 +29,10 @@ export const packageService = {
         return postRequest<CreatePackageRequest, unknown>(`${BASE}/new`, payload);
     },
 
+    async updatePackage(payload: UpdatePackageRequest): Promise<ApiResponse<IUpdatePackageResponse>> {
+        return putRequest<UpdatePackageRequest, IUpdatePackageResponse>(`${BASE}`, payload);
+    },
+
     async deletePackage(payload: DeletePackageRequest): Promise<ApiResponse<unknown>> {
         return deleteRequest<DeletePackageRequest, ApiResponse<unknown>>(BASE, payload);
     },
@@ -37,8 +44,12 @@ export const packageService = {
         });
     },
 
-    async moveTopicToPackage(payload: UpdateTopicInPackageRequest): Promise<ApiResponse<unknown>> {
-        return putRequest<UpdateTopicInPackageRequest, unknown>(`${BASE}/topic/modify`, payload);
+    async moveTopicToPackage(payload: UpdateTopicInPackageRequest): Promise<ApiResponse<UpdateTopicInPackageResponse>> {
+        return putRequest<UpdateTopicInPackageRequest, UpdateTopicInPackageResponse>(`${BASE}/topic/modify`, payload);
+    },
+
+    async removeTopicInPackage(payload: UpdateTopicInPackageRequest) {
+        return putRequest<UpdateTopicInPackageRequest, unknown>(`${BASE}/topic/remove`, payload);
     },
 };
 

@@ -8,6 +8,7 @@ export interface IStatePackage {
 
 export interface PackageState {
     isLoading: boolean;
+    isUpdating: boolean;
     error: string | null;
     packages: PackageItem[];
     topicsByPackage: Record<string, IStatePackage>;

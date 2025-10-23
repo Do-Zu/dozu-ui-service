@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -11,15 +11,7 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
-import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogClose,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
     AlertDialog,
@@ -44,12 +36,15 @@ import {
     Pencil,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { PackageItem } from '@/services/package/package.type';
+import { PackageId, TopicId } from '@/services/package/package.type';
 import {
     createPackage,
     deletePackage,
     fetchPackages,
     fetchTopicsByPackage,
+    moveTopicToPackage,
+    removeTopicInPackage,
+    updatePackage,
 } from '@/stores/features/package/package.thunk';
 import { isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
 import { Modal } from '@/components/modal/Modal';
@@ -62,45 +57,27 @@ export interface ITreeTopicItem {
     name: string;
 }
 
-type SelectTopicHandler = (topic: ITreeTopicItem, pkg: PackageItem) => void;
-type RenamePackageHandler = (id: string | number, name: string) => void | Promise<void>;
-type RemoveTopicHandler = (topicId: string | number, pkgId: string | number) => void | Promise<void>;
-type MoveTopicHandler = (
-    topicId: string | number,
-    fromPkgId: string | number,
-    toPkgId: string | number,
-) => void | Promise<void>;
-
 export interface TreeViewProps {
-    onRenamePackage?: RenamePackageHandler;
-    onRemoveTopic?: RemoveTopicHandler;
-    onMoveTopic?: MoveTopicHandler;
-    onSelectTopic?: SelectTopicHandler;
     className?: string;
-    selectedTopicId?: string | number;
+    selectedTopicId?: TopicId;
 }
 
-const TreeView: React.FC<TreeViewProps> = ({
-    onSelectTopic,
-    onRenamePackage,
-    onRemoveTopic,
-    onMoveTopic,
-    className,
-    selectedTopicId,
-}) => {
+const TreeView: React.FC<TreeViewProps> = ({ className, selectedTopicId }) => {
     const dispatch = useAppDispatch();
 
-    const { isLoading, packages, topicsByPackage, error, expendPackage } = useAppSelector((state) => state.package);
+    const { isLoading, isUpdating, packages, topicsByPackage, error, expendPackage } = useAppSelector(
+        (state) => state.package,
+    );
 
     const [newPackageName, setNewPackageName] = useState('');
-    const [pendingDeleteId, setPendingDeleteId] = useState<string | number | null>(null);
-    const [pkgMenu, setPkgMenu] = useState<string | number | null>(null);
-    const [topicMenu, setTopicMenu] = useState<{ pkgId: string | number; topicId: string | number } | null>(null);
-    const [renaming, setRenaming] = useState<{ pkgId: string | number; name: string } | null>(null);
+    const [pendingDeleteId, setPendingDeleteId] = useState<PackageId | null>(null);
+    const [pkgMenu, setPkgMenu] = useState<PackageId | null>(null);
+    const [topicMenu, setTopicMenu] = useState<{ pkgId: PackageId; topicId: TopicId } | null>(null);
+    const [renaming, setRenaming] = useState<{ pkgId: PackageId; name: string } | null>(null);
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    const toggle = async (id: string | number) => {
+    const toggle = async (id: PackageId) => {
         const willOpen = !(expendPackage[id] ?? false);
 
         dispatch(toggleExpendPackage(id));
@@ -137,7 +114,22 @@ const TreeView: React.FC<TreeViewProps> = ({
         }
     };
 
-    const handleDelete = async (id: string | number) => {
+    const handleRemoveTopic = async (topicId: TopicId, packageId: PackageId) => {
+        try {
+            await dispatch(
+                removeTopicInPackage({
+                    topicId,
+                    packageId,
+                }),
+            );
+        } catch (error) {
+            toast({
+                description: 'Remove fail!',
+            });
+        }
+    };
+
+    const handleDelete = async (id: PackageId) => {
         await dispatch(
             deletePackage({
                 packageId: id,
@@ -145,14 +137,43 @@ const TreeView: React.FC<TreeViewProps> = ({
         );
     };
 
+    const handleMoveTopic = async (topicId: TopicId, oldPackageId: PackageId, newPackageId: PackageId) => {
+        try {
+            await dispatch(
+                moveTopicToPackage({
+                    topic: {
+                        topicId: Number(topicId),
+                    },
+                    packageId: newPackageId,
+                }),
+            );
+
+            const isClose = !expendPackage[newPackageId];
+
+            if (isClose) {
+                toggle(newPackageId);
+            }
+        } catch (error) {}
+    };
+
     const handleRename = async () => {
         if (!renaming) return;
         const value = renaming.name.trim();
-        if (!value) return setRenaming(null);
-        if (onRenamePackage) {
-            await onRenamePackage(renaming.pkgId, value);
+        if (isNilOrEmpty(value)) return setRenaming(null);
+
+        try {
+            await dispatch(
+                updatePackage({
+                    packageId: renaming.pkgId,
+                    title: value,
+                }),
+            ).unwrap();
+            setRenaming(null);
+        } catch {
+            toast({
+                title: 'Rename failed',
+            });
         }
-        setRenaming(null);
     };
 
     const renderCreatePackage = () => (
@@ -182,14 +203,18 @@ const TreeView: React.FC<TreeViewProps> = ({
                     </div>
                 }
                 footer={
-                    <Button onClick={handleCreate} disabled={isLoading || !newPackageName.trim()}>
-                        {isLoading ? 'Creating...' : 'Create'}
+                    <Button onClick={handleCreate} disabled={isUpdating || !newPackageName.trim()}>
+                        {isUpdating ? 'Creating...' : 'Create'}
                     </Button>
                 }
                 cancel={<Button variant="outline">Cancel</Button>}
             />
         </div>
     );
+
+    const isDisableModify = useMemo(() => {
+        return isNilOrEmpty(renaming?.name?.trim()) || isUpdating;
+    }, [renaming?.name, isUpdating]);
 
     useEffect(() => {
         dispatch(fetchPackages());
@@ -204,8 +229,6 @@ const TreeView: React.FC<TreeViewProps> = ({
                     const isOpen = expendPackage[pkg.id] ?? false;
 
                     const { topics, isFetchingTopic } = safeDestructure(topicsByPackage[pkg.id]);
-
-                    if (isFetchingTopic) return <Spinner className="size-4 text-center mx-auto" />;
 
                     return (
                         <div key={pkg.id} className="rounded-md">
@@ -279,10 +302,12 @@ const TreeView: React.FC<TreeViewProps> = ({
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
+                            {isFetchingTopic && <Spinner className="size-4 text-center mx-auto" />}
+
                             {/* Topics */}
-                            {isOpen && (
+
+                            {isOpen && !isFetchingTopic && (
                                 <div className="ml-6 border-l pl-3">
-                                    {}
                                     {topics && topics.length > 0 ? (
                                         <ul className="py-1">
                                             {topics.map((t) => {
@@ -303,7 +328,6 @@ const TreeView: React.FC<TreeViewProps> = ({
                                                                         'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent',
                                                                         selected && 'bg-accent',
                                                                     )}
-                                                                    onClick={() => onSelectTopic?.(t, pkg)}
                                                                     onContextMenu={(e) => {
                                                                         e.preventDefault();
                                                                         setTopicMenu({
@@ -318,11 +342,9 @@ const TreeView: React.FC<TreeViewProps> = ({
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end">
                                                                 <DropdownMenuItem
-                                                                    disabled={!onRemoveTopic}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
-                                                                        if (onRemoveTopic)
-                                                                            onRemoveTopic(t.topicId, pkg.id);
+                                                                        handleRemoveTopic(t.topicId, pkg.id);
                                                                         setTopicMenu(null);
                                                                     }}
                                                                     className="text-xs"
@@ -339,15 +361,15 @@ const TreeView: React.FC<TreeViewProps> = ({
                                                                             .map((target) => (
                                                                                 <DropdownMenuItem
                                                                                     key={target.id}
-                                                                                    disabled={!onMoveTopic}
                                                                                     onClick={(e) => {
                                                                                         e.stopPropagation();
-                                                                                        if (onMoveTopic)
-                                                                                            onMoveTopic(
-                                                                                                t.topicId,
-                                                                                                pkg.id,
-                                                                                                target.id,
-                                                                                            );
+
+                                                                                        handleMoveTopic(
+                                                                                            t.topicId,
+                                                                                            pkg.id,
+                                                                                            target.id,
+                                                                                        );
+
                                                                                         setTopicMenu(null);
                                                                                     }}
                                                                                     className="text-xs"
@@ -419,10 +441,12 @@ const TreeView: React.FC<TreeViewProps> = ({
                         </div>
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
+                                <Button disabled={isUpdating} variant="outline">
+                                    Cancel
+                                </Button>
                             </DialogClose>
-                            <Button onClick={handleRename} disabled={!renaming.name.trim()}>
-                                Save
+                            <Button onClick={handleRename} disabled={isDisableModify}>
+                                {isUpdating ? 'Saving...' : 'Save'}
                             </Button>
                         </DialogFooter>
                     </DialogContent>

@@ -8,6 +8,10 @@ import {
     PackageId,
     TopicItem,
     UpdateTopicInPackagePayload,
+    UpdateTopicInPackageRequest,
+    UpdateTopicInPackageResponse,
+    UpdatePackageRequest,
+    IUpdatePackageResponse,
 } from '@/services/package/package.type';
 
 export const fetchPackages = createAsyncThunk<PackageItem[], GetPackagesQuery | undefined, { rejectValue: string }>(
@@ -63,13 +67,30 @@ export const fetchTopicsByPackage = createAsyncThunk<
 });
 
 export const moveTopicToPackage = createAsyncThunk<
-    UpdateTopicInPackagePayload,
+    UpdateTopicInPackageResponse,
     UpdateTopicInPackagePayload,
     { rejectValue: string }
 >('package/moveTopicToPackage', async (payload, { rejectWithValue }) => {
     try {
-        await packageService.moveTopicToPackage({
-            topicId: payload.topic.topicId,
+        const res = await packageService.moveTopicToPackage({
+            topicId: payload.topic.topicId!,
+            packageId: payload.packageId,
+        });
+        return res.data;
+    } catch (error: any) {
+        if (error?.response?.data?.message) return rejectWithValue(error.response.data.message);
+        return rejectWithValue(error instanceof Error ? error.message : 'Failed to move topic');
+    }
+});
+
+export const removeTopicInPackage = createAsyncThunk<
+    UpdateTopicInPackageRequest,
+    UpdateTopicInPackageRequest,
+    { rejectValue: string }
+>('package/removeTopicInPackage', async (payload, { rejectWithValue }) => {
+    try {
+        await packageService.removeTopicInPackage({
+            topicId: payload.topicId,
             packageId: payload.packageId,
         });
 
@@ -79,3 +100,16 @@ export const moveTopicToPackage = createAsyncThunk<
         return rejectWithValue(error instanceof Error ? error.message : 'Failed to move topic');
     }
 });
+
+export const updatePackage = createAsyncThunk<IUpdatePackageResponse, UpdatePackageRequest, { rejectValue: string }>(
+    'package/updatePackage',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const res = await packageService.updatePackage(payload);
+            return res.data;
+        } catch (error: any) {
+            if (error?.response?.data?.message) return rejectWithValue(error.response.data.message);
+            return rejectWithValue(error instanceof Error ? error.message : 'Failed to update package');
+        }
+    },
+);
