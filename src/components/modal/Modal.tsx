@@ -3,6 +3,7 @@ import {
     DialogClose,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogOverlay,
     DialogPortal,
     DialogTitle,
@@ -16,13 +17,24 @@ interface Props {
     title: string;
     description?: ReactElement | string | null;
     body: ReactElement;
+    footer?: ReactElement;
+    cancel?: ReactElement;
     isOpen?: boolean;
     setIsOpen?: (isOpen: boolean) => void;
-
     contentStyle?: string;
 }
 
-export const Modal = ({ isOpen, setIsOpen, trigger, title, description, body, contentStyle }: Props) => {
+export const Modal = ({
+    isOpen,
+    setIsOpen,
+    trigger,
+    title,
+    description,
+    body,
+    footer,
+    cancel,
+    contentStyle,
+}: Props) => {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -39,7 +51,11 @@ export const Modal = ({ isOpen, setIsOpen, trigger, title, description, body, co
                         <DialogDescription className="text-lg leading-[1.5]">{description}</DialogDescription>
                     ) : null}
                     {body}
-                    <DialogClose asChild />
+
+                    <DialogFooter>
+                        <DialogClose asChild>{cancel}</DialogClose>
+                        {footer}
+                    </DialogFooter>
                 </DialogContent>
             </DialogPortal>
         </Dialog>
