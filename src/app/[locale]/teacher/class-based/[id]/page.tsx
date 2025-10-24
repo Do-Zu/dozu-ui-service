@@ -1,11 +1,11 @@
 'use client';
 
-import ClassDetails from './details/ClassDetails';
+import ClassDashboard from './dashboard/ClassDashboard';
 import { withAuth } from '@/hoc/withAuth';
 import { USER_ROLES } from '@/utils/constants/roles';
 import { useParams } from 'next/navigation';
 
-const AuthComponent = withAuth(ClassDetails, { requiredRole: USER_ROLES.TEACHER });
+const AuthComponent = withAuth(ClassDashboard, { requiredRole: USER_ROLES.TEACHER });
 
 export default function Page() {
     const params = useParams();

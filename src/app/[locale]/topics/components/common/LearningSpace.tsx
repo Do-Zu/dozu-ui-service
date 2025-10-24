@@ -17,7 +17,7 @@ interface ClassBasedModeProps {
     mode: 'class-based';
     myClass: IClass;
     feedContent: React.ReactNode;
-    assignmentContent?: React.ReactNode;
+    classworkContent?: React.ReactNode;
 }
 
 type Props = BaseProps & (PersonalModeProps | ClassBasedModeProps);
@@ -82,7 +82,7 @@ export default function LearningSpace(props: Props) {
 
                 <div className="relative z-10">
                     {mode === 'class-based' ? (
-                        <div className='pt-6'>
+                        <div className="pt-6">
                             <Tabs defaultValue="feeds" className="w-full">
                                 <TabsList className="w-full mx-6 md:mx-8 bg-transparent p-0 border-b border-slate-200 dark:border-white/10">
                                     <TabsTrigger
@@ -104,13 +104,13 @@ export default function LearningSpace(props: Props) {
                                         Topics
                                     </TabsTrigger>
                                     <TabsTrigger
-                                        value="assignments"
+                                        value="classwork"
                                         className="w-[30%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
                                                 data-[state=active]:border-b-2 data-[state=active]:border-primary 
                                                 rounded-b-none text-base font-medium px-4 py-2 transition-all 
                                                 -mb-px"
                                     >
-                                        Assignments
+                                        Classwork
                                     </TabsTrigger>
                                 </TabsList>
 
@@ -120,8 +120,8 @@ export default function LearningSpace(props: Props) {
                                 <TabsContent value="topics" className="px-6 md:px-8 py-4">
                                     {topicContent}
                                 </TabsContent>
-                                <TabsContent value="assignments" className="px-6 md:px-8 py-4">
-                                    {props.assignmentContent ?? ''}
+                                <TabsContent value="classwork" className="px-6 md:px-8 py-4">
+                                    {props.classworkContent ?? ''}
                                 </TabsContent>
                             </Tabs>
                         </div>

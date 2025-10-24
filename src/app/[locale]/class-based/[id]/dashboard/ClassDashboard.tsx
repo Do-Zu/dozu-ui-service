@@ -54,7 +54,7 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function ClassDetails() {
+export default function ClassDashboard() {
     const { classId } = useClassBased();
     const router = useRouter();
     const t = useTranslations('home.contentLibrary');

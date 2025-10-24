@@ -72,9 +72,9 @@ import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/Cl
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 import { IFeedGroup } from '@/utils/feeds/feed.helper';
-import AssignmentsList from '@/app/[locale]/class-based/(assignment)/components/AssignmentsList';
+import ClassworkList from '@/app/[locale]/class-based/(classwork)/components/ClassworkList';
 import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
-import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/services/teacher/teacherAssignment.service';
+import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/service/teacher/teacherAssignment.service';
 
 type TopicFilteringAction =
     | 'newest'
@@ -84,7 +84,7 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function ClassDetails({ classId }: { classId: number }) {
+export default function ClassDashboard({ classId }: { classId: number }) {
     const router = useRouter();
     const validateTopic = useValidateTopic();
 
@@ -209,14 +209,14 @@ export default function ClassDetails({ classId }: { classId: number }) {
         }
     }
 
-    const assignmentContent = useMemo(() => {
+    const classworkContent = useMemo(() => {
         if (!myClass || !topics) return null;
         const value = topics.map(({ topicId, name }) => ({ topicId, name }));
         return (
             <>
                 {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
                 {assignmentsLoading ? <LoadingPage /> : null}
-                {assignments ? <AssignmentsList myClass={myClass} topics={value} assignments={assignments} /> : null}
+                {assignments ? <ClassworkList myClass={myClass} topics={value} assignments={assignments} /> : null}
             </>
         );
     }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);
@@ -556,7 +556,7 @@ export default function ClassDetails({ classId }: { classId: number }) {
             mainActionButtons={mainActionButtons}
             feedContent={feedContent}
             topicContent={topicContent}
-            assignmentContent={assignmentContent}
+            classworkContent={classworkContent}
         />
     );
 }

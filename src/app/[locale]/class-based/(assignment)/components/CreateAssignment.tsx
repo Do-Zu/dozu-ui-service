@@ -9,24 +9,26 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CalendarIcon, Link2, Upload, X, ChevronDown } from 'lucide-react';
-import ContentSection from './ContentSection';
-import AttachmentsSection from './AttachmentsSection';
-import DetailsPanel, { NO_TOPIC } from './DetailsPanel';
+import ContentSection from '../../(classwork)/components/common/ContentSection';
+import AttachmentsSection from '../../(classwork)/components/common/AttachmentsSection';
+import DetailsPanel from '../../(classwork)/components/common/DetailsPanel';
 import { useRouter } from 'next/navigation';
-import { IClass } from '../../../types/class.type';
+import { IClass } from '../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-import { AssignmentStatusEnum, InsertAssignmentStatus } from '../../types/assignment.type';
+import { AssignmentStatusEnum, InsertAssignmentBody, InsertAssignmentStatus } from '../types/assignment.type';
+import assignmentUtils from '../utils/assignment.utils';
+import { DEFAULT_ASSIGNMENT_STATUS, DEFAULT_TOTAL_GRADE } from '../utils/assignment.constant';
+import { NO_TOPIC_ID } from '../../(classwork)/utils/classwork.constant';
 
 interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
+    onSubmit: ({ assignment }: { assignment: InsertAssignmentBody }) => Promise<void>;
+    loading: boolean;
 }
 
-const DEFAULT_TOTAL_GRADE = 100;
-const DEFAULT_ASSIGNMENT_STATUS = AssignmentStatusEnum.PUBLISHED;
-
 // create another component for implementing your feature
-export function EditAssignment({ myClass, topics }: Props) {
+export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) {
     const router = useRouter();
 
     // Assignment Status selection states
@@ -40,7 +42,7 @@ export function EditAssignment({ myClass, topics }: Props) {
     // ... states
 
     // Details
-    const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC);
+    const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
 
@@ -48,24 +50,18 @@ export function EditAssignment({ myClass, topics }: Props) {
         router.back();
     }
 
-    function formatSelectedStatus(status: InsertAssignmentStatus) {
-        switch (status) {
-            case 'draft': {
-                return 'Lưu bản nháp';
-            }
-            case 'scheduled': {
-                return 'Lên lịch';
-            }
-            case 'published': {
-                return 'Giao bài ngay';
-            }
-            default: {
-                return 'Giá trị không hợp lệ';
-            }
-        }
+    async function handleSubmit() {
+        const assignment: InsertAssignmentBody = {
+            topicId: assignmentUtils.parseTopicId(selectedTopic),
+            title,
+            content,
+            acceptingSubmissions: true, // handle later
+            deadline: dueDate,
+            totalGrades: grade,
+            status: AssignmentStatusEnum.PUBLISHED, // handle later
+        };
+        await onSubmit({ assignment });
     }
-
-    function handleSubmit() {}
 
     return (
         <div className="container w-[100%] max-w-7xl p-2">
@@ -78,7 +74,9 @@ export function EditAssignment({ myClass, topics }: Props) {
                     <h1 className="text-3xl font-semibold text-foreground">Bài tập</h1>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Button>{formatSelectedStatus(selectedStatus)}</Button>
+                    <Button onClick={handleSubmit} disabled={loading}>
+                        {loading ? 'Saving...' : assignmentUtils.getStatusLabel(selectedStatus)}
+                    </Button>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

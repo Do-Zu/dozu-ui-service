@@ -10,19 +10,33 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MoreVertical, Plus, BookText } from 'lucide-react';
+import { MoreVertical, Plus, BookText, Edit, Trash2, FileText, HelpCircle, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AssignmentStatusEnum, IAssignment } from '../types/assignment.type';
+import { AssignmentStatusEnum, IAssignment } from '../../(assignment)/types/assignment.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { formatDate } from '@/utils';
-import assignmentUtils, { ALL_TOPICS, NO_TOPIC } from '../utils/assignment.utils';
+import assignmentUtils from '../../(assignment)/utils/assignment.utils';
 import { useRouter } from 'next/navigation';
 import { IClass } from '../../types/class.type';
 import { ROUTES } from '@/utils/constants/routes';
+import { useTranslations } from 'next-intl';
+import { ALL_TOPICS, NO_TOPIC } from '../utils/classwork.constant';
+import { IClassworkType } from '../types/classwork.type';
 
-const AssignmentItem = ({ assignment }: { assignment: IAssignment }) => {
+const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
+    const router = useRouter();
+    const tCommon = useTranslations('common');
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
     const isPastDeadline = assignment.deadline && new Date() > assignment.deadline;
+
+    function handleEditClick() {
+        router.push(
+            ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID({
+                classId: assignment.classId,
+                assignmentId: assignment.assignmentId,
+            }),
+        );
+    }
 
     return (
         <div className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md transition-colors">
@@ -68,8 +82,15 @@ const AssignmentItem = ({ assignment }: { assignment: IAssignment }) => {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">Xóa</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={handleEditClick}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>{tCommon('actions.edit')}</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onSelect={() => {}}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>{tCommon('actions.delete')}</span>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
@@ -83,7 +104,7 @@ interface Props {
     assignments: IAssignment[];
 }
 
-function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
+function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
     const router = useRouter();
     const topics = useMemo(() => {
         return [...topicsData, NO_TOPIC];
@@ -102,8 +123,20 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
         setSelectedTopic(value);
     }
 
-    function handleCreateClick() {
-        router.push(ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENTS(myClass.classId));
+    function handleSelect(type: IClassworkType) {
+        switch (type) {
+            case 'assignment':
+                router.push(ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENTS(myClass.classId));
+                break;
+            case 'quiz':
+                // ...routing to your page
+                break;
+            case 'learningMaterial':
+                // ...routing to your page
+                break;
+            default:
+                break;
+        }
     }
 
     return (
@@ -127,9 +160,29 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
                             })}
                         </SelectContent>
                     </Select>
-                    <Button onClick={handleCreateClick}>
-                        <Plus className="mr-2 h-4 w-4" /> Tạo
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button>
+                                <Plus className="mr-2 h-4 w-4" /> Tạo
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => handleSelect('assignment')}>
+                                <FileText className="mr-2 h-4 w-4" />
+                                <span>Bài tập</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onSelect={() => handleSelect('quiz')}>
+                                <HelpCircle className="mr-2 h-4 w-4" />
+                                <span>Câu hỏi / Quiz</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onSelect={() => handleSelect('learningMaterial')}>
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                <span>Tài liệu học tập</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 
@@ -140,7 +193,7 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
                     </h2>
                     <div className="flex flex-col divide-y divide-border">
                         {selectedAssignments.map((assignment) => (
-                            <AssignmentItem key={assignment.assignmentId} assignment={assignment} />
+                            <ClassworkItem key={assignment.assignmentId} assignment={assignment} />
                         ))}
                     </div>
                 </div>
@@ -157,7 +210,7 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
                                         </h2>
                                         <div className="flex flex-col divide-y divide-border">
                                             {assignments?.map((assignment) => (
-                                                <AssignmentItem key={assignment.assignmentId} assignment={assignment} />
+                                                <ClassworkItem key={assignment.assignmentId} assignment={assignment} />
                                             ))}
                                         </div>
                                     </div>
@@ -171,4 +224,4 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
     );
 }
 
-export default React.memo(AssignmentsList);
+export default React.memo(ClassworkList);
