@@ -17,6 +17,7 @@ import { packageService } from '@/services/package/package.service';
 import Spinner from '@/components/ui/spinner';
 import { moveTopicToPackage } from '@/stores/features/package/package.thunk';
 import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
+import { toast } from '@/hooks/use-toast';
 
 interface IProps {
     isOpenListTopicUnAssign: boolean;
@@ -54,7 +55,7 @@ export default function ListTopicUnAssign({ isOpenListTopicUnAssign, setIsOpenLi
                         topicId: Number(topicId),
                     },
                 }),
-            );
+            ).unwrap();
             dispatch(
                 toggleExpendPackage({
                     packageId,
@@ -62,6 +63,7 @@ export default function ListTopicUnAssign({ isOpenListTopicUnAssign, setIsOpenLi
                 }),
             );
         } catch {
+            toast({ description: t('toast.moveFail.title') });
         } finally {
             setIsOpenListTopicUnAssign(false);
         }
@@ -71,7 +73,7 @@ export default function ListTopicUnAssign({ isOpenListTopicUnAssign, setIsOpenLi
 
     const contentRender = () => {
         if (isLoading && !error) {
-            <Spinner />;
+            return <Spinner />;
         }
 
         if (isEmpty(data)) {

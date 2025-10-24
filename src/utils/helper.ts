@@ -188,13 +188,13 @@ const safeDestructure = <T extends object>(object: T | undefined | null, default
 };
 
 /**
- * @description Compares two strings for equality without considering capitalization.
- * This function is useful for case-insensitive comparisons, such as when checking user input or comparing
+ * @description Normalizes a string by trimming whitespace and converting to lowercase.
+ *  Returns an empty string for nullish input.
  * @param str1
- * @param str2
- * @returns boolean - Returns true if both strings are equal ignoring case, false otherwise.
+ * @param str - The string to normalize.
+ * @returns The normalized string, or empty string if input is nullish.
  */
-const lowercase = (str: string | null | undefined) => {
+const lowercase = (str: string | null | undefined): string => {
     return str ? str.trim().toLowerCase() : '';
 };
 

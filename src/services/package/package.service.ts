@@ -50,7 +50,7 @@ export const packageService = {
     async getTopicUnAssignedForPackage(payload: GetTopicUnAssignedPackagesRequest): Promise<TopicItem[]> {
         const url = `${BASE}/topics/unassigned`;
 
-        const res = await postRequest<GetTopicBelongPackageRequest, TopicItem[]>(url, payload);
+        const res = await postRequest<GetTopicUnAssignedPackagesRequest, TopicItem[]>(url, payload);
 
         const { data } = safeDestructure(res);
 
