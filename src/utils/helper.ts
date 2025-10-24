@@ -1,5 +1,3 @@
-import { object } from 'zod';
-
 /**
  * Converts various string formats to a number.
  * Supports thousand separators, comma decimals, underscores, currency symbols, and scientific notation.
@@ -209,6 +207,20 @@ const compareIgnoreCapitalization = (str1: string, str2: string) => {
     return lowercase(str1) === lowercase(str2);
 };
 
+/**
+ * Validates that a value is an array. Optionally ensures all items pass a type guard.
+ * Returns [] when invalid.
+ *
+ * @example
+ * const numbers = validateArray<number>(maybeNumbers, (v): v is number => typeof v === 'number');
+ * const anyArray = validateArray<any>(maybeArray); // only checks Array.isArray
+ */
+const validateArray = <T>(value: unknown, isItem?: (v: unknown) => v is T): T[] => {
+    if (!Array.isArray(value)) return [];
+    if (isItem && !value.every(isItem)) return [];
+    return value as T[];
+};
+
 export {
     deepClone,
     toTitleCase,
@@ -224,4 +236,5 @@ export {
     safeDestructure,
     lowercase,
     compareIgnoreCapitalization,
+    validateArray,
 };
