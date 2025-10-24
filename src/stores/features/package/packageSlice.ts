@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { RootState } from '@/stores/store';
 import type { PackageId, PackageItem, TopicItem } from '@/services/package/package.type';
 import {
     fetchPackages,
@@ -11,7 +10,7 @@ import {
     updatePackage,
 } from './package.thunk';
 import { PackageState } from './package.type';
-import { compareIgnoreCapitalization, isEmpty, safeDestructure } from '@/utils';
+import { compareIgnoreCapitalization, safeDestructure } from '@/utils';
 
 interface IPackage extends PackageItem {
     topics: TopicItem[];
@@ -22,6 +21,7 @@ const initialState: PackageState = {
     isUpdating: false,
     error: null,
     packages: [],
+    selectedTopicId: null,
     topicsByPackage: {},
     expendPackage: {},
 };
@@ -47,6 +47,10 @@ const packageSlice = createSlice({
                 ...state.expendPackage,
                 [packageId]: !state.expendPackage[packageId],
             };
+        },
+        setSelectingTopicId: (state, action) => {
+            const topicId = action.payload;
+            state.selectedTopicId = topicId;
         },
     },
     extraReducers: (builder) => {
@@ -190,7 +194,7 @@ const packageSlice = createSlice({
     },
 });
 
-export const { clearPackageError, toggleExpendPackage } = packageSlice.actions;
+export const { clearPackageError, toggleExpendPackage, setSelectingTopicId } = packageSlice.actions;
 
 // Selectors
 

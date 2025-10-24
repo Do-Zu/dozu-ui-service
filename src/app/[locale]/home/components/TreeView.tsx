@@ -47,7 +47,7 @@ import {
     removeTopicInPackage,
     updatePackage,
 } from '@/stores/features/package/package.thunk';
-import { isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
+import { compareIgnoreCapitalization, isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
 import { Modal } from '@/components/modal/Modal';
 import { toast } from '@/hooks/use-toast';
 import Spinner from '@/components/ui/spinner';
@@ -60,14 +60,13 @@ export interface ITreeTopicItem {
 
 export interface TreeViewProps {
     className?: string;
-    selectedTopicId?: TopicId;
 }
 
-const TreeView: React.FC<TreeViewProps> = ({ className, selectedTopicId }) => {
+const TreeView: React.FC<TreeViewProps> = ({ className }) => {
     const dispatch = useAppDispatch();
     const t = useTranslations('packages');
 
-    const { isLoading, isUpdating, packages, topicsByPackage, error, expendPackage } = useAppSelector(
+    const { isLoading, isUpdating, packages, topicsByPackage, error, expendPackage, selectedTopicId } = useAppSelector(
         (state) => state.package,
     );
 
@@ -302,7 +301,11 @@ const TreeView: React.FC<TreeViewProps> = ({ className, selectedTopicId }) => {
                                     {topics && topics.length > 0 ? (
                                         <ul className="py-1">
                                             {topics.map((topic) => {
-                                                const selected = selectedTopicId === topic.topicId;
+                                                const selected = compareIgnoreCapitalization(
+                                                    String(selectedTopicId),
+                                                    String(topic.topicId),
+                                                );
+
                                                 return (
                                                     <li key={topic.topicId}>
                                                         <DropdownMenu

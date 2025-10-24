@@ -1,4 +1,4 @@
-import { PackageId, PackageItem, TopicItem } from '@/services/package/package.type';
+import { PackageId, PackageItem, TopicId, TopicItem } from '@/services/package/package.type';
 
 export interface IStatePackage {
     isFetchingTopic: boolean;
@@ -11,6 +11,7 @@ export interface PackageState {
     isUpdating: boolean;
     error: string | null;
     packages: PackageItem[];
+    selectedTopicId: TopicId | null;
     topicsByPackage: Record<string, IStatePackage>;
     expendPackage: Record<PackageId, boolean>;
 }
