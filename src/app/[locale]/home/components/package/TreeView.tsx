@@ -133,11 +133,12 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
     };
 
     const handleDelete = async (id: PackageId) => {
-        await dispatch(
-            deletePackage({
-                packageId: id,
-            }),
-        );
+        try {
+            await dispatch(deletePackage({ packageId: id })).unwrap();
+            setPendingDeleteId(null);
+        } catch (e) {
+            toast({ description: t('toast.deleteFail') });
+        }
     };
 
     const handleMoveTopic = async (topicId: TopicId, oldPackageId: PackageId, newPackageId: PackageId) => {

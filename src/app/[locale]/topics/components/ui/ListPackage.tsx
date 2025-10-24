@@ -47,15 +47,14 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
                     packageId,
                     topic: topic!,
                 }),
-            );
+            ).unwrap();
 
             toast({ description: t('toast.moveSuccess') });
             setIsOpenListPackage(false);
-        } catch (error: any) {
+        } catch {
             toast({
                 variant: 'destructive',
                 title: t('toast.moveFail.title'),
-                description: typeof error === 'string' ? error : t('toast.moveFail.desc'),
             });
         }
     };

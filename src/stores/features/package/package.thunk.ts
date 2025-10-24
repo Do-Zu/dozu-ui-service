@@ -99,7 +99,7 @@ export const removeTopicInPackage = createAsyncThunk<
         return payload;
     } catch (error: any) {
         if (error?.response?.data?.message) return rejectWithValue(error.response.data.message);
-        return rejectWithValue(error instanceof Error ? error.message : 'Failed to move topic');
+        return rejectWithValue(error instanceof Error ? error.message : 'Failed to remove topic');
     }
 });
 

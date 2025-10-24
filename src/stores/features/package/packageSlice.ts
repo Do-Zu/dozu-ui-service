@@ -147,8 +147,12 @@ const packageSlice = createSlice({
                 const topicIdStr = String(updated.topicId);
                 // Remove from any existing package cache
                 for (const [pkgKey, stateTopic] of Object.entries(state.topicsByPackage)) {
-                    const { topics } = safeDestructure(stateTopic);
-                    const idx = topics.findIndex((t) => String(t.topicId) === topicIdStr);
+                    const { topics } = safeDestructure(stateTopic, {
+                        topics: [],
+                    });
+
+                    const idx = topics?.findIndex((t) => String(t.topicId) === topicIdStr);
+
                     if (idx >= 0) {
                         topics.splice(idx, 1);
                         break;
@@ -156,14 +160,18 @@ const packageSlice = createSlice({
                 }
 
                 const newKey = String(updated.packageId);
+
                 if (!state.topicsByPackage[newKey]) {
                     state.topicsByPackage[newKey] = { isFetchingTopic: false, topics: [], error: null };
                 }
+
                 const next = state.topicsByPackage[newKey].topics ?? [];
+
                 // Avoid duplicate push if exists
                 if (!next.some((t) => String(t.topicId) === topicIdStr)) {
                     next.push(updated);
                 }
+
                 state.topicsByPackage[newKey].topics = next;
             })
             .addCase(removeTopicInPackage.rejected, (state, action) => {

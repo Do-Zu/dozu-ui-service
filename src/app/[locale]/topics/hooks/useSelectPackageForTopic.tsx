@@ -3,7 +3,7 @@ import { ITopic } from '../types/topic.type';
 
 export function useSelectPackageForTopic() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [selectingTopic, setSelectingTopic] = useState<ITopic | null>();
+    const [selectingTopic, setSelectingTopic] = useState<ITopic | null>(null);
 
     useEffect(() => {
         if (!isOpen) {
