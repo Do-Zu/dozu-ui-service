@@ -15,6 +15,7 @@ import { ITopic } from '../../types/topic.type';
 import { toast } from '@/hooks/use-toast';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Folder, Search, X } from 'lucide-react';
+import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
 
 interface IProps {
     isOpenListPackage: boolean;
@@ -48,6 +49,13 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
                     topic: topic!,
                 }),
             ).unwrap();
+
+            dispatch(
+                toggleExpendPackage({
+                    packageId,
+                    specificStatus: true,
+                }),
+            );
 
             toast({ description: t('toast.moveSuccess') });
             setIsOpenListPackage(false);

@@ -56,6 +56,7 @@ export default function ListTopicUnAssign({ isOpenListTopicUnAssign, setIsOpenLi
                     },
                 }),
             ).unwrap();
+
             dispatch(
                 toggleExpendPackage({
                     packageId,
