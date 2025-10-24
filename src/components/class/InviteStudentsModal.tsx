@@ -309,7 +309,7 @@ export function InviteStudentsModal({
         </Tabs>
 
         {/* Pending Invites */}
-        {pendingInvites.length > 0 && (
+        {/* {pendingInvites.length > 0 && (
           <div className="mt-6">
             <PendingInvitesList
               invites={pendingInvites}
@@ -319,7 +319,7 @@ export function InviteStudentsModal({
               loading={loading.getPendingInvites}
             />
           </div>
-        )}
+        )} */}
 
         {/* Error Display */}
         {error && (
