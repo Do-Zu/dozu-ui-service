@@ -1,9 +1,6 @@
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { IAssignment, InsertAssignmentStatus } from '../types/assignment.type';
-
-export const NO_TOPIC = { topicId: -1, name: 'Không có chủ đề' };
-export const ALL_TOPICS = 'all';
-export const NO_TOPIC_ID = '-1';
+import { ALL_TOPICS, NO_TOPIC, NO_TOPIC_ID } from '../../(classwork)/utils/classwork.constant';
 
 class AssignmentUtils {
     public getSelectedAssignments(

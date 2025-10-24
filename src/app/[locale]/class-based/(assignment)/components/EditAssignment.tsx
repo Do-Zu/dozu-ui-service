@@ -9,20 +9,21 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CalendarIcon, Link2, Upload, X, ChevronDown } from 'lucide-react';
-import ContentSection from './ContentSection';
-import AttachmentsSection from './AttachmentsSection';
-import DetailsPanel, { NO_TOPIC } from './DetailsPanel';
+import ContentSection from '../../(classwork)/components/common/ContentSection';
+import AttachmentsSection from '../../(classwork)/components/common/AttachmentsSection';
+import DetailsPanel from '../../(classwork)/components/common/DetailsPanel';
 import { useRouter } from 'next/navigation';
-import { IClass } from '../../../types/class.type';
+import { IClass } from '../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import {
     AssignmentStatusEnum,
     IAssignment,
     InsertAssignmentStatus,
     IUpdateAssignmentBody,
-} from '../../types/assignment.type';
-import assignmentUtils from '../../utils/assignment.utils';
-import { DEFAULT_ASSIGNMENT_STATUS, DEFAULT_TOTAL_GRADE } from '../../utils/assignment.constant';
+} from '../types/assignment.type';
+import assignmentUtils from '../utils/assignment.utils';
+import { DEFAULT_ASSIGNMENT_STATUS, DEFAULT_TOTAL_GRADE } from '../utils/assignment.constant';
+import { NO_TOPIC_ID } from '../../(classwork)/utils/classwork.constant';
 
 interface Props {
     myClass: IClass;
@@ -47,7 +48,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
     // ... states
 
     // Details
-    const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC);
+    const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
 
@@ -55,7 +56,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
         setSelectedStatus(AssignmentStatusEnum.PUBLISHED); // handle later
         setTitle(assignment.title);
         setContent(assignment.content);
-        setSelectedTopic(assignment.topicId ? assignment.topicId.toString() : NO_TOPIC);
+        setSelectedTopic(assignment.topicId ? assignment.topicId.toString() : NO_TOPIC_ID);
         setGrade(assignment.totalGrades);
         setDueDate(assignment.deadline ? assignment.deadline : undefined);
     }, [

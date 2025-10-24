@@ -1,7 +1,7 @@
 'use client';
 
-import { EditAssignment } from '@/app/[locale]/class-based/(assignment)/components/edit/EditAssignment';
-import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/services/teacher/teacherAssignment.service';
+import { EditAssignment } from '@/app/[locale]/class-based/(assignment)/components/EditAssignment';
+import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/service/teacher/teacherAssignment.service';
 import {
     IAssignment,
     IUpdateAssignmentBody,

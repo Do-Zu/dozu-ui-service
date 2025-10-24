@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { IClass } from '../../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
+import { NO_TOPIC_ID } from '../../utils/classwork.constant';
 
 // if don't use grade or deadline section (like learning materials feature), just pass withGrade false & withDeadline false
 interface WithGradeProps {
@@ -46,9 +47,6 @@ interface BaseProps {
 }
 
 type Props = BaseProps & (WithGradeProps | WithoutGradeProps) & (WithDeadlineProps | WithoutDeadlineProps);
-
-// if creating assignment for class
-export const NO_TOPIC = '-1';
 
 export default function DetailsPanel(props: Props) {
     const { myClass, topics, withGrade, withDeadline, selectedTopic, setSelectedTopic } = props;
@@ -90,12 +88,12 @@ export default function DetailsPanel(props: Props) {
                     <Label htmlFor="topic" className="text-base">
                         Chủ đề
                     </Label>
-                    <Select defaultValue={NO_TOPIC} value={selectedTopic} onValueChange={handleTopicSelect}>
+                    <Select defaultValue={NO_TOPIC_ID} value={selectedTopic} onValueChange={handleTopicSelect}>
                         <SelectTrigger id="topic" className="text-base h-11">
                             <SelectValue placeholder="Không có chủ đề" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={NO_TOPIC} className="text-base">
+                            <SelectItem value={NO_TOPIC_ID} className="text-base">
                                 Không có chủ đề
                             </SelectItem>
                             {topics.map((topic) => (

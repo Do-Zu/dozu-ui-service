@@ -12,16 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Plus, BookText, Edit, Trash2, FileText, HelpCircle, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AssignmentStatusEnum, IAssignment } from '../types/assignment.type';
+import { AssignmentStatusEnum, IAssignment } from '../../(assignment)/types/assignment.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { formatDate } from '@/utils';
-import assignmentUtils, { ALL_TOPICS, NO_TOPIC } from '../utils/assignment.utils';
+import assignmentUtils from '../../(assignment)/utils/assignment.utils';
 import { useRouter } from 'next/navigation';
 import { IClass } from '../../types/class.type';
 import { ROUTES } from '@/utils/constants/routes';
 import { useTranslations } from 'next-intl';
+import { ALL_TOPICS, NO_TOPIC } from '../utils/classwork.constant';
+import { IClassworkType } from '../types/classwork.type';
 
-const AssignmentItem = ({ assignment }: { assignment: IAssignment }) => {
+const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
@@ -102,7 +104,7 @@ interface Props {
     assignments: IAssignment[];
 }
 
-function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
+function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
     const router = useRouter();
     const topics = useMemo(() => {
         return [...topicsData, NO_TOPIC];
@@ -121,7 +123,7 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
         setSelectedTopic(value);
     }
 
-    function handleSelect(type: 'assignment' | 'quiz' | 'learningMaterial') {
+    function handleSelect(type: IClassworkType) {
         switch (type) {
             case 'assignment':
                 router.push(ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENTS(myClass.classId));
@@ -191,7 +193,7 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
                     </h2>
                     <div className="flex flex-col divide-y divide-border">
                         {selectedAssignments.map((assignment) => (
-                            <AssignmentItem key={assignment.assignmentId} assignment={assignment} />
+                            <ClassworkItem key={assignment.assignmentId} assignment={assignment} />
                         ))}
                     </div>
                 </div>
@@ -208,7 +210,7 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
                                         </h2>
                                         <div className="flex flex-col divide-y divide-border">
                                             {assignments?.map((assignment) => (
-                                                <AssignmentItem key={assignment.assignmentId} assignment={assignment} />
+                                                <ClassworkItem key={assignment.assignmentId} assignment={assignment} />
                                             ))}
                                         </div>
                                     </div>
@@ -222,4 +224,4 @@ function AssignmentsList({ myClass, topics: topicsData, assignments }: Props) {
     );
 }
 
-export default React.memo(AssignmentsList);
+export default React.memo(ClassworkList);
