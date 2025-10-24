@@ -46,6 +46,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
 
     // Attachments Section states
     // ... states
+    const [files, setFiles] = useState<File[]>([]);
 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
@@ -123,8 +124,15 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 space-y-8">
-                    <ContentSection title={title} setTitle={setTitle} content={content} setContent={setContent} />
-                    <AttachmentsSection />
+                    <ContentSection
+                        title={title}
+                        setTitle={setTitle}
+                        content={content}
+                        setContent={setContent}
+                        files={files}
+                        setFiles={setFiles}
+                    />
+                    <AttachmentsSection files={files} setFiles={setFiles} />
                 </div>
 
                 <div className="space-y-8">
