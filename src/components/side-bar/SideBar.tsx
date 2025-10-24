@@ -25,9 +25,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarHeader,
-    SidebarFooter,
     SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { AuthGuard } from '../permission/AuthGuard';
 import { ROUTES } from '@/utils/constants/routes';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { ShieldCheck } from 'lucide-react';
@@ -89,7 +89,9 @@ export function AppSidebar() {
                     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
                         <SidebarGroupLabel>Packages</SidebarGroupLabel>
                         <SidebarGroupContent>
-                            <TreeView />
+                            <AuthGuard>
+                                <TreeView />
+                            </AuthGuard>
                         </SidebarGroupContent>
                     </SidebarGroup>
 
