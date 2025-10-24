@@ -52,6 +52,10 @@ import { Modal } from '@/components/modal/Modal';
 import { toast } from '@/hooks/use-toast';
 import Spinner from '@/components/ui/spinner';
 import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
+import useFetch from '@/hooks/useFetch';
+import topicService from '@/services/topic/topic.service';
+import usePost from '@/hooks/usePost';
+import { packageService } from '@/services/package/package.service';
 
 export interface ITreeTopicItem {
     topicId: number | string;
@@ -77,6 +81,13 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
     const [renaming, setRenaming] = useState<{ pkgId: PackageId; name: string } | null>(null);
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+    const {
+        data,
+        error: errorFetchTopics,
+        loading: isFetchingTopics,
+        execute: fetchTopicUnAssignedForPackage,
+    } = usePost(packageService.getTopicUnAssignedForPackage);
 
     const toggle = async (id: PackageId) => {
         const willOpen = !(expendPackage[id] ?? false);

@@ -50,6 +50,12 @@ export interface GetPackagesQuery {
     offset?: number;
 }
 
+export interface GetTopicUnAssignedPackagesRequest {
+    limit?: number;
+    offset?: number;
+    packageId: PackageId;
+}
+
 export interface CreatePackageResponse {
     packageId: number;
     title: string;

@@ -13,6 +13,7 @@ import {
     UpdatePackageRequest,
     IUpdatePackageResponse,
     CreatePackageResponse,
+    GetTopicUnAssignedPackagesRequest,
 } from './package.type';
 
 const BASE = '/package';
@@ -43,6 +44,11 @@ export const packageService = {
         return postRequest<GetTopicBelongPackageRequest, TopicItem[]>(url, {
             packageId,
         });
+    },
+
+    async getTopicUnAssignedForPackage(payload: GetTopicUnAssignedPackagesRequest): Promise<ApiResponse<TopicItem[]>> {
+        const url = `${BASE}/topics/unassigned`;
+        return postRequest<GetTopicBelongPackageRequest, TopicItem[]>(url, payload);
     },
 
     async moveTopicToPackage(payload: UpdateTopicInPackageRequest): Promise<ApiResponse<UpdateTopicInPackageResponse>> {
