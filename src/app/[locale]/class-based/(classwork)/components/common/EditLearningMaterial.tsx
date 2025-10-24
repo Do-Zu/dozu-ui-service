@@ -11,18 +11,22 @@ import {
 import { CalendarIcon, Link2, Upload, X, ChevronDown } from 'lucide-react';
 import ContentSection from './ContentSection';
 import AttachmentsSection from './AttachmentsSection';
-import DetailsPanel, { NO_TOPIC } from './DetailsPanel';
+import DetailsPanel from './DetailsPanel';
 import { useRouter } from 'next/navigation';
 import { IClass } from '../../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-import { AssignmentStatusEnum, InsertAssignmentStatus } from '../../types/assignment.type';
+// import { AssignmentStatusEnum, InsertAssignmentStatus } from '../../types/assignment.type';
+
 import { useTranslations } from 'next-intl';
-import AttachmentItem from '../AttachmentItem';
+
 import useUploadAttachmentFiles from '@/hooks/upload/useUploadAttachmentFiles';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { UploadFileResponse } from '@/components/generative/types';
 import { RESOURCE_CONTENT_TYPE } from '@/app/[locale]/generate/constants/resource';
+import { NO_TOPIC_ID } from '../../utils/classwork.constant';
+import AttachmentItem from '../../../(assignment)/components/AttachmentItem';
+import { AssignmentStatusEnum } from '../../../(assignment)/types/assignment.type';
 
 interface Props {
     myClass: IClass;
@@ -51,7 +55,7 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
     const router = useRouter();
 
     // Assignment Status selection states
-    const [selectedStatus, setSelectedStatus] = useState<InsertAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
+    // const [selectedStatus, setSelectedStatus] = useState<InsertAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
 
     // Content Section states
     const [title, setTitle] = useState<string>('');
@@ -68,7 +72,7 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
     }
 
     // Details
-    const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC);
+    const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
 
@@ -124,22 +128,22 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
     const isLoading = isPosting || isUploading;
     const isSumbmitDisabled = isLoading || !title;
 
-    function formatSelectedStatus(status: InsertAssignmentStatus) {
-        switch (status) {
-            case 'draft': {
-                return 'Lưu bản nháp';
-            }
-            case 'scheduled': {
-                return 'Lên lịch';
-            }
-            case 'published': {
-                return 'Giao bài ngay';
-            }
-            default: {
-                return 'Giá trị không hợp lệ';
-            }
-        }
-    }
+    // function formatSelectedStatus(status: InsertAssignmentStatus) {
+    //     switch (status) {
+    //         case 'draft': {
+    //             return 'Lưu bản nháp';
+    //         }
+    //         case 'scheduled': {
+    //             return 'Lên lịch';
+    //         }
+    //         case 'published': {
+    //             return 'Giao bài ngay';
+    //         }
+    //         default: {
+    //             return 'Giá trị không hợp lệ';
+    //         }
+    //     }
+    // }
 
     function handleSubmit() {}
 

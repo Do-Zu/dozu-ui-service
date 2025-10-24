@@ -1,7 +1,7 @@
 'use client';
 
-import { EditAssignment } from '@/app/[locale]/class-based/(assignment)/components/edit/EditAssignment';
-import { EditLearningMaterial } from '@/app/[locale]/class-based/(assignment)/components/edit/EditLearningMaterial';
+
+import { EditLearningMaterial } from '@/app/[locale]/class-based/(classwork)/components/common/EditLearningMaterial';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';
 import LoadingPage from '@/app/loading';
