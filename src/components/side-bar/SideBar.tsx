@@ -34,7 +34,7 @@ import { ShieldCheck } from 'lucide-react';
 import ThemeToggle from '@/components/toolbar/ThemeToggle';
 import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
 import AuthButton from '@/components/toolbar/AuthButton';
-import TreeView from '@/app/[locale]/home/components/TreeView';
+import TreeView from '@/app/[locale]/home/components/package/TreeView';
 import { ScrollArea } from '../ui/scroll-area';
 
 // Menu items.

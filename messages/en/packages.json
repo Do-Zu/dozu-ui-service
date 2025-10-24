@@ -22,6 +22,7 @@
         "menu": {
             "rename": "Change name",
             "delete": "Delete package",
+            "insert": "Insert",
             "removeFromPackage": "Remove from package"
         },
 
@@ -35,7 +36,7 @@
             "none": "No topics"
         },
         "search": {
-            "placeholder": "Search packages..."
+            "placeholder": "Typing..."
         },
         "list": {
             "loading": "Loading packages…",
@@ -49,7 +50,7 @@
             "createFail": "Create package failed!",
             "removeFail": "Remove failed!",
             "renameFail": "Rename failed",
-            "moveSuccess": "Topic moved successfully.",
+            "moveSuccess": "Moved",
             "moveFail": {
                 "title": "Failed to move topic",
                 "desc": "Please try again."

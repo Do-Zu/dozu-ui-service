@@ -18,8 +18,9 @@
         },
         "menu": {
             "rename": "Đổi tên",
-            "delete": "Xóa gói",
-            "removeFromPackage": "Xóa khỏi gói"
+            "delete": "Xóa",
+            "insert": "Thêm",
+            "removeFromPackage": "Gỡ bỏ"
         },
         "dialog": {
             "renameTitle": "Đổi tên gói",
@@ -30,7 +31,7 @@
             "none": "Không có chủ đề"
         },
         "search": {
-            "placeholder": "Tìm kiếm gói..."
+            "placeholder": "Nhập..."
         },
         "list": {
             "loading": "Đang tải gói…",
@@ -43,7 +44,7 @@
             "createFail": "Tạo gói thất bại!",
             "removeFail": "Xóa thất bại!",
             "renameFail": "Đổi tên thất bại",
-            "moveSuccess": "Di chuyển chủ đề thành công.",
+            "moveSuccess": "Đã thêm",
             "moveFail": {
                 "title": "Di chuyển chủ đề thất bại",
                 "desc": "Vui lòng thử lại."

@@ -35,6 +35,7 @@ import {
     FolderOpen,
     Paperclip,
     Pencil,
+    Package,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { PackageId, TopicId } from '@/services/package/package.type';
@@ -47,15 +48,12 @@ import {
     removeTopicInPackage,
     updatePackage,
 } from '@/stores/features/package/package.thunk';
-import { compareIgnoreCapitalization, isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
+import { compareIgnoreCapitalization, isEmpty, isNilOrEmpty, safeDestructure, truncate } from '@/utils';
 import { Modal } from '@/components/modal/Modal';
 import { toast } from '@/hooks/use-toast';
 import Spinner from '@/components/ui/spinner';
 import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
-import useFetch from '@/hooks/useFetch';
-import topicService from '@/services/topic/topic.service';
-import usePost from '@/hooks/usePost';
-import { packageService } from '@/services/package/package.service';
+import ListTopicUnAssign from './ListTopicUnAssign';
 
 export interface ITreeTopicItem {
     topicId: number | string;
@@ -76,23 +74,22 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
 
     const [newPackageName, setNewPackageName] = useState('');
     const [pendingDeleteId, setPendingDeleteId] = useState<PackageId | null>(null);
+    const [selectedPackageId, setSelectedPackageId] = useState<PackageId | null>(null);
     const [pkgMenu, setPkgMenu] = useState<PackageId | null>(null);
     const [topicMenu, setTopicMenu] = useState<{ pkgId: PackageId; topicId: TopicId } | null>(null);
     const [renaming, setRenaming] = useState<{ pkgId: PackageId; name: string } | null>(null);
+    const [isOpenListTopicsUnPackage, setIsOpenListTopicUnPackage] = useState<boolean>(false);
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-    const {
-        data,
-        error: errorFetchTopics,
-        loading: isFetchingTopics,
-        execute: fetchTopicUnAssignedForPackage,
-    } = usePost(packageService.getTopicUnAssignedForPackage);
 
     const toggle = async (id: PackageId) => {
         const willOpen = !(expendPackage[id] ?? false);
 
-        dispatch(toggleExpendPackage(id));
+        dispatch(
+            toggleExpendPackage({
+                packageId: id,
+            }),
+        );
 
         if (willOpen) {
             const topics = topicsByPackage[id];
@@ -276,7 +273,7 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                                         </Button>
                                     </div>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent align="end" className="p-2">
                                     <DropdownMenuItem
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -285,9 +282,23 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                                         }}
                                         className="text-xs"
                                     >
-                                        <Pencil className="h-2 w-2" />
+                                        <Pencil className="h-1 w-1" />
                                         <span className="text-xs">{t('menu.rename')}</span>
                                     </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsOpenListTopicUnPackage(true);
+                                            setSelectedPackageId(pkg.id);
+                                            setPkgMenu(null);
+                                        }}
+                                        className="text-xs"
+                                    >
+                                        <Package className="h-2 w-2" />
+                                        <span className="text-xs">{t('menu.insert')}</span>
+                                    </DropdownMenuItem>
+
                                     <DropdownMenuItem
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -340,7 +351,9 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                                                                     }}
                                                                 >
                                                                     <Paperclip className="h-4 w-4 text-muted-foreground" />
-                                                                    <span className="truncate">{topic.name}</span>
+                                                                    <span className="truncate">
+                                                                        {truncate(topic?.name, 18)}
+                                                                    </span>
                                                                 </button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end">
@@ -456,6 +469,14 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+            )}
+
+            {isOpenListTopicsUnPackage && (
+                <ListTopicUnAssign
+                    isOpenListTopicUnAssign={isOpenListTopicsUnPackage}
+                    setIsOpenListTopicUnAssign={setIsOpenListTopicUnPackage}
+                    packageId={selectedPackageId}
+                />
             )}
         </div>
     );

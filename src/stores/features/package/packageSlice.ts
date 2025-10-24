@@ -41,11 +41,14 @@ const packageSlice = createSlice({
             };
         },
         toggleExpendPackage: (state, action) => {
-            const packageId = action.payload as PackageId;
+            const { packageId, specificStatus } = action.payload as {
+                packageId: PackageId;
+                specificStatus?: boolean;
+            };
 
             state.expendPackage = {
                 ...state.expendPackage,
-                [packageId]: !state.expendPackage[packageId],
+                [packageId]: isNilOrEmpty(specificStatus) ? !state.expendPackage[packageId] : Boolean(specificStatus),
             };
         },
         setSelectingTopicId: (state, action) => {

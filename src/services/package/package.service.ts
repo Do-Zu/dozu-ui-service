@@ -15,6 +15,7 @@ import {
     CreatePackageResponse,
     GetTopicUnAssignedPackagesRequest,
 } from './package.type';
+import { safeDestructure } from '@/utils';
 
 const BASE = '/package';
 
@@ -46,9 +47,14 @@ export const packageService = {
         });
     },
 
-    async getTopicUnAssignedForPackage(payload: GetTopicUnAssignedPackagesRequest): Promise<ApiResponse<TopicItem[]>> {
+    async getTopicUnAssignedForPackage(payload: GetTopicUnAssignedPackagesRequest): Promise<TopicItem[]> {
         const url = `${BASE}/topics/unassigned`;
-        return postRequest<GetTopicBelongPackageRequest, TopicItem[]>(url, payload);
+
+        const res = await postRequest<GetTopicBelongPackageRequest, TopicItem[]>(url, payload);
+
+        const { data } = safeDestructure(res);
+
+        return data;
     },
 
     async moveTopicToPackage(payload: UpdateTopicInPackageRequest): Promise<ApiResponse<UpdateTopicInPackageResponse>> {
