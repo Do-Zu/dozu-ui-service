@@ -61,6 +61,7 @@ export const ROUTES = Object.freeze({
         CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
         CLASS_BASED_ID_MINDMAP_EDIT: (classId: string | number, topicId: string | number) =>
             `/teacher/class-based/${classId}/mindmap/${topicId}`,
+        CLASS_BASED_ID_ASSIGNMENTS: (classId: string | number) => `/teacher/class-based/${classId}/assignments`,
     },
 });
 

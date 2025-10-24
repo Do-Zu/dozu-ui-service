@@ -9,22 +9,24 @@ import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { Clock, RotateCcw, Shuffle, SquarePen, SquareChevronDown, Gamepad2, Brain, BookOpen } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface Props {
     style?: string;
     currentFlashcardIndex: number;
     flashcardsLength: number;
     autoPlayEnabled: boolean;
-    handleOnChangeAutoPlayEnabled: () => void;
+    handleAutoPlayToggle: () => void;
     handleResetProgress: () => void;
     autoPlaySpeed: number;
-    handleOnChangeAutoPlaySpeed: (value: number[]) => void;
+    handleAutoPlaySpeedChange: (value: number[]) => void;
     shuffleEnabled: boolean;
-    handleOnChangeShuffleEnabled: () => void;
-    handleClickEditFlashcards: () => void;
-    handleOnClickLearning: () => void;
-    handleOnClickGame: () => void;
-    handleOnClickMemoryMatch: () => void;
+    handleShuffleToggle: () => void;
+    handleEditFlashcardsClick: () => void;
+    handleLearningClick: () => void;
+    handleGameClick: () => void;
+    handleMemoryMatchClick: () => void;
+    isFullScreen?: boolean;
 }
 
 export default function StudyControls({
@@ -32,30 +34,36 @@ export default function StudyControls({
     currentFlashcardIndex,
     flashcardsLength,
     autoPlayEnabled,
-    handleOnChangeAutoPlayEnabled,
+    handleAutoPlayToggle,
     handleResetProgress,
     autoPlaySpeed,
-    handleOnChangeAutoPlaySpeed,
+    handleAutoPlaySpeedChange,
     shuffleEnabled,
-    handleOnChangeShuffleEnabled,
-    handleClickEditFlashcards,
-    handleOnClickLearning,
-    handleOnClickGame,
-    handleOnClickMemoryMatch,
+    handleShuffleToggle,
+    handleEditFlashcardsClick,
+    handleLearningClick,
+    handleGameClick,
+    handleMemoryMatchClick,
+    isFullScreen = false,
 }: Props) {
     const { isTeacher } = useRoleChecker();
     const t = useTranslations('flashcard.study');
     const progress = parseInt(((currentFlashcardIndex / (flashcardsLength - 1)) * 100).toFixed(0));
 
     return (
-        <div className={style}>
+        <div
+            className={cn(
+                style,
+                'bg-gray-100 dark:bg-gray-850 h-full w-full p-3 rounded-lg shadow-sm',
+                'flex flex-col gap-3 overflow-auto max-h-screen',
+                isFullScreen ? 'p-6 gap-6' : '',
+            )}
+        >
             <Card>
                 <CardContent className="p-4">
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
                             <span className="text-xs text-muted-foreground">
-                                {' '}
-                                {/* Giảm font chữ */}
                                 {t('card')} {currentFlashcardIndex + 1} {t('of')} {flashcardsLength}
                             </span>
                             <span className="text-xs text-muted-foreground">
@@ -69,24 +77,28 @@ export default function StudyControls({
 
             <Card>
                 <CardHeader className="p-4">
-                    <CardTitle className="text-sm font-semibold">Study Options</CardTitle>
+                    <CardTitle className={cn('font-semibold', isFullScreen ? 'text-sm' : 'text-xs')}>
+                        Study Options
+                    </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 space-y-4">
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="autoplay-switch" className="flex items-center gap-2 cursor-pointer text-sm">
-                            <Clock size={16} />
+                        <Label
+                            htmlFor="autoplay-switch"
+                            className={cn(
+                                'flex items-center gap-2 cursor-pointer',
+                                isFullScreen ? 'text-sm' : 'text-xs',
+                            )}
+                        >
+                            <Clock size={isFullScreen ? 16 : 12} />
                             <span>{t('autoPlay')}</span>
                         </Label>
-                        <Switch
-                            id="autoplay-switch"
-                            checked={autoPlayEnabled}
-                            onCheckedChange={handleOnChangeAutoPlayEnabled}
-                        />
+                        <Switch id="autoplay-switch" checked={autoPlayEnabled} onCheckedChange={handleAutoPlayToggle} />
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="flex items-center gap-2 text-sm">
-                            <Clock size={16} />
+                        <Label className={cn('flex items-center gap-2', isFullScreen ? 'text-sm' : 'text-xs')}>
+                            <Clock size={isFullScreen ? 16 : 12} />
                             <span>
                                 {t('speed')}: {autoPlaySpeed}s
                             </span>
@@ -96,44 +108,56 @@ export default function StudyControls({
                             max={5}
                             step={1}
                             value={[autoPlaySpeed]}
-                            onValueChange={handleOnChangeAutoPlaySpeed}
+                            onValueChange={handleAutoPlaySpeedChange}
                             disabled={!autoPlayEnabled}
                         />
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="shuffle-switch" className="flex items-center gap-2 cursor-pointer text-sm">
-                            <Shuffle size={16} />
+                        <Label
+                            htmlFor="shuffle-switch"
+                            className={cn(
+                                'flex items-center gap-2 cursor-pointer',
+                                isFullScreen ? 'text-sm' : 'text-xs',
+                            )}
+                        >
+                            <Shuffle size={isFullScreen ? 16 : 12} />
                             <span>{t('shuffle')}</span>
                         </Label>
-                        <Switch
-                            id="shuffle-switch"
-                            checked={shuffleEnabled}
-                            onCheckedChange={handleOnChangeShuffleEnabled}
-                        />
+                        <Switch id="shuffle-switch" checked={shuffleEnabled} onCheckedChange={handleShuffleToggle} />
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                        <Label className="flex items-center gap-2 text-sm">
-                            <RotateCcw size={16} />
+                        <Label
+                            className={cn(
+                                'flex items-center gap-2 cursor-pointer',
+                                isFullScreen ? 'text-sm' : 'text-xs',
+                            )}
+                        >
+                            <RotateCcw size={isFullScreen ? 16 : 12} />
                             <span>{t('resetProgress')}</span>
                         </Label>
-                        <Button variant="outline" size="sm" onClick={handleResetProgress} className="h-7 px-2 text-xs">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleResetProgress}
+                            className={cn('h-7 px-2', isFullScreen ? 'text-sm' : 'text-xs')}
+                        >
                             {t('reset')}
                         </Button>
                     </div>
 
                     <ShowIf when={isTeacher}>
                         <div className="flex items-center justify-between">
-                            <Label className="flex items-center gap-2 text-sm">
-                                <SquarePen size={16} />
+                            <Label className={cn('flex items-center gap-2', isFullScreen ? 'text-sm' : 'text-xs')}>
+                                <SquarePen size={isFullScreen ? 16 : 12} />
                                 <span>{t('edit')}</span>
                             </Label>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={handleClickEditFlashcards}
-                                className="h-7 px-2 text-xs"
+                                onClick={handleEditFlashcardsClick}
+                                className={cn('h-7 px-2', isFullScreen ? 'text-sm' : 'text-xs')}
                             >
                                 {t('edit')}
                             </Button>
@@ -144,26 +168,30 @@ export default function StudyControls({
 
             <Card>
                 <CardHeader className="p-4">
-                    <CardTitle className="text-sm font-semibold">Other Modes</CardTitle>
+                    <CardTitle className={cn('font-semibold', isFullScreen ? 'text-sm' : 'text-xs')}>Other Modes</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                     <div className="flex flex-col space-y-1">
                         <Button
                             variant="ghost"
-                            className="justify-start gap-2 h-8 text-sm"
-                            onClick={handleOnClickLearning}
+                            className={cn('justify-start gap-2 h-8', isFullScreen ? 'text-sm' : 'text-xs')}
+                            onClick={handleLearningClick}
                         >
-                            <BookOpen className="h-4 w-4" /> <span>{t('learning')}</span>
-                        </Button>
-                        <Button variant="ghost" className="justify-start gap-2 h-8 text-sm" onClick={handleOnClickGame}>
-                            <Gamepad2 className="h-4 w-4" /> <span>Brain Chase</span>
+                            <BookOpen size={isFullScreen ? 16 : 12} /> <span>{t('learning')}</span>
                         </Button>
                         <Button
                             variant="ghost"
-                            className="justify-start gap-2 h-8 text-sm"
-                            onClick={handleOnClickMemoryMatch}
+                            className={cn('justify-start gap-2 h-8', isFullScreen ? 'text-sm' : 'text-xs')}
+                            onClick={handleGameClick}
                         >
-                            <Brain className="h-4 w-4" /> <span>Memory</span>
+                            <Gamepad2 size={isFullScreen ? 16 : 12} /> <span>Brain Chase</span>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className={cn('justify-start gap-2 h-8', isFullScreen ? 'text-sm' : 'text-xs')}
+                            onClick={handleMemoryMatchClick}
+                        >
+                            <Brain size={isFullScreen ? 16 : 12} /> <span>Memory</span>
                         </Button>
                     </div>
                 </CardContent>

@@ -17,11 +17,12 @@ interface ClassBasedModeProps {
     mode: 'class-based';
     myClass: IClass;
     feedContent: React.ReactNode;
+    assignmentContent?: React.ReactNode;
 }
 
 type Props = BaseProps & (PersonalModeProps | ClassBasedModeProps);
 
-export default function TopicLibrary(props: Props) {
+export default function LearningSpace(props: Props) {
     const { mode, topicContent, mainActionButtons } = props;
     const t = useTranslations('home.contentLibrary');
     const tCommon = useTranslations('common');
@@ -102,6 +103,15 @@ export default function TopicLibrary(props: Props) {
                                     >
                                         Topics
                                     </TabsTrigger>
+                                    <TabsTrigger
+                                        value="assignments"
+                                        className="w-[30%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
+                                                data-[state=active]:border-b-2 data-[state=active]:border-primary 
+                                                rounded-b-none text-base font-medium px-4 py-2 transition-all 
+                                                -mb-px"
+                                    >
+                                        Assignments
+                                    </TabsTrigger>
                                 </TabsList>
 
                                 <TabsContent value="feeds" className="px-6 md:px-8 py-4">
@@ -109,6 +119,9 @@ export default function TopicLibrary(props: Props) {
                                 </TabsContent>
                                 <TabsContent value="topics" className="px-6 md:px-8 py-4">
                                     {topicContent}
+                                </TabsContent>
+                                <TabsContent value="assignments" className="px-6 md:px-8 py-4">
+                                    {props.assignmentContent ?? ''}
                                 </TabsContent>
                             </Tabs>
                         </div>
