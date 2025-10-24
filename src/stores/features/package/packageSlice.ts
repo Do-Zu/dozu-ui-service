@@ -10,7 +10,7 @@ import {
     updatePackage,
 } from './package.thunk';
 import { PackageState } from './package.type';
-import { compareIgnoreCapitalization, safeDestructure } from '@/utils';
+import { compareIgnoreCapitalization, isNilOrEmpty, safeDestructure } from '@/utils';
 
 interface IPackage extends PackageItem {
     topics: TopicItem[];
@@ -74,7 +74,17 @@ const packageSlice = createSlice({
                 state.error = null;
             })
             .addCase(createPackage.fulfilled, (state, action) => {
+                const { packageId, title, parentId } = safeDestructure(action.payload);
+
                 state.isUpdating = false;
+
+                if (isNilOrEmpty(packageId) || isNilOrEmpty(title)) return;
+
+                state.packages.push({
+                    id: packageId,
+                    title,
+                    parentId,
+                });
             })
             .addCase(createPackage.rejected, (state, action) => {
                 state.isUpdating = false;

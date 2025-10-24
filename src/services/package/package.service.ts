@@ -12,6 +12,7 @@ import {
     UpdateTopicInPackageResponse,
     UpdatePackageRequest,
     IUpdatePackageResponse,
+    CreatePackageResponse,
 } from './package.type';
 
 const BASE = '/package';
@@ -25,8 +26,8 @@ export const packageService = {
         return getRequest<unknown, PackageItem[]>(url);
     },
 
-    async createNewPackage(payload: CreatePackageRequest): Promise<ApiResponse<unknown>> {
-        return postRequest<CreatePackageRequest, unknown>(`${BASE}/new`, payload);
+    async createNewPackage(payload: CreatePackageRequest): Promise<ApiResponse<CreatePackageResponse>> {
+        return postRequest<CreatePackageRequest, CreatePackageResponse>(`${BASE}/new`, payload);
     },
 
     async updatePackage(payload: UpdatePackageRequest): Promise<ApiResponse<IUpdatePackageResponse>> {

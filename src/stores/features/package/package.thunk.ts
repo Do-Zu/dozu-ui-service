@@ -12,6 +12,7 @@ import {
     UpdateTopicInPackageResponse,
     UpdatePackageRequest,
     IUpdatePackageResponse,
+    CreatePackageResponse,
 } from '@/services/package/package.type';
 
 export const fetchPackages = createAsyncThunk<PackageItem[], GetPackagesQuery | undefined, { rejectValue: string }>(
@@ -27,11 +28,12 @@ export const fetchPackages = createAsyncThunk<PackageItem[], GetPackagesQuery | 
     },
 );
 
-export const createPackage = createAsyncThunk<void, CreatePackageRequest, { rejectValue: string }>(
+export const createPackage = createAsyncThunk<CreatePackageResponse, CreatePackageRequest, { rejectValue: string }>(
     'package/createPackage',
     async (payload, { rejectWithValue }) => {
         try {
-            await packageService.createNewPackage(payload);
+            const response = await packageService.createNewPackage(payload);
+            return response.data;
         } catch (error: any) {
             if (error?.response?.data?.message) return rejectWithValue(error.response.data.message);
             return rejectWithValue(error instanceof Error ? error.message : 'Failed to create package');

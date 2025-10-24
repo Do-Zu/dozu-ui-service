@@ -104,8 +104,6 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                 }),
             ).unwrap();
 
-            await dispatch(fetchPackages());
-
             setNewPackageName('');
             setIsCreateOpen(false);
         } catch {

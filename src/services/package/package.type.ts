@@ -45,12 +45,17 @@ export interface UpdatePackageRequest extends CreatePackageRequest {
     packageId: PackageId;
 }
 
-/* Queries */
 export interface GetPackagesQuery {
     limit?: number;
     offset?: number;
 }
 
+export interface CreatePackageResponse {
+    packageId: number;
+    title: string;
+    parentId: number | null;
+    createdAt: Date;
+}
 export interface IUpdatePackageResponse {
     id: number;
     title: string;
