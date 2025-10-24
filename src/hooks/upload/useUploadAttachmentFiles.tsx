@@ -29,9 +29,9 @@ const useUploadAttachmentFiles = (): UseUploadAttachmentFilesReturn => {
                 }
                 return fileInfo;
             });
-            const fileInfos = await Promise.all(uploadPromises);
+            const fileMetadatas = await Promise.all(uploadPromises);
 
-            return fileInfos;
+            return fileMetadatas;
         } catch (error) {
             const message = error instanceof Error ? error.message : tCommon('messages.createError');
             toast({ description: message });

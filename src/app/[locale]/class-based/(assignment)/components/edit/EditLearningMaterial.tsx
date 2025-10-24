@@ -16,17 +16,38 @@ import { useRouter } from 'next/navigation';
 import { IClass } from '../../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { AssignmentStatusEnum, InsertAssignmentStatus } from '../../types/assignment.type';
+import { useTranslations } from 'next-intl';
+import AttachmentItem from '../AttachmentItem';
+import useUploadAttachmentFiles from '@/hooks/upload/useUploadAttachmentFiles';
+import usePost from '@/hooks/usePost';
+import toastHelper from '@/utils/toast.helper';
+import { UploadFileResponse } from '@/components/generative/types';
+import { RESOURCE_CONTENT_TYPE } from '@/app/[locale]/generate/constants/resource';
 
 interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
 }
 
+interface IInputResource {
+    title: string;
+    contentType: string;
+    metadata: UploadFileResponse;
+}
+
+interface ICreateLearningMaterialBody {
+    title: string;
+    description: string;
+    topicId?: string;
+    inputResources?: IInputResource[];
+}
+
 const DEFAULT_TOTAL_GRADE = 100;
 const DEFAULT_ASSIGNMENT_STATUS = AssignmentStatusEnum.PUBLISHED;
 
 // create another component for implementing your feature
-export function EditAssignment({ myClass, topics }: Props) {
+export function EditLearningMaterial({ myClass, topics }: Props) {
+    const t = useTranslations('EditLearningMaterial');
     const router = useRouter();
 
     // Assignment Status selection states
@@ -37,8 +58,14 @@ export function EditAssignment({ myClass, topics }: Props) {
     const [content, setContent] = useState<string>('');
 
     // Attachments Section states
-    // ... states
+    // files
     const [files, setFiles] = useState<File[]>([]);
+    function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+        if (event.target.files) {
+            const selectedFiles = Array.from(event.target.files);
+            setFiles(selectedFiles);
+        }
+    }
 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC);
@@ -48,6 +75,54 @@ export function EditAssignment({ myClass, topics }: Props) {
     function handleCloseClick() {
         router.back();
     }
+
+    //File upload
+    const { isLoading: isUploading, execute: uploadFiles } = useUploadAttachmentFiles();
+
+    // Handle create learning material
+
+    const {
+        loading: isPosting,
+        data: apiResponse,
+        error: apiPostContentError,
+        execute: sendCreateLearningMaterialRequest,
+    } = usePost<ICreateLearningMaterialBody, any>(`/classes/${myClass.classId}/learning-material`, 'POST', {
+        onError(error) {
+            toastHelper.showErrorMessage(error);
+        },
+        onSuccess() {
+            //toast success
+            // router.push(`/auth/changePasswordEmailSent`);
+        },
+    });
+
+    const handleClickSubmitCreateLearningMaterial = async () => {
+        let uploadedFileResult;
+        if (files) {
+            const result = await uploadFiles(files);
+            uploadedFileResult = result.map((metadata) => ({
+                title: metadata.fileName,
+                contentType: RESOURCE_CONTENT_TYPE.FILE,
+                metadata: {
+                    ...metadata,
+                },
+            }));
+        }
+
+        console.log(uploadedFileResult);
+        const requestBody: ICreateLearningMaterialBody = { title, description: content ?? '' };
+        if (selectedTopic !== '-1') {
+            requestBody.topicId = selectedTopic;
+        }
+        if (uploadedFileResult) {
+            requestBody.inputResources = uploadedFileResult;
+        }
+        const result = await sendCreateLearningMaterialRequest(requestBody);
+        console.log(result);
+    };
+
+    const isLoading = isPosting || isUploading;
+    const isSumbmitDisabled = isLoading || !title;
 
     function formatSelectedStatus(status: InsertAssignmentStatus) {
         switch (status) {
@@ -74,14 +149,18 @@ export function EditAssignment({ myClass, topics }: Props) {
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" onClick={handleCloseClick}>
                         <X className="h-5 w-5" />
-                        <span className="sr-only">Đóng</span>
+                        <span className="sr-only">{t('closeButtonAria')}</span>
                     </Button>
-                    <h1 className="text-3xl font-semibold text-foreground">Bài tập</h1>
+                    <h1 className="text-3xl font-semibold text-foreground">{t('header')}</h1>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Button>{formatSelectedStatus(selectedStatus)}</Button>
+                    {/* <Button>{formatSelectedStatus(selectedStatus)}</Button> */}
+                    <Button disabled={isSumbmitDisabled} onClick={handleClickSubmitCreateLearningMaterial}>
+                        {' '}
+                        {t('submitButtonLabel')}
+                    </Button>
 
-                    <DropdownMenu>
+                    {/* <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="icon">
                                 <ChevronDown className="h-4 w-4" />
@@ -98,7 +177,7 @@ export function EditAssignment({ myClass, topics }: Props) {
                                 Lưu bản nháp
                             </DropdownMenuItem>
                         </DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu> */}
                 </div>
             </div>
 
@@ -112,6 +191,7 @@ export function EditAssignment({ myClass, topics }: Props) {
                         files={files}
                         setFiles={setFiles}
                     />
+
                     <AttachmentsSection files={files} setFiles={setFiles} />
                 </div>
 
@@ -119,14 +199,14 @@ export function EditAssignment({ myClass, topics }: Props) {
                     <DetailsPanel
                         myClass={myClass}
                         topics={topics}
-                        withGrade={true}
-                        withDeadline={true}
+                        withGrade={false}
+                        withDeadline={false}
                         selectedTopic={selectedTopic}
                         setSelectedTopic={setSelectedTopic}
-                        grade={grade}
-                        setGrade={setGrade}
-                        dueDate={dueDate}
-                        setDueDate={setDueDate}
+                        // grade={grade}
+                        // setGrade={setGrade}
+                        // dueDate={dueDate}
+                        // setDueDate={setDueDate}
                     />
                 </div>
             </div>
