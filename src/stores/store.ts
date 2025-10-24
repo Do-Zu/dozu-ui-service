@@ -6,6 +6,7 @@ import learningModeSlice from './features/class-based-learning/learningModeSlice
 import inputSetSlice from './features/inputSet/inputSetSlice';
 import pomodoroSlice from './features/pomodoro/pomodoroSlice';
 import isEditingMindmapSlice from './features/mindmap/isEditingMindmapSlice';
+import packageSlice from './features/package/packageSlice';
 
 export const store = configureStore({
     reducer: {
@@ -22,6 +23,8 @@ export const store = configureStore({
         inputSet: inputSetSlice,
 
         pomodoro: pomodoroSlice,
+
+        package: packageSlice,
     },
     devTools: process.env.NODE_ENV !== 'production',
 });

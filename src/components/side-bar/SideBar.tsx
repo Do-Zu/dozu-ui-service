@@ -25,15 +25,17 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarHeader,
-    SidebarFooter,
     SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { AuthGuard } from '../permission/AuthGuard';
 import { ROUTES } from '@/utils/constants/routes';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { ShieldCheck } from 'lucide-react';
 import ThemeToggle from '@/components/toolbar/ThemeToggle';
 import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
 import AuthButton from '@/components/toolbar/AuthButton';
+import TreeView from '@/app/[locale]/home/components/package/TreeView';
+import { ScrollArea } from '../ui/scroll-area';
 
 // Menu items.
 const items = [
@@ -49,19 +51,9 @@ const items = [
     },
     {
         title: 'Progress',
-        url: '/progress',
+        url: ROUTES.PROGRESS,
         icon: BarChart3,
     },
-    // {
-    //   title: 'Process',
-    //   url: '/process',
-    //   icon: Brain,
-    // },
-    // {
-    //   title: 'Schedule',
-    //   url: '/schedule',
-    //   icon: FileQuestion,
-    // },
 ];
 
 const secondaryItems = [
@@ -93,68 +85,80 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {items.map((item) => {
-                                const isActive = pathname
-                                    ? pathname === item.url || (item.url !== '/home' && pathname.startsWith(item.url))
-                                    : false;
-                                return (
+                <ScrollArea>
+                    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+                        <SidebarGroupLabel>Packages</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <AuthGuard>
+                                <TreeView />
+                            </AuthGuard>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {items.map((item) => {
+                                    const isActive = pathname
+                                        ? pathname === item.url ||
+                                          (item.url !== ROUTES.HOME && pathname.startsWith(item.url))
+                                        : false;
+                                    return (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                                                <Link href={item.url}>
+                                                    <item.icon />
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    );
+                                })}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Tools</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {secondaryItems.map((item) => (
                                     <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                                        <SidebarMenuButton asChild tooltip={item.title}>
                                             <Link href={item.url}>
                                                 <item.icon />
                                                 <span>{item.title}</span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
-                                );
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel>Tools</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {secondaryItems.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild tooltip={item.title}>
-                                        <Link href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                {hasRole('admin') && (
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Admin</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton
-                                        asChild
-                                        isActive={pathname ? pathname.startsWith('/admin') : false}
-                                        tooltip="Admin Panel"
-                                    >
-                                        <Link href="/admin">
-                                            <ShieldCheck />
-                                            <span>Admin Panel</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
+                                ))}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
-                )}
+
+                    {hasRole('admin') && (
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={pathname ? pathname.startsWith('/admin') : false}
+                                            tooltip="Admin Panel"
+                                        >
+                                            <Link href={ROUTES.ADMIN}>
+                                                <ShieldCheck />
+                                                <span>Admin Panel</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    )}
+                </ScrollArea>
             </SidebarContent>
 
             <SidebarGroup>
