@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -15,25 +15,19 @@ import DetailsPanel, { NO_TOPIC } from './DetailsPanel';
 import { useRouter } from 'next/navigation';
 import { IClass } from '../../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-import {
-    AssignmentStatusEnum,
-    IAssignment,
-    InsertAssignmentStatus,
-    IUpdateAssignmentBody,
-} from '../../types/assignment.type';
+import { AssignmentStatusEnum, InsertAssignmentBody, InsertAssignmentStatus } from '../../types/assignment.type';
 import assignmentUtils from '../../utils/assignment.utils';
 import { DEFAULT_ASSIGNMENT_STATUS, DEFAULT_TOTAL_GRADE } from '../../utils/assignment.constant';
 
 interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
-    assignment: IAssignment;
-    onSubmit: ({ assignment }: { assignment: IUpdateAssignmentBody }) => Promise<void>;
+    onSubmit: ({ assignment }: { assignment: InsertAssignmentBody }) => Promise<void>;
     loading: boolean;
 }
 
 // create another component for implementing your feature
-export function EditAssignment({ myClass, topics, assignment, onSubmit, loading }: Props) {
+export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) {
     const router = useRouter();
 
     // Assignment Status selection states
@@ -51,35 +45,19 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
 
-    useEffect(() => {
-        setSelectedStatus(AssignmentStatusEnum.PUBLISHED); // handle later
-        setTitle(assignment.title);
-        setContent(assignment.content);
-        setSelectedTopic(assignment.topicId ? assignment.topicId.toString() : NO_TOPIC);
-        setGrade(assignment.totalGrades);
-        setDueDate(assignment.deadline ? assignment.deadline : undefined);
-    }, [
-        assignment.status,
-        assignment.title,
-        assignment.content,
-        assignment.topicId,
-        assignment.totalGrades,
-        assignment.deadline,
-    ]);
-
     function handleCloseClick() {
         router.back();
     }
 
     async function handleSubmit() {
-        const assignment: IUpdateAssignmentBody = {
+        const assignment: InsertAssignmentBody = {
             topicId: assignmentUtils.parseTopicId(selectedTopic),
             title,
             content,
-            acceptingSubmissions: true,
+            acceptingSubmissions: true, // handle later
             deadline: dueDate,
             totalGrades: grade,
-            status: AssignmentStatusEnum.PUBLISHED,
+            status: AssignmentStatusEnum.PUBLISHED, // handle later
         };
         await onSubmit({ assignment });
     }

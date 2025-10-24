@@ -84,7 +84,7 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function ClassDetails({ classId }: { classId: number }) {
+export default function ClassDashboard({ classId }: { classId: number }) {
     const router = useRouter();
     const validateTopic = useValidateTopic();
 

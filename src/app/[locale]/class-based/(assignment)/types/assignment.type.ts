@@ -39,7 +39,28 @@ export type InsertAssignment = {
     status?: 'draft' | 'scheduled' | 'published' | 'closed' | undefined;
 };
 
-export type InsertAssignmentBody = Omit<InsertAssignment, 'teacherId' | 'classId'>;
+export type InsertAssignmentBody = Pick<
+    InsertAssignment,
+    'topicId' | 'title' | 'content' | 'deadline' | 'totalGrades' | 'status' | 'acceptingSubmissions'
+>;
 
 // 'closed' is omitted, server will handle it
 export type InsertAssignmentStatus = 'draft' | 'scheduled' | 'published';
+
+export type IUpdateAssignment = Pick<
+    InsertAssignment,
+    'topicId' | 'title' | 'content' | 'deadline' | 'totalGrades' | 'status' | 'acceptingSubmissions' | 'updatedAt'
+>;
+
+export type IUpdateAssignmentBody = Omit<IUpdateAssignment, 'updatedAt'>;
+
+export interface ICreateAssignmentPayload {
+    classId: number;
+    assignment: InsertAssignmentBody;
+}
+
+export interface IUpdateAssignmentPayload {
+    classId: number;
+    assignmentId: number;
+    assignment: IUpdateAssignmentBody;
+}

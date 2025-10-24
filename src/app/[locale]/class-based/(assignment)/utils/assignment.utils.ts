@@ -1,8 +1,9 @@
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-import { IAssignment } from '../types/assignment.type';
+import { IAssignment, InsertAssignmentStatus } from '../types/assignment.type';
 
 export const NO_TOPIC = { topicId: -1, name: 'Không có chủ đề' };
 export const ALL_TOPICS = 'all';
+export const NO_TOPIC_ID = '-1';
 
 class AssignmentUtils {
     public getSelectedAssignments(
@@ -39,6 +40,31 @@ class AssignmentUtils {
             }
         }
         return result;
+    }
+
+    public parseTopicId(selectedTopic: string): number | null {
+        if (selectedTopic === NO_TOPIC_ID) return null;
+        if (isNaN(Number(selectedTopic))) {
+            throw new Error('Selected topic is invalid, please try again.');
+        }
+        return Number(selectedTopic);
+    }
+
+    public getStatusLabel(status: InsertAssignmentStatus) {
+        switch (status) {
+            case 'draft': {
+                return 'Lưu bản nháp';
+            }
+            case 'scheduled': {
+                return 'Lên lịch';
+            }
+            case 'published': {
+                return 'Giao bài ngay';
+            }
+            default: {
+                return 'Giá trị không hợp lệ';
+            }
+        }
     }
 }
 
