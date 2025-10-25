@@ -72,9 +72,11 @@ import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/Cl
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 import { IFeedGroup } from '@/utils/feeds/feed.helper';
+import ActivityTab from '@/app/[locale]/topics/components/ui/ActivityTab';
 import ClassworkList from '@/app/[locale]/class-based/(classwork)/components/ClassworkList';
 import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/service/teacher/teacherAssignment.service';
+
 
 type TopicFilteringAction =
     | 'newest'
@@ -370,6 +372,10 @@ export default function ClassDashboard({ classId }: { classId: number }) {
         </>
     );
 
+    const activityContent = (
+        <ActivityTab classId={classId} />
+    );
+
     const menuContentInCard = (topic: ITopic) => {
         const { topicId, name, description, imageUrl } = topic;
         return (
@@ -564,6 +570,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
             mainActionButtons={mainActionButtons}
             feedContent={feedContent}
             topicContent={topicContent}
+            activityContent={activityContent}
             classworkContent={classworkContent}
         />
     );

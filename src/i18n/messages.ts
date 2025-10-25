@@ -17,6 +17,7 @@ export async function getMessages(locale: string) {
     const messages = {
         ...(await import(`../../messages/${locale}/common.json`)).default,
         ...(await import(`../../messages/${locale}/home.json`)).default,
+        ...(await import(`../../messages/${locale}/packages.json`)).default,
         ...(await import(`../../messages/${locale}/login.json`)).default,
         ...(await import(`../../messages/${locale}/registerPage.json`)).default,
         ...(await import(`../../messages/${locale}/payment.json`)).default,

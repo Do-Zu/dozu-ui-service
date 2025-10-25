@@ -17,6 +17,7 @@ interface ClassBasedModeProps {
     mode: 'class-based';
     myClass: IClass;
     feedContent: React.ReactNode;
+    activityContent: React.ReactNode;
     classworkContent?: React.ReactNode;
 }
 
@@ -87,7 +88,7 @@ export default function LearningSpace(props: Props) {
                                 <TabsList className="w-full mx-6 md:mx-8 bg-transparent p-0 border-b border-slate-200 dark:border-white/10">
                                     <TabsTrigger
                                         value="feeds"
-                                        className="w-[30%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
+                                        className="w-[25%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
                                                 data-[state=active]:border-b-2 data-[state=active]:border-primary 
                                                 rounded-b-none text-base font-medium px-4 py-2 transition-all 
                                                 -mb-px"
@@ -96,12 +97,21 @@ export default function LearningSpace(props: Props) {
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="topics"
-                                        className="w-[30%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
+                                        className="w-[25%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
                                                 data-[state=active]:border-b-2 data-[state=active]:border-primary 
                                                 rounded-b-none text-base font-medium px-4 py-2 transition-all 
                                                 -mb-px"
                                     >
                                         Topics
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                        value="activities"
+                                        className="w-[25%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
+                                                data-[state=active]:border-b-2 data-[state=active]:border-primary 
+                                                rounded-b-none text-base font-medium px-4 py-2 transition-all 
+                                                -mb-px"
+                                    >
+                                        Activities
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="classwork"
@@ -119,6 +129,9 @@ export default function LearningSpace(props: Props) {
                                 </TabsContent>
                                 <TabsContent value="topics" className="px-6 md:px-8 py-4">
                                     {topicContent}
+                                </TabsContent>
+                                <TabsContent value="activities" className="px-6 md:px-8 py-4">
+                                    {props.activityContent}
                                 </TabsContent>
                                 <TabsContent value="classwork" className="px-6 md:px-8 py-4">
                                     {props.classworkContent ?? ''}
