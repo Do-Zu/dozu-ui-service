@@ -190,6 +190,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
 
     const {
         data: assignments,
+        setData: setAssignments,
         loading: assignmentsLoading,
         error: assignmentsError,
     } = useFetch<IAssignment[]>(() => teacherAssignmentService.getAssignmentsForClass({ classId }));
@@ -218,7 +219,14 @@ export default function ClassDashboard({ classId }: { classId: number }) {
             <>
                 {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
                 {assignmentsLoading ? <LoadingPage /> : null}
-                {assignments ? <ClassworkList myClass={myClass} topics={value} assignments={assignments} /> : null}
+                {assignments ? (
+                    <ClassworkList
+                        myClass={myClass}
+                        topics={value}
+                        assignments={assignments}
+                        setAssignments={setAssignments}
+                    />
+                ) : null}
             </>
         );
     }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);
