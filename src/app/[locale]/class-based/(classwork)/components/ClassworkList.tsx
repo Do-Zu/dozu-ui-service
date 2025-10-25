@@ -151,8 +151,7 @@ function ClassworkList({ myClass, topics: topicsData, assignments, setAssignment
     });
 
     function applyDeleteAssignment(id: number) {
-        const result = assignments.filter((e) => e.assignmentId !== id);
-        setAssignments(result);
+        setAssignments((prev) => (prev ? prev.filter((e) => e.assignmentId !== id) : null));
     }
 
     useEffect(() => {
