@@ -328,6 +328,15 @@ export default function ClassDashboard() {
         </>
     );
 
+    const activityContent = (
+        <div className="text-center py-8">
+            <div className="text-gray-500">
+                <p>Activities are managed by your teacher.</p>
+                <p className="text-sm mt-2">Check the Feeds tab for activity announcements.</p>
+            </div>
+        </div>
+    );
+
     return (
         <LearningSpace
             mode="class-based"
@@ -335,6 +344,7 @@ export default function ClassDashboard() {
             mainActionButtons={mainActionButtons}
             feedContent={feedContent}
             topicContent={topicContent}
+            activityContent={activityContent}
         />
     );
 }
