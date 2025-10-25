@@ -5,6 +5,5 @@ let storeInstance: AppStore | null = null;
 export const setStore = (store: AppStore) => {
     storeInstance = store;
 };
-export const getStore = () => storeInstance;
 
-export const store = getStore();
+export const getStore = () => storeInstance;
