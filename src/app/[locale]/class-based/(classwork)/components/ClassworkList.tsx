@@ -22,8 +22,18 @@ import { ROUTES } from '@/utils/constants/routes';
 import { useTranslations } from 'next-intl';
 import { ALL_TOPICS, NO_TOPIC } from '../utils/classwork.constant';
 import { IClassworkType } from '../types/classwork.type';
+import DeleteAssignmentModal from '../../(assignment)/components/DeleteAssignmentModal';
+import usePost from '@/hooks/usePost';
+import teacherAssignmentService from '../../(assignment)/service/teacher/teacherAssignment.service';
+import toastHelper from '@/utils/toast.helper';
 
-const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
+interface ItemProps {
+    assignment: IAssignment;
+    onOpen: ({ assignmentId }: { assignmentId: number }) => void;
+    onClose: () => void;
+}
+
+const ClassworkItem = ({ assignment, onOpen, onClose }: ItemProps) => {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
@@ -36,6 +46,10 @@ const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
                 assignmentId: assignment.assignmentId,
             }),
         );
+    }
+
+    function handleDeleteClick() {
+        onOpen({ assignmentId: assignment.assignmentId });
     }
 
     return (
@@ -87,7 +101,7 @@ const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
                             <span>{tCommon('actions.edit')}</span>
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem onSelect={() => {}}>
+                        <DropdownMenuItem onSelect={handleDeleteClick}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             <span>{tCommon('actions.delete')}</span>
                         </DropdownMenuItem>
@@ -102,9 +116,10 @@ interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
     assignments: IAssignment[];
+    setAssignments: React.Dispatch<React.SetStateAction<IAssignment[] | null>>;
 }
 
-function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
+function ClassworkList({ myClass, topics: topicsData, assignments, setAssignments }: Props) {
     const router = useRouter();
     const topics = useMemo(() => {
         return [...topicsData, NO_TOPIC];
@@ -113,6 +128,32 @@ function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
     const [assignmentsByTopic, setAssignmentsByTopic] = useState<Map<number, IAssignment[]> | null>(null);
     const [selectedTopic, setSelectedTopic] = useState<string>(ALL_TOPICS);
     const selectedAssignments = assignmentUtils.getSelectedAssignments(assignmentsByTopic, selectedTopic);
+
+    // delete assignment
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [deletingAssignment, setDeletingAssignment] = useState<number | null>(null);
+
+    const { execute: deleteAssignmentAsync, loading: deleteAssignmentLoading } = usePost<
+        {
+            classId: number;
+            assignmentId: number;
+        },
+        number
+    >(teacherAssignmentService.deleteAssignmentById, 'DELETE', {
+        onError(error) {
+            toastHelper.showErrorMessage(error);
+        },
+        onSuccess(data) {
+            toastHelper.showSuccessMessage('Delete assignment successfully');
+            applyDeleteAssignment(data);
+            setIsOpen(false);
+        },
+    });
+
+    function applyDeleteAssignment(id: number) {
+        const result = assignments.filter((e) => e.assignmentId !== id);
+        setAssignments(result);
+    }
 
     useEffect(() => {
         const result = assignmentUtils.getAssignmentsByTopic(assignments, topics);
@@ -137,6 +178,20 @@ function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
             default:
                 break;
         }
+    }
+
+    function onOpen({ assignmentId }: { assignmentId: number }) {
+        setDeletingAssignment(assignmentId);
+        setIsOpen(true);
+    }
+
+    function onClose() {
+        setDeletingAssignment(null);
+        setIsOpen(false);
+    }
+
+    async function handleDeleteSubmit({ assignmentId }: { assignmentId: number }) {
+        await deleteAssignmentAsync({ classId: myClass.classId, assignmentId });
     }
 
     return (
@@ -193,7 +248,12 @@ function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
                     </h2>
                     <div className="flex flex-col divide-y divide-border">
                         {selectedAssignments.map((assignment) => (
-                            <ClassworkItem key={assignment.assignmentId} assignment={assignment} />
+                            <ClassworkItem
+                                key={assignment.assignmentId}
+                                assignment={assignment}
+                                onOpen={onOpen}
+                                onClose={onClose}
+                            />
                         ))}
                     </div>
                 </div>
@@ -210,7 +270,12 @@ function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
                                         </h2>
                                         <div className="flex flex-col divide-y divide-border">
                                             {assignments?.map((assignment) => (
-                                                <ClassworkItem key={assignment.assignmentId} assignment={assignment} />
+                                                <ClassworkItem
+                                                    key={assignment.assignmentId}
+                                                    assignment={assignment}
+                                                    onOpen={onOpen}
+                                                    onClose={onClose}
+                                                />
                                             ))}
                                         </div>
                                     </div>
@@ -220,6 +285,13 @@ function ClassworkList({ myClass, topics: topicsData, assignments }: Props) {
                     ) : null}
                 </div>
             )}
+            <DeleteAssignmentModal
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                assignmentId={deletingAssignment}
+                onSubmit={handleDeleteSubmit}
+                loading={deleteAssignmentLoading}
+            />
         </div>
     );
 }

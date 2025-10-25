@@ -1,11 +1,13 @@
-import { getRequest, postRequest, putRequest } from '@/api/api';
+import { deleteRequest, getRequest, postRequest, putRequest } from '@/api/api';
 import {
     IAssignment,
     ICreateAssignmentPayload,
+    IDeleteAssignmentPayload,
     InsertAssignmentBody,
     IUpdateAssignmentBody,
     IUpdateAssignmentPayload,
 } from '../../types/assignment.type';
+import { ApiResponse } from '@/api/type';
 
 class TeacherAssignmentService {
     public async getAssignmentsForClass({ classId }: { classId: number }): Promise<IAssignment[]> {
@@ -41,6 +43,16 @@ class TeacherAssignmentService {
         const response = await putRequest<IUpdateAssignmentBody, IAssignment>(
             `/classes/teacher/${classId}/assignments/${assignmentId}`,
             assignment,
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async deleteAssignmentById({ classId, assignmentId }: IDeleteAssignmentPayload) {
+        const response = await deleteRequest<unknown, ApiResponse<number>>(
+            `/classes/teacher/${classId}/assignments/${assignmentId}`,
         );
         if (response.status !== 'success') {
             throw new Error(response.message);

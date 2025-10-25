@@ -64,3 +64,8 @@ export interface IUpdateAssignmentPayload {
     assignmentId: number;
     assignment: IUpdateAssignmentBody;
 }
+
+export interface IDeleteAssignmentPayload {
+    classId: number;
+    assignmentId: number;
+}

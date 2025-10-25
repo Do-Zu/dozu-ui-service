@@ -2,7 +2,7 @@ import Axios from './axios';
 import { addTimezoneInfo } from '../utils/date/apiDateUtils';
 import { ApiResponse } from './type';
 
-export type RequestData = Record<string, any> | FormData | void | null | undefined;
+export type RequestData = Record<string, any> | FormData | void | null | undefined | unknown;
 
 export const getRequest = async <T, R>(url: string): Promise<ApiResponse<R>> => {
     try {
