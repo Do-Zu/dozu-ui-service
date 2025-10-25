@@ -1,5 +1,3 @@
-import { object } from 'zod';
-
 /**
  * Converts various string formats to a number.
  * Supports thousand separators, comma decimals, underscores, currency symbols, and scientific notation.
@@ -189,6 +187,43 @@ const safeDestructure = <T extends object>(object: T | undefined | null, default
     return { ...defaultValues, ...object } as T;
 };
 
+/**
+ * @description Normalizes a string by trimming whitespace and converting to lowercase.
+ *  Returns an empty string for nullish input.
+ * @param str1
+ * @param str - The string to normalize.
+ * @returns The normalized string, or empty string if input is nullish.
+ */
+const lowercase = (str: string | null | undefined): string => {
+    return str ? str.trim().toLowerCase() : '';
+};
+
+/**
+ * @description Compares two strings for equality without considering capitalization.
+ * This function is useful for case-insensitive comparisons, such as when checking user input or comparing
+ * @param str1
+ * @param str2
+ * @returns boolean - Returns true if both strings are equal ignoring case, false otherwise.
+ */
+const compareIgnoreCapitalization = (str1: string, str2: string) => {
+    if (str1 === str2) return true;
+    return lowercase(str1) === lowercase(str2);
+};
+
+/**
+ * Validates that a value is an array. Optionally ensures all items pass a type guard.
+ * Returns [] when invalid.
+ *
+ * @example
+ * const numbers = validateArray<number>(maybeNumbers, (v): v is number => typeof v === 'number');
+ * const anyArray = validateArray<any>(maybeArray); // only checks Array.isArray
+ */
+const validateArray = <T>(value: unknown, isItem?: (v: unknown) => v is T): T[] => {
+    if (!Array.isArray(value)) return [];
+    if (isItem && !value.every(isItem)) return [];
+    return value as T[];
+};
+
 export {
     deepClone,
     toTitleCase,
@@ -202,4 +237,7 @@ export {
     normalize,
     toNumber,
     safeDestructure,
+    lowercase,
+    compareIgnoreCapitalization,
+    validateArray,
 };

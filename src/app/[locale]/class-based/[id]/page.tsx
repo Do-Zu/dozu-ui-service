@@ -1,7 +1,7 @@
 'use client';
 
 import { useClassBased } from '@/contexts/class-based';
-import ClassDetails from './details/ClassDetails';
+import ClassDashboard from './dashboard/ClassDashboard';
 
 export default function Page() {
     const { classId } = useClassBased();
@@ -12,7 +12,7 @@ export default function Page() {
 
     return (
         <div className="flex flex-col h-full mt-4">
-            <ClassDetails />
+            <ClassDashboard />
         </div>
     );
 }

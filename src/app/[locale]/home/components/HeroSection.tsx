@@ -58,14 +58,10 @@ export default function HeroSection() {
                         </Button>
                         <Button
                             variant="ghost"
-                            onClick={() => {
-                                toast({
-                                    description: 'feature is coming soon',
-                                });
-                            }}
-                            className="rounded-full text-slate-300  text-sm"
+                            onClick={() => router.push(ROUTES.PROGRESS)}
+                            className="rounded-full border border-slate-500/40 dark:border-white/10 dark:bg-slate-800/60 backdrop-blur hover:opacity-70 dark:text-slate-200 text-sm"
                         >
-                            <Library className="mr-2 h-4 w-4" /> Library
+                            <Library className="mr-2 h-4 w-4" /> Progress
                         </Button>
                     </motion.div>
                 </div>
