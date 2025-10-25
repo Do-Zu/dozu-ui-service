@@ -9,13 +9,16 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CalendarIcon, Link2, Upload, X, ChevronDown } from 'lucide-react';
-import ContentSection from './ContentSection';
-import AttachmentsSection from './AttachmentsSection';
-import DetailsPanel from './DetailsPanel';
+// import ContentSection from './ContentSection';
+
+// import AttachmentsSection from './AttachmentsSection';
+// import DetailsPanel from './DetailsPanel';
+DetailsPanel;
+
 import { useRouter } from 'next/navigation';
-import { IClass } from '../../../types/class.type';
+import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-// import { AssignmentStatusEnum, InsertAssignmentStatus } from '../../types/assignment.type';
+
 
 import { useTranslations } from 'next-intl';
 
@@ -24,9 +27,13 @@ import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { UploadFileResponse } from '@/components/generative/types';
 import { RESOURCE_CONTENT_TYPE } from '@/app/[locale]/generate/constants/resource';
-import { NO_TOPIC_ID } from '../../utils/classwork.constant';
-import AttachmentItem from '../../../(assignment)/components/AttachmentItem';
-import { AssignmentStatusEnum } from '../../../(assignment)/types/assignment.type';
+
+import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/ContentSection';
+import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/AttachmentsSection';
+import DetailsPanel from '@/app/[locale]/class-based/(classwork)/components/common/DetailsPanel';
+import { NO_TOPIC_ID } from '@/app/[locale]/class-based/(classwork)/utils/classwork.constant';
+import AttachmentItem from '@/app/[locale]/class-based/(assignment)/components/AttachmentItem';
+import { AssignmentStatusEnum } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 
 interface Props {
     myClass: IClass;

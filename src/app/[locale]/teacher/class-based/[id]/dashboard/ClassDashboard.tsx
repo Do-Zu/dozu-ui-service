@@ -75,6 +75,7 @@ import { IFeedGroup } from '@/utils/feeds/feed.helper';
 import ClassworkList from '@/app/[locale]/class-based/(classwork)/components/ClassworkList';
 import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/service/teacher/teacherAssignment.service';
+import ClassworkListCopy from '@/app/[locale]/class-based/(classwork)/components/ClassworkListCopy';
 
 type TopicFilteringAction =
     | 'newest'
@@ -216,7 +217,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
             <>
                 {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
                 {assignmentsLoading ? <LoadingPage /> : null}
-                {assignments ? <ClassworkList myClass={myClass} topics={value} assignments={assignments} /> : null}
+                {assignments ? <ClassworkListCopy myClass={myClass} topics={value} assignments={assignments} /> : null}
             </>
         );
     }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);

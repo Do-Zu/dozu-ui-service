@@ -64,6 +64,8 @@ export const ROUTES = Object.freeze({
         CLASS_BASED_ID_ASSIGNMENTS: (classId: string | number) => `/teacher/class-based/${classId}/assignments`,
         CLASS_BASED_ID_ASSIGNMENT_ID: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
             `/teacher/class-based/${classId}/assignments/${assignmentId}`,
+        CLASS_BASED_ID_LEARNING_MATERIAL: (classId: string | number) =>
+            `/teacher/class-based/${classId}/learning-material`,
     },
 });
 

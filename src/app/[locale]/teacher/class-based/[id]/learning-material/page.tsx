@@ -1,13 +1,15 @@
 'use client';
 
+// import { EditLearningMaterial } from '@/app/[locale]/teacher/class-based/[id]/learning-material/components/EditLearningMaterial';
+EditLearningMaterial;
 
-import { EditLearningMaterial } from '@/app/[locale]/class-based/(classwork)/components/common/EditLearningMaterial';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';
 import LoadingPage from '@/app/loading';
 import useFetch from '@/hooks/useFetch';
 import teacherClassService from '@/services/class-based-learning/teacher/teacherClass.service';
 import { useParams } from 'next/navigation';
+import { EditLearningMaterial } from '@/app/[locale]/teacher/class-based/[id]/learning-material/components/EditLearningMaterial';
 
 export default function Page() {
     const params = useParams();
