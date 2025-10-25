@@ -1,0 +1,15 @@
+{
+  "RegisterPage": {
+    "title": "Create an Account",
+    "subtitle": "Register to get started",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "registerButtonText": "Register",
+    "registerButtonTextLoading": "Registering...",
+    "haveAccountPrompt": "Already have an account?",
+    "loginButtonText": "Login",
+    "registerGoogleButtonText": "Register with Google",
+    "registerSuccessMessage":"Registered successfully, verify email to continue"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "RegisterPage": {
+    "title": "Tạo tài khoản",
+    "subtitle": "Đăng ký để bắt đầu",
+    "username": "Tên người dùng",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "registerButtonText": "Đăng ký",
+    "registerButtonTextLoading": "Đang tải...",
+    "haveAccountPrompt": "Bạn đã có tài khoản?",
+    "loginButtonText": "Đăng nhập",
+    "registerGoogleButtonText": "Đăng ký với Google",
+    "registerSuccessMessage": "Đăng ký thành công, xác nhận email để tiếp tục"
+  }
+}

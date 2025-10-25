@@ -1,0 +1,17 @@
+'use client';
+
+import { Calendar } from '@/components/ui/full-calendar';
+import { withAuth } from '@/hoc/withAuth';
+import CalendarView from './components/CalendarView';
+
+const SchedulePage = () => {
+    return (
+        <Calendar>
+            <div className="mx-auto p-2 space-y-10">
+                <CalendarView />
+            </div>
+        </Calendar>
+    );
+};
+
+export default withAuth(SchedulePage);

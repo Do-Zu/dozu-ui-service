@@ -1,0 +1,35 @@
+{
+    "pomodoro": {
+        "title": "Pomodoro",
+        "ambient": {
+            "panelTitle": "Ambient Sounds",
+            "panelTitleBreak": "Ambient Sounds (Break)",
+            "noSounds": "No sounds added.",
+            "soundAdded": "Sound already added",
+            "notFound": "Audio not found in storage",
+            "loadFailed": "Failed to load audio from storage",
+            "uploadFailed": "Upload failed",
+            "indexedDbFallback": "IndexedDB store failed; falling back to base64.",
+            "tooLarge": "File too large. Max {max}MB"
+        },
+        "timer": {
+            "resetTimer": "Reset Timer",
+            "resetStopwatch": "Reset Stopwatch",
+            "skip": "Skip",
+            "breakTime": "Break Time",
+            "secSuffix": "sec",
+            "hrLabel": "hr",
+            "minLabel": "min",
+            "setTimeToast": "Please set your time session"
+        },
+        "settings": {
+            "title": "Settings",
+            "version": "v1",
+            "volume": "Volume",
+            "playDuringBreak": "Play during break",
+            "distinctBreakAmbient": "Distinct break ambient",
+            "distinctHelp": "Select different sound during break via sound panel.",
+            "resetDefaults": "Reset Defaults"
+        }
+    }
+}
