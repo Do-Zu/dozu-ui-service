@@ -33,7 +33,7 @@ const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
 
     function handleEditClick() {
         router.push(
-            ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID({
+            ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_EDIT({
                 classId: assignment.classId,
                 assignmentId: assignment.assignmentId,
             }),

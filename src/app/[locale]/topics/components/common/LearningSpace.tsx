@@ -1,3 +1,5 @@
+import { classDashboardTabs } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import classUtils from '@/app/[locale]/class-based/[id]/utils/class.utils';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CircleUserRound, School } from 'lucide-react';
@@ -86,42 +88,17 @@ export default function LearningSpace(props: Props) {
                         <div className="pt-6">
                             <Tabs defaultValue="feeds" className="w-full">
                                 <TabsList className="w-full mx-6 md:mx-8 bg-transparent p-0 border-b border-slate-200 dark:border-white/10">
-                                    <TabsTrigger
-                                        value="feeds"
-                                        className="w-[25%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
+                                    {classDashboardTabs.map((tab) => (
+                                        <TabsTrigger
+                                            value={tab}
+                                            className={`w-[${75 / classDashboardTabs.length}%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
                                                 data-[state=active]:border-b-2 data-[state=active]:border-primary 
                                                 rounded-b-none text-base font-medium px-4 py-2 transition-all 
-                                                -mb-px"
-                                    >
-                                        Feeds
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="topics"
-                                        className="w-[25%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
-                                                data-[state=active]:border-b-2 data-[state=active]:border-primary 
-                                                rounded-b-none text-base font-medium px-4 py-2 transition-all 
-                                                -mb-px"
-                                    >
-                                        Topics
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="activities"
-                                        className="w-[25%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
-                                                data-[state=active]:border-b-2 data-[state=active]:border-primary 
-                                                rounded-b-none text-base font-medium px-4 py-2 transition-all 
-                                                -mb-px"
-                                    >
-                                        Activities
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="classwork"
-                                        className="w-[30%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
-                                                data-[state=active]:border-b-2 data-[state=active]:border-primary 
-                                                rounded-b-none text-base font-medium px-4 py-2 transition-all 
-                                                -mb-px"
-                                    >
-                                        Classwork
-                                    </TabsTrigger>
+                                                -mb-px`}
+                                        >
+                                            {classUtils.getTabLabel(tab)}
+                                        </TabsTrigger>
+                                    ))}
                                 </TabsList>
 
                                 <TabsContent value="feeds" className="px-6 md:px-8 py-4">

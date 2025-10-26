@@ -1,7 +1,7 @@
 'use client';
 
 import { EditAssignment } from '@/app/[locale]/class-based/(assignment)/components/EditAssignment';
-import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/service/teacher/teacherAssignment.service';
+import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
 import {
     IAssignment,
     IUpdateAssignmentBody,
@@ -59,13 +59,13 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         data: assignment,
         loading: assignmentLoading,
         error: assignmentError,
-    } = useFetch<IAssignment>(() => teacherAssignmentService.getAssignmentById({ classId, assignmentId }));
+    } = useFetch<IAssignment>(() => assignmentService.getAssignmentById({ classId, assignmentId }));
 
     // update assignment
     const { execute: updateAssignmentAsync, loading: updateAssignmentLoading } = usePost<
         IUpdateAssignmentPayload,
         IAssignment
-    >(teacherAssignmentService.updateAssignmentById, 'PUT', {
+    >(assignmentService.updateAssignmentById, 'PUT', {
         onError(error) {
             toastHelper.showErrorMessage(error);
         },

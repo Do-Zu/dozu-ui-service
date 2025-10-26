@@ -62,8 +62,10 @@ export const ROUTES = Object.freeze({
         CLASS_BASED_ID_MINDMAP_EDIT: (classId: string | number, topicId: string | number) =>
             `/teacher/class-based/${classId}/mindmap/${topicId}`,
         CLASS_BASED_ID_ASSIGNMENTS: (classId: string | number) => `/teacher/class-based/${classId}/assignments`,
-        CLASS_BASED_ID_ASSIGNMENT_ID: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
-            `/teacher/class-based/${classId}/assignments/${assignmentId}`,
+        CLASS_BASED_ID_ASSIGNMENT_ID_EDIT: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+            `/teacher/class-based/${classId}/assignments/${assignmentId}/edit`,
+        CLASS_BASED_ID_ASSIGNMENT_ID_DETAILS: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+            `/teacher/class-based/${classId}/assignments/${assignmentId}/details`,
         CLASS_BASED_ID_LEARNING_MATERIAL: (classId: string | number) =>
             `/teacher/class-based/${classId}/learning-material`,
     },

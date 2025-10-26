@@ -1,5 +1,5 @@
 import LoadingPage from '@/app/loading';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ITopic } from '../../../topics/types/topic.type';
 import TopicDetailsModal, { ITopicDetails } from '../../../topics/components/modals/TopicDetailsModal';
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
@@ -45,6 +45,10 @@ import { useClassBased } from '@/contexts/class-based';
 import ClassFeedCard from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedCard';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 import { IFeedGroup, ISubtractedDate } from '@/utils/feeds/feed.helper';
+import { IAssignment } from '../../(assignment)/types/assignment.type';
+import assignmentService from '../../(assignment)/service/assignment.service';
+import ClassworkList from '../../(classwork)/components/ClassworkList';
+import { USER_ROLES } from '@/utils/constants/roles';
 
 type TopicFilteringAction =
     | 'newest'
@@ -94,6 +98,34 @@ export default function ClassDashboard() {
         error: feedsError,
         loading: feedsLoading,
     } = useFetch<IClassFeed[]>(() => classFeedService.getFeedsInClass({ classId }));
+
+    // assignments
+    const {
+        data: assignments,
+        setData: setAssignments,
+        loading: assignmentsLoading,
+        error: assignmentsError,
+    } = useFetch<IAssignment[]>(() => assignmentService.getAssignmentsForClass({ classId }));
+
+    const classworkContent = useMemo(() => {
+        if (!myClass || !topics) return null;
+        const value = topics.map(({ topicId, name }) => ({ topicId, name }));
+        return (
+            <>
+                {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
+                {assignmentsLoading ? <LoadingPage /> : null}
+                {assignments ? (
+                    <ClassworkList
+                        role={USER_ROLES.USER}
+                        myClass={myClass}
+                        topics={value}
+                        assignments={assignments}
+                        setAssignments={setAssignments}
+                    />
+                ) : null}
+            </>
+        );
+    }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);
 
     useEffect(() => {
         if (!topics) {
@@ -345,6 +377,7 @@ export default function ClassDashboard() {
             feedContent={feedContent}
             topicContent={topicContent}
             activityContent={activityContent}
+            classworkContent={classworkContent}
         />
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { CreateAssignment } from '@/app/[locale]/class-based/(assignment)/components/CreateAssignment';
-import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/service/teacher/teacherAssignment.service';
+import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
 import {
     ICreateAssignmentPayload,
     InsertAssignmentBody,
@@ -49,7 +49,7 @@ function ValidPage({ classId }: { classId: number }) {
     // Create new assignment
     const { execute: createAssignmentAsync, loading: createAssignmentLoading } = usePost(
         ({ classId, assignment }: ICreateAssignmentPayload) =>
-            teacherAssignmentService.createAssignment({
+            assignmentService.createAssignment({
                 classId,
                 assignment,
             }),
