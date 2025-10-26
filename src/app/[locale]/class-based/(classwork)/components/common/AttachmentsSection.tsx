@@ -1,17 +1,18 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link2, Upload } from 'lucide-react';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
+import type { Dispatch, SetStateAction, ChangeEvent } from 'react';
 
 interface Props {
     files: File[];
-    setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+    setFiles: Dispatch<SetStateAction<File[]>>;
 }
 
 export default function AttachmentsSection({ files, setFiles }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files) return;
         const selectedFiles = Array.from(event.target.files);
         const allFiles = selectedFiles.concat(files);

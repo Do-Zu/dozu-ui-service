@@ -19,7 +19,6 @@ import { useRouter } from 'next/navigation';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 
-
 import { useTranslations } from 'next-intl';
 
 import useUploadAttachmentFiles from '@/hooks/upload/useUploadAttachmentFiles';
@@ -109,7 +108,7 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
 
     const handleClickSubmitCreateLearningMaterial = async () => {
         let uploadedFileResult;
-        if (files) {
+        if (files.length > 0) {
             const result = await uploadFiles(files);
             uploadedFileResult = result.map((metadata) => ({
                 title: metadata.fileName,
@@ -120,9 +119,8 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
             }));
         }
 
-        console.log(uploadedFileResult);
         const requestBody: ICreateLearningMaterialBody = { title, description: content ?? '' };
-        if (selectedTopic !== '-1') {
+        if (selectedTopic !== NO_TOPIC_ID) {
             requestBody.topicId = selectedTopic;
         }
         if (uploadedFileResult) {

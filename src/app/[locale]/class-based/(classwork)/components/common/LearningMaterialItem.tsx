@@ -27,8 +27,8 @@ const LearningMaterialItem: React.FC<LearningMaterialItemProps> = ({ material })
     const router = useRouter();
 
     function handleViewClick() {
-        router.push(ROUTES.TEACHER.CLASS_BASED_ID_LEARNING_MATERIAL(material.classId));
-        router.push('/teacher/class-based/1/learning-material/1');
+        // router.push(ROUTES.TEACHER.CLASS_BASED_ID_LEARNING_MATERIAL(material.classId));
+        router.push('/teacher/class-based/1/learning-material/1'); //!hardcoded
     }
 
     // const handleOnClickLearningMaterial = () => {

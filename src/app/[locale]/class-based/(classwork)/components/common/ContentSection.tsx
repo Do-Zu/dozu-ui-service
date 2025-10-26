@@ -24,11 +24,11 @@ export default function ContentSection({ title, setTitle, content, setContent, f
         setContent(e.target.value);
     }
 
-    function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-        if (e.target.files) {
-            setFiles(Array.from(e.target.files));
-        }
-    }
+    // function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    //     if (e.target.files) {
+    //         setFiles(Array.from(e.target.files));
+    //     }
+    // }
 
     return (
         <Card>
