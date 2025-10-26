@@ -19,6 +19,8 @@ import { AssignmentStatusEnum, InsertAssignmentBody, InsertAssignmentStatus } fr
 import assignmentUtils from '../utils/assignment.utils';
 import { DEFAULT_ASSIGNMENT_STATUS, DEFAULT_TOTAL_GRADE } from '../utils/assignment.constant';
 import { NO_TOPIC_ID } from '../../(classwork)/utils/classwork.constant';
+import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
 
 interface Props {
     myClass: IClass;
@@ -30,6 +32,7 @@ interface Props {
 // create another component for implementing your feature
 export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) {
     const router = useRouter();
+    const tCommon = useTranslations('common');
 
     // Assignment Status selection states
     const [selectedStatus, setSelectedStatus] = useState<InsertAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
@@ -52,6 +55,10 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
     }
 
     async function handleSubmit() {
+        if (!title) {
+            toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.title') }));
+            return;
+        }
         const assignment: InsertAssignmentBody = {
             topicId: assignmentUtils.parseTopicId(selectedTopic),
             title,
