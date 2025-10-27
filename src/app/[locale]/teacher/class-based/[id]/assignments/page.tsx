@@ -6,6 +6,7 @@ import {
     ICreateAssignmentPayload,
     InsertAssignmentBody,
 } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';
 import LoadingPage from '@/app/loading';
@@ -60,7 +61,7 @@ function ValidPage({ classId }: { classId: number }) {
             },
             onSuccess(data) {
                 toastHelper.showSuccessMessage('Create assignment successfully');
-                router.push(ROUTES.TEACHER.CLASS_BASED_ID(classId));
+                router.push(ROUTES.TEACHER.CLASS_BASED_ID(classId, ClassDashboardTab.CLASSWORK));
             },
         },
     );

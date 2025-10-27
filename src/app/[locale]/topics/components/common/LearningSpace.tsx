@@ -1,4 +1,4 @@
-import { classDashboardTabs } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import { ClassDashboardTab, classDashboardTabs } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 import classUtils from '@/app/[locale]/class-based/[id]/utils/class.utils';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,6 +18,7 @@ interface PersonalModeProps {
 interface ClassBasedModeProps {
     mode: 'class-based';
     myClass: IClass;
+    defaultTab?: ClassDashboardTab;
     feedContent: React.ReactNode;
     activityContent: React.ReactNode;
     classworkContent?: React.ReactNode;
@@ -86,15 +87,17 @@ export default function LearningSpace(props: Props) {
                 <div className="relative z-10">
                     {mode === 'class-based' ? (
                         <div className="pt-6">
-                            <Tabs defaultValue="feeds" className="w-full">
+                            <Tabs defaultValue={props.defaultTab || ClassDashboardTab.FEEDS} className="w-full">
                                 <TabsList className="w-full mx-6 md:mx-8 bg-transparent p-0 border-b border-slate-200 dark:border-white/10">
                                     {classDashboardTabs.map((tab) => (
                                         <TabsTrigger
+                                            key={tab}
                                             value={tab}
-                                            className={`w-[${75 / classDashboardTabs.length}%] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
+                                            style={{ width: `${75 / classDashboardTabs.length}%` }}
+                                            className="data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
                                                 data-[state=active]:border-b-2 data-[state=active]:border-primary 
                                                 rounded-b-none text-base font-medium px-4 py-2 transition-all 
-                                                -mb-px`}
+                                                -mb-px"
                                         >
                                             {classUtils.getTabLabel(tab)}
                                         </TabsTrigger>

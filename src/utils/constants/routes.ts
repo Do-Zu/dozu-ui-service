@@ -1,3 +1,5 @@
+import { ClassDashboardTab } from "@/app/[locale]/class-based/[id]/utils/class.constant";
+
 export const ROUTES = Object.freeze({
     LANDING: '/',
     HOME: '/home',
@@ -56,7 +58,8 @@ export const ROUTES = Object.freeze({
     TEACHER: {
         HOME: '/teacher/home',
         CLASS_BASED: '/teacher/class-based',
-        CLASS_BASED_ID: (classId: string | number) => `/teacher/class-based/${classId}`,
+        CLASS_BASED_ID: (classId: string | number, defaultTab?: ClassDashboardTab) =>
+            `/teacher/class-based/${classId}${defaultTab ? `?defaultTab=${defaultTab}` : ''}`,
         CLASS_BASED_ID_GENERATE: (classId: string | number) => `/teacher/class-based/${classId}/generate`,
         CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
         CLASS_BASED_ID_MINDMAP_EDIT: (classId: string | number, topicId: string | number) =>

@@ -29,7 +29,7 @@ const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
-    const isPastDeadline = assignment.deadline && new Date() > assignment.deadline;
+    const isPastDeadline = assignment.deadline && new Date() > new Date(assignment.deadline);
 
     function handleEditClick() {
         router.push(

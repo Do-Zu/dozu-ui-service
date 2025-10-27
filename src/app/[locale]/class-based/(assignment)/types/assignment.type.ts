@@ -9,16 +9,16 @@ export type IAssignmentStatus = 'draft' | 'scheduled' | 'published' | 'closed';
 
 export type IAssignment = {
     assignmentId: number;
-    createdAt: Date;
-    updatedAt: Date | null;
+    createdAt: string;
+    updatedAt: string | null;
     teacherId: number;
     classId: number;
     topicId: number | null;
     title: string;
     content: string;
-    deadline: Date | null;
+    deadline: string | null;
     totalGrades: number;
-    publishedAt: Date | null;
+    publishedAt: string | null;
     status: 'draft' | 'scheduled' | 'published' | 'closed';
     acceptingSubmissions: boolean;
 };

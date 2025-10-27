@@ -1,8 +1,27 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/details/ContentSection';
+import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
+import { Separator } from '@/components/ui/separator';
+import useFetch from '@/hooks/useFetch';
+import { IAssignment, IDeleteAssignmentPayload } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
+import { useParams, useRouter } from 'next/navigation';
+import LoadingPage from '@/app/loading';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Edit, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { ROUTES } from '@/utils/constants/routes';
+import usePost from '@/hooks/usePost';
+import toastHelper from '@/utils/toast.helper';
+import { useState } from 'react';
+import DeleteAssignmentModal from '@/app/[locale]/class-based/(assignment)/components/DeleteAssignmentModal';
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 
 // Mock data (for now)
 const mockAssignment = {
@@ -16,6 +35,7 @@ const mockAssignment = {
         {
             attachmentId: 1,
             title: 'How Your Brain Alters Your Reality.mp4',
+            description: '',
             contentType: 'video/mp4',
             metadata: { size: '34MB' },
             createdAt: '2025-10-24T09:00:00.000Z',
@@ -23,6 +43,7 @@ const mockAssignment = {
         {
             attachmentId: 2,
             title: 'Wikipedia, bách khoa toàn thư mở.png',
+            description: '',
             contentType: 'image/png',
             metadata: { size: '2.1MB' },
             createdAt: '2025-10-24T09:05:00.000Z',
@@ -30,52 +51,120 @@ const mockAssignment = {
         {
             attachmentId: 3,
             title: 'Basic English - Wikipedia.pdf',
+            description: '',
             contentType: 'application/pdf',
             metadata: { size: '1.8MB' },
             createdAt: '2025-10-24T09:10:00.000Z',
         },
     ],
+    grade: 100,
+    deadline: '2025-11-27T09:10:00.000Z',
 };
 
 export default function Page() {
-    const assignment = mockAssignment;
+    const params = useParams();
+    const isValidClassId = typeof params.id === 'string' && !isNaN(Number(params.id)) && Number(params.id) > 0;
+    const isValidAssignmentId =
+        typeof params.assignmentId === 'string' &&
+        !isNaN(Number(params.assignmentId)) &&
+        Number(params.assignmentId) > 0;
+
+    const isValidId = isValidClassId && isValidAssignmentId;
+    if (!isValidId) {
+        return <div className="p-8">Invalid classId, please try again.</div>;
+    }
+
+    const classId = Number(params.id);
+    const assignmentId = Number(params.assignmentId);
+
+    return <ValidPage classId={classId} assignmentId={assignmentId} />;
+}
+
+function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: number }) {
+    const router = useRouter();
+    const tCommon = useTranslations('common');
+
+    // assignment
+    const {
+        data: assignment,
+        loading: assignmentLoading,
+        error: assignmentError,
+    } = useFetch<IAssignment>(() => assignmentService.getAssignmentById({ classId, assignmentId }));
+
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+
+    const { execute: deleteAssignmentAsync, loading: deleteAssignmentLoading } = usePost<
+        IDeleteAssignmentPayload,
+        number
+    >(assignmentService.deleteAssignmentById, 'DELETE', {
+        onError(error) {
+            toastHelper.showErrorMessage(error);
+        },
+        onSuccess(data) {
+            toastHelper.showSuccessMessage('Delete assignment successfully');
+            setIsOpen(false);
+            router.push(ROUTES.TEACHER.CLASS_BASED_ID(classId, ClassDashboardTab.CLASSWORK));
+        },
+    });
+
+    function handleEditClick() {
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_EDIT({ classId, assignmentId }));
+    }
+
+    function handleDeleteClick() {
+        setIsOpen(true);
+    }
+
+    async function handleDeleteSubmit() {
+        await deleteAssignmentAsync({ classId, assignmentId });
+    }
+
+    if (assignmentError) {
+        return <div>Error: {assignmentError}</div>;
+    }
+    if (assignmentLoading) {
+        return <LoadingPage />;
+    }
+    if (!assignment) {
+        return <div>Data Not Found</div>;
+    }
 
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-semibold">{assignment.title}</h1>
-                <p className="text-muted-foreground">
-                    Hoàng Kỳ Anh •{' '}
-                    {new Date(assignment.createdAt).toLocaleDateString('vi-VN', {
-                        day: 'numeric',
-                        month: 'long',
-                    })}
-                </p>
-                {assignment.description && <p className="mt-2 text-sm text-muted-foreground">{assignment.description}</p>}
-            </div>
+            <ContentSection
+                title={assignment.title}
+                description={assignment.content}
+                createdAt={assignment.createdAt}
+                withGrade={true}
+                withDeadline={true}
+                grade={assignment.totalGrades}
+                deadline={assignment.deadline}
+                dropdownMenuContent={
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={handleEditClick}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>{tCommon('actions.edit')}</span>
+                        </DropdownMenuItem>
 
-            {/* Attachments */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {assignment.attachments.map((file) => (
-                    <Card key={file.attachmentId} className="hover:shadow-md transition">
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium truncate">{file.title}</CardTitle>
-                            <p className="text-xs text-muted-foreground">
-                                {file.contentType.split('/')[1].toUpperCase()} • {file.metadata?.size}
-                            </p>
-                        </CardHeader>
-                        <CardContent>
-                            <Button variant="outline" size="sm" className="flex items-center gap-2" asChild>
-                                <a href="#" download>
-                                    <Download className="w-4 h-4" />
-                                    Tải xuống
-                                </a>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+                        <DropdownMenuItem onClick={handleDeleteClick}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>{tCommon('actions.delete')}</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                }
+            />
+
+            <Separator />
+
+            <AttachmentsSection attachments={mockAssignment.attachments} />
+
+            <DeleteAssignmentModal
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                assignmentId={assignmentId}
+                onSubmit={handleDeleteSubmit}
+                loading={deleteAssignmentLoading}
+            />
         </div>
     );
 }

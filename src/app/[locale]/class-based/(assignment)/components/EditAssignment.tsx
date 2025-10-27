@@ -54,7 +54,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
-    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [deadline, setDeadline] = useState<Date | undefined>(undefined);
 
     useEffect(() => {
         setSelectedStatus(AssignmentStatusEnum.PUBLISHED); // handle later
@@ -62,7 +62,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
         setContent(assignment.content);
         setSelectedTopic(assignment.topicId ? assignment.topicId.toString() : NO_TOPIC_ID);
         setGrade(assignment.totalGrades);
-        setDueDate(assignment.deadline ? assignment.deadline : undefined);
+        setDeadline(assignment.deadline ? new Date(assignment.deadline) : undefined);
     }, [
         assignment.status,
         assignment.title,
@@ -86,7 +86,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
             title,
             content,
             acceptingSubmissions: true,
-            deadline: dueDate,
+            deadline,
             totalGrades: grade,
             status: AssignmentStatusEnum.PUBLISHED,
         };
@@ -152,8 +152,8 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
                         setSelectedTopic={setSelectedTopic}
                         grade={grade}
                         setGrade={setGrade}
-                        dueDate={dueDate}
-                        setDueDate={setDueDate}
+                        deadline={deadline}
+                        setDeadline={setDeadline}
                     />
                 </div>
             </div>

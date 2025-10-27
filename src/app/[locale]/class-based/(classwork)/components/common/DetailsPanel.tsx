@@ -29,8 +29,8 @@ interface WithoutGradeProps {
 
 interface WithDeadlineProps {
     withDeadline: true;
-    dueDate: Date | undefined;
-    setDueDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+    deadline: Date | undefined;
+    setDeadline: React.Dispatch<React.SetStateAction<Date | undefined>>;
 }
 
 interface WithoutDeadlineProps {
@@ -60,9 +60,9 @@ export default function DetailsPanel(props: Props) {
         props.setGrade(Math.max(isNaN(value) ? 1 : value, 1));
     }
 
-    function handleDueDateSelect(value: Date | undefined) {
+    function handleDeadlineSelect(value: Date | undefined) {
         if (!withDeadline) return;
-        props.setDueDate(value);
+        props.setDeadline(value);
     }
 
     return (
@@ -132,12 +132,12 @@ export default function DetailsPanel(props: Props) {
                                         variant={'outline'}
                                         className={cn(
                                             'w-full justify-start text-left font-normal text-base h-11',
-                                            !props.dueDate && 'text-muted-foreground',
+                                            !props.deadline && 'text-muted-foreground',
                                         )}
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {props.dueDate ? (
-                                            format(props.dueDate, 'PPP')
+                                        {props.deadline ? (
+                                            format(props.deadline, 'PPP')
                                         ) : (
                                             <span>Không có ngày đến hạn</span>
                                         )}
@@ -146,8 +146,8 @@ export default function DetailsPanel(props: Props) {
                                 <PopoverContent className="w-auto p-0" align="start">
                                     <Calendar
                                         mode="single"
-                                        selected={props.dueDate}
-                                        onSelect={handleDueDateSelect}
+                                        selected={props.deadline}
+                                        onSelect={handleDeadlineSelect}
                                         initialFocus
                                     />
                                 </PopoverContent>

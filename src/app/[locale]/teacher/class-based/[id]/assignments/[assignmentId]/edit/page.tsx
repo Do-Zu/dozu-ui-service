@@ -7,6 +7,7 @@ import {
     IUpdateAssignmentBody,
     IUpdateAssignmentPayload,
 } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';
 import LoadingPage from '@/app/loading';
@@ -71,7 +72,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         },
         onSuccess(data) {
             toastHelper.showSuccessMessage('Edit assignment successfully');
-            router.push(ROUTES.TEACHER.CLASS_BASED_ID(classId));
+            router.push(ROUTES.TEACHER.CLASS_BASED_ID(classId, ClassDashboardTab.CLASSWORK));
         },
     });
 

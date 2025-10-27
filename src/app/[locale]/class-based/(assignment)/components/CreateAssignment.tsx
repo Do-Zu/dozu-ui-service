@@ -48,7 +48,7 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
-    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [deadline, setDeadline] = useState<Date | undefined>(undefined);
 
     function handleCloseClick() {
         router.back();
@@ -64,7 +64,7 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
             title,
             content,
             acceptingSubmissions: true, // handle later
-            deadline: dueDate,
+            deadline,
             totalGrades: grade,
             status: AssignmentStatusEnum.PUBLISHED, // handle later
         };
@@ -130,8 +130,8 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
                         setSelectedTopic={setSelectedTopic}
                         grade={grade}
                         setGrade={setGrade}
-                        dueDate={dueDate}
-                        setDueDate={setDueDate}
+                        deadline={deadline}
+                        setDeadline={setDeadline}
                     />
                 </div>
             </div>

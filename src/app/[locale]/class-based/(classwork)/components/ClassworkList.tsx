@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Plus, BookText, Edit, Trash2, FileText, HelpCircle, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AssignmentStatusEnum, IAssignment } from '../../(assignment)/types/assignment.type';
+import { AssignmentStatusEnum, IAssignment, IDeleteAssignmentPayload } from '../../(assignment)/types/assignment.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { formatDate } from '@/utils';
 import assignmentUtils from '../../(assignment)/utils/assignment.utils';
@@ -39,7 +39,7 @@ const ClassworkItem = ({ role, assignment, onOpen, onClose }: ItemProps) => {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
-    const isPastDeadline = assignment.deadline && new Date() > assignment.deadline;
+    const isPastDeadline = assignment.deadline && new Date() > new Date(assignment.deadline);
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -160,10 +160,7 @@ function ClassworkList({ role, myClass, topics: topicsData, assignments, setAssi
     const [deletingAssignment, setDeletingAssignment] = useState<number | null>(null);
 
     const { execute: deleteAssignmentAsync, loading: deleteAssignmentLoading } = usePost<
-        {
-            classId: number;
-            assignmentId: number;
-        },
+        IDeleteAssignmentPayload,
         number
     >(assignmentService.deleteAssignmentById, 'DELETE', {
         onError(error) {

@@ -78,6 +78,7 @@ import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assig
 import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
 import ClassworkListCopy from '@/app/[locale]/class-based/(classwork)/components/ClassworkListCopy';
 import { USER_ROLES } from '@/utils/constants/roles';
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 
 type TopicFilteringAction =
     | 'newest'
@@ -87,7 +88,12 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function ClassDashboard({ classId }: { classId: number }) {
+interface Props {
+    classId: number;
+    defaultTab?: ClassDashboardTab;
+}
+
+export default function ClassDashboard({ classId, defaultTab }: Props) {
     const router = useRouter();
     const validateTopic = useValidateTopic();
 
@@ -570,6 +576,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
             mode="class-based"
             myClass={myClass}
             mainActionButtons={mainActionButtons}
+            defaultTab={defaultTab}
             feedContent={feedContent}
             topicContent={topicContent}
             activityContent={activityContent}
