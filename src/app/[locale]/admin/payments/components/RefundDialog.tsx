@@ -32,10 +32,12 @@ export function RefundDialog({ payment, open, onOpenChange, onSuccess }: RefundD
     const [refundAmount, setRefundAmount] = useState('');
 
     const { execute: refund, loading } = usePost('/admin/payments/transactions/refund', 'POST', {
-        onMessageError: (error) => toast({ 
-            description: error || 'Failed to process refund', 
-            variant: 'destructive' 
-        }),
+        onError: (error: any) => {
+            toast({ 
+                description: error?.message || 'Failed to process refund', 
+                variant: 'destructive' 
+            });
+        },
         onMessageSuccess: () => {
             toast({ description: 'Refund processed successfully' });
             onSuccess();
