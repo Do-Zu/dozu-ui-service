@@ -1,3 +1,5 @@
+import { IInputResource } from '../../(classwork)/types/attachment.type';
+
 export enum AssignmentStatusEnum {
     DRAFT = 'draft',
     SCHEDULED = 'scheduled',
@@ -42,7 +44,7 @@ export type InsertAssignment = {
 export type InsertAssignmentBody = Pick<
     InsertAssignment,
     'topicId' | 'title' | 'content' | 'deadline' | 'totalGrades' | 'status' | 'acceptingSubmissions'
->;
+> & { inputResources?: IInputResource[] | undefined };
 
 // 'closed' is omitted, server will handle it
 export type InsertAssignmentStatus = 'draft' | 'scheduled' | 'published';

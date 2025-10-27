@@ -25,7 +25,13 @@ import { useTranslations } from 'next-intl';
 interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
-    onSubmit: ({ assignment }: { assignment: InsertAssignmentBody }) => Promise<void>;
+    onSubmit: ({
+        assignment,
+        files,
+    }: {
+        assignment: Omit<InsertAssignmentBody, 'inputResources'>;
+        files: File[];
+    }) => Promise<void>;
     loading: boolean;
 }
 
@@ -59,7 +65,7 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
             toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.title') }));
             return;
         }
-        const assignment: InsertAssignmentBody = {
+        const assignment = {
             topicId: assignmentUtils.parseTopicId(selectedTopic),
             title,
             content,
@@ -68,7 +74,7 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
             totalGrades: grade,
             status: AssignmentStatusEnum.PUBLISHED, // handle later
         };
-        await onSubmit({ assignment });
+        await onSubmit({ assignment, files });
     }
 
     return (

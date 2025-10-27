@@ -6,10 +6,13 @@ import {
     ICreateAssignmentPayload,
     InsertAssignmentBody,
 } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import { IInputResource } from '@/app/[locale]/class-based/(classwork)/types/attachment.type';
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
+import { RESOURCE_CONTENT_TYPE } from '@/app/[locale]/generate/constants/resource';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';
 import LoadingPage from '@/app/loading';
+import useUploadAttachmentFiles from '@/hooks/upload/useUploadAttachmentFiles';
 import useFetch from '@/hooks/useFetch';
 import usePost from '@/hooks/usePost';
 import teacherClassService from '@/services/class-based-learning/teacher/teacherClass.service';
@@ -66,9 +69,32 @@ function ValidPage({ classId }: { classId: number }) {
         },
     );
 
-    async function onSubmit({ assignment }: { assignment: InsertAssignmentBody }) {
-        await createAssignmentAsync({ classId, assignment });
+    // upload files
+    const { isLoading: isUploading, execute: uploadFiles } = useUploadAttachmentFiles();
+
+    async function onSubmit({
+        assignment,
+        files,
+    }: {
+        assignment: Omit<InsertAssignmentBody, 'inputResources'>;
+        files: File[];
+    }) {
+        let uploadedFileResult: IInputResource[] | undefined = undefined;
+        if (files.length > 0) {
+            const result = await uploadFiles(files);
+            uploadedFileResult = result.map((fileResponse) => ({
+                title: fileResponse.fileName,
+                contentType: RESOURCE_CONTENT_TYPE.FILE,
+                metadata: {
+                    ...fileResponse,
+                },
+            }));
+        }
+        const data: InsertAssignmentBody = { ...assignment, inputResources: uploadedFileResult };
+        await createAssignmentAsync({ classId, assignment: data });
     }
+
+    const isLoading = createAssignmentLoading || isUploading;
 
     if (myClassError || topicsError) {
         return <div>Error: {myClassError || topicsError}</div>;
@@ -80,5 +106,5 @@ function ValidPage({ classId }: { classId: number }) {
         return <div>Data Not Found</div>;
     }
 
-    return <CreateAssignment myClass={myClass} topics={topics} onSubmit={onSubmit} loading={createAssignmentLoading} />;
+    return <CreateAssignment myClass={myClass} topics={topics} onSubmit={onSubmit} loading={isLoading} />;
 }
