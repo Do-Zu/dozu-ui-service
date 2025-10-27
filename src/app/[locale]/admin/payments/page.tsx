@@ -119,3 +119,4 @@ export default withAuth(PaymentsPage, {
     requiredRole: 'admin',
 });
 
+
