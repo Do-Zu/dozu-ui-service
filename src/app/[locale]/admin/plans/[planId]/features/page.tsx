@@ -74,7 +74,7 @@ function PlanFeaturesPage() {
             </div>
 
             <DataTable
-                columns={getFeatureColumns(fetchPlanFeatures)}
+                columns={getFeatureColumns(plan?.name || 'Plan', fetchPlanFeatures)}
                 data={features}
                 loading={loading}
                 error={error}

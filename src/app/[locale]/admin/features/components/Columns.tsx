@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Feature } from '@/types/subscription';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import { Trash2 } from 'lucide-react';
+import { DeleteFeatureDialog } from './DeleteFeatureDialog';
 
 function FeatureTypeBadge({ type }: { type: string }) {
     const variants: Record<string, { className: string }> = {
@@ -38,6 +40,8 @@ function CategoryBadge({ category }: { category: string }) {
 }
 
 function ActionButtons({ feature, refetch }: { feature: Feature; refetch: () => void }) {
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
     const { execute: toggleActive, loading: toggleLoading } = usePost(
         `/admin/subscription/features/${feature.featureId}`,
         'PATCH',
@@ -47,42 +51,38 @@ function ActionButtons({ feature, refetch }: { feature: Feature; refetch: () => 
         }
     );
 
-    const { execute: deleteFeature, loading: deleteLoading } = usePost(
-        `/admin/subscription/features/${feature.featureId}`,
-        'DELETE',
-        {
-            onMessageError: () => toast({ description: 'Failed to delete feature', variant: 'destructive' }),
-            onMessageSuccess: () => {
-                toast({ description: 'Feature deleted successfully' });
-                refetch();
-            },
-        }
-    );
-
     const handleToggle = async () => {
         await toggleActive({ isActive: !feature.isActive });
     };
 
-    const handleDelete = async () => {
-        if (confirm('Are you sure you want to delete this feature? This action cannot be undone.')) {
-            await deleteFeature({});
-        }
-    };
-
     return (
-        <div className="flex gap-2">
-            <Button
-                variant={feature.isActive ? 'destructive' : 'default'}
-                size="sm"
-                onClick={handleToggle}
-                disabled={toggleLoading}
-            >
-                {feature.isActive ? 'Deactivate' : 'Activate'}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDelete} disabled={deleteLoading}>
-                <Trash2 className="h-4 w-4" />
-            </Button>
-        </div>
+        <>
+            <div className="flex gap-2">
+                <Button
+                    variant={feature.isActive ? 'destructive' : 'default'}
+                    size="sm"
+                    onClick={handleToggle}
+                    disabled={toggleLoading}
+                >
+                    {feature.isActive ? 'Deactivate' : 'Activate'}
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteDialogOpen(true)}
+                    title="Delete feature"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+            </div>
+            <DeleteFeatureDialog
+                feature={feature}
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                onSuccess={refetch}
+            />
+        </>
     );
 }
 

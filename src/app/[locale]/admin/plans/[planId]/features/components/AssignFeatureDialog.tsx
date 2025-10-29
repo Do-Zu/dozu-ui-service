@@ -85,8 +85,12 @@ export function AssignFeatureDialog({ open, onOpenChange, planId, onSuccess }: A
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.featureId || !formData.apiUrl) {
-            toast({ description: 'Please fill all required fields', variant: 'destructive' });
+        if (!formData.featureId) {
+            toast({ description: 'Please select a feature', variant: 'destructive' });
+            return;
+        }
+        if (!formData.apiUrl) {
+            toast({ description: 'API URL is required', variant: 'destructive' });
             return;
         }
         await assignFeature(formData as AssignFeatureToPlanInput);
@@ -198,11 +202,11 @@ export function AssignFeatureDialog({ open, onOpenChange, planId, onSuccess }: A
                             type="url"
                             value={formData.apiUrl}
                             onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
-                            placeholder="https://api.example.com/feature"
+                            placeholder="https://api.example.com/v1/features/..."
                             required
                         />
                         <p className="text-sm text-muted-foreground">
-                            API endpoint for checking/consuming this feature
+                            API endpoint that users will access after subscribing to this plan
                         </p>
                     </div>
 
@@ -210,7 +214,7 @@ export function AssignFeatureDialog({ open, onOpenChange, planId, onSuccess }: A
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={loading || !formData.featureId}>
+                        <Button type="submit" disabled={loading || !formData.featureId || !formData.apiUrl}>
                             {loading ? 'Assigning...' : 'Assign Feature'}
                         </Button>
                     </DialogFooter>

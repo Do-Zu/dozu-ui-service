@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { PlanFeature } from '@/types/subscription';
 import { Badge } from '@/components/ui/badge';
@@ -7,19 +8,35 @@ import { Button } from '@/components/ui/button';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import { Trash2, Check, X } from 'lucide-react';
+import { RemoveFeatureDialog } from './RemoveFeatureDialog';
 
 function FeatureTypeBadge({ type }: { type: string }) {
-    const variants: Record<string, { variant: 'default' | 'secondary' | 'outline' }> = {
-        boolean: { variant: 'default' },
-        usage: { variant: 'secondary' },
-        size_limit: { variant: 'outline' },
+    const variants: Record<string, { className: string }> = {
+        boolean: { className: 'bg-blue-500' },
+        usage: { className: 'bg-green-500' },
+        size_limit: { className: 'bg-purple-500' },
     };
 
-    return <Badge variant={variants[type]?.variant || 'outline'}>{type.replace('_', ' ')}</Badge>;
+    return (
+        <Badge className={`${variants[type]?.className || 'bg-gray-500'} text-white`}>
+            {type.replace('_', ' ').toUpperCase()}
+        </Badge>
+    );
 }
 
 function CategoryBadge({ category }: { category: string }) {
-    return <Badge variant="outline" className="capitalize">{category}</Badge>;
+    const variants: Record<string, string> = {
+        core: 'bg-orange-100 text-orange-800',
+        storage: 'bg-cyan-100 text-cyan-800',
+        integrations: 'bg-pink-100 text-pink-800',
+        customization: 'bg-indigo-100 text-indigo-800',
+    };
+
+    return (
+        <Badge className={variants[category] || ''} variant="outline">
+            {category.toUpperCase()}
+        </Badge>
+    );
 }
 
 function FeatureValue({ feature }: { feature: PlanFeature }) {
@@ -50,24 +67,8 @@ function FeatureValue({ feature }: { feature: PlanFeature }) {
     return <span className="text-muted-foreground">—</span>;
 }
 
-function ActionButtons({ feature, refetch }: { feature: PlanFeature; refetch: () => void }) {
-    const { execute: removeFeature, loading } = usePost(
-        `/admin/subscription/plan-features/${feature.planFeatureId}`,
-        'DELETE',
-        {
-            onMessageError: () => toast({ description: 'Failed to remove feature', variant: 'destructive' }),
-            onMessageSuccess: () => {
-                toast({ description: 'Feature removed successfully' });
-                refetch();
-            },
-        }
-    );
-
-    const handleRemove = async () => {
-        if (confirm('Are you sure you want to remove this feature from the plan?')) {
-            await removeFeature({});
-        }
-    };
+function ActionButtons({ feature, planName, refetch }: { feature: PlanFeature; planName: string; refetch: () => void }) {
+    const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
 
     const { execute: toggleEnabled, loading: toggleLoading } = usePost(
         `/admin/subscription/plan-features/${feature.planFeatureId}`,
@@ -83,23 +84,38 @@ function ActionButtons({ feature, refetch }: { feature: PlanFeature; refetch: ()
     };
 
     return (
-        <div className="flex gap-2">
-            <Button
-                variant={feature.isEnabled ? 'destructive' : 'default'}
-                size="sm"
-                onClick={handleToggle}
-                disabled={toggleLoading}
-            >
-                {feature.isEnabled ? 'Disable' : 'Enable'}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleRemove} disabled={loading}>
-                <Trash2 className="h-4 w-4" />
-            </Button>
-        </div>
+        <>
+            <div className="flex gap-2">
+                <Button
+                    variant={feature.isEnabled ? 'destructive' : 'default'}
+                    size="sm"
+                    onClick={handleToggle}
+                    disabled={toggleLoading}
+                >
+                    {feature.isEnabled ? 'Disable' : 'Enable'}
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setRemoveDialogOpen(true)}
+                    title="Remove feature"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+            </div>
+            <RemoveFeatureDialog
+                feature={feature}
+                planName={planName}
+                open={removeDialogOpen}
+                onOpenChange={setRemoveDialogOpen}
+                onSuccess={refetch}
+            />
+        </>
     );
 }
 
-export const getFeatureColumns = (refetch: () => void): ColumnDef<PlanFeature>[] => [
+export const getFeatureColumns = (planName: string, refetch: () => void): ColumnDef<PlanFeature>[] => [
     {
         accessorKey: 'featureName',
         header: 'Feature',
@@ -150,7 +166,7 @@ export const getFeatureColumns = (refetch: () => void): ColumnDef<PlanFeature>[]
     {
         id: 'action',
         header: 'Actions',
-        cell: ({ row }) => <ActionButtons feature={row.original} refetch={refetch} />,
+        cell: ({ row }) => <ActionButtons feature={row.original} planName={planName} refetch={refetch} />,
     },
 ];
 
