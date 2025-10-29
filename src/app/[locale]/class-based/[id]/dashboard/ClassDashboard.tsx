@@ -351,12 +351,6 @@ export default function ClassDashboard() {
                 setIsOpen={setIsTopicDetailsModalOpen}
                 topic={selectingTopic}
             />
-
-            <StudentProfileModal
-                isOpen={isStudentProfileModalOpen}
-                onClose={() => setIsStudentProfileModalOpen(false)}
-                classId={classId}
-            />
         </>
     );
 
@@ -370,14 +364,21 @@ export default function ClassDashboard() {
     );
 
     return (
-        <LearningSpace
-            mode="class-based"
-            myClass={myClass}
-            mainActionButtons={mainActionButtons}
-            feedContent={feedContent}
-            topicContent={topicContent}
-            activityContent={activityContent}
-            classworkContent={classworkContent}
-        />
+        <>
+            <LearningSpace
+                mode="class-based"
+                myClass={myClass}
+                mainActionButtons={mainActionButtons}
+                feedContent={feedContent}
+                topicContent={topicContent}
+                activityContent={activityContent}
+                classworkContent={classworkContent}
+            />
+            <StudentProfileModal
+                isOpen={isStudentProfileModalOpen}
+                onClose={() => setIsStudentProfileModalOpen(false)}
+                classId={classId}
+            />
+        </>
     );
 }

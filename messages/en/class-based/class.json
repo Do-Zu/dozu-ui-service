@@ -8,7 +8,8 @@
             "title": "Join Class",
             "description": "Enter your Class Id provided by your Teacher to join Class",
             "label": "Join",
-            "joinSuccess": "Join class successfully"
+            "joinSuccess": "Join class successfully",
+            "alreadyEnrolled": "You are already enrolled in this class"
         },
         "leave": {
             "title": "Leave Class",
