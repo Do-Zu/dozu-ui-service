@@ -25,10 +25,11 @@ function PaymentsPage() {
                 setLoading(true);
                 setError(null);
 
-                const query = new URLSearchParams(params).toString();
-                const url = query ? `/admin/payments/transactions?${query}` : `/admin/payments/transactions`;
-
-                const response: ApiResponse<PaymentsResponse> = await callApiAsync(url, 'GET', { params: filters });
+                const response: ApiResponse<PaymentsResponse> = await callApiAsync(
+                    '/admin/payments/transactions',
+                    'GET',
+                    { params }
+                );
                 setPayments(response.data || null);
             } catch (err: any) {
                 setError(err.message || 'An error occurred while retrieving payments.');
