@@ -224,7 +224,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                 <motion.p
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
-                                    className="text-xs text-muted-foreground mt-1 leading-relaxed"
+                                    className={`text-xs text-muted-foreground mt-1 leading-relaxed ${isActive ? '' : 'truncate'}`}
                                     style={{ lineHeight: '1.4' }}
                                 >
                                     {data.description}
