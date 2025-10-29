@@ -22,6 +22,15 @@ import toastHelper from '@/utils/toast.helper';
 import { useState } from 'react';
 import DeleteAssignmentModal from '@/app/[locale]/class-based/(assignment)/components/DeleteAssignmentModal';
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SubmissionsPage from './components/SubmissionsPage';
+import {
+    IAssignmentSubmission,
+    IAssignmentSubmissionWithStudent,
+    IGradeAssignmentSubmissionPayload,
+} from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
+import assignmentSubmissionService from '@/app/[locale]/class-based/(assignment)/service/assignmentSubmission.service';
 
 // Mock data (for now)
 const mockAssignment = {
@@ -81,6 +90,7 @@ export default function Page() {
 }
 
 function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: number }) {
+    const { user } = useAuth();
     const router = useRouter();
     const tCommon = useTranslations('common');
 
@@ -90,6 +100,39 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         loading: assignmentLoading,
         error: assignmentError,
     } = useFetch<IAssignment>(() => assignmentService.getAssignmentById({ classId, assignmentId }));
+
+    // submissions of the above assignment
+    const {
+        data: studentSubmissions,
+        setData: setStudentSubmissions,
+        loading: studentSubmissionsLoading,
+        error: studentSubmissionsError,
+    } = useFetch<IAssignmentSubmissionWithStudent[]>(() =>
+        assignmentSubmissionService.getAssignmentSubmissionsOfStudents({ assignmentId }),
+    );
+
+    // grade assignment submission
+    const { execute: gradeSubmissionAsync, loading: gradeSubmissionLoading } = usePost<
+        IGradeAssignmentSubmissionPayload,
+        IAssignmentSubmission
+    >(assignmentSubmissionService.gradeAssignmentSubmission, 'PUT', {
+        onError(error) {
+            toastHelper.showErrorMessage(error);
+        },
+        onSuccess(data) {
+            toastHelper.showSuccessMessage('Grade and return submission successfully');
+            // handle update UI
+            setStudentSubmissions((prev) => {
+                if (!prev) return null;
+                return prev.map((studentSubmission) => {
+                    const { submission } = studentSubmission;
+                    if (submission.submissionId === data.submissionId)
+                        return { ...studentSubmission, submission: data };
+                    return studentSubmission;
+                });
+            });
+        },
+    });
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -119,52 +162,85 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         await deleteAssignmentAsync({ classId, assignmentId });
     }
 
-    if (assignmentError) {
-        return <div>Error: {assignmentError}</div>;
+    async function onGradeSubmit({ submissionId, grade }: { submissionId: number; grade: number }) {
+        await gradeSubmissionAsync({ assignmentId, submissionId, grade });
     }
-    if (assignmentLoading) {
+
+    const error = assignmentError || studentSubmissionsError;
+    const loading = assignmentLoading || studentSubmissionsLoading;
+    const notfound = !assignment || !studentSubmissions;
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+    if (loading) {
         return <LoadingPage />;
     }
-    if (!assignment) {
+    if (notfound) {
         return <div>Data Not Found</div>;
     }
 
     return (
-        <div className="max-w-3xl mx-auto p-6 space-y-6">
-            <ContentSection
-                title={assignment.title}
-                description={assignment.content}
-                createdAt={assignment.createdAt}
-                withGrade={true}
-                withDeadline={true}
-                grade={assignment.totalGrades}
-                deadline={assignment.deadline}
-                dropdownMenuContent={
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={handleEditClick}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
+        <div className="p-6">
+            <Tabs className="w-[100%]" defaultValue="details">
+                <TabsList className="w-[20%]">
+                    <TabsTrigger value="details" className="justify-center">
+                        Details
+                    </TabsTrigger>
+                    <TabsTrigger value="submissions" className="justify-center">
+                        Submissions
+                    </TabsTrigger>
+                </TabsList>
+                <TabsContent value="details" className="px-6 md:px-8 py-4">
+                    <Separator />
+                    <div className="max-w-3xl mx-auto p-6 space-y-6">
+                        <ContentSection
+                            teacherName={user?.fullName || ''}
+                            title={assignment.title}
+                            description={assignment.content}
+                            createdAt={assignment.createdAt}
+                            withGrade={true}
+                            withDeadline={true}
+                            totalGrade={assignment.totalGrades}
+                            deadline={assignment.deadline}
+                            dropdownMenuContent={
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={handleEditClick}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>{tCommon('actions.edit')}</span>
+                                    </DropdownMenuItem>
 
-                        <DropdownMenuItem onClick={handleDeleteClick}>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.delete')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                }
-            />
+                                    <DropdownMenuItem onClick={handleDeleteClick}>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        <span>{tCommon('actions.delete')}</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            }
+                        />
 
-            <Separator />
+                        <Separator />
 
-            <AttachmentsSection attachments={mockAssignment.attachments} />
+                        <AttachmentsSection attachments={mockAssignment.attachments} />
 
-            <DeleteAssignmentModal
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-                assignmentId={assignmentId}
-                onSubmit={handleDeleteSubmit}
-                loading={deleteAssignmentLoading}
-            />
+                        <DeleteAssignmentModal
+                            isOpen={isOpen}
+                            setIsOpen={setIsOpen}
+                            assignmentId={assignmentId}
+                            onSubmit={handleDeleteSubmit}
+                            loading={deleteAssignmentLoading}
+                        />
+                    </div>
+                </TabsContent>
+                <TabsContent value="submissions" className="px-6 md:px-8 py-4">
+                    <Separator />
+                    <SubmissionsPage
+                        studentSubmissions={studentSubmissions}
+                        totalGrade={assignment.totalGrades}
+                        onGradeSubmit={onGradeSubmit}
+                        gradeLoading={gradeSubmissionLoading}
+                    />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

@@ -61,7 +61,9 @@ const ClassworkItem = ({ role, assignment, onOpen, onClose }: ItemProps) => {
     function handleDetailsClick() {
         if (dropdownOpen) return;
         if (role === USER_ROLES.USER) {
-            // handle route to assignment details page
+            router.push(
+                ROUTES.ASSIGNMENT_DETAILS({ classId: assignment.classId, assignmentId: assignment.assignmentId }),
+            );
         } else if (role === USER_ROLES.TEACHER) {
             router.push(
                 ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_DETAILS({

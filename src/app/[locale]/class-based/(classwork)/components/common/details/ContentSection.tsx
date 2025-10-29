@@ -1,4 +1,3 @@
-import { useAuth } from '@/contexts/auth/AuthContext';
 import { formatDate } from '@/utils';
 import { Edit, MoreVertical, Trash2 } from 'lucide-react';
 import {
@@ -11,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import React from 'react';
 
 interface BaseProps {
+    teacherName: string;
     title: string;
     description: string;
     createdAt: string;
@@ -21,7 +21,8 @@ interface BaseProps {
 
 interface WithGradeProps {
     withGrade: true;
-    grade: number;
+    grade?: number | undefined | null;
+    totalGrade: number;
 }
 
 interface WithoutGradeProps {
@@ -40,19 +41,24 @@ interface WithoutDeadlineProps {
 type Props = BaseProps & (WithGradeProps | WithoutGradeProps) & (WithDeadlineProps | WithoutDeadlineProps);
 
 export default function ContentSection(props: Props) {
-    const { user } = useAuth();
-    const { title, description, createdAt, withGrade, withDeadline, dropdownMenuContent } = props;
+    const { teacherName, title, description, createdAt, withGrade, withDeadline, dropdownMenuContent } = props;
 
     return (
         <div className="flex items-start justify-between">
             <div className="flex flex-1 flex-col">
                 <h1 className="text-2xl font-semibold">{title}</h1>
                 <p className="text-muted-foreground">
-                    {user?.fullName} • {formatDate(createdAt)}
+                    {teacherName} • {formatDate(createdAt)}
                 </p>
                 {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
                 <div className="mt-2 flex items-center justify-between w-full">
-                    {withGrade ? <p className="font-medium">{props.grade} điểm</p> : null}
+                    {withGrade ? (
+                        <p>
+                            {props.grade ? <span className="font-semibold">{props.grade}/</span> : null}
+                            <span className={props.grade ? '' : 'font-medium'}>{props.totalGrade}</span>
+                            {props.grade ? '' : ' điểm'}
+                        </p>
+                    ) : null}
                     {withDeadline && props.deadline ? (
                         <p className="text-sm text-muted-foreground">
                             Đến hạn <span className="font-medium text-foreground">{formatDate(props.deadline)}</span>

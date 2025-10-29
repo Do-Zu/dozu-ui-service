@@ -37,7 +37,7 @@ export function LearningModeSelect() {
             setIsMounted(true);
             return;
         }
-        dispatch(setLearningMode(storedValue));
+        // dispatch(setLearningMode(storedValue));
         if (storedValue === MODE_ACCESS_PAGE_ROLE.personal) {
             router.push(ROUTES.HOME);
         } else {

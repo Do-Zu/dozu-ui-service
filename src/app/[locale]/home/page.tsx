@@ -2,7 +2,7 @@
 
 import React, { ComponentType, ReactNode, useEffect } from 'react';
 
-import { selectLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { ILearningMode, selectLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { ROUTES } from '@/utils/constants/routes';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
@@ -12,6 +12,7 @@ import PersonalTopicLibrary from '../topics/components/ui/PersonalTopicLibrary';
 import CurrentProcessLearning from './components/CurrentProcessLearning';
 import HeroSection from './components/HeroSection';
 import LoadingPage from '@/app/loading';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 const BackgroundGradient: React.FC = React.memo(() => (
     <div aria-hidden className="h-full pointer-events-none absolute inset-0 overflow-hidden select-none">
@@ -50,7 +51,7 @@ const SECTIONS: Section[] = [
 
 // only for user and student
 const Home: React.FC = () => {
-    const learningMode = useSelector(selectLearningMode);
+    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const router = useRouter();
     const { isAuthenticated } = useAuthStorage();
 
