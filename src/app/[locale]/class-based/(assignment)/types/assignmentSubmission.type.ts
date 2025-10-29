@@ -1,4 +1,5 @@
 import { User } from '@/types/auth';
+import { IAttachment } from '../../(classwork)/types/attachment.type';
 
 export enum AssignmentSubmissionStatusEnum {
     DRAFT = 'draft',
@@ -48,3 +49,13 @@ export interface IGradeAssignmentSubmissionPayload {
     submissionId: number;
     grade: number;
 }
+
+export type IAssignmentSubmissionWithAttachments = {
+    assignmentSubmission: IAssignmentSubmission;
+    attachments: IAttachment[];
+};
+
+export type IUpdatedAssignmentSubmission = {
+    updatedAssignmentSubmission: IAssignmentSubmission;
+    addedAttachments: IAttachment[];
+};

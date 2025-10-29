@@ -4,6 +4,8 @@ import {
     IUpdateAssignmentSubmissionBody,
 } from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
 import assignmentSubmissionUtils from '@/app/[locale]/class-based/(assignment)/utils/assignmentSubmission.utils';
+import { IAttachment } from '@/app/[locale]/class-based/(classwork)/types/attachment.type';
+import attachmentUtils from '@/app/[locale]/class-based/(classwork)/utils/attachment.utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,30 +14,67 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 const mockSubmission = [{ name: 'Hoàng Ký Anh - Bài luận Space Tourism.docx', type: 'Google Tài liệu' }];
 
+function FileItem({ file }: { file: File }) {
+    return (
+        <div key={file.name} className="flex items-center justify-between rounded-md border p-3 bg-secondary/30">
+            <div className="flex items-center space-x-3 overflow-hidden">
+                <FileText className="h-5 w-5 flex-shrink-0 text-blue-500" />
+                <div className="flex flex-col overflow-hidden">
+                    <span className="truncate font-medium text-sm text-blue-700">{file.name}</span>
+                    <span className="text-xs text-muted-foreground">{file.type}</span>
+                </div>
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                <X className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+}
+
+function AttachmentItem({ attachment }: { attachment: IAttachment }) {
+    return (
+        <div
+            key={attachment.attachmentId}
+            className="flex items-center justify-between rounded-md border p-3 bg-secondary/30"
+        >
+            <div className="flex items-center space-x-3 overflow-hidden">
+                <FileText className="h-5 w-5 flex-shrink-0 text-blue-500" />
+                <div className="flex flex-col overflow-hidden">
+                    <span className="truncate font-medium text-sm text-blue-700">{attachment.metadata?.fileName}</span>
+                    <span className="text-xs text-muted-foreground">
+                        {attachmentUtils.formatContentType(attachment.metadata?.contentType)}
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 interface Props {
     submission: IAssignmentSubmission;
+    attachments: IAttachment[];
     onSubmit: ({ data }: { data: IUpdateAssignmentSubmissionBody }) => Promise<void>;
     loading: boolean;
 }
 
-export function SubmissionCard({ submission, onSubmit, loading }: Props) {
+export function SubmissionCard({ submission, attachments, onSubmit, loading }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [files, setFiles] = useState<File[]>([]);
-    const [submissions, setSubmission] = useState(mockSubmission);
+    // const [submissions, setSubmission] = useState(mockSubmission);
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files) return;
         const selectedFiles = Array.from(event.target.files);
         const allFiles = selectedFiles.concat(files);
         setFiles(allFiles);
-        const selectedSubmissions = selectedFiles.map((file) => ({
-            name: file.name,
-            type: 'Google tài liệu',
-        }));
-        setSubmission((prev) => {
-            const allSubmissions = prev.concat(selectedSubmissions);
-            return allSubmissions;
-        });
+        // const selectedSubmissions = selectedFiles.map((file) => ({
+        //     name: file.name,
+        //     type: 'Google tài liệu',
+        // }));
+        // setSubmission((prev) => {
+        //     const allSubmissions = prev.concat(selectedSubmissions);
+        //     return allSubmissions;
+        // });
     };
 
     const handleUploadClick = () => {
@@ -57,22 +96,11 @@ export function SubmissionCard({ submission, onSubmit, loading }: Props) {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
-                    {submissions.map((file) => (
-                        <div
-                            key={file.name}
-                            className="flex items-center justify-between rounded-md border p-3 bg-secondary/30"
-                        >
-                            <div className="flex items-center space-x-3 overflow-hidden">
-                                <FileText className="h-5 w-5 flex-shrink-0 text-blue-500" />
-                                <div className="flex flex-col overflow-hidden">
-                                    <span className="truncate font-medium text-sm text-blue-700">{file.name}</span>
-                                    <span className="text-xs text-muted-foreground">{file.type}</span>
-                                </div>
-                            </div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
+                    {files.map((file) => (
+                        <FileItem file={file} />
+                    ))}
+                    {attachments.map((attachment) => (
+                        <AttachmentItem attachment={attachment} />
                     ))}
                 </div>
 

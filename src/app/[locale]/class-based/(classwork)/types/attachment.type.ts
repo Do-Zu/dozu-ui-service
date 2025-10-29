@@ -1,9 +1,9 @@
 import { UploadFileResponse } from '@/components/generative/types';
 export interface IAttachment {
+    attachmentId: number;
     createdAt: string | null;
     description: string | null;
     title: string;
-    attachmentId: number;
     contentType: string | null;
     metadata: any;
 }

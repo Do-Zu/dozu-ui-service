@@ -1,9 +1,11 @@
 import { getRequest, putRequest } from '@/api/api';
 import {
     IAssignmentSubmission,
+    IAssignmentSubmissionWithAttachments,
     IAssignmentSubmissionWithStudent,
     IGradeAssignmentSubmissionPayload,
     IUpdateAssignmentSubmissionBody,
+    IUpdatedAssignmentSubmission,
 } from '../types/assignmentSubmission.type';
 
 export interface IUpdateAssignmentSubmissionPayload {
@@ -13,8 +15,10 @@ export interface IUpdateAssignmentSubmissionPayload {
 }
 
 class AssignmentSubmissionService {
-    public async getAssignmentSubmission({ assignmentId }: { assignmentId: number }) {
-        const response = await getRequest<unknown, IAssignmentSubmission>(`/assignments/${assignmentId}/submissions`);
+    public async getAssignmentSubmissionWithAttachments({ assignmentId }: { assignmentId: number }) {
+        const response = await getRequest<unknown, IAssignmentSubmissionWithAttachments>(
+            `/assignments/${assignmentId}/submissions`,
+        );
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -22,7 +26,7 @@ class AssignmentSubmissionService {
     }
 
     public async updateAssignmentSubmission({ assignmentId, submissionId, data }: IUpdateAssignmentSubmissionPayload) {
-        const response = await putRequest<IUpdateAssignmentSubmissionBody, IAssignmentSubmission>(
+        const response = await putRequest<IUpdateAssignmentSubmissionBody, IUpdatedAssignmentSubmission>(
             `/assignments/${assignmentId}/submissions/${submissionId}`,
             data,
         );

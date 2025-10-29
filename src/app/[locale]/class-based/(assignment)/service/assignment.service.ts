@@ -1,6 +1,7 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from '@/api/api';
 import {
     IAssignment,
+    IAssignmentWithAttachments,
     ICreateAssignmentPayload,
     IDeleteAssignmentPayload,
     InsertAssignmentBody,
@@ -18,8 +19,16 @@ class AssignmentService {
         return response.data;
     }
 
-    public async getAssignmentById({ classId, assignmentId }: { classId: number; assignmentId: number }) {
-        const response = await getRequest<unknown, IAssignment>(`/classes/${classId}/assignments/${assignmentId}`);
+    public async getAssignmentWithAttachmentsById({
+        classId,
+        assignmentId,
+    }: {
+        classId: number;
+        assignmentId: number;
+    }) {
+        const response = await getRequest<unknown, IAssignmentWithAttachments>(
+            `/classes/${classId}/assignments/${assignmentId}`,
+        );
         if (response.status !== 'success') {
             throw new Error(response.message);
         }

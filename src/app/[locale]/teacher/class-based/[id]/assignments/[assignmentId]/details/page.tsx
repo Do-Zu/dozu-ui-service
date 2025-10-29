@@ -4,7 +4,11 @@ import ContentSection from '@/app/[locale]/class-based/(classwork)/components/co
 import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
-import { IAssignment, IDeleteAssignmentPayload } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import {
+    IAssignment,
+    IAssignmentWithAttachments,
+    IDeleteAssignmentPayload,
+} from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
 import { useParams, useRouter } from 'next/navigation';
 import LoadingPage from '@/app/loading';
@@ -96,10 +100,12 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
     // assignment
     const {
-        data: assignment,
-        loading: assignmentLoading,
-        error: assignmentError,
-    } = useFetch<IAssignment>(() => assignmentService.getAssignmentById({ classId, assignmentId }));
+        data: assignmentWithAttachments,
+        loading: assignmentWithAttachmentsLoading,
+        error: assignmentWithAttachmentsError,
+    } = useFetch<IAssignmentWithAttachments>(() =>
+        assignmentService.getAssignmentWithAttachmentsById({ classId, assignmentId }),
+    );
 
     // submissions of the above assignment
     const {
@@ -166,9 +172,9 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         await gradeSubmissionAsync({ assignmentId, submissionId, grade });
     }
 
-    const error = assignmentError || studentSubmissionsError;
-    const loading = assignmentLoading || studentSubmissionsLoading;
-    const notfound = !assignment || !studentSubmissions;
+    const error = assignmentWithAttachmentsError || studentSubmissionsError;
+    const loading = assignmentWithAttachmentsLoading || studentSubmissionsLoading;
+    const notfound = !assignmentWithAttachments || !studentSubmissions;
 
     if (error) {
         return <div>Error: {error}</div>;
@@ -179,6 +185,8 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
     if (notfound) {
         return <div>Data Not Found</div>;
     }
+
+    const { assignment, attachments } = assignmentWithAttachments;
 
     return (
         <div className="p-6">
@@ -220,7 +228,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
                         <Separator />
 
-                        <AttachmentsSection attachments={mockAssignment.attachments} />
+                        <AttachmentsSection attachments={attachments} />
 
                         <DeleteAssignmentModal
                             isOpen={isOpen}

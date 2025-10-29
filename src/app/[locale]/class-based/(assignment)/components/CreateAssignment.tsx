@@ -75,6 +75,7 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
             status: AssignmentStatusEnum.PUBLISHED, // handle later
         };
         await onSubmit({ assignment, files });
+        setFiles([]);
     }
 
     return (

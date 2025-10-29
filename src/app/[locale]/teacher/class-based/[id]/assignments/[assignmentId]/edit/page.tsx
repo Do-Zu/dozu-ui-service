@@ -4,13 +4,17 @@ import { EditAssignment } from '@/app/[locale]/class-based/(assignment)/componen
 import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
 import {
     IAssignment,
+    IAssignmentWithAttachments,
     IUpdateAssignmentBody,
     IUpdateAssignmentPayload,
 } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import { IInputResource } from '@/app/[locale]/class-based/(classwork)/types/attachment.type';
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
+import { RESOURCE_CONTENT_TYPE } from '@/app/[locale]/generate/constants/resource';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';
 import LoadingPage from '@/app/loading';
+import useUploadAttachmentFiles from '@/hooks/upload/useUploadAttachmentFiles';
 import useFetch from '@/hooks/useFetch';
 import usePost from '@/hooks/usePost';
 import teacherClassService from '@/services/class-based-learning/teacher/teacherClass.service';
@@ -57,10 +61,12 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
     // assignment
     const {
-        data: assignment,
-        loading: assignmentLoading,
-        error: assignmentError,
-    } = useFetch<IAssignment>(() => assignmentService.getAssignmentById({ classId, assignmentId }));
+        data: assignmentWithAttachments,
+        loading: assignmentWithAttachmentsLoading,
+        error: assignmentWithAttachmentsError,
+    } = useFetch<IAssignmentWithAttachments>(() =>
+        assignmentService.getAssignmentWithAttachmentsById({ classId, assignmentId }),
+    );
 
     // update assignment
     const { execute: updateAssignmentAsync, loading: updateAssignmentLoading } = usePost<
@@ -76,27 +82,50 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         },
     });
 
-    async function onSubmit({ assignment }: { assignment: IUpdateAssignmentBody }) {
-        await updateAssignmentAsync({ classId, assignmentId, assignment });
+    // upload files
+    const { isLoading: isUploading, execute: uploadFiles } = useUploadAttachmentFiles();
+
+    async function onSubmit({ assignment, files }: { assignment: IUpdateAssignmentBody; files: File[] }) {
+        let uploadedFileResult: IInputResource[] | undefined = undefined;
+        if (files.length > 0) {
+            const result = await uploadFiles(files);
+            uploadedFileResult = result.map((fileResponse) => ({
+                title: fileResponse.fileName,
+                contentType: RESOURCE_CONTENT_TYPE.FILE,
+                metadata: {
+                    ...fileResponse,
+                },
+            }));
+        }
+        const data: IUpdateAssignmentBody = { ...assignment, inputResources: uploadedFileResult };
+        await updateAssignmentAsync({ classId, assignmentId, assignment: data });
     }
 
-    if (myClassError || topicsError || assignmentError) {
-        return <div>Error: {myClassError || topicsError || assignmentError}</div>;
+    const error = myClassError || topicsError || assignmentWithAttachmentsError;
+    const loading = myClassLoading || topicsLoading || assignmentWithAttachmentsLoading;
+    const notfound = !myClass || !topics || !assignmentWithAttachments;
+
+    if (error) {
+        return <div>Error: {error}</div>;
     }
-    if (myClassLoading || topicsLoading || assignmentLoading) {
+    if (loading) {
         return <LoadingPage />;
     }
-    if (!myClass || !topics || !assignment) {
+    if (notfound) {
         return <div>Data Not Found</div>;
     }
+
+    const { assignment, attachments } = assignmentWithAttachments;
+    const updateLoading = isUploading || updateAssignmentLoading;
 
     return (
         <EditAssignment
             myClass={myClass}
             topics={topics}
             assignment={assignment}
+            attachments={attachments}
             onSubmit={onSubmit}
-            loading={updateAssignmentLoading}
+            loading={updateLoading}
         />
     );
 }

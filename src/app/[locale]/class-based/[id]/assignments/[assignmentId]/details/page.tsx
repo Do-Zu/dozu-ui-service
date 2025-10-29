@@ -4,7 +4,7 @@ import ContentSection from '@/app/[locale]/class-based/(classwork)/components/co
 import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
-import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import { IAssignment, IAssignmentWithAttachments } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
 import { useParams, useRouter } from 'next/navigation';
 import LoadingPage from '@/app/loading';
@@ -19,51 +19,15 @@ import { useTranslations } from 'next-intl';
 import { PrivateCommentsCard, SubmissionCard } from './components/SubmissionCard';
 import {
     IAssignmentSubmission,
+    IAssignmentSubmissionWithAttachments,
     IUpdateAssignmentSubmissionBody,
+    IUpdatedAssignmentSubmission,
 } from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
 import assignmentSubmissionService, {
     IUpdateAssignmentSubmissionPayload,
 } from '@/app/[locale]/class-based/(assignment)/service/assignmentSubmission.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
-
-// Mock data (for now)
-const mockAssignment = {
-    assignmentId: 8,
-    classId: 1,
-    topicId: 35,
-    title: 'History assignment',
-    description: 'Writing about history.',
-    createdAt: '2025-10-24T08:02:43.826Z',
-    attachments: [
-        {
-            attachmentId: 1,
-            title: 'How Your Brain Alters Your Reality.mp4',
-            description: '',
-            contentType: 'video/mp4',
-            metadata: { size: '34MB' },
-            createdAt: '2025-10-24T09:00:00.000Z',
-        },
-        {
-            attachmentId: 2,
-            title: 'Wikipedia, bách khoa toàn thư mở.png',
-            description: '',
-            contentType: 'image/png',
-            metadata: { size: '2.1MB' },
-            createdAt: '2025-10-24T09:05:00.000Z',
-        },
-        {
-            attachmentId: 3,
-            title: 'Basic English - Wikipedia.pdf',
-            description: '',
-            contentType: 'application/pdf',
-            metadata: { size: '1.8MB' },
-            createdAt: '2025-10-24T09:10:00.000Z',
-        },
-    ],
-    grade: 100,
-    deadline: '2025-11-27T09:10:00.000Z',
-};
 
 export default function Page() {
     const params = useParams();
@@ -90,41 +54,57 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
     // submission
     const {
-        data: submission,
-        setData: setSubmission,
-        loading: submissionLoading,
-        error: submissionError,
-    } = useFetch<IAssignmentSubmission>(() => assignmentSubmissionService.getAssignmentSubmission({ assignmentId }));
+        data: submissionWithAttachments,
+        setData: setSubmissionWithAttachments,
+        loading: submissionWithAttachmentsLoading,
+        error: submissionWithAttachmentsError,
+    } = useFetch<IAssignmentSubmissionWithAttachments>(() =>
+        assignmentSubmissionService.getAssignmentSubmissionWithAttachments({ assignmentId }),
+    );
 
     // assignment
     const {
-        data: assignment,
-        loading: assignmentLoading,
-        error: assignmentError,
-    } = useFetch<IAssignment>(() => assignmentService.getAssignmentById({ classId, assignmentId }));
+        data: assignmentWithAttachments,
+        loading: assignmentWithAttachmentsLoading,
+        error: assignmentWithAttachmentsError,
+    } = useFetch<IAssignmentWithAttachments>(() =>
+        assignmentService.getAssignmentWithAttachmentsById({ classId, assignmentId }),
+    );
 
-    // update assignment
+    // update submission
     const { loading: updateSubmissionLoading, execute: updateSubmissionAsync } = usePost<
         IUpdateAssignmentSubmissionPayload,
-        IAssignmentSubmission
+        IUpdatedAssignmentSubmission
     >(assignmentSubmissionService.updateAssignmentSubmission, 'PUT', {
         onError(error) {
             toastHelper.showErrorMessage(error);
         },
         onSuccess(data) {
             toastHelper.showSuccessMessage('Submit successfully');
-            setSubmission(data);
+            setSubmissionWithAttachments((prev) => {
+                if (!prev) return null;
+                const updatedSubmissionWithAttachments = {
+                    assignmentSubmission: data.updatedAssignmentSubmission,
+                    attachments: prev.attachments.concat(data.addedAttachments),
+                };
+                return updatedSubmissionWithAttachments;
+            });
         },
     });
 
+    // handle upload files
     async function onSubmit({ data }: { data: IUpdateAssignmentSubmissionBody }) {
-        if (!submission) return;
-        await updateSubmissionAsync({ assignmentId, submissionId: submission.submissionId, data });
+        if (!submissionWithAttachments) return;
+        await updateSubmissionAsync({
+            assignmentId,
+            submissionId: submissionWithAttachments.assignmentSubmission.submissionId,
+            data,
+        });
     }
 
-    const error = assignmentError || submissionError;
-    const loading = assignmentLoading || submissionLoading;
-    const notfound = !assignment || !submission;
+    const error = assignmentWithAttachmentsError || submissionWithAttachmentsError;
+    const loading = assignmentWithAttachmentsLoading || submissionWithAttachmentsLoading;
+    const notfound = !assignmentWithAttachments || !submissionWithAttachments;
 
     if (error) {
         return <div>Error: {error}</div>;
@@ -135,6 +115,9 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
     if (notfound) {
         return <div>Data Not Found</div>;
     }
+
+    const { assignment, attachments: assignmentAttachments } = assignmentWithAttachments;
+    const { assignmentSubmission: submission, attachments: submissionAttachments } = submissionWithAttachments;
 
     return (
         <div className="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-7 gap-6">
@@ -161,11 +144,16 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
                 <Separator />
 
-                <AttachmentsSection attachments={mockAssignment.attachments} />
+                <AttachmentsSection attachments={assignmentAttachments} />
             </div>
 
             <div className="lg:col-span-2 space-y-6">
-                <SubmissionCard submission={submission} onSubmit={onSubmit} loading={updateSubmissionLoading} />
+                <SubmissionCard
+                    submission={submission}
+                    attachments={submissionAttachments}
+                    onSubmit={onSubmit}
+                    loading={updateSubmissionLoading}
+                />
 
                 <PrivateCommentsCard />
             </div>

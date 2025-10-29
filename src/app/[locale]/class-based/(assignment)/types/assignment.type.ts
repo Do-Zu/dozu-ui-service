@@ -1,4 +1,4 @@
-import { IInputResource } from '../../(classwork)/types/attachment.type';
+import { IAttachment, IInputResource } from '../../(classwork)/types/attachment.type';
 
 export enum AssignmentStatusEnum {
     DRAFT = 'draft',
@@ -54,7 +54,9 @@ export type IUpdateAssignment = Pick<
     'topicId' | 'title' | 'content' | 'deadline' | 'totalGrades' | 'status' | 'acceptingSubmissions' | 'updatedAt'
 >;
 
-export type IUpdateAssignmentBody = Omit<IUpdateAssignment, 'updatedAt'>;
+export type IUpdateAssignmentBody = Omit<IUpdateAssignment, 'updatedAt'> & {
+    inputResources?: IInputResource[] | undefined;
+};
 
 export interface ICreateAssignmentPayload {
     classId: number;
@@ -71,3 +73,8 @@ export interface IDeleteAssignmentPayload {
     classId: number;
     assignmentId: number;
 }
+
+export type IAssignmentWithAttachments = {
+    assignment: IAssignment;
+    attachments: IAttachment[];
+};

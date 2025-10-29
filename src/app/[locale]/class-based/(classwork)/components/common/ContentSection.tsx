@@ -4,7 +4,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import React from 'react';
 import AttachmentItem from '../../../(assignment)/components/AttachmentItem';
-
+import { IAttachment } from '../../types/attachment.type';
+import FetchedAttachmentItem from '../../../(assignment)/components/FetchedAttachmentItem';
 
 interface Props {
     title: string;
@@ -13,9 +14,11 @@ interface Props {
     setContent: React.Dispatch<React.SetStateAction<string>>;
     files: File[];
     setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+
+    attachments?: IAttachment[] | undefined;
 }
 
-export default function ContentSection({ title, setTitle, content, setContent, files, setFiles }: Props) {
+export default function ContentSection({ title, setTitle, content, setContent, files, setFiles, attachments }: Props) {
     function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
         setTitle(e.target.value);
     }
@@ -64,6 +67,7 @@ export default function ContentSection({ title, setTitle, content, setContent, f
                     </div>
 
                     <div className="space-y-2">
+                        {attachments?.map((attachment) => <FetchedAttachmentItem attachment={attachment} />)}
                         {files.map((file, index) => (
                             <AttachmentItem
                                 key={index}
