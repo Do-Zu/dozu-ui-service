@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { withAuth } from '@/hoc/withAuth';
-import { getRequest } from '@/api/api';
+import { callApiAsync } from '@/hooks/helper';
 import { ApiResponse } from '@/api/type';
 import { PaymentsResponse } from '@/types/payment';
 import { DataTable } from '@/components/ui/data-table';
@@ -28,7 +28,7 @@ function PaymentsPage() {
                 const query = new URLSearchParams(params).toString();
                 const url = query ? `/admin/payments/transactions?${query}` : `/admin/payments/transactions`;
 
-                const response: ApiResponse<PaymentsResponse> = await getRequest(url);
+                const response: ApiResponse<PaymentsResponse> = await callApiAsync(url, 'GET', { params: filters });
                 setPayments(response.data || null);
             } catch (err: any) {
                 setError(err.message || 'An error occurred while retrieving payments.');
@@ -52,20 +52,28 @@ function PaymentsPage() {
         setRefetchTrigger((prev) => prev + 1);
     };
 
+    const [isExporting, setIsExporting] = useState(false);
+
     const handleExportCsv = async () => {
         try {
-            const query = new URLSearchParams(filters).toString();
-            const url = query ? `/admin/payments/export/csv?${query}` : `/admin/payments/export/csv`;
-
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                },
+            setIsExporting(true);
+            
+            // Use callApiAsync with responseType: 'text' for CSV
+            const csvData = await callApiAsync<string>('/admin/payments/export/csv', 'GET', {
+                params: filters,
+                responseType: 'text',
             });
+            
+            if (!csvData || csvData.trim().length === 0) {
+                toast({
+                    description: 'No data to export',
+                    variant: 'destructive',
+                });
+                return;
+            }
 
-            if (!response.ok) throw new Error('Export failed');
-
-            const blob = await response.blob();
+            // Create and download CSV file
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
             const downloadUrl = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = downloadUrl;
@@ -76,8 +84,13 @@ function PaymentsPage() {
             document.body.removeChild(a);
 
             toast({ description: 'Payments exported successfully' });
-        } catch (err) {
-            toast({ description: 'Failed to export payments', variant: 'destructive' });
+        } catch (err: any) {
+            toast({
+                description: err?.message || 'Failed to export payments',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsExporting(false);
         }
     };
 
@@ -88,9 +101,9 @@ function PaymentsPage() {
                     <h2 className="text-2xl font-bold tracking-tight">Payment Tracking</h2>
                     <p className="text-muted-foreground">Monitor all transactions and payment statuses</p>
                 </div>
-                <Button onClick={handleExportCsv} variant="outline">
+                <Button onClick={handleExportCsv} variant="outline" disabled={isExporting}>
                     <Download className="mr-2 h-4 w-4" />
-                    Export CSV
+                    {isExporting ? 'Exporting...' : 'Export CSV'}
                 </Button>
             </div>
 
