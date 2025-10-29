@@ -8,28 +8,29 @@ import LoadingPage from '@/app/loading';
 import { StudentList } from './components/StudentList';
 import { toast } from '@/hooks/use-toast';
 import teacherClassService, {
-    IRemoveStudentInClassPayload,
+    IRemoveStudentInClassPayload
 } from '@/services/class-based-learning/teacher/teacherClass.service';
+import { IUserProfile } from '@/types/profile';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
+import StudentProfileModal from './components/StudentProfileModal';
+import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
+import { useState, useEffect } from 'react';
+import { withAuth } from '@/hoc/withAuth';
+import { USER_ROLES } from '@/utils/constants/roles';
 
-export default function Page() {
-    let { id: classId } = useParams() as { id: string | string[] | number };
-
-    if (typeof classId !== 'string') {
-        return <div>Invalid Params, classId must be a valid number</div>;
-    }
-
-    classId = Number(classId);
-
-    if (isNaN(classId)) {
-        return <div>Invalid Params, classId must be a valid number</div>;
-    }
-
+function StudentsManagementComponent({ classId }: { classId: number }) {
     const tCommon = useTranslations('common');
     const tClass = useTranslations('class');
     const tStudentList = useTranslations('class.studentList');
+    
+    // Profile modal state
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [selectedStudentProfile, setSelectedStudentProfile] = useState<IUserProfile | null>(null);
+    const [profileLoading, setProfileLoading] = useState(false);
+    
+    
     const {
         data: myClass,
         error: myClassError,
@@ -65,6 +66,33 @@ export default function Page() {
     async function handleRemoveClick(studentId: number) {
         if (typeof classId !== 'number' && !classId) return;
         await removeStudentFromClassAsync({ classId: classId as number, studentId });
+    }
+
+    async function handleViewProfile(student: IStudentInClass) {
+        setProfileLoading(true);
+        setIsProfileModalOpen(true);
+        try {
+            const profileData = await teacherClassService.getStudentProfile(student.userId);
+            
+            const fullProfile: IUserProfile = {
+                ...profileData,
+                enrolledAt: student.enrolledAt instanceof Date 
+                    ? student.enrolledAt.toISOString() 
+                    : student.enrolledAt || new Date().toISOString(),
+            };
+            
+            setSelectedStudentProfile(fullProfile);
+        } catch (error) {
+            toastHelper.showErrorMessage('Không thể tải thông tin profile');
+            setSelectedStudentProfile(null);
+            setIsProfileModalOpen(false);
+        } finally {
+            setProfileLoading(false);
+        }
+    }
+    function handleCloseProfileModal() {
+        setIsProfileModalOpen(false);
+        setSelectedStudentProfile(null);
     }
 
     if (myClassError) {
@@ -104,8 +132,41 @@ export default function Page() {
                 </div>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                <StudentList students={students} handleRemoveClick={handleRemoveClick} />
+                <StudentList
+                    students={students}
+                    classId={classId}
+                    handleRemoveClick={handleRemoveClick}
+                    handleViewProfile={handleViewProfile}
+                    invitationCode={myClass.invitationCode}
+                />
             </div>
+
+            {/* Student Profile Modal */}
+            <StudentProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={handleCloseProfileModal}
+                student={selectedStudentProfile}
+                loading={profileLoading}
+                classId={classId}
+            />
         </div>
     );
+}
+
+const AuthComponent = withAuth(StudentsManagementComponent, { requiredRole: USER_ROLES.TEACHER });
+
+export default function Page() {
+    let { id: classId } = useParams() as { id: string | string[] | number };
+
+    if (typeof classId !== 'string') {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
+    classId = Number(classId);
+
+    if (isNaN(classId)) {
+        return <div>Invalid Params, classId must be a valid number</div>;
+    }
+
+    return <AuthComponent classId={classId} />;
 }

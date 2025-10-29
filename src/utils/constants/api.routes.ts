@@ -26,3 +26,23 @@ export const API_TOPIC_ROUTES = Object.freeze({
     DELETE_TOPIC_FOR_CLASS: ({ classId, topicId }: { classId: ResourceId; topicId: ResourceId }) =>
         `/${classTopicsEndpoint(classId)}/${topicId}`,
 });
+
+// Gamification Routes
+export const API_GAMIFICATION_ROUTES = Object.freeze({
+    // Streak Routes
+    GET_USER_STREAK: '/gamification/streak',
+    UPDATE_STREAK: '/gamification/streak/update',
+    GET_STREAK_STATS: '/gamification/streak/stats',
+    GET_STUDENT_STREAKS: ({ classId }: { classId: ResourceId }) => `/gamification/streak/students/${classId}`,
+    BUY_STREAK_FREEZE: '/gamification/streak/buy-freeze',
+    GIFT_STREAK_FREEZE: '/gamification/streak/gift-freeze',
+    
+    // Points Routes
+    GET_USER_POINTS: '/gamification/points',
+    GET_POINTS_HISTORY: '/gamification/points/history',
+    GET_USER_GAMIFICATION_STATS: ({ userId }: { userId: ResourceId }) => `/gamification/points/user/${userId}`,
+    SPEND_POINTS: '/gamification/points/spend',
+    AWARD_QUIZ_POINTS: '/gamification/points/award/quiz',
+    AWARD_FLASHCARD_POINTS: '/gamification/points/award/flashcard',
+    AWARD_DAILY_GOAL_POINTS: '/gamification/points/award/daily-goal',
+});

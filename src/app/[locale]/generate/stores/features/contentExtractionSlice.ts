@@ -1,10 +1,23 @@
-import { reduceTokenInput } from '../../helper/reduceTokenInput';
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { EXTRACTION_TAB, ExtractionTab, ResourceContentType, RESOURCE_CONTENT_TYPE } from '../../constants/resource';
+import { STATUS_CODE } from '@/utils/constants/http';
 
-interface VideoInfo {
+const BASE_API_YOUTUBE = '/api/youtube/transcript?videoId=';
+const BASE_API_EXTRACT_WEBSITE = '/api/website-content';
+interface IEmbedVideoInfo {
+    iframe_url: string;
+    flash_url: string;
+    flash_secure_url: string;
+    width: any;
+    height: any;
+}
+export interface VideoInfo {
     title: string;
     thumbnailUrl: string;
+    videoId: string;
+    duration: number;
+    embed: IEmbedVideoInfo;
 }
 
 export interface TranscriptSegment {
@@ -19,8 +32,8 @@ export interface ContentExtractionState {
     isLoading: boolean;
     error: string | null;
     videoInfo: VideoInfo | null;
-    contentType: 'youtube' | 'website' | null;
-    activeTab: string;
+    contentType: ResourceContentType | null;
+    activeTab: ExtractionTab;
     textContent: string;
     transcriptSegments: TranscriptSegment[];
 }
@@ -32,7 +45,7 @@ const initialState: ContentExtractionState = {
     error: null,
     videoInfo: null,
     contentType: null,
-    activeTab: 'url',
+    activeTab: EXTRACTION_TAB.URL,
     textContent: '',
     transcriptSegments: [],
 };
@@ -61,23 +74,24 @@ export const extractYouTubeTranscript = createAsyncThunk(
     'contentExtraction/extractYouTubeTranscript',
     async (videoId: string, { rejectWithValue }) => {
         try {
-            const { data, status } = await axios.get(`/api/youtube/transcript?videoId=${videoId}`);
+            const { data, status } = await axios.get(`${BASE_API_YOUTUBE}${videoId}`);
 
-            if (status !== 200) {
+            if (status !== STATUS_CODE.OK) {
                 throw new Error(data.error || 'Failed to fetch transcript');
             }
 
-            const optimizeText = reduceTokenInput(data.transcript).text;
+            const { transcript, transcriptSegments, metadata: rawMetadata } = data;
+            const metadata = rawMetadata ?? {};
 
             return {
-                transcript: optimizeText,
-                transcriptSegments: data.transcriptSegments || [],
+                transcript,
+                transcriptSegments: transcriptSegments || [],
                 metadata: {
-                    title: data.metadata.title,
-                    thumbnailUrl: data.metadata.thumbnailUrl,
+                    ...metadata,
+                    videoId,
                 },
             };
-        } catch (err: any) {
+        } catch (err: Error | any) {
             return rejectWithValue(
                 err.message ||
                     'Failed to fetch transcript. This video might not have captions available or might be private.',
@@ -96,7 +110,7 @@ export const extractWebsiteContent = createAsyncThunk(
                 validUrl = `https://${url}`;
             }
 
-            const response = await axios.post('/api/website-content', { url: validUrl });
+            const response = await axios.post(BASE_API_EXTRACT_WEBSITE, { url: validUrl });
             return response.data.content;
         } catch (err: any) {
             return rejectWithValue('Failed to extract content. Please check the URL and try again.');
@@ -113,7 +127,7 @@ const contentExtractionSlice = createSlice({
             state.inputUrl = action.payload;
         },
 
-        setActiveTab: (state, action: PayloadAction<string>) => {
+        setActiveTab: (state, action: PayloadAction<ExtractionTab>) => {
             state.activeTab = action.payload;
         },
         setTextContent: (state, action: PayloadAction<string>) => {
@@ -127,7 +141,7 @@ const contentExtractionSlice = createSlice({
             state.inputUrl = '';
             state.error = null;
             state.isLoading = false;
-            state.activeTab = 'url';
+            state.activeTab = EXTRACTION_TAB.URL;
             state.videoInfo = null;
             state.contentType = null;
             state.textContent = '';
@@ -145,7 +159,7 @@ const contentExtractionSlice = createSlice({
                 state.isLoading = false;
                 state.extractedContent = action.payload?.transcript;
                 state.videoInfo = action.payload.metadata;
-                state.contentType = 'youtube';
+                state.contentType = RESOURCE_CONTENT_TYPE.YOUTUBE;
                 // state.textContent = action.payload.transcript;
                 state.transcriptSegments = action.payload.transcriptSegments || [];
             })
@@ -161,7 +175,7 @@ const contentExtractionSlice = createSlice({
             .addCase(extractWebsiteContent.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.extractedContent = action.payload;
-                state.contentType = 'website';
+                state.contentType = RESOURCE_CONTENT_TYPE.WEBSITE;
                 state.textContent = action.payload;
             })
             .addCase(extractWebsiteContent.rejected, (state, action) => {

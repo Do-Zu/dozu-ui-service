@@ -17,8 +17,10 @@ export async function getMessages(locale: string) {
     const messages = {
         ...(await import(`../../messages/${locale}/common.json`)).default,
         ...(await import(`../../messages/${locale}/home.json`)).default,
+        ...(await import(`../../messages/${locale}/packages.json`)).default,
         ...(await import(`../../messages/${locale}/login.json`)).default,
         ...(await import(`../../messages/${locale}/registerPage.json`)).default,
+        ...(await import(`../../messages/${locale}/payment.json`)).default,
         ...(await import(`../../messages/${locale}/auth/forgotPasswordPage.json`)).default,
         ...(await import(`../../messages/${locale}/auth/changePasswordEmailSentPage.json`)).default,
         ...(await import(`../../messages/${locale}/auth/changePasswordPage.json`)).default,
@@ -36,9 +38,13 @@ export async function getMessages(locale: string) {
         ...(await import(`../../messages/${locale}/schedule.json`)).default,
         ...(await import(`../../messages/${locale}/games.json`)).default,
         ...(await import(`../../messages/${locale}/class-based/class.json`)).default,
+        ...(await import(`../../messages/${locale}/class-based/components/editLearningMaterial.json`)).default,
         ...(await import(`../../messages/${locale}/pomodoro.json`)).default,
+        ...(await import(`../../messages/${locale}/studentProfile.json`)).default,
         ...(await import(`../../messages/${locale}/feynman.json`)).default,
         ...(await import(`../../messages/${locale}/class-based/comment.json`)).default,
+        ...(await import(`../../messages/${locale}/ankiSetting.json`)).default,
+        ...(await import(`../../messages/${locale}/class-based/assignment.json`)).default,
     };
 
     // You can dynamically load additional message files based on routes/features

@@ -34,6 +34,7 @@ export class ProfileService {
         id: backendData.profileId?.toString() || backendData.userId?.toString() || '',
         username: backendData.username || 'Unknown User',
         email: backendData.email || '',
+        fullName: backendData.fullName || undefined,
         location: backendData.location || '',
         bio: backendData.bio || backendData.hobbiesTopic || '',
         joinDate: backendData.createdAt || new Date().toISOString(),
@@ -51,7 +52,7 @@ export class ProfileService {
   static async updateProfile(profileData: Partial<ProfileData>): Promise<ProfileData> {
       // Map frontend data to backend format before sending
       const backendUpdateData = {
-        fullName: profileData.username || '',
+        fullName: profileData.fullName || '',
         email: profileData.email,
         location: profileData.location,
         bio: profileData.bio,
@@ -66,8 +67,9 @@ export class ProfileService {
       // Map response back to frontend format
       const mappedProfile: ProfileData = {
         id: backendData.profileId?.toString() || backendData.userId?.toString() || '',
-        username: backendData.username || backendData.fullName || 'Unknown User',
+        username: backendData.username || 'Unknown User',
         email: backendData.email || '',
+        fullName: backendData.fullName || undefined,
         location: backendData.location || '',
         bio: backendData.bio || backendData.hobbiesTopic || '',
         joinDate: backendData.createdAt || new Date().toISOString(),

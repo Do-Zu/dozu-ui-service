@@ -3,7 +3,7 @@ import { ITopic } from "@/app/[locale]/topics/types/topic.type";
 
 class StudentTopicService {
     public async getTopicsInClass(classId: number) {
-        const response = await getRequest<null, ITopic>(`/classes/student/${classId}/topics`);
+        const response = await getRequest<null, ITopic[]>(`/classes/student/${classId}/topics`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }

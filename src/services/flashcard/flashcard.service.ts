@@ -8,12 +8,14 @@ import {
     IFlashcardsForNodeBatchInput,
     IFlashcardsWithTopicName,
     IFlashcardBatchResult,
-    IAnkiRating,
     IDueAnkiCard,
     IAnkiCardReviewed,
+    IAnkiResult,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
+import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { flashcardRoutes } from '@/utils/constants/api.routes';
+import { activityTrackingService } from '@/services/gamification/activityTracking.service';
 
 export interface IFlashcardReviewPayload {
     topicId: string | number;
@@ -60,9 +62,7 @@ class FlashcardService {
     }
 
     public async getDueAnkiCardsForTopic(topicId: string | number) {
-        const response = await getRequest<unknown, IDueAnkiCard[]>(
-            flashcardRoutes(topicId).GET_DUE_FLASHCARDS,
-        );
+        const response = await getRequest<unknown, IDueAnkiCard[]>(flashcardRoutes(topicId).GET_DUE_FLASHCARDS);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -116,6 +116,15 @@ class FlashcardService {
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
+
+        // Track flashcard review activity for streak
+        const score = this.calculateFlashcardScore(qualityResponse);
+        await activityTrackingService.trackFlashcardReview(
+            Number(flashcardId),
+            score,
+            0, // Duration - you might want to track this in the future
+        );
+
         return response.data;
     }
 
@@ -137,7 +146,62 @@ class FlashcardService {
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
+
+        // Track flashcard review activity for streak
+        try {
+            const score = this.calculateAnkiScore(rating);
+            await activityTrackingService.trackFlashcardReview(
+                Number(flashcardId),
+                score,
+                0, // Duration - you might want to track this in the future
+            );
+        } catch (error) {
+            console.error('Error tracking flashcard review activity:', error);
+        }
+
         return response.data;
+    }
+
+    /**
+     * Convert quality response to score (0-100)
+     */
+    private calculateFlashcardScore(qualityResponse: IQualityResponse): number {
+        // Quality response mapping to score:
+        // 0: Complete blackout -> 0
+        // 1: Incorrect; easy interval -> 20
+        // 2: Incorrect; normal interval -> 40
+        // 3: Correct; difficult -> 60
+        // 4: Correct; normal -> 80
+        // 5: Correct; easy -> 100
+        const scoreMap = {
+            0: 0, // Complete blackout
+            1: 20, // Incorrect; easy interval
+            2: 40, // Incorrect; normal interval
+            3: 60, // Correct; difficult
+            4: 80, // Correct; normal
+            5: 100, // Correct; easy
+        };
+
+        return scoreMap[qualityResponse as keyof typeof scoreMap] || 0;
+    }
+
+    /**
+     * Convert Anki rating to score (0-100)
+     */
+    private calculateAnkiScore(rating: IAnkiRating): number {
+        // Anki rating mapping to score:
+        // 1: Again -> 0
+        // 2: Hard -> 40
+        // 3: Good -> 80
+        // 4: Easy -> 100
+        const scoreMap = {
+            1: 0, // Again
+            2: 40, // Hard
+            3: 80, // Good
+            4: 100, // Easy
+        };
+
+        return scoreMap[rating as keyof typeof scoreMap] || 0;
     }
 }
 

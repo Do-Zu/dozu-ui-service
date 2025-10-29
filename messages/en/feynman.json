@@ -24,9 +24,9 @@
         "loadingGenerate": "Generating questions & hints…",
         "remarkableJargon": "Complex words are underlined. Select text to mark it as jargon with a chosen underline color.",
         "removeMark": "Remove remark",
-        "slogan": "If you can’t explain it simply, you don’t understand it well enough. (Albert Einstein)",
+        "slogan": "The system will analyze and suggest complex words or specialized terms that need your explanation.",
         "reviewDialogTitle": "Review Result",
-        "defaultQuestion": "Start by explaining it like I'm 8 years old.",
+        "defaultQuestion": "Start explaining in your own words",
         "reviewDialogDesc": "A structured analysis of your explanation with actionable improvements.",
         "scores": "Scores",
         "scoreOverall": "Overall",
@@ -48,6 +48,10 @@
         "closeDialog": "Close",
         "stepLabel": "Step {index}",
         "hideMore": "Hide more",
-        "showMore": "Show {count} more"
+        "showMore": "Show {count} more",
+        "messages": {
+            "emptyOriginContent": "Origin content empty",
+            "flashcard": "flashcard"
+        }
     }
 }

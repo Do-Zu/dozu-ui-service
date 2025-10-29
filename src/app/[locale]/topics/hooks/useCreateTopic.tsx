@@ -49,7 +49,7 @@ export function useCreateTopic(props: Props) {
             const currentTopics = prevTopics ?? [];
             return [
                 ...currentTopics,
-                { ...(topic as ITopic), flashcardCounts: { total: 0, new: 0, learning: 0, dueToday: 0 } },
+                { ...(topic as ITopic), flashcardCounts: { total: 0, new: 0, learning: 0, review: 0 } },
             ];
         });
     };

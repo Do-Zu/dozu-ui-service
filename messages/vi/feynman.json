@@ -24,8 +24,8 @@
         "loadingGenerate": "Đang tạo questions & gợi ý ...",
         "remarkableJargon": "Các từ phức tạp sẽ được gạch chân. Chọn văn bản để đánh dấu là thuật ngữ chuyên ngành với màu gạch chân đã chọn.",
         "removeMark": "Xóa remark",
-        "slogan": "Nếu bạn không thể giải thích một cách đơn giản thì có nghĩa là bạn chưa hiểu đủ rõ. (Albert Einstein)",
-        "defaultQuestion": "Hãy thử giải thích cho một đứa trẻ 8 tuổi",
+        "slogan": "Hệ thống sẽ phân tích và gợi ý cho bạn những từ phức tạp hoặc các từ ngữ chuyên ngành cần bạn giải thích.",
+        "defaultQuestion": "Hãy thử giải thích theo suy nghĩ của bạn",
         "reviewDialogTitle": "Kết quả đánh giá",
         "reviewDialogDesc": "Phân tích có cấu trúc về phần giải thích của bạn kèm cải thiện cụ thể.",
         "scores": "Điểm số",
@@ -48,6 +48,10 @@
         "closeDialog": "Đóng",
         "stepLabel": "Bước {index}",
         "hideMore": "Ẩn bớt",
-        "showMore": "Xem thêm"
+        "showMore": "Xem thêm",
+        "messages": {
+            "emptyOriginContent": "Không có nội dung",
+            "flashcard": "flashcard"
+        }
     }
 }

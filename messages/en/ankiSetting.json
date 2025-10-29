@@ -1,0 +1,5 @@
+{
+    "ankiSetting": {
+        "deleteConfirmation": "Are you sure to delete setting {name}? Topics using this setting will automatically use your default setting instead."
+    }
+}

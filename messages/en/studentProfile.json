@@ -1,0 +1,31 @@
+{
+  "studentProfile": {
+    "title": "Student Profile",
+    "personalInfo": "Personal Information",
+    "learningStats": "Learning Statistics",
+    "achievements": "Achievements",
+    "level": "Level",
+    "points": "Points",
+    "currentStreak": "Current Streak",
+    "longestStreak": "Longest Streak",
+    "averageScore": "Average Score",
+    "lessonsCompleted": "Lessons Completed",
+    "quizzesCompleted": "Quizzes Completed",
+    "flashcardsReviewed": "Flashcards Completed",
+    "joinedClass": "Joined Class",
+    "bio": "Bio",
+    "location": "Location",
+    "university": "University",
+    "major": "Major",
+    "levelProgress": "Level Progress",
+    "currentStreakLabel": "Current Streak",
+    "longestStreakLabel": "Longest Streak",
+    "lessonsLabel": "Lessons",
+    "averageLabel": "Average",
+    "learningStatsDescription": "Learning activity statistics",
+    "achievementsCount": "Achievements",
+    "earnedAt": "Earned",
+    "noStudentData": "No student data available",
+    "gamificationDataError": "Unable to load learning statistics. Showing cached data."
+  }
+}

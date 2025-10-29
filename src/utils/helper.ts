@@ -51,13 +51,41 @@ const toTitleCase = (str: string): string => {
 };
 
 /**
+ *
+ * @param value
+ * @returns True if list is empty, false otherwise.
+ */
+const isListEmpty = (value: unknown[]): boolean => {
+    return value.length === 0;
+};
+
+/**
+ *
+ * @param obj
+ * @returns True if the object is empty, false otherwise.
+ */
+const isObjectEmpty = (obj: object): boolean => {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+};
+
+/**
  * Checks if an object is empty (has no own properties).
  *
  * @param obj - The object to be checked.
- * @returns True if the object is empty, false otherwise.
+ * @returns return empty for unknown type
  */
-const isEmpty = (obj: object): boolean => {
-    return Object.keys(obj).length === 0 && obj.constructor === Object;
+const isEmpty = (value: unknown): boolean => {
+    if (value === null || value === undefined) return true;
+
+    if (typeof value === 'string') return isNullOrEmpty(value);
+
+    if (Array.isArray(value)) return isListEmpty(value);
+
+    if (typeof value === 'object') {
+        return isObjectEmpty(value);
+    }
+
+    return false;
 };
 
 /**
@@ -139,6 +167,63 @@ const normalize = (text: string | undefined | null): string[] => {
         .filter(Boolean);
 };
 
+/**
+ * Utility function for safe destructuring without React hooks.
+ * Can be used in any TypeScript/JavaScript context.
+ *
+ * @template T - The expected type of the object
+ * @param {T | undefined | null} object - The object to safely destructure
+ * @param {Partial<T>} defaultValues - Default values for missing properties
+ * @returns {T} A safe object that won't crash on destructuring
+ *
+ * @example
+ * ```tsx
+ * const { name, age } = safeDestructure(user, { name: '', age: 0 });
+ * ```
+ */
+const safeDestructure = <T extends object>(object: T | undefined | null, defaultValues: Partial<T> = {}): T => {
+    if (isNilOrEmpty(object)) return defaultValues as T;
+
+    return { ...defaultValues, ...object } as T;
+};
+
+/**
+ * @description Normalizes a string by trimming whitespace and converting to lowercase.
+ *  Returns an empty string for nullish input.
+ * @param str1
+ * @param str - The string to normalize.
+ * @returns The normalized string, or empty string if input is nullish.
+ */
+const lowercase = (str: string | null | undefined): string => {
+    return str ? str.trim().toLowerCase() : '';
+};
+
+/**
+ * @description Compares two strings for equality without considering capitalization.
+ * This function is useful for case-insensitive comparisons, such as when checking user input or comparing
+ * @param str1
+ * @param str2
+ * @returns boolean - Returns true if both strings are equal ignoring case, false otherwise.
+ */
+const compareIgnoreCapitalization = (str1: string, str2: string) => {
+    if (str1 === str2) return true;
+    return lowercase(str1) === lowercase(str2);
+};
+
+/**
+ * Validates that a value is an array. Optionally ensures all items pass a type guard.
+ * Returns [] when invalid.
+ *
+ * @example
+ * const numbers = validateArray<number>(maybeNumbers, (v): v is number => typeof v === 'number');
+ * const anyArray = validateArray<any>(maybeArray); // only checks Array.isArray
+ */
+const validateArray = <T>(value: unknown, isItem?: (v: unknown) => v is T): T[] => {
+    if (!Array.isArray(value)) return [];
+    if (isItem && !value.every(isItem)) return [];
+    return value as T[];
+};
+
 export {
     deepClone,
     toTitleCase,
@@ -151,4 +236,8 @@ export {
     truncate,
     normalize,
     toNumber,
+    safeDestructure,
+    lowercase,
+    compareIgnoreCapitalization,
+    validateArray,
 };

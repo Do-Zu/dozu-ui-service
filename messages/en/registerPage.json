@@ -10,6 +10,8 @@
     "haveAccountPrompt": "Already have an account?",
     "loginButtonText": "Login",
     "registerGoogleButtonText": "Register with Google",
-    "registerSuccessMessage":"Registered successfully, verify email to continue"
+    "registerSuccessMessage": "Registered successfully, verify email to continue",
+    "registerAsLabel": "Register as",
+    "selectRoleLabel": "Roles"
   }
 }

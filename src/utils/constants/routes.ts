@@ -11,6 +11,7 @@ export const ROUTES = Object.freeze({
     FLASHCARDS_EDIT: (topicId: string | number) => `/flashcards/edit/${topicId}`,
     FLASHCARDS_BROWSE: (topicId: string | number) => `/flashcards/browse/${topicId}`,
     FLASHCARDS_LEARNING: (topicId: string | number) => `/flashcards/learning/${topicId}`,
+    QUIZ_DASBOARD: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     SETTING_SCHEDULE_SETUP: '/setting/schedule-setup',
     UNAUTHORIZED: '/unauthorized',
     SCHEDULE: '/schedule',
@@ -25,6 +26,7 @@ export const ROUTES = Object.freeze({
     PROFILE_SETTINGS: '/setting/profile/settings',
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
     FEYNMAN_REVIEW: (topicId: string | number, method: string) => `/feynman/${topicId}?method=${method}`,
+    ANKI_SETTINGS: (topicId: string | number) => `/topics/${topicId}/settings/anki`,
 
     // ======================= ADMIN ROUTES ========================
 
@@ -57,6 +59,13 @@ export const ROUTES = Object.freeze({
         CLASS_BASED_ID: (classId: string | number) => `/teacher/class-based/${classId}`,
         CLASS_BASED_ID_GENERATE: (classId: string | number) => `/teacher/class-based/${classId}/generate`,
         CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
+        CLASS_BASED_ID_MINDMAP_EDIT: (classId: string | number, topicId: string | number) =>
+            `/teacher/class-based/${classId}/mindmap/${topicId}`,
+        CLASS_BASED_ID_ASSIGNMENTS: (classId: string | number) => `/teacher/class-based/${classId}/assignments`,
+        CLASS_BASED_ID_ASSIGNMENT_ID: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+            `/teacher/class-based/${classId}/assignments/${assignmentId}`,
+        CLASS_BASED_ID_LEARNING_MATERIAL: (classId: string | number) =>
+            `/teacher/class-based/${classId}/learning-material`,
     },
 });
 

@@ -19,7 +19,7 @@ const ProgressManager: React.FC = () => {
   const [selectedProgress, setSelectedProgress] = useState<string | null>(null);
   const [formData, setFormData] = useState<IProgressCreate>({
     userId: '',
-    contentId: '',
+    topicId: '',
     contentType: ContentType.QUIZ,
     status: ProgressStatus.NOT_STARTED,
     completionPercentage: 0,
@@ -58,7 +58,7 @@ const ProgressManager: React.FC = () => {
       // Reset form
       setFormData({
         userId: '',
-        contentId: '',
+        topicId: '',
         contentType: ContentType.QUIZ,
         status: ProgressStatus.NOT_STARTED,
         completionPercentage: 0,
@@ -76,7 +76,7 @@ const ProgressManager: React.FC = () => {
     setSelectedProgress(progress.id);
     setFormData({
       userId: progress.userId,
-      contentId: progress.contentId,
+      topicId: progress.topicId,
       contentType: progress.contentType,
       status: progress.status,
       completionPercentage: progress.completionPercentage,
@@ -149,12 +149,12 @@ const ProgressManager: React.FC = () => {
               </div>
               
               <div>
-                <Label htmlFor="contentId">Content ID</Label>
+                <Label htmlFor="topicId">Topic ID</Label>
                 <Input
-                  id="contentId"
-                  value={formData.contentId}
-                  onChange={(e) => handleInputChange('contentId', e.target.value)}
-                  placeholder="Enter content ID"
+                  id="topicId"
+                  value={formData.topicId}
+                  onChange={(e) => handleInputChange('topicId', e.target.value)}
+                  placeholder="Enter topic ID"
                   required
                 />
               </div>
@@ -236,7 +236,7 @@ const ProgressManager: React.FC = () => {
                     setSelectedProgress(null);
                     setFormData({
                       userId: '',
-                      contentId: '',
+                      topicId: '',
                       contentType: ContentType.QUIZ,
                       status: ProgressStatus.NOT_STARTED,
                       completionPercentage: 0,
@@ -271,7 +271,7 @@ const ProgressManager: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold">{progress.contentId}</h3>
+                      <h3 className="font-semibold">{progress.topicId}</h3>
                       <Badge variant="outline">{progress.contentType}</Badge>
                       <Badge className={getStatusColor(progress.status)}>
                         {progress.status.replace('_', ' ')}

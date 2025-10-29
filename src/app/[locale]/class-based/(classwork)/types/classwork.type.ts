@@ -1,0 +1,1 @@
+export type IClassworkType = 'assignment' | 'quiz' | 'learningMaterial'

@@ -37,6 +37,18 @@ export interface IStudentInClass {
     enrolledAt: Date;
 }
 
+export interface StudentWithStreak extends IStudentInClass {
+    currentStreak?: number;
+    points?: number;
+    rank?: number | null;
+    lessonsCompleted?: number;
+    quizzesCompleted?: number;
+    averageScore?: number;
+    streakFreezeActive?: boolean;
+    streakFreezeCount?: number;
+    lastStudyDate?: Date | null;
+}
+
 export type TypeNodeComment = 'mindmap' | 'flashcard' | 'quiz';
 
 export enum EnumNodeComment {

@@ -8,6 +8,8 @@ import {
     IUpdateTopicResponse,
     ITopic,
 } from '@/app/[locale]/topics/types/topic.type';
+import fileHelper from '@/utils/file.helper';
+import { HttpStatusCode, isAxiosError } from 'axios';
 
 export type ICreateTopicPayload = ICreateTopicBody;
 export type IUpdateTopicPayload = IUpdateTopicBody & { topicId: number };
@@ -42,13 +44,21 @@ class TopicService {
             formData.append('inputSetId', inputSetId.toString());
         }
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
-        const response = await postRequest<FormData, ICreateTopicResponse>('/topics', formData);
-        if (response.status !== 'created') {
-            throw new Error(response.message);
+        try {
+            const response = await postRequest<FormData, ICreateTopicResponse>('/topics', formData);
+            if (response.status !== 'created') {
+                throw new Error(response.message);
+            }
+            return response.data;
+        } catch (e) {
+            if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
+                throw new Error('The size of your image is too large, please try with another image.');
+            }
+            throw e;
         }
-        return response.data;
     }
 
     public async updateTopic(topic: IUpdateTopicPayload) {
@@ -57,14 +67,21 @@ class TopicService {
         formData.append('name', name);
         formData.append('description', description);
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
-
-        const response = await putRequest<FormData, IUpdateTopicResponse>(`/topics/${topicId}`, formData);
-        if (response.status !== 'success') {
-            throw new Error(response.message);
+        try {
+            const response = await putRequest<FormData, IUpdateTopicResponse>(`/topics/${topicId}`, formData);
+            if (response.status !== 'success') {
+                throw new Error(response.message);
+            }
+            return response.data;
+        } catch (e) {
+            if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
+                throw new Error('The size of your image is too large, please try with another image.');
+            }
+            throw e;
         }
-        return response.data;
     }
 
     public async deleteTopic(topicId: number): Promise<number> {

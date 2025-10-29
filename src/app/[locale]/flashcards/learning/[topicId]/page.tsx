@@ -8,8 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useUserTrackingContext } from '@/contexts/tracking/UserTrackingContext';
 import {
     IAnkiCardReviewed,
-    IAnkiRating,
-    IAnkiStatus,
+    IAnkiResult,
     IDueAnkiCard,
     IFlashcard,
     IQualityResponseNextReviewInterval,
@@ -26,6 +25,7 @@ import { METHOD_LEARNING } from '@/utils/constants/method';
 import QuickQuizPrompt from '@/app/[locale]/flashcards/learning/components/QuickQuizPrompt';
 import { useQuizMilestones, type QuizCard } from '@/app/[locale]/flashcards/learning/hooks/useQuizMilestones';
 import BacklogCTA from '@/app/[locale]/flashcards/learning/components/BacklogCTA';
+import { IAnkiRating, IAnkiStatus } from '@/types/anki';
 
 export type IFlashcardWithReviewPrediction = Pick<
     IFlashcard,
@@ -73,7 +73,7 @@ export default function Page() {
 
     const {
         data: flashcards,
-        setData: setFlashcardsData,
+        setData: setFlashcards,
         loading: flashcardsLoading,
         error: flashcardsError,
     } = useFetch<IDueAnkiCard[]>(() => flashcardService.getDueAnkiCardsForTopic(topicId));
@@ -132,7 +132,7 @@ export default function Page() {
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
 
-    const { loading: trackFlashcardLoading, execute: trackFlashcard } = usePost<
+    const { loading: reviewFlashcardLoading, execute: reviewFlashcard } = usePost<
         IFlashcardReviewByAnkiPayload,
         IAnkiCardReviewed | null
     >(
@@ -170,7 +170,7 @@ export default function Page() {
                             ...currentFlashcard,
                             nextReview: data.nextReview,
                             status: data.status,
-                            nextReviewSchedule: data.nextReviewSchedule,
+                            nextReviewDataByRatings: data.nextReviewDataByRatings,
                         });
                         inserted = true;
                         break;
@@ -181,11 +181,12 @@ export default function Page() {
                             ...currentFlashcard,
                             nextReview: data.nextReview,
                             status: data.status,
-                            nextReviewSchedule: data.nextReviewSchedule,
+                            nextReviewDataByRatings: data.nextReviewDataByRatings,
                         });
+                        inserted = true;
                     }
                 }
-                setFlashcardsData(flashcardsUpdated);
+                setFlashcards(flashcardsUpdated);
 
                 // Update learning tracking metrics using context methods
                 updateItemsStudied(itemsStudiedCount + 1);
@@ -193,6 +194,18 @@ export default function Page() {
                 if (data?.rating && data.rating >= IAnkiRating.HARD) {
                     updateCorrectAnswers(correctAnswersCount + 1);
                 }
+
+                // Sync studied + milestone according to updated list from BE
+                setStudied((prev) => {
+                    const last = prev[prev.length - 1];
+                    if (last && String(last.flashcardId) === String(currentFlashcard.flashcardId)) {
+                        q.onStudiedProgress(prev, flashcardsUpdated.length);
+                        return prev;
+                    }
+                    const newStudied = [...prev, toQuizCard(currentFlashcard)];
+                    q.onStudiedProgress(newStudied, flashcardsUpdated.length);
+                    return newStudied;
+                });
 
                 // If this was the last card, save progress to database using context method
                 if (flashcardsUpdated.length === 0) {
@@ -268,25 +281,15 @@ export default function Page() {
     const handleReviewFlashcardClick = useCallback(
         async (rating: IAnkiRating) => {
             if (!flashcards || !currentFlashcard) return;
+            if (!shouldShowTrackingOptions) return;
             const { flashcardId } = currentFlashcard;
-            await trackFlashcard({
+            await reviewFlashcard({
                 topicId,
                 flashcardId,
                 rating,
             });
-
-            // Avoid double-remove if refetch is present
-            const next = flashcards[0]?.flashcardId === flashcardId ? flashcards.slice(1) : flashcards;
-            setFlashcardsData(next);
-
-            // update studied
-            const newStudied = [...studied, toQuizCard(currentFlashcard)];
-            setStudied(newStudied);
-
-            // Push progress to hook to decide whether to show prompt at 50%/100%
-            q.onStudiedProgress(newStudied, next.length);
         },
-        [flashcards, currentFlashcard, studied, q, topicId, trackFlashcard, setFlashcardsData],
+        [flashcards, currentFlashcard, studied, q, topicId, reviewFlashcard, setFlashcards, shouldShowTrackingOptions],
     );
 
     function handleBackClick() {
@@ -379,8 +382,11 @@ export default function Page() {
             )}
 
             {q.isGenerating && (
-                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex items-center justify-center">
-                    <div className="rounded-xl bg-white px-6 py-5 shadow-lg">Generating quiz…</div>
+                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">
+                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p className="text-gray-800 font-medium">Generating quiz...</p>
+                    </div>
                 </div>
             )}
 
