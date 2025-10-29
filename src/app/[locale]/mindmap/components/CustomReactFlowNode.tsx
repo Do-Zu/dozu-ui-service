@@ -56,6 +56,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         };
     }, []);
 
+
     const deleteNode = (id: string) => {
         edges.forEach((edge) => {
             if (edge.source === id) {
