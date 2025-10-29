@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
+import useFetch from '@/hooks/useFetch';
 
 // Mock data (for now)
 const mockLearningMaterial = {
@@ -39,6 +40,9 @@ const mockLearningMaterial = {
 
 export default function LearningMaterialPage() {
     const material = mockLearningMaterial;
+    //testing
+    const { data, error, loading: classWorkLoading } = useFetch<any>(`/classes/1/learning-material/15`);
+ 
 
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-6">
