@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { Settings, Eye } from 'lucide-react';
+import { Settings, Eye, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { DeletePlanDialog } from './DeletePlanDialog';
 
 function PlanTypeBadge({ planType }: { planType: string }) {
     const variants: Record<string, { className: string }> = {
@@ -41,6 +43,8 @@ function ActiveBadge({ isActive }: { isActive: boolean }) {
 }
 
 function ActionButtons({ plan, refetch }: { plan: Plan; refetch: () => void }) {
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    
     const { execute: toggleActive, loading: toggleLoading } = usePost(
         `/admin/subscription/plans/${plan.planId}/toggle-active`,
         'PATCH',
@@ -56,21 +60,38 @@ function ActionButtons({ plan, refetch }: { plan: Plan; refetch: () => void }) {
     };
 
     return (
-        <div className="flex gap-2">
-            <Link href={`/admin/plans/${plan.planId}/features`}>
-                <Button variant="outline" size="sm" title="Manage Features">
-                    <Settings className="h-4 w-4" />
+        <>
+            <div className="flex gap-2">
+                <Link href={`/admin/plans/${plan.planId}/features`}>
+                    <Button variant="outline" size="sm" title="Manage Features">
+                        <Settings className="h-4 w-4" />
+                    </Button>
+                </Link>
+                <Button
+                    variant={plan.isActive ? 'destructive' : 'default'}
+                    size="sm"
+                    onClick={handleToggleActive}
+                    disabled={toggleLoading}
+                >
+                    {plan.isActive ? 'Deactivate' : 'Activate'}
                 </Button>
-            </Link>
-            <Button
-                variant={plan.isActive ? 'destructive' : 'default'}
-                size="sm"
-                onClick={handleToggleActive}
-                disabled={toggleLoading}
-            >
-                {plan.isActive ? 'Deactivate' : 'Activate'}
-            </Button>
-        </div>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteDialogOpen(true)}
+                    title="Delete plan"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+            </div>
+            <DeletePlanDialog
+                plan={plan}
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                onSuccess={refetch}
+            />
+        </>
     );
 }
 
