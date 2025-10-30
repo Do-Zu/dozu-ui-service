@@ -31,7 +31,7 @@ import ContentSection from '@/app/[locale]/class-based/(classwork)/components/co
 import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/AttachmentsSection';
 import DetailsPanel from '@/app/[locale]/class-based/(classwork)/components/common/DetailsPanel';
 import { NO_TOPIC_ID } from '@/app/[locale]/class-based/(classwork)/utils/classwork.constant';
-import AttachmentItem from '@/app/[locale]/class-based/(assignment)/components/AttachmentItem';
+import FileItem from '@/app/[locale]/class-based/(classwork)/components/common/FileItem';
 import { AssignmentStatusEnum } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 
 interface Props {

@@ -3,9 +3,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import React from 'react';
-import AttachmentItem from '../../../(assignment)/components/AttachmentItem';
+import FileItem from './FileItem';
 import { IAttachment } from '../../types/attachment.type';
-import FetchedAttachmentItem from '../../../(assignment)/components/FetchedAttachmentItem';
+import AttachmentItem from './AttachmentItem';
 
 interface Props {
     title: string;
@@ -68,10 +68,10 @@ export default function ContentSection({ title, setTitle, content, setContent, f
 
                     <div className="space-y-2">
                         {attachments?.map((attachment) => (
-                            <FetchedAttachmentItem key={attachment.attachmentId} attachment={attachment} />
+                            <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
                         ))}
                         {files.map((file, index) => (
-                            <AttachmentItem
+                            <FileItem
                                 key={index}
                                 file={file}
                                 onRemove={() => setFiles(files.filter((_, i) => i !== index))}

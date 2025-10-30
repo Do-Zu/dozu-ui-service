@@ -1,4 +1,4 @@
-import { IAssignmentSubmissionStatus, IAssignmentSubmissionWithStudent } from '../types/assignmentSubmission.type';
+import { IAssignmentSubmissionStatus, IAssignmentSubmissionWithStudent, IAssignmentSubmissionWithStudentDetails } from '../types/assignmentSubmission.type';
 
 class AssignmentSubmissionUtils {
     public getStatusLabel(status: IAssignmentSubmissionStatus) {
@@ -23,7 +23,7 @@ class AssignmentSubmissionUtils {
         studentSubmissions,
     }: {
         status: IAssignmentSubmissionStatus | null;
-        studentSubmissions: IAssignmentSubmissionWithStudent[];
+        studentSubmissions: IAssignmentSubmissionWithStudentDetails[];
     }) {
         if (!status) return studentSubmissions;
         const result = studentSubmissions.filter((studentSubmission) => studentSubmission.submission.status === status);

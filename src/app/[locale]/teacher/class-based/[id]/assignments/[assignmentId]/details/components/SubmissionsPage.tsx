@@ -8,15 +8,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { FileText } from 'lucide-react';
 import {
     IAssignmentSubmissionStatus,
-    IAssignmentSubmissionWithStudent,
+    IAssignmentSubmissionWithStudentDetails,
 } from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
 import assignmentSubmissionUtils from '@/app/[locale]/class-based/(assignment)/utils/assignmentSubmission.utils';
 import toastHelper from '@/utils/toast.helper';
+import AttachmentItem from '@/app/[locale]/class-based/(classwork)/components/common/AttachmentItem';
 
 interface StudentItemProps {
-    studentSubmission: IAssignmentSubmissionWithStudent;
+    studentSubmission: IAssignmentSubmissionWithStudentDetails;
     totalGrade: number;
-    onSelect: (studentSubmission: IAssignmentSubmissionWithStudent) => void;
+    onSelect: (studentSubmission: IAssignmentSubmissionWithStudentDetails) => void;
     isSelected: boolean;
 }
 
@@ -46,14 +47,14 @@ function StudentItem({ studentSubmission, totalGrade, onSelect, isSelected }: St
 }
 
 interface SubmissionItemProps {
-    studentSubmission: IAssignmentSubmissionWithStudent;
+    studentSubmission: IAssignmentSubmissionWithStudentDetails;
     totalGrade: number;
     onGradeSubmit: ({ submissionId, grade }: { submissionId: number; grade: number }) => Promise<void>;
     gradeLoading: boolean;
 }
 
 function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoading }: SubmissionItemProps) {
-    const { student, submission } = studentSubmission;
+    const { student, submission, attachments } = studentSubmission;
     const [grade, setGrade] = useState<number | null>(null);
 
     useEffect(() => {
@@ -84,8 +85,8 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
     }
 
     return (
-        <div className="flex-1 p-6">
-            <div className="flex justify-between items-start mb-6">
+        <div className="flex-1 p-6 space-y-6">
+            <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-xl font-semibold">{student.fullName}</h2>
                     <p className="text-sm text-muted-foreground">
@@ -98,19 +99,11 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
                 </Button>
             </div>
 
-            <Card className="mb-6">
-                <CardContent className="flex items-center gap-4 p-4">
-                    <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center">
-                        <FileText className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <div className="flex flex-col">
-                        <a className="text-blue-500 font-medium hover:underline">100facts_EN.pdf</a>
-                        <span className="text-sm text-muted-foreground">PDF</span>
-                    </div>
-                </CardContent>
-            </Card>
+            {attachments.map((attachment) => (
+                <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
+            ))}
 
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4">
                 <Input
                     type="number"
                     placeholder="Nhập điểm"
@@ -138,20 +131,19 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
 
 interface Props {
     totalGrade: number;
-    studentSubmissions: IAssignmentSubmissionWithStudent[];
+    studentSubmissions: IAssignmentSubmissionWithStudentDetails[];
     onGradeSubmit: ({ submissionId, grade }: { submissionId: number; grade: number }) => Promise<void>;
     gradeLoading: boolean;
 }
 
 export default function SubmissionsPage({ studentSubmissions, totalGrade, onGradeSubmit, gradeLoading }: Props) {
-    const [selectedStudentSubmission, setSelectedStudentSubmission] = useState<IAssignmentSubmissionWithStudent | null>(
-        null,
-    );
+    const [selectedStudentSubmission, setSelectedStudentSubmission] =
+        useState<IAssignmentSubmissionWithStudentDetails | null>(null);
 
     const [selectedStatus, setSelectedStatus] = useState<IAssignmentSubmissionStatus | null>(null);
 
     const [studentSubmissionsByGroup, setStudentSubmissionsByGroup] = useState<
-        IAssignmentSubmissionWithStudent[] | null
+        IAssignmentSubmissionWithStudentDetails[] | null
     >(null);
 
     // needed to be verified
@@ -161,7 +153,7 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, onGrad
         );
     }, [studentSubmissions, selectedStatus]);
 
-    function handleStudentSubmissionSelect(studentSubmission: IAssignmentSubmissionWithStudent) {
+    function handleStudentSubmissionSelect(studentSubmission: IAssignmentSubmissionWithStudentDetails) {
         setSelectedStudentSubmission(studentSubmission);
     }
 

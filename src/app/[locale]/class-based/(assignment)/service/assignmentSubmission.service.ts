@@ -3,6 +3,7 @@ import {
     IAssignmentSubmission,
     IAssignmentSubmissionWithAttachments,
     IAssignmentSubmissionWithStudent,
+    IAssignmentSubmissionWithStudentDetails,
     IGradeAssignmentSubmissionPayload,
     IUpdateAssignmentSubmissionBody,
     IUpdatedAssignmentSubmission,
@@ -37,7 +38,7 @@ class AssignmentSubmissionService {
     }
 
     public async getAssignmentSubmissionsOfStudents({ assignmentId }: { assignmentId: number }) {
-        const response = await getRequest<unknown, IAssignmentSubmissionWithStudent[]>(
+        const response = await getRequest<unknown, IAssignmentSubmissionWithStudentDetails[]>(
             `/assignments/${assignmentId}/submissions/all`,
         );
         if (response.status !== 'success') {

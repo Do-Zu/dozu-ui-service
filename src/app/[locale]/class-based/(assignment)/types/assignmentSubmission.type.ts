@@ -46,6 +46,10 @@ export interface IAssignmentSubmissionWithStudent {
     student: Pick<User, 'userId' | 'fullName' | 'avatarUrl'>;
 }
 
+export type IAssignmentSubmissionWithStudentDetails = IAssignmentSubmissionWithStudent & {
+    attachments: IAttachment[];
+};
+
 export interface IGradeAssignmentSubmissionPayload {
     assignmentId: number;
     submissionId: number;

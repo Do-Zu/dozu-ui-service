@@ -1,13 +1,13 @@
 import React from 'react';
 import { FileText, FileImage, FileSpreadsheet, FileArchive, File, FileCode, FileType } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { IAttachment } from '../../(classwork)/types/attachment.type';
+import { IAttachment } from '../../types/attachment.type';
 
 interface Props {
     attachment: IAttachment;
 }
 
-export default function FetchedAttachmentItem({ attachment }: Props) {
+export default function AttachmentItem({ attachment }: Props) {
     const fileName = (attachment.metadata?.fileName || '') as string;
     const ext = fileName ? fileName.split('.').pop()?.toLowerCase() : '';
 
@@ -30,9 +30,7 @@ export default function FetchedAttachmentItem({ attachment }: Props) {
             <div className="flex items-center space-x-3 overflow-hidden">
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">{getIcon()}</div>
                 <div className="flex flex-col min-w-0">
-                    <span className="truncate text-sm font-medium text-foreground max-w-[220px]">
-                        {fileName}
-                    </span>
+                    <span className="truncate text-sm font-medium text-foreground max-w-[220px]">{fileName}</span>
                     <span className="text-xs text-muted-foreground uppercase">{ext || 'file'}</span>
                 </div>
             </div>
