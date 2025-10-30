@@ -24,7 +24,11 @@ export interface PaymentStatusResponse {
     data: PaymentStatusData;
 }
 
-export function usePayment() {
+export interface UsePaymentOptions {
+    onSubscriptionUpdated?: () => void | Promise<void>;
+}
+
+export function usePayment(options?: UsePaymentOptions) {
     const [plan, setPlan] = useState<Plan | null>(null);
     const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -79,11 +83,17 @@ export function usePayment() {
     const updateSubscription = useCallback(
         async (updateRequest: UpdateSubscriptionRequest) => {
             try {
+                setIsUpdatingSubscription(true);
                 await paymentService.updateSubscription(updateRequest);
 
                 toast({
                     description: 'Your subscription has been successfully updated!',
                 });
+
+                // Call callback to refresh user plan
+                if (options?.onSubscriptionUpdated) {
+                    await options.onSubscriptionUpdated();
+                }
 
                 // Redirect to success page or dashboard
                 //window.location.href = `/payment?code=00&id=${paymentData?.paymentLinkId}&cancel=false&status=PAID&orderCode=${orderCode}`;
@@ -97,7 +107,7 @@ export function usePayment() {
                 setIsUpdatingSubscription(false);
             }
         },
-        [paymentData],
+        [paymentData, options],
     );
 
     // Clean up polling on component unmount

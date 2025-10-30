@@ -22,6 +22,7 @@ interface AuthContextType {
     hasPermission: (permission: string) => boolean;
     updateUser: (userData: Partial<User>) => void;
     markOnboardingComplete: () => void;
+    refreshUserPlan: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -124,8 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             hasPermission,
             updateUser,
             markOnboardingComplete,
+            refreshUserPlan: getUserCurrentPlan,
         };
-    }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete]);
+    }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete, getUserCurrentPlan, currentPlanUser]);
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
