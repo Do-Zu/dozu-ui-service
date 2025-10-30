@@ -54,9 +54,9 @@ export default function ContentSection(props: Props) {
                 <div className="mt-2 flex items-center justify-between w-full">
                     {withGrade ? (
                         <p>
-                            {props.grade ? <span className="font-semibold">{props.grade}/</span> : null}
-                            <span className={props.grade ? '' : 'font-medium'}>{props.totalGrade}</span>
-                            {props.grade ? '' : ' điểm'}
+                            {props.grade !== null ? <span className="font-semibold">{props.grade}/</span> : null}
+                            <span className={props.grade !== null ? '' : 'font-medium'}>{props.totalGrade}</span>
+                            {props.grade !== null ? '' : ' điểm'}
                         </p>
                     ) : null}
                     {withDeadline && props.deadline ? (

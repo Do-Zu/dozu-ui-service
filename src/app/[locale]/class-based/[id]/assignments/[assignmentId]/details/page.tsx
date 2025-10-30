@@ -39,7 +39,7 @@ export default function Page() {
 
     const isValidId = isValidClassId && isValidAssignmentId;
     if (!isValidId) {
-        return <div className="p-8">Invalid classId, please try again.</div>;
+        return <div className="p-8">Invalid classId or assignmentId, please try again.</div>;
     }
 
     const classId = Number(params.id);

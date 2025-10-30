@@ -15,11 +15,12 @@ import toastHelper from '@/utils/toast.helper';
 
 interface StudentItemProps {
     studentSubmission: IAssignmentSubmissionWithStudent;
+    totalGrade: number;
     onSelect: (studentSubmission: IAssignmentSubmissionWithStudent) => void;
     isSelected: boolean;
 }
 
-function StudentItem({ studentSubmission, onSelect, isSelected }: StudentItemProps) {
+function StudentItem({ studentSubmission, totalGrade, onSelect, isSelected }: StudentItemProps) {
     const { student, submission } = studentSubmission;
     return (
         <Card
@@ -35,7 +36,9 @@ function StudentItem({ studentSubmission, onSelect, isSelected }: StudentItemPro
                             {assignmentSubmissionUtils.getStatusLabel(submission.status)}
                         </span>
                     </div>
-                    <span className="text-sm font-semibold text-muted-foreground">{submission.grade || ''}/100</span>
+                    <span className="text-sm font-semibold text-muted-foreground">
+                        {submission.grade === null ? '' : submission.grade}/{totalGrade}
+                    </span>
                 </div>
             </CardContent>
         </Card>
@@ -58,13 +61,22 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
     }, [submission.grade]);
 
     function handleGradeChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const value = Number(e.target.value);
-        // handle grade <= totalGrade
-        setGrade(Math.max(isNaN(value) ? 1 : value, 1));
+        if (e.target.value === '') {
+            setGrade(null);
+            return;
+        }
+        const raw = Number(e.target.value);
+        const val = Number.isNaN(raw) ? null : raw;
+        if (val === null) {
+            setGrade(null);
+            return;
+        }
+        const clamped = Math.min(Math.max(val, 0), totalGrade);
+        setGrade(clamped);
     }
 
     function handleGradeSubmit() {
-        if (!grade) {
+        if (grade === null) {
             toastHelper.showErrorMessage('Grade is required');
             return;
         }
@@ -103,7 +115,7 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
                     type="number"
                     placeholder="Nhập điểm"
                     className="w-32"
-                    value={grade || ''}
+                    value={grade === null ? '' : grade}
                     onChange={handleGradeChange}
                 />
                 <span className="text-muted-foreground">/ {totalGrade}</span>
@@ -182,7 +194,9 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, onGrad
                     <div className="space-y-4">
                         {studentSubmissionsByGroup?.map((studentSubmission) => (
                             <StudentItem
+                                key={studentSubmission.submission.submissionId}
                                 studentSubmission={studentSubmission}
+                                totalGrade={totalGrade}
                                 onSelect={handleStudentSubmissionSelect}
                                 isSelected={
                                     selectedStudentSubmission !== null &&

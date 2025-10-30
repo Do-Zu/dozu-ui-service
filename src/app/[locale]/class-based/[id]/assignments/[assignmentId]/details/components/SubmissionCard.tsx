@@ -12,9 +12,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Plus, X, FileText, Users, Link2, Upload } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-const mockSubmission = [{ name: 'Hoàng Ký Anh - Bài luận Space Tourism.docx', type: 'Google Tài liệu' }];
+interface FileItemProps {
+    file: File;
+    onRemove?: () => void;
+}
 
-function FileItem({ file }: { file: File }) {
+function FileItem({ file, onRemove }: FileItemProps) {
     return (
         <div key={file.name} className="flex items-center justify-between rounded-md border p-3 bg-secondary/30">
             <div className="flex items-center space-x-3 overflow-hidden">
@@ -24,9 +27,11 @@ function FileItem({ file }: { file: File }) {
                     <span className="text-xs text-muted-foreground">{file.type}</span>
                 </div>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-                <X className="h-4 w-4" />
-            </Button>
+            {onRemove && (
+                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={onRemove}>
+                    <X className="h-4 w-4" />
+                </Button>
+            )}
         </div>
     );
 }
@@ -86,6 +91,10 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
         await onSubmit({ data });
     }
 
+    function handleFileRemove(index: number) {
+        setFiles((prev) => prev.filter((_, i) => i !== index));
+    }
+
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -96,11 +105,15 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
-                    {files.map((file) => (
-                        <FileItem file={file} />
+                    {files.map((file, index) => (
+                        <FileItem
+                            key={`file-${index}-${file.name}`}
+                            file={file}
+                            onRemove={() => handleFileRemove(index)}
+                        />
                     ))}
                     {attachments.map((attachment) => (
-                        <AttachmentItem attachment={attachment} />
+                        <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
                     ))}
                 </div>
 
@@ -128,7 +141,7 @@ export function PrivateCommentsCard() {
                 <CardTitle className="text-lg font-medium">Nhận xét riêng tư</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-                <Textarea placeholder="Thêm nhận xét cho Home English..." className="min-h-[80px]" />
+                <Textarea placeholder="Thêm nhận xét riêng tư..." className="min-h-[80px]" />
                 <Button variant="ghost" size="sm" disabled>
                     Đăng
                 </Button>

@@ -67,7 +67,9 @@ export default function ContentSection({ title, setTitle, content, setContent, f
                     </div>
 
                     <div className="space-y-2">
-                        {attachments?.map((attachment) => <FetchedAttachmentItem attachment={attachment} />)}
+                        {attachments?.map((attachment) => (
+                            <FetchedAttachmentItem key={attachment.attachmentId} attachment={attachment} />
+                        ))}
                         {files.map((file, index) => (
                             <AttachmentItem
                                 key={index}
