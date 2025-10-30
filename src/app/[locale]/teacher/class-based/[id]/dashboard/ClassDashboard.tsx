@@ -579,7 +579,6 @@ export default function ClassDashboard({ classId, defaultTab }: Props) {
             defaultTab={defaultTab}
             feedContent={feedContent}
             topicContent={topicContent}
-            activityContent={activityContent}
             classworkContent={classworkContent}
         />
     );
