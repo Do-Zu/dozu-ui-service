@@ -10,13 +10,13 @@ import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.typ
 const elkOptions = {
     'elk.algorithm': 'mrtree',
     'elk.layered.spacing.nodeNodeBetweenLayers': '100',
-    // 'elk.spacing.nodeNode': '80',
+    'elk.spacing.nodeNode': '120',
 };
 
 const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
-            const opts = { 'elk.direction': direction, ...elkOptions };
+            const opts = { 'elk.direction': direction ?? 'RIGHT', ...elkOptions };
             // const ns = useInitialNodes ? initialNodes : nodes;
             // const es = useInitialNodes ? initialEdges : edges;
 

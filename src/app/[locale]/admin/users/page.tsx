@@ -33,6 +33,10 @@ function AdminUsersPage() {
                         role: user.role,
                         isActive: user.isActive,
                         createdAt: user.createdAt,
+                        planType: user.planType || null,
+                        planName: user.planName || null,
+                        subscriptionStatus: user.subscriptionStatus || null,
+                        currentPeriodEnd: user.currentPeriodEnd || null,
                     }),
                 );
                 setUsers(mapped);

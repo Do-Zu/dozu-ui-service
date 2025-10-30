@@ -10,7 +10,7 @@ const elk = new ELK();
 const elkOptions = {
     'elk.algorithm': 'layered',
     'elk.layered.spacing.nodeNodeBetweenLayers': '100',
-    'elk.spacing.nodeNode': '80',
+    'elk.spacing.nodeNode': '160',
 };
 
 const VerticalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
