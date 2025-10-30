@@ -28,6 +28,9 @@ import assignmentSubmissionService, {
 } from '@/app/[locale]/class-based/(assignment)/service/assignmentSubmission.service';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
+import { IInputResource } from '@/app/[locale]/class-based/(classwork)/types/attachment.type';
+import useUploadAttachmentFiles from '@/hooks/upload/useUploadAttachmentFiles';
+import { RESOURCE_CONTENT_TYPE } from '@/app/[locale]/generate/constants/resource';
 
 export default function Page() {
     const params = useParams();
@@ -92,13 +95,33 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         },
     });
 
+    const { isLoading: isUploading, execute: uploadFiles } = useUploadAttachmentFiles();
+
     // handle upload files
-    async function onSubmit({ data }: { data: IUpdateAssignmentSubmissionBody }) {
+    async function onSubmit({
+        data,
+        files,
+    }: {
+        data: Omit<IUpdateAssignmentSubmissionBody, 'inputResources'>;
+        files: File[];
+    }) {
         if (!submissionWithAttachments) return;
+        let uploadedFileResult: IInputResource[] | undefined = undefined;
+        if (files.length > 0) {
+            const result = await uploadFiles(files);
+            uploadedFileResult = result.map((fileResponse) => ({
+                title: fileResponse.fileName,
+                contentType: RESOURCE_CONTENT_TYPE.FILE,
+                metadata: {
+                    ...fileResponse,
+                },
+            }));
+        }
+        const submittedData: IUpdateAssignmentSubmissionBody = { ...data, inputResources: uploadedFileResult };
         await updateSubmissionAsync({
             assignmentId,
             submissionId: submissionWithAttachments.assignmentSubmission.submissionId,
-            data,
+            data: submittedData,
         });
     }
 
@@ -118,6 +141,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
     const { assignment, attachments: assignmentAttachments } = assignmentWithAttachments;
     const { assignmentSubmission: submission, attachments: submissionAttachments } = submissionWithAttachments;
+    const updateLoading = isUploading || updateSubmissionLoading;
 
     return (
         <div className="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-7 gap-6">
@@ -152,7 +176,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                     submission={submission}
                     attachments={submissionAttachments}
                     onSubmit={onSubmit}
-                    loading={updateSubmissionLoading}
+                    loading={updateLoading}
                 />
 
                 <PrivateCommentsCard />

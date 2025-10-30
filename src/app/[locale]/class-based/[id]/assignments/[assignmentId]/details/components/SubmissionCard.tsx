@@ -58,28 +58,25 @@ function AttachmentItem({ attachment }: { attachment: IAttachment }) {
 interface Props {
     submission: IAssignmentSubmission;
     attachments: IAttachment[];
-    onSubmit: ({ data }: { data: IUpdateAssignmentSubmissionBody }) => Promise<void>;
+    onSubmit: ({
+        data,
+        files,
+    }: {
+        data: Omit<IUpdateAssignmentSubmissionBody, 'inputResources'>;
+        files: File[];
+    }) => Promise<void>;
     loading: boolean;
 }
 
 export function SubmissionCard({ submission, attachments, onSubmit, loading }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [files, setFiles] = useState<File[]>([]);
-    // const [submissions, setSubmission] = useState(mockSubmission);
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files) return;
         const selectedFiles = Array.from(event.target.files);
         const allFiles = selectedFiles.concat(files);
         setFiles(allFiles);
-        // const selectedSubmissions = selectedFiles.map((file) => ({
-        //     name: file.name,
-        //     type: 'Google tài liệu',
-        // }));
-        // setSubmission((prev) => {
-        //     const allSubmissions = prev.concat(selectedSubmissions);
-        //     return allSubmissions;
-        // });
     };
 
     const handleUploadClick = () => {
@@ -87,8 +84,9 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
     };
 
     async function handleSubmit() {
-        const data: IUpdateAssignmentSubmissionBody = { status: AssignmentSubmissionStatusEnum.SUBMITTED };
-        await onSubmit({ data });
+        const data = { status: AssignmentSubmissionStatusEnum.SUBMITTED };
+        await onSubmit({ data, files });
+        setFiles([]);
     }
 
     function handleFileRemove(index: number) {

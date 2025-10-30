@@ -1,5 +1,5 @@
 import { User } from '@/types/auth';
-import { IAttachment } from '../../(classwork)/types/attachment.type';
+import { IAttachment, IInputResource } from '../../(classwork)/types/attachment.type';
 
 export enum AssignmentSubmissionStatusEnum {
     DRAFT = 'draft',
@@ -37,7 +37,9 @@ export type IUpdateAssignmentSubmission = Pick<
     'updatedAt' | 'status' | 'grade' | 'submittedAt' | 'returnedAt'
 >;
 
-export type IUpdateAssignmentSubmissionBody = Pick<IUpdateAssignmentSubmission, 'status'>;
+export type IUpdateAssignmentSubmissionBody = Pick<IUpdateAssignmentSubmission, 'status'> & {
+    inputResources?: IInputResource[] | undefined;
+};
 
 export interface IAssignmentSubmissionWithStudent {
     submission: IAssignmentSubmission;
