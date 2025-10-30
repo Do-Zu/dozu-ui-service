@@ -26,17 +26,19 @@ import { DEFAULT_ASSIGNMENT_STATUS, DEFAULT_TOTAL_GRADE } from '../utils/assignm
 import { NO_TOPIC_ID } from '../../(classwork)/utils/classwork.constant';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
+import { IAttachment } from '../../(classwork)/types/attachment.type';
 
 interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
     assignment: IAssignment;
-    onSubmit: ({ assignment }: { assignment: IUpdateAssignmentBody }) => Promise<void>;
+    attachments: IAttachment[];
+    onSubmit: ({ assignment, files }: { assignment: IUpdateAssignmentBody; files: File[] }) => Promise<void>;
     loading: boolean;
 }
 
 // create another component for implementing your feature
-export function EditAssignment({ myClass, topics, assignment, onSubmit, loading }: Props) {
+export function EditAssignment({ myClass, topics, assignment, attachments, onSubmit, loading }: Props) {
     const router = useRouter();
     const tCommon = useTranslations('common');
 
@@ -54,7 +56,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
-    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [deadline, setDeadline] = useState<Date | undefined>(undefined);
 
     useEffect(() => {
         setSelectedStatus(AssignmentStatusEnum.PUBLISHED); // handle later
@@ -62,7 +64,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
         setContent(assignment.content);
         setSelectedTopic(assignment.topicId ? assignment.topicId.toString() : NO_TOPIC_ID);
         setGrade(assignment.totalGrades);
-        setDueDate(assignment.deadline ? assignment.deadline : undefined);
+        setDeadline(assignment.deadline ? new Date(assignment.deadline) : undefined);
     }, [
         assignment.status,
         assignment.title,
@@ -86,11 +88,12 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
             title,
             content,
             acceptingSubmissions: true,
-            deadline: dueDate,
+            deadline,
             totalGrades: grade,
             status: AssignmentStatusEnum.PUBLISHED,
         };
-        await onSubmit({ assignment });
+        await onSubmit({ assignment, files });
+        setFiles([]);
     }
 
     return (
@@ -138,6 +141,7 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
                         setContent={setContent}
                         files={files}
                         setFiles={setFiles}
+                        attachments={attachments}
                     />
                     <AttachmentsSection files={files} setFiles={setFiles} />
                 </div>
@@ -152,8 +156,8 @@ export function EditAssignment({ myClass, topics, assignment, onSubmit, loading 
                         setSelectedTopic={setSelectedTopic}
                         grade={grade}
                         setGrade={setGrade}
-                        dueDate={dueDate}
-                        setDueDate={setDueDate}
+                        deadline={deadline}
+                        setDeadline={setDeadline}
                     />
                 </div>
             </div>

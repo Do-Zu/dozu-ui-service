@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Plus, BookText, Edit, Trash2, FileText, HelpCircle, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AssignmentStatusEnum, IAssignment } from '../../(assignment)/types/assignment.type';
+import { AssignmentStatusEnum, IAssignment, IDeleteAssignmentPayload } from '../../(assignment)/types/assignment.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { formatDate } from '@/utils';
 import assignmentUtils from '../../(assignment)/utils/assignment.utils';
@@ -24,24 +24,29 @@ import { ALL_TOPICS, NO_TOPIC } from '../utils/classwork.constant';
 import { IClassworkType } from '../types/classwork.type';
 import DeleteAssignmentModal from '../../(assignment)/components/DeleteAssignmentModal';
 import usePost from '@/hooks/usePost';
-import teacherAssignmentService from '../../(assignment)/service/teacher/teacherAssignment.service';
+import assignmentService from '../../(assignment)/service/assignment.service';
 import toastHelper from '@/utils/toast.helper';
+import { USER_ROLES, UserRole } from '@/utils/constants/roles';
 
 interface ItemProps {
+    role: UserRole;
     assignment: IAssignment;
     onOpen: ({ assignmentId }: { assignmentId: number }) => void;
     onClose: () => void;
 }
 
-const ClassworkItem = ({ assignment, onOpen, onClose }: ItemProps) => {
+const ClassworkItem = ({ role, assignment, onOpen, onClose }: ItemProps) => {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
-    const isPastDeadline = assignment.deadline && new Date() > assignment.deadline;
+    const isPastDeadline = assignment.deadline && new Date() > new Date(assignment.deadline);
+
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     function handleEditClick() {
+        if (role === USER_ROLES.USER) return;
         router.push(
-            ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID({
+            ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_EDIT({
                 classId: assignment.classId,
                 assignmentId: assignment.assignmentId,
             }),
@@ -49,11 +54,31 @@ const ClassworkItem = ({ assignment, onOpen, onClose }: ItemProps) => {
     }
 
     function handleDeleteClick() {
+        if (role === USER_ROLES.USER) return;
         onOpen({ assignmentId: assignment.assignmentId });
     }
 
+    function handleDetailsClick() {
+        if (dropdownOpen) return;
+        if (role === USER_ROLES.USER) {
+            router.push(
+                ROUTES.ASSIGNMENT_DETAILS({ classId: assignment.classId, assignmentId: assignment.assignmentId }),
+            );
+        } else if (role === USER_ROLES.TEACHER) {
+            router.push(
+                ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_DETAILS({
+                    classId: assignment.classId,
+                    assignmentId: assignment.assignmentId,
+                }),
+            );
+        }
+    }
+
     return (
-        <div className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md transition-colors">
+        <div
+            className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md transition-colors hover:cursor-pointer"
+            onClick={handleDetailsClick}
+        >
             <div className="flex items-center gap-4">
                 <div
                     className={cn(
@@ -84,42 +109,45 @@ const ClassworkItem = ({ assignment, onOpen, onClose }: ItemProps) => {
                         {assignment.deadline ? `Đến hạn ${formatDate(assignment.deadline)}` : 'Không có hạn nộp'}
                     </p>
                 )}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-                        >
-                            <span className="sr-only">Open menu</span>
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onSelect={handleEditClick}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
+                {role === USER_ROLES.TEACHER ? (
+                    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                            >
+                                <span className="sr-only">Open menu</span>
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={handleEditClick}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>{tCommon('actions.edit')}</span>
+                            </DropdownMenuItem>
 
-                        <DropdownMenuItem onSelect={handleDeleteClick}>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.delete')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                            <DropdownMenuItem onSelect={handleDeleteClick}>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>{tCommon('actions.delete')}</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : null}
             </div>
         </div>
     );
 };
 
 interface Props {
+    role: UserRole;
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
     assignments: IAssignment[];
     setAssignments: React.Dispatch<React.SetStateAction<IAssignment[] | null>>;
 }
 
-function ClassworkList({ myClass, topics: topicsData, assignments, setAssignments }: Props) {
+function ClassworkList({ role, myClass, topics: topicsData, assignments, setAssignments }: Props) {
     const router = useRouter();
     const topics = useMemo(() => {
         return [...topicsData, NO_TOPIC];
@@ -134,12 +162,9 @@ function ClassworkList({ myClass, topics: topicsData, assignments, setAssignment
     const [deletingAssignment, setDeletingAssignment] = useState<number | null>(null);
 
     const { execute: deleteAssignmentAsync, loading: deleteAssignmentLoading } = usePost<
-        {
-            classId: number;
-            assignmentId: number;
-        },
+        IDeleteAssignmentPayload,
         number
-    >(teacherAssignmentService.deleteAssignmentById, 'DELETE', {
+    >(assignmentService.deleteAssignmentById, 'DELETE', {
         onError(error) {
             toastHelper.showErrorMessage(error);
         },
@@ -214,29 +239,31 @@ function ClassworkList({ myClass, topics: topicsData, assignments, setAssignment
                             })}
                         </SelectContent>
                     </Select>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button>
-                                <Plus className="mr-2 h-4 w-4" /> Tạo
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={() => handleSelect('assignment')}>
-                                <FileText className="mr-2 h-4 w-4" />
-                                <span>Bài tập</span>
-                            </DropdownMenuItem>
+                    {role === USER_ROLES.TEACHER ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button>
+                                    <Plus className="mr-2 h-4 w-4" /> Tạo
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => handleSelect('assignment')}>
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    <span>Bài tập</span>
+                                </DropdownMenuItem>
 
-                            <DropdownMenuItem onSelect={() => handleSelect('quiz')}>
-                                <HelpCircle className="mr-2 h-4 w-4" />
-                                <span>Câu hỏi / Quiz</span>
-                            </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => handleSelect('quiz')}>
+                                    <HelpCircle className="mr-2 h-4 w-4" />
+                                    <span>Câu hỏi / Quiz</span>
+                                </DropdownMenuItem>
 
-                            <DropdownMenuItem onSelect={() => handleSelect('learningMaterial')}>
-                                <BookOpen className="mr-2 h-4 w-4" />
-                                <span>Tài liệu học tập</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                <DropdownMenuItem onSelect={() => handleSelect('learningMaterial')}>
+                                    <BookOpen className="mr-2 h-4 w-4" />
+                                    <span>Tài liệu học tập</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : null}
                 </div>
             </div>
 
@@ -249,6 +276,7 @@ function ClassworkList({ myClass, topics: topicsData, assignments, setAssignment
                         {selectedAssignments.map((assignment) => (
                             <ClassworkItem
                                 key={assignment.assignmentId}
+                                role={role}
                                 assignment={assignment}
                                 onOpen={onOpen}
                                 onClose={onClose}
@@ -271,6 +299,7 @@ function ClassworkList({ myClass, topics: topicsData, assignments, setAssignment
                                             {assignments?.map((assignment) => (
                                                 <ClassworkItem
                                                     key={assignment.assignmentId}
+                                                    role={role}
                                                     assignment={assignment}
                                                     onOpen={onOpen}
                                                     onClose={onClose}

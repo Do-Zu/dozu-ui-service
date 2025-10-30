@@ -1,3 +1,5 @@
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+
 export const ROUTES = Object.freeze({
     LANDING: '/',
     HOME: '/home',
@@ -38,6 +40,8 @@ export const ROUTES = Object.freeze({
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
     CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
     CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
+    ASSIGNMENT_DETAILS: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+        `/class-based/${classId}/assignments/${assignmentId}/details`,
 
     MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
     MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
@@ -56,14 +60,17 @@ export const ROUTES = Object.freeze({
     TEACHER: {
         HOME: '/teacher/home',
         CLASS_BASED: '/teacher/class-based',
-        CLASS_BASED_ID: (classId: string | number) => `/teacher/class-based/${classId}`,
+        CLASS_BASED_ID: (classId: string | number, defaultTab?: ClassDashboardTab) =>
+            `/teacher/class-based/${classId}${defaultTab ? `?defaultTab=${defaultTab}` : ''}`,
         CLASS_BASED_ID_GENERATE: (classId: string | number) => `/teacher/class-based/${classId}/generate`,
         CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
         CLASS_BASED_ID_MINDMAP_EDIT: (classId: string | number, topicId: string | number) =>
             `/teacher/class-based/${classId}/mindmap/${topicId}`,
         CLASS_BASED_ID_ASSIGNMENTS: (classId: string | number) => `/teacher/class-based/${classId}/assignments`,
-        CLASS_BASED_ID_ASSIGNMENT_ID: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
-            `/teacher/class-based/${classId}/assignments/${assignmentId}`,
+        CLASS_BASED_ID_ASSIGNMENT_ID_EDIT: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+            `/teacher/class-based/${classId}/assignments/${assignmentId}/edit`,
+        CLASS_BASED_ID_ASSIGNMENT_ID_DETAILS: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+            `/teacher/class-based/${classId}/assignments/${assignmentId}/details`,
         CLASS_BASED_ID_LEARNING_MATERIAL: (classId: string | number) =>
             `/teacher/class-based/${classId}/learning-material`,
     },

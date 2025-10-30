@@ -1,3 +1,5 @@
+import { IAttachment, IInputResource } from '../../(classwork)/types/attachment.type';
+
 export enum AssignmentStatusEnum {
     DRAFT = 'draft',
     SCHEDULED = 'scheduled',
@@ -9,16 +11,16 @@ export type IAssignmentStatus = 'draft' | 'scheduled' | 'published' | 'closed';
 
 export type IAssignment = {
     assignmentId: number;
-    createdAt: Date;
-    updatedAt: Date | null;
+    createdAt: string;
+    updatedAt: string | null;
     teacherId: number;
     classId: number;
     topicId: number | null;
     title: string;
     content: string;
-    deadline: Date | null;
+    deadline: string | null;
     totalGrades: number;
-    publishedAt: Date | null;
+    publishedAt: string | null;
     status: 'draft' | 'scheduled' | 'published' | 'closed';
     acceptingSubmissions: boolean;
 };
@@ -42,7 +44,7 @@ export type InsertAssignment = {
 export type InsertAssignmentBody = Pick<
     InsertAssignment,
     'topicId' | 'title' | 'content' | 'deadline' | 'totalGrades' | 'status' | 'acceptingSubmissions'
->;
+> & { inputResources?: IInputResource[] | undefined };
 
 // 'closed' is omitted, server will handle it
 export type InsertAssignmentStatus = 'draft' | 'scheduled' | 'published';
@@ -52,7 +54,9 @@ export type IUpdateAssignment = Pick<
     'topicId' | 'title' | 'content' | 'deadline' | 'totalGrades' | 'status' | 'acceptingSubmissions' | 'updatedAt'
 >;
 
-export type IUpdateAssignmentBody = Omit<IUpdateAssignment, 'updatedAt'>;
+export type IUpdateAssignmentBody = Omit<IUpdateAssignment, 'updatedAt'> & {
+    inputResources?: IInputResource[] | undefined;
+};
 
 export interface ICreateAssignmentPayload {
     classId: number;
@@ -69,3 +73,8 @@ export interface IDeleteAssignmentPayload {
     classId: number;
     assignmentId: number;
 }
+
+export type IAssignmentWithAttachments = {
+    assignment: IAssignment;
+    attachments: IAttachment[];
+};

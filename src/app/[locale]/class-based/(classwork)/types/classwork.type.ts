@@ -1,1 +1,1 @@
-export type IClassworkType = 'assignment' | 'quiz' | 'learningMaterial'
+export type IClassworkType = 'assignment' | 'quiz' | 'learningMaterial';

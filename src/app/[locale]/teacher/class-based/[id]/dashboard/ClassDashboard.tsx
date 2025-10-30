@@ -75,8 +75,10 @@ import { IFeedGroup } from '@/utils/feeds/feed.helper';
 import ActivityTab from '@/app/[locale]/topics/components/ui/ActivityTab';
 import ClassworkList from '@/app/[locale]/class-based/(classwork)/components/ClassworkList';
 import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
-import teacherAssignmentService from '@/app/[locale]/class-based/(assignment)/service/teacher/teacherAssignment.service';
+import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
 import ClassworkListCopy from '@/app/[locale]/class-based/(classwork)/components/ClassworkListCopy';
+import { USER_ROLES } from '@/utils/constants/roles';
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 
 type TopicFilteringAction =
     | 'newest'
@@ -86,7 +88,12 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function ClassDashboard({ classId }: { classId: number }) {
+interface Props {
+    classId: number;
+    defaultTab?: ClassDashboardTab;
+}
+
+export default function ClassDashboard({ classId, defaultTab }: Props) {
     const router = useRouter();
     const validateTopic = useValidateTopic();
 
@@ -108,7 +115,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
     // topics
     const { fetchTopics, createTopic, updateTopic, deleteTopic, showTopicDetails } = useTopics({
         mode: 'class-based',
-        role: 'teacher',
+        role: USER_ROLES.TEACHER,
         classId,
     });
     const { topics, topicsError, topicsLoading } = fetchTopics;
@@ -188,12 +195,13 @@ export default function ClassDashboard({ classId }: { classId: number }) {
         deletingFeed,
     } = deleteFeed;
 
+    // assignments
     const {
         data: assignments,
         setData: setAssignments,
         loading: assignmentsLoading,
         error: assignmentsError,
-    } = useFetch<IAssignment[]>(() => teacherAssignmentService.getAssignmentsForClass({ classId }));
+    } = useFetch<IAssignment[]>(() => assignmentService.getAssignmentsForClass({ classId }));
 
     async function handleCreateTopicClick(topic: ICreateTopicPayload) {
         if (!validateTopic(topic)) {
@@ -219,7 +227,16 @@ export default function ClassDashboard({ classId }: { classId: number }) {
             <>
                 {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
                 {assignmentsLoading ? <LoadingPage /> : null}
-                {assignments ? <ClassworkListCopy myClass={myClass} topics={value} assignments={assignments} /> : null}
+                {assignments ? (
+                    <ClassworkList
+                        role={USER_ROLES.TEACHER}
+                        myClass={myClass}
+                        topics={value}
+                        assignments={assignments}
+                        setAssignments={setAssignments}
+                    />
+                    // <ClassworkListCopy myClass={myClass} topics={value} assignments={assignments} />
+                ) : null}
             </>
         );
     }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);
@@ -311,7 +328,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
         return (
             <ClassFeedCard
                 key={feed.classFeedId}
-                role="teacher"
+                role={USER_ROLES.TEACHER}
                 feed={feed}
                 group={group}
                 onUpdateOpen={handleUpdateFeedModalOpen}
@@ -365,9 +382,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
         </>
     );
 
-    const activityContent = (
-        <ActivityTab classId={classId} />
-    );
+    const activityContent = <ActivityTab classId={classId} />;
 
     const menuContentInCard = (topic: ITopic) => {
         const { topicId, name, description, imageUrl } = topic;
@@ -561,6 +576,7 @@ export default function ClassDashboard({ classId }: { classId: number }) {
             mode="class-based"
             myClass={myClass}
             mainActionButtons={mainActionButtons}
+            defaultTab={defaultTab}
             feedContent={feedContent}
             topicContent={topicContent}
             activityContent={activityContent}
