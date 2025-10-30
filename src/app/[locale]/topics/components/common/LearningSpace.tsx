@@ -19,7 +19,7 @@ interface ClassBasedModeProps {
     mode: 'class-based';
     myClass: IClass;
     defaultTab?: ClassDashboardTab;
-    feedContent: React.ReactNode; // Made optional
+    feedContent: React.ReactNode; 
     classworkContent?: React.ReactNode;
 }
 
