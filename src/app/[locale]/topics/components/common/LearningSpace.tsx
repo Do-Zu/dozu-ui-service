@@ -19,8 +19,7 @@ interface ClassBasedModeProps {
     mode: 'class-based';
     myClass: IClass;
     defaultTab?: ClassDashboardTab;
-    feedContent: React.ReactNode;
-    activityContent: React.ReactNode;
+    feedContent: React.ReactNode; 
     classworkContent?: React.ReactNode;
 }
 
@@ -109,9 +108,6 @@ export default function LearningSpace(props: Props) {
                                 </TabsContent>
                                 <TabsContent value="topics" className="px-6 md:px-8 py-4">
                                     {topicContent}
-                                </TabsContent>
-                                <TabsContent value="activities" className="px-6 md:px-8 py-4">
-                                    {props.activityContent}
                                 </TabsContent>
                                 <TabsContent value="classwork" className="px-6 md:px-8 py-4">
                                     {props.classworkContent ?? ''}
