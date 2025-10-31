@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, FileText, FileImage, FileSpreadsheet, FileArchive, File, FileCode, FileType } from 'lucide-react';
+import { X, FileText, FileImage, FileSpreadsheet, FileArchive, File as FileIcon, FileCode, FileType } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ export default function FileItem({ file, onRemove }: AttachmentItemProps) {
     const ext = file.name.split('.').pop()?.toLowerCase();
 
     function getIcon() {
-        if (!ext) return <File className="h-6 w-6 text-gray-500" />;
+        if (!ext) return <FileIcon className="h-6 w-6 text-gray-500" />;
         if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return <FileImage className="h-6 w-6 text-blue-500" />;
         if (['pdf'].includes(ext)) return <FileText className="h-6 w-6 text-red-500" />;
         if (['xls', 'xlsx', 'csv'].includes(ext)) return <FileSpreadsheet className="h-6 w-6 text-green-500" />;

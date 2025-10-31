@@ -29,7 +29,7 @@ class AssignmentSubmissionService {
             return response.data;
         } catch (err) {
             if (err instanceof AxiosError) {
-                if (err.status === HttpStatusCode.NotFound) {
+                if (err.status === HttpStatusCode.NotFound || err.response?.status === HttpStatusCode.NotFound) {
                     const response = await postRequest<InsertAssignmentSubmissionBody, IAssignmentSubmission>(
                         `/assignments/${assignmentId}/submissions`,
                         {},
