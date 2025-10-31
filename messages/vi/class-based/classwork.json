@@ -1,0 +1,27 @@
+{
+    "attachment": {
+        "attachment": "Tệp đính kèm",
+        "attach": "Đính kèm",
+        "uploadUrl": "Liên kết",
+        "uploadFile": "Tải lên tệp"
+    },
+    "classwork": {
+        "titlePlaceholder": "Nhập tiêu đề",
+        "contentPlaceholder": "Nhập nội dung hoặc hướng dẫn chi tiết (không bắt buộc)",
+        "assignNow": "Giao bài ngay",
+        "schedule": "Lên lịch",
+        "saveDraft": "Lưu bản nháp",
+        "for": "Dành cho",
+        "topic": "Chủ đề",
+        "noTopic": "Không có chủ đề",
+        "allTopic": "Tất cả chủ đề",
+        "grade": "Điểm",
+        "dueDate": "Hạn nộp",
+        "noDueDate": "Không có hạn nộp",
+        "classwork": "Bài tập trên lớp",
+        "dueDateAt": "Đến hạn {date}",
+        "assignment": "Bài tập",
+        "learningMaterial": "Tài liệu",
+        "quiz": "Câu hỏi"
+    }
+}

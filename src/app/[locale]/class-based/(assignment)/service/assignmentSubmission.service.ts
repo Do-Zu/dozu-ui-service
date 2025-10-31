@@ -1,12 +1,15 @@
-import { getRequest, putRequest } from '@/api/api';
+import { getRequest, postRequest, putRequest } from '@/api/api';
 import {
     IAssignmentSubmission,
     IAssignmentSubmissionWithAttachments,
     IAssignmentSubmissionWithStudent,
+    IAssignmentSubmissionWithStudentDetails,
     IGradeAssignmentSubmissionPayload,
+    InsertAssignmentSubmissionBody,
     IUpdateAssignmentSubmissionBody,
     IUpdatedAssignmentSubmission,
 } from '../types/assignmentSubmission.type';
+import { AxiosError, HttpStatusCode } from 'axios';
 
 export interface IUpdateAssignmentSubmissionPayload {
     assignmentId: number;
@@ -16,13 +19,33 @@ export interface IUpdateAssignmentSubmissionPayload {
 
 class AssignmentSubmissionService {
     public async getAssignmentSubmissionWithAttachments({ assignmentId }: { assignmentId: number }) {
-        const response = await getRequest<unknown, IAssignmentSubmissionWithAttachments>(
-            `/assignments/${assignmentId}/submissions`,
-        );
-        if (response.status !== 'success') {
-            throw new Error(response.message);
+        try {
+            const response = await getRequest<unknown, IAssignmentSubmissionWithAttachments>(
+                `/assignments/${assignmentId}/submissions`,
+            );
+            if (response.status !== 'success') {
+                throw new Error(response.message);
+            }
+            return response.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                if (err.status === HttpStatusCode.NotFound || err.response?.status === HttpStatusCode.NotFound) {
+                    const response = await postRequest<InsertAssignmentSubmissionBody, IAssignmentSubmission>(
+                        `/assignments/${assignmentId}/submissions`,
+                        {},
+                    );
+                    if (response.status !== 'created') {
+                        throw new Error(response.message);
+                    }
+                    const result: IAssignmentSubmissionWithAttachments = {
+                        assignmentSubmission: response.data,
+                        attachments: [],
+                    };
+                    return result;
+                }
+            }
+            throw err;
         }
-        return response.data;
     }
 
     public async updateAssignmentSubmission({ assignmentId, submissionId, data }: IUpdateAssignmentSubmissionPayload) {
@@ -37,7 +60,7 @@ class AssignmentSubmissionService {
     }
 
     public async getAssignmentSubmissionsOfStudents({ assignmentId }: { assignmentId: number }) {
-        const response = await getRequest<unknown, IAssignmentSubmissionWithStudent[]>(
+        const response = await getRequest<unknown, IAssignmentSubmissionWithStudentDetails[]>(
             `/assignments/${assignmentId}/submissions/all`,
         );
         if (response.status !== 'success') {

@@ -41,6 +41,8 @@ interface Props {
 export function EditAssignment({ myClass, topics, assignment, attachments, onSubmit, loading }: Props) {
     const router = useRouter();
     const tCommon = useTranslations('common');
+    const tAssignment = useTranslations('assignment');
+    const tClasswork = useTranslations('classwork');
 
     // Assignment Status selection states
     const [selectedStatus, setSelectedStatus] = useState<InsertAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
@@ -104,11 +106,11 @@ export function EditAssignment({ myClass, topics, assignment, attachments, onSub
                         <X className="h-5 w-5" />
                         <span className="sr-only">Đóng</span>
                     </Button>
-                    <h1 className="text-3xl font-semibold text-foreground">Bài tập</h1>
+                    <h1 className="text-3xl font-semibold text-foreground">{tAssignment('assignment')}</h1>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button onClick={handleSubmit} disabled={loading}>
-                        {loading ? 'Saving...' : assignmentUtils.getStatusLabel(selectedStatus)}
+                        {loading ? tCommon('status.saving') : assignmentUtils.getStatusLabel(selectedStatus)}
                     </Button>
 
                     <DropdownMenu>
@@ -119,13 +121,13 @@ export function EditAssignment({ myClass, topics, assignment, attachments, onSub
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" defaultValue={DEFAULT_ASSIGNMENT_STATUS}>
                             <DropdownMenuItem onSelect={() => setSelectedStatus('published')}>
-                                Giao bài ngay
+                                {tClasswork('assignNow')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => setSelectedStatus('scheduled')}>
-                                Lên lịch
+                                {tClasswork('schedule')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => setSelectedStatus('draft')}>
-                                Lưu bản nháp
+                                {tClasswork('saveDraft')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

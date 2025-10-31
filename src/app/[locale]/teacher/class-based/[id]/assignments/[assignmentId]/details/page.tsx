@@ -32,6 +32,7 @@ import SubmissionsPage from './components/SubmissionsPage';
 import {
     IAssignmentSubmission,
     IAssignmentSubmissionWithStudent,
+    IAssignmentSubmissionWithStudentDetails,
     IGradeAssignmentSubmissionPayload,
 } from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
 import assignmentSubmissionService from '@/app/[locale]/class-based/(assignment)/service/assignmentSubmission.service';
@@ -113,7 +114,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
         setData: setStudentSubmissions,
         loading: studentSubmissionsLoading,
         error: studentSubmissionsError,
-    } = useFetch<IAssignmentSubmissionWithStudent[]>(() =>
+    } = useFetch<IAssignmentSubmissionWithStudentDetails[]>(() =>
         assignmentSubmissionService.getAssignmentSubmissionsOfStudents({ assignmentId }),
     );
 
@@ -132,7 +133,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                 if (!prev) return null;
                 return prev.map((studentSubmission) => {
                     const { submission } = studentSubmission;
-                    if (submission.submissionId === data.submissionId)
+                    if (submission?.submissionId === data.submissionId)
                         return { ...studentSubmission, submission: data };
                     return studentSubmission;
                 });

@@ -3,9 +3,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import React from 'react';
-import AttachmentItem from '../../../(assignment)/components/AttachmentItem';
+import FileItem from './FileItem';
 import { IAttachment } from '../../types/attachment.type';
-import FetchedAttachmentItem from '../../../(assignment)/components/FetchedAttachmentItem';
+import AttachmentItem from './AttachmentItem';
+import { useTranslations } from 'next-intl';
 
 interface Props {
     title: string;
@@ -19,6 +20,9 @@ interface Props {
 }
 
 export default function ContentSection({ title, setTitle, content, setContent, files, setFiles, attachments }: Props) {
+    const tCommon = useTranslations('common');
+    const tAttachment = useTranslations('attachment');
+    const tClasswork = useTranslations('classwork');
     function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
         setTitle(e.target.value);
     }
@@ -38,11 +42,11 @@ export default function ContentSection({ title, setTitle, content, setContent, f
             <CardContent className="pt-6 space-y-6">
                 <div>
                     <Label htmlFor="title" className="text-base">
-                        Tiêu đề
+                        {tCommon('labels.title')}
                     </Label>
                     <Input
                         id="title"
-                        placeholder="Nhập tiêu đề bài tập"
+                        placeholder={tClasswork('titlePlaceholder')}
                         className="mt-2 text-base h-11"
                         value={title}
                         onChange={handleTitleChange}
@@ -50,11 +54,11 @@ export default function ContentSection({ title, setTitle, content, setContent, f
                 </div>
                 <div>
                     <Label htmlFor="content" className="text-base">
-                        Nội dung
+                        {tCommon('labels.content')}
                     </Label>
                     <Textarea
                         id="content"
-                        placeholder="Nhập nội dung hoặc hướng dẫn chi tiết (không bắt buộc)"
+                        placeholder={tClasswork('contentPlaceholder')}
                         className="mt-2 min-h-[200px] text-base"
                         value={content}
                         onChange={handleContentChange}
@@ -63,15 +67,15 @@ export default function ContentSection({ title, setTitle, content, setContent, f
 
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <Label className="text-base">Tệp đính kèm</Label>
+                        <Label className="text-base">{tAttachment('attachment')}</Label>
                     </div>
 
                     <div className="space-y-2">
                         {attachments?.map((attachment) => (
-                            <FetchedAttachmentItem key={attachment.attachmentId} attachment={attachment} />
+                            <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
                         ))}
                         {files.map((file, index) => (
-                            <AttachmentItem
+                            <FileItem
                                 key={index}
                                 file={file}
                                 onRemove={() => setFiles(files.filter((_, i) => i !== index))}

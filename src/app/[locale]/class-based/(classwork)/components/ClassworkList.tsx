@@ -38,6 +38,7 @@ interface ItemProps {
 const ClassworkItem = ({ role, assignment, onOpen, onClose }: ItemProps) => {
     const router = useRouter();
     const tCommon = useTranslations('common');
+    const tClasswork = useTranslations('classwork');
     const isDraft = assignment.status === AssignmentStatusEnum.DRAFT;
     const isPastDeadline = assignment.deadline && new Date() > new Date(assignment.deadline);
 
@@ -106,7 +107,9 @@ const ClassworkItem = ({ role, assignment, onOpen, onClose }: ItemProps) => {
                             isPastDeadline ? 'text-red-400 dark:text-red-600' : 'text-muted-foreground',
                         )}
                     >
-                        {assignment.deadline ? `Đến hạn ${formatDate(assignment.deadline)}` : 'Không có hạn nộp'}
+                        {assignment.deadline
+                            ? tClasswork('dueDateAt', { date: formatDate(assignment.deadline) })
+                            : tClasswork('noDueDate')}
                     </p>
                 )}
                 {role === USER_ROLES.TEACHER ? (
@@ -148,6 +151,8 @@ interface Props {
 }
 
 function ClassworkList({ role, myClass, topics: topicsData, assignments, setAssignments }: Props) {
+    const tCommon = useTranslations('common');
+    const tClasswork = useTranslations('classwork');
     const router = useRouter();
     const topics = useMemo(() => {
         return [...topicsData, NO_TOPIC];
@@ -221,14 +226,14 @@ function ClassworkList({ role, myClass, topics: topicsData, assignments, setAssi
     return (
         <div className="container mx-auto py-8 max-w-4xl">
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">Bài tập trên lớp</h1>
+                <h1 className="text-2xl font-bold">{tClasswork('classwork')}</h1>
                 <div className="flex items-center gap-3">
                     <Select defaultValue={ALL_TOPICS} value={selectedTopic} onValueChange={handleTopicSelect}>
                         <SelectTrigger className="w-[180px] sm:w-[200px]">
                             <SelectValue placeholder="Lọc theo chủ đề" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={ALL_TOPICS}>Tất cả chủ đề</SelectItem>
+                            <SelectItem value={ALL_TOPICS}>{tClasswork('allTopic')}</SelectItem>
                             {topics.map((topic) => {
                                 if (topic === NO_TOPIC) return null;
                                 return (
@@ -243,23 +248,23 @@ function ClassworkList({ role, myClass, topics: topicsData, assignments, setAssi
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button>
-                                    <Plus className="mr-2 h-4 w-4" /> Tạo
+                                    <Plus className="mr-2 h-4 w-4" /> {tCommon('actions.create')}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onSelect={() => handleSelect('assignment')}>
                                     <FileText className="mr-2 h-4 w-4" />
-                                    <span>Bài tập</span>
+                                    <span>{tClasswork('assignment')}</span>
                                 </DropdownMenuItem>
 
                                 <DropdownMenuItem onSelect={() => handleSelect('quiz')}>
                                     <HelpCircle className="mr-2 h-4 w-4" />
-                                    <span>Câu hỏi / Quiz</span>
+                                    <span>{tClasswork('quiz')}</span>
                                 </DropdownMenuItem>
 
                                 <DropdownMenuItem onSelect={() => handleSelect('learningMaterial')}>
                                     <BookOpen className="mr-2 h-4 w-4" />
-                                    <span>Tài liệu học tập</span>
+                                    <span>{tClasswork('learningMaterial')}</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

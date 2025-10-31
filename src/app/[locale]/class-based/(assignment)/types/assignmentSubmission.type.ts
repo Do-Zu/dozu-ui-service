@@ -1,5 +1,5 @@
 import { User } from '@/types/auth';
-import { IAttachment } from '../../(classwork)/types/attachment.type';
+import { IAttachment, IInputResource } from '../../(classwork)/types/attachment.type';
 
 export enum AssignmentSubmissionStatusEnum {
     DRAFT = 'draft',
@@ -30,19 +30,25 @@ export type InsertAssignmentSubmission = {
     returnedAt?: Date | null | undefined;
 };
 
-export type InsertAssignmentSubmissionBody = Pick<InsertAssignmentSubmission, 'studentId' | 'status'>;
+export type InsertAssignmentSubmissionBody = Pick<InsertAssignmentSubmission, 'status'>;
 
 export type IUpdateAssignmentSubmission = Pick<
     InsertAssignmentSubmission,
     'updatedAt' | 'status' | 'grade' | 'submittedAt' | 'returnedAt'
 >;
 
-export type IUpdateAssignmentSubmissionBody = Pick<IUpdateAssignmentSubmission, 'status'>;
+export type IUpdateAssignmentSubmissionBody = Pick<IUpdateAssignmentSubmission, 'status'> & {
+    inputResources?: IInputResource[] | undefined;
+};
 
 export interface IAssignmentSubmissionWithStudent {
-    submission: IAssignmentSubmission;
-    student: Pick<User, 'userId' | 'fullName' | 'avatarUrl'>;
+    submission: IAssignmentSubmission | null;
+    student: Pick<User, 'userId' | 'fullName' | 'avatarUrl' | 'email' | 'username'>;
 }
+
+export type IAssignmentSubmissionWithStudentDetails = IAssignmentSubmissionWithStudent & {
+    attachments: IAttachment[] | null;
+};
 
 export interface IGradeAssignmentSubmissionPayload {
     assignmentId: number;
@@ -59,3 +65,9 @@ export type IUpdatedAssignmentSubmission = {
     updatedAssignmentSubmission: IAssignmentSubmission;
     addedAttachments: IAttachment[];
 };
+
+export interface IAssignmentSubmissionStatusCounts {
+    assignedCount: number;
+    submittedCount: number;
+    returnedCount: number;
+}

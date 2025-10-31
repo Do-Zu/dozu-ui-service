@@ -1,9 +1,11 @@
+import AttachmentItem from '@/app/[locale]/class-based/(classwork)/components/common/AttachmentItem';
 import {
     AssignmentSubmissionStatusEnum,
     IAssignmentSubmission,
     IUpdateAssignmentSubmissionBody,
 } from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
 import assignmentSubmissionUtils from '@/app/[locale]/class-based/(assignment)/utils/assignmentSubmission.utils';
+import FileItem from '@/app/[locale]/class-based/(classwork)/components/common/FileItem';
 import { IAttachment } from '@/app/[locale]/class-based/(classwork)/types/attachment.type';
 import attachmentUtils from '@/app/[locale]/class-based/(classwork)/utils/attachment.utils';
 import { Button } from '@/components/ui/button';
@@ -12,74 +14,28 @@ import { Textarea } from '@/components/ui/textarea';
 import { Plus, X, FileText, Users, Link2, Upload } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-interface FileItemProps {
-    file: File;
-    onRemove?: () => void;
-}
-
-function FileItem({ file, onRemove }: FileItemProps) {
-    return (
-        <div key={file.name} className="flex items-center justify-between rounded-md border p-3 bg-secondary/30">
-            <div className="flex items-center space-x-3 overflow-hidden">
-                <FileText className="h-5 w-5 flex-shrink-0 text-blue-500" />
-                <div className="flex flex-col overflow-hidden">
-                    <span className="truncate font-medium text-sm text-blue-700">{file.name}</span>
-                    <span className="text-xs text-muted-foreground">{file.type}</span>
-                </div>
-            </div>
-            {onRemove && (
-                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={onRemove}>
-                    <X className="h-4 w-4" />
-                </Button>
-            )}
-        </div>
-    );
-}
-
-function AttachmentItem({ attachment }: { attachment: IAttachment }) {
-    return (
-        <div
-            key={attachment.attachmentId}
-            className="flex items-center justify-between rounded-md border p-3 bg-secondary/30"
-        >
-            <div className="flex items-center space-x-3 overflow-hidden">
-                <FileText className="h-5 w-5 flex-shrink-0 text-blue-500" />
-                <div className="flex flex-col overflow-hidden">
-                    <span className="truncate font-medium text-sm text-blue-700">{attachment.metadata?.fileName}</span>
-                    <span className="text-xs text-muted-foreground">
-                        {attachmentUtils.formatContentType(attachment.metadata?.contentType)}
-                    </span>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 interface Props {
     submission: IAssignmentSubmission;
     attachments: IAttachment[];
-    onSubmit: ({ data }: { data: IUpdateAssignmentSubmissionBody }) => Promise<void>;
+    onSubmit: ({
+        data,
+        files,
+    }: {
+        data: Omit<IUpdateAssignmentSubmissionBody, 'inputResources'>;
+        files: File[];
+    }) => Promise<void>;
     loading: boolean;
 }
 
 export function SubmissionCard({ submission, attachments, onSubmit, loading }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [files, setFiles] = useState<File[]>([]);
-    // const [submissions, setSubmission] = useState(mockSubmission);
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files) return;
         const selectedFiles = Array.from(event.target.files);
         const allFiles = selectedFiles.concat(files);
         setFiles(allFiles);
-        // const selectedSubmissions = selectedFiles.map((file) => ({
-        //     name: file.name,
-        //     type: 'Google tài liệu',
-        // }));
-        // setSubmission((prev) => {
-        //     const allSubmissions = prev.concat(selectedSubmissions);
-        //     return allSubmissions;
-        // });
     };
 
     const handleUploadClick = () => {
@@ -87,8 +43,9 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
     };
 
     async function handleSubmit() {
-        const data: IUpdateAssignmentSubmissionBody = { status: AssignmentSubmissionStatusEnum.SUBMITTED };
-        await onSubmit({ data });
+        const data = { status: AssignmentSubmissionStatusEnum.SUBMITTED };
+        await onSubmit({ data, files });
+        setFiles([]);
     }
 
     function handleFileRemove(index: number) {
