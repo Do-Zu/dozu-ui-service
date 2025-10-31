@@ -76,9 +76,11 @@ import ActivityTab from '@/app/[locale]/topics/components/ui/ActivityTab';
 import ClassworkList from '@/app/[locale]/class-based/(classwork)/components/ClassworkList';
 import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
-import ClassworkListCopy from '@/app/[locale]/class-based/(classwork)/components/ClassworkListCopy';
+// import ClassworkListCopy from '@/app/[locale]/class-based/(classwork)/components/ClassworkListCopy';
 import { USER_ROLES } from '@/utils/constants/roles';
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import { ILearningMaterial } from '@/app/[locale]/class-based/(learning-material)/types/learningMaterial.type';
+import learningMaterialService from '@/app/[locale]/class-based/(learning-material)/service/learningMaterial.service';
 
 type TopicFilteringAction =
     | 'newest'
@@ -203,6 +205,16 @@ export default function ClassDashboard({ classId, defaultTab }: Props) {
         error: assignmentsError,
     } = useFetch<IAssignment[]>(() => assignmentService.getAssignmentsForClass({ classId }));
 
+    //learningMaterials
+    const {
+        data: learningMaterials,
+        setData: setLearningMaterials,
+        loading: learningMaterialsLoading,
+        error: learningMaterialsError,
+    } = useFetch<ILearningMaterial[]>(() => learningMaterialService.getLearningMaterialsForClass({ classId }));
+
+    const isLoading = assignmentsLoading || learningMaterialsLoading;
+
     async function handleCreateTopicClick(topic: ICreateTopicPayload) {
         if (!validateTopic(topic)) {
             return;
@@ -226,16 +238,19 @@ export default function ClassDashboard({ classId, defaultTab }: Props) {
         return (
             <>
                 {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
-                {assignmentsLoading ? <LoadingPage /> : null}
-                {assignments ? (
+                {learningMaterialsError ? <div>Error: {learningMaterialsError}</div> : null}
+
+                {isLoading ? <LoadingPage /> : null}
+                {assignments && learningMaterials ? (
                     <ClassworkList
                         role={USER_ROLES.TEACHER}
                         myClass={myClass}
                         topics={value}
                         assignments={assignments}
                         setAssignments={setAssignments}
+                        learningMaterials={learningMaterials}
+                        setLearningMaterials={setLearningMaterials}
                     />
-                    // <ClassworkListCopy myClass={myClass} topics={value} assignments={assignments} />
                 ) : null}
             </>
         );
