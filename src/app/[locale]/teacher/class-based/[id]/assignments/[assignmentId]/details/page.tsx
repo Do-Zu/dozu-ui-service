@@ -133,7 +133,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                 if (!prev) return null;
                 return prev.map((studentSubmission) => {
                     const { submission } = studentSubmission;
-                    if (submission.submissionId === data.submissionId)
+                    if (submission?.submissionId === data.submissionId)
                         return { ...studentSubmission, submission: data };
                     return studentSubmission;
                 });

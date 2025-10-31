@@ -5,14 +5,19 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText } from 'lucide-react';
+import { FileText, X } from 'lucide-react';
 import {
     IAssignmentSubmissionStatus,
+    IAssignmentSubmissionStatusCounts,
     IAssignmentSubmissionWithStudentDetails,
 } from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
 import assignmentSubmissionUtils from '@/app/[locale]/class-based/(assignment)/utils/assignmentSubmission.utils';
 import toastHelper from '@/utils/toast.helper';
 import AttachmentItem from '@/app/[locale]/class-based/(classwork)/components/common/AttachmentItem';
+import { isNil } from '@/utils';
+import classworkUtils from '@/app/[locale]/class-based/(classwork)/utils/classwork.utils';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface StudentItemProps {
     studentSubmission: IAssignmentSubmissionWithStudentDetails;
@@ -23,6 +28,7 @@ interface StudentItemProps {
 
 function StudentItem({ studentSubmission, totalGrade, onSelect, isSelected }: StudentItemProps) {
     const { student, submission } = studentSubmission;
+    const { fullName, email, username } = student;
     return (
         <Card
             key={student.userId}
@@ -32,17 +38,50 @@ function StudentItem({ studentSubmission, totalGrade, onSelect, isSelected }: St
             <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="font-medium">{student.fullName}</span>
+                        <span className="font-medium">
+                            {classworkUtils.getStudentDisplayName({ fullName, email, username })}
+                        </span>
                         <span className="text-xs text-muted-foreground">
-                            {assignmentSubmissionUtils.getStatusLabel(submission.status)}
+                            {assignmentSubmissionUtils.getStatusLabel(submission?.status)}
                         </span>
                     </div>
                     <span className="text-sm font-semibold text-muted-foreground">
-                        {submission.grade === null ? '' : submission.grade}/{totalGrade}
+                        {isNil(submission?.grade) ? '' : submission.grade}/{totalGrade}
                     </span>
                 </div>
             </CardContent>
         </Card>
+    );
+}
+
+function SubmissionsOverview({ statusCounts }: { statusCounts: IAssignmentSubmissionStatusCounts }) {
+    const { assignedCount, submittedCount, returnedCount } = statusCounts;
+    return (
+        <div className="p-6 max-w-5xl mx-auto mt-10">
+            <h2 className="text-2xl font-semibold mb-6">Bài tập</h2>
+
+            <div className="flex justify-center items-center gap-12 mb-6">
+                <div className="text-center">
+                    <p className="text-3xl font-bold">{submittedCount}</p>
+                    <p className="text-sm text-gray-500">Đã nộp</p>
+                </div>
+                <div className="text-center">
+                    <p className="text-3xl font-bold">{assignedCount}</p>
+                    <p className="text-sm text-gray-500">Đã giao</p>
+                </div>
+                <div className="text-center">
+                    <p className="text-3xl font-bold">{returnedCount}</p>
+                    <p className="text-sm text-gray-500">Đã chấm điểm</p>
+                </div>
+            </div>
+
+            <div className="flex justify-center items-center gap-3 mb-10">
+                <Switch id="disable-submissions" />
+                <Label htmlFor="disable-submissions" className=" text-sm">
+                    Không nhận bài tập
+                </Label>
+            </div>
+        </div>
     );
 }
 
@@ -55,11 +94,15 @@ interface SubmissionItemProps {
 
 function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoading }: SubmissionItemProps) {
     const { student, submission, attachments } = studentSubmission;
-    const [grade, setGrade] = useState<number | null>(null);
+    const { fullName, email, username } = student;
+
+    const [grade, setGrade] = useState<number | null>();
+
+    const canEdit = submission !== null;
 
     useEffect(() => {
-        setGrade(submission.grade);
-    }, [submission.grade]);
+        setGrade(submission?.grade);
+    }, [submission?.grade]);
 
     function handleGradeChange(e: React.ChangeEvent<HTMLInputElement>) {
         if (e.target.value === '') {
@@ -77,7 +120,11 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
     }
 
     function handleGradeSubmit() {
-        if (grade === null) {
+        if (!canEdit) {
+            toastHelper.showErrorMessage("This student hasn't submitted any work yet.");
+            return;
+        }
+        if (isNil(grade)) {
             toastHelper.showErrorMessage('Grade is required');
             return;
         }
@@ -85,23 +132,28 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
     }
 
     return (
-        <div className="flex-1 p-6 space-y-6">
+        <div className="flex-1 px-6 space-y-6">
             <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-xl font-semibold">{student.fullName}</h2>
+                    <h2 className="text-xl font-semibold">
+                        {classworkUtils.getStudentDisplayName({ fullName, email, username })}
+                    </h2>
                     <p className="text-sm text-muted-foreground">
-                        {assignmentSubmissionUtils.getStatusLabel(submission.status)}
+                        {assignmentSubmissionUtils.getStatusLabel(submission?.status)}
                     </p>
                 </div>
 
-                <Button variant="default" className="px-6" onClick={handleGradeSubmit} disabled={gradeLoading}>
+                <Button
+                    variant="default"
+                    className="px-6"
+                    onClick={handleGradeSubmit}
+                    disabled={gradeLoading}
+                >
                     {gradeLoading ? 'Saving...' : 'Trả bài'}
                 </Button>
             </div>
 
-            {attachments.map((attachment) => (
-                <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
-            ))}
+            {attachments?.map((attachment) => <AttachmentItem key={attachment.attachmentId} attachment={attachment} />)}
 
             <div className="flex items-center gap-4">
                 <Input
@@ -119,9 +171,11 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
                     <CardTitle>Nhận xét riêng tư</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Textarea placeholder="Thêm nhận xét riêng tư cho học viên..." />
+                    <Textarea placeholder="Thêm nhận xét riêng tư cho học viên..." disabled={!canEdit} />
                     <div className="flex justify-end mt-3">
-                        <Button variant="secondary">Gửi</Button>
+                        <Button variant="secondary" disabled={!canEdit}>
+                            Gửi
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -135,6 +189,11 @@ interface Props {
     onGradeSubmit: ({ submissionId, grade }: { submissionId: number; grade: number }) => Promise<void>;
     gradeLoading: boolean;
 }
+const defaultSubmissionStatusCounts: IAssignmentSubmissionStatusCounts = {
+    assignedCount: 0,
+    submittedCount: 0,
+    returnedCount: 0,
+};
 
 export default function SubmissionsPage({ studentSubmissions, totalGrade, onGradeSubmit, gradeLoading }: Props) {
     const [selectedStudentSubmission, setSelectedStudentSubmission] =
@@ -146,10 +205,16 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, onGrad
         IAssignmentSubmissionWithStudentDetails[] | null
     >(null);
 
+    const [studentSubmissionStatusCounts, setStudentSubmissionStatusCounts] =
+        useState<IAssignmentSubmissionStatusCounts>(defaultSubmissionStatusCounts);
+
     // needed to be verified
     useEffect(() => {
         setStudentSubmissionsByGroup(
             assignmentSubmissionUtils.getAssignmentSubmissionsByStatus({ status: selectedStatus, studentSubmissions }),
+        );
+        setStudentSubmissionStatusCounts(
+            assignmentSubmissionUtils.getAssignmentSubmissionStatusCounts(studentSubmissions),
         );
     }, [studentSubmissions, selectedStatus]);
 
@@ -186,14 +251,13 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, onGrad
                     <div className="space-y-4">
                         {studentSubmissionsByGroup?.map((studentSubmission) => (
                             <StudentItem
-                                key={studentSubmission.submission.submissionId}
+                                key={studentSubmission.student.userId}
                                 studentSubmission={studentSubmission}
                                 totalGrade={totalGrade}
                                 onSelect={handleStudentSubmissionSelect}
                                 isSelected={
                                     selectedStudentSubmission !== null &&
-                                    selectedStudentSubmission.submission.submissionId ===
-                                        studentSubmission.submission.submissionId
+                                    selectedStudentSubmission.student.userId === studentSubmission.student.userId
                                 }
                             />
                         ))}
@@ -202,13 +266,25 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, onGrad
             </div>
 
             {selectedStudentSubmission ? (
-                <SubmissionItem
-                    studentSubmission={selectedStudentSubmission}
-                    totalGrade={totalGrade}
-                    onGradeSubmit={onGradeSubmit}
-                    gradeLoading={gradeLoading}
-                />
-            ) : null}
+                <div className="w-full flex flex-col">
+                    <div className="flex justify-end m-2 px-6">
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedStudentSubmission(null)}>
+                            <X className="h-5 w-5" />
+                        </Button>
+                    </div>
+
+                    <div className="flex-1">
+                        <SubmissionItem
+                            studentSubmission={selectedStudentSubmission}
+                            totalGrade={totalGrade}
+                            onGradeSubmit={onGradeSubmit}
+                            gradeLoading={gradeLoading}
+                        />
+                    </div>
+                </div>
+            ) : (
+                <SubmissionsOverview statusCounts={studentSubmissionStatusCounts} />
+            )}
         </div>
     );
 }

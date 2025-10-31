@@ -30,7 +30,7 @@ export type InsertAssignmentSubmission = {
     returnedAt?: Date | null | undefined;
 };
 
-export type InsertAssignmentSubmissionBody = Pick<InsertAssignmentSubmission, 'studentId' | 'status'>;
+export type InsertAssignmentSubmissionBody = Pick<InsertAssignmentSubmission, 'status'>;
 
 export type IUpdateAssignmentSubmission = Pick<
     InsertAssignmentSubmission,
@@ -42,12 +42,12 @@ export type IUpdateAssignmentSubmissionBody = Pick<IUpdateAssignmentSubmission, 
 };
 
 export interface IAssignmentSubmissionWithStudent {
-    submission: IAssignmentSubmission;
-    student: Pick<User, 'userId' | 'fullName' | 'avatarUrl'>;
+    submission: IAssignmentSubmission | null;
+    student: Pick<User, 'userId' | 'fullName' | 'avatarUrl' | 'email' | 'username'>;
 }
 
 export type IAssignmentSubmissionWithStudentDetails = IAssignmentSubmissionWithStudent & {
-    attachments: IAttachment[];
+    attachments: IAttachment[] | null;
 };
 
 export interface IGradeAssignmentSubmissionPayload {
@@ -65,3 +65,9 @@ export type IUpdatedAssignmentSubmission = {
     updatedAssignmentSubmission: IAssignmentSubmission;
     addedAttachments: IAttachment[];
 };
+
+export interface IAssignmentSubmissionStatusCounts {
+    assignedCount: number;
+    submittedCount: number;
+    returnedCount: number;
+}
