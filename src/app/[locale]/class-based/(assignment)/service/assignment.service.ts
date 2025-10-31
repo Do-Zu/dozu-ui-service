@@ -1,26 +1,33 @@
 import { deleteRequest, getRequest, postRequest, putRequest } from '@/api/api';
 import {
     IAssignment,
+    IAssignmentWithAttachments,
     ICreateAssignmentPayload,
     IDeleteAssignmentPayload,
     InsertAssignmentBody,
     IUpdateAssignmentBody,
     IUpdateAssignmentPayload,
-} from '../../types/assignment.type';
+} from '../types/assignment.type';
 import { ApiResponse } from '@/api/type';
 
-class TeacherAssignmentService {
+class AssignmentService {
     public async getAssignmentsForClass({ classId }: { classId: number }): Promise<IAssignment[]> {
-        const response = await getRequest<unknown, IAssignment[]>(`/classes/teacher/${classId}/assignments`);
+        const response = await getRequest<unknown, IAssignment[]>(`/classes/${classId}/assignments`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
         return response.data;
     }
 
-    public async getAssignmentById({ classId, assignmentId }: { classId: number; assignmentId: number }) {
-        const response = await getRequest<unknown, IAssignment>(
-            `/classes/teacher/${classId}/assignments/${assignmentId}`,
+    public async getAssignmentWithAttachmentsById({
+        classId,
+        assignmentId,
+    }: {
+        classId: number;
+        assignmentId: number;
+    }) {
+        const response = await getRequest<unknown, IAssignmentWithAttachments>(
+            `/classes/${classId}/assignments/${assignmentId}`,
         );
         if (response.status !== 'success') {
             throw new Error(response.message);
@@ -30,7 +37,7 @@ class TeacherAssignmentService {
 
     public async createAssignment({ classId, assignment }: ICreateAssignmentPayload): Promise<IAssignment> {
         const response = await postRequest<InsertAssignmentBody, IAssignment>(
-            `/classes/teacher/${classId}/assignments`,
+            `/classes/${classId}/assignments`,
             assignment,
         );
         if (response.status !== 'created') {
@@ -41,7 +48,7 @@ class TeacherAssignmentService {
 
     public async updateAssignmentById({ classId, assignmentId, assignment }: IUpdateAssignmentPayload) {
         const response = await putRequest<IUpdateAssignmentBody, IAssignment>(
-            `/classes/teacher/${classId}/assignments/${assignmentId}`,
+            `/classes/${classId}/assignments/${assignmentId}`,
             assignment,
         );
         if (response.status !== 'success') {
@@ -52,7 +59,7 @@ class TeacherAssignmentService {
 
     public async deleteAssignmentById({ classId, assignmentId }: IDeleteAssignmentPayload) {
         const response = await deleteRequest<unknown, ApiResponse<number>>(
-            `/classes/teacher/${classId}/assignments/${assignmentId}`,
+            `/classes/${classId}/assignments/${assignmentId}`,
         );
         if (response.status !== 'success') {
             throw new Error(response.message);
@@ -61,4 +68,4 @@ class TeacherAssignmentService {
     }
 }
 
-export default new TeacherAssignmentService();
+export default new AssignmentService();

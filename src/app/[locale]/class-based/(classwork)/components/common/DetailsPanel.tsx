@@ -15,6 +15,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { IClass } from '../../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { NO_TOPIC_ID } from '../../utils/classwork.constant';
+import { useTranslations } from 'next-intl';
 
 // if don't use grade or deadline section (like learning materials feature), just pass withGrade false & withDeadline false
 interface WithGradeProps {
@@ -29,8 +30,8 @@ interface WithoutGradeProps {
 
 interface WithDeadlineProps {
     withDeadline: true;
-    dueDate: Date | undefined;
-    setDueDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+    deadline: Date | undefined;
+    setDeadline: React.Dispatch<React.SetStateAction<Date | undefined>>;
 }
 
 interface WithoutDeadlineProps {
@@ -49,6 +50,7 @@ interface BaseProps {
 type Props = BaseProps & (WithGradeProps | WithoutGradeProps) & (WithDeadlineProps | WithoutDeadlineProps);
 
 export default function DetailsPanel(props: Props) {
+    const tClasswork = useTranslations('classwork');
     const { myClass, topics, withGrade, withDeadline, selectedTopic, setSelectedTopic } = props;
     function handleTopicSelect(value: string) {
         setSelectedTopic(value);
@@ -60,9 +62,9 @@ export default function DetailsPanel(props: Props) {
         props.setGrade(Math.max(isNaN(value) ? 1 : value, 1));
     }
 
-    function handleDueDateSelect(value: Date | undefined) {
+    function handleDeadlineSelect(value: Date | undefined) {
         if (!withDeadline) return;
-        props.setDueDate(value);
+        props.setDeadline(value);
     }
 
     return (
@@ -70,7 +72,7 @@ export default function DetailsPanel(props: Props) {
             <CardContent className="pt-6 space-y-5">
                 <div className="space-y-2">
                     <Label htmlFor="assign-to-class" className="text-base">
-                        Dành cho
+                        {tClasswork('for')}
                     </Label>
                     <Select defaultValue={myClass.classId.toString()} disabled>
                         <SelectTrigger id="assign-to-class" className="text-base h-11">
@@ -86,15 +88,15 @@ export default function DetailsPanel(props: Props) {
                 <Separator />
                 <div className="space-y-2">
                     <Label htmlFor="topic" className="text-base">
-                        Chủ đề
+                        {tClasswork('topic')}
                     </Label>
                     <Select defaultValue={NO_TOPIC_ID} value={selectedTopic} onValueChange={handleTopicSelect}>
                         <SelectTrigger id="topic" className="text-base h-11">
-                            <SelectValue placeholder="Không có chủ đề" />
+                            <SelectValue placeholder={tClasswork('noTopic')} />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value={NO_TOPIC_ID} className="text-base">
-                                Không có chủ đề
+                                {tClasswork('noTopic')}
                             </SelectItem>
                             {topics.map((topic) => (
                                 <SelectItem key={topic.topicId} value={topic.topicId.toString()} className="text-base">
@@ -109,7 +111,7 @@ export default function DetailsPanel(props: Props) {
                     <>
                         <div className="space-y-2">
                             <Label htmlFor="points" className="text-base">
-                                Điểm
+                                {tClasswork('grade')}
                             </Label>
                             <Input
                                 id="points"
@@ -125,29 +127,29 @@ export default function DetailsPanel(props: Props) {
                 {withDeadline ? (
                     <>
                         <div className="space-y-2">
-                            <Label className="text-base">Hạn nộp</Label>
+                            <Label className="text-base">{tClasswork('dueDate')}</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
                                         variant={'outline'}
                                         className={cn(
                                             'w-full justify-start text-left font-normal text-base h-11',
-                                            !props.dueDate && 'text-muted-foreground',
+                                            !props.deadline && 'text-muted-foreground',
                                         )}
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {props.dueDate ? (
-                                            format(props.dueDate, 'PPP')
+                                        {props.deadline ? (
+                                            format(props.deadline, 'PPP')
                                         ) : (
-                                            <span>Không có ngày đến hạn</span>
+                                            <span>{tClasswork('noDueDate')}</span>
                                         )}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
                                     <Calendar
                                         mode="single"
-                                        selected={props.dueDate}
-                                        onSelect={handleDueDateSelect}
+                                        selected={props.deadline}
+                                        onSelect={handleDeadlineSelect}
                                         initialFocus
                                     />
                                 </PopoverContent>

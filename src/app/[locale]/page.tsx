@@ -37,7 +37,7 @@ function HomePage() {
         }
 
         // For regular users, set learning mode and go to home
-        dispatch(setLearningMode(storedValue));
+        // dispatch(setLearningMode(storedValue));
         router.push(ROUTES.HOME);
     }, [isAuthenticated, isTeacher, isAdmin]);
 

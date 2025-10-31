@@ -1,0 +1,27 @@
+{
+    "attachment": {
+        "attachment": "Attachments",
+        "attach": "Attach",
+        "uploadUrl": "Upload url",
+        "uploadFile": "Upload file"
+    },
+    "classwork": {
+        "titlePlaceholder": "Enter title",
+        "contentPlaceholder": "Enter content or detailed instructions (optional)",
+        "assignNow": "Assign now",
+        "schedule": "Schedule",
+        "saveDraft": "Save draft",
+        "for": "For class",
+        "topic": "Topic",
+        "noTopic": "No topic",
+        "allTopic": "All topics",
+        "grade": "Grade",
+        "dueDate": "Due date",
+        "noDueDate": "No due date",
+        "classwork": "Classwork",
+        "dueDateAt": "Due {date}",
+        "assignment": "Assignment",
+        "learningMaterial": "Material",
+        "quiz": "Quiz"
+    }
+}

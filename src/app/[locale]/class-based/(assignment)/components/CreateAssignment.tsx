@@ -25,7 +25,13 @@ import { useTranslations } from 'next-intl';
 interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
-    onSubmit: ({ assignment }: { assignment: InsertAssignmentBody }) => Promise<void>;
+    onSubmit: ({
+        assignment,
+        files,
+    }: {
+        assignment: Omit<InsertAssignmentBody, 'inputResources'>;
+        files: File[];
+    }) => Promise<void>;
     loading: boolean;
 }
 
@@ -33,6 +39,8 @@ interface Props {
 export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) {
     const router = useRouter();
     const tCommon = useTranslations('common');
+    const tAssignment = useTranslations('assignment');
+    const tClasswork = useTranslations('classwork');
 
     // Assignment Status selection states
     const [selectedStatus, setSelectedStatus] = useState<InsertAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
@@ -48,7 +56,7 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
     const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
-    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const [deadline, setDeadline] = useState<Date | undefined>(undefined);
 
     function handleCloseClick() {
         router.back();
@@ -59,16 +67,17 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
             toastHelper.showErrorMessage(tCommon('validation.required', { name: tCommon('labels.title') }));
             return;
         }
-        const assignment: InsertAssignmentBody = {
+        const assignment = {
             topicId: assignmentUtils.parseTopicId(selectedTopic),
             title,
             content,
             acceptingSubmissions: true, // handle later
-            deadline: dueDate,
+            deadline,
             totalGrades: grade,
             status: AssignmentStatusEnum.PUBLISHED, // handle later
         };
-        await onSubmit({ assignment });
+        await onSubmit({ assignment, files });
+        setFiles([]);
     }
 
     return (
@@ -79,11 +88,11 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
                         <X className="h-5 w-5" />
                         <span className="sr-only">Đóng</span>
                     </Button>
-                    <h1 className="text-3xl font-semibold text-foreground">Bài tập</h1>
+                    <h1 className="text-3xl font-semibold text-foreground">{tAssignment('assignment')}</h1>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button onClick={handleSubmit} disabled={loading}>
-                        {loading ? 'Saving...' : assignmentUtils.getStatusLabel(selectedStatus)}
+                        {loading ? tCommon('status.saving') : assignmentUtils.getStatusLabel(selectedStatus)}
                     </Button>
 
                     <DropdownMenu>
@@ -94,13 +103,13 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" defaultValue={DEFAULT_ASSIGNMENT_STATUS}>
                             <DropdownMenuItem onSelect={() => setSelectedStatus('published')}>
-                                Giao bài ngay
+                                {tClasswork('assignNow')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => setSelectedStatus('scheduled')}>
-                                Lên lịch
+                                {tClasswork('schedule')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => setSelectedStatus('draft')}>
-                                Lưu bản nháp
+                                {tClasswork('saveDraft')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -130,8 +139,8 @@ export function CreateAssignment({ myClass, topics, onSubmit, loading }: Props) 
                         setSelectedTopic={setSelectedTopic}
                         grade={grade}
                         setGrade={setGrade}
-                        dueDate={dueDate}
-                        setDueDate={setDueDate}
+                        deadline={deadline}
+                        setDeadline={setDeadline}
                     />
                 </div>
             </div>
