@@ -49,6 +49,8 @@ import { IAssignment } from '../../(assignment)/types/assignment.type';
 import assignmentService from '../../(assignment)/service/assignment.service';
 import ClassworkList from '../../(classwork)/components/ClassworkList';
 import { USER_ROLES } from '@/utils/constants/roles';
+import { ILearningMaterial } from '../../(learning-material)/types/learningMaterial.type';
+import learningMaterialService from '../../(learning-material)/service/learningMaterial.service';
 
 type TopicFilteringAction =
     | 'newest'
@@ -107,14 +109,36 @@ export default function ClassDashboard() {
         error: assignmentsError,
     } = useFetch<IAssignment[]>(() => assignmentService.getAssignmentsForClass({ classId }));
 
+    //learningMaterials
+    const {
+        data: learningMaterials,
+        setData: setLearningMaterials,
+        loading: learningMaterialsLoading,
+        error: learningMaterialsError,
+    } = useFetch<ILearningMaterial[]>(() => learningMaterialService.getLearningMaterialsForClass({ classId }));
+
+    const isLoading = assignmentsLoading || learningMaterialsLoading;
+
     const classworkContent = useMemo(() => {
         if (!myClass || !topics) return null;
         const value = topics.map(({ topicId, name }) => ({ topicId, name }));
         return (
             <>
                 {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
-                {assignmentsLoading ? <LoadingPage /> : null}
-                {assignments ? (
+                {learningMaterialsError ? <div>Error: {learningMaterialsError}</div> : null}
+                {isLoading ? <LoadingPage /> : null}
+                {assignments && learningMaterials ? (
+                    <ClassworkList
+                        role={USER_ROLES.USER}
+                        myClass={myClass}
+                        topics={value}
+                        assignments={assignments}
+                        setAssignments={setAssignments}
+                        learningMaterials={learningMaterials}
+                        setLearningMaterials={setLearningMaterials}
+                    />
+                ) : null}
+                {/* {learningMaterials ? (
                     <ClassworkList
                         role={USER_ROLES.USER}
                         myClass={myClass}
@@ -122,10 +146,10 @@ export default function ClassDashboard() {
                         assignments={assignments}
                         setAssignments={setAssignments}
                     />
-                ) : null}
+                ) : null} */}
             </>
         );
-    }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);
+    }, [myClass, topics, assignments, assignmentsError, isLoading, learningMaterials, learningMaterialsError]);
 
     useEffect(() => {
         if (!topics) {
@@ -353,7 +377,6 @@ export default function ClassDashboard() {
             />
         </>
     );
-
 
     return (
         <>
