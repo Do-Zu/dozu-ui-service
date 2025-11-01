@@ -12,18 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Plus, BookText, Edit, Trash2, FileText, HelpCircle, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AssignmentStatusEnum, IAssignment } from '../../(assignment)/types/assignment.type';
+import { AssignmentStatusEnum, IAssignment } from '../../../(assignment)/types/assignment.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { formatDate } from '@/utils';
-import assignmentUtils from '../../(assignment)/utils/assignment.utils';
+import assignmentUtils from '../../../(assignment)/utils/assignment.utils';
 import { useRouter } from 'next/navigation';
-import { IClass } from '../../types/class.type';
+import { IClass } from '../../../types/class.type';
 import { ROUTES } from '@/utils/constants/routes';
 import { useTranslations } from 'next-intl';
-import { ALL_TOPICS, NO_TOPIC } from '../utils/classwork.constant';
-import { IClassworkType } from '../types/classwork.type';
+import { ALL_TOPICS, NO_TOPIC } from '../../utils/classwork.constant';
+import { IClassworkType } from '../../types/classwork.type';
 import useFetch from '@/hooks/useFetch';
-import LearningMaterialItem from './common/LearningMaterialItem';
+import LearningMaterialItem from '../common/LearningMaterialItem';
 
 const ClassworkItem = ({ assignment }: { assignment: IAssignment }) => {
     const router = useRouter();

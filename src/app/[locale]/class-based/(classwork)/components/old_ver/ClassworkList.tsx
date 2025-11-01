@@ -12,30 +12,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Plus, BookText, Edit, Trash2, FileText, HelpCircle, BookOpen, Album } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AssignmentStatusEnum, IAssignment, IDeleteAssignmentPayload } from '../../(assignment)/types/assignment.type';
+import {
+    AssignmentStatusEnum,
+    IAssignment,
+    IDeleteAssignmentPayload,
+} from '../../../(assignment)/types/assignment.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import { formatDate } from '@/utils';
-import assignmentUtils from '../../(assignment)/utils/assignment.utils';
+import assignmentUtils from '../../../(assignment)/utils/assignment.utils';
 import { useRouter } from 'next/navigation';
-import { IClass } from '../../types/class.type';
+import { IClass } from '../../../types/class.type';
 import { ROUTES } from '@/utils/constants/routes';
 import { useTranslations } from 'next-intl';
-import { ALL_TOPICS, NO_TOPIC } from '../utils/classwork.constant';
-import { ClassworkTypeEnum, IClassworkType } from '../types/classwork.type';
-import DeleteAssignmentModal from '../../(assignment)/components/DeleteAssignmentModal';
+import { ALL_TOPICS, NO_TOPIC } from '../../utils/classwork.constant';
+import { IClassworkType } from '../../types/classwork.type';
+import DeleteAssignmentModal from '../../../(assignment)/components/DeleteAssignmentModal';
 import usePost from '@/hooks/usePost';
-import assignmentService from '../../(assignment)/service/assignment.service';
+import assignmentService from '../../../(assignment)/service/assignment.service';
 import toastHelper from '@/utils/toast.helper';
 import { USER_ROLES, UserRole } from '@/utils/constants/roles';
-import { ILearningMaterial } from '../../(learning-material)/types/learningMaterial.type';
-import learningMaterialUtils from '../../(learning-material)/utils/learningMaterial.utils';
-import DeleteLearningMaterialModal from '../../(learning-material)/components/DeleteLearningMaterialModal';
-import learningMaterialService from '../../(learning-material)/service/learningMaterial.service';
-import { IClasswork } from '../services/classwork.service';
-import classworkUtils from '../utils/classwork.utils';
-import { DATE_DMY_DASH_FORMAT } from '@/utils/date/constant';
+import { ILearningMaterial } from '../../../(learning-material)/types/learningMaterial.type';
+import learningMaterialUtils from '../../../(learning-material)/utils/learningMaterial.utils';
+import DeleteLearningMaterialModal from '../../../(learning-material)/components/DeleteLearningMaterialModal';
+import learningMaterialService from '../../../(learning-material)/service/learningMaterial.service';
 
-interface AssignmentItemProps {
+interface ItemProps {
     role: UserRole;
     assignment: IAssignment;
     onOpen: ({ assignmentId }: { assignmentId: number }) => void;
@@ -49,7 +50,7 @@ interface LearningMaterialItemProps {
     onClose: () => void;
 }
 
-const AssignmentItem = ({ role, assignment, onOpen, onClose }: AssignmentItemProps) => {
+const ClassworkItem = ({ role, assignment, onOpen, onClose }: ItemProps) => {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const tClasswork = useTranslations('classwork');
@@ -98,25 +99,15 @@ const AssignmentItem = ({ role, assignment, onOpen, onClose }: AssignmentItemPro
                 <div
                     className={cn(
                         'flex items-center justify-center h-9 w-9 rounded-full border-2',
-                        isDraft
-                            ? 'border-muted-foreground/50 bg-muted/30'
-                            : 'border-blue-400 bg-blue-50 dark:bg-blue-950/30',
+                        isDraft ? 'border-muted-foreground/50 bg-muted/30' : 'border-primary/50 bg-primary/10',
                     )}
                 >
-                    <BookText
-                        className={cn(isDraft ? 'text-muted-foreground/80' : 'text-blue-500 dark:text-blue-400')}
-                        size={18}
-                    />
+                    <BookText className={cn(isDraft ? 'text-muted-foreground/80' : 'text-primary')} size={18} />
                 </div>
                 <div className="flex flex-col">
                     <a href="#" className="font-medium text-base text-foreground">
                         {assignment.title}
                     </a>
-
-                    <div className="text-sm text-muted-foreground mt-1">
-                        <p>{formatDate(assignment.createdAt, DATE_DMY_DASH_FORMAT)}</p>
-                        {/* <p>Last edited at: 2025-10-30 09:45</p> */}
-                    </div>
                 </div>
             </div>
             <div className="flex items-center gap-4 md:gap-6">
@@ -131,15 +122,9 @@ const AssignmentItem = ({ role, assignment, onOpen, onClose }: AssignmentItemPro
                             isPastDeadline ? 'text-red-400 dark:text-red-600' : 'text-muted-foreground',
                         )}
                     >
-                        {role === USER_ROLES.USER ? (
-                            <>
-                                {assignment.deadline
-                                    ? tClasswork('dueDateAt', {
-                                          date: formatDate(assignment.deadline, DATE_DMY_DASH_FORMAT),
-                                      })
-                                    : tClasswork('noDueDate')}{' '}
-                            </>
-                        ) : null}
+                        {assignment.deadline
+                            ? tClasswork('dueDateAt', { date: formatDate(assignment.deadline) })
+                            : tClasswork('noDueDate')}
                     </p>
                 )}
                 {role === USER_ROLES.TEACHER ? (
@@ -226,10 +211,6 @@ const LearningMaterialItem = ({ role, learningMaterial, onOpen, onClose }: Learn
                     <a href="#" className="font-medium text-base text-foreground">
                         {learningMaterial.title}
                     </a>
-                    <div className="text-sm text-muted-foreground mt-1">
-                        <p>{formatDate(learningMaterial.createdAt, DATE_DMY_DASH_FORMAT)}</p>
-                        {/* <p>Last edited at: 2025-10-30 09:45</p> */}
-                    </div>
                 </div>
             </div>
             <div className="flex items-center gap-4 md:gap-6">
@@ -271,11 +252,21 @@ interface Props {
     role: UserRole;
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
-    classwork: IClasswork[];
-    setClasswork: React.Dispatch<React.SetStateAction<IClasswork[] | null>>;
+    assignments: IAssignment[];
+    setAssignments: React.Dispatch<React.SetStateAction<IAssignment[] | null>>;
+    learningMaterials: ILearningMaterial[];
+    setLearningMaterials: React.Dispatch<React.SetStateAction<ILearningMaterial[] | null>>;
 }
 
-function ClassworkList({ role, myClass, topics: topicsData, classwork, setClasswork }: Props) {
+function ClassworkList({
+    role,
+    myClass,
+    topics: topicsData,
+    assignments,
+    setAssignments,
+    learningMaterials,
+    setLearningMaterials,
+}: Props) {
     const tCommon = useTranslations('common');
     const tClasswork = useTranslations('classwork');
     const router = useRouter();
@@ -283,9 +274,17 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
         return [...topicsData, NO_TOPIC];
     }, [topicsData]);
 
-    const [classworkByTopic, setClassworkByTopic] = useState<Map<number, IClasswork[]> | null>(null);
+    const [assignmentsByTopic, setAssignmentsByTopic] = useState<Map<number, IAssignment[]> | null>(null);
+    const [learningMaterialsByTopic, setLearningMaterialsByTopic] = useState<Map<number, ILearningMaterial[]> | null>(
+        null,
+    );
+
     const [selectedTopic, setSelectedTopic] = useState<string>(ALL_TOPICS);
-    const selectedClasswork = classworkUtils.getSelectedClasswork({ classworkByTopic, topicId: selectedTopic });
+    const selectedAssignments = assignmentUtils.getSelectedAssignments(assignmentsByTopic, selectedTopic);
+    const selectedLearningMaterials = learningMaterialUtils.getSelectedLearningMaterials(
+        learningMaterialsByTopic,
+        selectedTopic,
+    );
 
     // delete assignment
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -324,29 +323,22 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
     );
 
     function applyDeleteAssignment(id: number) {
-        setClasswork((prev) => {
-            if (!prev) return null;
-            return prev.filter((e) => {
-                if (e.type !== ClassworkTypeEnum.ASSIGNMENT) return true;
-                return (e.item as IAssignment).assignmentId !== id;
-            });
-        });
+        setAssignments((prev) => (prev ? prev.filter((e) => e.assignmentId !== id) : null));
     }
 
     function applyDeleteLearningMaterial(id: number) {
-        setClasswork((prev) => {
-            if (!prev) return null;
-            return prev.filter((e) => {
-                if (e.type !== ClassworkTypeEnum.LEARNING_MATERIAL) return true;
-                return (e.item as ILearningMaterial).learningMaterialId !== id;
-            });
-        });
+        setLearningMaterials((prev) => (prev ? prev.filter((e) => e.learningMaterialId !== id) : null));
     }
 
     useEffect(() => {
-        const result = classworkUtils.getClassworkByTopic({ classwork, topics });
-        setClassworkByTopic(result);
-    }, [classwork, topics]);
+        const result = assignmentUtils.getAssignmentsByTopic(assignments, topics);
+        setAssignmentsByTopic(result);
+    }, [assignments, topics]);
+
+    useEffect(() => {
+        const result = learningMaterialUtils.getLearningMaterialsByTopic(learningMaterials, topics);
+        setLearningMaterialsByTopic(result);
+    }, [learningMaterials, topics]);
 
     function handleTopicSelect(value: string) {
         setSelectedTopic(value);
@@ -354,13 +346,13 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
 
     function handleSelect(type: IClassworkType) {
         switch (type) {
-            case ClassworkTypeEnum.ASSIGNMENT:
+            case 'assignment':
                 router.push(ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENTS(myClass.classId));
                 break;
-            case ClassworkTypeEnum.QUIZ:
+            case 'quiz':
                 // ...routing to your page
                 break;
-            case ClassworkTypeEnum.LEARNING_MATERIAL:
+            case 'learningMaterial':
                 // ...routing to your page
                 router.push(ROUTES.TEACHER.CLASS_BASED_ID_LEARNING_MATERIAL(myClass.classId));
                 break;
@@ -446,50 +438,45 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
                 </div>
             </div>
 
-            {selectedClasswork ? (
+            {selectedAssignments || selectedLearningMaterials ? (
                 <div className="mt-10">
                     <h2 className="text-lg font-semibold text-foreground mb-3 pb-2 border-b">
                         {assignmentUtils.getSelectedTopicName(topics, selectedTopic)}
                     </h2>
 
                     <div className="flex flex-col divide-y divide-border">
-                        {selectedClasswork.map((classwork) => {
-                            switch (classwork.type) {
-                                case ClassworkTypeEnum.ASSIGNMENT: {
-                                    const assignment = classwork.item as IAssignment;
-                                    return (
-                                        <AssignmentItem
-                                            key={`assignment-${assignment.assignmentId}`}
-                                            role={role}
-                                            assignment={assignment}
-                                            onOpen={onOpen}
-                                            onClose={onClose}
-                                        />
-                                    );
-                                }
-                                case ClassworkTypeEnum.LEARNING_MATERIAL: {
-                                    const material = classwork.item as ILearningMaterial;
-                                    return (
-                                        <LearningMaterialItem
-                                            key={`material-${material.learningMaterialId}`}
-                                            role={role}
-                                            learningMaterial={material}
-                                            onOpen={onOpenLearningMaterial}
-                                            onClose={onCloseLM}
-                                        />
-                                    );
-                                }
-                            }
-                        })}
+                        {/* Assignments */}
+                        {selectedAssignments?.map((assignment) => (
+                            <ClassworkItem
+                                key={`assignment-${assignment.assignmentId}`}
+                                role={role}
+                                assignment={assignment}
+                                onOpen={onOpen}
+                                onClose={onClose}
+                            />
+                        ))}
+
+                        {/* Learning Materials */}
+                        {selectedLearningMaterials?.map((material) => (
+                            <LearningMaterialItem
+                                key={`material-${material.learningMaterialId}`}
+                                role={role}
+                                learningMaterial={material}
+                                onOpen={onOpenLearningMaterial}
+                                onClose={onCloseLM}
+                            />
+                        ))}
                     </div>
                 </div>
             ) : (
                 <div>
-                    {classworkByTopic ? (
+                    {assignmentsByTopic && learningMaterialsByTopic ? (
                         <div className="space-y-10 mt-10">
                             {topics.map((topic) => {
-                                const classwork = classworkByTopic.get(topic.topicId);
-                                if (!classwork || classwork.length === 0) return null;
+                                const assignments = assignmentsByTopic.get(topic.topicId);
+                                const materials = learningMaterialsByTopic.get(topic.topicId);
+
+                                if (!assignments?.length && !materials?.length) return null;
 
                                 return (
                                     <div key={topic.topicId}>
@@ -498,34 +485,25 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
                                         </h2>
 
                                         <div className="flex flex-col divide-y divide-border">
-                                            {classwork.map((classworkItem) => {
-                                                switch (classworkItem.type) {
-                                                    case ClassworkTypeEnum.ASSIGNMENT: {
-                                                        const assignment = classworkItem.item as IAssignment;
-                                                        return (
-                                                            <AssignmentItem
-                                                                key={`assignment-${assignment.assignmentId}`}
-                                                                role={role}
-                                                                assignment={assignment}
-                                                                onOpen={onOpen}
-                                                                onClose={onClose}
-                                                            />
-                                                        );
-                                                    }
-                                                    case ClassworkTypeEnum.LEARNING_MATERIAL: {
-                                                        const material = classworkItem.item as ILearningMaterial;
-                                                        return (
-                                                            <LearningMaterialItem
-                                                                key={`material-${material.learningMaterialId}`}
-                                                                role={role}
-                                                                learningMaterial={material}
-                                                                onOpen={onOpenLearningMaterial}
-                                                                onClose={onCloseLM}
-                                                            />
-                                                        );
-                                                    }
-                                                }
-                                            })}
+                                            {assignments?.map((assignment) => (
+                                                <ClassworkItem
+                                                    key={`assignment-${assignment.assignmentId}`}
+                                                    role={role}
+                                                    assignment={assignment}
+                                                    onOpen={onOpen}
+                                                    onClose={onClose}
+                                                />
+                                            ))}
+
+                                            {materials?.map((material) => (
+                                                <LearningMaterialItem
+                                                    key={`material-${material.learningMaterialId}`}
+                                                    role={role}
+                                                    learningMaterial={material}
+                                                    onOpen={onOpenLearningMaterial}
+                                                    onClose={onClose}
+                                                />
+                                            ))}
                                         </div>
                                     </div>
                                 );
