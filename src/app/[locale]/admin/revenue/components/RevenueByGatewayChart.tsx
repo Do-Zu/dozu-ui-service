@@ -1,5 +1,7 @@
 'use client';
 
+import { formatVND } from '@/utils/formatters';
+
 interface RevenueByGatewayProps {
     data: { gateway: string; revenue: number; count: number; percentage: number }[];
 }
@@ -31,7 +33,7 @@ export function RevenueByGatewayChart({ data }: RevenueByGatewayProps) {
                             </div>
                             <div className="flex items-center gap-4">
                                 <span className="text-muted-foreground">{gateway.count} txns</span>
-                                <span className="font-bold">${gateway.revenue.toLocaleString()}</span>
+                                <span className="font-bold">{formatVND(gateway.revenue)}</span>
                                 <span className="text-muted-foreground min-w-[3rem] text-right">
                                     {gateway.percentage.toFixed(1)}%
                                 </span>
@@ -57,7 +59,7 @@ export function RevenueByGatewayChart({ data }: RevenueByGatewayProps) {
                         <span className="text-muted-foreground">
                             {data.reduce((sum, g) => sum + g.count, 0)} txns
                         </span>
-                        <span>${data.reduce((sum, g) => sum + g.revenue, 0).toLocaleString()}</span>
+                        <span>{formatVND(data.reduce((sum, g) => sum + g.revenue, 0))}</span>
                         <span className="min-w-[3rem] text-right">100%</span>
                     </div>
                 </div>
