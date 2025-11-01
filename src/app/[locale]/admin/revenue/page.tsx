@@ -12,6 +12,7 @@ import { RevenueTrendChart } from './components/RevenueTrendChart';
 import { RevenueByGatewayChart } from './components/RevenueByGatewayChart';
 import { RevenueByPlanChart } from './components/RevenueByPlanChart';
 import { PeriodSelector } from './components/PeriodSelector';
+import { formatVND } from '@/utils/formatters';
 
 function RevenueDashboardPage() {
     const [stats, setStats] = useState<RevenueStats | null>(null);
@@ -74,7 +75,7 @@ function RevenueDashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <KPICard
                     title="Total Revenue"
-                    value={`$${stats.totalRevenue.toLocaleString()}`}
+                    value={formatVND(stats.totalRevenue)}
                     description={`${stats.transactionCount} transactions`}
                     icon={<DollarSign className="h-4 w-4 text-green-600" />}
                     trend={stats.growthRate > 0 ? `+${stats.growthRate}%` : `${stats.growthRate}%`}
@@ -82,21 +83,21 @@ function RevenueDashboardPage() {
                 />
                 <KPICard
                     title="MRR"
-                    value={`$${stats.mrr.toLocaleString()}`}
+                    value={formatVND(stats.mrr)}
                     description="Monthly Recurring Revenue"
                     icon={<CreditCard className="h-4 w-4 text-blue-600" />}
                     subtitle="Active subscriptions"
                 />
                 <KPICard
                     title="ARPU"
-                    value={`$${stats.arpu.toLocaleString()}`}
+                    value={formatVND(stats.arpu)}
                     description="Average Revenue Per User"
                     icon={<Users className="h-4 w-4 text-purple-600" />}
                     subtitle={`${stats.activeProUsers} Pro users`}
                 />
                 <KPICard
                     title="LTV"
-                    value={`$${stats.ltv.toLocaleString()}`}
+                    value={formatVND(stats.ltv)}
                     description="Customer Lifetime Value"
                     icon={<TrendingUp className="h-4 w-4 text-orange-600" />}
                     subtitle="Projected value"
@@ -149,7 +150,7 @@ function RevenueDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            ${stats.averageTransactionValue.toLocaleString()}
+                            {formatVND(stats.averageTransactionValue)}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">Per transaction</p>
                     </CardContent>

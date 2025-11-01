@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { formatVND } from '@/utils/formatters';
 
 interface RevenueByPlanProps {
     data: { planType: string; planName: string; revenue: number; subscriberCount: number }[];
@@ -40,7 +41,7 @@ export function RevenueByPlanChart({ data }: RevenueByPlanProps) {
                                     {plan.subscriberCount} subs
                                 </span>
                                 <span className="font-bold min-w-[5rem] text-right">
-                                    ${plan.revenue.toLocaleString()}
+                                    {formatVND(plan.revenue)}
                                 </span>
                                 <span className="text-muted-foreground min-w-[3rem] text-right">
                                     {percentage.toFixed(1)}%
@@ -68,7 +69,7 @@ export function RevenueByPlanChart({ data }: RevenueByPlanProps) {
                             {data.reduce((sum, p) => sum + p.subscriberCount, 0)} subs
                         </span>
                         <span className="min-w-[5rem] text-right">
-                            ${totalRevenue.toLocaleString()}
+                            {formatVND(totalRevenue)}
                         </span>
                         <span className="min-w-[3rem] text-right">100%</span>
                     </div>

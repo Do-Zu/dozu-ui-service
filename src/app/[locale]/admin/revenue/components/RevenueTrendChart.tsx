@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Period } from '@/types/revenue';
+import { formatVND } from '@/utils/formatters';
 
 interface RevenueTrendProps {
     data: { period: string; revenue: number; count: number }[];
@@ -50,11 +51,11 @@ export function RevenueTrendChart({ data, period }: RevenueTrendProps) {
                 {/* Y-axis labels */}
                 <div className="absolute -left-16 inset-y-0 flex flex-col justify-between text-xs text-muted-foreground">
                     {[
-                        `$${maxRevenue.toLocaleString()}`,
-                        `$${Math.floor(maxRevenue * 0.75).toLocaleString()}`,
-                        `$${Math.floor(maxRevenue * 0.5).toLocaleString()}`,
-                        `$${Math.floor(maxRevenue * 0.25).toLocaleString()}`,
-                        '$0',
+                        formatVND(maxRevenue),
+                        formatVND(Math.floor(maxRevenue * 0.75)),
+                        formatVND(Math.floor(maxRevenue * 0.5)),
+                        formatVND(Math.floor(maxRevenue * 0.25)),
+                        '0 VND',
                     ].map((value, i) => (
                         <span key={i}>{value}</span>
                     ))}
@@ -145,7 +146,7 @@ export function RevenueTrendChart({ data, period }: RevenueTrendProps) {
                                 {formatPeriodLabel(data[hoveredIndex].period)}
                             </div>
                             <div className="text-lg font-bold">
-                                ${data[hoveredIndex].revenue.toLocaleString()}
+                                {formatVND(data[hoveredIndex].revenue)}
                             </div>
                             <div className="text-xs text-muted-foreground">
                                 {data[hoveredIndex].count} transactions
@@ -173,13 +174,13 @@ export function RevenueTrendChart({ data, period }: RevenueTrendProps) {
                 <div>
                     <div className="text-sm text-muted-foreground">Total Revenue</div>
                     <div className="text-xl font-bold">
-                        ${data.reduce((sum, d) => sum + d.revenue, 0).toLocaleString()}
+                        {formatVND(data.reduce((sum, d) => sum + d.revenue, 0))}
                     </div>
                 </div>
                 <div>
                     <div className="text-sm text-muted-foreground">Average</div>
                     <div className="text-xl font-bold">
-                        ${(data.reduce((sum, d) => sum + d.revenue, 0) / data.length).toFixed(2)}
+                        {formatVND(Math.round(data.reduce((sum, d) => sum + d.revenue, 0) / data.length))}
                     </div>
                 </div>
                 <div>
