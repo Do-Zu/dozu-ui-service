@@ -219,24 +219,31 @@ class ActivityService {
     message?: string;
   }> {
     try {
-      const response = await fetch(`${this.baseUrl}/${activityId}/monitoring`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      const result = await response.json();
+      // Import quiz class service dynamically to avoid circular dependencies
+      const quizClassService = (await import('@/services/class-based-learning/quizClass.service')).default;
       
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to fetch monitoring data');
+      // Convert activityId to number (assuming it's a classQuizId)
+      const classQuizId = parseInt(activityId);
+      if (isNaN(classQuizId)) {
+        throw new Error('Invalid activity ID');
       }
+
+      // Fetch both quiz results and question analysis in parallel
+      const [quizResults, questionAnalysis] = await Promise.all([
+        quizClassService.getQuizResults(classQuizId, true),
+        quizClassService.getQuestionAnalysis(classQuizId).catch(err => {
+          console.warn('Failed to fetch question analysis:', err);
+          return null; // Return null if question analysis fails
+        })
+      ]);
 
       return {
         success: true,
-        data: result.data,
-        message: result.message
+        data: {
+          quizResults,
+          questionAnalysis,
+        },
+        message: 'Activity data fetched successfully'
       };
     } catch (error) {
       console.error('Error fetching monitoring data:', error);

@@ -138,7 +138,7 @@ export default function PerformanceBreakdown({ performance }: PerformanceBreakdo
                         {level.count} {level.name}
                       </span>
                       <span className="text-sm text-gray-500">
-                        ({level.percentage.toFixed(0)}%)
+                        ({level.percentage.toFixed(1)}%)
                       </span>
                     </div>
                     <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
