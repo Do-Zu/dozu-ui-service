@@ -26,7 +26,9 @@ export default function PaymentPage() {
     const searchParams = useSearchParams();
     const t = useTranslations('payment');
     const [isRedirectFromPayment, setIsRedirectFromPayment] = useState(false);
-    const { refreshUserPlan } = useAuth();
+
+    // CHECK  INFINITIVE REQUEST API
+    // const { refreshUserPlan } = useAuth();
 
     const {
         isUpdatingSubscription,
@@ -36,9 +38,7 @@ export default function PaymentPage() {
         error,
         initializePayment,
         updateSubscription,
-    } = usePayment({
-        onSubscriptionUpdated: refreshUserPlan,
-    });
+    } = usePayment();
 
     const planId = searchParams?.get('planId');
     const code = searchParams?.get('code');
@@ -65,7 +65,7 @@ export default function PaymentPage() {
                 });
             }
         }
-    }, [code, paymentId, status, orderCode, isCanceled, planId, updateSubscription]);
+    }, [code, paymentId, status, orderCode, isCanceled, planId]);
 
     // Initialize payment for new plan selection
     useEffect(() => {
