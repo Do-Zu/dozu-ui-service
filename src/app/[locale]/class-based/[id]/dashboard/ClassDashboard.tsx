@@ -47,10 +47,11 @@ import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/cla
 import { IFeedGroup, ISubtractedDate } from '@/utils/feeds/feed.helper';
 import { IAssignment } from '../../(assignment)/types/assignment.type';
 import assignmentService from '../../(assignment)/service/assignment.service';
-import ClassworkList from '../../(classwork)/components/ClassworkList';
 import { USER_ROLES } from '@/utils/constants/roles';
 import { ILearningMaterial } from '../../(learning-material)/types/learningMaterial.type';
 import learningMaterialService from '../../(learning-material)/service/learningMaterial.service';
+import classworkService, { IClasswork } from '../../(classwork)/services/classwork.service';
+import ClassworkList from '../../(classwork)/components/ClassworkList';
 
 type TopicFilteringAction =
     | 'newest'
@@ -101,55 +102,32 @@ export default function ClassDashboard() {
         loading: feedsLoading,
     } = useFetch<IClassFeed[]>(() => classFeedService.getFeedsInClass({ classId }));
 
-    // assignments
     const {
-        data: assignments,
-        setData: setAssignments,
-        loading: assignmentsLoading,
-        error: assignmentsError,
-    } = useFetch<IAssignment[]>(() => assignmentService.getAssignmentsForClass({ classId }));
-
-    //learningMaterials
-    const {
-        data: learningMaterials,
-        setData: setLearningMaterials,
-        loading: learningMaterialsLoading,
-        error: learningMaterialsError,
-    } = useFetch<ILearningMaterial[]>(() => learningMaterialService.getLearningMaterialsForClass({ classId }));
-
-    const isLoading = assignmentsLoading || learningMaterialsLoading;
+        data: classwork,
+        setData: setClasswork,
+        loading: classworkLoading,
+        error: classworkError,
+    } = useFetch<IClasswork[]>(() => classworkService.getClassworkForClass({ classId }));
 
     const classworkContent = useMemo(() => {
         if (!myClass || !topics) return null;
         const value = topics.map(({ topicId, name }) => ({ topicId, name }));
         return (
             <>
-                {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
-                {learningMaterialsError ? <div>Error: {learningMaterialsError}</div> : null}
-                {isLoading ? <LoadingPage /> : null}
-                {assignments && learningMaterials ? (
+                {classworkError ? <div>Error: {classworkError}</div> : null}
+                {classworkLoading ? <LoadingPage /> : null}
+                {classwork ? (
                     <ClassworkList
                         role={USER_ROLES.USER}
                         myClass={myClass}
                         topics={value}
-                        assignments={assignments}
-                        setAssignments={setAssignments}
-                        learningMaterials={learningMaterials}
-                        setLearningMaterials={setLearningMaterials}
+                        classwork={classwork}
+                        setClasswork={setClasswork}
                     />
                 ) : null}
-                {/* {learningMaterials ? (
-                    <ClassworkList
-                        role={USER_ROLES.USER}
-                        myClass={myClass}
-                        topics={value}
-                        assignments={assignments}
-                        setAssignments={setAssignments}
-                    />
-                ) : null} */}
             </>
         );
-    }, [myClass, topics, assignments, assignmentsError, isLoading, learningMaterials, learningMaterialsError]);
+    }, [myClass, topics, classwork, classworkError, classworkLoading]);
 
     useEffect(() => {
         if (!topics) {

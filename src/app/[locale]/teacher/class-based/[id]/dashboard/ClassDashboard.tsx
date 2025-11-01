@@ -73,14 +73,14 @@ import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import ClassFeedGroupedByTime from '@/app/[locale]/class-based/components/ui/classFeed/ClassFeedGroupByTime';
 import { IFeedGroup } from '@/utils/feeds/feed.helper';
 import ActivityTab from '@/app/[locale]/topics/components/ui/ActivityTab';
-import ClassworkList from '@/app/[locale]/class-based/(classwork)/components/ClassworkList';
 import { IAssignment } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import assignmentService from '@/app/[locale]/class-based/(assignment)/service/assignment.service';
-// import ClassworkListCopy from '@/app/[locale]/class-based/(classwork)/components/ClassworkListCopy';
 import { USER_ROLES } from '@/utils/constants/roles';
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 import { ILearningMaterial } from '@/app/[locale]/class-based/(learning-material)/types/learningMaterial.type';
 import learningMaterialService from '@/app/[locale]/class-based/(learning-material)/service/learningMaterial.service';
+import classworkService, { IClasswork } from '@/app/[locale]/class-based/(classwork)/services/classwork.service';
+import ClassworkList from '@/app/[locale]/class-based/(classwork)/components/ClassworkList';
 
 type TopicFilteringAction =
     | 'newest'
@@ -197,23 +197,12 @@ export default function ClassDashboard({ classId, defaultTab }: Props) {
         deletingFeed,
     } = deleteFeed;
 
-    // assignments
     const {
-        data: assignments,
-        setData: setAssignments,
-        loading: assignmentsLoading,
-        error: assignmentsError,
-    } = useFetch<IAssignment[]>(() => assignmentService.getAssignmentsForClass({ classId }));
-
-    //learningMaterials
-    const {
-        data: learningMaterials,
-        setData: setLearningMaterials,
-        loading: learningMaterialsLoading,
-        error: learningMaterialsError,
-    } = useFetch<ILearningMaterial[]>(() => learningMaterialService.getLearningMaterialsForClass({ classId }));
-
-    const isLoading = assignmentsLoading || learningMaterialsLoading;
+        data: classwork,
+        setData: setClasswork,
+        loading: classworkLoading,
+        error: classworkError,
+    } = useFetch<IClasswork[]>(() => classworkService.getClassworkForClass({ classId }));
 
     async function handleCreateTopicClick(topic: ICreateTopicPayload) {
         if (!validateTopic(topic)) {
@@ -237,24 +226,20 @@ export default function ClassDashboard({ classId, defaultTab }: Props) {
         const value = topics.map(({ topicId, name }) => ({ topicId, name }));
         return (
             <>
-                {assignmentsError ? <div>Error: {assignmentsError}</div> : null}
-                {learningMaterialsError ? <div>Error: {learningMaterialsError}</div> : null}
-
-                {isLoading ? <LoadingPage /> : null}
-                {assignments && learningMaterials ? (
+                {classworkError ? <div>Error: {classworkError}</div> : null}
+                {classworkLoading ? <LoadingPage /> : null}
+                {classwork ? (
                     <ClassworkList
                         role={USER_ROLES.TEACHER}
                         myClass={myClass}
                         topics={value}
-                        assignments={assignments}
-                        setAssignments={setAssignments}
-                        learningMaterials={learningMaterials}
-                        setLearningMaterials={setLearningMaterials}
+                        classwork={classwork}
+                        setClasswork={setClasswork}
                     />
                 ) : null}
             </>
         );
-    }, [myClass, topics, assignments, assignmentsError, assignmentsLoading]);
+    }, [myClass, topics, classwork, classworkError, classworkLoading]);
 
     useEffect(() => {
         if (!topics) {
