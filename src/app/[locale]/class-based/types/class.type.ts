@@ -49,10 +49,11 @@ export interface StudentWithStreak extends IStudentInClass {
     lastStudyDate?: Date | null;
 }
 
-export type TypeNodeComment = 'mindmap' | 'flashcard' | 'quiz';
+export type TypeNodeComment = 'mindmap' | 'flashcard' | 'quiz' | 'feed';
 
 export enum EnumNodeComment {
     MINDMAP = 'mindmap',
     FLASHCARD = 'flashcard',
     QUIZ = 'quiz',
+    FEED = 'feed',
 }

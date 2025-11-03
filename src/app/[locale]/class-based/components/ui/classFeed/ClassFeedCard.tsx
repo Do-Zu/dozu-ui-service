@@ -6,7 +6,7 @@ import { formatDate, TimeUnit } from '@/utils';
 import Link from 'next/link';
 import { DATETIME_DMY_12H_FORMAT } from '@/utils/date/constant';
 import { Button } from '@/components/ui/button';
-import { Edit, MoreVertical, SquarePen, Trash2 } from 'lucide-react';
+import { Edit, MessageCircle, MoreVertical, SquarePen, Trash2 } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,6 +16,9 @@ import {
 import { useTranslations } from 'next-intl';
 import { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
 import { ISubtractedDate } from '@/utils/feeds/feed.helper';
+import CommentThread from '../../comment/CommentThread';
+import { useMemo } from 'react';
+import { EnumNodeComment } from '../../../types/class.type';
 
 interface TeacherProps {
     role: 'teacher';
@@ -36,7 +39,7 @@ export default function ClassFeedCard(props: Props) {
     const tCommon = useTranslations('common');
     const tClassFeed = useTranslations('class.classFeed');
     const { feed, role } = props;
-    const { classFeedId, title, content, createdAt, updatedAt, sender, link } = feed;
+    const { classFeedId, title, content, createdAt, updatedAt, sender, link, classId } = feed;
     const { group } = props;
 
     function getDisplayDate(createdAt: string): string {
@@ -48,6 +51,23 @@ export default function ClassFeedCard(props: Props) {
         }
         return formatDate(createdAt, DATETIME_DMY_12H_FORMAT);
     }
+
+    const triggerComponent = useMemo(
+        () => (
+            <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                    e.stopPropagation();
+                }}
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+                <MessageCircle className="w-3 h-3 mr-1" />
+                comments
+            </Button>
+        ),
+        [],
+    );
 
     return (
         <Card>
@@ -114,6 +134,16 @@ export default function ClassFeedCard(props: Props) {
                             </Link>
                         ) : null}
                     </div>
+                    {classId && (
+                        <CommentThread
+                            triggerComponent={triggerComponent}
+                            nodeId={classFeedId.toString()}
+                            nodeTitle={title}
+                            classId={classId}
+                            topicId={null}
+                            typeNode={EnumNodeComment.FEED}
+                        />
+                    )}
                 </div>
             </CardContent>
             {!sender ? (
