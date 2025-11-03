@@ -9,6 +9,8 @@ import {
     UpdateSubscriptionRequest,
     PaymentRegisterRequest,
 } from '@/services/payment';
+import useRetry from '@/hooks/useRetry';
+import { ITransactionStatusUpdate } from '@/services/payment/payment.service';
 
 export interface PaymentResponse {
     status: string;
@@ -37,6 +39,26 @@ export function usePayment(options?: UsePaymentOptions) {
     const [error, setError] = useState<string | null>(null);
 
     const { plans } = useAppSelector((state) => state.subscription);
+
+    const { execute: retryUpdateStatusTransaction } = useRetry<unknown, [ITransactionStatusUpdate]>({
+        retry: (payload: ITransactionStatusUpdate) => paymentService.updateStatusTransaction(payload),
+        options: {
+            maxRetries: 3,
+            onSuccess: () => {},
+            onFailure: (error) => {},
+        },
+    });
+
+    const { execute: retryUpdateSubscription } = useRetry<unknown, [UpdateSubscriptionRequest]>({
+        retry: (req: UpdateSubscriptionRequest) => paymentService.updateSubscription(req),
+        options: {
+            maxRetries: 3,
+            delay: 1000,
+            onFailureEachTry: () => {
+                // optionally log or soft-notify per attempt
+            },
+        },
+    });
 
     const initializePayment = useCallback(
         async (planId: string) => {
@@ -84,7 +106,17 @@ export function usePayment(options?: UsePaymentOptions) {
         async (updateRequest: UpdateSubscriptionRequest) => {
             try {
                 setIsUpdatingSubscription(true);
-                await paymentService.updateSubscription(updateRequest);
+
+                const statusTransactionPayload = {
+                    orderCode: updateRequest.orderCode,
+                    paymentId: updateRequest.paymentId,
+                };
+
+                void retryUpdateStatusTransaction(statusTransactionPayload).catch((e) => {
+                    console.warn('update transaction failed after retries');
+                });
+
+                await retryUpdateSubscription(updateRequest);
 
                 toast({
                     description: 'Your subscription has been successfully updated!',
@@ -107,7 +139,7 @@ export function usePayment(options?: UsePaymentOptions) {
                 setIsUpdatingSubscription(false);
             }
         },
-        [paymentData, options],
+        [retryUpdateStatusTransaction, retryUpdateSubscription, options],
     );
 
     // Clean up polling on component unmount

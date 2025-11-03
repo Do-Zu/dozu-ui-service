@@ -14,10 +14,9 @@ import { ArrowLeft, CheckCircle, XCircle, CreditCard, QrCode, ShieldCheck } from
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { usePayment } from './hooks/usePayment';
 import { PAYMENT_STATUS } from './utils/constants';
-import { useAuth } from '@/contexts/auth/AuthContext';
 
 //example return success payment: http://localhost:3000/en/payment?planId=2&code=00&id=b1ad5a123f774db88d0b5495710d40cb&cancel=false&status=PAID&orderCode=53501
 
@@ -42,7 +41,7 @@ export default function PaymentPage() {
 
     const planId = searchParams?.get('planId');
     const code = searchParams?.get('code');
-    const paymentId = searchParams?.get('id');
+    const paymentId = searchParams?.get('id') || searchParams?.get('paymentId') || searchParams?.get('paymentLinkId');
     const isCanceled = searchParams?.get('cancel') === 'true';
     const status = searchParams?.get('status');
     const orderCode = searchParams?.get('orderCode');

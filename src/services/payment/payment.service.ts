@@ -21,6 +21,7 @@ export interface PaymentData {
     qrCode: string;
     baseUrlRedirect: string;
     jobId: string;
+    transactionId: number;
 }
 
 export interface PaymentStatusRequest {
@@ -50,9 +51,10 @@ export interface IPaymentResponseSePayRegister {
 
 export interface UpdateSubscriptionRequest {
     planId: string | number | null;
-    orderCode?: string | number;
+    orderCode: string | number;
     paymentStatus?: string;
-    paymentId?: string;
+    paymentId: string;
+    transactionId?: number;
 }
 
 export interface WebhookRegistrationRequest {
@@ -67,6 +69,12 @@ export interface PaymentWebhookData {
     transactionDateTime?: string;
     description?: string;
     currency?: string;
+}
+
+export interface ITransactionStatusUpdate {
+    planId?: number;
+    orderCode: number | string;
+    paymentId: string;
 }
 
 class PaymentService {
@@ -107,6 +115,11 @@ class PaymentService {
      */
     async cancelPayment(orderCode: string): Promise<any> {
         const response = await postRequest<{ orderCode: string }, any>('/payment/cancel', { orderCode });
+        return response.data;
+    }
+
+    async updateStatusTransaction(payload: ITransactionStatusUpdate) {
+        const response = await postRequest<ITransactionStatusUpdate, unknown>('/payment/status/transaction', payload);
         return response.data;
     }
 }
