@@ -23,7 +23,10 @@ const DEFAULT_DELAY = 1000;
  * @param   options - Configuration options for retry behavior.
  * @returns  function for execute
  */
-export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry, options }: IUserRetryProps<T>) {
+export default function useRetry<T, TArgs extends unknown[] = unknown[]>({
+    retry,
+    options,
+}: IUserRetryProps<T, TArgs>) {
     const {
         maxRetries = DEFAULT_MAX_RETRIES,
         delay = DEFAULT_DELAY,
@@ -33,7 +36,7 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry
     } = options || {};
 
     const execute = useCallback(
-        async (...args: TArgs[]) => {
+        async (...args: TArgs) => {
             let lastError: unknown = null;
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
@@ -49,10 +52,8 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry
                 }
             }
 
-            if (lastError) {
-                onFailure?.(lastError);
-                throw lastError;
-            }
+            onFailure?.(lastError);
+            throw lastError instanceof Error ? lastError : new Error('Retry failed');
         },
         [retry, maxRetries, delay, onSuccess, onFailureEachTry, onFailure],
     );
