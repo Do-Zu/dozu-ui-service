@@ -6,7 +6,7 @@ import { formatDate, TimeUnit } from '@/utils';
 import Link from 'next/link';
 import { DATETIME_DMY_12H_FORMAT } from '@/utils/date/constant';
 import { Button } from '@/components/ui/button';
-import { Edit, MessageCircle, MoreVertical, SquarePen, Trash2 } from 'lucide-react';
+import { Edit, MessageCircle, MoreVertical, SquarePen, Trash2, ArrowUpRight } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -128,22 +128,32 @@ export default function ClassFeedCard(props: Props) {
                         ) : (
                             <p className="text-sm text-muted-foreground">No content yet</p>
                         )}
-                        {link ? (
-                            <Link href={link} className="text-sm underline text-blue-600 hover:text-blue-800">
-                                View Content
-                            </Link>
-                        ) : null}
+                        <div className="flex items-center gap-3 mt-2">
+                            {link ? (
+                                <Button asChild size="sm" variant="outline" className="h-7 px-3 rounded-full gap-1">
+                                    <Link
+                                        href={link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="View content"
+                                    >
+                                        View Content
+                                        <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+                                    </Link>
+                                </Button>
+                            ) : null}
+                            {classId && (
+                                <CommentThread
+                                    triggerComponent={triggerComponent}
+                                    nodeId={classFeedId.toString()}
+                                    nodeTitle={title}
+                                    classId={classId}
+                                    topicId={null}
+                                    typeNode={EnumNodeComment.FEED}
+                                />
+                            )}
+                        </div>
                     </div>
-                    {classId && (
-                        <CommentThread
-                            triggerComponent={triggerComponent}
-                            nodeId={classFeedId.toString()}
-                            nodeTitle={title}
-                            classId={classId}
-                            topicId={null}
-                            typeNode={EnumNodeComment.FEED}
-                        />
-                    )}
                 </div>
             </CardContent>
             {!sender ? (
