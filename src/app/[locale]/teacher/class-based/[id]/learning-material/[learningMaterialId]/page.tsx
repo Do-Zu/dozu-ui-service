@@ -50,7 +50,7 @@ export default function LearningMaterialPage() {
             <div>
                 <h1 className="text-2xl font-semibold">{material.title}</h1>
                 <p className="text-muted-foreground">
-                    Nguyễn Đình Duy •{' '}
+                    {/* Nguyễn Đình Duy •{' '} */}
                     {new Date(material.createdAt).toLocaleDateString('vi-VN', {
                         day: 'numeric',
                         month: 'long',

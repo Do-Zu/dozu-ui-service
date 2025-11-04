@@ -33,6 +33,8 @@ import DetailsPanel from '@/app/[locale]/class-based/(classwork)/components/comm
 import { NO_TOPIC_ID } from '@/app/[locale]/class-based/(classwork)/utils/classwork.constant';
 import FileItem from '@/app/[locale]/class-based/(classwork)/components/common/FileItem';
 import { AssignmentStatusEnum } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import { ROUTES } from '@/utils/constants/routes';
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 
 interface Props {
     myClass: IClass;
@@ -102,7 +104,8 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
         },
         onSuccess() {
             //toast success
-            // router.push(`/auth/changePasswordEmailSent`);
+            toastHelper.showSuccessMessage('Create learning material successfully');
+            router.push(ROUTES.TEACHER.CLASS_BASED_ID(myClass.classId, ClassDashboardTab.CLASSWORK));
         },
     });
 

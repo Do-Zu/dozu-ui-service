@@ -361,7 +361,7 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
                 // ...routing to your page
                 break;
             case ClassworkTypeEnum.LEARNING_MATERIAL:
-                // ...routing to your page
+                // route to learningMaterial
                 router.push(ROUTES.TEACHER.CLASS_BASED_ID_LEARNING_MATERIAL(myClass.classId));
                 break;
             default:
