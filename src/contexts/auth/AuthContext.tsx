@@ -8,6 +8,7 @@ import { ICurrentPlan } from '@/services/features/feature.type';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
 import { storeSessionData } from '@/utils/storage';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 interface AuthContextType {
     user: User | null | undefined;
@@ -33,6 +34,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         useAuthStorage();
 
     const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null);
+
+    // Initialize WebSocket connection for notifications
+    // Memoize callback to prevent unnecessary reconnections
+    const handleNotification = useCallback((data: any) => {
+        // Additional notification handling can be added here
+        console.log('Notification received in AuthContext:', data);
+    }, []);
+
+    useWebSocket({
+        enabled: isAuthenticated,
+        onNotification: handleNotification,
+    });
 
     const checkAuthStatus = useCallback(async () => {
         try {
