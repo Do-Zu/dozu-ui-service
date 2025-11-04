@@ -96,6 +96,20 @@ const formatNumber = (
 };
 
 /**
+ * Formats a number as VND currency with thousands separators.
+ *
+ * @param amount - The numeric amount to be formatted as VND.
+ * @returns A string representing the formatted VND amount with commas and "VND" suffix.
+ *
+ * Example:
+ * formatVND(1234567); // Returns: "1,234,567 VND"
+ * formatVND(125000); // Returns: "125,000 VND"
+ */
+const formatVND = (amount: number): string => {
+  return `${amount.toLocaleString('vi-VN')} VND`;
+};
+
+/**
  * Formats an integer.
  *
  * @param num - The input to be convert.
@@ -149,4 +163,5 @@ export {
   formatNumber,
   formatInt,
   formatDouble,
+  formatVND,
 };

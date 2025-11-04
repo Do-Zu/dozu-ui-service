@@ -9,6 +9,7 @@ import {
     IGetRepliesResponse,
     IGetSingleCommentBody,
     IGetSingleCommentResponse,
+    TopicIdCommentNode,
 } from './comment.types';
 
 /**
@@ -17,8 +18,8 @@ import {
  * @param topicId - The topic ID
  * @returns Base URL string
  */
-const getBaseUrl = (classId: string | number, topicId: string | number) =>
-    `/classes/${encodeURIComponent(String(classId))}/topics/${encodeURIComponent(String(topicId))}/comments`;
+const getBaseUrl = (classId: string | number, topicId: TopicIdCommentNode) =>
+    `/classes/${encodeURIComponent(String(classId))}/topics/comments`;
 
 /**
  * Get comments for a specific node
@@ -29,7 +30,7 @@ const getBaseUrl = (classId: string | number, topicId: string | number) =>
  */
 export const getCommentsByNode = async (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     query: IGetCommentsQuery,
 ): Promise<ApiResponse<IGetCommentsResponse>> => {
     const url = `${getBaseUrl(classId, topicId)}/node-comments`;
@@ -45,7 +46,7 @@ export const getCommentsByNode = async (
  */
 export const createComment = async (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     commentData: ICreateCommentBody,
 ): Promise<ApiResponse<ICreateCommentResponse>> => {
     const url = `${getBaseUrl(classId, topicId)}/add`;
@@ -61,7 +62,7 @@ export const createComment = async (
  */
 export const getSingleComment = async (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     commentQuery: IGetSingleCommentBody,
 ): Promise<ApiResponse<IGetSingleCommentResponse>> => {
     const url = `${getBaseUrl(classId, topicId)}/single-comment`;
@@ -77,7 +78,7 @@ export const getSingleComment = async (
  */
 export const getCommentReplies = async (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     repliesQuery: IGetRepliesBody,
 ): Promise<ApiResponse<IGetRepliesResponse>> => {
     const url = `${getBaseUrl(classId, topicId)}/replies`;

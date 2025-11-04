@@ -8,6 +8,7 @@ import {
     IGetRepliesResponse,
     IGetSingleCommentBody,
     IGetSingleCommentResponse,
+    TopicIdCommentNode,
 } from './comment.types';
 import { createComment, getCommentsByNode, getCommentReplies, getSingleComment } from './comment.service';
 import { ApiResponse } from '@/api/type';
@@ -22,7 +23,7 @@ import { STATUS_CODE } from '@/utils/constants/http';
  */
 export const useGetCommentsByNode = (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     options?: UsePostOptions<IGetCommentsQuery, ApiResponse<IGetCommentsResponse>>,
 ) => {
     return usePost<IGetCommentsQuery, ApiResponse<IGetCommentsResponse>>(
@@ -41,7 +42,7 @@ export const useGetCommentsByNode = (
  */
 export const useCreateComment = (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     options?: UsePostOptions<ICreateCommentBody, ApiResponse<IClassTopicComment>>,
 ) => {
     return usePost<ICreateCommentBody, ApiResponse<IClassTopicComment>>(
@@ -60,7 +61,7 @@ export const useCreateComment = (
  */
 export const useGetSingleComment = (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     options?: UsePostOptions<IGetSingleCommentBody, ApiResponse<IGetSingleCommentResponse>>,
 ) => {
     return usePost<IGetSingleCommentBody, ApiResponse<IGetSingleCommentResponse>>(
@@ -79,7 +80,7 @@ export const useGetSingleComment = (
  */
 export const useGetCommentReplies = (
     classId: string | number,
-    topicId: string | number,
+    topicId: TopicIdCommentNode,
     options?: UsePostOptions<IGetRepliesBody, ApiResponse<IGetRepliesResponse>>,
 ) => {
     return usePost<IGetRepliesBody, ApiResponse<IGetRepliesResponse>>(
