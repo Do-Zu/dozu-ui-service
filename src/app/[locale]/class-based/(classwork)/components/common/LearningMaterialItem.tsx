@@ -27,12 +27,10 @@ const LearningMaterialItem: React.FC<LearningMaterialItemProps> = ({ material })
     const router = useRouter();
 
     function handleViewClick() {
-        // router.push(ROUTES.TEACHER.CLASS_BASED_ID_LEARNING_MATERIAL(material.classId));
-        // router.push('/teacher/class-based/1/learning-material/1'); //!hardcoded
+        router.push(
+            `/teacher/class-based/${material.classId}/learning-material/${material.learningMaterialId}/details`,
+        );
     }
-
-    // const handleOnClickLearningMaterial = () => {
-    // };
 
     return (
         <div className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md transition-colors">

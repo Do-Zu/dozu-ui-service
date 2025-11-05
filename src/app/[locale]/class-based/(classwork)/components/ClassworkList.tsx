@@ -191,29 +191,29 @@ const LearningMaterialItem = ({ role, learningMaterial, onOpen, onClose }: Learn
         onOpen({ learningMaterialId: learningMaterial.learningMaterialId });
     }
 
-    // function handleDetailsClick() {
-    //     if (dropdownOpen) return;
-    //     if (role === USER_ROLES.USER) {
-    //         router.push(
-    //             ROUTES.ASSIGNMENT_DETAILS({
-    //                 classId: learningMaterial.classId,
-    //                 assignmentId: learningMaterial.assignmentId,
-    //             }),
-    //         );
-    //     } else if (role === USER_ROLES.TEACHER) {
-    //         router.push(
-    //             ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_DETAILS({
-    //                 classId: learningMaterial.classId,
-    //                 assignmentId: learningMaterial.assignmentId,
-    //             }),
-    //         );
-    //     }
-    // }
+    function handleDetailsClick() {
+        if (dropdownOpen) return;
+        if (role === USER_ROLES.USER) {
+            // router.push(
+            //     ROUTES.ASSIGNMENT_DETAILS({
+            //         classId: learningMaterial.classId,
+            //         assignmentId: learningMaterial.assignmentId,
+            //     }),
+            // );
+            router.push(
+                `/class-based/${learningMaterial.classId}/learning-material/${learningMaterial.learningMaterialId}/details`,
+            );
+        } else if (role === USER_ROLES.TEACHER) {
+            router.push(
+                `/teacher/class-based/${learningMaterial.classId}/learning-material/${learningMaterial.learningMaterialId}/details`,
+            );
+        }
+    }
 
     return (
         <div
             className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md transition-colors hover:cursor-pointer"
-            // onClick={handleDetailsClick}
+            onClick={handleDetailsClick}
         >
             <div className="flex items-center gap-4">
                 <div className="flex items-center justify-center h-9 w-9 rounded-full border-2 border-blue-400 bg-blue-50 dark:bg-blue-950/30">

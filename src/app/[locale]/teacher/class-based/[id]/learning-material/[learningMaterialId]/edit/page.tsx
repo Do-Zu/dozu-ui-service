@@ -67,7 +67,7 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
     });
     const { topics, topicsError, topicsLoading } = fetchTopics;
 
-    // assignment
+    // learningMaterial
     const {
         data: learningMaterialWithAttachments,
         loading: learningMaterialWithAttachmentsLoading,
