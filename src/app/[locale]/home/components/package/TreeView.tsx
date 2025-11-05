@@ -184,6 +184,7 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                 isOpen={isCreateOpen}
                 setIsOpen={setIsCreateOpen}
                 title={t('createTitle')}
+                contentStyle="max-w-[520px]"
                 trigger={
                     <Button size="sm" variant="ghost" className="w-full justify-start gap-2">
                         <Plus className="h-4 w-4 rounded-full" />
@@ -415,6 +416,7 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                 })}
                 {renderCreatePackage()}
             </div>
+
             {/* Delete confirmation */}
             {pendingDeleteId != null && (
                 <AlertDialog open onOpenChange={(open) => !open && setPendingDeleteId(null)}>
@@ -440,6 +442,7 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                     </AlertDialogContent>
                 </AlertDialog>
             )}
+
             {renaming && (
                 <Dialog open onOpenChange={(o) => !o && setRenaming(null)}>
                     <DialogContent>
