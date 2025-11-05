@@ -327,6 +327,24 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                                                     String(topic.topicId),
                                                 );
 
+                                                const packageAvailable = packages
+                                                    .filter((p) => p.id !== pkg.id)
+                                                    .map((target) => (
+                                                        <DropdownMenuItem
+                                                            key={target.id}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+
+                                                                handleMoveTopic(topic.topicId, pkg.id, target.id);
+
+                                                                setTopicMenu(null);
+                                                            }}
+                                                            className="text-xs"
+                                                        >
+                                                            <Folder className="mr-2 h-4 w-4" /> {target.title}
+                                                        </DropdownMenuItem>
+                                                    ));
+
                                                 return (
                                                     <li key={topic.topicId}>
                                                         <DropdownMenu
@@ -369,35 +387,16 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                                                                     <Trash2 className="h-4 w-4" />{' '}
                                                                     {t('menu.removeFromPackage')}
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuSub>
-                                                                    <DropdownMenuSubTrigger className="text-xs">
-                                                                        {t('submenu.changePackage')}
-                                                                    </DropdownMenuSubTrigger>
-                                                                    <DropdownMenuSubContent>
-                                                                        {packages
-                                                                            .filter((p) => p.id !== pkg.id)
-                                                                            .map((target) => (
-                                                                                <DropdownMenuItem
-                                                                                    key={target.id}
-                                                                                    onClick={(e) => {
-                                                                                        e.stopPropagation();
-
-                                                                                        handleMoveTopic(
-                                                                                            topic.topicId,
-                                                                                            pkg.id,
-                                                                                            target.id,
-                                                                                        );
-
-                                                                                        setTopicMenu(null);
-                                                                                    }}
-                                                                                    className="text-xs"
-                                                                                >
-                                                                                    <Folder className="mr-2 h-4 w-4" />{' '}
-                                                                                    {target.title}
-                                                                                </DropdownMenuItem>
-                                                                            ))}
-                                                                    </DropdownMenuSubContent>
-                                                                </DropdownMenuSub>
+                                                                {packageAvailable && packageAvailable.length !== 0 && (
+                                                                    <DropdownMenuSub>
+                                                                        <DropdownMenuSubTrigger className="text-xs">
+                                                                            {t('submenu.changePackage')}
+                                                                        </DropdownMenuSubTrigger>
+                                                                        <DropdownMenuSubContent>
+                                                                            {packageAvailable}
+                                                                        </DropdownMenuSubContent>
+                                                                    </DropdownMenuSub>
+                                                                )}
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </li>
