@@ -36,6 +36,9 @@ import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
 import AuthButton from '@/components/toolbar/AuthButton';
 import TreeView from '@/app/[locale]/home/components/package/TreeView';
 import { ScrollArea } from '../ui/scroll-area';
+import { USER_ROLES } from '@/utils/constants/roles';
+import { getConfigLayoutPackageForSidebar } from '@/configs/layout/layoutConfig';
+import { safeDestructure } from '@/utils';
 
 // Menu items.
 const items = [
@@ -73,6 +76,8 @@ export function AppSidebar() {
     const pathname = usePathname();
     const { hasRole } = useAuth();
 
+    const { isDisplayPackages } = safeDestructure(getConfigLayoutPackageForSidebar(pathname));
+
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
@@ -86,14 +91,16 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <ScrollArea>
-                    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-                        <SidebarGroupLabel>Packages</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <AuthGuard>
-                                <TreeView />
-                            </AuthGuard>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
+                    {hasRole(USER_ROLES.USER) && isDisplayPackages && (
+                        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+                            <SidebarGroupLabel>Packages</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <AuthGuard>
+                                    <TreeView />
+                                </AuthGuard>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    )}
 
                     <SidebarGroup>
                         <SidebarGroupLabel>Navigation</SidebarGroupLabel>
