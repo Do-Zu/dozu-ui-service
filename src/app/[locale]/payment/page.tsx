@@ -17,6 +17,7 @@ import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePayment } from './hooks/usePayment';
 import { PAYMENT_STATUS } from './utils/constants';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 //example return success payment: http://localhost:3000/en/payment?planId=2&code=00&id=b1ad5a123f774db88d0b5495710d40cb&cancel=false&status=PAID&orderCode=53501
 
@@ -25,6 +26,9 @@ export default function PaymentPage() {
     const searchParams = useSearchParams();
     const t = useTranslations('payment');
     const [isRedirectFromPayment, setIsRedirectFromPayment] = useState(false);
+
+    // CHECK  INFINITIVE REQUEST API
+    // const { refreshUserPlan } = useAuth();
 
     const {
         isUpdatingSubscription,
@@ -61,7 +65,7 @@ export default function PaymentPage() {
                 });
             }
         }
-    }, [code, paymentId, status, orderCode, isCanceled, planId, updateSubscription]);
+    }, [code, paymentId, status, orderCode, isCanceled, planId]);
 
     // Initialize payment for new plan selection
     useEffect(() => {

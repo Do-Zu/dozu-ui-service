@@ -1,21 +1,11 @@
-"use client"
+import { Loader2Icon } from 'lucide-react';
 
-import React from 'react'
-import { cn } from '@/lib/utils' // nếu có classnames helper, không có thì dùng className trực tiếp
+import { cn } from '@/lib/utils';
 
-interface SpinnerProps {
-  size?: number
-  className?: string
+function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
+    return (
+        <Loader2Icon role="status" aria-label="Loading" className={cn('size-4 animate-spin', className)} {...props} />
+    );
 }
 
-export default function Spinner({ size = 40, className }: SpinnerProps) {
-  return (
-    <div
-      className={cn(
-        'border-4 border-dashed rounded-full animate-spin border-primary',
-        className
-      )}
-      style={{ width: size, height: size }}
-    />
-  )
-}
+export default Spinner;

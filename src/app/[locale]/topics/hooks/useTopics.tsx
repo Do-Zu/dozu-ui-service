@@ -9,6 +9,7 @@ import teacherTopicService from '@/services/class-based-learning/teacher/teacher
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
+import { useSelectPackageForTopic } from './useSelectPackageForTopic';
 
 interface PersonalProps {
     mode: 'personal';
@@ -51,6 +52,7 @@ export function useTopics(props: Props) {
             ? (payload: IUpdateTopicPayload) => topicService.updateTopic(payload)
             : (payload: IUpdateTopicPayload) =>
                   teacherTopicService.updateTopicInClass({ ...payload, classId: props.classId });
+
     const updateTopic = useUpdateTopic({ setTopics, updateFn });
 
     // ----- DELETE -----
@@ -63,12 +65,17 @@ export function useTopics(props: Props) {
     // ----- DISPLAY TOPIC DETAILS -----
     const showTopicDetails = useTopicDetails();
 
+    //----SELECT PACKAGE FOR TOPIC ///
+
+    const selectPackage = useSelectPackageForTopic();
+
     return {
         fetchTopics: { topics, topicsError, topicsLoading },
         createTopic,
         updateTopic,
         deleteTopic,
         showTopicDetails,
+        selectPackage,
     };
 }
 

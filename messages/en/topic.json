@@ -5,6 +5,7 @@
         "learning": "Learning",
         "start-quiz": "Start Quiz",
         "deleteConfirmation": "Are you sure to delete topic {name}? All data in this topic will be deleted.",
-        "settings": "Settings"
+        "settings": "Settings",
+        "addPackage": "Add Package"
     }
 }

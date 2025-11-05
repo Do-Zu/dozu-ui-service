@@ -14,8 +14,12 @@ const elk = new ELK();
 // - https://www.eclipse.org/elk/reference/options.html
 const elkOptions = {
     'elk.algorithm': 'radial',
-    // 'elk.layered.spacing.nodeNodeBetweenLayers': '100',
-    'elk.spacing.nodeNode': '80',
+    'elk.spacing.nodeNode': '100', // extra space between siblings
+    'elk.radial.radius': '0.5',
+    'elk.radial.minEdgeLength': '50', // avoid edge overlap
+    'elk.radial.edges': 'STRAIGHT', // cleaner edges
+    'elk.radial.toNode': 'PREFERRED_CHILD', // keeps child grouping predictable
+    'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
 };
 
 const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
@@ -26,6 +30,11 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
             // const es = useInitialNodes ? initialEdges : edges;
 
             getLayoutedElements(nodes, edges, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+                // make vertical spacing smaller (flattened)
+                layoutedNodes.forEach((node) => {
+                    node.position.y = node.position.y * 0.7; // compress vertically
+                });
+
                 setNodes(layoutedNodes);
                 setEdges(layoutedEdges);
                 fitView();
