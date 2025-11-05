@@ -49,7 +49,7 @@ interface IInputResource {
 
 interface ICreateLearningMaterialBody {
     title: string;
-    description: string;
+    content: string;
     topicId?: string;
     inputResources?: IInputResource[];
 }
@@ -122,7 +122,7 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
             }));
         }
 
-        const requestBody: ICreateLearningMaterialBody = { title, description: content ?? '' };
+        const requestBody: ICreateLearningMaterialBody = { title, content: content ?? '' };
         if (selectedTopic !== NO_TOPIC_ID) {
             requestBody.topicId = selectedTopic;
         }

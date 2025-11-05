@@ -179,15 +179,12 @@ const LearningMaterialItem = ({ role, learningMaterial, onOpen, onClose }: Learn
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // function handleEditClick() {
-    //     if (role === USER_ROLES.USER) return;
-    //     router.push(
-    //         ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_EDIT({
-    //             classId: learningMaterial.classId,
-    //             learningMaterialId: learningMaterial.learningMaterialId,
-    //         }),
-    //     );
-    // }
+    function handleEditClick() {
+        if (role === USER_ROLES.USER) return;
+        router.push(
+            `/teacher/class-based/${learningMaterial.classId}/learning-material/${learningMaterial.learningMaterialId}/edit`,
+        );
+    }
 
     function handleDeleteClick() {
         if (role === USER_ROLES.USER) return;
@@ -248,9 +245,7 @@ const LearningMaterialItem = ({ role, learningMaterial, onOpen, onClose }: Learn
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                            //  onSelect={handleEditClick}
-                            >
+                            <DropdownMenuItem onSelect={handleEditClick}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>{tCommon('actions.edit')}</span>
                             </DropdownMenuItem>
