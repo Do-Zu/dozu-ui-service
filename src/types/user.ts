@@ -5,6 +5,10 @@ export interface UserBasic {
   role: 'admin' | 'user';
   isActive: boolean;
   createdAt: string;
+  planType?: 'free' | 'pro' | null;
+  planName?: string | null;
+  subscriptionStatus?: 'active' | 'cancelled' | 'expired' | 'pending' | 'suspended' | 'trialing' | null;
+  currentPeriodEnd?: string | null;
 }
 
 export interface GetUsersQuery {
@@ -12,6 +16,7 @@ export interface GetUsersQuery {
   isActive?: boolean;
   isVerified?: boolean;
   hasCompletedOnboarding?: boolean;
+  planType?: 'free' | 'pro';
 }
 
 

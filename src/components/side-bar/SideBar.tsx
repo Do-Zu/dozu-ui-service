@@ -11,6 +11,7 @@ import {
     FileQuestion,
     Brain,
     BarChart3,
+    Crown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -39,6 +40,8 @@ import { ScrollArea } from '../ui/scroll-area';
 import { USER_ROLES } from '@/utils/constants/roles';
 import { getConfigLayoutPackageForSidebar } from '@/configs/layout/layoutConfig';
 import { safeDestructure } from '@/utils';
+import { useUpgradeModal } from '@/stores/features/subscription/useUpgradeModal';
+import { Button } from '@/components/ui/button';
 
 // Menu items.
 const items = [
@@ -74,7 +77,10 @@ const secondaryItems = [
 
 export function AppSidebar() {
     const pathname = usePathname();
-    const { hasRole } = useAuth();
+    const { hasRole, currentPlanUser } = useAuth();
+    const { openUpgradeModal } = useUpgradeModal();
+
+    const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
 
     const { isDisplayPackages } = safeDestructure(getConfigLayoutPackageForSidebar(pathname));
 
@@ -175,6 +181,20 @@ export function AppSidebar() {
                         <ThemeToggle />
                         <LanguageSwitcher />
                     </div>
+                    {/* Upgrade to Pro Button */}
+                    {!isPro && (
+                        <div className="px-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                            <Button
+                                onClick={openUpgradeModal}
+                                variant="outline"
+                                size="default"
+                                className="w-full justify-center gap-2 bg-gradient-to-r from-blue-100/80 via-indigo-100/80 to-purple-100/80 dark:from-blue-900/40 dark:via-indigo-900/40 dark:to-purple-900/40 border-blue-300/60 dark:border-blue-700/60 hover:from-blue-200/90 hover:via-indigo-200/90 hover:to-purple-200/90 dark:hover:from-blue-800/50 dark:hover:via-indigo-800/50 dark:hover:to-purple-800/50 text-blue-700 dark:text-blue-300 font-semibold shadow-sm hover:shadow-md transition-all duration-200 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:min-w-0"
+                            >
+                                <Crown className="h-4 w-4 flex-shrink-0" />
+                                <span className="group-data-[collapsible=icon]:hidden">Upgrade to Pro</span>
+                            </Button>
+                        </div>
+                    )}
                     <AuthButton />
                 </SidebarGroupContent>
             </SidebarGroup>

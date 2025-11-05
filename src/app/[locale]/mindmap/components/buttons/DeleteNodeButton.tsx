@@ -6,11 +6,11 @@ import { Plus, Trash } from 'lucide-react';
 import React from 'react';
 import { useMindMapContext } from '../../context/MindMapContext';
 
-interface AddChildNodeButtonParams {
+interface DeleteNodeButtonParams {
     nodeId: string;
 }
 
-const DeleteNodeButton = ({ nodeId }: AddChildNodeButtonParams) => {
+const DeleteNodeButton = ({ nodeId }: DeleteNodeButtonParams) => {
     const { screenToFlowPosition, setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
     const { edges } = useMindMapContext();
     const handleOnClickDelete = () => {

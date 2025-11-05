@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useProfile } from '../../../../hooks/useProfile';
 import { ProfileService } from '../../../../services/profile/profileService';
 import { handleApiError } from '../utils/errorHandling';
+import ChangePassword from './ChangePassword';
 
 const ProfilePage: React.FC = () => {
   const { 
@@ -17,6 +18,7 @@ const ProfilePage: React.FC = () => {
   } = useProfile();
 
   const [editMode, setEditMode] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -24,12 +26,6 @@ const ProfilePage: React.FC = () => {
     bio: '',
     university: '',
     major: '',
-  });
-
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
   });
 
  
@@ -89,29 +85,22 @@ const ProfilePage: React.FC = () => {
   };
 
   // Handle password change
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match!');
-      return;
-    }
-
+  const handlePasswordChange = async (passwordData: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
     try {
       await changePassword({
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
       
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-      
+      setShowPasswordForm(false);
       alert('Password changed successfully!');
     } catch (err) {
       alert(`Failed to change password: ${handleApiError(err)}`);
+      throw err;
     }
   };
 
@@ -309,48 +298,35 @@ const ProfilePage: React.FC = () => {
 
       {/* Password Change */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold mb-4">Change Password</h2>
-        <form onSubmit={handlePasswordChange} className="space-y-4">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={passwordData.currentPassword}
-              onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
+            <h2 className="text-xl font-bold">Change Password</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Update your password to keep your account secure
+            </p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              New Password
-            </label>
-            <input
-              type="password"
-              value={passwordData.newPassword}
-              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
+          {!showPasswordForm && (
+            <button
+              onClick={() => setShowPasswordForm(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Change Password
+            </button>
+          )}
+        </div>
+        {showPasswordForm && (
+          <div className="mt-4">
+            <ChangePassword onPasswordChange={handlePasswordChange} />
+            <div className="mt-4">
+              <button
+                onClick={() => setShowPasswordForm(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              value={passwordData.confirmPassword}
-              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Change Password
-          </button>
-        </form>
+        )}
       </div>
 
       {/* Settings */}

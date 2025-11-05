@@ -39,19 +39,6 @@ export default function StudentClassLibrary() {
         }
     }, [classIdSelected, router]);
 
-    // Handle invitation code from URL
-    useEffect(() => {
-        const codeFromUrl = searchParams.get('code');
-        if (codeFromUrl) {
-            setInvitationCode(codeFromUrl);
-            setIsJoinClassModalOpen(true);
-            handleJoinClick(codeFromUrl);
-            const url = new URL(window.location.href);
-            url.searchParams.delete('code');
-            window.history.replaceState({}, '', url.toString());
-        }
-    }, [searchParams]);
-
     const {
         data: classes,
         setData: setClasses,
@@ -123,6 +110,24 @@ export default function StudentClassLibrary() {
         setIsJoinClassModalOpen(false);
         setInvitationCode('');
     }
+
+    // Handle invitation code from URL
+    useEffect(() => {
+        const codeFromUrl = searchParams.get('code');
+        if (codeFromUrl && classes) {
+            const existingClass = classes.find((c) => c.invitationCode === codeFromUrl);
+            if (existingClass) {
+                toastHelper.showSuccessMessage(tJoinClass('alreadyEnrolled'));
+                router.push(ROUTES.CLASS_BASED_ID(existingClass.classId));
+            } else {
+                handleJoinClick(codeFromUrl);
+            }
+
+            const url = new URL(window.location.href);
+            url.searchParams.delete('code');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }, [searchParams, classes, tJoinClass, router, handleJoinClick]);
 
     // ... UI
     // button actions

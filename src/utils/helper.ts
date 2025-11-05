@@ -224,6 +224,10 @@ const validateArray = <T>(value: unknown, isItem?: (v: unknown) => v is T): T[] 
     return value as T[];
 };
 
+const isNil = (val: unknown) => {
+    return val === null || val === undefined;
+};
+
 export {
     deepClone,
     toTitleCase,
@@ -240,4 +244,5 @@ export {
     lowercase,
     compareIgnoreCapitalization,
     validateArray,
+    isNil,
 };

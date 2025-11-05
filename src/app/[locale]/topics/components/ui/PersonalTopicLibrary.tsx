@@ -36,7 +36,7 @@ import { useTopics } from '../../hooks/useTopics';
 import { ITopic } from '../../types/topic.type';
 import Metric from '../common/Metric';
 import TopicCard from '../common/TopicCard';
-import TopicLibrary from '../common/TopicLibrary';
+import LearningSpace from '../common/LearningSpace';
 import { CreateTopicModal } from '../modals/CreateTopicModal';
 import { DeleteTopicModal } from '../modals/DeleteTopicModal';
 import TopicDetailsModal from '../modals/TopicDetailsModal';
@@ -490,5 +490,5 @@ export default function PersonalTopicLibrary() {
         </Button>
     );
 
-    return <TopicLibrary mode="personal" topicContent={topicContent} mainActionButtons={mainActionButtons} />;
+    return <LearningSpace mode="personal" topicContent={topicContent} mainActionButtons={mainActionButtons} />;
 }
