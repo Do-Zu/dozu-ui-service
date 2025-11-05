@@ -26,7 +26,7 @@ export const getSubscriptionState = () => {
 
     if (!store) {
         if (process.env.NODE_ENV !== 'production') {
-            console.error('Store not initialized - cannot retrieve subscription state');
+            console.error('Store not initialized - cannot open upgrade modal');
         }
         return;
     }
