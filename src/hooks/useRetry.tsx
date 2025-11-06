@@ -38,7 +38,7 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({
     } = options || {};
 
     const execute = useCallback(
-        async (...args: TArgs) => {
+        async (...args: TArgs): Promise<T> => {
             let lastError: unknown = null;
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
@@ -47,7 +47,7 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({
                     return result;
                 } catch (error) {
                     if (onStop?.(error)) {
-                        return lastError;
+                        throw error instanceof Error ? error : new Error('Terminate Retry');
                     }
                     onFailureEachTry?.(error);
                     lastError = error;

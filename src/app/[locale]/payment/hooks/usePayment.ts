@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useAppSelector } from '@/stores/hooks';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { toast } from '@/hooks/use-toast';
 import { Plan } from '@/components/upgrade-plan/UpgradePlanModal';
 import {
@@ -10,7 +10,12 @@ import {
     PaymentRegisterRequest,
 } from '@/services/payment';
 import useRetry from '@/hooks/useRetry';
-import { ITransactionStatusUpdate } from '@/services/payment/payment.service';
+import { AxiosError } from 'axios';
+import { STATUS_CODE } from '@/utils/constants/http';
+import { compareIgnoreCapitalization, isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
+import { fetchPlans } from '@/stores/features/subscription';
+import Axios from '@/api/axios';
+import { PAYMENT_STATUS } from '../utils/constants';
 
 export interface PaymentResponse {
     status: string;
@@ -30,7 +35,21 @@ export interface UsePaymentOptions {
     onSubscriptionUpdated?: () => void | Promise<void>;
 }
 
+export interface IResRetry {
+    status: number;
+    message?: string;
+}
+export interface IStatusTransactionPayOSGateway {
+    code: string;
+    desc: string;
+    data: {
+        status: string;
+        amountRemaining: number;
+    };
+}
 export function usePayment(options?: UsePaymentOptions) {
+    const dispatch = useAppDispatch();
+
     const [plan, setPlan] = useState<Plan | null>(null);
     const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -40,22 +59,42 @@ export function usePayment(options?: UsePaymentOptions) {
 
     const { plans } = useAppSelector((state) => state.subscription);
 
-    const { execute: retryUpdateStatusTransaction } = useRetry<unknown, [ITransactionStatusUpdate]>({
-        retry: (payload: ITransactionStatusUpdate) => paymentService.updateStatusTransaction(payload),
-        options: {
-            maxRetries: 3,
-            onSuccess: () => {},
-            onFailure: (error) => {},
-        },
-    });
+    const { execute: retryUpdateSubscription } = useRetry<IResRetry, [UpdateSubscriptionRequest]>({
+        retry: async (req: UpdateSubscriptionRequest) => {
+            try {
+                const data = await paymentService.updateSubscription(req);
 
-    const { execute: retryUpdateSubscription } = useRetry<unknown, [UpdateSubscriptionRequest]>({
-        retry: (req: UpdateSubscriptionRequest) => paymentService.updateSubscription(req),
+                return {
+                    status: STATUS_CODE.OK,
+                } as IResRetry;
+            } catch (error) {
+                if (error && error instanceof AxiosError) {
+                    const status = error.response?.status;
+                    const { message } = safeDestructure(error.response?.data);
+                    if (status && status >= 400 && status < 500) {
+                        toast({
+                            description: message,
+                        });
+
+                        return {
+                            status,
+                            message: message,
+                        } as IResRetry;
+                    } else {
+                        throw new Error(message);
+                    }
+                }
+                throw error instanceof Error ? error : new Error('Some Thing Wrong When Payment!');
+            }
+        },
         options: {
             maxRetries: 3,
             delay: 1000,
             onFailureEachTry: () => {
                 // optionally log or soft-notify per attempt
+            },
+            onFailure: (error) => {
+                //TODO
             },
         },
     });
@@ -64,13 +103,24 @@ export function usePayment(options?: UsePaymentOptions) {
         async (planId: string) => {
             try {
                 setIsProcessingPayment(true);
+
                 setError(null);
 
+                if (isEmpty(plans)) {
+                    await dispatch(fetchPlans()).unwrap();
+                }
+
+                if (isNilOrEmpty(planId)) {
+                    toast({
+                        description: 'Choose plan first!',
+                    });
+                }
+
                 // Find the selected plan
-                const selectedPlan = plans?.find((p) => p?.planId?.toString() === planId);
+                const selectedPlan = plans?.find((p) => compareIgnoreCapitalization(p?.planId?.toString(), planId));
 
                 if (!selectedPlan) {
-                    throw new Error('Plan not found');
+                    throw new Error('Choose plan first!');
                 }
 
                 setPlan(selectedPlan);
@@ -87,14 +137,8 @@ export function usePayment(options?: UsePaymentOptions) {
                 setPaymentData(paymentData);
 
                 // TODO: using webhook for check status payment status
-                // Poll for payment status
-                //startStatusPolling(paymentData.orderCode.toString());
             } catch (err: any) {
                 setError(err.response?.data?.message || err.message || 'Failed to initialize payment');
-                toast({
-                    description: err.response?.data?.message || err.message || 'Failed to initialize payment',
-                    variant: 'destructive',
-                });
             } finally {
                 setIsProcessingPayment(false);
             }
@@ -107,16 +151,21 @@ export function usePayment(options?: UsePaymentOptions) {
             try {
                 setIsUpdatingSubscription(true);
 
-                const statusTransactionPayload = {
-                    orderCode: updateRequest.orderCode,
-                    paymentId: updateRequest.paymentId,
-                };
+                const { status, message } = await retryUpdateSubscription(updateRequest);
 
-                void retryUpdateStatusTransaction(statusTransactionPayload).catch((e) => {
-                    console.warn('update transaction failed after retries');
-                });
+                if (status && status !== STATUS_CODE.OK) {
+                    if (isEmpty(message)) {
+                        throw new Error('Some thing wrong');
+                    } else {
+                        setError(message!);
+                    }
 
-                await retryUpdateSubscription(updateRequest);
+                    toast({
+                        description: message,
+                        variant: 'destructive',
+                    });
+                    return;
+                }
 
                 toast({
                     description: 'Your subscription has been successfully updated!',
@@ -126,21 +175,39 @@ export function usePayment(options?: UsePaymentOptions) {
                 if (options?.onSubscriptionUpdated) {
                     await options.onSubscriptionUpdated();
                 }
-
-                // Redirect to success page or dashboard
-                //window.location.href = `/payment?code=00&id=${paymentData?.paymentLinkId}&cancel=false&status=PAID&orderCode=${orderCode}`;
-            } catch (err: any) {
-                console.error('Subscription update error:', err);
-                toast({
-                    description: err.response?.data?.message || 'Failed to update subscription',
-                    variant: 'destructive',
-                });
+            } catch (error: any) {
             } finally {
                 setIsUpdatingSubscription(false);
             }
         },
-        [retryUpdateStatusTransaction, retryUpdateSubscription, options],
+        [retryUpdateSubscription, options],
     );
+
+    // const startStatusPolling = useCallback(async (apiEndPointCheckStatusTransaction: string, delay: number = 1000) => {
+    //     setInterval(async () => {
+    //         try {
+    //             const response = await Axios.post(apiEndPointCheckStatusTransaction);
+
+    //             const {
+    //                 code,
+    //                 desc,
+    //                 data: transaction,
+    //             } = safeDestructure(response?.data) as IStatusTransactionPayOSGateway;
+
+    //             const CODE_SUCCESS = '00';
+
+    //             if (!compareIgnoreCapitalization(code, CODE_SUCCESS)) {
+    //             }
+
+    //             const { status } = safeDestructure(transaction);
+
+    //             if (status === PAYMENT_STATUS.PAID) {
+    //             }
+    //         } catch (error) {
+    //             setError('Gateway Unavailable!');
+    //         }
+    //     }, delay);
+    // }, []);
 
     // Clean up polling on component unmount
     useEffect(() => {
