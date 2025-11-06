@@ -17,10 +17,12 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { usePayment } from './hooks/usePayment';
 import { PAYMENT_STATUS } from './utils/constants';
+import { withAuth } from '@/hoc/withAuth';
+import { USER_ROLES } from '@/utils/constants/roles';
 
 //example return success payment: http://localhost:3000/en/payment?planId=2&code=00&id=b1ad5a123f774db88d0b5495710d40cb&cancel=false&status=PAID&orderCode=53501
 
-export default function PaymentPage() {
+const PaymentPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const t = useTranslations('payment');
@@ -384,4 +386,9 @@ export default function PaymentPage() {
             </div>
         </div>
     );
-}
+};
+
+export default withAuth(PaymentPage, {
+    requiredRole: USER_ROLES.USER,
+    redirectTo: ROUTES.LANDING,
+});
