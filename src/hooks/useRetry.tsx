@@ -10,6 +10,7 @@ interface IUserRetryProps<T, TArgs extends unknown[] = unknown[]> {
         onSuccess?: () => void;
         onFailureEachTry?: (error: unknown) => void;
         onFailure?: (error: unknown) => void;
+        onStop?: (error: unknown) => boolean;
     };
 }
 
@@ -33,6 +34,7 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({
         onSuccess,
         onFailure,
         onFailureEachTry,
+        onStop,
     } = options || {};
 
     const execute = useCallback(
@@ -44,6 +46,9 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({
                     onSuccess?.();
                     return result;
                 } catch (error) {
+                    if (onStop?.(error)) {
+                        return lastError;
+                    }
                     onFailureEachTry?.(error);
                     lastError = error;
                     if (attempt < maxRetries - 1) {

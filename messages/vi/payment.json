@@ -15,6 +15,7 @@
         "apply": "Áp dụng",
         "paymentMethods": "Phương thức thanh toán",
         "payosLink": "Liên kết PayOS",
+        "payOSGateWay": "Pay OS",
         "scanQR": "Quét QR",
         "redirectNotice": "Bạn sẽ được chuyển đến trang PayOS an toàn để hoàn tất thanh toán.",
         "qrUnavailable": "Không có mã QR",

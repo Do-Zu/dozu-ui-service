@@ -16,6 +16,7 @@ export interface PaymentData {
     orderCode: number;
     currency: string;
     paymentLinkId: string;
+    apiCheckStatus: string;
     status: string;
     checkoutUrl: string;
     qrCode: string;
@@ -50,7 +51,7 @@ export interface IPaymentResponseSePayRegister {
 }
 
 export interface UpdateSubscriptionRequest {
-    planId: string | number | null;
+    planId: string | number;
     orderCode: string | number;
     paymentStatus?: string;
     paymentId: string;
