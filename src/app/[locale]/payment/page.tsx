@@ -14,14 +14,16 @@ import { ArrowLeft, CheckCircle, XCircle, CreditCard, QrCode, ShieldCheck } from
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { usePayment } from './hooks/usePayment';
 import { PAYMENT_STATUS } from './utils/constants';
-import { useAuth } from '@/contexts/auth/AuthContext';
+import { withAuth } from '@/hoc/withAuth';
+import { USER_ROLES } from '@/utils/constants/roles';
+import { isNilOrEmpty } from '@/utils';
 
 //example return success payment: http://localhost:3000/en/payment?planId=2&code=00&id=b1ad5a123f774db88d0b5495710d40cb&cancel=false&status=PAID&orderCode=53501
 
-export default function PaymentPage() {
+const PaymentPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const t = useTranslations('payment');
@@ -42,14 +44,14 @@ export default function PaymentPage() {
 
     const planId = searchParams?.get('planId');
     const code = searchParams?.get('code');
-    const paymentId = searchParams?.get('id');
+    const paymentId = searchParams?.get('id') || searchParams?.get('paymentId') || searchParams?.get('paymentLinkId');
     const isCanceled = searchParams?.get('cancel') === 'true';
     const status = searchParams?.get('status');
     const orderCode = searchParams?.get('orderCode');
 
     // Check if this is a redirect from payment
     useEffect(() => {
-        if (code !== null && paymentId && status && orderCode) {
+        if (!isNilOrEmpty(code) && paymentId && status && orderCode && planId) {
             setIsRedirectFromPayment(true);
 
             if (isCanceled || status === PAYMENT_STATUS.CANCELLED) {
@@ -68,72 +70,15 @@ export default function PaymentPage() {
     }, [code, paymentId, status, orderCode, isCanceled, planId]);
 
     // Initialize payment for new plan selection
-    useEffect(() => {
-        if (planId && !isRedirectFromPayment && !paymentData) {
-            initializePayment(planId);
-        }
-    }, [planId, isRedirectFromPayment, paymentData, initializePayment]);
-
-    const handleRetry = () => {
-        if (planId) {
-            initializePayment(planId);
-        }
-    };
+    // useEffect(() => {
+    //     if (planId && !isRedirectFromPayment && !paymentData) {
+    //         initializePayment(planId);
+    //     }
+    // }, [planId, isRedirectFromPayment, paymentData, initializePayment]);
 
     const handleBackToPlans = () => {
         router.push(ROUTES.HOME);
     };
-
-    if (isRedirectFromPayment && status === PAYMENT_STATUS.PAID) {
-        return (
-            <div className="relative min-h-[calc(100dvh-4rem)]">
-                {/* Background gradient + glow */}
-                <div className="pointer-events-none absolute inset-0 -z-10">
-                    <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/60 via-background to-background dark:from-emerald-950/30" />
-                    <div className="absolute left-1/2 top-10 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
-                </div>
-
-                <div className="container mx-auto px-4 py-10 max-w-2xl">
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, ease: 'easeOut' }}
-                    >
-                        <Card className="overflow-hidden">
-                            <CardHeader className="text-center py-10">
-                                <motion.div
-                                    initial={{ scale: 0.8, rotate: -5, opacity: 0 }}
-                                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                                    transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-                                    className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10"
-                                >
-                                    <CheckCircle className="h-10 w-10 text-emerald-500" />
-                                </motion.div>
-                                <CardTitle className="text-2xl">{t('success.title')}</CardTitle>
-                                <p className="mt-2 text-sm text-muted-foreground">{t('success.subtitle')}</p>
-                            </CardHeader>
-                            <CardContent className="text-center space-y-4 pb-10">
-                                <div className="flex items-center justify-center gap-2">
-                                    <Badge variant="outline" className="border-emerald-300/50 text-emerald-700">
-                                        {t('orderCode')}: {orderCode}
-                                    </Badge>
-                                </div>
-                                <div className="mx-auto max-w-sm">
-                                    <Button onClick={() => router.push(ROUTES.HOME)} className="w-full" asChild={false}>
-                                        {t('success.cta')}
-                                    </Button>
-                                </div>
-                                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                                    <ShieldCheck className="h-4 w-4" />
-                                    {t('securedBy')}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                </div>
-            </div>
-        );
-    }
 
     if (isRedirectFromPayment && (isCanceled || status === PAYMENT_STATUS.CANCELLED)) {
         return (
@@ -202,7 +147,58 @@ export default function PaymentPage() {
         );
     }
 
-    if (isProcessingPayment || !paymentData || !plan) {
+    if (isRedirectFromPayment && status === PAYMENT_STATUS.PAID) {
+        return (
+            <div className="relative min-h-[calc(100dvh-4rem)]">
+                {/* Background gradient + glow */}
+                <div className="pointer-events-none absolute inset-0 -z-10">
+                    <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/60 via-background to-background dark:from-emerald-950/30" />
+                    <div className="absolute left-1/2 top-10 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
+                </div>
+
+                <div className="container mx-auto px-4 py-10 max-w-2xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: 'easeOut' }}
+                    >
+                        <Card className="overflow-hidden">
+                            <CardHeader className="text-center py-10">
+                                <motion.div
+                                    initial={{ scale: 0.8, rotate: -5, opacity: 0 }}
+                                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                                    transition={{ type: 'spring', stiffness: 220, damping: 18 }}
+                                    className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10"
+                                >
+                                    <CheckCircle className="h-10 w-10 text-emerald-500" />
+                                </motion.div>
+                                <CardTitle className="text-2xl">{t('success.title')}</CardTitle>
+                                <p className="mt-2 text-sm text-muted-foreground">{t('success.subtitle')}</p>
+                            </CardHeader>
+                            <CardContent className="text-center space-y-4 pb-10">
+                                <div className="flex items-center justify-center gap-2">
+                                    <Badge variant="outline" className="border-emerald-300/50 text-emerald-700">
+                                        {t('orderCode')}: {orderCode}
+                                    </Badge>
+                                </div>
+                                <div className="mx-auto max-w-sm">
+                                    <Button onClick={() => router.push(ROUTES.HOME)} className="w-full" asChild={false}>
+                                        {t('success.cta')}
+                                    </Button>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                                    <ShieldCheck className="h-4 w-4" />
+                                    {t('securedBy')}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isProcessingPayment || !planId) {
         return (
             <div className="container mx-auto px-4 py-10 max-w-3xl">
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -222,6 +218,27 @@ export default function PaymentPage() {
     }
 
     if (isUpdatingSubscription) return <LoadingPage isOverlay={true} />;
+
+    if (!plan) {
+        return (
+            <div className="container mx-auto px-4 py-10 max-w-3xl">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <Card>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-4">
+                                <p className="text-sm text-muted-foreground">{t('redirectNotice')}</p>
+                                <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                                    <Button onClick={() => initializePayment(planId)} className="w-full" size="lg">
+                                        {t('payOSGateWay')}
+                                    </Button>
+                                </motion.div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative">
@@ -258,7 +275,7 @@ export default function PaymentPage() {
                             <div className="rounded-lg border p-4">
                                 <div className="flex items-start justify-between">
                                     <div>
-                                        <h3 className="font-semibold text-lg leading-tight">{plan.name}</h3>
+                                        <h3 className="font-semibold text-lg leading-tight">{plan?.name}</h3>
                                         <p className="mt-1 text-sm text-muted-foreground">{plan?.description}</p>
                                     </div>
                                     <div className="text-right">
@@ -271,18 +288,18 @@ export default function PaymentPage() {
                                 </div>
                             </div>
 
-                            {Array.isArray(plan.features) && plan.features.length > 0 && (
+                            {Array.isArray(plan?.features) && plan?.features.length > 0 && (
                                 <div>
                                     <h4 className="mb-2 text-sm font-medium">What’s included</h4>
                                     <ul className="space-y-2 text-sm">
-                                        {plan.features?.map((feature, index) => (
+                                        {plan?.features?.map((feature, index) => (
                                             <li key={index} className="flex items-center gap-2">
                                                 <CheckCircle className="h-4 w-4 text-emerald-500" />
                                                 <span>
                                                     {feature.name}:{' '}
                                                     {feature.isUnlimited
                                                         ? 'Unlimited'
-                                                        : feature.numericValue || feature.textValue}
+                                                        : feature?.numericValue || feature?.textValue}
                                                 </span>
                                             </li>
                                         ))}
@@ -322,10 +339,10 @@ export default function PaymentPage() {
                                             {t('payosLink')}
                                         </TabsTrigger>
                                     )}
-                                    {/* <TabsTrigger value="qr" className="gap-2">
+                                    <TabsTrigger value="qr" className="gap-2">
                                         <QrCode className="h-4 w-4" />
                                         {t('scanQR')}
-                                    </TabsTrigger> */}
+                                    </TabsTrigger>
                                 </TabsList>
 
                                 {/* PayOS link */}
@@ -349,7 +366,7 @@ export default function PaymentPage() {
                                 )}
 
                                 {/* QR method */}
-                                {/* <TabsContent value="qr">
+                                <TabsContent value="qr">
                                     <div className="grid place-items-center gap-4">
                                         <AnimatePresence>
                                             <motion.div
@@ -377,7 +394,7 @@ export default function PaymentPage() {
                                         </AnimatePresence>
                                         <p className="text-center text-xs text-muted-foreground">{t('qrHint')}</p>
                                     </div>
-                                </TabsContent> */}
+                                </TabsContent>
                             </Tabs>
                         </CardContent>
                     </Card>
@@ -385,4 +402,9 @@ export default function PaymentPage() {
             </div>
         </div>
     );
-}
+};
+
+export default withAuth(PaymentPage, {
+    requiredRole: USER_ROLES.USER,
+    redirectTo: ROUTES.LANDING,
+});

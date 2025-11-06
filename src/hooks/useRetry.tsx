@@ -10,6 +10,7 @@ interface IUserRetryProps<T, TArgs extends unknown[] = unknown[]> {
         onSuccess?: () => void;
         onFailureEachTry?: (error: unknown) => void;
         onFailure?: (error: unknown) => void;
+        onStop?: (error: unknown) => boolean;
     };
 }
 
@@ -23,17 +24,21 @@ const DEFAULT_DELAY = 1000;
  * @param   options - Configuration options for retry behavior.
  * @returns  function for execute
  */
-export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry, options }: IUserRetryProps<T>) {
+export default function useRetry<T, TArgs extends unknown[] = unknown[]>({
+    retry,
+    options,
+}: IUserRetryProps<T, TArgs>) {
     const {
         maxRetries = DEFAULT_MAX_RETRIES,
         delay = DEFAULT_DELAY,
         onSuccess,
         onFailure,
         onFailureEachTry,
+        onStop,
     } = options || {};
 
     const execute = useCallback(
-        async (...args: TArgs[]) => {
+        async (...args: TArgs): Promise<T> => {
             let lastError: unknown = null;
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
@@ -41,6 +46,9 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry
                     onSuccess?.();
                     return result;
                 } catch (error) {
+                    if (onStop?.(error)) {
+                        throw error instanceof Error ? error : new Error('Terminate Retry');
+                    }
                     onFailureEachTry?.(error);
                     lastError = error;
                     if (attempt < maxRetries - 1) {
@@ -49,10 +57,8 @@ export default function useRetry<T, TArgs extends unknown[] = unknown[]>({ retry
                 }
             }
 
-            if (lastError) {
-                onFailure?.(lastError);
-                throw lastError;
-            }
+            onFailure?.(lastError);
+            throw lastError instanceof Error ? lastError : new Error('Retry failed');
         },
         [retry, maxRetries, delay, onSuccess, onFailureEachTry, onFailure],
     );
