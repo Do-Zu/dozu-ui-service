@@ -106,8 +106,10 @@ export function usePayment(options?: UsePaymentOptions) {
 
                 setError(null);
 
-                if (isEmpty(plans)) {
-                    await dispatch(fetchPlans()).unwrap();
+                let planSource = plans;
+
+                if (isEmpty(planSource)) {
+                    planSource = await dispatch(fetchPlans()).unwrap();
                 }
 
                 if (isNilOrEmpty(planId)) {
@@ -117,7 +119,9 @@ export function usePayment(options?: UsePaymentOptions) {
                 }
 
                 // Find the selected plan
-                const selectedPlan = plans?.find((p) => compareIgnoreCapitalization(p?.planId?.toString(), planId));
+                const selectedPlan = planSource?.find((p) =>
+                    compareIgnoreCapitalization(p?.planId?.toString(), planId),
+                );
 
                 if (!selectedPlan) {
                     throw new Error('Choose plan first!');
