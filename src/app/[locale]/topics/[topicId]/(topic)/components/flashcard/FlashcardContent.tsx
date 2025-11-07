@@ -67,7 +67,7 @@ export default function FlashcardContent({ mode, role }: Props) {
 
                 <DropdownMenuContent align="end">
                     {selectableItems.map((item) => (
-                        <DropdownMenuItem onSelect={() => handleModeSelect(item)}>
+                        <DropdownMenuItem key={item} onSelect={() => handleModeSelect(item)}>
                             {itemIcons.find((e) => e.item === item)?.icon}
                             <span>{flashcardUtils.getDisplayModeName(item)}</span>
                             {flashcardMode === item && <Check className="ml-auto h-4 w-4" />}

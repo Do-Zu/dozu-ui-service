@@ -295,13 +295,16 @@ const EditingFlashcard = () => {
         let newFlashcards: IEditingFlashcard[] = editingFlashcards;
 
         if (type === 'client') {
-            newFlashcards = editingFlashcards.filter((flashcard) => flashcard.id !== flashcardId);
-
-            newFlashcards.push({
-                id: newFlashcards[newFlashcards.length - 1].id + 1,
-                front: '',
-                back: '',
-            });
+            const remaining = editingFlashcards.filter((flashcard) => flashcard.id !== flashcardId);
+            const lastId = remaining.length > 0 ? remaining[remaining.length - 1].id : -1;
+            newFlashcards = [
+                ...remaining,
+                {
+                    id: lastId + 1,
+                    front: '',
+                    back: '',
+                },
+            ];
         } else if (type === 'server') {
             newFlashcards = editingFlashcards.map((flashcard) => {
                 return flashcard.serverInfo && flashcard.id === flashcardId

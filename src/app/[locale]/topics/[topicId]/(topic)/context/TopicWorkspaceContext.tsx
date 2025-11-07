@@ -90,7 +90,7 @@ export function TopicWorkspaceProvider({ children }: { children: React.ReactNode
 export function useTopicWorkspace() {
     const context = useContext(TopicWorkspaceContext);
     if (!context) {
-        throw new Error('usePersonalTopicWorkspace must be used inside <PersonalTopicWorkspaceProvider>');
+        throw new Error('useTopicWorkspace must be used inside <TopicWorkspaceProvider>');
     }
     return context;
 }

@@ -54,7 +54,7 @@ function useFetch<T, Z = T>(
         abortControllerRef.current = currentController;
 
         try {
-            // setLoading(true);
+            setLoading(true);
             setError(null);
 
             let rawData: unknown;
@@ -118,10 +118,8 @@ function useFetch<T, Z = T>(
     useEffect(() => {
         // only fetch data if shouldRun is true
         if (typeof shouldRun === 'function' && shouldRun()) {
-            setLoading(true);
             fetchData();
         } else if (typeof shouldRun === 'boolean' && shouldRun) {
-            setLoading(true);
             fetchData();
         } else {
             setLoading(false);

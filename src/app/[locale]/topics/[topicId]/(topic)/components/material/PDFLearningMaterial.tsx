@@ -12,10 +12,12 @@ export default function PDFLearningMaterial({ blobUrl }: Props) {
     const [pdfUrl, setPdfUrl] = useState<string>('');
 
     useEffect(() => {
-        setPdfUrl(blobUrl);
+        const prevUrl = blobUrl;
+        setPdfUrl(prevUrl);
+
         return () => {
-            if (pdfUrl) {
-                URL.revokeObjectURL(pdfUrl);
+            if (prevUrl) {
+                URL.revokeObjectURL(prevUrl);
             }
         };
     }, [blobUrl]);

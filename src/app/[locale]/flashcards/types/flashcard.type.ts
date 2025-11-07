@@ -37,7 +37,9 @@ export interface IQualityResponseNextReviewInterval {
 }
 
 export type IFlashcardCreateInput = Pick<IFlashcard, 'front' | 'back'> & { image?: IImageSaveInput | null };
-export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'>;
+export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'> & {
+    image?: IImageSaveInput | null;
+};
 
 export type IFlashcardsBatchInput = {
     flashcardsAdded?: IFlashcardCreateInput[];
