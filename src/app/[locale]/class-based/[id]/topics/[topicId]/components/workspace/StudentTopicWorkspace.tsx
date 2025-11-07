@@ -2,21 +2,21 @@ import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Maximize, Minimize } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import LearningMaterial from '../material/LearningMaterial';
+import LearningMaterial from '../../../../../../topics/[topicId]/(topic)/components/material/LearningMaterial';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import TopicOverview from '../overview/TopicOverview';
+import TopicOverview from '../../../../../../topics/[topicId]/(topic)/components/overview/TopicOverview';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import useFetch from '@/hooks/useFetch';
-import { IFlashcardCounts, ITopic } from '@/app/[locale]/topics/types/topic.type';
+import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import topicService from '@/services/topic/topic.service';
-import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
-import { IAnkiStatus } from '@/types/anki';
-import FetchBoundary from '@/components/common/FetchBoundary';
+import flashcardContentService, {
+    IFlashcardContent,
+} from '../../../../../../topics/[topicId]/(topic)/service/flashcardContent.service';
 import LoadingPage from '@/app/loading';
-import { PersonalTopicWorkspaceProvider, usePersonalTopicWorkspace } from '../../context/PersonalTopicWorkspaceContext';
-import FlashcardContent from '../flashcard/FlashcardContent';
-import flashcardUtils from '../../utils/flashcard.utils';
+import { useTopicWorkspace } from '../../../../../../topics/[topicId]/(topic)/context/TopicWorkspaceContext';
+import FlashcardContent from '../../../../../../topics/[topicId]/(topic)/components/flashcard/FlashcardContent';
+import flashcardUtils from '../../../../../../topics/[topicId]/(topic)/utils/flashcard.utils';
 import { UserRoleEnum } from '@/utils/constants/roles';
 
 interface Props {
@@ -38,7 +38,7 @@ export default function StudentTopicWorkspace({ topicId }: Props) {
         setLearningFlashcards,
         ankiSettings,
         setAnkiSettings,
-    } = usePersonalTopicWorkspace();
+    } = useTopicWorkspace();
 
     const {
         data: topicContent,

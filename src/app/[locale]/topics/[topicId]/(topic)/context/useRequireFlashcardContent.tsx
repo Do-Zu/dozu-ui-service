@@ -1,7 +1,7 @@
-import { usePersonalTopicWorkspace } from './PersonalTopicWorkspaceContext';
+import { useTopicWorkspace } from './TopicWorkspaceContext';
 
 export function useRequireFlashcards() {
-    const context = usePersonalTopicWorkspace();
+    const context = useTopicWorkspace();
 
     if (!context.flashcards) {
         throw new Error('Workspace data is missing flashcards.');
@@ -14,7 +14,7 @@ export function useRequireFlashcards() {
 }
 
 export function useRequireLearningFlashcards() {
-    const context = usePersonalTopicWorkspace();
+    const context = useTopicWorkspace();
 
     if (!context.learningFlashcards) {
         throw new Error('Workspace data is missing learning flashcards.');
@@ -28,7 +28,7 @@ export function useRequireLearningFlashcards() {
 }
 
 export function useRequireAnkiSettings() {
-    const context = usePersonalTopicWorkspace();
+    const context = useTopicWorkspace();
 
     if (!context.ankiSettings) {
         throw new Error('Workspace data is missing anki settings.');

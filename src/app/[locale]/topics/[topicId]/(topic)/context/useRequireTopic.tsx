@@ -1,7 +1,7 @@
-import { usePersonalTopicWorkspace } from './PersonalTopicWorkspaceContext';
+import { useTopicWorkspace } from './TopicWorkspaceContext';
 
 export function useRequireTopic() {
-    const context = usePersonalTopicWorkspace();
+    const context = useTopicWorkspace();
 
     if (!context.topic) {
         throw new Error('Workspace data is missing topic.');

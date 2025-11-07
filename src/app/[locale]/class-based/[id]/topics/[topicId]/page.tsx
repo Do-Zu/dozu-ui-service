@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
-import StudentTopicWorkspace from '@/app/[locale]/topics/[topicId]/(topic)/components/workspace/StudentTopicWorkspace';
-import { PersonalTopicWorkspaceProvider } from '@/app/[locale]/topics/[topicId]/(topic)/context/PersonalTopicWorkspaceContext';
+import StudentTopicWorkspace from './components/workspace/StudentTopicWorkspace';
+import { TopicWorkspaceProvider } from '@/app/[locale]/topics/[topicId]/(topic)/context/TopicWorkspaceContext';
 
 export default function TopicPage() {
     const params = useParams();
@@ -16,8 +16,8 @@ export default function TopicPage() {
     const topicId = Number(params.topicId);
 
     return (
-        <PersonalTopicWorkspaceProvider>
+        <TopicWorkspaceProvider>
             <StudentTopicWorkspace topicId={topicId} />
-        </PersonalTopicWorkspaceProvider>
+        </TopicWorkspaceProvider>
     );
 }

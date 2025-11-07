@@ -21,9 +21,9 @@ interface ContextType {
     }) => IDueAnkiCard[] | null;
 }
 
-const PersonalTopicWorkspaceContext = createContext<ContextType | null>(null);
+const TopicWorkspaceContext = createContext<ContextType | null>(null);
 
-export function PersonalTopicWorkspaceProvider({ children }: { children: React.ReactNode }) {
+export function TopicWorkspaceProvider({ children }: { children: React.ReactNode }) {
     const [topic, setTopic] = useState<ITopic | null>(null);
     const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
     const [learningFlashcards, setLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
@@ -69,7 +69,7 @@ export function PersonalTopicWorkspaceProvider({ children }: { children: React.R
     );
 
     return (
-        <PersonalTopicWorkspaceContext.Provider
+        <TopicWorkspaceContext.Provider
             value={{
                 topic,
                 flashcards,
@@ -83,12 +83,12 @@ export function PersonalTopicWorkspaceProvider({ children }: { children: React.R
             }}
         >
             {children}
-        </PersonalTopicWorkspaceContext.Provider>
+        </TopicWorkspaceContext.Provider>
     );
 }
 
-export function usePersonalTopicWorkspace() {
-    const context = useContext(PersonalTopicWorkspaceContext);
+export function useTopicWorkspace() {
+    const context = useContext(TopicWorkspaceContext);
     if (!context) {
         throw new Error('usePersonalTopicWorkspace must be used inside <PersonalTopicWorkspaceProvider>');
     }

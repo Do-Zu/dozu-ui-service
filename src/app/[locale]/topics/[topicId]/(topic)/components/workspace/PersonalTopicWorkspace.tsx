@@ -12,7 +12,7 @@ import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import topicService from '@/services/topic/topic.service';
 import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
 import LoadingPage from '@/app/loading';
-import { usePersonalTopicWorkspace } from '../../context/PersonalTopicWorkspaceContext';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import flashcardUtils from '../../utils/flashcard.utils';
 
@@ -35,7 +35,7 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
         setLearningFlashcards,
         ankiSettings,
         setAnkiSettings,
-    } = usePersonalTopicWorkspace();
+    } = useTopicWorkspace();
 
     const {
         data: topicContent,

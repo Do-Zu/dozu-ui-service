@@ -95,7 +95,7 @@ interface Props {
     defaultTab?: ClassDashboardTab;
 }
 
-export default function ClassDashboard({ classId, defaultTab }: Props) {
+export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
     const router = useRouter();
     const validateTopic = useValidateTopic();
 
@@ -300,6 +300,10 @@ export default function ClassDashboard({ classId, defaultTab }: Props) {
 
     function handleOnClickEditQuestion(topicId: number) {
         router.push(ROUTES.QUIZ_EDIT(topicId));
+    }
+
+    function handleTopicNameClick({ topicId }: ITopic) {
+        router.push(ROUTES.TEACHER.CLASS_TOPIC_WORKSPACE({ classId, topicId }));
     }
 
     if (myClassError) {
@@ -522,7 +526,7 @@ export default function ClassDashboard({ classId, defaultTab }: Props) {
                         <TopicCard
                             key={topic.topicId}
                             topic={topic}
-                            handleNameClick={handleTopicDetailsModalOpen}
+                            handleNameClick={handleTopicNameClick}
                             menuContent={menuContentInCard}
                             footer={cardFooter}
                         />
