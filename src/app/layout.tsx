@@ -1,3 +1,5 @@
+'use client';
+
 import { Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import StoreProvider from './StoreProvider';
@@ -62,7 +64,7 @@ const geist = localFont({
             style: 'normal',
         },
     ],
-    variable: '--font-geist',
+    variable: '--font-primary',
     display: 'swap',
 });
 
