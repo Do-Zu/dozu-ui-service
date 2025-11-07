@@ -27,6 +27,13 @@
             },
             "context": {
                 "repo": "perinst/dozu-ui-service"
+            },
+            "api": {
+                "base_url": "https://api.github.com",
+                "contributors_endpoint": "/repos/{owner}/{repo}/contributors",
+                "auth": {
+                    "token_secret": "GITHUB_TOKEN"
+                }
             }
         }
     }
