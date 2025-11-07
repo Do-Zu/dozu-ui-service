@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
+import AuthButton from '@/components/toolbar/AuthButton';
 import { Home, Users, BarChart3, Clock, ListChecks, CreditCard, Star, TrendingUp, DollarSign, Wallet } from 'lucide-react';
 
 interface SidebarProps {
@@ -72,10 +72,11 @@ export function Sidebar({ className }: SidebarProps) {
     return (
         <aside 
             className={cn(
-                'bg-muted border-r h-screen sticky top-0 p-4 transition-all duration-300 ease-in-out',
+                'bg-muted border-r h-screen sticky top-0 p-4 transition-all duration-300 ease-in-out flex flex-col group',
                 isCollapsed ? 'w-[70px]' : 'w-[240px]',
                 className
             )}
+            data-collapsible={isCollapsed ? 'icon' : undefined}
         >
             {/* Header with Logo - Click logo to toggle */}
             <div className="mb-6">
@@ -106,7 +107,7 @@ export function Sidebar({ className }: SidebarProps) {
             </div>
 
             {/* Navigation Items */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
@@ -136,6 +137,11 @@ export function Sidebar({ className }: SidebarProps) {
                         </Link>
                     );
                 })}
+            </div>
+
+            {/* Auth Button at bottom */}
+            <div className="mt-auto pt-2">
+                <AuthButton />
             </div>
         </aside>
     );

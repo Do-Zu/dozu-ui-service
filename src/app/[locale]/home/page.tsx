@@ -13,6 +13,7 @@ import CurrentProcessLearning from './components/CurrentProcessLearning';
 import HeroSection from './components/HeroSection';
 import LoadingPage from '@/app/loading';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
 
 const BackgroundGradient: React.FC = React.memo(() => (
     <div aria-hidden className="h-full pointer-events-none absolute inset-0 overflow-hidden select-none">
@@ -54,14 +55,24 @@ const Home: React.FC = () => {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const router = useRouter();
     const { isAuthenticated } = useAuthStorage();
+    const { isAdmin } = useRoleChecker();
+
+    // Block admin from accessing home page
+    useEffect(() => {
+        if (isAdmin) {
+            router.replace(ROUTES.ADMIN);
+            return;
+        }
+    }, [isAdmin, router]);
 
     useEffect(() => {
         if (learningMode === MODE_ACCESS_PAGE_ROLE.classBased) {
             router.push(ROUTES.CLASS_BASED);
         }
-    }, [learningMode]);
+    }, [learningMode, router]);
 
-    if (learningMode === MODE_ACCESS_PAGE_ROLE.classBased) {
+    // Show loading if redirecting admin or changing learning mode
+    if (isAdmin || learningMode === MODE_ACCESS_PAGE_ROLE.classBased) {
         return <LoadingPage />;
     }
 
