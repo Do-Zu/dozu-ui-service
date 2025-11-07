@@ -21,7 +21,7 @@ export function Topbar() {
     useEffect(() => setMounted(true), []);
     
     const current = theme || 'light';
-    const currentTheme = THEMES.find((t) => t.key === current) || THEMES[1];
+    const currentTheme = THEMES.find((t) => t.key === current) || THEMES[0];
     const CurrentIcon = currentTheme.icon;
 
     const cycleTheme = useCallback(() => {
