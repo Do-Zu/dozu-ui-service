@@ -8,26 +8,29 @@ import pomodoroSlice from './features/pomodoro/pomodoroSlice';
 import isEditingMindmapSlice from './features/mindmap/isEditingMindmapSlice';
 import packageSlice from './features/package/packageSlice';
 
-export const store = configureStore({
-    reducer: {
-        auth: authSlice,
+export const makeStore = () => {
+    return configureStore({
+        reducer: {
+            auth: authSlice,
 
-        selectedNodeSlice: selectedNodeSlice,
+            selectedNodeSlice: selectedNodeSlice,
 
-        isEditingMindmapSlice: isEditingMindmapSlice,
+            isEditingMindmapSlice: isEditingMindmapSlice,
 
-        subscription: subscriptionSlice,
+            subscription: subscriptionSlice,
 
-        learningMode: learningModeSlice,
+            learningMode: learningModeSlice,
 
-        inputSet: inputSetSlice,
+            inputSet: inputSetSlice,
 
-        pomodoro: pomodoroSlice,
+            pomodoro: pomodoroSlice,
 
-        package: packageSlice,
-    },
-    devTools: process.env.NODE_ENV !== 'production',
-});
+            package: packageSlice,
+        },
+        devTools: process.env.NODE_ENV !== 'production',
+    });
+};
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore['getState']>;
+export type AppDispatch = AppStore['dispatch'];

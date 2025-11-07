@@ -1,5 +1,4 @@
 import Axios from '@/api/axios';
-import { store } from '@/stores/store';
 import { postRequest } from '@/api/api';
 import { IFlashcardWithServer, handleConvertToFlashcardsSubmitted } from '../../flashcards/components/FlashcardEditor';
 import { handleConvertToQuestionsSubmitted } from '../../question/utils/handleConvertToQuestionsSubmitted';
@@ -84,8 +83,6 @@ type InsertContentTopicParams =
 
 type NonNullableInsertParams = Exclude<InsertContentTopicParams, { contentType: null }>;
 
-type RootState = ReturnType<typeof store.getState>;
-
 /**
  * Service class to handle content creation operations
  */
@@ -97,15 +94,12 @@ export class ContentCreationService {
         const { topic, contentType, contentData } = params;
         const { name, description, imageFile } = topic;
 
-        const state = store.getState(); //get state to get inputSetId saved on file upload - DuyND
-
         try {
             // Phase 1: Create topic
             const data = await topicService.createTopic({
                 name,
                 description,
                 imageFile,
-                inputSetId: state.inputSet?.inputSetId,
             });
 
             const topic = data;
@@ -143,7 +137,6 @@ export class ContentCreationService {
     static async createContentForClass(params: CreateContentForClassParams): Promise<ContentCreationResult> {
         const { topic, contentType, contentData } = params;
         const { classId, name, description, imageFile } = topic;
-        const state = store.getState();
 
         try {
             // Phase 1: Create topic in a specific class
@@ -152,7 +145,6 @@ export class ContentCreationService {
                 name,
                 description,
                 imageFile,
-                inputSetId: state.inputSet.inputSetId,
             });
             const topic = data;
 
@@ -200,8 +192,7 @@ export class ContentCreationService {
         }
 
         try {
-            const state = store.getState();
-            const metadata = this.resolveResourceMetadata(params, state);
+            const metadata = this.resolveResourceMetadata(params);
 
             if (!metadata) {
                 return;
@@ -223,7 +214,6 @@ export class ContentCreationService {
 
     private static resolveResourceMetadata(
         params: NonNullableInsertParams,
-        state: RootState,
     ): ResourceMetadataMap[ResourceContentType] | null {
         switch (params.contentType) {
             case RESOURCE_CONTENT_TYPE.FILE: {

@@ -1,8 +1,6 @@
 import axios, { HttpStatusCode } from 'axios';
 import Axios from '@/api/axios';
 import { UploadApiResponse, UploadFileResponse } from '@/components/generative/types';
-import { updateInputSetId } from '@/stores/features/inputSet/inputSetSlice';
-import { store } from '@/stores/store';
 import { uploadApi } from './upload.api';
 // Types for upload functionality
 export interface PresignedUrlRequest {

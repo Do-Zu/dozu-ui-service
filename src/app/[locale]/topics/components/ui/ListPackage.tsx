@@ -7,14 +7,14 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { PackageId } from '@/services/package/package.type';
-import { moveTopicToPackage } from '@/stores/features/package/package.thunk';
+import { createPackage, moveTopicToPackage } from '@/stores/features/package/package.thunk';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { isNilOrEmpty, safeDestructure } from '@/utils';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { ITopic } from '../../types/topic.type';
 import { toast } from '@/hooks/use-toast';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Folder, Search, X } from 'lucide-react';
+import { Folder, Plus, PlusCircleIcon, Search, X } from 'lucide-react';
 import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
 
 interface IProps {
@@ -26,7 +26,10 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
     const dispatch = useAppDispatch();
     const t = useTranslations('packages');
 
-    const { packages, isLoading } = useAppSelector((state) => safeDestructure(state.package));
+    const { packages, isLoading, isUpdating } = useAppSelector((state) => safeDestructure(state.package));
+
+    const [newPackageName, setNewPackageName] = useState('');
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     const [query, setQuery] = useState('');
 
@@ -35,6 +38,8 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
         const q = query.trim().toLowerCase();
         return (packages ?? []).filter((p) => p.title.toLowerCase().includes(q));
     }, [packages, query]);
+
+    const onOpenModelCreatePackage = async () => {};
 
     const handleAddTopicInPackage = async (packageId: PackageId) => {
         if (isNilOrEmpty(topic)) {
@@ -68,6 +73,63 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
     };
 
     const clearQuery = () => setQuery('');
+
+    const handleCreate = async () => {
+        const title = newPackageName.trim();
+
+        if (isNilOrEmpty(title)) return;
+
+        try {
+            await dispatch(
+                createPackage({
+                    title,
+                    parentId: null,
+                }),
+            ).unwrap();
+
+            setNewPackageName('');
+            setIsCreateOpen(false);
+        } catch {
+            toast({ description: t('toast.createFail') });
+        }
+    };
+
+    const renderCreatePackage = () => (
+        <div className="px-1 pb-2">
+            <Modal
+                isOpen={isCreateOpen}
+                setIsOpen={setIsCreateOpen}
+                title={t('createTitle')}
+                contentStyle="max-w-[520px]"
+                trigger={
+                    <Button size="sm" variant="ghost" className="w-full justify-start gap-2">
+                        <Plus className="h-4 w-4 rounded-full" />
+                        <span className="text-xs">{t('new')}</span>
+                    </Button>
+                }
+                body={
+                    <div className="space-y-2">
+                        <label className="text-sm text-muted-foreground" htmlFor="pkg-name">
+                            {t('field.name')}
+                        </label>
+                        <Input
+                            id="pkg-name"
+                            autoFocus
+                            value={newPackageName}
+                            onChange={(e) => setNewPackageName(e.target.value)}
+                            placeholder={t('placeholder.name')}
+                        />
+                    </div>
+                }
+                footer={
+                    <Button onClick={handleCreate} disabled={isUpdating || !newPackageName.trim()}>
+                        {isUpdating ? t('action.creating') : t('action.create')}
+                    </Button>
+                }
+                cancel={<Button variant="outline">{t('action.cancel')}</Button>}
+            />
+        </div>
+    );
 
     return (
         <Modal
@@ -110,9 +172,9 @@ export default function ListPackage({ isOpenListPackage, setIsOpenListPackage, t
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="text-sm text-muted-foreground p-4"
+                                    className="text-sm text-muted-foreground mx-auto"
                                 >
-                                    {t('list.empty')}
+                                    {renderCreatePackage()}
                                 </motion.div>
                             ) : (
                                 <ul className="grid grid-cols-1 gap-2">

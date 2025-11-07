@@ -15,6 +15,7 @@
         "apply": "Apply",
         "paymentMethods": "Payment methods",
         "payosLink": "PayOS link",
+        "payOSGateWay": "Pay OS GateWay",
         "scanQR": "Scan QR",
         "redirectNotice": "You’ll be redirected to a secure PayOS page to complete your payment.",
         "qrUnavailable": "QR code unavailable",
