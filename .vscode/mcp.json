@@ -5,7 +5,11 @@
             "capabilities": {
                 "commands": {
                     "create_issue": {
-                        "enabled": true
+                        "enabled": true,
+                        "options": {
+                            "prefix_title": "[BUG]",
+                            "assign_from_contributors": true
+                        }
                     },
                     "create_branch": {
                         "enabled": false
