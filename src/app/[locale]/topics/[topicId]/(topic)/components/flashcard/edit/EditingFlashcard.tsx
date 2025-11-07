@@ -160,8 +160,9 @@ export function handleConvertToFlashcardsEdited(flashcards: IFlashcard[]): IEdit
                 },
             };
         });
+        let nextId = initialFlashcards.length > 0 ? initialFlashcards[initialFlashcards.length - 1].id + 1 : 0;
         for (let i = initialFlashcards.length; i % 3 !== 0; ++i) {
-            initialFlashcards.push(createInitialFlashcard(i));
+            initialFlashcards.push(createInitialFlashcard(nextId++));
         }
     }
     return initialFlashcards;
@@ -338,7 +339,7 @@ const EditingFlashcard = () => {
             ++startId;
         }
         for (let i = newFlashcards.length; i % 3 !== 0; ++i) {
-            newFlashcards.push(createInitialFlashcard(++startId));
+            newFlashcards.push(createInitialFlashcard(startId++));
         }
         setEditingFlashcards(newFlashcards);
         setIsImportModalOpen(false);
