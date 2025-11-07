@@ -1,5 +1,7 @@
-import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
-
+import { IDueAnkiCard, IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
+import { FlashcardLearningMode } from '../components/flashcard/FlashcardContent';
+import { IFlashcardCounts } from '../../../types/topic.type';
+import { IAnkiStatus } from '@/types/anki';
 class FlashcardUtils {
     private getRandomInt(max: number) {
         return Math.floor(Math.random() * (max + 1));
@@ -26,6 +28,30 @@ class FlashcardUtils {
             flashcardsRandom.push(flashcards[indexRandom]);
         }
         return flashcardsRandom;
+    }
+
+    public getDisplayModeName(mode: FlashcardLearningMode): string {
+        return mode.charAt(0).toUpperCase() + mode.slice(1);
+    }
+
+    public recalculateFlashcardCounts({
+        flashcards,
+        learningFlashcards,
+    }: {
+        flashcards: IFlashcard[];
+        learningFlashcards: IDueAnkiCard[];
+    }): IFlashcardCounts {
+        const updatedFlashcardCounts: IFlashcardCounts = {
+            [IAnkiStatus.NEW]: 0,
+            [IAnkiStatus.LEARNING]: 0,
+            [IAnkiStatus.REVIEW]: 0,
+            total: flashcards.length,
+        };
+        for (const card of learningFlashcards) {
+            const newStatus = card.status === IAnkiStatus.RELEARNING ? IAnkiStatus.LEARNING : card.status;
+            updatedFlashcardCounts[newStatus]++;
+        }
+        return updatedFlashcardCounts;
     }
 }
 

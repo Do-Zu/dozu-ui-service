@@ -203,6 +203,23 @@ class FlashcardService {
 
         return scoreMap[rating as keyof typeof scoreMap] || 0;
     }
+
+    public async batchFlashcardsForTopicState({
+        topicId,
+        flashcards,
+    }: {
+        topicId: string | number;
+        flashcards: IFlashcardsBatchInput;
+    }): Promise<{ flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }> {
+        const response = await postRequest<
+            IFlashcardsBatchInput,
+            { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
+        >(`/topics/${topicId}/flashcards/batch/state`, flashcards);
+        if (response.status != 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
 }
 
 export default new FlashcardService();

@@ -14,7 +14,7 @@ interface FlashcardProps {
 
 export default function Flashcard({ front, back, isFlipped, isAnimating, onClick }: FlashcardProps) {
     return (
-        <div className="relative w-[55%] h-[80%] mt-4 perspective cursor-pointer select-none" onClick={onClick}>
+        <div className="relative w-[55%] h-[70%] perspective cursor-pointer select-none" onClick={onClick}>
             <div
                 className={cn(
                     'absolute inset-0 transform-style-preserve-3d',
@@ -22,7 +22,7 @@ export default function Flashcard({ front, back, isFlipped, isAnimating, onClick
                     isAnimating === undefined || isAnimating ? 'transition-transform duration-500' : '',
                 )}
             >
-                2{/* Front Side */}
+                {/* Front Side */}
                 <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden shadow-md text-center p-8 text-lg">
                     {front}
                 </div>

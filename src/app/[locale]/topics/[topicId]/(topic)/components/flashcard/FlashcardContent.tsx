@@ -7,110 +7,77 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Check, ChevronDown, GraduationCap, LayoutGrid } from 'lucide-react';
-import { use, useEffect, useState } from 'react';
-import FlashcardBrowse from './browse/FlashcardBrowse';
-import { useParams } from 'next/navigation';
-import FlashcardLearning from './learning/FlashcardLearning';
-import { useSelector } from 'react-redux';
-import {
-    fetchFlashcards,
-    selectFlashcards,
-    selectFlashcardsError,
-    selectFlashcardsStatus,
-} from '../../store/features/flashcardSlice';
-import { useTopicDispatch } from '../../hooks/hooks';
+import { Check, ChevronDown, Edit, GraduationCap, LayoutGrid, Settings } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import BrowseFlashcard from './browse/BrowseFlashcard';
+import LearningFlashcard from './learning/LearningFlashcard';
 import { UserTrackingProvider } from '@/contexts/tracking/UserTrackingContext';
-import FetchBoundary from '@/components/common/FetchBoundary2';
-import {
-    fetchLearningFlashcards,
-    selectLearningFlashcards,
-    selectLearningFlashcardsError,
-    selectLearningFlashcardsStatus,
-} from '../../store/features/learningFlashcardSlice';
-import FlashcardsEmptyState from './browse/FlashcardsEmptyState';
-import LearningFlashcardsEmptyState from './learning/LearningFlashcardsEmptyState';
-import { selectFlashcardCounts } from '../../store/features/topicDetailsSlice';
+import flashcardUtils from '../../utils/flashcard.utils';
+import FlashcardSettings from './settings/FlashcardSettings';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { UserRoleEnum } from '@/utils/constants/roles';
+import EditingFlashcard from './edit/EditingFlashcard';
 
-export type FlashcardLearningMode = 'browse' | 'learning';
+export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings';
 
-export default function FlashcardContent() {
-    const params = useParams<{ topicId: string }>();
-    const topicId = Number(params?.topicId);
+interface PersonalProps {
+    mode: MODE_ACCESS_PAGE_ROLE.personal;
+    role?: undefined;
+}
 
-    const dispatch = useTopicDispatch();
+interface StudentProps {
+    mode: MODE_ACCESS_PAGE_ROLE.classBased;
+    role: UserRoleEnum.USER;
+}
+interface TeacherProps {
+    mode: MODE_ACCESS_PAGE_ROLE.classBased;
+    role: UserRoleEnum.TEACHER;
+}
 
-    // flashcards for browsing
-    const flashcardsError = useSelector(selectFlashcardsError);
-    const flashcardsStatus = useSelector(selectFlashcardsStatus);
-    const flashcards = useSelector(selectFlashcards);
+type Props = PersonalProps | StudentProps | TeacherProps;
 
-    // flashcards for learning
-    const learningFlashcardsError = useSelector(selectLearningFlashcardsError);
-    const learningFlashcardsStatus = useSelector(selectLearningFlashcardsStatus);
-    const learningFlashcards = useSelector(selectLearningFlashcards);
+export default function FlashcardContent({ mode, role }: Props) {
+    const selectableItems: FlashcardLearningMode[] = useMemo(() => {
+        if (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER)
+            return ['browse', 'learning', 'edit', 'settings'];
+        return ['browse', 'learning', 'settings'];
+    }, [mode, role]);
+    const itemIcons: { item: FlashcardLearningMode; icon: JSX.Element }[] = [
+        { item: 'browse', icon: <LayoutGrid className="mr-2 h-4 w-4" /> },
+        { item: 'learning', icon: <GraduationCap className="mr-2 h-4 w-4" /> },
+        { item: 'edit', icon: <Edit className="mr-2 h-4 w-4" /> },
+        { item: 'settings', icon: <Settings className="mr-2 h-4 w-4" /> },
+    ];
 
-    // card status counts
-    const flashcardCounts = useSelector(selectFlashcardCounts);
-
-    const [mode, setMode] = useState<FlashcardLearningMode>('browse');
-
-    useEffect(() => {
-        if (flashcardsStatus === 'idle') {
-            dispatch(fetchFlashcards(topicId));
-        }
-    }, [topicId, flashcardsStatus, dispatch]);
-
-    useEffect(() => {
-        if (learningFlashcardsStatus === 'idle') {
-            dispatch(fetchLearningFlashcards(topicId));
-        }
-    }, [topicId, learningFlashcardsStatus, dispatch]);
-
-    if (isNaN(topicId)) {
-        return <div className="p-8">TopicId is not valid, please try again.</div>;
-    }
+    const [flashcardMode, setFlashcardMode] = useState<FlashcardLearningMode>('browse');
 
     function handleModeSelect(mode: FlashcardLearningMode) {
-        setMode(mode);
+        setFlashcardMode(mode);
     }
 
     return (
-        <div className="w-full h-[95%]">
+        <div className="w-full h-[90%]">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="flex items-center gap-2">
-                        <span>{mode === 'browse' ? 'Browse' : 'Learning'}</span>
+                        <span>{flashcardUtils.getDisplayModeName(flashcardMode)}</span>
                         <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </Button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => handleModeSelect('browse')}>
-                        <LayoutGrid className="mr-2 h-4 w-4" />
-                        <span>Browse</span>
-                        {mode === 'browse' && <Check className="ml-auto h-4 w-4" />}
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem onSelect={() => handleModeSelect('learning')}>
-                        <GraduationCap className="mr-2 h-4 w-4" />
-                        <span>Learning</span>
-                        {mode === 'learning' && <Check className="ml-auto h-4 w-4" />}
-                    </DropdownMenuItem>
+                    {selectableItems.map((item) => (
+                        <DropdownMenuItem onSelect={() => handleModeSelect(item)}>
+                            {itemIcons.find((e) => e.item === item)?.icon}
+                            <span>{flashcardUtils.getDisplayModeName(item)}</span>
+                            {flashcardMode === item && <Check className="ml-auto h-4 w-4" />}
+                        </DropdownMenuItem>
+                    ))}
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {mode === 'browse' ? (
-                <FetchBoundary
-                    data={flashcards}
-                    status={flashcardsStatus}
-                    error={flashcardsError}
-                    onEmpty={<FlashcardsEmptyState />}
-                >
-                    {(flashcards) => <FlashcardBrowse topicId={topicId} flashcards={flashcards} />}
-                </FetchBoundary>
-            ) : null}
-            {mode === 'learning' ? (
+            {flashcardMode === 'browse' && selectableItems.includes('browse') ? <BrowseFlashcard /> : null}
+            {flashcardMode === 'learning' && selectableItems.includes('learning') ? (
                 <UserTrackingProvider
                     autoStartTracking={true}
                     enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
@@ -118,21 +85,19 @@ export default function FlashcardContent() {
                     apiEndpoint="/tracking/active-learning" // Behavioral tracking
                     learningApiEndpoint="/progress/learning-tracking" // Learning progress tracking
                 >
-                    <FetchBoundary
-                        data={learningFlashcards}
-                        status={learningFlashcardsStatus}
-                        error={learningFlashcardsError}
-                        onEmpty={<LearningFlashcardsEmptyState topicId={topicId} />}
-                    >
-                        {(learningFlashcards) => (
-                            <FlashcardLearning
-                                topicId={topicId.toString()}
-                                flashcards={learningFlashcards}
-                                ankiCardStatusCounts={flashcardCounts || { new: 0, learning: 0, review: 0 }}
-                            />
-                        )}
-                    </FetchBoundary>
+                    <LearningFlashcard />
                 </UserTrackingProvider>
+            ) : null}
+            {flashcardMode === 'edit' && selectableItems.includes('edit') && (
+                <div className="h-full overflow-y-scroll p-8">
+                    <EditingFlashcard />
+                </div>
+            )}
+
+            {flashcardMode === 'settings' && selectableItems.includes('settings') ? (
+                <div className="h-full overflow-y-scroll">
+                    <FlashcardSettings />
+                </div>
             ) : null}
         </div>
     );

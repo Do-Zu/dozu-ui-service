@@ -18,19 +18,14 @@ import LoadingPage from '@/app/loading';
 import BacklogCTA from '@/app/[locale]/flashcards/learning/components/BacklogCTA';
 import QuickQuizPrompt from '@/app/[locale]/flashcards/learning/components/QuickQuizPrompt';
 import LearningCard from '../LearningCard';
-import { store } from '../../../store/store';
-import { useTopicDispatch } from '../../../hooks/hooks';
-import { reviewCard } from '../../../store/features/learningFlashcardSlice';
+import { useRequireTopic } from '../../../context/useRequireTopic';
+import { useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
+import LearningFlashcardsEmptyState from './LearningFlashcardsEmptyState';
 
-export default function FlashcardLearning({
-    topicId,
-    flashcards,
-    ankiCardStatusCounts,
-}: {
-    topicId: string;
-    flashcards: IDueAnkiCard[];
-    ankiCardStatusCounts: IAnkiCardStatusCounts;
-}) {
+export default function LearningFlashcard() {
+    const { topic } = useRequireTopic();
+    const { topicId, flashcardCounts } = topic;
+    const { learningFlashcards: flashcards, onReviewCard } = useRequireLearningFlashcards();
     const router = useRouter();
     const tCommon = useTranslations('common');
     const tFlashcardLearning = useTranslations('flashcard.learning');
@@ -66,7 +61,7 @@ export default function FlashcardLearning({
 
     // milestones 50% + 100%
     const q = useQuizMilestones({
-        topicId,
+        topicId: topicId.toString(),
         regenerate,
         sseData,
         sseStatus,
@@ -76,7 +71,6 @@ export default function FlashcardLearning({
 
     const [isFlipped, setIsFlipped] = useState(false);
     const [isAnimating, setIsAnimating] = useState(true);
-    const dispatch = useTopicDispatch();
 
     useEffect(() => {
         q.ensureBaseline(flashcards.length, flashcards.map(toQuizCard));
@@ -104,12 +98,11 @@ export default function FlashcardLearning({
                 // Ky Anh section - handle updating flashcards & flashcardsStatuCounts & relevant states related to 'Learning'
                 setFlipInstantly(false);
                 setShouldShowTrackingOptions(false);
-                dispatch(reviewCard({ currentCard: currentFlashcard, reviewedCard: data }));
-                // get the latest learning flashcards
-                const flashcardsUpdated = store.getState().learningFlashcards.data;
-                if (!flashcardsUpdated) {
-                    throw new Error('Cannot get learningFlashcards from store (Redux), please try again.');
-                }
+                const updatedLearningFlashcards = onReviewCard({
+                    currentCard: currentFlashcard,
+                    reviewedCard: data,
+                });
+                if (!updatedLearningFlashcards) return;
                 // ending Ky Anh section - handle updating flashcards & flashcardsStatuCounts
 
                 // Update learning tracking metrics using context methods
@@ -123,18 +116,18 @@ export default function FlashcardLearning({
                 setStudied((prev) => {
                     const last = prev[prev.length - 1];
                     if (last && String(last.flashcardId) === String(currentFlashcard.flashcardId)) {
-                        q.onStudiedProgress(prev, flashcardsUpdated.length);
+                        q.onStudiedProgress(prev, updatedLearningFlashcards.length);
                         return prev;
                     }
                     const newStudied = [...prev, toQuizCard(currentFlashcard)];
-                    q.onStudiedProgress(newStudied, flashcardsUpdated.length);
+                    q.onStudiedProgress(newStudied, updatedLearningFlashcards.length);
                     return newStudied;
                 });
 
                 // If this was the last card, save progress to database using context method
-                if (flashcardsUpdated.length === 0) {
+                if (updatedLearningFlashcards.length === 0) {
                     await saveCurrentLearningSession(
-                        topicId as string,
+                        topicId.toString(),
                         flashcards.length,
                         true, // completed
                     );
@@ -147,7 +140,7 @@ export default function FlashcardLearning({
     useEffect(() => {
         resetLearningSession();
         if (topicId && currentFlashcard) {
-            startStudySession(topicId as string, currentFlashcard.topicName);
+            startStudySession(topicId.toString(), currentFlashcard.topicName);
         }
 
         // End session when component unmounts ONLY
@@ -158,7 +151,7 @@ export default function FlashcardLearning({
             // Save final session data to database using context method
             // Don't mark as completed on unmount since user might be just leaving the page
             saveCurrentLearningSession(
-                topicId as string,
+                topicId.toString(),
                 flashcards?.length || 0,
                 false, // not completed on unmount
             ).catch((error: any) => {
@@ -220,6 +213,10 @@ export default function FlashcardLearning({
         q.skipFullQuiz(onlySecond);
     };
 
+    if (flashcards.length === 0) {
+        return <LearningFlashcardsEmptyState topicId={topicId} />;
+    }
+
     return (
         <>
             {/* Backlog banner */}
@@ -271,7 +268,7 @@ export default function FlashcardLearning({
                     isAnimating={isAnimating}
                     onFlip={flipWithAnimation}
                     handleRatingClick={handleReviewFlashcardClick}
-                    flashcardStatusCounts={ankiCardStatusCounts}
+                    flashcardStatusCounts={flashcardCounts || { new: 0, learning: 0, review: 0 }}
                 />
             )}
 

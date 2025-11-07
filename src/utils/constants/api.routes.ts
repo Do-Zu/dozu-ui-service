@@ -9,7 +9,7 @@ export const flashcardRoutes = (topicId: ResourceId) => ({
     GET_FLASHCARDS_WITHOUT_TOPIC_INFO: `${topicFlashcardsEndpoint(topicId)}?includeTopic=false`,
     GET_FLASHCARDS_WITH_TOPIC_INFO: `${topicFlashcardsEndpoint(topicId)}?includeTopic=true`,
     GET_DUE_FLASHCARDS: `${topicFlashcardsEndpoint(topicId)}/learning`,
-    BATCH_FLASHCARDS: `${topicFlashcardsEndpoint(topicId)}/batch`,
+    BATCH_FLASHCARDS: `${topicFlashcardsEndpoint(topicId)}/batch/changes`,
     BATCH_FLASHCARDS_FOR_NODE: `${topicFlashcardsEndpoint(topicId)}/batch/node`,
     REVIEW_FLASHCARD_WITH_QUALITY: ({ flashcardId }: { flashcardId: ResourceId }) =>
         `${topicFlashcardsEndpoint(topicId)}/${flashcardId}/review`,

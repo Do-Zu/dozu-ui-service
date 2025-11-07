@@ -2,9 +2,8 @@
 
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
-import StudentTopicWorkspace from './components/workspace/StudentTopicWorkspace';
-import PersonalTopicWorkspace from './components/workspace/PersonalTopicWorkspace';
-import { PersonalTopicWorkspaceProvider } from './context/PersonalTopicWorkspaceContext';
+import StudentTopicWorkspace from '@/app/[locale]/topics/[topicId]/(topic)/components/workspace/StudentTopicWorkspace';
+import { PersonalTopicWorkspaceProvider } from '@/app/[locale]/topics/[topicId]/(topic)/context/PersonalTopicWorkspaceContext';
 
 export default function TopicPage() {
     const params = useParams();
@@ -18,7 +17,7 @@ export default function TopicPage() {
 
     return (
         <PersonalTopicWorkspaceProvider>
-            <PersonalTopicWorkspace topicId={topicId} />
+            <StudentTopicWorkspace topicId={topicId} />
         </PersonalTopicWorkspaceProvider>
     );
 }
