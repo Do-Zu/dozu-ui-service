@@ -37,6 +37,9 @@ import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
 import AuthButton from '@/components/toolbar/AuthButton';
 import TreeView from '@/app/[locale]/home/components/package/TreeView';
 import { ScrollArea } from '../ui/scroll-area';
+import { USER_ROLES } from '@/utils/constants/roles';
+import { getConfigLayoutPackageForSidebar } from '@/configs/layout/layoutConfig';
+import { safeDestructure } from '@/utils';
 import { useUpgradeModal } from '@/stores/features/subscription/useUpgradeModal';
 import { Button } from '@/components/ui/button';
 
@@ -76,8 +79,10 @@ export function AppSidebar() {
     const pathname = usePathname();
     const { hasRole, currentPlanUser } = useAuth();
     const { openUpgradeModal } = useUpgradeModal();
-    
+
     const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
+
+    const { isDisplayPackages } = safeDestructure(getConfigLayoutPackageForSidebar(pathname));
 
     return (
         <Sidebar collapsible="icon">
@@ -92,14 +97,16 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <ScrollArea>
-                    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-                        <SidebarGroupLabel>Packages</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <AuthGuard>
-                                <TreeView />
-                            </AuthGuard>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
+                    {hasRole(USER_ROLES.USER) && isDisplayPackages && (
+                        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+                            <SidebarGroupLabel>Packages</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <AuthGuard>
+                                    <TreeView />
+                                </AuthGuard>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    )}
 
                     <SidebarGroup>
                         <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -169,7 +176,7 @@ export function AppSidebar() {
 
             <SidebarGroup>
                 <SidebarGroupLabel></SidebarGroupLabel>
-                <SidebarGroupContent className="flex flex-col gap-4">                 
+                <SidebarGroupContent className="flex flex-col gap-4">
                     <div className="flex flex-col gap-4 group-data-[collapsible=icon]:hidden">
                         <ThemeToggle />
                         <LanguageSwitcher />

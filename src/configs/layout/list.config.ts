@@ -39,3 +39,14 @@ export const layoutConfigs: PageLayoutConfig[] = [
         isDisplaySidebar: false,
     },
 ];
+
+export const displayPackagesConfigs = [
+    {
+        pathPattern: '/${locale}/*/teacher/*',
+        isDisplayPackage: false,
+    },
+    {
+        pathPattern: '/${locale}/*/class-based/*',
+        isDisplayPackage: false,
+    },
+];

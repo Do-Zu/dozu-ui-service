@@ -6,7 +6,7 @@
  * @param value - Input value (string or number).
  * @param defaultValue - Value to return when parsing fails.
  */
-const toNumber = (value: unknown, defaultValue: number): number => {
+const toNumberNormalize = (value: unknown, defaultValue: number = NaN): number => {
     if (typeof value === 'number') return Number.isFinite(value) ? value : defaultValue;
     if (typeof value !== 'string' || !value.trim()) return defaultValue;
 
@@ -25,6 +25,29 @@ const toNumber = (value: unknown, defaultValue: number): number => {
 
     const n = Number(s);
     return Number.isFinite(n) ? n : defaultValue;
+};
+
+/**
+ * Safely converts a value to a number.
+ * Returns defaultValue if conversion fails or result is not finite.
+ *
+ * @param value - Any input value.
+ * @param defaultValue - Value to return when parsing fails.
+ */
+const toNumber = (value: unknown, defaultValue: number = NaN): number => {
+    if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : defaultValue;
+    }
+
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (!trimmed) return defaultValue;
+
+        const parsed = Number(trimmed);
+        return Number.isFinite(parsed) ? parsed : defaultValue;
+    }
+
+    return defaultValue;
 };
 
 /**
@@ -239,6 +262,7 @@ export {
     wait,
     truncate,
     normalize,
+    toNumberNormalize,
     toNumber,
     safeDestructure,
     lowercase,
