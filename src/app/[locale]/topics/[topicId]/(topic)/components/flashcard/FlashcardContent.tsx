@@ -17,6 +17,7 @@ import FlashcardSettings from './settings/FlashcardSettings';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import EditingFlashcard from './edit/EditingFlashcard';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings';
 
@@ -51,54 +52,55 @@ export default function FlashcardContent({ mode, role }: Props) {
 
     const [flashcardMode, setFlashcardMode] = useState<FlashcardLearningMode>('browse');
 
-    function handleModeSelect(mode: FlashcardLearningMode) {
-        setFlashcardMode(mode);
+    function handleModeSelect(mode: string) {
+        if (!selectableItems.includes(mode as FlashcardLearningMode)) return;
+        setFlashcardMode(mode as FlashcardLearningMode);
     }
 
     return (
-        <div className="w-full h-[90%]">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                        <span>{flashcardUtils.getDisplayModeName(flashcardMode)}</span>
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end">
+        <div className="w-full h-[90%] flex flex-col">
+            <Tabs value={flashcardMode} onValueChange={handleModeSelect} className="w-full flex justify-center">
+                <TabsList className="w-[70%] grid grid-cols-4 rounded-lg bg-muted/30 p-1">
                     {selectableItems.map((item) => (
-                        <DropdownMenuItem key={item} onSelect={() => handleModeSelect(item)}>
+                        <TabsTrigger
+                            key={item}
+                            value={item}
+                            className="flex items-center justify-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md"
+                        >
                             {itemIcons.find((e) => e.item === item)?.icon}
-                            <span>{flashcardUtils.getDisplayModeName(item)}</span>
-                            {flashcardMode === item && <Check className="ml-auto h-4 w-4" />}
-                        </DropdownMenuItem>
+                            <span className="whitespace-nowrap">{flashcardUtils.getDisplayModeName(item)}</span>
+                        </TabsTrigger>
                     ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
+                </TabsList>
+            </Tabs>
 
-            {flashcardMode === 'browse' && selectableItems.includes('browse') ? <BrowseFlashcard /> : null}
-            {flashcardMode === 'learning' && selectableItems.includes('learning') ? (
-                <UserTrackingProvider
-                    autoStartTracking={true}
-                    enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
-                    minSessionTime={5000} // 5 seconds minimum session
-                    apiEndpoint="/tracking/active-learning" // Behavioral tracking
-                    learningApiEndpoint="/progress/learning-tracking" // Learning progress tracking
-                >
-                    <LearningFlashcard />
-                </UserTrackingProvider>
-            ) : null}
-            {flashcardMode === 'edit' && selectableItems.includes('edit') && (
-                <div className="h-full overflow-y-scroll p-8">
-                    <EditingFlashcard />
-                </div>
-            )}
+            <div className="flex-1 min-h-0">
+                {flashcardMode === 'browse' && selectableItems.includes('browse') ? <BrowseFlashcard /> : null}
 
-            {flashcardMode === 'settings' && selectableItems.includes('settings') ? (
-                <div className="h-full overflow-y-scroll">
-                    <FlashcardSettings />
-                </div>
-            ) : null}
+                {flashcardMode === 'learning' && selectableItems.includes('learning') ? (
+                    <UserTrackingProvider
+                        autoStartTracking={true}
+                        enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
+                        minSessionTime={5000} // 5 seconds minimum session
+                        apiEndpoint="/tracking/active-learning" // Behavioral tracking
+                        learningApiEndpoint="/progress/learning-tracking" // Learning progress tracking
+                    >
+                        <LearningFlashcard />
+                    </UserTrackingProvider>
+                ) : null}
+
+                {flashcardMode === 'edit' && selectableItems.includes('edit') && (
+                    <div className="h-full overflow-y-scroll p-8">
+                        <EditingFlashcard />
+                    </div>
+                )}
+
+                {flashcardMode === 'settings' && selectableItems.includes('settings') ? (
+                    <div className="h-full overflow-y-scroll">
+                        <FlashcardSettings />
+                    </div>
+                ) : null}
+            </div>
         </div>
     );
 }

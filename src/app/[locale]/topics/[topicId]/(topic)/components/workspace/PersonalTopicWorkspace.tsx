@@ -119,7 +119,7 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
                                 </div>
                             )}
 
-                            <div className={cn('flex-1 h-full', !isFullscreen ? 'px-6' : '')}>
+                            <div className={cn('flex-1 h-full', isFullscreen ? 'px-6 py-3' : 'px-3')}>
                                 <TabsList className="grid w-full grid-cols-4">
                                     <TabsTrigger value="overview">Overview</TabsTrigger>
                                     <TabsTrigger value="mindmap">Mindmap</TabsTrigger>
