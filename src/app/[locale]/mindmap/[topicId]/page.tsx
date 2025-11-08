@@ -223,9 +223,9 @@ export default function MindmapContent() {
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
-                edgeTypes={edgeTypes}
                 colorMode={colorMode}
                 fitView
             >

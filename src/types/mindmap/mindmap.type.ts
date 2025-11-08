@@ -30,9 +30,12 @@ export interface CustomNode {
     position: { x: number; y: number };
     data: {
         label: string;
+        description: string;
         pageStartIndex: string;
         pageEndIndex: string;
         nodeId: string; //includes more later like the above
+        isRoot?: boolean;
+        color?: string;
     };
     type: string;
 }
