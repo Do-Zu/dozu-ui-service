@@ -33,6 +33,8 @@ import DetailsPanel from '@/app/[locale]/class-based/(classwork)/components/comm
 import { NO_TOPIC_ID } from '@/app/[locale]/class-based/(classwork)/utils/classwork.constant';
 import FileItem from '@/app/[locale]/class-based/(classwork)/components/common/FileItem';
 import { AssignmentStatusEnum } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
+import { ROUTES } from '@/utils/constants/routes';
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 
 interface Props {
     myClass: IClass;
@@ -47,7 +49,7 @@ interface IInputResource {
 
 interface ICreateLearningMaterialBody {
     title: string;
-    description: string;
+    content: string;
     topicId?: string;
     inputResources?: IInputResource[];
 }
@@ -102,7 +104,8 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
         },
         onSuccess() {
             //toast success
-            // router.push(`/auth/changePasswordEmailSent`);
+            toastHelper.showSuccessMessage('Create learning material successfully');
+            router.push(ROUTES.TEACHER.CLASS_BASED_ID(myClass.classId, ClassDashboardTab.CLASSWORK));
         },
     });
 
@@ -119,7 +122,7 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
             }));
         }
 
-        const requestBody: ICreateLearningMaterialBody = { title, description: content ?? '' };
+        const requestBody: ICreateLearningMaterialBody = { title, content: content ?? '' };
         if (selectedTopic !== NO_TOPIC_ID) {
             requestBody.topicId = selectedTopic;
         }
