@@ -162,19 +162,15 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
       // Register user for notifications after connection
       socket.emit('register-user', userId);
-      console.log(`[WebSocket] Emitted register-user for userId: ${userId}`);
     });
 
     // Listen for registration confirmation from server
     socket.on('user-registered', (data: { userId: string; socketId: string }) => {
-      console.log(`[WebSocket] Server confirmed registration:`, data);
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('[WebSocket] Disconnected:', reason);
       setIsConnected(false);
       currentUserIdRef.current = null; // Clear userId on disconnect
-
       // Auto reconnect if not manually disconnected
       if (reason === 'io server disconnect') {
         // Server disconnected, try to reconnect
@@ -210,7 +206,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     // Notification events
     socket.on('notification', (data: NotificationData) => {
-      console.log('[WebSocket] Received notification:', data);
 
       // Check if notification should be shown based on user settings
       if (shouldShowNotification(data.type)) {
@@ -233,9 +228,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     // Cleanup on unmount
     return () => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[WebSocket] Cleaning up connection');
-      }
       socket.disconnect();
       socketRef.current = null;
       setIsConnected(false);
