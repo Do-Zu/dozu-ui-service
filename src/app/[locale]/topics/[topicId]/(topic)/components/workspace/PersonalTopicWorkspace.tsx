@@ -22,7 +22,7 @@ interface Props {
 
 export default function PersonalTopicWorkspace({ topicId }: Props) {
     const [isFullscreen, setIsFullscreen] = useState(false);
-    function handleScreenModeToogle() {
+    function handleScreenModeToggle() {
         setIsFullscreen((prev) => !prev);
     }
 
@@ -89,7 +89,7 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
     return (
         <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background">
             <div className={cn('absolute top-4 right-4 z-50', isPdfViewerFullscreen ? 'hidden' : '')}>
-                <Button variant="ghost" size="icon" onClick={handleScreenModeToogle}>
+                <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
                     {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
                     <span className="sr-only">Toggle Fullscreen</span>
                 </Button>

@@ -187,8 +187,8 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
                 setDocumentScale(documentSize.width / pdfSize.width);
             }
         } else {
-            if (isNaN(Number(selectedScaleOption))) setDocumentScale(1);
-            setDocumentScale(Number(selectedScaleOption));
+            const numericScale = Number(selectedScaleOption);
+            setDocumentScale(isNaN(numericScale) ? 1 : numericScale);
         }
     }, [selectedScaleOption, documentSize?.width, documentSize?.height, pdfSize?.width, pdfSize?.height]);
 
@@ -204,7 +204,7 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
 
         const nextScrollTop = (pageNumber - 0.95) * pdfHeightByScale;
         documentRef.current.scrollTo({ top: nextScrollTop, behavior: 'instant' });
-    }, [pdfSize?.width, pdfSize?.height, pageNumber]);
+    }, [pdfSize?.width, pdfSize?.height, pageNumber, documentScale]);
 
     function onScreenModeToogle() {
         setIsPdfViewerFullScreen((prev) => !prev);
