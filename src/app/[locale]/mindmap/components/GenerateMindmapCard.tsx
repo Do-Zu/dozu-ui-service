@@ -1,15 +1,11 @@
-import React, { useEffect, useMemo } from 'react';
+'use client';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import PreviewMindmap from './PreviewMindmap';
-
-import { Button } from '@/components/ui/button';
-import { postRequest } from '@/api/api';
-import { ITopic } from '../../topics/types/topic.type';
-import Axios from '@/api/axios';
-import { Card } from '@/components/ui/card';
 
 import { v4 as uuidv4 } from 'uuid';
 import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
-
+import { mindmapLayoutElkOptions } from '../constants';
+import { getLayoutedElements } from '../utils/mindmap.utils';
 
 interface GenerateMindmapCardProps {
     mindmapData: any;
@@ -43,6 +39,9 @@ interface GeneratedNode {
 }
 
 const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGenerated }: GenerateMindmapCardProps) => {
+    const isMindmapUpdatedRef = useRef(false);
+    const isMindmapLayoutedRef = useRef(false);
+
     const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEdge[]) => {
         const updatedEdges = edges.map((edge: GeneratedEdge) => {
             if (edge.source === oldId) {
@@ -66,6 +65,7 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
             const oldId = node.id;
             const newId = uuidv4();
             updatedEdges = getUpdatedEdges(oldId, newId, updatedEdges);
+
             return {
                 ...node,
                 id: newId,
@@ -76,17 +76,59 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
                 type: 'custom-react-flow-node',
             };
         });
+        isMindmapUpdatedRef.current = true;
         return { nodes: updatedNodes, edges: updatedEdges };
     };
 
-    // const updatedMindmapData = getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges);
-    const updatedMindmapData = useMemo(
-        () => getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges),
-        [mindmapData.nodes, mindmapData.edges],
-    );
+    const [updatedMindmapData, setUpdatedMindmapData] = useState<any>({});
 
     useEffect(() => {
-        setDataGenerated(updatedMindmapData);
+        if (mindmapData.nodes.length > 0 && mindmapData.edges.length) {
+            setUpdatedMindmapData(getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges));
+        }
+    }, [mindmapData.nodes, mindmapData.edges]);
+
+    useEffect(() => {
+        const applyElkLayout = async () => {
+            if (!mindmapData?.nodes?.length) return;
+
+            try {
+                const { nodes: layoutedNodes, edges: layoutedEdges } = await getLayoutedElements(
+                    updatedMindmapData.nodes,
+                    updatedMindmapData.edges,
+                    mindmapLayoutElkOptions,
+                );
+
+                // Optional: compress vertically or tweak spacing
+                layoutedNodes.forEach((node) => {
+                    node.position.y *= 0.7;
+                });
+                setUpdatedMindmapData({
+                    nodes: layoutedNodes,
+                    edges: layoutedEdges,
+                });
+                setDataGenerated({
+                    nodes: layoutedNodes as any,
+                    edges: layoutedEdges as any,
+                });
+            } catch (error) {
+                console.error('ELK layout failed:', error);
+                // fallback: at least set unlayouted data
+                setDataGenerated(updatedMindmapData);
+            }
+        };
+
+        if (
+            isMindmapUpdatedRef.current &&
+            !isMindmapLayoutedRef.current &&
+            updatedMindmapData.nodes &&
+            updatedMindmapData.nodes.length > 0 &&
+            updatedMindmapData.edges &&
+            updatedMindmapData.edges.length > 0
+        ) {
+            applyElkLayout();
+            isMindmapLayoutedRef.current = true;
+        }
     }, [updatedMindmapData]);
 
     return (
