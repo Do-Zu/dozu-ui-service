@@ -2,12 +2,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import PreviewMindmap from './PreviewMindmap';
 
-
 import { v4 as uuidv4 } from 'uuid';
 import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
 import { mindmapLayoutElkOptions } from '../constants';
 import { getLayoutedElements } from '../utils/mindmap.utils';
-
 
 interface GenerateMindmapCardProps {
     mindmapData: any;
@@ -81,7 +79,7 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
         isMindmapUpdatedRef.current = true;
         return { nodes: updatedNodes, edges: updatedEdges };
     };
- 
+
     const [updatedMindmapData, setUpdatedMindmapData] = useState<any>({});
 
     useEffect(() => {
@@ -101,7 +99,6 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
                     mindmapLayoutElkOptions,
                 );
 
-              
                 // Optional: compress vertically or tweak spacing
                 layoutedNodes.forEach((node) => {
                     node.position.y *= 0.7;
@@ -111,8 +108,8 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
                     edges: layoutedEdges,
                 });
                 setDataGenerated({
-                    nodes: layoutedNodes,
-                    edges: layoutedEdges,
+                    nodes: layoutedNodes as any,
+                    edges: layoutedEdges as any,
                 });
             } catch (error) {
                 console.error('ELK layout failed:', error);
@@ -129,13 +126,10 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
             updatedMindmapData.edges &&
             updatedMindmapData.edges.length > 0
         ) {
-          
             applyElkLayout();
             isMindmapLayoutedRef.current = true;
         }
     }, [updatedMindmapData]);
-
-
 
     return (
         <div className="w-full flex">
