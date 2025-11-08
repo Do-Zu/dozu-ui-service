@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 import { getAllFeatureBelongPlan, getCurrentPlanSubscription } from '@/services/features/feature.service';
@@ -40,6 +40,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null);
     const [notificationSettings, setNotificationSettings] = useState<NotificationSettings | null>(null);
+    const isAuthenticatedRef = useRef(isAuthenticated);
+
+    useEffect(() => {
+        isAuthenticatedRef.current = isAuthenticated;
+    }, [isAuthenticated]);
 
     // Load notification settings
     const loadNotificationSettings = useCallback(async () => {
@@ -50,6 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
             const profile = await ProfileService.getProfile();
+            if (!isAuthenticatedRef.current) {
+                return;
+            }
             if (profile.notificationSettings) {
                 setNotificationSettings(profile.notificationSettings);
             } else {
@@ -64,6 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         } catch (error) {
             console.error('Failed to load notification settings:', error);
+            if (!isAuthenticatedRef.current) {
+                return;
+            }
             // Use default settings on error
             setNotificationSettings({
                 dailyReminders: true,
@@ -119,6 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const getUserCurrentPlan = useCallback(async () => {
         const { data } = await getCurrentPlanSubscription();
+
+        if (!isAuthenticatedRef.current) {
+            return;
+        }
 
         const { plan } = data;
 
