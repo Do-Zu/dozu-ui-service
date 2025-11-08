@@ -6,9 +6,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 interface Props {
     blobUrl: string;
+    fileName: string;
 }
 
-export default function PDFLearningMaterial({ blobUrl }: Props) {
+export default function PDFLearningMaterial({ blobUrl, fileName }: Props) {
     const [pdfUrl, setPdfUrl] = useState<string>('');
 
     useEffect(() => {
@@ -22,5 +23,5 @@ export default function PDFLearningMaterial({ blobUrl }: Props) {
         };
     }, [blobUrl]);
 
-    return <CustomPDFViewer pdfUrl={pdfUrl} />;
+    return <CustomPDFViewer pdfUrl={pdfUrl} fileName={fileName} />;
 }

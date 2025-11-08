@@ -24,7 +24,7 @@ export default function LearningMaterial({ topicId }: Props) {
 
     switch (data.type) {
         case 'file':
-            return <PDFLearningMaterial blobUrl={data.blobUrl} />;
+            return <PDFLearningMaterial blobUrl={data.blobUrl} fileName={data.file.name} />;
         case 'youtube':
             return <YoutubeLearningMaterial embedUrl={data.embedUrl} content={data.content} />;
     }

@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import toastHelper from '@/utils/toast.helper';
 import { Download, Maximize, Minimize, RotateCwSquare } from 'lucide-react';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
-import React, { ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -19,7 +19,7 @@ interface ToolbarProps {
     onRotateClick: () => void;
     scale: string;
     onScaleSelect: (value: string) => void;
-    onDownloadClick?: () => void;
+    onDownloadClick: (downloadRef: RefObject<HTMLAnchorElement>) => void;
     isFullScreen: boolean;
     onScreenModeToogle: () => void;
 
@@ -36,10 +36,14 @@ function PdfToolbar({
     onScaleSelect,
     isFullScreen,
     onScreenModeToogle,
+    onDownloadClick,
     pageNumber,
     setPageNumber,
     numPages,
 }: ToolbarProps) {
+
+    const downloadRef = useRef<HTMLAnchorElement>(null);
+
     function onPageNumberChange(event: ChangeEvent<HTMLInputElement>) {
         const raw = event.target.value;
         const value = Number(raw);
@@ -91,8 +95,8 @@ function PdfToolbar({
                     <RotateCwSquare className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon">
-                    <Download className="h-4 w-4" />
+                <Button variant="ghost" size="icon" onClick={() => onDownloadClick(downloadRef)}>
+                    <a ref={downloadRef}><Download className="h-4 w-4" /></a>
                 </Button>
 
                 <Button variant="ghost" size="icon" onClick={onScreenModeToogle}>
@@ -105,9 +109,10 @@ function PdfToolbar({
 
 interface Props {
     pdfUrl: string;
+    fileName: string;
 }
 
-const CustomPDFViewer = ({ pdfUrl }: Props) => {
+const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const documentRef = useRef<HTMLDivElement>(null);
@@ -205,6 +210,13 @@ const CustomPDFViewer = ({ pdfUrl }: Props) => {
         setIsPdfViewerFullScreen((prev) => !prev);
     }
 
+    function onDownloadClick(downloadRef: React.RefObject<HTMLAnchorElement>) {
+        if (!downloadRef.current) return;
+        downloadRef.current.href = pdfUrl;
+        downloadRef.current.download = fileName;
+        downloadRef.current.click();
+    }
+
     return (
         <div className="flex flex-col gap-2">
             <PdfToolbar
@@ -213,6 +225,7 @@ const CustomPDFViewer = ({ pdfUrl }: Props) => {
                 onScaleSelect={onScaleSelect}
                 isFullScreen={isPdfViewerFullscreen}
                 onScreenModeToogle={onScreenModeToogle}
+                onDownloadClick={onDownloadClick}
                 pageNumber={pageNumber}
                 setPageNumber={setPageNumber}
                 numPages={numPages || 0}
