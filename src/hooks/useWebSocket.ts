@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 import { toast } from '@/hooks/use-toast';
+import { NotificationSettings } from '@/types/profile';
 
 interface NotificationData {
   id: string;
@@ -20,6 +21,7 @@ interface UseWebSocketOptions {
   onNotification?: (data: NotificationData) => void;
   autoReconnect?: boolean;
   reconnectDelay?: number;
+  notificationSettings?: NotificationSettings;
 }
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
@@ -28,7 +30,44 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     onNotification,
     autoReconnect = true,
     reconnectDelay = 3000,
+    notificationSettings,
   } = options;
+
+  // Default settings if not provided
+  const defaultSettings: NotificationSettings = {
+    dailyReminders: true,
+    weeklyReports: true,
+    achievementNotifications: true,
+    emailNotifications: true,
+    pushNotifications: true,
+  };
+
+  const settings = notificationSettings || defaultSettings;
+  
+  // Use ref to always access latest settings in socket event handlers
+  const settingsRef = useRef(settings);
+  
+  // Update ref when settings change
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+
+  // Helper function to check if notification should be shown
+  const shouldShowNotification = (type: NotificationData['type']): boolean => {
+    const currentSettings = settingsRef.current;
+    switch (type) {
+      case 'achievement':
+        return currentSettings.achievementNotifications;
+      case 'reminder':
+        return currentSettings.dailyReminders;
+      case 'progress':
+        return currentSettings.weeklyReports;
+      case 'system':
+        return currentSettings.pushNotifications || currentSettings.emailNotifications;
+      default:
+        return true;
+    }
+  };
 
   const { user, isAuthenticated } = useAuthStorage();
   const socketRef = useRef<Socket | null>(null);
@@ -173,14 +212,18 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     socket.on('notification', (data: NotificationData) => {
       console.log('[WebSocket] Received notification:', data);
 
-      // Show toast notification
-      toast({
-        title: data.title,
-        description: data.message,
-        variant: data.type === 'system' ? 'default' : 'default',
-      });
+      // Check if notification should be shown based on user settings
+      if (shouldShowNotification(data.type)) {
+        // Show toast notification
+        toast({
+          title: data.title,
+          description: data.message,
+          variant: data.type === 'system' ? 'default' : 'default',
+        });
+      }
 
-      // Call custom handler if provided (use ref to avoid stale closure)
+      // Always call custom handler if provided (use ref to avoid stale closure)
+      // This allows components to handle notifications even if toast is disabled
       if (onNotificationRef.current) {
         onNotificationRef.current(data);
       }
@@ -199,6 +242,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       currentUserIdRef.current = null;
     };
     // Only depend on values that should trigger reconnection, not callbacks
+    // Note: notificationSettings changes don't require reconnection, only affect toast display
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, isAuthenticated, user?.userId, autoReconnect, reconnectDelay]);
 
