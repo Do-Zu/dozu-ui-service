@@ -1,45 +1,54 @@
 name: Bug Report
 description: Create a bug report to help us improve
+title: 'BUG: {short_summary}'
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
-  - type: textarea
-    id: description
-    attributes:
-      label: Bug Description
-      description: A clear and concise description of what the bug is
-      placeholder: Tell us what you see!
-    validations:
-      required: true
-  - type: textarea
-    id: reproduction
-    attributes:
-      label: To Reproduce
-      description: Steps to reproduce the behavior
-      placeholder: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
-    validations:
-      required: true
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected behavior
-      description: A clear and concise description of what you expected to happen
-    validations:
-      required: true
-  - type: dropdown
-    id: environment
-    attributes:
-      label: Does this occur in development or production?
-      description: Where does this issue happen?
-      options:
-        - 'development'
-        - 'production'
-        - 'Both development and production'
-    validations:
-      required: true
+    - type: input
+      id: short_summary
+      attributes:
+          label: Short summary
+          description: One-line summary used in the issue title
+          placeholder: e.g. "Crash on save"
+      validations:
+          required: true
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for taking the time to fill out this bug report!
+    - type: textarea
+      id: description
+      attributes:
+          label: Bug Description
+          description: A clear and concise description of what the bug is
+          placeholder: Tell us what you see!
+      validations:
+          required: true
+    - type: textarea
+      id: reproduction
+      attributes:
+          label: To Reproduce
+          description: Steps to reproduce the behavior
+          placeholder: |
+              1. Go to '...'
+              2. Click on '....'
+              3. Scroll down to '....'
+              4. See error
+      validations:
+          required: true
+    - type: textarea
+      id: expected
+      attributes:
+          label: Expected behavior
+          description: A clear and concise description of what you expected to happen
+      validations:
+          required: true
+    - type: dropdown
+      id: environment
+      attributes:
+          label: Does this occur in development or production?
+          description: Where does this issue happen?
+          options:
+              - 'development'
+              - 'production'
+              - 'Both development and production'
+      validations:
+          required: true
