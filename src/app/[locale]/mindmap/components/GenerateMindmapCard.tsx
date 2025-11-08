@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
 
+
 interface GenerateMindmapCardProps {
     mindmapData: any;
     topicName: string;
@@ -37,6 +38,7 @@ interface GeneratedNode {
         pageStartIndex: number;
         pageEndIndex: number;
         isRoot: boolean;
+        color?: string;
     };
 }
 
@@ -60,7 +62,7 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
             type: 'floating',
         }));
 
-        const updatedNodes = mindmapData?.nodes?.map((node: any) => {
+        const updatedNodes = nodes.map((node: any) => {
             const oldId = node.id;
             const newId = uuidv4();
             updatedEdges = getUpdatedEdges(oldId, newId, updatedEdges);
