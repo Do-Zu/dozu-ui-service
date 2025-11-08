@@ -19,6 +19,9 @@ interface ContextType {
         currentCard: IDueAnkiCard;
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
+
+    isPdfViewerFullscreen: boolean;
+    setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -30,6 +33,7 @@ export function TopicWorkspaceProvider({ children }: { children: React.ReactNode
     const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
         null,
     );
+    const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
 
     const onReviewCard = useCallback(
         ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
@@ -80,6 +84,8 @@ export function TopicWorkspaceProvider({ children }: { children: React.ReactNode
                 onReviewCard,
                 ankiSettings,
                 setAnkiSettings,
+                isPdfViewerFullscreen,
+                setIsPdfViewerFullScreen,
             }}
         >
             {children}

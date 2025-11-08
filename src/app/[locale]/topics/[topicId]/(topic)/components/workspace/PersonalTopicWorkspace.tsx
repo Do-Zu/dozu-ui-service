@@ -26,6 +26,8 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
         setIsFullscreen((prev) => !prev);
     }
 
+    const { isPdfViewerFullscreen } = useTopicWorkspace();
+
     const {
         topic,
         flashcards,
@@ -86,7 +88,7 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
 
     return (
         <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background">
-            <div className="absolute top-4 right-4 z-50">
+            <div className={cn('absolute top-4 right-4 z-50', isPdfViewerFullscreen ? 'hidden' : '')}>
                 <Button variant="ghost" size="icon" onClick={handleScreenModeToogle}>
                     {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
                     <span className="sr-only">Toggle Fullscreen</span>
@@ -94,15 +96,15 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
             </div>
 
             <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={25} className={isFullscreen ? 'hidden' : ''}>
+                <ResizablePanel defaultSize={35} className={isFullscreen ? 'hidden' : ''} minSize={35}>
                     <div className="flex flex-col h-full p-4">
                         <LearningMaterial topicId={topicId} />
                     </div>
                 </ResizablePanel>
 
-                <ResizableHandle className={isFullscreen ? 'hidden' : ''} />
+                <ResizableHandle className={isFullscreen || isPdfViewerFullscreen ? 'hidden' : ''} />
 
-                <ResizablePanel defaultSize={75} minSize={25}>
+                <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full">
                         <Tabs
                             defaultValue="overview"
