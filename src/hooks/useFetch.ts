@@ -121,6 +121,8 @@ function useFetch<T, Z = T>(
             fetchData();
         } else if (typeof shouldRun === 'boolean' && shouldRun) {
             fetchData();
+        } else {
+            setLoading(false);
         }
 
         return () => {
@@ -129,7 +131,7 @@ function useFetch<T, Z = T>(
                 abortControllerRef.current.abort();
             }
         };
-    }, []);
+    }, [shouldRun]);
 
     return { data, setData, loading, error, refetch: fetchData };
 }

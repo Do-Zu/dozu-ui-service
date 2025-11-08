@@ -61,7 +61,7 @@ type TopicFilteringAction =
     | 'recently-studied'
     | 'flashcards-due-today';
 
-export default function ClassDashboard() {
+export default function StudentClassDashboard() {
     const { classId } = useClassBased();
     const router = useRouter();
     const t = useTranslations('home.contentLibrary');
@@ -177,6 +177,10 @@ export default function ClassDashboard() {
 
     function handleOnClickStartQuiz(topicId: number) {
         router.push(ROUTES.QUIZ_START(topicId));
+    }
+
+    function handleTopicNameClick({ topicId }: ITopic) {
+        router.push(ROUTES.CLASS_TOPIC_WORKSPACE({ classId, topicId }));
     }
 
     if (myClassError) {
@@ -340,7 +344,7 @@ export default function ClassDashboard() {
                         <TopicCard
                             key={topic.topicId}
                             topic={topic}
-                            handleNameClick={handleTopicDetailsModalOpen}
+                            handleNameClick={handleTopicNameClick}
                             menuContent={menuContentInCard}
                             footer={cardFooter}
                         />

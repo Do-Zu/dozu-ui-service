@@ -190,6 +190,10 @@ export default function PersonalTopicLibrary() {
         router.push(ROUTES.QUIZ_EDIT(topicId));
     }
 
+    function handleTopicNameClick({ topicId }: ITopic) {
+        router.push(ROUTES.TOPIC_WORKSPACE({ topicId }));
+    }
+
     const handleOpenCreateModal = useCallback(() => {
         setTimeout(() => {
             setIsCreateTopicModalOpen(true);
@@ -383,7 +387,7 @@ export default function PersonalTopicLibrary() {
                         <TopicCard
                             key={topic.topicId}
                             topic={topic}
-                            handleNameClick={handleTopicDetailsModalOpen}
+                            handleNameClick={handleTopicNameClick}
                             menuContent={menuContentInCard}
                             footer={cardFooter}
                         />

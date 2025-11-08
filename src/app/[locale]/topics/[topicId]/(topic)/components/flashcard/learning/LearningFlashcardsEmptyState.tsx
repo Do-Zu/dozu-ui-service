@@ -6,12 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function LearningFlashcardsEmptyState({ topicId }: { topicId: number }) {
     const router = useRouter();
-    const tCommon = useTranslations('common');
     const tFlashcardLearning = useTranslations('flashcard.learning');
-
-    function handleBackClick() {
-        router.back();
-    }
 
     function handleRedirectFeynmanPage() {
         router.push(ROUTES.FEYNMAN_REVIEW(topicId, METHOD_LEARNING.FLASHCARD));
@@ -33,13 +28,6 @@ export default function LearningFlashcardsEmptyState({ topicId }: { topicId: num
                 <h2 className="text-2xl font-semibold text-black">{tFlashcardLearning('greatJob')}</h2>
                 <p className="text-gray-700 max-w-md">{tFlashcardLearning('flashcardsCompleted')}</p>
                 <div className="pt-4">
-                    <Button
-                        onClick={handleBackClick}
-                        className="px-6 py-2 mx-10 rounded-lg transition-colors border border-gray-300"
-                    >
-                        {tCommon('actions.back')}
-                    </Button>
-
                     <Button
                         onClick={handleRedirectFeynmanPage}
                         className="px-6 py-2  rounded-lg transition-colors border border-gray-300"

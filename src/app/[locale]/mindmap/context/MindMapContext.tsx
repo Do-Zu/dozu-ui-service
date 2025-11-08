@@ -321,13 +321,14 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
         setIsLoading(true);
 
         try {
-            const { data: fileContent } = await getRequest<unknown, IResponseFileFromInputSet>(
+            const { data: fileResponse } = await getRequest<unknown, IResponseFileFromInputSet>(
                 `/input-set/document/${topicId}`,
             );
 
-            if (!fileContent?.fileUrl) {
+            if (!fileResponse?.data?.fileUrl) {
                 throw new Error('No file URL provided');
             }
+            const fileContent = fileResponse.data;
 
             // Fetch file from R2
             const response = await fetch(fileContent.fileUrl, {
@@ -343,7 +344,7 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
             }
 
             const blob = await response.blob();
-            const filename = fileContent?.title;
+            const filename = fileResponse?.title;
 
             const file = new File([blob], filename, {
                 type: blob.type || 'application/pdf',

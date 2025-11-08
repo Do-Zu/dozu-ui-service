@@ -3,7 +3,7 @@ import ErrorPage from './ErrorPage';
 import LoadingPage from '@/app/loading';
 
 interface Props<T> {
-    data: T | null;
+    data: T | null | undefined;
     status: 'idle' | 'pending' | 'succeeded' | 'failed';
     error: string | null;
     children: (data: T) => React.ReactNode;
@@ -19,11 +19,11 @@ export default function FetchBoundary<T>({ data, status, error, children, onNull
         return <LoadingPage />;
     }
 
-    if (data === null) {
+    if (data === null || data === undefined) {
         if (onNull) {
             return typeof onNull === 'string' ? <div className="p-8">{onNull}</div> : <>{onNull}</>;
         }
-        return <div className="p-8">Something went wrong. Please try again.</div>;
+        return <div className="p-8">Data not found. Please try again.</div>;
     }
 
     if (onEmpty && Array.isArray(data) && data.length === 0) {

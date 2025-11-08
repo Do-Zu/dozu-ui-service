@@ -11,10 +11,16 @@ import { cn } from '@/lib/utils';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 import flashcardUtils from '../../../utils/flashcard.utils';
 import Flashcard from '../Flashcard';
+import { useRequireTopic } from '../../../context/useRequireTopic';
+import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
+import FlashcardsEmptyState from './FlashcardsEmptyState';
 
 const initialAutoPlaySpeed = 3;
 
-export default function FlashcardBrowse({ topicId, flashcards }: { topicId: number; flashcards: IFlashcard[] }) {
+export default function BrowseFlashcard() {
+    const { topic } = useRequireTopic();
+    const { topicId } = topic;
+    const { flashcards } = useRequireFlashcards();
     const router = useRouter();
 
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
@@ -149,6 +155,10 @@ export default function FlashcardBrowse({ topicId, flashcards }: { topicId: numb
 
     function handleMemoryMatchClick() {
         router.push(ROUTES.FLASHCARDS_MEMORY_MATCH(topicId));
+    }
+
+    if (flashcards.length === 0) {
+        return <FlashcardsEmptyState />;
     }
 
     return (

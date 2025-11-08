@@ -63,6 +63,8 @@ export interface IResponseFileFromInputSet {
     contentType: string | null;
     description: string | null;
     title: string;
-    fileUrl: string;
-    expiresIn: number;
+    data: {
+        fileUrl: string;
+        expiresIn: number;
+    };
 }
