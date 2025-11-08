@@ -77,7 +77,7 @@ const secondaryItems = [
 
 export function AppSidebar() {
     const pathname = usePathname();
-    const { hasRole, currentPlanUser } = useAuth();
+    const { hasRole, currentPlanUser,isAuthenticated } = useAuth();
     const { openUpgradeModal } = useUpgradeModal();
 
     const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
@@ -182,7 +182,7 @@ export function AppSidebar() {
                         <LanguageSwitcher />
                     </div>
                     {/* Upgrade to Pro Button */}
-                    {!isPro && (
+                    {!isPro && isAuthenticated && (
                         <div className="px-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                             <Button
                                 onClick={openUpgradeModal}
