@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Bell } from 'lucide-react';
 import { NotificationSettings, PrivacySettings } from '../../../../types/profile';
 import { ProfileService } from '../../../../services/profile/profileService';
+import toastHelper from '@/utils/toast.helper';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 interface AccountSettingsProps {
   onSettingsChange?: (notifications: NotificationSettings, privacy: PrivacySettings) => Promise<void>;
@@ -16,6 +18,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
   onSettingsChange, 
   onDeleteAccount 
 }) => {
+  const { refreshNotificationSettings } = useAuth();
   const [notifications, setNotifications] = useState<NotificationSettings>({
     dailyReminders: true,
     weeklyReports: true,
@@ -68,20 +71,17 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
   const someNotificationsEnabled = Object.values(notifications).some(v => v);
 
   const handleSaveSettings = async () => {
+    setSaveLoading(true);
     try {
-      setSaveLoading(true);
-      
-      if (onSettingsChange) {
-        // Pass empty privacy object since we removed Privacy Settings UI
-        await onSettingsChange(notifications, {} as PrivacySettings);
-        alert('Settings saved successfully!');
-      } else {
-        // Fallback: save directly to backend
-        await ProfileService.updateNotificationSettings(notifications);
-        alert('Settings saved successfully!');
-      }
-    } catch (error: any) {
-      console.error('❌ Failed to save settings:', error);
+      await (onSettingsChange 
+        ? onSettingsChange(notifications, {} as PrivacySettings)
+        : ProfileService.updateNotificationSettings(notifications)
+      );
+      // Refresh notification settings in AuthContext to update WebSocket behavior
+      await refreshNotificationSettings();
+      toastHelper.showSuccessMessage('Settings saved successfully!');
+    } catch (error) {
+      toastHelper.showErrorMessage(error);
     } finally {
       setSaveLoading(false);
     }

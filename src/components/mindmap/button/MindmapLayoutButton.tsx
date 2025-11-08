@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
+import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 
 const elk = new ELK();
 
@@ -12,20 +13,21 @@ const elk = new ELK();
 //
 // - https://www.eclipse.org/elk/reference/algorithms.html
 // - https://www.eclipse.org/elk/reference/options.html
-const elkOptions = {
-    'elk.algorithm': 'radial',
-    'elk.spacing.nodeNode': '100', // extra space between siblings
-    'elk.radial.radius': '0.5',
-    'elk.radial.minEdgeLength': '50', // avoid edge overlap
-    'elk.radial.edges': 'STRAIGHT', // cleaner edges
-    'elk.radial.toNode': 'PREFERRED_CHILD', // keeps child grouping predictable
-    'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
-};
+// const elkOptions = {
+//     'elk.algorithm': 'radial',
+//     'elk.spacing.nodeNode': '100', // extra space between siblings
+//     'elk.radial.radius': '0.5',
+//     'elk.radial.minEdgeLength': '50', // avoid edge overlap
+//     'elk.radial.edges': 'STRAIGHT', // cleaner edges
+//     'elk.radial.toNode': 'PREFERRED_CHILD', // keeps child grouping predictable
+//     'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
+// };
+
 
 const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
-            const opts = { 'elk.direction': direction, ...elkOptions };
+            const opts = { 'elk.direction': direction, ...mindmapLayoutElkOptions };
             // const ns = useInitialNodes ? initialNodes : nodes;
             // const es = useInitialNodes ? initialEdges : edges;
 

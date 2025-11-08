@@ -179,44 +179,41 @@ const LearningMaterialItem = ({ role, learningMaterial, onOpen, onClose }: Learn
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // function handleEditClick() {
-    //     if (role === USER_ROLES.USER) return;
-    //     router.push(
-    //         ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_EDIT({
-    //             classId: learningMaterial.classId,
-    //             learningMaterialId: learningMaterial.learningMaterialId,
-    //         }),
-    //     );
-    // }
+    function handleEditClick() {
+        if (role === USER_ROLES.USER) return;
+        router.push(
+            `/teacher/class-based/${learningMaterial.classId}/learning-material/${learningMaterial.learningMaterialId}/edit`,
+        );
+    }
 
     function handleDeleteClick() {
         if (role === USER_ROLES.USER) return;
         onOpen({ learningMaterialId: learningMaterial.learningMaterialId });
     }
 
-    // function handleDetailsClick() {
-    //     if (dropdownOpen) return;
-    //     if (role === USER_ROLES.USER) {
-    //         router.push(
-    //             ROUTES.ASSIGNMENT_DETAILS({
-    //                 classId: learningMaterial.classId,
-    //                 assignmentId: learningMaterial.assignmentId,
-    //             }),
-    //         );
-    //     } else if (role === USER_ROLES.TEACHER) {
-    //         router.push(
-    //             ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENT_ID_DETAILS({
-    //                 classId: learningMaterial.classId,
-    //                 assignmentId: learningMaterial.assignmentId,
-    //             }),
-    //         );
-    //     }
-    // }
+    function handleDetailsClick() {
+        if (dropdownOpen) return;
+        if (role === USER_ROLES.USER) {
+            // router.push(
+            //     ROUTES.ASSIGNMENT_DETAILS({
+            //         classId: learningMaterial.classId,
+            //         assignmentId: learningMaterial.assignmentId,
+            //     }),
+            // );
+            router.push(
+                `/class-based/${learningMaterial.classId}/learning-material/${learningMaterial.learningMaterialId}/details`,
+            );
+        } else if (role === USER_ROLES.TEACHER) {
+            router.push(
+                `/teacher/class-based/${learningMaterial.classId}/learning-material/${learningMaterial.learningMaterialId}/details`,
+            );
+        }
+    }
 
     return (
         <div
             className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md transition-colors hover:cursor-pointer"
-            // onClick={handleDetailsClick}
+            onClick={handleDetailsClick}
         >
             <div className="flex items-center gap-4">
                 <div className="flex items-center justify-center h-9 w-9 rounded-full border-2 border-blue-400 bg-blue-50 dark:bg-blue-950/30">
@@ -248,9 +245,7 @@ const LearningMaterialItem = ({ role, learningMaterial, onOpen, onClose }: Learn
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                            //  onSelect={handleEditClick}
-                            >
+                            <DropdownMenuItem onSelect={handleEditClick}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>{tCommon('actions.edit')}</span>
                             </DropdownMenuItem>
@@ -361,7 +356,7 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
                 // ...routing to your page
                 break;
             case ClassworkTypeEnum.LEARNING_MATERIAL:
-                // ...routing to your page
+                // route to learningMaterial
                 router.push(ROUTES.TEACHER.CLASS_BASED_ID_LEARNING_MATERIAL(myClass.classId));
                 break;
             default:

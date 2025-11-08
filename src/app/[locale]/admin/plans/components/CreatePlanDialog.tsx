@@ -18,6 +18,7 @@ import { Switch } from '@/components/ui/switch';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import { CreatePlanInput, PlanType, BillingInterval } from '@/types/subscription';
+import errorHelper from '@/utils/error.helper';
 
 interface CreatePlanDialogProps {
     open: boolean;
@@ -37,7 +38,13 @@ export function CreatePlanDialog({ open, onOpenChange, onSuccess }: CreatePlanDi
     });
 
     const { execute: createPlan, loading } = usePost('/admin/subscription/plans', 'POST', {
-        onMessageError: () => toast({ description: 'Failed to create plan', variant: 'destructive' }),
+        onError: (error) => {
+            const errorMessage = errorHelper.getErrorMessage(error);
+            toast({ 
+                description: errorMessage || 'Failed to create plan', 
+                variant: 'destructive' 
+            });
+        },
         onMessageSuccess: () => {
             toast({ description: 'Plan created successfully' });
             onSuccess();
