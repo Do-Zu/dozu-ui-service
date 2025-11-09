@@ -19,7 +19,9 @@ export default function useFlashCardWorkSpace() {
                 let inserted = false;
                 for (let i = 0; i < updatedLearningFlashcards.length; ++i) {
                     const card = updatedLearningFlashcards[i];
-                    if (isAfter(reviewedCard.nextReview, card.nextReview)) continue;
+
+                    if (isAfter(new Date(reviewedCard.nextReview), new Date(card.nextReview))) continue;
+
                     updatedLearningFlashcards.splice(i, 0, {
                         ...currentCard,
                         nextReview: reviewedCard.nextReview,
