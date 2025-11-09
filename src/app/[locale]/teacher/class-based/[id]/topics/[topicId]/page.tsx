@@ -16,8 +16,8 @@ export default function TopicPage() {
     const topicId = Number(params.topicId);
 
     return (
-        <TopicWorkspaceProvider>
-            <TeacherTopicWorkspace topicId={topicId} />
+        <TopicWorkspaceProvider topicIdInit={topicId}>
+            <TeacherTopicWorkspace />
         </TopicWorkspaceProvider>
     );
 }
