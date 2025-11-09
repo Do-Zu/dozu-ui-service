@@ -16,8 +16,6 @@ export interface IFlashcardContent {
 class FlashcardContentService {
     public async getFlashcardContent({ topicId }: { topicId: number }) {
         try {
-            if (isNilOrEmpty(topicId)) return;
-
             const [flashcards, learningFlashcards, ankiSettings] = await Promise.all([
                 flashcardService.getFlashcardsForTopic(topicId),
                 flashcardService.getDueAnkiCardsForTopic(topicId),
