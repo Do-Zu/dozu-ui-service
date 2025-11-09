@@ -12,15 +12,15 @@ interface Props {
 export default function YoutubeLearningMaterial({ embedUrl, content }: Props) {
     const { contentTextOrigin } = useTopicWorkspace();
 
-    if (!youtubeLearningMaterialUtils.isValidYoutubeEmbed(embedUrl)) {
-        return <div className="p-8 text-red-500">Invalid YouTube URL</div>;
-    }
-
     useEffect(() => {
         if (!isNilOrEmpty(content)) {
             contentTextOrigin.current = content;
         }
     }, [content]);
+
+    if (!youtubeLearningMaterialUtils.isValidYoutubeEmbed(embedUrl)) {
+        return <div className="p-8 text-red-500">Invalid YouTube URL</div>;
+    }
 
     return (
         <ScrollArea className="flex flex-col gap-4 p-8 ">
