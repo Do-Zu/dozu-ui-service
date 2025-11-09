@@ -3,7 +3,7 @@ import { useTranslations } from 'next-intl';
 import usePost from '../usePost';
 import { useEventSource } from '../useEventSource';
 import { ApiResponsePubGenContent, ISseData } from '@/app/[locale]/generate';
-import { URL_API_GENERATE } from '@/app/[locale]/generate/utils/constant';
+import { BASE_URL_STREAM_GENERATE, URL_API_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { compressContent } from '@/app/[locale]/generate/helper/compress';
 import { toast } from '../use-toast';
 
@@ -71,7 +71,7 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
     } = usePost<IGenerateRequest, ApiResponsePubGenContent>(URL_API_GENERATE, 'POST');
 
     const { data: sseData, status: sseStatus } = useEventSource<ISseData>(
-        jobId ? `/event/generate/job/${jobId}` : null,
+        jobId ? `${BASE_URL_STREAM_GENERATE}/${jobId}` : null,
     );
 
     const executeGenerate = async ({ content, method, type }: IGenerateRequest) => {
@@ -118,14 +118,14 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
                 options.onError();
             }
         } else if (sseData && sseStatus === 'completed') {
-            toast({
-                description: t('toasts.success'),
-            });
+            // toast({
+            //     description: t('toasts.success'),
+            // });
 
             const dataGenerated = sseData?.data?.data as TRes;
 
             if (options && options.onSuccess) {
-                options?.onSuccess(dataGenerated);
+                options.onSuccess(dataGenerated);
             }
 
             setDataGenerated(dataGenerated);
