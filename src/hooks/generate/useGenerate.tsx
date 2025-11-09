@@ -63,8 +63,8 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
     const [jobId, setJobId] = useState<string | undefined>();
     const [dataGenerated, setDataGenerated] = useState<TRes | undefined>();
     const {
-        loading,
-        data: apiResponse,
+        loading: isRegisterGenerate,
+        data: apiRegisterResponse,
         error: apiPostContentError,
         execute,
         reset,
@@ -89,12 +89,12 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
     }, [sseStatus, jobId]);
 
     useEffect(() => {
-        if (!loading && apiResponse) {
-            const { data } = apiResponse;
+        if (!isRegisterGenerate && apiRegisterResponse) {
+            const { data } = apiRegisterResponse;
             const jobId = data?.jobId;
             setJobId(jobId);
         }
-    }, [apiResponse, loading]);
+    }, [apiRegisterResponse, isRegisterGenerate]);
 
     useEffect(() => {
         if (apiPostContentError) {
@@ -121,6 +121,7 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
             toast({
                 description: t('toasts.success'),
             });
+
             const dataGenerated = sseData?.data?.data as TRes;
 
             if (options && options.onSuccess) {
@@ -133,8 +134,8 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
 
     return {
         isGenerating,
-        loading,
-        apiResponse,
+        isRegisterGenerate,
+        apiRegisterResponse,
         apiPostContentError,
         execute: executeGenerate,
         reset,

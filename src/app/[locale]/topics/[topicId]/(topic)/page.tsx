@@ -14,11 +14,12 @@ export default function TopicPage() {
     if (!isValidId) {
         return <div className="p-8">Invalid topicId, please try again.</div>;
     }
+
     const topicId = Number(params.topicId);
 
     return (
-        <TopicWorkspaceProvider>
-            <PersonalTopicWorkspace topicId={topicId} />
+        <TopicWorkspaceProvider topicIdInit={topicId}>
+            <PersonalTopicWorkspace />
         </TopicWorkspaceProvider>
     );
 }

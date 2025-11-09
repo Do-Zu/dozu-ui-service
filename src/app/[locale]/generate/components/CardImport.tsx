@@ -1,7 +1,6 @@
 'use client';
 
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { useAppSelector } from '@/stores/hooks';
+import React, { Fragment, useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from '@/hooks/use-toast';

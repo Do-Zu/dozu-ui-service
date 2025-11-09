@@ -16,12 +16,11 @@ import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import flashcardUtils from '../../utils/flashcard.utils';
 
-interface Props {
-    topicId: number;
-}
+export default function PersonalTopicWorkspace() {
+    const { topicId } = useTopicWorkspace();
 
-export default function PersonalTopicWorkspace({ topicId }: Props) {
     const [isFullscreen, setIsFullscreen] = useState(false);
+
     function handleScreenModeToggle() {
         setIsFullscreen((prev) => !prev);
     }
@@ -51,6 +50,7 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
 
     //... flashcard content
     const [shouldFetchFlashcardContent, setShouldFetchFlashcardContent] = useState(false);
+
     const {
         data: flashcardContent,
         loading: flashcardContentLoading,
@@ -98,11 +98,11 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={35} className={isFullscreen ? 'hidden' : ''} minSize={35}>
                     <div className="flex flex-col h-full p-4">
-                        <LearningMaterial topicId={topicId} />
+                        <LearningMaterial />
                     </div>
                 </ResizablePanel>
 
-                <ResizableHandle className={isFullscreen || isPdfViewerFullscreen ? 'hidden' : ''} />
+                <ResizableHandle withHandle className={isFullscreen || isPdfViewerFullscreen ? 'hidden' : ''} />
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full">

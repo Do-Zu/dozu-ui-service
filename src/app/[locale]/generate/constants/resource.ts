@@ -27,7 +27,9 @@ export const METHOD_LEARNING = {
     FLASHCARD: 'flashcards',
     QUIZ: 'quiz',
     MINDMAP: 'mindmap',
-};
+} as const;
+
+export type TypeMethodLeading = (typeof METHOD_LEARNING)[keyof typeof METHOD_LEARNING];
 
 export const LIST_METHOD_LEARNING_GENERATE = Object.values(METHOD_LEARNING);
 

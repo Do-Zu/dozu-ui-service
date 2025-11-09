@@ -1,15 +1,28 @@
 import { IAnkiCardReviewed, IDueAnkiCard, IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { ITopic } from '../../../types/topic.type';
-import React, { createContext, Dispatch, SetStateAction, useCallback, useContext, useState } from 'react';
+import React, {
+    createContext,
+    Dispatch,
+    ReactNode,
+    SetStateAction,
+    useCallback,
+    useContext,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { isAfter } from 'date-fns';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 
+export type TypeTopicId = number;
 interface ContextType {
+    topicId: number;
     topic: ITopic | null;
     flashcards: IFlashcard[] | null;
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
 
+    setTopicId: Dispatch<SetStateAction<TypeTopicId>>;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
     setFlashcards: Dispatch<SetStateAction<IFlashcard[] | null>>;
     setLearningFlashcards: Dispatch<SetStateAction<IDueAnkiCard[] | null>>;
@@ -22,17 +35,28 @@ interface ContextType {
 
     isPdfViewerFullscreen: boolean;
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
+
+    contentTextOrigin: string;
+    setContentTextOrigin: Dispatch<SetStateAction<string>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
 
-export function TopicWorkspaceProvider({ children }: { children: React.ReactNode }) {
+interface IProviderProps {
+    topicIdInit: TypeTopicId;
+    children: ReactNode;
+}
+export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
+    const [topicId, setTopicId] = useState<TypeTopicId>(topicIdInit);
+
     const [topic, setTopic] = useState<ITopic | null>(null);
     const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
     const [learningFlashcards, setLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
     const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
         null,
     );
+    const [contentTextOrigin, setContentTextOrigin] = useState<string>('');
+
     const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
 
     const onReviewCard = useCallback(
@@ -72,25 +96,42 @@ export function TopicWorkspaceProvider({ children }: { children: React.ReactNode
         [learningFlashcards],
     );
 
-    return (
-        <TopicWorkspaceContext.Provider
-            value={{
-                topic,
-                flashcards,
-                learningFlashcards,
-                setTopic,
-                setFlashcards,
-                setLearningFlashcards,
-                onReviewCard,
-                ankiSettings,
-                setAnkiSettings,
-                isPdfViewerFullscreen,
-                setIsPdfViewerFullScreen,
-            }}
-        >
-            {children}
-        </TopicWorkspaceContext.Provider>
+    const value = useMemo(
+        () => ({
+            topicId,
+            topic,
+            flashcards,
+            learningFlashcards,
+            setTopicId,
+            setTopic,
+            setFlashcards,
+            setLearningFlashcards,
+            onReviewCard,
+            ankiSettings,
+            setAnkiSettings,
+            isPdfViewerFullscreen,
+            setIsPdfViewerFullScreen,
+            contentTextOrigin,
+            setContentTextOrigin,
+        }),
+        [
+            topicId,
+            topic,
+            flashcards,
+            learningFlashcards,
+            setTopicId,
+            setTopic,
+            setFlashcards,
+            setLearningFlashcards,
+            onReviewCard,
+            ankiSettings,
+            setAnkiSettings,
+            isPdfViewerFullscreen,
+            setIsPdfViewerFullScreen,
+        ],
     );
+
+    return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;
 }
 
 export function useTopicWorkspace() {
