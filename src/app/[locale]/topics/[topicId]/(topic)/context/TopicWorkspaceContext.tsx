@@ -14,15 +14,17 @@ import React, {
 } from 'react';
 import { isAfter } from 'date-fns';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
+import { TopicWorkspaceTabValue } from '../types';
 
 export type TypeTopicId = number;
 interface ContextType {
+    tab: TopicWorkspaceTabValue;
     topicId: TypeTopicId;
     topic: ITopic | null;
     flashcards: IFlashcard[] | null;
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
-
+    setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
     setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
     setFlashcards: Dispatch<SetStateAction<IFlashcard[] | null>>;
@@ -46,7 +48,12 @@ interface IProviderProps {
     topicIdInit: TypeTopicId;
     children: ReactNode;
 }
+
+const DEFAULT_TAB = 'overview';
+
 export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
+    const [tab, setTab] = useState<TopicWorkspaceTabValue>(DEFAULT_TAB);
+
     const [topic, setTopic] = useState<ITopic | null>(null);
     const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
     const [learningFlashcards, setLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
@@ -103,34 +110,38 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
 
     const value = useMemo(
         () => ({
+            tab,
             topicId: topicIdRef.current,
             topic,
             flashcards,
             learningFlashcards,
+            ankiSettings,
+            isPdfViewerFullscreen,
+            contentTextOrigin,
+            setTab,
             setTopicId,
             setTopic,
             setFlashcards,
             setLearningFlashcards,
             onReviewCard,
-            ankiSettings,
             setAnkiSettings,
-            isPdfViewerFullscreen,
             setIsPdfViewerFullScreen,
-            contentTextOrigin,
         }),
         [
+            tab,
             topicIdRef.current,
             topic,
             flashcards,
             learningFlashcards,
+            ankiSettings,
+            isPdfViewerFullscreen,
+            setTab,
             setTopicId,
             setTopic,
             setFlashcards,
             setLearningFlashcards,
             onReviewCard,
-            ankiSettings,
             setAnkiSettings,
-            isPdfViewerFullscreen,
             setIsPdfViewerFullScreen,
         ],
     );

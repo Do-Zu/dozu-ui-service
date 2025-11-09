@@ -3,5 +3,5 @@ export interface IInputSetResponse {
     contentType: string | null;
     description: string | null;
     title: string;
-    data: any;
+    data: unknown;
 }
