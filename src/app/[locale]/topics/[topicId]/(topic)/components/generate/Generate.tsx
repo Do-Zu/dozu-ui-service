@@ -1,55 +1,77 @@
 import { Button } from '@/components/ui/button';
 import useGenerate from '@/hooks/generate/useGenerate';
-import { ReactNode, useCallback } from 'react';
+import { ReactNode, useCallback, useEffect } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ImportMethod, TypeMethodLeading } from '@/app/[locale]/generate/constants/resource';
 import DataStatus from '@/components/errors/DataStatus';
-import { isNilOrEmpty } from '@/utils';
+import { isEmpty, isNilOrEmpty, isNullOrEmpty } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 
 interface IProps<TRes> {
     trigger?: ReactNode;
     method?: ImportMethod;
     type: TypeMethodLeading;
-    loadingNode?: ReactNode;
+    generateNode?: ReactNode;
+    registerNode?: ReactNode;
     titleTrigger?: string;
+    onHandleBeforeGenerate?: () => void;
     onSuccess?: (data: TRes) => void;
-    onError?: (error: any) => void;
+    onError?: () => void;
+    onFallBack?: (error: unknown) => void;
+    onFinally?: () => void;
 }
 
+const DEFAULT_METHOD = 'text';
+
 export default function Generate<TRes>({
-    method = 'text',
+    method = DEFAULT_METHOD,
     type,
     trigger,
-    loadingNode,
+    generateNode,
+    registerNode,
+    onHandleBeforeGenerate,
     onSuccess,
     onError,
+    onFallBack,
+    onFinally,
 }: IProps<TRes>) {
-    const { topicId, contentTextOrigin } = useTopicWorkspace();
+    const { contentTextOrigin } = useTopicWorkspace();
 
     const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
         onSuccess,
         onError,
     });
 
-    const handleStartGenerate = useCallback(async () => {
-        if (isNilOrEmpty(contentTextOrigin)) {
-            toast({
-                description: 'No content prepare',
+    const handleStartGenerate = async () => {
+        try {
+            onHandleBeforeGenerate?.();
+
+            if (isNilOrEmpty(contentTextOrigin.current)) {
+                toast({
+                    description: 'No content prepare',
+                });
+                return;
+            }
+
+            await execute({
+                content: contentTextOrigin.current,
+                method,
+                type,
             });
-            return;
+        } catch (error) {
+            onFallBack?.(error);
+        } finally {
+            onFinally?.();
         }
+    };
 
-        await execute({
-            content: contentTextOrigin,
-            method,
-            type,
-        });
-    }, [topicId]);
+    if (isRegisterGenerate) {
+        if (registerNode) return registerNode;
+        return <div>Processing ...</div>;
+    }
 
-    if (isGenerating || isRegisterGenerate) {
-        if (loadingNode) return loadingNode;
-
+    if (isGenerating) {
+        if (generateNode) return generateNode;
         return <div>Generating ...</div>;
     }
 
