@@ -11,12 +11,12 @@ export default function YoutubeLearningMaterial({ embedUrl, content }: Props) {
     }
 
     return (
-        <div className="flex flex-col gap-4 p-8 overflow-y-scroll">
+        <div className="flex flex-col gap-4 p-8">
             <iframe
                 allowFullScreen={true}
                 src={embedUrl}
                 title="Youtube video player"
-                className="w-full aspect-video"
+                className="w-full aspect-video rounded-2xl"
             />
             <p>{content}</p>
         </div>

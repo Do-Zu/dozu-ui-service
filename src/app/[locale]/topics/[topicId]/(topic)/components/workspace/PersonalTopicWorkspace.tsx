@@ -15,6 +15,7 @@ import LoadingPage from '@/app/loading';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import flashcardUtils from '../../utils/flashcard.utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Props {
     topicId: number;
@@ -87,7 +88,7 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
     }, [flashcards, learningFlashcards]);
 
     return (
-        <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background">
+        <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background m-2">
             <div className={cn('absolute top-4 right-4 z-50', isPdfViewerFullscreen ? 'hidden' : '')}>
                 <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
                     {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -97,12 +98,12 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
 
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={35} className={isFullscreen ? 'hidden' : ''} minSize={35}>
-                    <div className="flex flex-col h-full p-4">
+                    <ScrollArea className="flex flex-col h-full p-4 ml-1">
                         <LearningMaterial topicId={topicId} />
-                    </div>
+                    </ScrollArea>
                 </ResizablePanel>
 
-                <ResizableHandle className={isFullscreen || isPdfViewerFullscreen ? 'hidden' : ''} />
+                <ResizableHandle withHandle className={isFullscreen || isPdfViewerFullscreen ? 'hidden' : ''} />
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full">
