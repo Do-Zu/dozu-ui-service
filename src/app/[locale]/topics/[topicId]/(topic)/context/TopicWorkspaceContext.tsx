@@ -3,6 +3,7 @@ import { ITopic } from '../../../types/topic.type';
 import React, {
     createContext,
     Dispatch,
+    MutableRefObject,
     ReactNode,
     SetStateAction,
     useCallback,
@@ -16,13 +17,13 @@ import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 
 export type TypeTopicId = number;
 interface ContextType {
-    topicId: number;
+    topicId: TypeTopicId;
     topic: ITopic | null;
     flashcards: IFlashcard[] | null;
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
 
-    setTopicId: Dispatch<SetStateAction<TypeTopicId>>;
+    setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
     setFlashcards: Dispatch<SetStateAction<IFlashcard[] | null>>;
     setLearningFlashcards: Dispatch<SetStateAction<IDueAnkiCard[] | null>>;
@@ -36,8 +37,7 @@ interface ContextType {
     isPdfViewerFullscreen: boolean;
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
 
-    contentTextOrigin: string;
-    setContentTextOrigin: Dispatch<SetStateAction<string>>;
+    contentTextOrigin: MutableRefObject<string>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -47,17 +47,22 @@ interface IProviderProps {
     children: ReactNode;
 }
 export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
-    const [topicId, setTopicId] = useState<TypeTopicId>(topicIdInit);
-
     const [topic, setTopic] = useState<ITopic | null>(null);
     const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
     const [learningFlashcards, setLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
     const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
         null,
     );
-    const [contentTextOrigin, setContentTextOrigin] = useState<string>('');
+
+    const topicIdRef = useRef<TypeTopicId>(topicIdInit);
+
+    const contentTextOrigin = useRef<string>('');
 
     const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
+
+    const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
+        topicIdRef.current = topicIdArg;
+    }, []);
 
     const onReviewCard = useCallback(
         ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
@@ -98,7 +103,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
 
     const value = useMemo(
         () => ({
-            topicId,
+            topicId: topicIdRef.current,
             topic,
             flashcards,
             learningFlashcards,
@@ -112,10 +117,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             isPdfViewerFullscreen,
             setIsPdfViewerFullScreen,
             contentTextOrigin,
-            setContentTextOrigin,
         }),
         [
-            topicId,
+            topicIdRef.current,
             topic,
             flashcards,
             learningFlashcards,

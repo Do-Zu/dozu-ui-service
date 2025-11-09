@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import youtubeLearningMaterialUtils from '../../utils/youtubeLearningMaterial.utils';
+import { isNilOrEmpty } from '@/utils';
 
 interface Props {
     embedUrl: string;
@@ -8,15 +9,15 @@ interface Props {
 }
 
 export default function YoutubeLearningMaterial({ embedUrl, content }: Props) {
-    const { setContentTextOrigin } = useTopicWorkspace();
+    const { contentTextOrigin } = useTopicWorkspace();
 
     if (!youtubeLearningMaterialUtils.isValidYoutubeEmbed(embedUrl)) {
         return <div className="p-8 text-red-500">Invalid YouTube URL</div>;
     }
 
     useEffect(() => {
-        if (content) {
-            setContentTextOrigin(content);
+        if (!isNilOrEmpty(content)) {
+            contentTextOrigin.current = content;
         }
     }, [content]);
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import CustomPDFViewer from './CustomPDFViewer';
-import { isNullOrEmpty, safeDestructure } from '@/utils';
+import { isNilOrEmpty, isNullOrEmpty, safeDestructure } from '@/utils';
 import useReaderFile from '@/hooks/useReaderFile';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 
@@ -17,19 +17,13 @@ interface IProps {
 }
 
 export default function PDFLearningMaterial({ data }: IProps) {
-    const { setContentTextOrigin } = useTopicWorkspace();
+    const { contentTextOrigin } = useTopicWorkspace();
 
     const { blobUrl, file } = safeDestructure(data);
 
     const [pdfUrl, setPdfUrl] = useState<string>('');
 
     const { text, isProcessing } = useReaderFile(file);
-
-    useEffect(() => {
-        if (!isNullOrEmpty(text)) {
-            setContentTextOrigin(text!);
-        }
-    }, [text]);
 
     useEffect(() => {
         const prevUrl = blobUrl;
@@ -41,6 +35,12 @@ export default function PDFLearningMaterial({ data }: IProps) {
             }
         };
     }, [blobUrl]);
+
+    useEffect(() => {
+        if (!isNilOrEmpty(text) && !isProcessing) {
+            contentTextOrigin.current = text!;
+        }
+    }, [text, isProcessing]);
 
     return <CustomPDFViewer pdfUrl={pdfUrl} fileName={file?.name} />;
 }
