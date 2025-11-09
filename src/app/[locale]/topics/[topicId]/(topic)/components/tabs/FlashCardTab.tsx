@@ -27,7 +27,7 @@ export default function FlashCardTab() {
         loading: flashcardContentLoading,
         error: flashcardContentError,
     } = useFetch<IFlashcardContent>(() => flashcardContentService.getFlashcardContent({ topicId }), {
-        shouldRun: isEmpty(flashcards) && tab === METHOD_LEARNING.FLASHCARD,
+        shouldRun: (isEmpty(flashcards) || isEmpty(learningFlashcards)) && tab === METHOD_LEARNING.FLASHCARD,
     });
 
     useEffect(() => {
