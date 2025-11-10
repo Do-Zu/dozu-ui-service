@@ -1,11 +1,6 @@
-import { isNil } from '@/utils';
 import React from 'react';
-
-export interface ITranscriptSegment {
-    startTime: number;
-    endTime: number;
-    text: string;
-}
+import { isNil } from '@/utils';
+import { ITranscriptSegment } from '../../../types';
 
 function formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);

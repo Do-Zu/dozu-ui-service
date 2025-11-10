@@ -1,12 +1,6 @@
 import { getRequest } from '@/api/api';
 import { IResponseFileFromInputSet } from '@/app/[locale]/mindmap/types/context.types';
-import { IInputSetResponse } from '../types/learningMaterial.type';
-
-export interface ITranscriptSegment {
-    startTime: number;
-    endTime: number;
-    text: string;
-}
+import { IInputSetResponse, ITranscriptSegment } from '../types/learningMaterial.type';
 
 export type ILearningMaterial =
     | {
