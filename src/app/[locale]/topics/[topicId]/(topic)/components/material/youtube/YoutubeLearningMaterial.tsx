@@ -6,6 +6,7 @@ import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { isNilOrEmpty } from '@/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ITranscriptSegment } from '../../../types';
+import transcriptUtils from '../../../utils/transcript.utils';
 
 interface Props {
     videoId: string;
@@ -31,12 +32,18 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
 
     useEffect(() => {
         if (!isNilOrEmpty(content)) {
-            contentTextOrigin.current = content as string;
+            if (typeof content === 'string') {
+                contentTextOrigin.current = content;
+            } else {
+                if (transcriptUtils.validateTranscript(content)) {
+                    contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
+                }
+            }
         }
     }, [content]);
 
     return (
-        <ScrollArea className='flex flex-col p-4'>
+        <ScrollArea className="flex flex-col p-4">
             <YoutubePlayer videoId={videoId} onPlayerReady={onPlayerReady} />
             {typeof content === 'string' ? (
                 <p>{content}</p>
