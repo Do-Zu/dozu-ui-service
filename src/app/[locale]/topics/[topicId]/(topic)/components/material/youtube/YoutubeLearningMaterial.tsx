@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ITranscriptSegment } from '../../../service/learningMaterial.service';
 import TranscriptViewer from './TranscriptViewer';
 import { YouTubePlayer, YouTubeProps } from 'react-youtube';
 import YoutubePlayer from './YoutubePlayer';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { isNilOrEmpty } from '@/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ITranscriptSegment } from '../../../types';
 
 interface Props {
     videoId: string;
