@@ -17,10 +17,11 @@ import 'react-pdf/dist/Page/TextLayer.css';
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface ToolbarProps {
+    pdfUrl: string;
+    fileName: string;
     onRotateClick: () => void;
     scale: string;
     onScaleSelect: (value: string) => void;
-    onDownloadClick: (downloadRef: RefObject<HTMLAnchorElement>) => void;
     isFullScreen: boolean;
     onScreenModeToogle: () => void;
 
@@ -32,18 +33,17 @@ interface ToolbarProps {
 const scaleOptions = ['fit', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1', '1.1', '1.2'];
 
 function PdfToolbar({
+    pdfUrl,
+    fileName,
     onRotateClick,
     scale,
     onScaleSelect,
     isFullScreen,
     onScreenModeToogle,
-    onDownloadClick,
     pageNumber,
     setPageNumber,
     numPages,
 }: ToolbarProps) {
-    const downloadRef = useRef<HTMLAnchorElement>(null);
-
     function onPageNumberChange(event: ChangeEvent<HTMLInputElement>) {
         const raw = event.target.value;
         const value = Number(raw);
@@ -95,11 +95,13 @@ function PdfToolbar({
                     <RotateCwSquare className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon" onClick={() => onDownloadClick(downloadRef)}>
-                    <a ref={downloadRef}>
-                        <Download className="h-4 w-4" />
-                    </a>
-                </Button>
+                <a
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                    href={pdfUrl}
+                    download={fileName}
+                >
+                    <Download className="h-4 w-4" />
+                </a>
 
                 <Button variant="ghost" size="icon" onClick={onScreenModeToogle}>
                     {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -212,22 +214,16 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
         setIsPdfViewerFullScreen((prev) => !prev);
     }
 
-    function onDownloadClick(downloadRef: React.RefObject<HTMLAnchorElement>) {
-        if (!downloadRef.current) return;
-        downloadRef.current.href = pdfUrl;
-        downloadRef.current.download = fileName;
-        downloadRef.current.click();
-    }
-
     return (
         <div className="flex flex-col gap-2">
             <PdfToolbar
+                pdfUrl={pdfUrl}
+                fileName={fileName}
                 onRotateClick={onRotateClick}
                 scale={selectedScaleOption}
                 onScaleSelect={onScaleSelect}
                 isFullScreen={isPdfViewerFullscreen}
                 onScreenModeToogle={onScreenModeToogle}
-                onDownloadClick={onDownloadClick}
                 pageNumber={pageNumber}
                 setPageNumber={setPageNumber}
                 numPages={numPages || 0}
