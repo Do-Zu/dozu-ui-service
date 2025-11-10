@@ -169,7 +169,7 @@ export function handleConvertToFlashcardsEdited(flashcards: IFlashcard[]): IEdit
     return initialFlashcards;
 }
 
-const EditingFlashcard = () => {
+const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
@@ -617,4 +617,4 @@ const EditingFlashcard = () => {
     );
 };
 
-export default EditingFlashcard;
+export default EditingFlashcards;
