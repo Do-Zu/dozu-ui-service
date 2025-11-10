@@ -19,9 +19,9 @@ export default function StudentProgressCard({ student }: StudentProgressCardProp
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'in_progress':
+      case 'in-progress':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'not_started':
+      case 'not-started':
         return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -32,9 +32,9 @@ export default function StudentProgressCard({ student }: StudentProgressCardProp
     switch (status) {
       case 'completed':
         return 'Completed';
-      case 'in_progress':
+      case 'in-progress':
         return 'In Progress';
-      case 'not_started':
+      case 'not-started':
         return 'Not Started';
       default:
         return 'Unknown';

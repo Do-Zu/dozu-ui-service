@@ -52,6 +52,8 @@ export interface StudentQuizProgress {
 export interface QuestionPerformance {
   questionId: string;
   questionText: string;
+  choices?: string[];
+  correctIndex?: number;
   correctAnswers: number;
   wrongAnswers: number;
   skippedAnswers: number;

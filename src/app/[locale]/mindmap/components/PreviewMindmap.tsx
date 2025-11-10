@@ -4,6 +4,7 @@ import '@xyflow/react/dist/style.css';
 import FloatingEdge from './FloatingEdge';
 import { Background, BackgroundVariant, ReactFlow, useEdgesState, useNodesState } from '@xyflow/react';
 import CustomReactFlowPreviewNode from './CustomReactFlowPreviewNode';
+import { useEffect } from 'react';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -21,6 +22,14 @@ const PreviewMindmap = ({ initialNodes, initialEdges }: any) => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+    useEffect(() => {
+        setNodes(initialNodes);
+    }, [initialNodes, setNodes]);
+
+    useEffect(() => {
+        setEdges(initialEdges);
+    }, [initialEdges, setEdges]);
+
     return (
         <div className="flex-grow h-[calc(100vh-200px)] w-full">
             {' '}
@@ -29,9 +38,9 @@ const PreviewMindmap = ({ initialNodes, initialEdges }: any) => {
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
-                edgeTypes={edgeTypes}
                 // onConnect={onConnect}
                 defaultEdgeOptions={defaultEdgeOptions}
             >

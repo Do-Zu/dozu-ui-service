@@ -12,6 +12,7 @@ import { generateMockActivityData } from '../utils/mockData';
 import { ActivityMonitorData } from '@/types/activity';
 import { downloadExcelFile } from '../utils/excelGenerator';
 import activityService from '@/services/activity/activity.service';
+import { adaptQuizClassResultsToActivityMonitor } from '../utils/dataAdapter';
 import ActivitySummaryTab from '../components/ActivitySummaryTab';
 import StudentSummaryTab from '../components/StudentSummaryTab';
 import TermProgressTab from '../components/TermProgressTab';
@@ -37,7 +38,10 @@ export default function ActivityPage({ params }: ActivityPageProps) {
         const response = await activityService.getActivityMonitoringData(params.activityId);
         
         if (response.success && response.data) {
-          setActivityData(response.data);
+          // Adapt backend data to UI format
+          const { quizResults, questionAnalysis } = response.data;
+          const adaptedData = adaptQuizClassResultsToActivityMonitor(quizResults, questionAnalysis);
+          setActivityData(adaptedData);
         } else {
           // Fallback to mock data for development
           console.log('Using mock data for development');
@@ -96,7 +100,10 @@ export default function ActivityPage({ params }: ActivityPageProps) {
       const response = await activityService.getActivityMonitoringData(params.activityId);
       
       if (response.success && response.data) {
-        setActivityData(response.data);
+        // Adapt backend data to UI format
+        const { quizResults, questionAnalysis } = response.data;
+        const adaptedData = adaptQuizClassResultsToActivityMonitor(quizResults, questionAnalysis);
+        setActivityData(adaptedData);
         toast({
           title: 'Data refreshed',
           description: 'Activity data has been updated successfully.',
@@ -303,8 +310,7 @@ export default function ActivityPage({ params }: ActivityPageProps) {
         {/* Footer Disclaimer */}
         <div className="text-center py-4">
           <p className="text-xs text-gray-500">
-            Quizlet learning data is for self-study and not designed for assessment purposes. 
-            <a href="#" className="text-blue-600 hover:underline ml-1">Learn more</a>
+            Class quiz data is for educational purposes only.
           </p>
         </div>
       </div>
