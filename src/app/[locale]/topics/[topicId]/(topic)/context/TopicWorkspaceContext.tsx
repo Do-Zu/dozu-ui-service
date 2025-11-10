@@ -1,15 +1,32 @@
 import { IAnkiCardReviewed, IDueAnkiCard, IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { ITopic } from '../../../types/topic.type';
-import React, { createContext, Dispatch, SetStateAction, useCallback, useContext, useState } from 'react';
+import React, {
+    createContext,
+    Dispatch,
+    MutableRefObject,
+    ReactNode,
+    SetStateAction,
+    useCallback,
+    useContext,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { isAfter } from 'date-fns';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
+import { TopicWorkspaceTabValue } from '../types';
+import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
 
+export type TypeTopicId = number;
 interface ContextType {
+    tab: TopicWorkspaceTabValue;
+    topicId: TypeTopicId;
     topic: ITopic | null;
     flashcards: IFlashcard[] | null;
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
-
+    setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
+    setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
     setFlashcards: Dispatch<SetStateAction<IFlashcard[] | null>>;
     setLearningFlashcards: Dispatch<SetStateAction<IDueAnkiCard[] | null>>;
@@ -22,75 +39,81 @@ interface ContextType {
 
     isPdfViewerFullscreen: boolean;
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
+
+    contentTextOrigin: MutableRefObject<string>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
 
-export function TopicWorkspaceProvider({ children }: { children: React.ReactNode }) {
+interface IProviderProps {
+    topicIdInit: TypeTopicId;
+    children: ReactNode;
+}
+
+const DEFAULT_TAB = 'overview';
+
+export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
+    const [tab, setTab] = useState<TopicWorkspaceTabValue>(DEFAULT_TAB);
+
     const [topic, setTopic] = useState<ITopic | null>(null);
-    const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
-    const [learningFlashcards, setLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
-    const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
-        null,
-    );
+
+    const topicIdRef = useRef<TypeTopicId>(topicIdInit);
+
+    const contentTextOrigin = useRef<string>('');
+
     const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
 
-    const onReviewCard = useCallback(
-        ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
-            const updatedLearningFlashcards = [...(learningFlashcards ?? [])];
-            updatedLearningFlashcards.shift();
-            if (reviewedCard) {
-                // INSERT this card to a suitable position (to maintain ORDER by nextReview)
-                let inserted = false;
-                for (let i = 0; i < updatedLearningFlashcards.length; ++i) {
-                    const card = updatedLearningFlashcards[i];
-                    if (isAfter(reviewedCard.nextReview, card.nextReview)) continue;
-                    updatedLearningFlashcards.splice(i, 0, {
-                        ...currentCard,
-                        nextReview: reviewedCard.nextReview,
-                        status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
-                    });
-                    inserted = true;
-                    break;
-                }
+    const {
+        flashcards,
+        learningFlashcards,
+        ankiSettings,
+        setFlashcards,
+        setLearningFlashcards,
+        setAnkiSettings,
+        onReviewCard,
+    } = useFlashCardWorkSpace();
 
-                if (!inserted) {
-                    updatedLearningFlashcards.push({
-                        ...currentCard,
-                        nextReview: reviewedCard.nextReview,
-                        status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
-                    });
-                    inserted = true;
-                }
-            }
+    const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
+        topicIdRef.current = topicIdArg;
+    }, []);
 
-            setLearningFlashcards(updatedLearningFlashcards);
-            return updatedLearningFlashcards;
-        },
-        [learningFlashcards],
+    const value = useMemo(
+        () => ({
+            tab,
+            topicId: topicIdRef.current,
+            topic,
+            flashcards,
+            learningFlashcards,
+            ankiSettings,
+            isPdfViewerFullscreen,
+            contentTextOrigin,
+            setTab,
+            setTopicId,
+            setTopic,
+            setFlashcards,
+            setLearningFlashcards,
+            onReviewCard,
+            setAnkiSettings,
+            setIsPdfViewerFullScreen,
+        }),
+        [
+            tab,
+            topic,
+            flashcards,
+            learningFlashcards,
+            ankiSettings,
+            isPdfViewerFullscreen,
+            setTab,
+            setTopic,
+            setFlashcards,
+            setLearningFlashcards,
+            onReviewCard,
+            setAnkiSettings,
+            setIsPdfViewerFullScreen,
+        ],
     );
 
-    return (
-        <TopicWorkspaceContext.Provider
-            value={{
-                topic,
-                flashcards,
-                learningFlashcards,
-                setTopic,
-                setFlashcards,
-                setLearningFlashcards,
-                onReviewCard,
-                ankiSettings,
-                setAnkiSettings,
-                isPdfViewerFullscreen,
-                setIsPdfViewerFullScreen,
-            }}
-        >
-            {children}
-        </TopicWorkspaceContext.Provider>
-    );
+    return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;
 }
 
 export function useTopicWorkspace() {

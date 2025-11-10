@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ITranscriptSegment } from '../../../service/learningMaterial.service';
 import TranscriptViewer from './TranscriptViewer';
 import { YouTubePlayer, YouTubeProps } from 'react-youtube';
 import YoutubePlayer from './YoutubePlayer';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { isNilOrEmpty } from '@/utils';
 
 interface Props {
     videoId: string;
@@ -10,6 +12,8 @@ interface Props {
 }
 
 export default function YoutubeLearningMaterial({ videoId, content }: Props) {
+    const { contentTextOrigin } = useTopicWorkspace();
+
     const [player, setPlayer] = useState<YouTubePlayer | null>(null);
 
     const onPlayerReady: YouTubeProps['onReady'] = (event) => {
@@ -23,6 +27,12 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
             await player.playVideo();
         }
     }
+
+    useEffect(() => {
+        if (!isNilOrEmpty(content)) {
+            contentTextOrigin.current = content as string;
+        }
+    }, [content]);
 
     return (
         <div className="flex flex-col gap-4 p-8 overflow-y-scroll">

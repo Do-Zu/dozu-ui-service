@@ -7,7 +7,7 @@ interface Props {
 
 export default function YoutubePlayer({ videoId, onPlayerReady }: Props) {
     return (
-        <div className="relative w-full aspect-video">
+        <div className="relative w-full aspect-video rounded-xl">
             <ReactYoutube
                 videoId={videoId}
                 className="absolute inset-0 w-full h-full"

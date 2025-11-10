@@ -23,13 +23,14 @@ interface Props {
     topicId: number;
 }
 
-export default function TeacherTopicWorkspace({ topicId }: Props) {
+export default function TeacherTopicWorkspace() {
     const [isFullscreen, setIsFullscreen] = useState(false);
     function handleScreenModeToogle() {
         setIsFullscreen((prev) => !prev);
     }
 
     const {
+        topicId,
         topic,
         flashcards,
         learningFlashcards,
@@ -99,7 +100,7 @@ export default function TeacherTopicWorkspace({ topicId }: Props) {
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={25} className={isFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full p-4">
-                        <LearningMaterial topicId={topicId} />
+                        <LearningMaterial />
                     </div>
                 </ResizablePanel>
 
