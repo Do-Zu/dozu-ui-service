@@ -5,7 +5,7 @@ import useActivePomodoro from '@/hooks/useActivePomodoro';
 import { IAnkiRating } from '@/types/anki';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
-import Flashcard from './Flashcard';
+import Flashcard from '../Flashcard';
 import flashcardHelper from '@/utils/flashcard/flashcard.helper';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Label } from '@/components/ui/label';
@@ -70,6 +70,7 @@ export default function LearningCard({
                     <Flashcard
                         front={flashcard.front}
                         back={flashcard.back}
+                        imageUrl={flashcard.imageUrl}
                         isFlipped={isFlipped}
                         isAnimating={isAnimating}
                         onClick={onFlip}

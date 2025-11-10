@@ -3,7 +3,7 @@
 import { Textarea } from '@/components/ui/textarea';
 import { useEffect, useState } from 'react';
 
-import { Edit, ImagePlus, Import, Save, Trash2 } from 'lucide-react';
+import { Edit, ImagePlus, Import, Plus, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
@@ -30,6 +30,7 @@ import { IFlashcardPreview } from '@/app/[locale]/flashcards/components/import/F
 import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/FlashcardImportModal';
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
+import { Label } from '@/components/ui/label';
 
 interface ILocalFlashcard {
     id: number;
@@ -51,8 +52,8 @@ export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
-const initialFlashcardsCount = 3;
-const flashcardsJump = 3;
+const initialFlashcardsCount = 1;
+const flashcardsJump = 1;
 
 function isEmptyArray(array: any[]): boolean {
     return array.length === 0;
@@ -504,57 +505,88 @@ const EditingFlashcard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-8 flex-col mt-7">
+            <div className="mt-7 flex flex-col gap-6">
                 {editingFlashcards?.map((flashcard, index) => {
                     if (flashcard.serverInfo?.isDeleted) return null;
+
                     return (
                         <div
                             key={flashcard.id}
-                            className="col-span-4 bg-white p-8 text-center flex flex-col gap-4 rounded-xl border-2 dark:border-white"
+                            className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 flex flex-col"
                         >
-                            <div className="flex flex-row justify-end">
-                                <Button variant="ghost" size="icon" onClick={() => handleAddImageModalOpen(flashcard)}>
-                                    <ImagePlus size={18} />
-                                </Button>
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="text-xl font-bold text-muted-foreground select-none">{index + 1}</span>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handleAddImageModalOpen(flashcard)}
+                                        className="text-muted-foreground hover:text-primary hover:border-primary/50"
+                                    >
+                                        <ImagePlus size={18} />
+                                    </Button>
 
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}
-                                >
-                                    <Trash2 size={18} className="text-red-500 hover:text-red-600" />
-                                </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}
+                                        className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
+                                    >
+                                        <Trash2 size={18} />
+                                    </Button>
+                                </div>
                             </div>
+
                             <div className="flex flex-col gap-4">
-                                <Textarea
-                                    placeholder="Front"
-                                    className="resize-none"
-                                    value={flashcard.front}
-                                    onChange={(event) =>
-                                        handleFlashcardChange('front', getFlashcardType(flashcard), {
-                                            order: index,
-                                            text: event.target.value,
-                                        })
-                                    }
-                                />
-                                <Textarea
-                                    placeholder="Back"
-                                    className="resize-none"
-                                    value={flashcard.back}
-                                    onChange={(event) =>
-                                        handleFlashcardChange('back', getFlashcardType(flashcard), {
-                                            order: index,
-                                            text: event.target.value,
-                                        })
-                                    }
-                                />
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor={`front-${flashcard.id}`} className="font-semibold">
+                                        Front
+                                    </Label>
+                                    <Textarea
+                                        id={`front-${flashcard.id}`}
+                                        placeholder="Thuật ngữ"
+                                        className="resize-none min-h-[70px]"
+                                        value={flashcard.front}
+                                        onChange={(event) =>
+                                            handleFlashcardChange('front', getFlashcardType(flashcard), {
+                                                order: index,
+                                                text: event.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor={`back-${flashcard.id}`} className="font-semibold">
+                                        Back
+                                    </Label>
+                                    <Textarea
+                                        id={`back-${flashcard.id}`}
+                                        placeholder="Định nghĩa"
+                                        className="resize-none min-h-[85px]"
+                                        value={flashcard.back}
+                                        onChange={(event) =>
+                                            handleFlashcardChange('back', getFlashcardType(flashcard), {
+                                                order: index,
+                                                text: event.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
                             </div>
                         </div>
                     );
                 })}
 
-                <div className="col-span-12 flex justify-center mb-10">
-                    <Button onClick={handleAddFlashcardsCount}>+ {tFlashcardEdit('addCards')}</Button>
+                <div className="mt-4">
+                    <Button
+                        onClick={handleAddFlashcardsCount}
+                        variant="outline"
+                        className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
+                    >
+                        <Plus size={16} className="mr-2" />
+                        {tFlashcardEdit('addCards')}
+                    </Button>
                 </div>
             </div>
 

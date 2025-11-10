@@ -6,11 +6,20 @@ import { Separator } from '@/components/ui/separator';
 import toastHelper from '@/utils/toast.helper';
 import { Download, Maximize, Minimize, RotateCwSquare } from 'lucide-react';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
-import React, { ChangeEvent, Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+    ChangeEvent,
+    Dispatch,
+    RefObject,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { Input } from '@/components/ui/input';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -41,7 +50,6 @@ function PdfToolbar({
     setPageNumber,
     numPages,
 }: ToolbarProps) {
-
     const downloadRef = useRef<HTMLAnchorElement>(null);
 
     function onPageNumberChange(event: ChangeEvent<HTMLInputElement>) {
@@ -96,7 +104,9 @@ function PdfToolbar({
                 </Button>
 
                 <Button variant="ghost" size="icon" onClick={() => onDownloadClick(downloadRef)}>
-                    <a ref={downloadRef}><Download className="h-4 w-4" /></a>
+                    <a ref={downloadRef}>
+                        <Download className="h-4 w-4" />
+                    </a>
                 </Button>
 
                 <Button variant="ghost" size="icon" onClick={onScreenModeToogle}>
