@@ -1,4 +1,8 @@
+import { useEffect } from 'react';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import youtubeLearningMaterialUtils from '../../utils/youtubeLearningMaterial.utils';
+import { isNilOrEmpty } from '@/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Props {
     embedUrl: string;
@@ -6,19 +10,27 @@ interface Props {
 }
 
 export default function YoutubeLearningMaterial({ embedUrl, content }: Props) {
+    const { contentTextOrigin } = useTopicWorkspace();
+
+    useEffect(() => {
+        if (!isNilOrEmpty(content)) {
+            contentTextOrigin.current = content;
+        }
+    }, [content]);
+
     if (!youtubeLearningMaterialUtils.isValidYoutubeEmbed(embedUrl)) {
         return <div className="p-8 text-red-500">Invalid YouTube URL</div>;
     }
 
     return (
-        <div className="flex flex-col gap-4 p-8 overflow-y-scroll">
+        <ScrollArea className="flex flex-col gap-4 p-8 ">
             <iframe
                 allowFullScreen={true}
                 src={embedUrl}
                 title="Youtube video player"
-                className="w-full aspect-video"
+                className="w-full aspect-video rounded-2xl mb-2"
             />
             <p>{content}</p>
-        </div>
+        </ScrollArea>
     );
 }

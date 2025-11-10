@@ -53,10 +53,12 @@ class LearningMaterialService {
     public async getLearningMaterial({ topicId }: { topicId: number }): Promise<ILearningMaterial> {
         try {
             const { data: response } = await getRequest<unknown, IInputSetResponse>(`/input-set/document/${topicId}`);
+
             if (!response?.data) {
                 throw new Error('Data not found, please try again.');
             }
-            if (response.data.fileUrl) {
+
+            if (response?.data?.fileUrl) {
                 const result = await this.getPdfDocument(response as IResponseFileFromInputSet);
                 return { ...result, type: 'file' };
             } else {

@@ -201,7 +201,7 @@ const useReaderFile = (fileInit?: File) => {
                     textItems.forEach((item: TextItem) => {
                         fullText += item.str;
                     });
-                    fullText += `\n Page ${i} \n`;
+                    fullText += `\n ---- End of Page ${i} ----- \n`;
                 }
 
                 setText(fullText.trim());
