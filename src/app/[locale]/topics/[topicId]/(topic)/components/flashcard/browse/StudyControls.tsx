@@ -41,7 +41,12 @@ export default function StudyControls({
 }: Props) {
     const { isTeacher } = useRoleChecker();
     const t = useTranslations('flashcard.study');
-    const progress = parseInt(((currentFlashcardIndex / (flashcardsLength - 1)) * 100).toFixed(0));
+    const progress =
+        flashcardsLength <= 1
+            ? flashcardsLength === 1
+                ? 100
+                : 0
+            : parseInt(((currentFlashcardIndex / (flashcardsLength - 1)) * 100).toFixed(0));
 
     return (
         <div

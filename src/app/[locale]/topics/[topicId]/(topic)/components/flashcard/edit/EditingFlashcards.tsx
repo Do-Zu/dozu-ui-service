@@ -171,6 +171,7 @@ export function handleConvertToFlashcardsEdited(flashcards: IFlashcard[]): IEdit
 
 const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
+    const tFlashcardCommon = useTranslations('flashcard.common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
     const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
@@ -540,11 +541,11 @@ const EditingFlashcards = () => {
                             <div className="flex flex-col gap-4">
                                 <div className="flex flex-col gap-2">
                                     <Label htmlFor={`front-${flashcard.id}`} className="font-semibold">
-                                        Front
+                                        {tFlashcardCommon('front')}
                                     </Label>
                                     <Textarea
                                         id={`front-${flashcard.id}`}
-                                        placeholder="Thuật ngữ"
+                                        placeholder={tFlashcardCommon('front')}
                                         className="resize-none min-h-[70px]"
                                         value={flashcard.front}
                                         onChange={(event) =>
@@ -558,11 +559,11 @@ const EditingFlashcards = () => {
 
                                 <div className="flex flex-col gap-2">
                                     <Label htmlFor={`back-${flashcard.id}`} className="font-semibold">
-                                        Back
+                                        {tFlashcardCommon('back')}
                                     </Label>
                                     <Textarea
                                         id={`back-${flashcard.id}`}
-                                        placeholder="Định nghĩa"
+                                        placeholder={tFlashcardCommon('back')}
                                         className="resize-none min-h-[85px]"
                                         value={flashcard.back}
                                         onChange={(event) =>

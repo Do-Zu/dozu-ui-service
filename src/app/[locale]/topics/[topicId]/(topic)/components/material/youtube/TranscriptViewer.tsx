@@ -38,13 +38,14 @@ function TranscriptViewer({ transcript, onSegmentClick }: Props) {
                     <div
                         key={index}
                         className="flex gap-4 items-start py-1 transition-all duration-150 hover:bg-muted/50 rounded-lg pr-2"
+                        role="button"
                         onClick={() => onSegmentClick(segment.startTime)}
                     >
                         <div className="w-16 flex-shrink-0 text-right text-sm font-medium text-muted-foreground select-none pt-0.5">
                             {formatTime(segment.startTime)}
                         </div>
 
-                        <p className="flex-grow text-base leading-relaxed text-foreground cursor-pointer">
+                        <p className="flex-grow text-base leading-relaxed text-foreground cursor-pointer select-text">
                             {segment.text}
                         </p>
                     </div>
