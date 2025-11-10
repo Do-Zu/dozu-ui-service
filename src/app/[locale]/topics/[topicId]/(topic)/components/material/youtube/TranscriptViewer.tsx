@@ -31,7 +31,7 @@ interface Props {
 function TranscriptViewer({ transcript, onSegmentClick }: Props) {
     if (!validateTranscript(transcript)) return <div className="p-8">Invalid transcript, please try again.</div>;
     return (
-        <div className="p-4 md:p-6 rounded-xl border bg-card text-card-foreground shadow-lg max-w-3xl mx-auto">
+        <div className="p-4 rounded-xl border bg-card text-card-foreground shadow-lg max-w-3xl mx-auto">
             <h2 className="text-xl font-bold mb-4 border-b pb-2 text-primary">Transcript</h2>
             <div className="flex flex-col gap-3">
                 {transcript.map((segment, index) => (

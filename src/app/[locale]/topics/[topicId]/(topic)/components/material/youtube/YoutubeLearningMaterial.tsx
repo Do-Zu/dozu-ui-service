@@ -36,7 +36,7 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
     }, [content]);
 
     return (
-        <ScrollArea className="flex flex-col gap-4 p-8">
+        <ScrollArea className='flex flex-col p-4'>
             <YoutubePlayer videoId={videoId} onPlayerReady={onPlayerReady} />
             {typeof content === 'string' ? (
                 <p>{content}</p>
