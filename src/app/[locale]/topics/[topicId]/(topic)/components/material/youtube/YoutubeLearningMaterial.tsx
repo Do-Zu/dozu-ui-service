@@ -5,6 +5,7 @@ import { YouTubePlayer, YouTubeProps } from 'react-youtube';
 import YoutubePlayer from './YoutubePlayer';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { isNilOrEmpty } from '@/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Props {
     videoId: string;
@@ -35,13 +36,13 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
     }, [content]);
 
     return (
-        <div className="flex flex-col gap-4 p-8 overflow-y-scroll">
+        <ScrollArea className="flex flex-col gap-4 p-8">
             <YoutubePlayer videoId={videoId} onPlayerReady={onPlayerReady} />
             {typeof content === 'string' ? (
                 <p>{content}</p>
             ) : (
                 <TranscriptViewer transcript={content} onSegmentClick={seekTo} />
             )}
-        </div>
+        </ScrollArea>
     );
 }
