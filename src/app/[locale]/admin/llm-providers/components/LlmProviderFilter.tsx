@@ -66,8 +66,30 @@ export function LlmProviderFilter({ onFilterChange }: LlmProviderFilterProps) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="true">Available</SelectItem>
-                                <SelectItem value="false">Unavailable</SelectItem>
+                                <SelectItem value="true">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: '#22c55e',
+                                            }}
+                                        >
+                                            Available
+                                        </span>
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="false">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: '#ef4444',
+                                            }}
+                                        >
+                                            Unavailable
+                                        </span>
+                                    </div>
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -86,8 +108,30 @@ export function LlmProviderFilter({ onFilterChange }: LlmProviderFilterProps) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="true">Default</SelectItem>
-                                <SelectItem value="false">Not Default</SelectItem>
+                                <SelectItem value="true">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: 'linear-gradient(to right, #2563eb, #9333ea)',
+                                            }}
+                                        >
+                                            Default
+                                        </span>
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="false">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: '#6b7280',
+                                            }}
+                                        >
+                                            Not Default
+                                        </span>
+                                    </div>
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

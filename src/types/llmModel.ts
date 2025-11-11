@@ -30,6 +30,7 @@ export interface UpdateLlmModelInput {
 
 export interface GetLlmModelsQuery {
   providerId?: string;
+  providerName?: string;
   isAvailable?: 'true' | 'false' | '';
   isDefault?: 'true' | 'false' | '';
   page?: string;

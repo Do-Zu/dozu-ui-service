@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { GetLlmModelsQuery } from '@/types/llmModel';
+import { LlmProvider, LlmProvidersResponse } from '@/types/llmProvider';
 import { X } from 'lucide-react';
+import { getProviderColor } from '@/utils/providerColors';
+import { getRequest } from '@/api/api';
+import { ApiResponse } from '@/api/type';
+import { toast } from '@/hooks/use-toast';
 
 interface LlmModelFilterProps {
     onFilterChange: (filters: GetLlmModelsQuery) => void;
@@ -15,11 +20,36 @@ interface LlmModelFilterProps {
 
 export function LlmModelFilter({ onFilterChange }: LlmModelFilterProps) {
     const [filters, setFilters] = useState<GetLlmModelsQuery>({
-        providerId: '',
+        providerName: '',
         isAvailable: '',
         isDefault: '',
         search: '',
     });
+    const [providers, setProviders] = useState<LlmProvider[]>([]);
+    const [loadingProviders, setLoadingProviders] = useState(false);
+
+    // Fetch providers on mount
+    useEffect(() => {
+        const fetchProviders = async () => {
+            try {
+                setLoadingProviders(true);
+                const response: ApiResponse<LlmProvidersResponse> = await getRequest<unknown, LlmProvidersResponse>(
+                    '/admin/llm-providers?limit=100'
+                );
+                setProviders(response.data?.providers || []);
+            } catch (error) {
+                console.error('Failed to fetch providers:', error);
+                toast({
+                    description: 'Failed to load providers list',
+                    variant: 'destructive',
+                });
+            } finally {
+                setLoadingProviders(false);
+            }
+        };
+
+        fetchProviders();
+    }, []);
 
     const handleFilterChange = (key: keyof GetLlmModelsQuery, value: string) => {
         const newFilters = { ...filters, [key]: value };
@@ -29,7 +59,7 @@ export function LlmModelFilter({ onFilterChange }: LlmModelFilterProps) {
 
     const clearFilters = () => {
         const clearedFilters: GetLlmModelsQuery = {
-            providerId: '',
+            providerName: '',
             isAvailable: '',
             isDefault: '',
             search: '',
@@ -55,14 +85,39 @@ export function LlmModelFilter({ onFilterChange }: LlmModelFilterProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="providerId">Provider ID</Label>
-                        <Input
-                            id="providerId"
-                            type="number"
-                            placeholder="Filter by provider ID"
-                            value={filters.providerId || ''}
-                            onChange={(e) => handleFilterChange('providerId', e.target.value)}
-                        />
+                        <Label htmlFor="providerName">Provider</Label>
+                        <Select
+                            value={filters.providerName || 'all'}
+                            onValueChange={(value) => {
+                                const filterValue = value === 'all' ? '' : value;
+                                handleFilterChange('providerName', filterValue);
+                            }}
+                            disabled={loadingProviders}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder={loadingProviders ? 'Loading providers...' : 'All Providers'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Providers</SelectItem>
+                                {providers.map((provider) => {
+                                    const colors = getProviderColor(provider.name);
+                                    return (
+                                        <SelectItem key={provider.providerId} value={provider.name}>
+                                            <div className="flex items-center gap-2">
+                                                <span 
+                                                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                                    style={{
+                                                        background: `linear-gradient(to right, ${colors.gradientFrom}, ${colors.gradientTo})`,
+                                                    }}
+                                                >
+                                                    {provider.name}
+                                                </span>
+                                            </div>
+                                        </SelectItem>
+                                    );
+                                })}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="space-y-2">
@@ -79,8 +134,30 @@ export function LlmModelFilter({ onFilterChange }: LlmModelFilterProps) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="true">Available</SelectItem>
-                                <SelectItem value="false">Unavailable</SelectItem>
+                                <SelectItem value="true">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: '#22c55e',
+                                            }}
+                                        >
+                                            Available
+                                        </span>
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="false">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: '#ef4444',
+                                            }}
+                                        >
+                                            Unavailable
+                                        </span>
+                                    </div>
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -99,8 +176,30 @@ export function LlmModelFilter({ onFilterChange }: LlmModelFilterProps) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="true">Default</SelectItem>
-                                <SelectItem value="false">Not Default</SelectItem>
+                                <SelectItem value="true">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: 'linear-gradient(to right, #2563eb, #9333ea)',
+                                            }}
+                                        >
+                                            Default
+                                        </span>
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="false">
+                                    <div className="flex items-center gap-2">
+                                        <span 
+                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white"
+                                            style={{
+                                                background: '#6b7280',
+                                            }}
+                                        >
+                                            Not Default
+                                        </span>
+                                    </div>
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

@@ -8,16 +8,8 @@ import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import { Edit, Trash2, Power } from 'lucide-react';
 import { useState } from 'react';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { DeleteModelDialog } from './DeleteModelDialog';
+import { getProviderColor } from '@/utils/providerColors';
 
 function AvailabilityBadge({ isAvailable }: { isAvailable: boolean }) {
     return (
@@ -65,25 +57,12 @@ function ActionButtons({
         }
     );
 
-    const { execute: deleteModel, loading: deleteLoading } = usePost(
-        `/admin/llm-models/${model.modelId}`,
-        'DELETE',
-        {
-            onMessageError: () => toast({ description: 'Failed to delete model', variant: 'destructive' }),
-            onMessageSuccess: () => {
-                toast({ description: 'Model deleted successfully' });
-                refetch();
-                setDeleteDialogOpen(false);
-            },
-        }
-    );
-
     const handleToggleAvailability = async () => {
         await toggleAvailability({});
     };
 
-    const handleDelete = async () => {
-        await deleteModel({});
+    const handleDeleteSuccess = () => {
+        refetch();
     };
 
     return (
@@ -107,29 +86,17 @@ function ActionButtons({
                     onClick={() => setDeleteDialogOpen(true)}
                     title="Delete model"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    disabled={deleteLoading}
                 >
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
 
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the model{' '}
-                            <strong>{model.name}</strong>.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-                            {deleteLoading ? 'Deleting...' : 'Delete'}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteModelDialog
+                model={model}
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                onSuccess={handleDeleteSuccess}
+            />
         </>
     );
 }
@@ -160,9 +127,20 @@ export const getLlmModelColumns = (
     {
         accessorKey: 'providerName',
         header: 'Provider',
-        cell: ({ row }) => (
-            <Badge variant="outline">{row.original.providerName || `Provider ${row.original.providerId}`}</Badge>
-        ),
+        cell: ({ row }) => {
+            const providerName = row.original.providerName || `Provider ${row.original.providerId}`;
+            const colors = getProviderColor(providerName);
+            return (
+                <Badge 
+                    className="text-white border-0"
+                    style={{
+                        background: `linear-gradient(to right, ${colors.gradientFrom}, ${colors.gradientTo})`,
+                    }}
+                >
+                    {providerName}
+                </Badge>
+            );
+        },
     },
     {
         accessorKey: 'priority',

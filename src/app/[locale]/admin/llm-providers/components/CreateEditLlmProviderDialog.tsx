@@ -32,9 +32,8 @@ export function CreateEditLlmProviderDialog({
     onSuccess,
     provider,
 }: CreateEditLlmProviderDialogProps) {
-    const [formData, setFormData] = useState<CreateLlmProviderInput>({
+    const [formData, setFormData] = useState<CreateLlmProviderInput & { index?: number }>({
         name: '',
-        index: 0,
         isAvailable: true,
         isDefault: false,
         description: '',
@@ -62,7 +61,6 @@ export function CreateEditLlmProviderDialog({
     const resetForm = () => {
         setFormData({
             name: '',
-            index: 0,
             isAvailable: true,
             isDefault: false,
             description: '',
@@ -128,7 +126,9 @@ export function CreateEditLlmProviderDialog({
             };
             await updateProvider(updateData);
         } else {
-            await createProvider(formData);
+            // Remove index from create payload - it will be auto-generated
+            const { index, ...createData } = formData;
+            await createProvider(createData);
         }
     };
 
@@ -147,7 +147,7 @@ export function CreateEditLlmProviderDialog({
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className={isEditMode ? 'grid grid-cols-2 gap-4' : ''}>
                         <div className="space-y-2">
                             <Label htmlFor="name">Provider Name *</Label>
                             <Input
@@ -159,20 +159,22 @@ export function CreateEditLlmProviderDialog({
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="index">Index *</Label>
-                            <Input
-                                id="index"
-                                type="number"
-                                min="0"
-                                value={formData.index}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, index: parseInt(e.target.value) || 0 })
-                                }
-                                required
-                            />
-                            <p className="text-xs text-muted-foreground">Display order (lower = higher priority)</p>
-                        </div>
+                        {isEditMode && (
+                            <div className="space-y-2">
+                                <Label htmlFor="index">Index *</Label>
+                                <Input
+                                    id="index"
+                                    type="number"
+                                    min="0"
+                                    value={formData.index || 0}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, index: parseInt(e.target.value) || 0 })
+                                    }
+                                    required
+                                />
+                                <p className="text-xs text-muted-foreground">Display order (lower = higher priority)</p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-2">

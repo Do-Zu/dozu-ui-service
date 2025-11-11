@@ -8,16 +8,8 @@ import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import { Edit, Trash2, Power } from 'lucide-react';
 import { useState } from 'react';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { DeleteProviderDialog } from './DeleteProviderDialog';
+import { getProviderColor } from '@/utils/providerColors';
 
 function AvailabilityBadge({ isAvailable }: { isAvailable: boolean }) {
     return (
@@ -65,25 +57,8 @@ function ActionButtons({
         }
     );
 
-    const { execute: deleteProvider, loading: deleteLoading } = usePost(
-        `/admin/llm-providers/${provider.providerId}`,
-        'DELETE',
-        {
-            onMessageError: () => toast({ description: 'Failed to delete provider', variant: 'destructive' }),
-            onMessageSuccess: () => {
-                toast({ description: 'Provider deleted successfully' });
-                refetch();
-                setDeleteDialogOpen(false);
-            },
-        }
-    );
-
     const handleToggleAvailability = async () => {
         await toggleAvailability({});
-    };
-
-    const handleDelete = async () => {
-        await deleteProvider({});
     };
 
     return (
@@ -107,29 +82,17 @@ function ActionButtons({
                     onClick={() => setDeleteDialogOpen(true)}
                     title="Delete provider"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    disabled={deleteLoading}
                 >
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
 
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the provider{' '}
-                            <strong>{provider.name}</strong>.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-                            {deleteLoading ? 'Deleting...' : 'Delete'}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteProviderDialog
+                provider={provider}
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                onSuccess={refetch}
+            />
         </>
     );
 }
@@ -146,16 +109,26 @@ export const getLlmProviderColumns = (
     {
         accessorKey: 'name',
         header: 'Provider Name',
-        cell: ({ row }) => (
-            <div>
-                <div className="font-medium">{row.original.name}</div>
-                {row.original.description && (
-                    <div className="text-sm text-muted-foreground line-clamp-1">
-                        {row.original.description}
-                    </div>
-                )}
-            </div>
-        ),
+        cell: ({ row }) => {
+            const colors = getProviderColor(row.original.name);
+            return (
+                <div>
+                    <Badge 
+                        className="text-white border-0"
+                        style={{
+                            background: `linear-gradient(to right, ${colors.gradientFrom}, ${colors.gradientTo})`,
+                        }}
+                    >
+                        {row.original.name}
+                    </Badge>
+                    {row.original.description && (
+                        <div className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                            {row.original.description}
+                        </div>
+                    )}
+                </div>
+            );
+        },
     },
     {
         accessorKey: 'baseUrl',

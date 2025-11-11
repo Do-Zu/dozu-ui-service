@@ -13,7 +13,6 @@ export interface CreateLlmProviderInput {
   name: string;
   isDefault?: boolean;
   isAvailable?: boolean;
-  index: number;
   description?: string;
   baseUrl?: string;
 }
