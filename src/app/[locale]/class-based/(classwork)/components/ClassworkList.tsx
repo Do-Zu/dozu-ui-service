@@ -34,6 +34,10 @@ import learningMaterialService from '../../(learning-material)/service/learningM
 import { IClasswork } from '../services/classwork.service';
 import classworkUtils from '../utils/classwork.utils';
 import { DATE_DMY_DASH_FORMAT } from '@/utils/date/constant';
+import { IClassQuizListItem } from '../../(class-quiz)/types/classQuiz.type';
+import ClassQuizItem from '../../(class-quiz)/components/ClassQuizItem';
+import classQuizTeacherService from '../../(class-quiz)/services/classQuizTeacher.service';
+import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
 
 interface AssignmentItemProps {
     role: UserRole;
@@ -277,7 +281,8 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
     const topics = useMemo(() => {
         return [...topicsData, NO_TOPIC];
     }, [topicsData]);
-
+    const { user, isLoggedIn } = useUserSession();
+    const [creatingQuiz, setCreatingQuiz] = useState(false);
     const [classworkByTopic, setClassworkByTopic] = useState<Map<number, IClasswork[]> | null>(null);
     const [selectedTopic, setSelectedTopic] = useState<string>(ALL_TOPICS);
     const selectedClasswork = classworkUtils.getSelectedClasswork({ classworkByTopic, topicId: selectedTopic });
@@ -347,13 +352,49 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
         setSelectedTopic(value);
     }
 
-    function handleSelect(type: IClassworkType) {
+function resolveTopicId(): number | null {
+  if (selectedTopic === ALL_TOPICS) return null;
+  if (selectedTopic === NO_TOPIC.topicId?.toString?.()) return null;
+  const n = Number(selectedTopic);
+  return Number.isFinite(n) ? n : null;
+}
+
+
+    async function handleSelect(type: IClassworkType) {
         switch (type) {
             case ClassworkTypeEnum.ASSIGNMENT:
                 router.push(ROUTES.TEACHER.CLASS_BASED_ID_ASSIGNMENTS(myClass.classId));
                 break;
             case ClassworkTypeEnum.QUIZ:
                 // ...routing to your page
+                if (creatingQuiz) return;
+                if (!isLoggedIn || !user?.userId) {
+                    toastHelper.showErrorMessage('Bạn cần đăng nhập để tạo quiz');
+                    return;
+                }
+                try {
+                    setCreatingQuiz(true);
+                    const created = await classQuizTeacherService.createClassQuiz(myClass.classId, {
+                        teacherId: Number(user.userId),
+                        topicId: resolveTopicId(),
+                        title: 'New Quiz',
+                        content: '',
+                        startAt: null,
+                        endAt: null,
+                        durationSeconds: null,
+                        maxAttempts: 1,
+                        shuffleQuestions: true,
+                        shuffleChoices: true,
+                        showScoreToStudent: true,
+                    });
+
+                    router.push(ROUTES.TEACHER.CLASS_BASED_ID_CLASS_QUIZ_EDIT(myClass.classId, created.classQuizId));
+                    toastHelper.showSuccessMessage('Created new quiz draft');
+                } catch (e: any) {
+                    toastHelper.showErrorMessage(e?.message || 'Failed to create quiz');
+                } finally {
+                    setCreatingQuiz(false);
+                }
                 break;
             case ClassworkTypeEnum.LEARNING_MATERIAL:
                 // route to learningMaterial
@@ -474,6 +515,17 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
                                         />
                                     );
                                 }
+                                case ClassworkTypeEnum.QUIZ: {
+                                    const quiz = classwork.item as IClassQuizListItem;
+                                    return (
+                                        <ClassQuizItem
+                                            key={`quiz-${quiz.classQuizId}`}
+                                            role={role}
+                                            quiz={quiz}
+                                            classIdForRoute={myClass.classId}
+                                        />
+                                    );
+                                }
                             }
                         })}
                     </div>
@@ -516,6 +568,17 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
                                                                 learningMaterial={material}
                                                                 onOpen={onOpenLearningMaterial}
                                                                 onClose={onCloseLM}
+                                                            />
+                                                        );
+                                                    }
+                                                    case ClassworkTypeEnum.QUIZ: {
+                                                        const quiz = classworkItem.item as IClassQuizListItem;
+                                                        return (
+                                                            <ClassQuizItem
+                                                                key={`quiz-${quiz.classQuizId}`}
+                                                                role={role}
+                                                                quiz={quiz}
+                                                                classIdForRoute={myClass.classId}
                                                             />
                                                         );
                                                     }
