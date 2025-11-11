@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import AuthButton from '@/components/toolbar/AuthButton';
-import { Home, Users, BarChart3, Clock, ListChecks, CreditCard, Star, TrendingUp, DollarSign, Wallet, Brain } from 'lucide-react';
+import { Home, Users, BarChart3, Clock, ListChecks, CreditCard, Star, TrendingUp, DollarSign, Wallet, Brain, Server } from 'lucide-react';
 
 interface SidebarProps {
     className?: string;
@@ -49,6 +49,16 @@ const navItems = [
         href: '/admin/features',
     },
     {
+        label: 'LLM Models',
+        icon: Brain,
+        href: '/admin/llm-models'
+    },
+    {
+        label: 'LLM Providers',
+        icon: Server,
+        href: '/admin/llm-providers'
+    },
+    {
         label: 'Stats',
         icon: BarChart3,
         href: '/admin/stats',
@@ -62,11 +72,6 @@ const navItems = [
         label: 'Teacher Requests',
         icon: ListChecks,
         href: '/admin/teacher-requests'
-    },
-    {
-        label: 'LLM Models',
-        icon: Brain,
-        href: '/admin/llm-models'
     }
 ];
 
