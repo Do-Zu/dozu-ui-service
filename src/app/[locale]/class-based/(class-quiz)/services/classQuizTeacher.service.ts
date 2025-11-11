@@ -27,20 +27,38 @@ class ClassQuizTeacherService {
     });
   }
 
+  isEmptyStatus(status: any): boolean {
+  return status === 'not_found' || status === 'no_content';
+}
+
   /** GET /teacher/class-quiz/classes/:classId/quizzes?status=... */
-  listClassQuizzes(classId: number, status?: ClassQuizStatus) {
-    const qs = status ? `?status=${status}` : '';
-    return getRequest<unknown, IClassQuizListItem[]>(`${BASE}/classes/${classId}/quizzes${qs}`)
-      .then(r => {
-        if (r.status !== 'success') throw new Error(r.message);
-        // helper field cho sort hiển thị
-        const data = r.data.map(x => ({
-          ...x,
-          __createdForSort: x.publishedAt ?? x.startAt ?? x.endAt ?? new Date().toISOString(),
-        }));
-        return data;
-      });
+async listClassQuizzes(classId: number, status?: ClassQuizStatus) {
+  const qs = status ? `?status=${status}` : '';
+
+  try {
+    const r = await getRequest<unknown, IClassQuizListItem[]>(`${BASE}/classes/${classId}/quizzes${qs}`);
+
+    if (r.status === 'success' && Array.isArray(r.data)) {
+      return r.data.map(x => ({
+        ...x,
+        __createdForSort:
+          x.publishedAt ?? x.startAt ?? x.endAt ?? new Date().toISOString(),
+      }));
+    }
+
+    if (this.isEmptyStatus(r.status)) return [];
+
+    throw new Error(r.message || 'Failed to load quizzes');
+  } catch (e: any) {
+    const http = e?.response?.status ?? e?.status;
+
+    if (http === 404 || http === 204) return [];
+
+    throw e;
   }
+}
+
+
 
   /** PUT /teacher/class-quiz/class-quizzes/:classQuizId/draft */
   upsertDraft(classQuizId: number, body: IUpsertDraftBody) {
