@@ -83,17 +83,17 @@ export default function MenuBar({ editor, content, onSubmit, loading }: Props) {
         {
             icon: <List className="size-4" />,
             onClick: () => editor.chain().focus().toggleBulletList().run(),
-            pressed: editor.isActive('BulletList'),
+            pressed: editor.isActive('bulletList'),
         },
         {
             icon: <ListOrdered className="size-4" />,
             onClick: () => editor.chain().focus().toggleOrderedList().run(),
-            pressed: editor.isActive('ListOrdered'),
+            pressed: editor.isActive('orderedList'),
         },
         {
             icon: <Highlighter className="size-4" />,
             onClick: () => editor.chain().focus().toggleHighlight().run(),
-            pressed: editor.isActive('Highlight'),
+            pressed: editor.isActive('highlight'),
         },
     ];
 
