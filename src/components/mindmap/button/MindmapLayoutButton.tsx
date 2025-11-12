@@ -5,6 +5,7 @@ import ELK from 'elkjs/lib/elk.bundled.js';
 import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
 import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const elk = new ELK();
 
@@ -22,7 +23,6 @@ const elk = new ELK();
 //     'elk.radial.toNode': 'PREFERRED_CHILD', // keeps child grouping predictable
 //     'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
 // };
-
 
 const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
@@ -46,15 +46,20 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
     );
 
     return (
-        <Button
-            variant="outline"
-            onClick={() => {
-                onLayout({ direction: 'DOWN' });
-            }}
-        >
-            <CircleDashed />
-            {isPanelExpanded ? 'Set Mindmap layout' : ''}
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    size="icon-sm"
+                    variant="outline"
+                    onClick={() => {
+                        onLayout({ direction: 'DOWN' });
+                    }}
+                >
+                    <CircleDashed />
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"> {'Mindmap layout'}</TooltipContent>
+        </Tooltip>
     );
 };
 

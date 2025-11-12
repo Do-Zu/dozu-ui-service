@@ -10,6 +10,7 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { Trash } from 'lucide-react';
@@ -43,10 +44,14 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive">
-                    <Trash />
-                    {isPanelExpanded ? <>{t('deleteMindmapButtonText')}</> : ''}
-                </Button>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="destructive" size="icon-sm">
+                            <Trash />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"> {t('deleteMindmapButtonText')}</TooltipContent>
+                </Tooltip>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>

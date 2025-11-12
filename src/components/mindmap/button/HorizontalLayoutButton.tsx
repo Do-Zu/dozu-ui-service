@@ -6,6 +6,7 @@ import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils'
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import { FitView } from '@xyflow/react';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const elkOptions = {
     'elk.algorithm': 'mrtree',
@@ -30,15 +31,21 @@ const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isP
     );
 
     return (
-        <Button
-            variant="outline"
-            onClick={() => {
-                onLayout({ direction: 'RIGHT' });
-            }}
-        >
-            <ArrowRightFromLine />
-            {isPanelExpanded ? 'Set horizontal layout' : ''}
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    size="icon-sm"
+                    variant="outline"
+                    onClick={() => {
+                        onLayout({ direction: 'RIGHT' });
+                    }}
+                >
+                    <ArrowRightFromLine />
+                    {isPanelExpanded ? 'Set horizontal layout' : ''}
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"> {'Horizontal layout'}</TooltipContent>
+        </Tooltip>
     );
 };
 

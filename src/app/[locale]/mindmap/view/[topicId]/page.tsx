@@ -43,7 +43,7 @@ const edgeTypes = {
     floating: FloatingEdge,
 };
 
-export default function MindmapContent() {
+export default function page() {
     const { resolvedTheme } = useTheme();
     const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();

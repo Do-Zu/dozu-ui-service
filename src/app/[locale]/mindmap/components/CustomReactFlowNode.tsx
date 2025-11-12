@@ -26,7 +26,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const progress = total > 0 ? (mature / total) * 100 : 0;
 
     const dispatch = useDispatch();
-    const router = getRouter();
+    // const router = getRouter();
 
     const [editing, setEditing] = useState(false);
     const [label, setLabel] = useState(data.label);

@@ -6,6 +6,7 @@ import { toPng } from 'html-to-image';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
 import toastHelper from '@/utils/toast.helper';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 function downloadImage(dataUrl: string) {
     const a = document.createElement('a');
@@ -15,15 +16,15 @@ function downloadImage(dataUrl: string) {
     a.click();
 }
 
-const imageWidth = 3840;//hardcoded, change later if needed - DuyND
+const imageWidth = 3840; //hardcoded, change later if needed - DuyND
 const imageHeight = 2160;
 
-interface DownloadButtonProps  {
-     isPanelExpanded:boolean
+interface DownloadButtonProps {
+    isPanelExpanded: boolean;
 }
 
-const DownloadButton = ({ isPanelExpanded}:DownloadButtonProps) => {
-    const t = useTranslations('DownloadMindmapButton')
+const DownloadButton = ({ isPanelExpanded }: DownloadButtonProps) => {
+    const t = useTranslations('DownloadMindmapButton');
     const { getNodes } = useReactFlow();
     const onClick = () => {
         // we calculate a transform for the nodes so that all nodes are visible
@@ -35,7 +36,7 @@ const DownloadButton = ({ isPanelExpanded}:DownloadButtonProps) => {
 
         if (!mindmapElement) {
             // toast({ description: 'Error downloading' });
-            toastHelper.showErrorMessage(t('ErrorDownloadingMessage'))
+            toastHelper.showErrorMessage(t('ErrorDownloadingMessage'));
             return;
         }
 
@@ -52,11 +53,14 @@ const DownloadButton = ({ isPanelExpanded}:DownloadButtonProps) => {
     };
 
     return (
-        <Button variant="outline" onClick={onClick}>
-            <FileDown />
-            { isPanelExpanded?t("DownloadMindmapButtonText"):''}
-       
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button size="icon-sm" variant="outline" onClick={onClick}>
+                    <FileDown />
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"> {t('DownloadMindmapButtonText')}</TooltipContent>
+        </Tooltip>
     );
 };
 

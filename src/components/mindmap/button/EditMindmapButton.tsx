@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { toggleIsEditing, toggleIsEditingTrue } from '@/stores/features/mindmap/isEditingMindmapSlice';
 import { useAppSelector } from '@/stores/hooks';
 import { useReactFlow } from '@xyflow/react';
@@ -20,10 +21,14 @@ const EditMindmapButton = ({ isPanelExpanded }: EditMindmapButtonProps) => {
     const isEditingMindmap = useAppSelector((state) => state.isEditingMindmapSlice.isEditingMindmap);
 
     return (
-        <Button variant={isEditingMindmap ? 'default' : 'outline'} onClick={onClick}>
-            <Pencil />
-            {isPanelExpanded ? 'Edit mindmap' : ''}
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button size="icon-sm" variant={isEditingMindmap ? 'default' : 'outline'} onClick={onClick}>
+                    <Pencil />
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Edit mindmap</TooltipContent>
+        </Tooltip>
     );
 };
 
