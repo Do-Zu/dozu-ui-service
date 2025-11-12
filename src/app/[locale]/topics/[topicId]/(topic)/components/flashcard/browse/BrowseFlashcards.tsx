@@ -4,7 +4,6 @@ import type { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type'
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, PanelLeft } from 'lucide-react';
-import StudyControls from '@/app/[locale]/flashcards/components/StudyControls';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/utils/constants/routes';
 import { cn } from '@/lib/utils';
@@ -14,10 +13,11 @@ import Flashcard from '../Flashcard';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
 import FlashcardsEmptyState from './FlashcardsEmptyState';
+import StudyControls from './StudyControls';
 
 const initialAutoPlaySpeed = 3;
 
-export default function BrowseFlashcard() {
+export default function BrowseFlashcards() {
     const { topic } = useRequireTopic();
     const { topicId } = topic;
     const { flashcards } = useRequireFlashcards();
@@ -145,18 +145,6 @@ export default function BrowseFlashcard() {
         };
     }, [autoPlayEnabled, autoPlaySpeed, flashcards.length]);
 
-    function handleLearningClick() {
-        router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
-    }
-
-    function handleGameClick() {
-        router.push(ROUTES.FLASHCARDS_BRAIN_CHASE(topicId));
-    }
-
-    function handleMemoryMatchClick() {
-        router.push(ROUTES.FLASHCARDS_MEMORY_MATCH(topicId));
-    }
-
     if (flashcards.length === 0) {
         return <FlashcardsEmptyState />;
     }
@@ -180,6 +168,7 @@ export default function BrowseFlashcard() {
                     <Flashcard
                         front={currentFlashcard.front}
                         back={currentFlashcard.back}
+                        imageUrl={currentFlashcard.imageUrl}
                         isFlipped={isFlipped}
                         isAnimating={isAnimating}
                         onClick={flipWithAnimation}
@@ -233,9 +222,6 @@ export default function BrowseFlashcard() {
                         shuffleEnabled={shuffleEnabled}
                         handleShuffleToggle={() => setShuffleEnabled(!shuffleEnabled)}
                         handleEditFlashcardsClick={handleEditFlashcardsClick}
-                        handleLearningClick={handleLearningClick}
-                        handleGameClick={handleGameClick}
-                        handleMemoryMatchClick={handleMemoryMatchClick}
                         isFullScreen={false}
                     />
                 </aside>

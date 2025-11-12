@@ -1,10 +1,9 @@
 import useFetch from '@/hooks/useFetch';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import learningMaterialService, { ILearningMaterial } from '../../service/learningMaterial.service';
 import LoadingPage from '@/app/loading';
-import { pdfjs } from 'react-pdf';
-import PDFLearningMaterial from './PDFLearningMaterial';
-import YoutubeLearningMaterial from './YoutubeLearningMaterial';
-import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import PDFLearningMaterial from './pdf/PDFLearningMaterial';
+import YoutubeLearningMaterial from './youtube/YoutubeLearningMaterial';
 
 export default function LearningMaterial() {
     const { topicId } = useTopicWorkspace();
@@ -21,6 +20,6 @@ export default function LearningMaterial() {
         case 'file':
             return <PDFLearningMaterial data={data} />;
         case 'youtube':
-            return <YoutubeLearningMaterial embedUrl={data.embedUrl} content={data.content} />;
+            return <YoutubeLearningMaterial videoId={data.videoId} content={data.content} />;
     }
 }

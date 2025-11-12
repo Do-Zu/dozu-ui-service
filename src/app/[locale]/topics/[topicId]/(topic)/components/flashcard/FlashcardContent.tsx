@@ -1,25 +1,18 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Check, ChevronDown, Edit, GraduationCap, LayoutGrid, Settings } from 'lucide-react';
+import { Edit, Gamepad2, GraduationCap, LayoutGrid, Settings } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import BrowseFlashcard from './browse/BrowseFlashcard';
-import LearningFlashcard from './learning/LearningFlashcard';
+import BrowseFlashcards from './browse/BrowseFlashcards';
+import LearningFlashcards from './learning/LearningFlashcards';
 import { UserTrackingProvider } from '@/contexts/tracking/UserTrackingContext';
 import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardSettings from './settings/FlashcardSettings';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { UserRoleEnum } from '@/utils/constants/roles';
-import EditingFlashcard from './edit/EditingFlashcard';
+import EditingFlashcards from './edit/EditingFlashcards';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings';
+export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
 
 interface PersonalProps {
     mode: MODE_ACCESS_PAGE_ROLE.personal;
@@ -40,14 +33,15 @@ type Props = PersonalProps | StudentProps | TeacherProps;
 export default function FlashcardContent({ mode, role }: Props) {
     const selectableItems: FlashcardLearningMode[] = useMemo(() => {
         if (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER)
-            return ['browse', 'learning', 'edit', 'settings'];
-        return ['browse', 'learning', 'settings'];
+            return ['browse', 'learning', 'edit', 'settings', 'games'];
+        return ['browse', 'learning', 'settings', 'games'];
     }, [mode, role]);
     const itemIcons: { item: FlashcardLearningMode; icon: JSX.Element }[] = [
         { item: 'browse', icon: <LayoutGrid className="mr-2 h-4 w-4" /> },
         { item: 'learning', icon: <GraduationCap className="mr-2 h-4 w-4" /> },
         { item: 'edit', icon: <Edit className="mr-2 h-4 w-4" /> },
         { item: 'settings', icon: <Settings className="mr-2 h-4 w-4" /> },
+        { item: 'games', icon: <Gamepad2 className="mr-2 h-4 w-4" /> },
     ];
 
     const [flashcardMode, setFlashcardMode] = useState<FlashcardLearningMode>('browse');
@@ -60,7 +54,7 @@ export default function FlashcardContent({ mode, role }: Props) {
     return (
         <div className="w-full h-[90%] flex flex-col">
             <Tabs value={flashcardMode} onValueChange={handleModeSelect} className="w-full flex justify-center">
-                <TabsList className="w-[70%] grid grid-cols-4 rounded-lg bg-muted/30 p-1">
+                <TabsList className="w-[70%] grid grid-cols-5 rounded-lg bg-muted/30 p-1">
                     {selectableItems.map((item) => (
                         <TabsTrigger
                             key={item}
@@ -75,7 +69,7 @@ export default function FlashcardContent({ mode, role }: Props) {
             </Tabs>
 
             <div className="flex-1 min-h-0">
-                {flashcardMode === 'browse' && selectableItems.includes('browse') ? <BrowseFlashcard /> : null}
+                {flashcardMode === 'browse' && selectableItems.includes('browse') ? <BrowseFlashcards /> : null}
 
                 {flashcardMode === 'learning' && selectableItems.includes('learning') ? (
                     <UserTrackingProvider
@@ -85,13 +79,13 @@ export default function FlashcardContent({ mode, role }: Props) {
                         apiEndpoint="/tracking/active-learning" // Behavioral tracking
                         learningApiEndpoint="/progress/learning-tracking" // Learning progress tracking
                     >
-                        <LearningFlashcard />
+                        <LearningFlashcards />
                     </UserTrackingProvider>
                 ) : null}
 
                 {flashcardMode === 'edit' && selectableItems.includes('edit') && (
                     <div className="h-full overflow-y-scroll p-8">
-                        <EditingFlashcard />
+                        <EditingFlashcards />
                     </div>
                 )}
 
@@ -99,6 +93,10 @@ export default function FlashcardContent({ mode, role }: Props) {
                     <div className="h-full overflow-y-scroll">
                         <FlashcardSettings />
                     </div>
+                ) : null}
+
+                {flashcardMode === 'games' && selectableItems.includes('games') ? (
+                    <div>Feature coming soon..</div>
                 ) : null}
             </div>
         </div>

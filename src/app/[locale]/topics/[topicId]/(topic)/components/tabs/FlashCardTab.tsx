@@ -6,7 +6,7 @@ import flashcardContentService, { IFlashcardContent } from '../../service/flashc
 import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import DataStatus from '@/components/errors/DataStatus';
-import { isEmpty } from '@/utils';
+import { isEmpty, isNil } from '@/utils';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 
@@ -27,7 +27,7 @@ export default function FlashCardTab() {
         loading: flashcardContentLoading,
         error: flashcardContentError,
     } = useFetch<IFlashcardContent>(() => flashcardContentService.getFlashcardContent({ topicId }), {
-        shouldRun: (isEmpty(flashcards) || isEmpty(learningFlashcards)) && tab === METHOD_LEARNING.FLASHCARD,
+        shouldRun: (isNil(flashcards) || isNil(learningFlashcards)) && tab === METHOD_LEARNING.FLASHCARD,
     });
 
     useEffect(() => {
@@ -55,7 +55,7 @@ export default function FlashCardTab() {
 
     if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
 
-    if (isEmpty(learningFlashcards) || isEmpty(flashcards)) return <DataStatus variant="empty" />;
+    if (isNil(learningFlashcards) || isNil(flashcards)) return <DataStatus variant="empty" />;
 
     return <FlashcardContent mode={MODE_ACCESS_PAGE_ROLE.personal} />;
 }

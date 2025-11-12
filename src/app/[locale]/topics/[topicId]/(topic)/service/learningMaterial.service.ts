@@ -1,6 +1,6 @@
 import { getRequest } from '@/api/api';
 import { IResponseFileFromInputSet } from '@/app/[locale]/mindmap/types/context.types';
-import { IInputSetResponse } from '../types/learningMaterial.type';
+import { IInputSetResponse, ITranscriptSegment } from '../types/learningMaterial.type';
 
 export type ILearningMaterial =
     | {
@@ -10,8 +10,9 @@ export type ILearningMaterial =
       }
     | {
           type: 'youtube';
+          videoId: string;
           embedUrl: string;
-          content: string;
+          content: string | ITranscriptSegment[];
       };
 
 class LearningMaterialService {
@@ -64,7 +65,7 @@ class LearningMaterialService {
             } else {
                 const youtubeContent = response.data as {
                     url?: string | null | undefined;
-                    content?: string | null | undefined;
+                    content?: null | undefined | string | ITranscriptSegment[];
                     videoInfo?: { videoId: string } | null | undefined;
                 };
                 if (
@@ -80,6 +81,7 @@ class LearningMaterialService {
                 }
                 return {
                     type: 'youtube',
+                    videoId: youtubeContent.videoInfo.videoId,
                     embedUrl: `https://www.youtube.com/embed/${youtubeContent.videoInfo.videoId}`,
                     content: youtubeContent.content,
                 };

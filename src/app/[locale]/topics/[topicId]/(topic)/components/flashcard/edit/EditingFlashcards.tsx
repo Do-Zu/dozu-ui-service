@@ -3,7 +3,7 @@
 import { Textarea } from '@/components/ui/textarea';
 import { useEffect, useState } from 'react';
 
-import { Edit, ImagePlus, Import, Save, Trash2 } from 'lucide-react';
+import { Edit, ImagePlus, Import, Plus, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
@@ -30,6 +30,7 @@ import { IFlashcardPreview } from '@/app/[locale]/flashcards/components/import/F
 import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/FlashcardImportModal';
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
+import { Label } from '@/components/ui/label';
 
 interface ILocalFlashcard {
     id: number;
@@ -52,7 +53,6 @@ export interface IEditingFlashcard extends ILocalFlashcard {
 }
 
 const initialFlashcardsCount = 3;
-const flashcardsJump = 3;
 
 function isEmptyArray(array: any[]): boolean {
     return array.length === 0;
@@ -160,18 +160,14 @@ export function handleConvertToFlashcardsEdited(flashcards: IFlashcard[]): IEdit
                 },
             };
         });
-        let nextId = initialFlashcards.length > 0 ? initialFlashcards[initialFlashcards.length - 1].id + 1 : 0;
-        for (let i = initialFlashcards.length; i % 3 !== 0; ++i) {
-            initialFlashcards.push(createInitialFlashcard(nextId++));
-        }
     }
     return initialFlashcards;
 }
 
-const EditingFlashcard = () => {
+const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
+    const tFlashcardCommon = useTranslations('flashcard.common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
-    const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
     const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false);
     const [selectingFlashcard, setSelectingFlashcard] = useState<ILocalFlashcard | null>();
@@ -219,20 +215,6 @@ const EditingFlashcard = () => {
             },
         },
     );
-
-    // fix, useEffect is not necessary
-    useEffect(() => {
-        if (!editingFlashcards) return;
-        if (flashcardsCount === flashcardsJump) return;
-        let newFlashcards = [...editingFlashcards];
-        const lastId = newFlashcards[newFlashcards.length - 1].id;
-        let startId = lastId + 1;
-        for (let i = flashcardsCount - flashcardsJump; i < flashcardsCount; ++i) {
-            newFlashcards.push({ id: startId, front: '', back: '' });
-            ++startId;
-        }
-        setEditingFlashcards(newFlashcards);
-    }, [flashcardsCount]);
 
     useEffect(() => {
         if (!isAddImageModalOpen) {
@@ -287,8 +269,13 @@ const EditingFlashcard = () => {
         setEditingFlashcards(newFlashcards);
     }
 
-    function handleAddFlashcardsCount() {
-        setFlashcardsCount((prevCount) => prevCount + flashcardsJump);
+    function handleAddBelowClick(index: number) {
+        setEditingFlashcards((prev) => {
+            const result = [...prev];
+            const id = prev.length === 0 ? 0 : Math.max(...prev.map((f) => f.id)) + 1;
+            result.splice(index + 1, 0, createInitialFlashcard(id));
+            return result;
+        });
     }
 
     function handleDeleteFlashcard(type: 'client' | 'server', flashcardId: number) {
@@ -297,15 +284,8 @@ const EditingFlashcard = () => {
 
         if (type === 'client') {
             const remaining = editingFlashcards.filter((flashcard) => flashcard.id !== flashcardId);
-            const lastId = remaining.length > 0 ? remaining[remaining.length - 1].id : -1;
-            newFlashcards = [
-                ...remaining,
-                {
-                    id: lastId + 1,
-                    front: '',
-                    back: '',
-                },
-            ];
+            const maxId = remaining.length > 0 ? Math.max(...remaining.map(f => f.id)) : -1;
+            newFlashcards = [...remaining, { id: maxId + 1, front: '', back: '' }];
         } else if (type === 'server') {
             newFlashcards = editingFlashcards.map((flashcard) => {
                 return flashcard.serverInfo && flashcard.id === flashcardId
@@ -337,9 +317,6 @@ const EditingFlashcard = () => {
             const { front, back } = card;
             newFlashcards.push({ id: startId, front, back });
             ++startId;
-        }
-        for (let i = newFlashcards.length; i % 3 !== 0; ++i) {
-            newFlashcards.push(createInitialFlashcard(startId++));
         }
         setEditingFlashcards(newFlashcards);
         setIsImportModalOpen(false);
@@ -504,58 +481,87 @@ const EditingFlashcard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-8 flex-col mt-7">
+            <div className="mt-7 flex flex-col gap-6">
                 {editingFlashcards?.map((flashcard, index) => {
                     if (flashcard.serverInfo?.isDeleted) return null;
+
                     return (
                         <div
                             key={flashcard.id}
-                            className="col-span-4 bg-white p-8 text-center flex flex-col gap-4 rounded-xl border-2 dark:border-white"
+                            className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 flex flex-col"
                         >
-                            <div className="flex flex-row justify-end">
-                                <Button variant="ghost" size="icon" onClick={() => handleAddImageModalOpen(flashcard)}>
-                                    <ImagePlus size={18} />
-                                </Button>
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="text-xl font-bold text-muted-foreground select-none">{index + 1}</span>
+                                <div className="flex items-center gap-4">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleAddBelowClick(index)}
+                                        className="border-dashed border text-muted-foreground hover:text-primary hover:border-primary/50"
+                                    >
+                                        <Plus size={18} className="mr-2" />
+                                        Add below
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handleAddImageModalOpen(flashcard)}
+                                        className="text-muted-foreground hover:text-primary hover:border-primary/50"
+                                    >
+                                        <ImagePlus size={18} />
+                                    </Button>
 
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}
-                                >
-                                    <Trash2 size={18} className="text-red-500 hover:text-red-600" />
-                                </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}
+                                        className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
+                                    >
+                                        <Trash2 size={18} />
+                                    </Button>
+                                </div>
                             </div>
+
                             <div className="flex flex-col gap-4">
-                                <Textarea
-                                    placeholder="Front"
-                                    className="resize-none"
-                                    value={flashcard.front}
-                                    onChange={(event) =>
-                                        handleFlashcardChange('front', getFlashcardType(flashcard), {
-                                            order: index,
-                                            text: event.target.value,
-                                        })
-                                    }
-                                />
-                                <Textarea
-                                    placeholder="Back"
-                                    className="resize-none"
-                                    value={flashcard.back}
-                                    onChange={(event) =>
-                                        handleFlashcardChange('back', getFlashcardType(flashcard), {
-                                            order: index,
-                                            text: event.target.value,
-                                        })
-                                    }
-                                />
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor={`front-${flashcard.id}`} className="font-semibold">
+                                        {tFlashcardCommon('front')}
+                                    </Label>
+                                    <Textarea
+                                        id={`front-${flashcard.id}`}
+                                        placeholder={tFlashcardCommon('front')}
+                                        className="resize-none min-h-[70px]"
+                                        value={flashcard.front}
+                                        onChange={(event) =>
+                                            handleFlashcardChange('front', getFlashcardType(flashcard), {
+                                                order: index,
+                                                text: event.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor={`back-${flashcard.id}`} className="font-semibold">
+                                        {tFlashcardCommon('back')}
+                                    </Label>
+                                    <Textarea
+                                        id={`back-${flashcard.id}`}
+                                        placeholder={tFlashcardCommon('back')}
+                                        className="resize-none min-h-[85px]"
+                                        value={flashcard.back}
+                                        onChange={(event) =>
+                                            handleFlashcardChange('back', getFlashcardType(flashcard), {
+                                                order: index,
+                                                text: event.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
                             </div>
                         </div>
                     );
                 })}
-
-                <div className="col-span-12 flex justify-center mb-10">
-                    <Button onClick={handleAddFlashcardsCount}>+ {tFlashcardEdit('addCards')}</Button>
-                </div>
             </div>
 
             <FlashcardImportModal
@@ -585,4 +591,4 @@ const EditingFlashcard = () => {
     );
 };
 
-export default EditingFlashcard;
+export default EditingFlashcards;

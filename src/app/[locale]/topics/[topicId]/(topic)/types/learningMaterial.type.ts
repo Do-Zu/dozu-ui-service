@@ -5,3 +5,9 @@ export interface IInputSetResponse {
     title: string;
     data: any;
 }
+
+export interface ITranscriptSegment {
+    startTime: number;
+    endTime: number;
+    text: string;
+}
