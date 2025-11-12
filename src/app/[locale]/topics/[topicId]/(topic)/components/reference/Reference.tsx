@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
+import { formatSeconds, truncate } from '@/utils';
 
 interface IProps {
     content: string;
@@ -32,24 +33,6 @@ interface IReturnItemQuery {
     metadata: { startTime?: number } | null;
     createdAt: string | Date;
     similarity: number;
-}
-
-/* Utility: format seconds -> HH:MM:SS */
-function formatSeconds(sec?: number): string {
-    if (sec == null || isNaN(sec)) return '';
-    const hours = Math.floor(sec / 3600);
-    const minutes = Math.floor((sec % 3600) / 60);
-    const seconds = Math.floor(sec % 60);
-    const h = hours.toString().padStart(2, '0');
-    const m = minutes.toString().padStart(2, '0');
-    const s = seconds.toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
-}
-
-/* Truncate helper */
-function truncate(str: string, max = 240) {
-    if (str.length <= max) return str;
-    return str.slice(0, max) + '…';
 }
 
 export default function Reference({ content, topK = 8, triggerClassName = '', className, children }: IProps) {
@@ -202,7 +185,8 @@ function ReferenceItem({ item }: ReferenceItemProps) {
             ? item.originContent.content
             : JSON.stringify(item.originContent?.content);
 
-    const displayText = expanded ? rawContent : truncate(rawContent);
+    const defaultLengthConcat = 240;
+    const displayText = expanded ? rawContent : truncate(rawContent, defaultLengthConcat);
 
     const timestamp = item?.metadata && 'startTime' in item.metadata ? formatSeconds(item?.metadata?.startTime) : '';
 
