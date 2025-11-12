@@ -1,9 +1,9 @@
 'use client';
 
 import { Textarea } from '@/components/ui/textarea';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
-import { Edit, ImagePlus, Import, Plus, Save, Trash2 } from 'lucide-react';
+import { Edit, ImagePlus, Import, Plus, Save, Trash2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
@@ -223,82 +223,71 @@ const EditingFlashcards = () => {
         }
     }, [isAddImageModalOpen]);
 
-    function handleFlashcardChange(
-        side: 'front' | 'back',
-        type: 'client' | 'server',
-        flashcard: { order: number; text: string },
-    ) {
-        if (!editingFlashcards) return;
-        let newFlashcards: IEditingFlashcard[] = editingFlashcards;
-        let { order, text } = flashcard;
-
-        if (type === 'client') {
-            if (side === 'front') {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return index === order ? { ...flashcard, front: text } : flashcard;
-                });
-            } else if (side === 'back') {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return index === order ? { ...flashcard, back: text } : flashcard;
-                });
-            }
-        } else if (type === 'server') {
-            if (side === 'front') {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return flashcard.serverInfo && index === order
-                        ? {
-                              ...flashcard,
-                              front: text,
-                              serverInfo: { ...flashcard.serverInfo, isUpdated: true, isDeleted: false },
-                          }
-                        : flashcard;
-                });
-            } else {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return flashcard.serverInfo && index === order
-                        ? {
-                              ...flashcard,
-                              back: text,
-                              serverInfo: { ...flashcard.serverInfo, isUpdated: true, isDeleted: false },
-                          }
-                        : flashcard;
-                });
-            }
-        }
-
-        setEditingFlashcards(newFlashcards);
+    function handleFlashcardChange({
+        event,
+        side,
+        index,
+    }: {
+        event: ChangeEvent<HTMLTextAreaElement>;
+        side: 'front' | 'back';
+        index: number;
+    }) {
+        const value = event.target.value;
+        setEditingFlashcards((prev) => {
+            if (index < 0 || index >= prev.length) return prev;
+            const currentFlashcard = prev[index];
+            const type = getFlashcardType(currentFlashcard);
+            const newFlashcards = prev.map((e, i) => {
+                if (index !== i) return e;
+                if (type === 'client') return { ...e, [side]: value };
+                if (type === 'server' && e.serverInfo)
+                    return { ...e, serverInfo: { ...e.serverInfo, isUpdated: true, isDeleted: false }, [side]: value };
+                return e;
+            });
+            return newFlashcards;
+        });
     }
 
-    function handleAddBelowClick(index: number) {
+    function handleAddBelowClick() {
         setEditingFlashcards((prev) => {
             const result = [...prev];
-            const id = prev.length === 0 ? 0 : Math.max(...prev.map((f) => f.id)) + 1;
-            result.splice(index + 1, 0, createInitialFlashcard(id));
+            const lastId = prev.length === 0 ? -1 : prev[prev.length - 1].id;
+            result.push(createInitialFlashcard(lastId + 1));
             return result;
         });
     }
 
-    function handleDeleteFlashcard(type: 'client' | 'server', flashcardId: number) {
-        if (!editingFlashcards) return;
-        let newFlashcards: IEditingFlashcard[] = editingFlashcards;
-
-        if (type === 'client') {
-            const remaining = editingFlashcards.filter((flashcard) => flashcard.id !== flashcardId);
-            const maxId = remaining.length > 0 ? Math.max(...remaining.map(f => f.id)) : -1;
-            newFlashcards = [...remaining, { id: maxId + 1, front: '', back: '' }];
-        } else if (type === 'server') {
-            newFlashcards = editingFlashcards.map((flashcard) => {
-                return flashcard.serverInfo && flashcard.id === flashcardId
-                    ? {
-                          ...flashcard,
-                          serverInfo: { ...flashcard.serverInfo, isUpdated: false, isDeleted: true },
-                      }
-                    : flashcard;
+    function handleFlashcardDeleteClick(index: number) {
+        setEditingFlashcards((prev) => {
+            if (index < 0 || index >= prev.length) return prev;
+            const currentFlashcard = prev[index];
+            const type = getFlashcardType(currentFlashcard);
+            if (type === 'client') {
+                return prev.filter((e, i) => i !== index);
+            }
+            return prev.map((e, i) => {
+                return i === index && e.serverInfo
+                    ? { ...e, serverInfo: { ...e.serverInfo, isUpdated: false, isDeleted: true } }
+                    : e;
             });
-            let startId = newFlashcards[newFlashcards.length - 1].id + 1;
-            newFlashcards.push(createInitialFlashcard(startId));
-        }
-        setEditingFlashcards(newFlashcards);
+        });
+    }
+
+    function isFlashcardEditing(flashcard: IEditingFlashcard) {
+        if (!flashcard.serverInfo) return false;
+        const originalFlashcard = flashcards.find((card) => card.flashcardId === flashcard.serverInfo?.flashcardId);
+
+        if (!originalFlashcard) return false;
+        return flashcard.front !== originalFlashcard.front || flashcard.back !== originalFlashcard.back;
+    }
+
+    function handleUndoDelete(index: number) {
+        setEditingFlashcards((prev) => {
+            return prev.map((e, i) => {
+                if (i !== index || !e.serverInfo) return e;
+                return { ...e, serverInfo: { ...e.serverInfo, isDeleted: false } };
+            });
+        });
     }
 
     function handleAddFlashcardsImported(flashcardsImported: IFlashcardPreview[]) {
@@ -483,7 +472,26 @@ const EditingFlashcards = () => {
 
             <div className="mt-7 flex flex-col gap-6">
                 {editingFlashcards?.map((flashcard, index) => {
-                    if (flashcard.serverInfo?.isDeleted) return null;
+                    if (flashcard.serverInfo?.isDeleted)
+                        return (
+                            <div
+                                key={flashcard.id}
+                                className="rounded-xl border border-dashed bg-card/50 text-card-foreground shadow-sm p-4 flex justify-between items-center"
+                            >
+                                <span className="text-lg font-bold text-muted-foreground/80 select-none">
+                                    {index + 1}
+                                </span>
+
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => handleUndoDelete(flashcard.id)}
+                                    className="text-muted-foreground font-semibold hover:text-primary"
+                                >
+                                    <Undo2 size={16} className="mr-2" />
+                                    Undo
+                                </Button>
+                            </div>
+                        );
 
                     return (
                         <div
@@ -491,17 +499,15 @@ const EditingFlashcards = () => {
                             className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 flex flex-col"
                         >
                             <div className="flex justify-between items-center mb-4">
-                                <span className="text-xl font-bold text-muted-foreground select-none">{index + 1}</span>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-xl font-bold text-muted-foreground select-none">
+                                        {index + 1}
+                                    </span>
+                                    {flashcard.serverInfo?.isUpdated && isFlashcardEditing(flashcard) ? (
+                                        <span className="text-sm text-muted-foreground">(editing)</span>
+                                    ) : null}
+                                </div>
                                 <div className="flex items-center gap-4">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleAddBelowClick(index)}
-                                        className="border-dashed border text-muted-foreground hover:text-primary hover:border-primary/50"
-                                    >
-                                        <Plus size={18} className="mr-2" />
-                                        Add below
-                                    </Button>
                                     <Button
                                         variant="outline"
                                         size="icon"
@@ -514,7 +520,7 @@ const EditingFlashcards = () => {
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}
+                                        onClick={() => handleFlashcardDeleteClick(index)}
                                         className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
                                     >
                                         <Trash2 size={18} />
@@ -532,12 +538,7 @@ const EditingFlashcards = () => {
                                         placeholder={tFlashcardCommon('front')}
                                         className="resize-none min-h-[70px]"
                                         value={flashcard.front}
-                                        onChange={(event) =>
-                                            handleFlashcardChange('front', getFlashcardType(flashcard), {
-                                                order: index,
-                                                text: event.target.value,
-                                            })
-                                        }
+                                        onChange={(event) => handleFlashcardChange({ event, side: 'front', index })}
                                     />
                                 </div>
 
@@ -550,18 +551,24 @@ const EditingFlashcards = () => {
                                         placeholder={tFlashcardCommon('back')}
                                         className="resize-none min-h-[85px]"
                                         value={flashcard.back}
-                                        onChange={(event) =>
-                                            handleFlashcardChange('back', getFlashcardType(flashcard), {
-                                                order: index,
-                                                text: event.target.value,
-                                            })
-                                        }
+                                        onChange={(event) => handleFlashcardChange({ event, side: 'back', index })}
                                     />
                                 </div>
                             </div>
                         </div>
                     );
                 })}
+
+                <div className="mt-2">
+                    <Button
+                        onClick={handleAddBelowClick}
+                        variant="outline"
+                        className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
+                    >
+                        <Plus size={16} className="mr-2" />
+                        Add below
+                    </Button>
+                </div>
             </div>
 
             <FlashcardImportModal
