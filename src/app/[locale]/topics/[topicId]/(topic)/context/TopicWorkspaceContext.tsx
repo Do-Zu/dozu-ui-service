@@ -18,6 +18,7 @@ import { TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
+import { METHOD_LEARNING } from '@/utils/constants/method';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -56,11 +57,14 @@ interface IProviderProps {
 
 const DEFAULT_TAB = 'overview';
 
+const ALLOWED_TABS: TopicWorkspaceTabValue[] = [DEFAULT_TAB, ...Object.values(METHOD_LEARNING)];
+
 export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
     const searchParams = useSearchParams();
 
     const activeTab = useMemo(() => {
-        return (searchParams?.get('tab') ?? DEFAULT_TAB) as TopicWorkspaceTabValue;
+        const raw = searchParams?.get('tab') as TopicWorkspaceTabValue;
+        return ALLOWED_TABS.includes(raw) ? raw : DEFAULT_TAB;
     }, [searchParams]);
 
     const [tab, setTab] = useState<TopicWorkspaceTabValue>(activeTab);

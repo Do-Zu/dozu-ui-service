@@ -31,7 +31,7 @@ export const ROUTES = Object.freeze({
     FEYNMAN_REVIEW: (topicId: string | number, method: string) => `/feynman/${topicId}?method=${method}`,
     ANKI_SETTINGS: (topicId: string | number) => `/topics/${topicId}/settings/anki`,
     TOPIC_WORKSPACE: ({ topicId, tab }: { topicId: number; tab?: ContentType | null }) =>
-        `/topics/${topicId}?tab=${tab}`,
+        tab ? `/topics/${topicId}?tab=${tab}` : `/topics/${topicId}`,
 
     // ======================= ADMIN ROUTES ========================
 
