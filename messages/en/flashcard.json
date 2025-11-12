@@ -1,5 +1,9 @@
 {
     "flashcard": {
+        "common": {
+            "front": "Term",
+            "back": "Definition"
+        },
         "edit": {
             "import": "Import",
             "save": "Save",

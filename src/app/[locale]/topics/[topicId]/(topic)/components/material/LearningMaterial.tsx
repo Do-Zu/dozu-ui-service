@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import useFetch from '@/hooks/useFetch';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import learningMaterialService, { ILearningMaterial } from '../../service/learningMaterial.service';
 import LoadingPage from '@/app/loading';
-import PDFLearningMaterial from './PDFLearningMaterial';
+import PDFLearningMaterial from './pdf/PDFLearningMaterial';
 import YoutubeLearningMaterial from './youtube/YoutubeLearningMaterial';
-import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import DataStatus from '@/components/errors/DataStatus';
 
 export default function LearningMaterial() {
@@ -28,6 +28,6 @@ export default function LearningMaterial() {
         case 'file':
             return <PDFLearningMaterial data={data} />;
         case 'youtube':
-            return <YoutubeLearningMaterial videoId={data.videoId} embedUrl={data.embedUrl} content={data.content} />;
+            return <YoutubeLearningMaterial videoId={data.videoId} content={data.content} />;
     }
 }
