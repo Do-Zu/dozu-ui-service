@@ -28,7 +28,7 @@ export default function Flashcard({ front, back, isFlipped, isAnimating, onClick
                     {front}
                 </div>
                 {/* Back Side */}
-                <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden rotate-x-180 shadow-md text-center p-8 text-lg">
+                <div className="absolute inset-0 flex items-center flex-col justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden rotate-x-180 shadow-md text-center p-8 text-lg">
                     {back}
                     <Reference content={`${front} : ${back}`} />
                 </div>

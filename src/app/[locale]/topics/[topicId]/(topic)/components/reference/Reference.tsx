@@ -14,7 +14,8 @@ interface IProps {
     content: string;
     topK?: number;
     triggerClassName?: string;
-    children?: React.ReactNode; // optional custom trigger
+    children?: React.ReactNode;
+    className?: string;
 }
 
 /* Types mirrored from embedding.service.ts */
@@ -31,13 +32,6 @@ interface IReturnItemQuery {
     metadata: { startTime?: number } | null;
     createdAt: string | Date;
     similarity: number;
-}
-
-interface IEmbeddingResponse {
-    status: string;
-    message: string;
-    code: number;
-    data: IReturnItemQuery[];
 }
 
 /* Utility: format seconds -> HH:MM:SS */
@@ -58,7 +52,7 @@ function truncate(str: string, max = 240) {
     return str.slice(0, max) + '…';
 }
 
-export default function Reference({ content, topK = 8, triggerClassName = '', children }: IProps) {
+export default function Reference({ content, topK = 8, triggerClassName = '', className, children }: IProps) {
     const { learningMaterial } = useTopicWorkspace();
 
     const params = useParams();
@@ -191,7 +185,7 @@ export default function Reference({ content, topK = 8, triggerClassName = '', ch
             body={Body}
             footer={Footer}
             cancel={Cancel}
-            contentStyle="w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5"
+            contentStyle={`w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5 ${className}`}
         />
     );
 }
