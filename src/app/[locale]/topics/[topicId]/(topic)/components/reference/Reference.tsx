@@ -2,9 +2,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { X } from 'lucide-react';
+import { Modal } from '@/components/modal/Modal';
 import { embeddingService } from '../../service/embedding.service';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface IProps {
     content: string;
@@ -54,8 +55,9 @@ function truncate(str: string, max = 240) {
     return str.slice(0, max) + '…';
 }
 
-export default function Reference({ content, triggerClassName = '', children }: IProps) {
+export default function Reference({ content, topK = 8, triggerClassName = '', children }: IProps) {
     const { learningMaterial } = useTopicWorkspace();
+
     const params = useParams();
     const topicIdRaw = params?.topicId;
     const topicId =
@@ -65,8 +67,15 @@ export default function Reference({ content, triggerClassName = '', children }: 
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState<IReturnItemQuery[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [queried, setQueried] = useState(false); // avoid re-fetch on every open unless refresh
+    const [queried, setQueried] = useState(false);
     const abortedRef = useRef(false);
+
+    // Map learning material type to supported embedding input type
+    const mapEmbeddingType = (t?: string): 'text' | 'file' | 'youtube' => {
+        if (t === 'youtube') return 'youtube';
+        if (t === 'file') return 'file';
+        return 'text';
+    };
 
     const fetchData = useCallback(async () => {
         if (!content || !topicId || isNaN(topicId)) return;
@@ -74,11 +83,11 @@ export default function Reference({ content, triggerClassName = '', children }: 
         setError(null);
         abortedRef.current = false;
         try {
-            console.log({ learningMaterial });
             const res = (await embeddingService.queryTopSimilarity({
-                type: learningMaterial?.type ?? 'unknown',
+                type: mapEmbeddingType(learningMaterial?.type),
                 query: content,
                 topicId,
+                topK,
             })) as IEmbeddingResponse;
 
             if (abortedRef.current) return;
@@ -95,7 +104,7 @@ export default function Reference({ content, triggerClassName = '', children }: 
         } finally {
             if (!abortedRef.current) setLoading(false);
         }
-    }, [content, topicId]);
+    }, [content, topicId, topK]);
 
     useEffect(() => {
         if (open && !queried) {
@@ -112,13 +121,10 @@ export default function Reference({ content, triggerClassName = '', children }: 
     }
 
     const trigger = children ? (
-        <span onClick={() => setOpen(true)} className="inline-block cursor-pointer">
-            {children}
-        </span>
+        <span className="inline-block cursor-pointer">{children}</span>
     ) : (
         <button
             type="button"
-            onClick={() => setOpen(true)}
             className={`mt-3 text-xs underline decoration-dashed decoration-neutral-400 hover:text-primary transition-colors ${triggerClassName}`}
             aria-haspopup="dialog"
         >
@@ -126,88 +132,66 @@ export default function Reference({ content, triggerClassName = '', children }: 
         </button>
     );
 
-    return (
-        <>
-            {trigger}
-            {open && (
-                <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Backdrop */}
-                    <div
-                        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                        onClick={() => setOpen(false)}
-                        aria-label="Close references overlay"
-                    />
-                    {/* Modal */}
-                    <div className="relative z-10 w-full max-w-3xl mx-4 bg-white dark:bg-neutral-800 rounded-lg shadow-xl border dark:border-neutral-700 max-h-[80vh] flex flex-col">
-                        {/* Header */}
-                        <div className="flex items-center justify-between px-5 py-3 border-b dark:border-neutral-700">
-                            <h2 className="text-sm font-semibold">Nearest Reference Content</h2>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => fetchData()}
-                                    disabled={loading}
-                                    className="text-xs px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:opacity-50"
-                                >
-                                    {loading ? 'Loading…' : 'Refresh'}
-                                </button>
-                                <button
-                                    onClick={() => setOpen(false)}
-                                    className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                                    aria-label="Close"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
+    // Modal body with its own scroll container to prevent layout overflow
+    const Body = (
+        <div className="mt-4">
+            <div className="p-3 rounded border border-border bg-muted text-foreground/90">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{content}</p>
+            </div>
 
-                        {/* Body */}
-                        <div className="overflow-y-auto p-5 space-y-4">
-                            {/* Original reference text */}
-                            <div className="p-3 rounded border dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900">
-                                <p className="text-xs uppercase tracking-wide text-neutral-500 mb-1">Reference Query</p>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
-                            </div>
-
-                            {loading && (
-                                <div className="flex justify-center py-10">
-                                    <div className="animate-spin h-6 w-6 rounded-full border-2 border-neutral-400 border-t-transparent" />
-                                </div>
-                            )}
-
-                            {error && !loading && (
-                                <div className="p-4 rounded border border-red-300 bg-red-50 dark:bg-red-900/30 dark:border-red-700">
-                                    <p className="text-sm text-red-700 dark:text-red-300 mb-2">{error}</p>
-                                    <button
-                                        onClick={() => fetchData()}
-                                        className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-500"
-                                    >
-                                        Retry
-                                    </button>
-                                </div>
-                            )}
-
-                            {!loading && !error && results.length === 0 && queried && (
-                                <p className="text-sm text-neutral-500">No related references found.</p>
-                            )}
-
-                            {!loading &&
-                                !error &&
-                                results.map((item) => <ReferenceItem key={item.embeddingId} item={item} />)}
-                        </div>
-
-                        {/* Footer */}
-                        <div className="px-5 py-3 border-t dark:border-neutral-700 flex justify-end">
-                            <button
-                                onClick={() => setOpen(false)}
-                                className="text-xs px-3 py-1.5 rounded bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
+            {loading && (
+                <div className="flex justify-center py-10">
+                    <div className="animate-spin h-6 w-6 rounded-full border-2 border-neutral-400 border-t-transparent" />
                 </div>
             )}
-        </>
+
+            {error && !loading && (
+                <div className="mt-4 p-4 rounded border border-red-300 bg-red-50 dark:bg-red-900/30 dark:border-red-700">
+                    <p className="text-sm text-red-700 dark:text-red-300 mb-2">{error}</p>
+                    <button
+                        onClick={() => fetchData()}
+                        className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-500"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
+
+            {!loading && !error && results.length === 0 && queried && (
+                <p className="mt-4 text-sm text-neutral-500">No related references found.</p>
+            )}
+
+            <ScrollArea>
+                <div className="mt-4 max-h-[62vh] pr-1 space-y-4 bg-background/50 rounded-md p-4">
+                    {!loading && !error && results.map((item) => <ReferenceItem key={item.embeddingId} item={item} />)}
+                </div>
+            </ScrollArea>
+        </div>
+    );
+
+    const Footer = <div className="flex w-full justify-end gap-2"></div>;
+
+    const Cancel = (
+        <button
+            onClick={() => setOpen(false)}
+            className="text-xs px-3 py-1.5 rounded bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+        >
+            Close
+        </button>
+    );
+
+    return (
+        <Modal
+            isOpen={open}
+            setIsOpen={setOpen}
+            trigger={trigger as any}
+            title="Nearest Reference Content"
+            description={null}
+            body={Body}
+            footer={Footer}
+            cancel={Cancel}
+            contentStyle="w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5"
+        />
     );
 }
 
@@ -226,41 +210,47 @@ function ReferenceItem({ item }: ReferenceItemProps) {
     const timestamp = item.metadata && 'startTime' in item.metadata ? formatSeconds(item.metadata.startTime) : '';
 
     return (
-        <div className="group border dark:border-neutral-700 rounded-md p-3 bg-white dark:bg-neutral-900 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{displayText}</p>
-                    {rawContent.length > 240 && (
+        <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
+            <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+                <span
+                    className="text-[10px] font-semibold px-2 py-1 rounded bg-secondary text-foreground/80"
+                    title="Similarity score"
+                >
+                    {(item.similarity * 100).toFixed(1)}%
+                </span>
+            </div>
+
+            <div className="px-2">
+                <p className="text-base md:text-[15px] text-center leading-relaxed whitespace-pre-wrap">
+                    {displayText}
+                </p>
+                {rawContent.length > 240 && (
+                    <div className="mt-2 text-center">
                         <button
                             onClick={() => setExpanded((e) => !e)}
-                            className="mt-1 text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                            className="text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
                         >
                             {expanded ? 'Show less' : 'Show more'}
                         </button>
-                    )}
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                    <span
-                        className="text-[10px] font-medium px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300"
-                        title="Similarity score"
-                    >
-                        {(item.similarity * 100).toFixed(1)}%
-                    </span>
-                    {timestamp && (
-                        <span
-                            className="text-[10px] px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
-                            title="Start time"
-                        >
-                            {timestamp}
-                        </span>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
-            <div className="mt-2 flex items-center gap-2">
-                <span className="text-[10px] px-2 py-1 rounded bg-neutral-50 dark:bg-neutral-800 border dark:border-neutral-700 text-neutral-500">
-                    {item.contentType}
-                </span>
-                <span className="text-[10px] text-neutral-400">#{item.embeddingId}</span>
+
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] px-2 py-1 rounded bg-muted border border-border text-muted-foreground">
+                        {item.contentType}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/70">#{item.embeddingId}</span>
+                </div>
+                {timestamp && (
+                    <span
+                        className="text-[10px] px-2 py-1 rounded bg-secondary text-muted-foreground"
+                        title="Start time"
+                    >
+                        {timestamp}
+                    </span>
+                )}
             </div>
         </div>
     );
