@@ -1,21 +1,28 @@
+import { useEffect } from 'react';
 import useFetch from '@/hooks/useFetch';
 import learningMaterialService, { ILearningMaterial } from '../../service/learningMaterial.service';
 import LoadingPage from '@/app/loading';
-import { pdfjs } from 'react-pdf';
 import PDFLearningMaterial from './PDFLearningMaterial';
 import YoutubeLearningMaterial from './YoutubeLearningMaterial';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import DataStatus from '@/components/errors/DataStatus';
 
 export default function LearningMaterial() {
-    const { topicId } = useTopicWorkspace();
+    const { topicId, setLearningMaterial } = useTopicWorkspace();
 
     const { data, loading, error } = useFetch<ILearningMaterial>(() =>
         learningMaterialService.getLearningMaterial({ topicId }),
     );
 
-    if (error) return <>{error}</>;
+    useEffect(() => {
+        if (data && !error) {
+            setLearningMaterial(data);
+        }
+    }, [data]);
+
+    if (error) return <DataStatus variant="error" title={error} />;
     if (loading) return <LoadingPage />;
-    if (!data) return <>Data not Found</>;
+    if (!data) return <DataStatus variant="empty" />;
 
     switch (data.type) {
         case 'file':
