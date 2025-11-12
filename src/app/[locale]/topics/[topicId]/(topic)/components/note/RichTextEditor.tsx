@@ -57,7 +57,7 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
 
     return (
         <div>
-            <MenuBar editor={editor} content={content} onSubmit={onSubmit} loading={loading} />
+            <MenuBar editor={editor} onSubmit={onSubmit} loading={loading} />
             <EditorContent editor={editor} />
         </div>
     );

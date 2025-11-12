@@ -28,12 +28,11 @@ interface Option {
 
 interface Props {
     editor: Editor;
-    content: string;
     onSubmit: (content: string) => void;
     loading: boolean;
 }
 
-export default function MenuBar({ editor, content, onSubmit, loading }: Props) {
+export default function MenuBar({ editor, onSubmit, loading }: Props) {
     const options: Option[] = [
         {
             icon: <Heading1 className="size-4" />,
@@ -110,7 +109,7 @@ export default function MenuBar({ editor, content, onSubmit, loading }: Props) {
             <Button
                 className="flex items-center gap-2"
                 variant="ghost"
-                onClick={() => onSubmit(content)}
+                onClick={() => onSubmit(editor.getHTML())}
                 disabled={loading}
             >
                 <Save className="w-4 h-4" />
