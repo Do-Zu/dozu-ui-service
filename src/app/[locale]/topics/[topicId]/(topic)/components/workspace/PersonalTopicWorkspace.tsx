@@ -74,7 +74,7 @@ export default function PersonalTopicWorkspace() {
                             )}
 
                             <div className={cn('flex-1 h-full', isFullscreen ? 'px-6 py-3' : 'px-3')}>
-                                <TabsList className="grid w-full grid-cols-4">
+                                <TabsList className="grid w-full grid-cols-5">
                                     {TOPIC_WORKSPACE_TABS.map((t) => (
                                         <TabsTrigger key={t.value} value={t.value}>
                                             {t.label}
