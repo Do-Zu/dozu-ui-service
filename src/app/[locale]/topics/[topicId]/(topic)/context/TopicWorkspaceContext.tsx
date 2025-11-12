@@ -8,6 +8,7 @@ import React, {
     SetStateAction,
     useCallback,
     useContext,
+    useEffect,
     useMemo,
     useRef,
     useState,
@@ -16,6 +17,7 @@ import { isAfter } from 'date-fns';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
+import { useSearchParams } from 'next/navigation';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -53,7 +55,13 @@ interface IProviderProps {
 const DEFAULT_TAB = 'overview';
 
 export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
-    const [tab, setTab] = useState<TopicWorkspaceTabValue>(DEFAULT_TAB);
+    const searchParams = useSearchParams();
+
+    const activeTab = useMemo(() => {
+        return (searchParams?.get('tab') ?? DEFAULT_TAB) as TopicWorkspaceTabValue;
+    }, [searchParams]);
+
+    const [tab, setTab] = useState<TopicWorkspaceTabValue>(activeTab);
 
     const [topic, setTopic] = useState<ITopic | null>(null);
 

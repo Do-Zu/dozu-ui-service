@@ -10,6 +10,7 @@ import teacherTopicService from '@/services/class-based-learning/teacher/teacher
 import { RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
 import { VideoInfo } from '../stores/features/contentExtractionSlice';
 import { UploadFileResponse } from '@/components/generative/types';
+import { toNumber } from '@/utils';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -36,6 +37,7 @@ type YoutubeResourceMetadata = {
     url: string;
     videoInfo: VideoInfo | null;
     content: string | null;
+    lengthContent: number;
 };
 
 type WebsiteResourceMetadata = {
@@ -146,6 +148,7 @@ export class ContentCreationService {
                 description,
                 imageFile,
             });
+
             const topic = data;
 
             if (!topic) {
@@ -198,6 +201,7 @@ export class ContentCreationService {
                 return;
             }
 
+            //Insert input set content
             await postRequest(INPUT_SET_RESOURCES_ENDPOINT, {
                 topicId: params.topicId,
                 contentType: params.contentType,
@@ -223,6 +227,7 @@ export class ContentCreationService {
             }
             case RESOURCE_CONTENT_TYPE.YOUTUBE: {
                 const url = params.payload?.url;
+
                 if (!url) {
                     return null;
                 }
@@ -231,6 +236,7 @@ export class ContentCreationService {
                     url,
                     videoInfo: params.payload?.videoInfo ?? null,
                     content: params.payload?.content ?? null,
+                    lengthContent: toNumber(params.payload?.content?.length, 0),
                 };
             }
             case RESOURCE_CONTENT_TYPE.WEBSITE: {
@@ -283,8 +289,6 @@ export class ContentCreationService {
         if (!quizData || quizData.length === 0) {
             throw new Error('No quiz data provided');
         }
-
-        console.log({ quizData });
 
         const questionsSubmitted = handleConvertToQuestionsSubmitted(quizData);
 

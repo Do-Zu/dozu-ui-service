@@ -4,6 +4,7 @@ export type YoutubeResourcePayload = {
     url: string;
     videoInfo: VideoInfo | null;
     content: string | null;
+    lengthContent: number;
     transcriptSegments: TranscriptSegment[];
 };
 

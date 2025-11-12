@@ -1,4 +1,5 @@
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import { ContentType } from '@/app/[locale]/generate/components/ContentGenerationPreview';
 
 export const ROUTES = Object.freeze({
     LANDING: '/',
@@ -29,7 +30,8 @@ export const ROUTES = Object.freeze({
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
     FEYNMAN_REVIEW: (topicId: string | number, method: string) => `/feynman/${topicId}?method=${method}`,
     ANKI_SETTINGS: (topicId: string | number) => `/topics/${topicId}/settings/anki`,
-    TOPIC_WORKSPACE: ({ topicId }: { topicId: number }) => `/topics/${topicId}`,
+    TOPIC_WORKSPACE: ({ topicId, tab }: { topicId: number; tab: ContentType | null }) =>
+        `/topics/${topicId}?tab=${tab}`,
 
     // ======================= ADMIN ROUTES ========================
 

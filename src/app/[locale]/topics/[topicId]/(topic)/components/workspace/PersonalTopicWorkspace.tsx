@@ -1,27 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import useFetch from '@/hooks/useFetch';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Maximize, Minimize } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TabConfig, TopicWorkspaceTabValue } from '../../types';
-import { METHOD_LEARNING } from '@/utils/constants/method';
-import OverViewTab from '../tabs/OverViewTab';
-import MindMapTab from '../tabs/MindMapTab';
-import FlashCardTab from '../tabs/FlashCardTab';
-import QuizTab from '../tabs/QuizTab';
+import { TopicWorkspaceTabValue } from '../../types';
 import LearningMaterial from '../material/LearningMaterial';
-
-const TOPIC_WORKSPACE_TABS: TabConfig[] = [
-    { value: 'overview', label: 'Overview', component: OverViewTab },
-    { value: METHOD_LEARNING.MINDMAP, label: 'Mindmap', component: MindMapTab },
-    { value: METHOD_LEARNING.FLASHCARD, label: 'Flashcards', component: FlashCardTab },
-    { value: METHOD_LEARNING.QUIZ, label: 'Quiz', component: QuizTab },
-];
+import { TOPIC_WORKSPACE_TABS } from '../../layout/layout';
+import { ITopic } from '@/app/[locale]/topics/types/topic.type';
+import LoadingPage from '@/app/loading';
+import DataStatus from '@/components/errors/DataStatus';
+import topicService from '@/services/topic/topic.service';
+import { isEmpty } from '@/utils';
+import { cn } from '@/lib/utils';
 
 export default function PersonalTopicWorkspace() {
-    const { topic, isPdfViewerFullscreen, setTab } = useTopicWorkspace();
+    const { topic, topicId, setTopic, isPdfViewerFullscreen, setTab, tab } = useTopicWorkspace();
 
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -29,11 +24,25 @@ export default function PersonalTopicWorkspace() {
         setIsFullscreen((prev) => !prev);
     }
 
-    //... flashcard content
-
     function handleTabChange(value: string) {
         setTab(value as TopicWorkspaceTabValue);
     }
+
+    const {
+        data: topicContent,
+        loading: topicContentLoading,
+        error: topicContentError,
+    } = useFetch<ITopic>(() => topicService.getTopicById(topicId));
+
+    useEffect(() => {
+        setTopic(topicContent);
+    }, [topicContent]);
+
+    if (topicContentLoading) return <LoadingPage />;
+
+    if (topicContentError) return <DataStatus variant="error" title={topicContentError} />;
+
+    if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
     return (
         <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background">
@@ -55,11 +64,7 @@ export default function PersonalTopicWorkspace() {
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full">
-                        <Tabs
-                            defaultValue="overview"
-                            className="flex flex-col flex-1 h-full"
-                            onValueChange={handleTabChange}
-                        >
+                        <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
                             {!isFullscreen && (
                                 <div className="p-6 pb-2">
                                     <div className="flex items-center justify-between mb-4">
