@@ -13,7 +13,6 @@ import { formatSeconds, truncate } from '@/utils';
 
 interface IProps {
     content: string;
-    topK?: number;
     triggerClassName?: string;
     children?: React.ReactNode;
     className?: string;
@@ -35,7 +34,7 @@ interface IReturnItemQuery {
     similarity: number;
 }
 
-export default function Reference({ content, topK = 8, triggerClassName = '', className, children }: IProps) {
+export default function Reference({ content, triggerClassName = '', className, children }: IProps) {
     const { learningMaterial } = useTopicWorkspace();
 
     const params = useParams();
@@ -75,7 +74,6 @@ export default function Reference({ content, topK = 8, triggerClassName = '', cl
                 type: mapEmbeddingType(learningMaterial?.type),
                 query: content,
                 topicId,
-                topK,
             });
         } catch (error) {
             if (process.env.NODE_ENV === 'development') {
@@ -213,7 +211,7 @@ function ReferenceItem({ item }: ReferenceItemProps) {
                         className="text-base md:text-[20px] text-center leading-relaxed whitespace-pre-wrap mb-2 cursor-pointer hover:opacity-65"
                         onClick={handleReferenceOriginContent}
                     >
-                        {displayText}
+                        {displayText}...
                     </p>
 
                     {rawContent.length > 240 && (

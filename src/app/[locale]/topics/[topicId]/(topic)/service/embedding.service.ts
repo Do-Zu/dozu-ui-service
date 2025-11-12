@@ -12,7 +12,6 @@ export interface IQuerySimilarity {
     type: EmbeddingInputType;
     query: string;
     topicId: number;
-    topK?: number;
 }
 
 type TypeMetaDataChunkEmbed = {
