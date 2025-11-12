@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import toastHelper from '@/utils/toast.helper';
-import { Download, Maximize, Minimize, RotateCwSquare } from 'lucide-react';
+import { Download, Loader2, Maximize, Minimize, RotateCwSquare } from 'lucide-react';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
 import React, { ChangeEvent, Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
@@ -214,6 +214,15 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
         setIsPdfViewerFullScreen((prev) => !prev);
     }
 
+    function onPageLoading(pageNumber: number) {
+        return (
+            <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Loading page...</span>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col gap-2">
             <PdfToolbar
@@ -245,6 +254,7 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
                                 pageNumber={pageNumber}
                                 scale={documentScale}
                                 rotate={rotate}
+                                loading={() => onPageLoading(pageNumber)}
                             ></Page>
                         );
                     })}
