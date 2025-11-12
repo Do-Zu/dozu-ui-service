@@ -5,7 +5,7 @@ export type YoutubeResourcePayload = {
     videoInfo: VideoInfo | null;
     content: string | null;
     lengthContent: number;
-    transcriptSegments: TranscriptSegment[];
+    wordCount: number;
 };
 
 export type WebsiteResourcePayload = {

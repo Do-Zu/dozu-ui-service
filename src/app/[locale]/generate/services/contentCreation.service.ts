@@ -38,6 +38,7 @@ type YoutubeResourceMetadata = {
     videoInfo: VideoInfo | null;
     content: string | null;
     lengthContent: number;
+    wordCount: number;
 };
 
 type WebsiteResourceMetadata = {
@@ -65,17 +66,17 @@ type InsertContentTopicParams =
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.YOUTUBE;
-          payload: Partial<YoutubeResourceMetadata>;
+          payload: YoutubeResourceMetadata;
       }
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.WEBSITE;
-          payload: Partial<WebsiteResourceMetadata>;
+          payload: WebsiteResourceMetadata;
       }
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.TEXT;
-          payload: Partial<TextResourceMetadata>;
+          payload: TextResourceMetadata;
       }
     | {
           topicId: string | number;
@@ -232,12 +233,7 @@ export class ContentCreationService {
                     return null;
                 }
 
-                return {
-                    url,
-                    videoInfo: params.payload?.videoInfo ?? null,
-                    content: params.payload?.content ?? null,
-                    lengthContent: toNumber(params.payload?.content?.length, 0),
-                };
+                return { ...params.payload };
             }
             case RESOURCE_CONTENT_TYPE.WEBSITE: {
                 const url = params.payload?.url;
