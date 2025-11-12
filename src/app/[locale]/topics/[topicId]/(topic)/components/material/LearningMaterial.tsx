@@ -18,7 +18,7 @@ export default function LearningMaterial() {
         if (data && !error) {
             setLearningMaterial(data);
         }
-    }, [data]);
+    }, [data, error]);
 
     if (error) return <DataStatus variant="error" title={error} />;
     if (loading) return <LoadingPage />;

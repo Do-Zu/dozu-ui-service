@@ -99,19 +99,19 @@ export default function Reference({ content, topK = 8, triggerClassName = '', cl
                 console.log(error);
             }
         }
-    }, [content, topicId]);
+    }, [content, topicId, learningMaterial?.type]);
 
     useEffect(() => {
         if (open && !queried) {
             fetchData();
         }
-    }, [open]);
+    }, [open, queried, fetchData]);
 
     useEffect(() => {
         if (content && queried) {
             setQueried(false);
         }
-    }, [content]);
+    }, [content, queried]);
 
     if (!topicId || isNaN(topicId)) {
         // If we cannot resolve topicId from route, silently do not render reference trigger.
