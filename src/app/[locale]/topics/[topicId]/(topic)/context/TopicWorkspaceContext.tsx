@@ -8,14 +8,17 @@ import React, {
     SetStateAction,
     useCallback,
     useContext,
+    useEffect,
     useMemo,
     useRef,
     useState,
 } from 'react';
-import { isAfter } from 'date-fns';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
+import { useSearchParams } from 'next/navigation';
+import { ILearningMaterial } from '../service/learningMaterial.service';
+import { METHOD_LEARNING } from '@/utils/constants/method';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -25,6 +28,7 @@ interface ContextType {
     flashcards: IFlashcard[] | null;
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
+    learningMaterial: ILearningMaterial | null;
     setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
     setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
@@ -39,6 +43,7 @@ interface ContextType {
 
     isPdfViewerFullscreen: boolean;
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
+    setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
 
     contentTextOrigin: MutableRefObject<string>;
 }
@@ -52,10 +57,20 @@ interface IProviderProps {
 
 const DEFAULT_TAB = 'overview';
 
+const ALLOWED_TABS: TopicWorkspaceTabValue[] = [DEFAULT_TAB, ...Object.values(METHOD_LEARNING)];
+
 export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
-    const [tab, setTab] = useState<TopicWorkspaceTabValue>(DEFAULT_TAB);
+    const searchParams = useSearchParams();
+
+    const activeTab = useMemo(() => {
+        const raw = searchParams?.get('tab') as TopicWorkspaceTabValue;
+        return ALLOWED_TABS.includes(raw) ? raw : DEFAULT_TAB;
+    }, [searchParams]);
+
+    const [tab, setTab] = useState<TopicWorkspaceTabValue>(activeTab);
 
     const [topic, setTopic] = useState<ITopic | null>(null);
+    const [learningMaterial, setLearningMaterial] = useState<ILearningMaterial | null>(null);
 
     const topicIdRef = useRef<TypeTopicId>(topicIdInit);
 
@@ -87,6 +102,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             ankiSettings,
             isPdfViewerFullscreen,
             contentTextOrigin,
+            learningMaterial,
             setTab,
             setTopicId,
             setTopic,
@@ -95,22 +111,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             onReviewCard,
             setAnkiSettings,
             setIsPdfViewerFullScreen,
+            setLearningMaterial,
         }),
-        [
-            tab,
-            topic,
-            flashcards,
-            learningFlashcards,
-            ankiSettings,
-            isPdfViewerFullscreen,
-            setTab,
-            setTopic,
-            setFlashcards,
-            setLearningFlashcards,
-            onReviewCard,
-            setAnkiSettings,
-            setIsPdfViewerFullScreen,
-        ],
+        [tab, topic, flashcards, learningFlashcards, ankiSettings, isPdfViewerFullscreen, learningMaterial],
     );
 
     return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;
