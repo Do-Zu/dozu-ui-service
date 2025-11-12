@@ -40,11 +40,17 @@ class ClassworkUtils {
             result.set(topic.topicId, []);
         }
         for (const classworkItem of classwork) {
-            const prevClasswork = result.get(classworkItem.item.topicId ?? NO_TOPIC.topicId);
+            const topicId =
+                typeof classworkItem.item === 'object' &&
+                'topicId' in classworkItem.item &&
+                (classworkItem.item as { topicId: number }).topicId != null
+                    ? (classworkItem.item as { topicId: number }).topicId
+                    : NO_TOPIC.topicId;
+            const prevClasswork = result.get(topicId);
             if (prevClasswork) {
                 prevClasswork.push(classworkItem);
             } else {
-                result.set(classworkItem.item.topicId ?? NO_TOPIC.topicId, [classworkItem]);
+                result.set(topicId, [classworkItem]);
             }
         }
         return result;
