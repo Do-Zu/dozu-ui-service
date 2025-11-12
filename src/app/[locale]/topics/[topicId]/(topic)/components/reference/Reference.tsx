@@ -6,6 +6,8 @@ import { Modal } from '@/components/modal/Modal';
 import { embeddingService } from '../../service/embedding.service';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 interface IProps {
     content: string;
@@ -172,12 +174,9 @@ export default function Reference({ content, topK = 8, triggerClassName = '', ch
     const Footer = <div className="flex w-full justify-end gap-2"></div>;
 
     const Cancel = (
-        <button
-            onClick={() => setOpen(false)}
-            className="text-xs px-3 py-1.5 rounded bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600"
-        >
+        <Button onClick={() => setOpen(false)} className="text-xs px-3 py-1.5 rounded ">
             Close
-        </button>
+        </Button>
     );
 
     return (
@@ -207,23 +206,44 @@ function ReferenceItem({ item }: ReferenceItemProps) {
             : JSON.stringify(item.originContent?.content);
     const displayText = expanded ? rawContent : truncate(rawContent);
 
-    const timestamp = item.metadata && 'startTime' in item.metadata ? formatSeconds(item.metadata.startTime) : '';
+    const timestamp = item?.metadata && 'startTime' in item.metadata ? formatSeconds(item?.metadata?.startTime) : '';
 
+    //TODO:
+    const handleReferenceOriginContent = () => {
+        toast({
+            description: 'Coming Soon',
+        });
+    };
     return (
         <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
-            <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+            {/* <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
                 <span
                     className="text-[10px] font-semibold px-2 py-1 rounded bg-secondary text-foreground/80"
                     title="Similarity score"
                 >
                     {(item.similarity * 100).toFixed(1)}%
                 </span>
-            </div>
+            </div> */}
 
             <div className="px-2">
-                <p className="text-base md:text-[15px] text-center leading-relaxed whitespace-pre-wrap">
-                    {displayText}
-                </p>
+                <div className="text-center">
+                    <p
+                        className="text-base md:text-[20px] text-center leading-relaxed whitespace-pre-wrap mb-2 cursor-pointer hover:opacity-65"
+                        onClick={handleReferenceOriginContent}
+                    >
+                        {displayText}
+                    </p>
+                    {timestamp && (
+                        <span
+                            className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground mt-4 cursor-pointer hover:bg-slate-600"
+                            title="Start time"
+                            onClick={handleReferenceOriginContent}
+                        >
+                            {timestamp}
+                        </span>
+                    )}
+                </div>
+
                 {rawContent.length > 240 && (
                     <div className="mt-2 text-center">
                         <button
@@ -232,6 +252,14 @@ function ReferenceItem({ item }: ReferenceItemProps) {
                         >
                             {expanded ? 'Show less' : 'Show more'}
                         </button>
+                        {timestamp && (
+                            <span
+                                className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground"
+                                title="Start time"
+                            >
+                                {timestamp}
+                            </span>
+                        )}
                     </div>
                 )}
             </div>
@@ -241,16 +269,9 @@ function ReferenceItem({ item }: ReferenceItemProps) {
                     <span className="text-[10px] px-2 py-1 rounded bg-muted border border-border text-muted-foreground">
                         {item.contentType}
                     </span>
-                    <span className="text-[10px] text-muted-foreground/70">#{item.embeddingId}</span>
+                    {/* FOR DEVELOPMENT */}
+                    {/* <span className="text-[10px] text-muted-foreground/70">#{item.embeddingId}</span> */}
                 </div>
-                {timestamp && (
-                    <span
-                        className="text-[10px] px-2 py-1 rounded bg-secondary text-muted-foreground"
-                        title="Start time"
-                    >
-                        {timestamp}
-                    </span>
-                )}
             </div>
         </div>
     );
