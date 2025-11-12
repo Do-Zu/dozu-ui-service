@@ -196,10 +196,12 @@ interface ReferenceItemProps {
 
 function ReferenceItem({ item }: ReferenceItemProps) {
     const [expanded, setExpanded] = useState(false);
+
     const rawContent =
         typeof item.originContent?.content === 'string'
             ? item.originContent.content
             : JSON.stringify(item.originContent?.content);
+
     const displayText = expanded ? rawContent : truncate(rawContent);
 
     const timestamp = item?.metadata && 'startTime' in item.metadata ? formatSeconds(item?.metadata?.startTime) : '';
@@ -229,6 +231,18 @@ function ReferenceItem({ item }: ReferenceItemProps) {
                     >
                         {displayText}
                     </p>
+
+                    {rawContent.length > 240 && (
+                        <div className="mt-2 text-center mb-2">
+                            <Button
+                                onClick={() => setExpanded((e) => !e)}
+                                className="text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                            >
+                                {expanded ? 'Show less' : 'Show more'}
+                            </Button>
+                        </div>
+                    )}
+
                     {timestamp && (
                         <span
                             className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground mt-4 cursor-pointer hover:bg-slate-600"
@@ -239,25 +253,6 @@ function ReferenceItem({ item }: ReferenceItemProps) {
                         </span>
                     )}
                 </div>
-
-                {rawContent.length > 240 && (
-                    <div className="mt-2 text-center">
-                        <button
-                            onClick={() => setExpanded((e) => !e)}
-                            className="text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-                        >
-                            {expanded ? 'Show less' : 'Show more'}
-                        </button>
-                        {timestamp && (
-                            <span
-                                className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground"
-                                title="Start time"
-                            >
-                                {timestamp}
-                            </span>
-                        )}
-                    </div>
-                )}
             </div>
 
             <div className="mt-4 flex items-center justify-between">
