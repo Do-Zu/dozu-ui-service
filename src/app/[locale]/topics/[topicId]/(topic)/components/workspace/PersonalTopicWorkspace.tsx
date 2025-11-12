@@ -12,12 +12,14 @@ import MindMapTab from '../tabs/MindMapTab';
 import FlashCardTab from '../tabs/FlashCardTab';
 import QuizTab from '../tabs/QuizTab';
 import LearningMaterial from '../material/LearningMaterial';
+import NoteTab from '../tabs/NoteTab';
 
 const TOPIC_WORKSPACE_TABS: TabConfig[] = [
     { value: 'overview', label: 'Overview', component: OverViewTab },
     { value: METHOD_LEARNING.MINDMAP, label: 'Mindmap', component: MindMapTab },
     { value: METHOD_LEARNING.FLASHCARD, label: 'Flashcards', component: FlashCardTab },
     { value: METHOD_LEARNING.QUIZ, label: 'Quiz', component: QuizTab },
+    { value: 'note', label: 'Note', component: NoteTab },
 ];
 
 export default function PersonalTopicWorkspace() {
@@ -69,7 +71,7 @@ export default function PersonalTopicWorkspace() {
                             )}
 
                             <div className={cn('flex-1 h-full', isFullscreen ? 'px-6 py-3' : 'px-3')}>
-                                <TabsList className="grid w-full grid-cols-4">
+                                <TabsList className="grid w-full grid-cols-5">
                                     {TOPIC_WORKSPACE_TABS.map((t) => (
                                         <TabsTrigger key={t.value} value={t.value}>
                                             {t.label}

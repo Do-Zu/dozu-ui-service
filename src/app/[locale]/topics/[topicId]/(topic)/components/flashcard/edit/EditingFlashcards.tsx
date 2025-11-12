@@ -52,8 +52,7 @@ export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
-const initialFlashcardsCount = 1;
-const flashcardsJump = 1;
+const initialFlashcardsCount = 3;
 
 function isEmptyArray(array: any[]): boolean {
     return array.length === 0;
@@ -161,10 +160,6 @@ export function handleConvertToFlashcardsEdited(flashcards: IFlashcard[]): IEdit
                 },
             };
         });
-        let nextId = initialFlashcards.length > 0 ? initialFlashcards[initialFlashcards.length - 1].id + 1 : 0;
-        for (let i = initialFlashcards.length; i % 3 !== 0; ++i) {
-            initialFlashcards.push(createInitialFlashcard(nextId++));
-        }
     }
     return initialFlashcards;
 }
@@ -173,7 +168,6 @@ const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
-    const [flashcardsCount, setFlashcardsCount] = useState<number>(initialFlashcardsCount);
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
     const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false);
     const [selectingFlashcard, setSelectingFlashcard] = useState<ILocalFlashcard | null>();
@@ -221,20 +215,6 @@ const EditingFlashcards = () => {
             },
         },
     );
-
-    // fix, useEffect is not necessary
-    useEffect(() => {
-        if (!editingFlashcards) return;
-        if (flashcardsCount === flashcardsJump) return;
-        let newFlashcards = [...editingFlashcards];
-        const lastId = newFlashcards[newFlashcards.length - 1].id;
-        let startId = lastId + 1;
-        for (let i = flashcardsCount - flashcardsJump; i < flashcardsCount; ++i) {
-            newFlashcards.push({ id: startId, front: '', back: '' });
-            ++startId;
-        }
-        setEditingFlashcards(newFlashcards);
-    }, [flashcardsCount]);
 
     useEffect(() => {
         if (!isAddImageModalOpen) {
@@ -289,8 +269,13 @@ const EditingFlashcards = () => {
         setEditingFlashcards(newFlashcards);
     }
 
-    function handleAddFlashcardsCount() {
-        setFlashcardsCount((prevCount) => prevCount + flashcardsJump);
+    function handleAddBelowClick(index: number) {
+        setEditingFlashcards((prev) => {
+            const result = [...prev];
+            const id = prev.length === 0 ? 0 : prev[prev.length - 1].id + 1;
+            result.splice(index + 1, 0, createInitialFlashcard(id));
+            return result;
+        });
     }
 
     function handleDeleteFlashcard(type: 'client' | 'server', flashcardId: number) {
@@ -300,14 +285,7 @@ const EditingFlashcards = () => {
         if (type === 'client') {
             const remaining = editingFlashcards.filter((flashcard) => flashcard.id !== flashcardId);
             const lastId = remaining.length > 0 ? remaining[remaining.length - 1].id : -1;
-            newFlashcards = [
-                ...remaining,
-                {
-                    id: lastId + 1,
-                    front: '',
-                    back: '',
-                },
-            ];
+            newFlashcards = [...remaining, { id: lastId + 1, front: '', back: '' }];
         } else if (type === 'server') {
             newFlashcards = editingFlashcards.map((flashcard) => {
                 return flashcard.serverInfo && flashcard.id === flashcardId
@@ -339,9 +317,6 @@ const EditingFlashcards = () => {
             const { front, back } = card;
             newFlashcards.push({ id: startId, front, back });
             ++startId;
-        }
-        for (let i = newFlashcards.length; i % 3 !== 0; ++i) {
-            newFlashcards.push(createInitialFlashcard(startId++));
         }
         setEditingFlashcards(newFlashcards);
         setIsImportModalOpen(false);
@@ -517,7 +492,16 @@ const EditingFlashcards = () => {
                         >
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-xl font-bold text-muted-foreground select-none">{index + 1}</span>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-4">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleAddBelowClick(index)}
+                                        className="border-dashed border text-muted-foreground hover:text-primary hover:border-primary/50"
+                                    >
+                                        <Plus size={18} className="mr-2" />
+                                        Add below
+                                    </Button>
                                     <Button
                                         variant="outline"
                                         size="icon"
@@ -578,17 +562,6 @@ const EditingFlashcards = () => {
                         </div>
                     );
                 })}
-
-                <div className="mt-4">
-                    <Button
-                        onClick={handleAddFlashcardsCount}
-                        variant="outline"
-                        className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
-                    >
-                        <Plus size={16} className="mr-2" />
-                        {tFlashcardEdit('addCards')}
-                    </Button>
-                </div>
             </div>
 
             <FlashcardImportModal
