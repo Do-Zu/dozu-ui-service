@@ -99,6 +99,8 @@ function PdfToolbar({
                     className="inline-flex items-center justify-center h-10 w-10 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
                     href={pdfUrl}
                     download={fileName}
+                    aria-label="Download PDF"
+                    title="Download PDF"
                 >
                     <Download className="h-4 w-4" />
                 </a>

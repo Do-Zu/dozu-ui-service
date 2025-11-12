@@ -1,9 +1,9 @@
-h1 {
+.ProseMirror h1 {
     @apply text-2xl font-bold;
 }
-h2 {
+.ProseMirror h2 {
     @apply text-xl font-bold;
 }
-h3 {
+.ProseMirror h3 {
     @apply text-lg font-bold;
 }

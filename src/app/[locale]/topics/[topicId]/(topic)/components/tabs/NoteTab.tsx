@@ -62,7 +62,7 @@ export default function NoteTab() {
             const payload: IUpdateNotePayload = { topicId: note.topicId, noteId: note.noteId, content };
             await updateNoteAsync(payload);
         },
-        [note?.content],
+        [note, updateNoteAsync],
     );
 
     if (noteError) {

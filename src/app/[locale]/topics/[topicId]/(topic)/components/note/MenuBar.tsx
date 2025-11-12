@@ -6,6 +6,7 @@ import { Editor } from '@tiptap/react';
 import {
     AlignCenter,
     AlignLeft,
+    AlignRight,
     Bold,
     Heading1,
     Heading2,
@@ -75,7 +76,7 @@ export default function MenuBar({ editor, content, onSubmit, loading }: Props) {
             pressed: editor.isActive({ textAlign: 'center' }),
         },
         {
-            icon: <AlignLeft className="size-4" />,
+            icon: <AlignRight className="size-4" />,
             onClick: () => editor.chain().focus().setTextAlign('right').run(),
             pressed: editor.isActive({ textAlign: 'right' }),
         },

@@ -272,7 +272,7 @@ const EditingFlashcards = () => {
     function handleAddBelowClick(index: number) {
         setEditingFlashcards((prev) => {
             const result = [...prev];
-            const id = prev.length === 0 ? 0 : prev[prev.length - 1].id + 1;
+            const id = prev.length === 0 ? 0 : Math.max(...prev.map((f) => f.id)) + 1;
             result.splice(index + 1, 0, createInitialFlashcard(id));
             return result;
         });
@@ -284,8 +284,8 @@ const EditingFlashcards = () => {
 
         if (type === 'client') {
             const remaining = editingFlashcards.filter((flashcard) => flashcard.id !== flashcardId);
-            const lastId = remaining.length > 0 ? remaining[remaining.length - 1].id : -1;
-            newFlashcards = [...remaining, { id: lastId + 1, front: '', back: '' }];
+            const maxId = remaining.length > 0 ? Math.max(...remaining.map(f => f.id)) : -1;
+            newFlashcards = [...remaining, { id: maxId + 1, front: '', back: '' }];
         } else if (type === 'server') {
             newFlashcards = editingFlashcards.map((flashcard) => {
                 return flashcard.serverInfo && flashcard.id === flashcardId
