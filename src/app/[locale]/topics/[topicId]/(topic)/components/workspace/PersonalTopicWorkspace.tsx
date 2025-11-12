@@ -7,7 +7,7 @@ import { Maximize, Minimize } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TopicWorkspaceTabValue } from '../../types';
 import LearningMaterial from '../material/LearningMaterial';
-import { TOPIC_WORKSPACE_TABS } from '../../layout/layout';
+import { TOPIC_WORKSPACE_TABS } from '../../layout/config.layout';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import LoadingPage from '@/app/loading';
 import DataStatus from '@/components/errors/DataStatus';
