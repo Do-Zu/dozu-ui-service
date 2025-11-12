@@ -3,11 +3,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Modal } from '@/components/modal/Modal';
-import { embeddingService } from '../../service/embedding.service';
+import { embeddingService, IQuerySimilarity, IResponseQuery } from '../../service/embedding.service';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
+import usePost from '@/hooks/usePost';
 
 interface IProps {
     content: string;
@@ -66,11 +67,21 @@ export default function Reference({ content, topK = 8, triggerClassName = '', ch
         typeof topicIdRaw === 'string' ? Number(topicIdRaw) : Array.isArray(topicIdRaw) ? Number(topicIdRaw[0]) : NaN;
 
     const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [results, setResults] = useState<IReturnItemQuery[]>([]);
-    const [error, setError] = useState<string | null>(null);
     const [queried, setQueried] = useState(false);
-    const abortedRef = useRef(false);
+    const {
+        data: results,
+        error,
+        loading,
+        execute,
+    } = usePost<IQuerySimilarity, IReturnItemQuery[]>(
+        async (payload) => await embeddingService.queryTopSimilarity(payload),
+        'POST',
+        {
+            onMessageSuccess() {
+                setQueried(true);
+            },
+        },
+    );
 
     // Map learning material type to supported embedding input type
     const mapEmbeddingType = (t?: string): 'text' | 'file' | 'youtube' => {
@@ -81,41 +92,32 @@ export default function Reference({ content, topK = 8, triggerClassName = '', ch
 
     const fetchData = useCallback(async () => {
         if (!content || !topicId || isNaN(topicId)) return;
-        setLoading(true);
-        setError(null);
-        abortedRef.current = false;
+
         try {
-            const res = (await embeddingService.queryTopSimilarity({
+            await execute({
                 type: mapEmbeddingType(learningMaterial?.type),
                 query: content,
                 topicId,
                 topK,
-            })) as IEmbeddingResponse;
-
-            if (abortedRef.current) return;
-
-            if (res?.data) {
-                setResults(res.data);
-                setQueried(true);
-            } else {
-                setResults([]);
+            });
+        } catch (error) {
+            if (process.env.NODE_ENV === 'development') {
+                console.log(error);
             }
-        } catch (e: any) {
-            if (abortedRef.current) return;
-            setError(e?.message || 'Failed to load references');
-        } finally {
-            if (!abortedRef.current) setLoading(false);
         }
-    }, [content, topicId, topK]);
+    }, [content, topicId]);
 
     useEffect(() => {
         if (open && !queried) {
             fetchData();
         }
-        return () => {
-            abortedRef.current = true;
-        };
-    }, [open, queried, fetchData]);
+    }, [open]);
+
+    useEffect(() => {
+        if (content && queried) {
+            setQueried(false);
+        }
+    }, [content]);
 
     if (!topicId || isNaN(topicId)) {
         // If we cannot resolve topicId from route, silently do not render reference trigger.
@@ -159,13 +161,13 @@ export default function Reference({ content, topK = 8, triggerClassName = '', ch
                 </div>
             )}
 
-            {!loading && !error && results.length === 0 && queried && (
+            {!loading && !error && results?.length === 0 && queried && (
                 <p className="mt-4 text-sm text-neutral-500">No related references found.</p>
             )}
 
             <ScrollArea>
                 <div className="mt-4 max-h-[62vh] pr-1 space-y-4 bg-background/50 rounded-md p-4">
-                    {!loading && !error && results.map((item) => <ReferenceItem key={item.embeddingId} item={item} />)}
+                    {!loading && !error && results?.map((item) => <ReferenceItem key={item.embeddingId} item={item} />)}
                 </div>
             </ScrollArea>
         </div>
@@ -183,7 +185,7 @@ export default function Reference({ content, topK = 8, triggerClassName = '', ch
         <Modal
             isOpen={open}
             setIsOpen={setOpen}
-            trigger={trigger as any}
+            trigger={trigger}
             title="Nearest Reference Content"
             description={null}
             body={Body}

@@ -8,7 +8,7 @@ const EnumEmbeddingInput = {
 
 type EmbeddingInputType = (typeof EnumEmbeddingInput)[keyof typeof EnumEmbeddingInput];
 
-interface IQuerySimilarity {
+export interface IQuerySimilarity {
     type: EmbeddingInputType;
     query: string;
     topicId: number;
@@ -33,14 +33,14 @@ interface IReturnItemQuery extends ReturnColumnEmbedding {
     similarity: number;
 }
 
-type IResponseQuery = IReturnItemQuery[];
+export type IResponseQuery = IReturnItemQuery[];
 
 const BASE_API = '/v1/embedding';
 
 class EmbeddingService {
     public async queryTopSimilarity(payload: IQuerySimilarity) {
-        const response = await postRequest<IQuerySimilarity, IResponseQuery>(`${BASE_API}/query`, payload);
-        return response;
+        const { data } = await postRequest<IQuerySimilarity, IResponseQuery>(`${BASE_API}/query`, payload);
+        return data;
     }
 }
 
