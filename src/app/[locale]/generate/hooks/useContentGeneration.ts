@@ -20,7 +20,7 @@ import { ICreateTopicForClassPayload, ICreateTopicPayload } from '@/services/top
 import { useFeeds } from '../../teacher/feeds/hooks/useFeeds';
 import { ICreateClassFeedBody, ICreateClassFeedPayload } from '@/services/class-based-learning/classFeed.service';
 import { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
-import { isEmpty, isNilOrEmpty, isNullOrEmpty, safeDestructure } from '@/utils';
+import { countWords, isEmpty, isNilOrEmpty, isNullOrEmpty, safeDestructure, toNumber } from '@/utils';
 import { EXTRACTION_TAB, IMPORT_METHOD, RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
 import { uploadService } from '@/services/upload/upload.service';
 import { YoutubeResourcePayload, WebsiteResourcePayload, TextResourcePayload } from '../types/content.type';
@@ -65,7 +65,6 @@ export const useContentGeneration = ({
         inputUrl,
         contentType: contentTypeResourceImport,
         videoInfo,
-        transcriptSegments,
     } = useCardImportSelector((state) => safeDestructure(state.contentExtraction));
 
     const { importMethod, files: filesImport } = safeDestructure(useCardImportSelector((state) => state.importDialog));
@@ -152,24 +151,17 @@ export const useContentGeneration = ({
     };
 
     const handleRedirectAfterGenerateSuccess = (topicId: string | number | undefined) => {
-        if (topicId === undefined) {
+        if (!topicId) {
             router.replace(ROUTES.LANDING);
             return;
         }
 
-        switch (contentType) {
-            case CONTENT_TYPE_GENERATE.FLASH_CARD:
-                router.replace(ROUTES.FLASHCARDS_BROWSE(topicId));
-                break;
-            case CONTENT_TYPE_GENERATE.QUIZ:
-                router.replace(ROUTES.QUIZ_START(topicId));
-                break;
-            case CONTENT_TYPE_GENERATE.MIND_MAP:
-                router.replace(ROUTES.MINDMAP_EDIT(topicId));
-                break;
-            default:
-                router.replace(ROUTES.LANDING);
-        }
+        router.push(
+            ROUTES.TOPIC_WORKSPACE({
+                topicId: toNumber(topicId),
+                tab: contentType,
+            }),
+        );
     };
 
     const handleInsertResourceContent = async (topicId: string | number | undefined): Promise<boolean> => {
@@ -233,8 +225,9 @@ export const useContentGeneration = ({
                     const youtubePayload: YoutubeResourcePayload = {
                         url: inputUrl,
                         videoInfo,
+                        lengthContent: extractedContent.length,
                         content: extractedContent || null,
-                        transcriptSegments,
+                        wordCount: countWords(extractedContent),
                     };
                     await ContentCreationService.insertContentTopic({
                         topicId: topicId!,

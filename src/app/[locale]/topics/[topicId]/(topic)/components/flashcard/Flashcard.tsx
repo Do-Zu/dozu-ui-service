@@ -1,8 +1,9 @@
 'use client';
 
+import React from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import React from 'react';
+import Reference from '../reference/Reference';
 
 interface FlashcardProps {
     front: React.ReactNode;
@@ -28,7 +29,7 @@ export default function Flashcard({ front, back, imageUrl, isFlipped, isAnimatin
                     {front}
                 </div>
                 {/* Back Side and image if have */}
-                <div className="absolute inset-0 flex flex-col gap-2 justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden rotate-x-180 shadow-md text-center p-8 text-lg">
+                <div className="absolute inset-0  flex items-center flex-col gap-2 justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden rotate-x-180 shadow-md text-center p-8 text-lg">
                     {imageUrl ? (
                         <Image
                             src={imageUrl}
@@ -40,6 +41,7 @@ export default function Flashcard({ front, back, imageUrl, isFlipped, isAnimatin
                         />
                     ) : null}
                     <div>{back}</div>
+                    <Reference content={`${front} : ${back}`} />
                 </div>
             </div>
         </div>
