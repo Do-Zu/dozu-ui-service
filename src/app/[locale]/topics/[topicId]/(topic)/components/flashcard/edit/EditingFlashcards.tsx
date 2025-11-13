@@ -491,7 +491,7 @@ const EditingFlashcards = () => {
             </div>
 
             <ScrollArea>
-                <div className="px-[4rem] py-7 bg-background min-h-[calc(100vh-var(--sticky-header-height))]">
+                <div className="px-[4rem] py-7 bg-background">
                     <div className="mt-7 flex flex-col gap-6 bg-background">
                         {editingFlashcards?.map((flashcard, index) => {
                             if (isFlashcardDeleted(flashcard))
