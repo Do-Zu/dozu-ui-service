@@ -9,7 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
-import { formatSeconds, truncate } from '@/utils';
+import { formatSeconds, isEmpty, isNilOrEmpty, safeDestructure, toNumber, truncate } from '@/utils';
+import DataStatus from '@/components/errors/DataStatus';
 
 interface IProps {
     content: string;
@@ -24,12 +25,17 @@ type TypeMetaDataChunkEmbed = {
     content: string | number | object | Array<unknown>;
 };
 
+export type MetaDataYoutubeContent = { startTime: number };
+
+export type MetaDataFileContent = {
+    pageNumber: number;
+};
 interface IReturnItemQuery {
     embeddingId: number;
     topicId: number;
     contentType: string;
     originContent: TypeMetaDataChunkEmbed;
-    metadata: { startTime?: number } | null;
+    metadata: MetaDataYoutubeContent | MetaDataFileContent | null;
     createdAt: string | Date;
     similarity: number;
 }
@@ -43,12 +49,15 @@ export default function Reference({ content, triggerClassName = '', className, c
         typeof topicIdRaw === 'string' ? Number(topicIdRaw) : Array.isArray(topicIdRaw) ? Number(topicIdRaw[0]) : NaN;
 
     const [open, setOpen] = useState(false);
+    const [isShowMore, setIsShowMore] = useState(false);
+
     const [queried, setQueried] = useState(false);
     const {
         data: results,
         error,
         loading,
         execute,
+        reset,
     } = usePost<IQuerySimilarity, IReturnItemQuery[]>(
         async (payload) => await embeddingService.queryTopSimilarity(payload),
         'POST',
@@ -83,20 +92,20 @@ export default function Reference({ content, triggerClassName = '', className, c
     }, [content, topicId, learningMaterial?.type]);
 
     useEffect(() => {
-        if (open && !queried) {
-            fetchData();
-        }
-    }, [open]);
-
-    useEffect(() => {
         if (content && queried) {
             setQueried(false);
         }
     }, [content]);
 
+    useEffect(() => {
+        setQueried(false);
+        setOpen(false);
+        setIsShowMore(false);
+        if (reset) reset();
+    }, [content, reset]);
+
     if (!topicId || isNaN(topicId)) {
-        // If we cannot resolve topicId from route, silently do not render reference trigger.
-        return null;
+        return <DataStatus variant="empty" />;
     }
 
     const trigger = children ? (
@@ -105,9 +114,22 @@ export default function Reference({ content, triggerClassName = '', className, c
         <button
             type="button"
             className={`mt-3 text-xs underline decoration-dashed decoration-neutral-400 hover:text-primary transition-colors ${triggerClassName}`}
-            aria-haspopup="dialog"
+            onClick={fetchData}
         >
             View references
+        </button>
+    );
+
+    const triggerShowMore = (
+        <button
+            type="button"
+            className={`mt-2 text-xs underline decoration-dashed decoration-neutral-400 hover:text-primary transition-colors ${triggerClassName}`}
+            onClick={() => {
+                setIsShowMore(true);
+                setOpen(true);
+            }}
+        >
+            More
         </button>
     );
 
@@ -142,7 +164,19 @@ export default function Reference({ content, triggerClassName = '', className, c
 
             <ScrollArea>
                 <div className="mt-4 max-h-[62vh] pr-1 space-y-4 bg-background/50 rounded-md p-4">
-                    {!loading && !error && results?.map((item) => <ReferenceItem key={item.embeddingId} item={item} />)}
+                    {!loading &&
+                        !error &&
+                        results?.map((item) => (
+                            <ReferenceItem
+                                key={item.embeddingId}
+                                item={item}
+                                isShowMore={true}
+                                onClose={() => {
+                                    setOpen(false);
+                                    setIsShowMore(false);
+                                }}
+                            />
+                        ))}
                 </div>
             </ScrollArea>
         </div>
@@ -156,10 +190,41 @@ export default function Reference({ content, triggerClassName = '', className, c
         </Button>
     );
 
+    if (!results) {
+        return trigger;
+    }
+
+    if (!isShowMore && isEmpty(results)) return <DataStatus variant="empty" />;
+
+    if (!isShowMore) {
+        const highestResultSuggest = results[0];
+
+        if (learningMaterial?.type === 'file') {
+            return (
+                <div className="mt-4">
+                    <FileReferenceItem item={highestResultSuggest} isShowMore={isShowMore} onClose={() => {}} />
+                    {triggerShowMore}
+                </div>
+            );
+        } else if (learningMaterial?.type === 'youtube') {
+            return (
+                <div className="mt-4">
+                    <YouTubeReferenceItem item={highestResultSuggest} isShowMore={isShowMore} onClose={() => {}} />
+                    {triggerShowMore}
+                </div>
+            );
+        }
+
+        return <DataStatus variant="error" title="Content Type Invalid" />;
+    }
+
     return (
         <Modal
             isOpen={open}
-            setIsOpen={setOpen}
+            setIsOpen={() => {
+                setOpen((prev) => !prev);
+                setIsShowMore((prev) => !prev);
+            }}
             trigger={trigger}
             title="Nearest Reference Content"
             description={null}
@@ -173,9 +238,24 @@ export default function Reference({ content, triggerClassName = '', className, c
 
 interface ReferenceItemProps {
     item: IReturnItemQuery;
+    isShowMore: boolean;
+    onClose: () => void;
 }
 
-function ReferenceItem({ item }: ReferenceItemProps) {
+function ReferenceItem({ item, isShowMore = true, onClose }: ReferenceItemProps) {
+    const { learningMaterial } = useTopicWorkspace();
+
+    if (learningMaterial?.type === 'file') {
+        return <FileReferenceItem item={item} isShowMore={isShowMore} onClose={onClose} />;
+    } else if (learningMaterial?.type === 'youtube') {
+        return <YouTubeReferenceItem item={item} isShowMore={isShowMore} onClose={onClose} />;
+    }
+
+    return <DataStatus variant="empty" />;
+}
+
+function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
+    const { seekTo } = useTopicWorkspace();
     const [expanded, setExpanded] = useState(false);
 
     const rawContent =
@@ -186,54 +266,172 @@ function ReferenceItem({ item }: ReferenceItemProps) {
     const defaultLengthConcat = 240;
     const displayText = expanded ? rawContent : truncate(rawContent, defaultLengthConcat);
 
-    const timestamp = item?.metadata && 'startTime' in item.metadata ? formatSeconds(item?.metadata?.startTime) : '';
+    const { startTime } = safeDestructure(item?.metadata as MetaDataYoutubeContent, {
+        startTime: -1,
+    });
 
-    //TODO:
+    const timestamp = startTime >= 0 ? formatSeconds(startTime) : 'N/A';
+
     const handleReferenceOriginContent = () => {
-        toast({
-            description: 'Coming Soon',
-        });
+        onClose();
+
+        const seconds = toNumber(startTime);
+
+        if (seconds !== null && seconds != undefined && seconds >= 0) {
+            seekTo(seconds);
+        }
     };
+
+    if (!isShowMore) {
+        return (
+            <div className="px-2">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 p-4">
+                    <div className="flex gap-3">
+                        <div className="flex-shrink-0">
+                            <svg
+                                className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <p
+                                className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed cursor-pointer hover:opacity-70"
+                                onClick={handleReferenceOriginContent}
+                            >
+                                {displayText}
+                            </p>
+                            {timestamp && (
+                                <span
+                                    className="inline-block mt-2 text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800"
+                                    title="Start time"
+                                    onClick={handleReferenceOriginContent}
+                                >
+                                    {timestamp}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
-            {/* <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-                <span
-                    className="text-[10px] font-semibold px-2 py-1 rounded bg-secondary text-foreground/80"
-                    title="Similarity score"
-                >
-                    {(item.similarity * 100).toFixed(1)}%
-                </span>
-            </div> */}
-
             <div className="px-2">
-                <div className="text-center">
-                    <p
-                        className="text-base md:text-[20px] text-center leading-relaxed whitespace-pre-wrap mb-2 cursor-pointer hover:opacity-65"
-                        onClick={handleReferenceOriginContent}
-                    >
-                        {displayText}...
-                    </p>
-
-                    {rawContent.length > 240 && (
-                        <div className="mt-2 text-center mb-2">
-                            <Button
-                                onClick={() => setExpanded((e) => !e)}
-                                className="text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 p-4">
+                    <div className="flex gap-3">
+                        <div className="flex-shrink-0">
+                            <svg
+                                className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
                             >
-                                {expanded ? 'Show less' : 'Show more'}
-                            </Button>
+                                <path
+                                    fillRule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
                         </div>
-                    )}
+                        <div className="flex-1">
+                            <p
+                                className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed cursor-pointer hover:opacity-70"
+                                onClick={handleReferenceOriginContent}
+                            >
+                                {displayText}
+                            </p>
 
-                    {timestamp && (
+                            {rawContent.length > 240 && (
+                                <div className="mt-2">
+                                    <button
+                                        onClick={() => setExpanded((e) => !e)}
+                                        className="text-xs underline decoration-dotted text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                                    >
+                                        {expanded ? 'Show less' : 'Show more'}
+                                    </button>
+                                </div>
+                            )}
+
+                            {timestamp && (
+                                <span
+                                    className="inline-block mt-2 text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800"
+                                    title="Start time"
+                                    onClick={handleReferenceOriginContent}
+                                >
+                                    {timestamp}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
+    const { setPageNumber } = useTopicWorkspace();
+
+    const { pageNumber } = safeDestructure(item?.metadata as MetaDataFileContent, {
+        pageNumber: -1,
+    });
+
+    const handleReferenceOriginContent = () => {
+        onClose();
+        if (pageNumber > 0) {
+            setPageNumber(pageNumber);
+        } else {
+            toast({
+                description: 'Page invalid',
+            });
+        }
+    };
+
+    if (!isShowMore) {
+        return (
+            <div className="text-center">
+                <div
+                    className="flex flex-col items-center gap-3 cursor-pointer hover:opacity-65"
+                    onClick={handleReferenceOriginContent}
+                >
+                    {pageNumber > 0 && (
                         <span
-                            className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground mt-4 cursor-pointer hover:bg-slate-600"
-                            title="Start time"
-                            onClick={handleReferenceOriginContent}
+                            className="text-[14px] px-3 py-1.5 rounded-full bg-secondary text-muted-foreground font-medium hover:bg-opacity-70"
+                            title="Page number"
                         >
-                            {timestamp}
+                            Page {pageNumber}
                         </span>
                     )}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
+            <div className="px-2">
+                <div className="text-center">
+                    <div
+                        className="flex flex-col items-center gap-3 cursor-pointer hover:opacity-65"
+                        onClick={handleReferenceOriginContent}
+                    >
+                        {pageNumber > 0 && (
+                            <span
+                                className="text-[14px] px-3 py-1.5 rounded-full bg-secondary text-muted-foreground font-medium hover:bg-slate-600"
+                                title="Page number"
+                            >
+                                Page {pageNumber}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -242,8 +440,6 @@ function ReferenceItem({ item }: ReferenceItemProps) {
                     <span className="text-[10px] px-2 py-1 rounded bg-muted border border-border text-muted-foreground">
                         {item.contentType}
                     </span>
-                    {/* FOR DEVELOPMENT */}
-                    {/* <span className="text-[10px] text-muted-foreground/70">#{item.embeddingId}</span> */}
                 </div>
             </div>
         </div>

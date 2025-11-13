@@ -14,21 +14,12 @@ interface Props {
 }
 
 export default function YoutubeLearningMaterial({ videoId, content }: Props) {
-    const { contentTextOrigin } = useTopicWorkspace();
-
-    const [player, setPlayer] = useState<YouTubePlayer | null>(null);
+    const { contentTextOrigin, player, setPlayer, seekTo } = useTopicWorkspace();
 
     const onPlayerReady: YouTubeProps['onReady'] = (event) => {
         event.target.pauseVideo();
         setPlayer(event.target);
     };
-
-    async function seekTo(seconds: number) {
-        if (player) {
-            await player.seekTo(seconds, true);
-            await player.playVideo();
-        }
-    }
 
     useEffect(() => {
         if (!isNilOrEmpty(content)) {
