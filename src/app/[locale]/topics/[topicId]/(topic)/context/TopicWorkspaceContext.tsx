@@ -8,7 +8,6 @@ import React, {
     SetStateAction,
     useCallback,
     useContext,
-    useEffect,
     useMemo,
     useRef,
     useState,
@@ -19,6 +18,9 @@ import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
+import useYoutubePlayer from '../hooks/useYoutubePlayer';
+import usePdfToolBar from '../hooks/usePdfToolBar';
+import { YouTubePlayer } from 'react-youtube';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -29,6 +31,11 @@ interface ContextType {
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
     learningMaterial: ILearningMaterial | null;
+    isPdfViewerFullscreen: boolean;
+    pageNumber: number;
+    contentTextOrigin: MutableRefObject<string>;
+    player: YouTubePlayer | null;
+
     setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
     setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
@@ -41,11 +48,11 @@ interface ContextType {
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
 
-    isPdfViewerFullscreen: boolean;
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
-
-    contentTextOrigin: MutableRefObject<string>;
+    setPageNumber: Dispatch<SetStateAction<number>>;
+    setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
+    seekTo: (seconds: number) => void;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -76,7 +83,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
 
     const contentTextOrigin = useRef<string>('');
 
-    const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
+    const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
+    const { player, setPlayer, seekTo } = useYoutubePlayer();
 
     const {
         flashcards,
@@ -103,6 +111,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             isPdfViewerFullscreen,
             contentTextOrigin,
             learningMaterial,
+            pageNumber,
+            player,
             setTab,
             setTopicId,
             setTopic,
@@ -112,8 +122,22 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setAnkiSettings,
             setIsPdfViewerFullScreen,
             setLearningMaterial,
+            setPageNumber,
+            setPlayer,
+            seekTo,
         }),
-        [tab, topic, flashcards, learningFlashcards, ankiSettings, isPdfViewerFullscreen, learningMaterial],
+        [
+            tab,
+            topic,
+            flashcards,
+            learningFlashcards,
+            ankiSettings,
+            isPdfViewerFullscreen,
+            learningMaterial,
+            pageNumber,
+            player,
+            seekTo,
+        ],
     );
 
     return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;
