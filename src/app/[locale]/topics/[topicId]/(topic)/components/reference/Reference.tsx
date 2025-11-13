@@ -341,14 +341,20 @@ function YouTubeReferenceItem({ item, isShowMore }: ReferenceItemProps) {
 }
 
 function FileReferenceItem({ item, isShowMore }: ReferenceItemProps) {
+    const { setPageNumber } = useTopicWorkspace();
+
     const { pageNumber } = safeDestructure(item?.metadata as MetaDataFileContent, {
         pageNumber: -1,
     });
 
     const handleReferenceOriginContent = () => {
-        toast({
-            description: 'Coming Soon',
-        });
+        if (pageNumber > 0) {
+            setPageNumber(pageNumber);
+        } else {
+            toast({
+                description: 'Page invalid',
+            });
+        }
     };
 
     if (!isShowMore) {

@@ -19,6 +19,7 @@ import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
+import usePdfToolBar from '../hooks/usePdfToolbar';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -29,6 +30,10 @@ interface ContextType {
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
     learningMaterial: ILearningMaterial | null;
+    isPdfViewerFullscreen: boolean;
+    pageNumber: number;
+    contentTextOrigin: MutableRefObject<string>;
+
     setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
     setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
@@ -41,11 +46,9 @@ interface ContextType {
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
 
-    isPdfViewerFullscreen: boolean;
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
-
-    contentTextOrigin: MutableRefObject<string>;
+    setPageNumber: Dispatch<SetStateAction<number>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -76,7 +79,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
 
     const contentTextOrigin = useRef<string>('');
 
-    const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
+    const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
 
     const {
         flashcards,
@@ -103,6 +106,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             isPdfViewerFullscreen,
             contentTextOrigin,
             learningMaterial,
+            pageNumber,
             setTab,
             setTopicId,
             setTopic,
@@ -112,8 +116,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setAnkiSettings,
             setIsPdfViewerFullScreen,
             setLearningMaterial,
+            setPageNumber,
         }),
-        [tab, topic, flashcards, learningFlashcards, ankiSettings, isPdfViewerFullscreen, learningMaterial],
+        [tab, topic, flashcards, learningFlashcards, ankiSettings, isPdfViewerFullscreen, learningMaterial, pageNumber],
     );
 
     return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;

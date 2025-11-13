@@ -119,15 +119,14 @@ interface Props {
 }
 
 const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
+    const { pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
+
     const [numPages, setNumPages] = useState<number | null>(null);
-    const [pageNumber, setPageNumber] = useState<number>(1);
     const documentRef = useRef<HTMLDivElement>(null);
     const [documentSize, setDocumentSize] = useState<{ width: number; height: number }>();
     const [documentScale, setDocumentScale] = useState<number>(1);
 
     const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>();
-
-    const { isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
     const [rotate, setRotate] = useState<number>(0);
     const [selectedScaleOption, setSelectedScaleOption] = useState<string>('fit');
 
