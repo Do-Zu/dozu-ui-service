@@ -32,11 +32,6 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
             // const es = useInitialNodes ? initialEdges : edges;
 
             getLayoutedElements(nodes, edges, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-                // make vertical spacing smaller (flattened)
-                layoutedNodes.forEach((node) => {
-                    node.position.y = node.position.y * 0.7; // compress vertically
-                });
-
                 setNodes(layoutedNodes);
                 setEdges(layoutedEdges);
                 fitView();

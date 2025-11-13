@@ -99,10 +99,7 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
                     mindmapLayoutElkOptions,
                 );
 
-                // Optional: compress vertically or tweak spacing
-                layoutedNodes.forEach((node) => {
-                    node.position.y *= 0.7;
-                });
+               
                 setUpdatedMindmapData({
                     nodes: layoutedNodes,
                     edges: layoutedEdges,
