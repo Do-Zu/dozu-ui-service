@@ -517,7 +517,7 @@ const EditingFlashcards = () => {
                             return (
                                 <div
                                     key={flashcard.id}
-                                    className="rounded-xl border shadow-sm p-6 flex flex-col bg-card text-card-foreground "
+                                    className="rounded-xl border shadow-sm p-6 flex flex-col bg-muted/60 dark:bg-muted/40 text-card-foreground"
                                 >
                                     <div className="flex justify-between items-center mb-4">
                                         <div className="flex items-baseline gap-2">
@@ -560,7 +560,15 @@ const EditingFlashcards = () => {
                                             <Textarea
                                                 id={`front-${flashcard.id}`}
                                                 placeholder={tFlashcardCommon('front')}
-                                                className="resize-none min-h-[70px]"
+                                                className="
+                                                resize-none min-h-[70px]
+                                                bg-input dark:bg-muted
+                                                border border-border
+                                                focus-visible:ring-1 focus-visible:ring-primary/60
+                                                rounded-lg
+                                                text-card-foreground
+                                                placeholder:text-muted-foreground/60
+                                        "
                                                 value={flashcard.front}
                                                 onChange={(event) =>
                                                     handleFlashcardChange({ event, side: 'front', index })
@@ -575,7 +583,15 @@ const EditingFlashcards = () => {
                                             <Textarea
                                                 id={`back-${flashcard.id}`}
                                                 placeholder={tFlashcardCommon('back')}
-                                                className="resize-none min-h-[85px]"
+                                                className="
+                                                resize-none min-h-[70px]
+                                                bg-input dark:bg-muted
+                                                border border-border
+                                                focus-visible:ring-1 focus-visible:ring-primary/60
+                                                rounded-lg
+                                                text-card-foreground
+                                                placeholder:text-muted-foreground/60
+                                        "
                                                 value={flashcard.back}
                                                 onChange={(event) =>
                                                     handleFlashcardChange({ event, side: 'back', index })
