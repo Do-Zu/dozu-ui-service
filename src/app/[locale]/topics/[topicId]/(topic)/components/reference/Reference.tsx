@@ -166,7 +166,17 @@ export default function Reference({ content, triggerClassName = '', className, c
                 <div className="mt-4 max-h-[62vh] pr-1 space-y-4 bg-background/50 rounded-md p-4">
                     {!loading &&
                         !error &&
-                        results?.map((item) => <ReferenceItem key={item.embeddingId} item={item} isShowMore={true} />)}
+                        results?.map((item) => (
+                            <ReferenceItem
+                                key={item.embeddingId}
+                                item={item}
+                                isShowMore={true}
+                                onClose={() => {
+                                    setOpen(false);
+                                    setIsShowMore(false);
+                                }}
+                            />
+                        ))}
                 </div>
             </ScrollArea>
         </div>
@@ -188,14 +198,14 @@ export default function Reference({ content, triggerClassName = '', className, c
         if (learningMaterial?.type === 'file') {
             return (
                 <div className="mt-4">
-                    <FileReferenceItem item={results?.[0]} isShowMore={isShowMore} />
+                    <FileReferenceItem item={results?.[0]} isShowMore={isShowMore} onClose={() => {}} />
                     {triggerShowMore}
                 </div>
             );
         } else if (learningMaterial?.type === 'youtube') {
             return (
                 <div className="mt-4">
-                    <YouTubeReferenceItem item={results?.[0]} isShowMore={isShowMore} />
+                    <YouTubeReferenceItem item={results?.[0]} isShowMore={isShowMore} onClose={() => {}} />
                     {triggerShowMore}
                 </div>
             );
@@ -226,21 +236,22 @@ export default function Reference({ content, triggerClassName = '', className, c
 interface ReferenceItemProps {
     item: IReturnItemQuery;
     isShowMore: boolean;
+    onClose: () => void;
 }
 
-function ReferenceItem({ item, isShowMore = true }: ReferenceItemProps) {
+function ReferenceItem({ item, isShowMore = true, onClose }: ReferenceItemProps) {
     const { learningMaterial } = useTopicWorkspace();
 
     if (learningMaterial?.type === 'file') {
-        return <FileReferenceItem item={item} isShowMore={isShowMore} />;
+        return <FileReferenceItem item={item} isShowMore={isShowMore} onClose={onClose} />;
     } else if (learningMaterial?.type === 'youtube') {
-        return <YouTubeReferenceItem item={item} isShowMore={isShowMore} />;
+        return <YouTubeReferenceItem item={item} isShowMore={isShowMore} onClose={onClose} />;
     }
 
     return <DataStatus variant="empty" />;
 }
 
-function YouTubeReferenceItem({ item, isShowMore }: ReferenceItemProps) {
+function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
     const [expanded, setExpanded] = useState(false);
 
     const rawContent =
@@ -254,6 +265,7 @@ function YouTubeReferenceItem({ item, isShowMore }: ReferenceItemProps) {
     const timestamp = item?.metadata && 'startTime' in item.metadata ? formatSeconds(item?.metadata?.startTime) : '';
 
     const handleReferenceOriginContent = () => {
+        onClose();
         toast({
             description: 'Coming Soon',
         });
@@ -340,7 +352,7 @@ function YouTubeReferenceItem({ item, isShowMore }: ReferenceItemProps) {
     );
 }
 
-function FileReferenceItem({ item, isShowMore }: ReferenceItemProps) {
+function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
     const { setPageNumber } = useTopicWorkspace();
 
     const { pageNumber } = safeDestructure(item?.metadata as MetaDataFileContent, {
@@ -348,6 +360,7 @@ function FileReferenceItem({ item, isShowMore }: ReferenceItemProps) {
     });
 
     const handleReferenceOriginContent = () => {
+        onClose();
         if (pageNumber > 0) {
             setPageNumber(pageNumber);
         } else {
