@@ -1,9 +1,9 @@
 'use client';
 
 import { Textarea } from '@/components/ui/textarea';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
-import { Edit, ImagePlus, Import, Plus, Save, Trash2 } from 'lucide-react';
+import { Edit, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
@@ -31,6 +31,7 @@ import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/Fl
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ILocalFlashcard {
     id: number;
@@ -109,6 +110,7 @@ export function handleConvertToFlashcardsSubmitted(flashcards: IEditingFlashcard
         return (
             flashcard.serverInfo &&
             flashcard.serverInfo.isUpdated &&
+            !flashcard.serverInfo.isDeleted &&
             (flashcard.front !== '' ||
                 flashcard.back !== '' ||
                 (flashcard.image !== null && flashcard.image !== undefined))
@@ -223,82 +225,77 @@ const EditingFlashcards = () => {
         }
     }, [isAddImageModalOpen]);
 
-    function handleFlashcardChange(
-        side: 'front' | 'back',
-        type: 'client' | 'server',
-        flashcard: { order: number; text: string },
-    ) {
-        if (!editingFlashcards) return;
-        let newFlashcards: IEditingFlashcard[] = editingFlashcards;
-        let { order, text } = flashcard;
-
-        if (type === 'client') {
-            if (side === 'front') {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return index === order ? { ...flashcard, front: text } : flashcard;
-                });
-            } else if (side === 'back') {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return index === order ? { ...flashcard, back: text } : flashcard;
-                });
-            }
-        } else if (type === 'server') {
-            if (side === 'front') {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return flashcard.serverInfo && index === order
-                        ? {
-                              ...flashcard,
-                              front: text,
-                              serverInfo: { ...flashcard.serverInfo, isUpdated: true, isDeleted: false },
-                          }
-                        : flashcard;
-                });
-            } else {
-                newFlashcards = editingFlashcards.map((flashcard, index) => {
-                    return flashcard.serverInfo && index === order
-                        ? {
-                              ...flashcard,
-                              back: text,
-                              serverInfo: { ...flashcard.serverInfo, isUpdated: true, isDeleted: false },
-                          }
-                        : flashcard;
-                });
-            }
-        }
-
-        setEditingFlashcards(newFlashcards);
+    function handleFlashcardChange({
+        event,
+        side,
+        index,
+    }: {
+        event: ChangeEvent<HTMLTextAreaElement>;
+        side: 'front' | 'back';
+        index: number;
+    }) {
+        const value = event.target.value;
+        setEditingFlashcards((prev) => {
+            if (index < 0 || index >= prev.length) return prev;
+            const currentFlashcard = prev[index];
+            const type = getFlashcardType(currentFlashcard);
+            const newFlashcards = prev.map((e, i) => {
+                if (index !== i) return e;
+                if (type === 'client') return { ...e, [side]: value };
+                if (type === 'server' && e.serverInfo)
+                    return { ...e, serverInfo: { ...e.serverInfo, isUpdated: true, isDeleted: false }, [side]: value };
+                return e;
+            });
+            return newFlashcards;
+        });
     }
 
-    function handleAddBelowClick(index: number) {
+    function handleAddBelowClick() {
         setEditingFlashcards((prev) => {
             const result = [...prev];
-            const id = prev.length === 0 ? 0 : Math.max(...prev.map((f) => f.id)) + 1;
-            result.splice(index + 1, 0, createInitialFlashcard(id));
+            const lastId = prev.length === 0 ? -1 : prev[prev.length - 1].id;
+            result.push(createInitialFlashcard(lastId + 1));
             return result;
         });
     }
 
-    function handleDeleteFlashcard(type: 'client' | 'server', flashcardId: number) {
-        if (!editingFlashcards) return;
-        let newFlashcards: IEditingFlashcard[] = editingFlashcards;
-
-        if (type === 'client') {
-            const remaining = editingFlashcards.filter((flashcard) => flashcard.id !== flashcardId);
-            const maxId = remaining.length > 0 ? Math.max(...remaining.map(f => f.id)) : -1;
-            newFlashcards = [...remaining, { id: maxId + 1, front: '', back: '' }];
-        } else if (type === 'server') {
-            newFlashcards = editingFlashcards.map((flashcard) => {
-                return flashcard.serverInfo && flashcard.id === flashcardId
-                    ? {
-                          ...flashcard,
-                          serverInfo: { ...flashcard.serverInfo, isUpdated: false, isDeleted: true },
-                      }
-                    : flashcard;
+    function handleFlashcardDeleteClick(index: number) {
+        setEditingFlashcards((prev) => {
+            if (index < 0 || index >= prev.length) return prev;
+            const currentFlashcard = prev[index];
+            const type = getFlashcardType(currentFlashcard);
+            if (type === 'client') {
+                return prev.filter((e, i) => i !== index);
+            }
+            return prev.map((e, i) => {
+                return i === index && e.serverInfo ? { ...e, serverInfo: { ...e.serverInfo, isDeleted: true } } : e;
             });
-            let startId = newFlashcards[newFlashcards.length - 1].id + 1;
-            newFlashcards.push(createInitialFlashcard(startId));
-        }
-        setEditingFlashcards(newFlashcards);
+        });
+    }
+
+    function isFlashcardEditing(flashcard: IEditingFlashcard) {
+        if (!flashcard.serverInfo) return false;
+        const originalFlashcard = flashcards.find((card) => card.flashcardId === flashcard.serverInfo?.flashcardId);
+
+        if (!originalFlashcard) return false;
+        return flashcard.front !== originalFlashcard.front || flashcard.back !== originalFlashcard.back;
+    }
+
+    function isFlashcardNew(flashcard: IEditingFlashcard) {
+        return flashcard.serverInfo === undefined;
+    }
+
+    function isFlashcardDeleted(flashcard: IEditingFlashcard) {
+        return flashcard.serverInfo?.isDeleted === true;
+    }
+
+    function handleUndoDelete(index: number) {
+        setEditingFlashcards((prev) => {
+            return prev.map((e, i) => {
+                if (i !== index || !e.serverInfo) return e;
+                return { ...e, serverInfo: { ...e.serverInfo, isDeleted: false } };
+            });
+        });
     }
 
     function handleAddFlashcardsImported(flashcardsImported: IFlashcardPreview[]) {
@@ -451,118 +448,174 @@ const EditingFlashcards = () => {
     }
 
     return (
-        <div className="px-[4rem] py-7 bg-muted">
-            <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-4 items-center">
-                    <div className="text-primary text-[1.7rem] font-bold">
-                        {topic ? topic.name : 'Flashcards Generated'}
+        <div>
+            <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
+                <div className="flex justify-end items-center px-[4rem] py-4">
+                    <div className="flex flex-row items-center gap-4">
+                        <Button
+                            variant="ghost"
+                            onClick={handleGenerateQuiz}
+                            disabled={!hasAnyValidFlashcard(editingFlashcards) || loading}
+                            className="text-muted-foreground hover:text-primary flex flex-rol gap-2"
+                        >
+                            <Sparkles size={18} />
+                            Generate Quiz
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleImportModalOpen}
+                            className="text-muted-foreground hover:text-primary"
+                        >
+                            <Import size={18} />
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleSaveClick}
+                            disabled={batchLoading}
+                            className="text-muted-foreground hover:text-primary"
+                        >
+                            {batchLoading ? (
+                                <span className="flex items-center">
+                                    <RefreshCw size={18} className="animate-spin" />
+                                </span>
+                            ) : (
+                                <Save size={18} />
+                            )}
+                        </Button>
                     </div>
                 </div>
-                <div className="flex flex-row gap-4">
-                    <Button
-                        className="flex flex-row items-center"
-                        onClick={handleGenerateQuiz}
-                        disabled={!hasAnyValidFlashcard(editingFlashcards) || loading}
-                    >
-                        Generate Quiz
-                    </Button>
+            </div>
 
-                    <Button className="flex flex-row items-center" onClick={handleImportModalOpen}>
-                        <Import size={24} />
-                        <div className="text-base">{tFlashcardEdit('import')}</div>
-                    </Button>
+            <ScrollArea>
+                <div className="px-[4rem] py-7 bg-background">
+                    <div className="mt-7 flex flex-col gap-6 bg-background">
+                        {editingFlashcards?.map((flashcard, index) => {
+                            if (isFlashcardDeleted(flashcard))
+                                return (
+                                    <div
+                                        key={flashcard.id}
+                                        className="rounded-xl border border-dashed shadow-sm p-4 flex justify-between items-center bg-card/50 text-card-foreground"
+                                    >
+                                        <span className="text-lg font-bold text-muted-foreground/80 select-none">
+                                            {index + 1}
+                                        </span>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => handleUndoDelete(index)}
+                                            className="text-muted-foreground font-semibold hover:text-primary"
+                                        >
+                                            <Undo2 size={16} className="mr-2" />
+                                            Undo
+                                        </Button>
+                                    </div>
+                                );
 
-                    <Button onClick={handleSaveClick} className="flex flex-row items-center" disabled={batchLoading}>
-                        <Save size={24} />
-                        <div className="text-base">
-                            {batchLoading ? tCommon('status.saving') : tFlashcardEdit('save')}
+                            return (
+                                <div
+                                    key={flashcard.id}
+                                    className="rounded-xl border shadow-sm p-6 flex flex-col bg-muted/60 dark:bg-muted/40 text-card-foreground"
+                                >
+                                    <div className="flex justify-between items-center mb-4">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-xl font-bold text-muted-foreground select-none">
+                                                {index + 1}
+                                            </span>
+                                            {flashcard.serverInfo?.isUpdated && isFlashcardEditing(flashcard) ? (
+                                                <span className="text-sm text-muted-foreground">(editing)</span>
+                                            ) : null}
+                                            {isFlashcardNew(flashcard) ? (
+                                                <span className="text-sm text-muted-foreground">(new)</span>
+                                            ) : null}
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => handleAddImageModalOpen(flashcard)}
+                                                className="text-muted-foreground hover:text-primary hover:border-primary/50"
+                                            >
+                                                <ImagePlus size={18} />
+                                            </Button>
+
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => handleFlashcardDeleteClick(index)}
+                                                className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
+                                            >
+                                                <Trash2 size={18} />
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col gap-2">
+                                            <Label htmlFor={`front-${flashcard.id}`} className="font-semibold">
+                                                {tFlashcardCommon('front')}
+                                            </Label>
+                                            <Textarea
+                                                id={`front-${flashcard.id}`}
+                                                placeholder={tFlashcardCommon('front')}
+                                                className="
+                                                resize-none min-h-[70px]
+                                                bg-input dark:bg-muted
+                                                border border-border
+                                                focus-visible:ring-1 focus-visible:ring-primary/60
+                                                rounded-lg
+                                                text-card-foreground
+                                                placeholder:text-muted-foreground/60
+                                        "
+                                                value={flashcard.front}
+                                                onChange={(event) =>
+                                                    handleFlashcardChange({ event, side: 'front', index })
+                                                }
+                                            />
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <Label htmlFor={`back-${flashcard.id}`} className="font-semibold">
+                                                {tFlashcardCommon('back')}
+                                            </Label>
+                                            <Textarea
+                                                id={`back-${flashcard.id}`}
+                                                placeholder={tFlashcardCommon('back')}
+                                                className="
+                                                resize-none min-h-[70px]
+                                                bg-input dark:bg-muted
+                                                border border-border
+                                                focus-visible:ring-1 focus-visible:ring-primary/60
+                                                rounded-lg
+                                                text-card-foreground
+                                                placeholder:text-muted-foreground/60
+                                        "
+                                                value={flashcard.back}
+                                                onChange={(event) =>
+                                                    handleFlashcardChange({ event, side: 'back', index })
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        <div className="mt-2">
+                            <Button
+                                onClick={handleAddBelowClick}
+                                variant="outline"
+                                className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
+                            >
+                                <Plus size={16} className="mr-2" />
+                                Add below
+                            </Button>
                         </div>
-                    </Button>
+                    </div>
                 </div>
-            </div>
-
-            <div className="mt-7 flex flex-col gap-6">
-                {editingFlashcards?.map((flashcard, index) => {
-                    if (flashcard.serverInfo?.isDeleted) return null;
-
-                    return (
-                        <div
-                            key={flashcard.id}
-                            className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 flex flex-col"
-                        >
-                            <div className="flex justify-between items-center mb-4">
-                                <span className="text-xl font-bold text-muted-foreground select-none">{index + 1}</span>
-                                <div className="flex items-center gap-4">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleAddBelowClick(index)}
-                                        className="border-dashed border text-muted-foreground hover:text-primary hover:border-primary/50"
-                                    >
-                                        <Plus size={18} className="mr-2" />
-                                        Add below
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => handleAddImageModalOpen(flashcard)}
-                                        className="text-muted-foreground hover:text-primary hover:border-primary/50"
-                                    >
-                                        <ImagePlus size={18} />
-                                    </Button>
-
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => handleDeleteFlashcard(getFlashcardType(flashcard), flashcard.id)}
-                                        className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
-                                    >
-                                        <Trash2 size={18} />
-                                    </Button>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor={`front-${flashcard.id}`} className="font-semibold">
-                                        {tFlashcardCommon('front')}
-                                    </Label>
-                                    <Textarea
-                                        id={`front-${flashcard.id}`}
-                                        placeholder={tFlashcardCommon('front')}
-                                        className="resize-none min-h-[70px]"
-                                        value={flashcard.front}
-                                        onChange={(event) =>
-                                            handleFlashcardChange('front', getFlashcardType(flashcard), {
-                                                order: index,
-                                                text: event.target.value,
-                                            })
-                                        }
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor={`back-${flashcard.id}`} className="font-semibold">
-                                        {tFlashcardCommon('back')}
-                                    </Label>
-                                    <Textarea
-                                        id={`back-${flashcard.id}`}
-                                        placeholder={tFlashcardCommon('back')}
-                                        className="resize-none min-h-[85px]"
-                                        value={flashcard.back}
-                                        onChange={(event) =>
-                                            handleFlashcardChange('back', getFlashcardType(flashcard), {
-                                                order: index,
-                                                text: event.target.value,
-                                            })
-                                        }
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+            </ScrollArea>
 
             <FlashcardImportModal
                 isOpen={isImportModalOpen}
