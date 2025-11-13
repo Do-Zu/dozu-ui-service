@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
-import { formatSeconds, safeDestructure, toNumber, truncate } from '@/utils';
+import { formatSeconds, isEmpty, isNilOrEmpty, safeDestructure, toNumber, truncate } from '@/utils';
 import DataStatus from '@/components/errors/DataStatus';
 
 interface IProps {
@@ -194,43 +194,46 @@ export default function Reference({ content, triggerClassName = '', className, c
         return trigger;
     }
 
+    if (!isShowMore && isEmpty(results)) return <DataStatus variant="empty" />;
+
     if (!isShowMore) {
+        const highestResultSuggest = results[0];
+
         if (learningMaterial?.type === 'file') {
             return (
                 <div className="mt-4">
-                    <FileReferenceItem item={results?.[0]} isShowMore={isShowMore} onClose={() => {}} />
+                    <FileReferenceItem item={highestResultSuggest} isShowMore={isShowMore} onClose={() => {}} />
                     {triggerShowMore}
                 </div>
             );
         } else if (learningMaterial?.type === 'youtube') {
             return (
                 <div className="mt-4">
-                    <YouTubeReferenceItem item={results?.[0]} isShowMore={isShowMore} onClose={() => {}} />
+                    <YouTubeReferenceItem item={highestResultSuggest} isShowMore={isShowMore} onClose={() => {}} />
                     {triggerShowMore}
                 </div>
             );
         }
 
-        return <DataStatus variant="empty" />;
+        return <DataStatus variant="error" title="Content Type Invalid" />;
     }
 
-    if (learningMaterial?.type && isShowMore)
-        return (
-            <Modal
-                isOpen={open}
-                setIsOpen={() => {
-                    setOpen((prev) => !prev);
-                    setIsShowMore((prev) => !prev);
-                }}
-                trigger={trigger}
-                title="Nearest Reference Content"
-                description={null}
-                body={Body}
-                footer={Footer}
-                cancel={Cancel}
-                contentStyle={`w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5 ${className}`}
-            />
-        );
+    return (
+        <Modal
+            isOpen={open}
+            setIsOpen={() => {
+                setOpen((prev) => !prev);
+                setIsShowMore((prev) => !prev);
+            }}
+            trigger={trigger}
+            title="Nearest Reference Content"
+            description={null}
+            body={Body}
+            footer={Footer}
+            cancel={Cancel}
+            contentStyle={`w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5 ${className}`}
+        />
+    );
 }
 
 interface ReferenceItemProps {
