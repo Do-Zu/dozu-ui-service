@@ -3,7 +3,7 @@
 import { Textarea } from '@/components/ui/textarea';
 import { ChangeEvent, useEffect, useState } from 'react';
 
-import { Edit, ImagePlus, Import, Plus, Save, Trash2, Undo2 } from 'lucide-react';
+import { Edit, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
@@ -31,6 +31,7 @@ import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/Fl
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ILocalFlashcard {
     id: number;
@@ -109,6 +110,7 @@ export function handleConvertToFlashcardsSubmitted(flashcards: IEditingFlashcard
         return (
             flashcard.serverInfo &&
             flashcard.serverInfo.isUpdated &&
+            !flashcard.serverInfo.isDeleted &&
             (flashcard.front !== '' ||
                 flashcard.back !== '' ||
                 (flashcard.image !== null && flashcard.image !== undefined))
@@ -266,9 +268,7 @@ const EditingFlashcards = () => {
                 return prev.filter((e, i) => i !== index);
             }
             return prev.map((e, i) => {
-                return i === index && e.serverInfo
-                    ? { ...e, serverInfo: { ...e.serverInfo, isUpdated: false, isDeleted: true } }
-                    : e;
+                return i === index && e.serverInfo ? { ...e, serverInfo: { ...e.serverInfo, isDeleted: true } } : e;
             });
         });
     }
@@ -279,6 +279,14 @@ const EditingFlashcards = () => {
 
         if (!originalFlashcard) return false;
         return flashcard.front !== originalFlashcard.front || flashcard.back !== originalFlashcard.back;
+    }
+
+    function isFlashcardNew(flashcard: IEditingFlashcard) {
+        return flashcard.serverInfo === undefined;
+    }
+
+    function isFlashcardDeleted(flashcard: IEditingFlashcard) {
+        return flashcard.serverInfo?.isDeleted === true;
     }
 
     function handleUndoDelete(index: number) {
@@ -440,136 +448,158 @@ const EditingFlashcards = () => {
     }
 
     return (
-        <div className="px-[4rem] py-7 bg-muted">
-            <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-4 items-center">
-                    <div className="text-primary text-[1.7rem] font-bold">
-                        {topic ? topic.name : 'Flashcards Generated'}
+        <div>
+            <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
+                <div className="flex justify-end items-center px-[4rem] py-4">
+                    <div className="flex flex-row items-center gap-4">
+                        <Button
+                            variant="ghost"
+                            onClick={handleGenerateQuiz}
+                            disabled={!hasAnyValidFlashcard(editingFlashcards) || loading}
+                            className="text-muted-foreground hover:text-primary flex flex-rol gap-2"
+                        >
+                            <Sparkles size={18} />
+                            Generate Quiz
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleImportModalOpen}
+                            className="text-muted-foreground hover:text-primary"
+                        >
+                            <Import size={18} />
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleSaveClick}
+                            disabled={batchLoading}
+                            className="text-muted-foreground hover:text-primary"
+                        >
+                            {batchLoading ? (
+                                <span className="flex items-center">
+                                    <RefreshCw size={18} className="animate-spin" />
+                                </span>
+                            ) : (
+                                <Save size={18} />
+                            )}
+                        </Button>
                     </div>
                 </div>
-                <div className="flex flex-row gap-4">
-                    <Button
-                        className="flex flex-row items-center"
-                        onClick={handleGenerateQuiz}
-                        disabled={!hasAnyValidFlashcard(editingFlashcards) || loading}
-                    >
-                        Generate Quiz
-                    </Button>
-
-                    <Button className="flex flex-row items-center" onClick={handleImportModalOpen}>
-                        <Import size={24} />
-                        <div className="text-base">{tFlashcardEdit('import')}</div>
-                    </Button>
-
-                    <Button onClick={handleSaveClick} className="flex flex-row items-center" disabled={batchLoading}>
-                        <Save size={24} />
-                        <div className="text-base">
-                            {batchLoading ? tCommon('status.saving') : tFlashcardEdit('save')}
-                        </div>
-                    </Button>
-                </div>
             </div>
 
-            <div className="mt-7 flex flex-col gap-6">
-                {editingFlashcards?.map((flashcard, index) => {
-                    if (flashcard.serverInfo?.isDeleted)
-                        return (
-                            <div
-                                key={flashcard.id}
-                                className="rounded-xl border border-dashed bg-card/50 text-card-foreground shadow-sm p-4 flex justify-between items-center"
-                            >
-                                <span className="text-lg font-bold text-muted-foreground/80 select-none">
-                                    {index + 1}
-                                </span>
+            <ScrollArea>
+                <div className="px-[4rem] py-7 bg-background min-h-[calc(100vh-var(--sticky-header-height))]">
+                    <div className="mt-7 flex flex-col gap-6 bg-background">
+                        {editingFlashcards?.map((flashcard, index) => {
+                            if (isFlashcardDeleted(flashcard))
+                                return (
+                                    <div
+                                        key={flashcard.id}
+                                        className="rounded-xl border border-dashed shadow-sm p-4 flex justify-between items-center bg-card/50 text-card-foreground"
+                                    >
+                                        <span className="text-lg font-bold text-muted-foreground/80 select-none">
+                                            {index + 1}
+                                        </span>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => handleUndoDelete(index)}
+                                            className="text-muted-foreground font-semibold hover:text-primary"
+                                        >
+                                            <Undo2 size={16} className="mr-2" />
+                                            Undo
+                                        </Button>
+                                    </div>
+                                );
 
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => handleUndoDelete(flashcard.id)}
-                                    className="text-muted-foreground font-semibold hover:text-primary"
+                            return (
+                                <div
+                                    key={flashcard.id}
+                                    className="rounded-xl border shadow-sm p-6 flex flex-col bg-card text-card-foreground "
                                 >
-                                    <Undo2 size={16} className="mr-2" />
-                                    Undo
-                                </Button>
-                            </div>
-                        );
+                                    <div className="flex justify-between items-center mb-4">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-xl font-bold text-muted-foreground select-none">
+                                                {index + 1}
+                                            </span>
+                                            {flashcard.serverInfo?.isUpdated && isFlashcardEditing(flashcard) ? (
+                                                <span className="text-sm text-muted-foreground">(editing)</span>
+                                            ) : null}
+                                            {isFlashcardNew(flashcard) ? (
+                                                <span className="text-sm text-muted-foreground">(new)</span>
+                                            ) : null}
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => handleAddImageModalOpen(flashcard)}
+                                                className="text-muted-foreground hover:text-primary hover:border-primary/50"
+                                            >
+                                                <ImagePlus size={18} />
+                                            </Button>
 
-                    return (
-                        <div
-                            key={flashcard.id}
-                            className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 flex flex-col"
-                        >
-                            <div className="flex justify-between items-center mb-4">
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-xl font-bold text-muted-foreground select-none">
-                                        {index + 1}
-                                    </span>
-                                    {flashcard.serverInfo?.isUpdated && isFlashcardEditing(flashcard) ? (
-                                        <span className="text-sm text-muted-foreground">(editing)</span>
-                                    ) : null}
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => handleAddImageModalOpen(flashcard)}
-                                        className="text-muted-foreground hover:text-primary hover:border-primary/50"
-                                    >
-                                        <ImagePlus size={18} />
-                                    </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => handleFlashcardDeleteClick(index)}
+                                                className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
+                                            >
+                                                <Trash2 size={18} />
+                                            </Button>
+                                        </div>
+                                    </div>
 
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => handleFlashcardDeleteClick(index)}
-                                        className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
-                                    >
-                                        <Trash2 size={18} />
-                                    </Button>
-                                </div>
-                            </div>
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col gap-2">
+                                            <Label htmlFor={`front-${flashcard.id}`} className="font-semibold">
+                                                {tFlashcardCommon('front')}
+                                            </Label>
+                                            <Textarea
+                                                id={`front-${flashcard.id}`}
+                                                placeholder={tFlashcardCommon('front')}
+                                                className="resize-none min-h-[70px]"
+                                                value={flashcard.front}
+                                                onChange={(event) =>
+                                                    handleFlashcardChange({ event, side: 'front', index })
+                                                }
+                                            />
+                                        </div>
 
-                            <div className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor={`front-${flashcard.id}`} className="font-semibold">
-                                        {tFlashcardCommon('front')}
-                                    </Label>
-                                    <Textarea
-                                        id={`front-${flashcard.id}`}
-                                        placeholder={tFlashcardCommon('front')}
-                                        className="resize-none min-h-[70px]"
-                                        value={flashcard.front}
-                                        onChange={(event) => handleFlashcardChange({ event, side: 'front', index })}
-                                    />
+                                        <div className="flex flex-col gap-2">
+                                            <Label htmlFor={`back-${flashcard.id}`} className="font-semibold">
+                                                {tFlashcardCommon('back')}
+                                            </Label>
+                                            <Textarea
+                                                id={`back-${flashcard.id}`}
+                                                placeholder={tFlashcardCommon('back')}
+                                                className="resize-none min-h-[85px]"
+                                                value={flashcard.back}
+                                                onChange={(event) =>
+                                                    handleFlashcardChange({ event, side: 'back', index })
+                                                }
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
+                            );
+                        })}
 
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor={`back-${flashcard.id}`} className="font-semibold">
-                                        {tFlashcardCommon('back')}
-                                    </Label>
-                                    <Textarea
-                                        id={`back-${flashcard.id}`}
-                                        placeholder={tFlashcardCommon('back')}
-                                        className="resize-none min-h-[85px]"
-                                        value={flashcard.back}
-                                        onChange={(event) => handleFlashcardChange({ event, side: 'back', index })}
-                                    />
-                                </div>
-                            </div>
+                        <div className="mt-2">
+                            <Button
+                                onClick={handleAddBelowClick}
+                                variant="outline"
+                                className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
+                            >
+                                <Plus size={16} className="mr-2" />
+                                Add below
+                            </Button>
                         </div>
-                    );
-                })}
-
-                <div className="mt-2">
-                    <Button
-                        onClick={handleAddBelowClick}
-                        variant="outline"
-                        className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
-                    >
-                        <Plus size={16} className="mr-2" />
-                        Add below
-                    </Button>
+                    </div>
                 </div>
-            </div>
+            </ScrollArea>
 
             <FlashcardImportModal
                 isOpen={isImportModalOpen}
