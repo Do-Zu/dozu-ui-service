@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
-import { formatSeconds, safeDestructure, truncate } from '@/utils';
+import { formatSeconds, safeDestructure, toNumber, truncate } from '@/utils';
 import DataStatus from '@/components/errors/DataStatus';
 
 interface IProps {
@@ -252,6 +252,7 @@ function ReferenceItem({ item, isShowMore = true, onClose }: ReferenceItemProps)
 }
 
 function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
+    const { seekTo } = useTopicWorkspace();
     const [expanded, setExpanded] = useState(false);
 
     const rawContent =
@@ -262,13 +263,20 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
     const defaultLengthConcat = 240;
     const displayText = expanded ? rawContent : truncate(rawContent, defaultLengthConcat);
 
-    const timestamp = item?.metadata && 'startTime' in item.metadata ? formatSeconds(item?.metadata?.startTime) : '';
+    const { startTime } = safeDestructure(item?.metadata as MetaDataYoutubeContent, {
+        startTime: -1,
+    });
+
+    const timestamp = startTime >= 0 ? formatSeconds(startTime) : 'N/A';
 
     const handleReferenceOriginContent = () => {
         onClose();
-        toast({
-            description: 'Coming Soon',
-        });
+
+        const seconds = toNumber(startTime);
+
+        if (seconds !== null && seconds != undefined && seconds >= 0) {
+            seekTo(seconds);
+        }
     };
 
     if (!isShowMore) {
