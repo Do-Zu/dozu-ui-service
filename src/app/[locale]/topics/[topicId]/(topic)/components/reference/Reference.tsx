@@ -274,34 +274,39 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
     if (!isShowMore) {
         return (
             <div className="px-2">
-                <div className="text-center">
-                    <p
-                        className="text-base md:text-[20px] text-center leading-relaxed whitespace-pre-wrap mb-2 cursor-pointer hover:opacity-65"
-                        onClick={handleReferenceOriginContent}
-                    >
-                        {displayText}...
-                    </p>
-
-                    {rawContent.length > 240 && (
-                        <div className="mt-2 text-center mb-2">
-                            <Button
-                                onClick={() => setExpanded((e) => !e)}
-                                className="text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 p-4">
+                    <div className="flex gap-3">
+                        <div className="flex-shrink-0">
+                            <svg
+                                className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
                             >
-                                {expanded ? 'Show less' : 'Show more'}
-                            </Button>
+                                <path
+                                    fillRule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
                         </div>
-                    )}
-
-                    {timestamp && (
-                        <span
-                            className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground mt-4 cursor-pointer hover:bg-slate-600"
-                            title="Start time"
-                            onClick={handleReferenceOriginContent}
-                        >
-                            {timestamp}
-                        </span>
-                    )}
+                        <div className="flex-1">
+                            <p
+                                className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed cursor-pointer hover:opacity-70"
+                                onClick={handleReferenceOriginContent}
+                            >
+                                {displayText}
+                            </p>
+                            {timestamp && (
+                                <span
+                                    className="inline-block mt-2 text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800"
+                                    title="Start time"
+                                    onClick={handleReferenceOriginContent}
+                                >
+                                    {timestamp}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -310,42 +315,51 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
     return (
         <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
             <div className="px-2">
-                <div className="text-center">
-                    <p
-                        className="text-base md:text-[20px] text-center leading-relaxed whitespace-pre-wrap mb-2 cursor-pointer hover:opacity-65"
-                        onClick={handleReferenceOriginContent}
-                    >
-                        {displayText}...
-                    </p>
-
-                    {rawContent.length > 240 && (
-                        <div className="mt-2 text-center mb-2">
-                            <Button
-                                onClick={() => setExpanded((e) => !e)}
-                                className="text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 p-4">
+                    <div className="flex gap-3">
+                        <div className="flex-shrink-0">
+                            <svg
+                                className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
                             >
-                                {expanded ? 'Show less' : 'Show more'}
-                            </Button>
+                                <path
+                                    fillRule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
                         </div>
-                    )}
+                        <div className="flex-1">
+                            <p
+                                className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed cursor-pointer hover:opacity-70"
+                                onClick={handleReferenceOriginContent}
+                            >
+                                {displayText}
+                            </p>
 
-                    {timestamp && (
-                        <span
-                            className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground mt-4 cursor-pointer hover:bg-slate-600"
-                            title="Start time"
-                            onClick={handleReferenceOriginContent}
-                        >
-                            {timestamp}
-                        </span>
-                    )}
-                </div>
-            </div>
+                            {rawContent.length > 240 && (
+                                <div className="mt-2">
+                                    <button
+                                        onClick={() => setExpanded((e) => !e)}
+                                        className="text-xs underline decoration-dotted text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                                    >
+                                        {expanded ? 'Show less' : 'Show more'}
+                                    </button>
+                                </div>
+                            )}
 
-            <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] px-2 py-1 rounded bg-muted border border-border text-muted-foreground">
-                        {item.contentType}
-                    </span>
+                            {timestamp && (
+                                <span
+                                    className="inline-block mt-2 text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800"
+                                    title="Start time"
+                                    onClick={handleReferenceOriginContent}
+                                >
+                                    {timestamp}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
