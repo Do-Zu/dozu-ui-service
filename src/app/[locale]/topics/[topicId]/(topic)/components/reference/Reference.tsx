@@ -9,7 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
-import { formatSeconds, truncate } from '@/utils';
+import { formatSeconds, safeDestructure, truncate } from '@/utils';
+import DataStatus from '@/components/errors/DataStatus';
 
 interface IProps {
     content: string;
@@ -24,12 +25,17 @@ type TypeMetaDataChunkEmbed = {
     content: string | number | object | Array<unknown>;
 };
 
+export type MetaDataYoutubeContent = { startTime: number };
+
+export type MetaDataFileContent = {
+    pageNumber: number;
+};
 interface IReturnItemQuery {
     embeddingId: number;
     topicId: number;
     contentType: string;
     originContent: TypeMetaDataChunkEmbed;
-    metadata: { startTime?: number } | null;
+    metadata: MetaDataYoutubeContent | MetaDataFileContent | null;
     createdAt: string | Date;
     similarity: number;
 }
@@ -176,6 +182,16 @@ interface ReferenceItemProps {
 }
 
 function ReferenceItem({ item }: ReferenceItemProps) {
+    if (item.contentType === 'file') {
+        return <FileReferenceItem item={item} />;
+    } else if (item.contentType === 'youtube') {
+        return <YouTubeReferenceItem item={item} />;
+    }
+
+    return <DataStatus variant="empty" />;
+}
+
+function YouTubeReferenceItem({ item }: ReferenceItemProps) {
     const [expanded, setExpanded] = useState(false);
 
     const rawContent =
@@ -188,23 +204,14 @@ function ReferenceItem({ item }: ReferenceItemProps) {
 
     const timestamp = item?.metadata && 'startTime' in item.metadata ? formatSeconds(item?.metadata?.startTime) : '';
 
-    //TODO:
     const handleReferenceOriginContent = () => {
         toast({
             description: 'Coming Soon',
         });
     };
+
     return (
         <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
-            {/* <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-                <span
-                    className="text-[10px] font-semibold px-2 py-1 rounded bg-secondary text-foreground/80"
-                    title="Similarity score"
-                >
-                    {(item.similarity * 100).toFixed(1)}%
-                </span>
-            </div> */}
-
             <div className="px-2">
                 <div className="text-center">
                     <p
@@ -242,8 +249,55 @@ function ReferenceItem({ item }: ReferenceItemProps) {
                     <span className="text-[10px] px-2 py-1 rounded bg-muted border border-border text-muted-foreground">
                         {item.contentType}
                     </span>
-                    {/* FOR DEVELOPMENT */}
-                    {/* <span className="text-[10px] text-muted-foreground/70">#{item.embeddingId}</span> */}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function FileReferenceItem({ item }: ReferenceItemProps) {
+    const { pageNumber } = safeDestructure(item?.metadata as MetaDataFileContent, {
+        pageNumber: -1,
+    });
+
+    const charCount =
+        typeof item.originContent?.content === 'object' &&
+        item.originContent.content !== null &&
+        'charCount' in item.originContent.content
+            ? (item.originContent.content as { charCount: number }).charCount
+            : 0;
+
+    const handleReferenceOriginContent = () => {
+        toast({
+            description: 'Coming Soon',
+        });
+    };
+
+    return (
+        <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
+            <div className="px-2">
+                <div className="text-center">
+                    <div
+                        className="flex flex-col items-center gap-3 cursor-pointer hover:opacity-65"
+                        onClick={handleReferenceOriginContent}
+                    >
+                        <span
+                            className="text-[14px] px-3 py-1.5 rounded bg-secondary text-muted-foreground font-medium hover:bg-slate-600"
+                            title="Page number"
+                        >
+                            Page {pageNumber > 0 ? pageNumber : 'N/A'}
+                        </span>
+
+                        <p className="text-sm text-muted-foreground">{charCount} characters</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] px-2 py-1 rounded bg-muted border border-border text-muted-foreground">
+                        {item.contentType}
+                    </span>
                 </div>
             </div>
         </div>
