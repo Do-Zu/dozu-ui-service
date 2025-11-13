@@ -49,12 +49,15 @@ export default function Reference({ content, triggerClassName = '', className, c
         typeof topicIdRaw === 'string' ? Number(topicIdRaw) : Array.isArray(topicIdRaw) ? Number(topicIdRaw[0]) : NaN;
 
     const [open, setOpen] = useState(false);
+    const [isShowMore, setIsShowMore] = useState(false);
+
     const [queried, setQueried] = useState(false);
     const {
         data: results,
         error,
         loading,
         execute,
+        reset,
     } = usePost<IQuerySimilarity, IReturnItemQuery[]>(
         async (payload) => await embeddingService.queryTopSimilarity(payload),
         'POST',
@@ -89,20 +92,20 @@ export default function Reference({ content, triggerClassName = '', className, c
     }, [content, topicId, learningMaterial?.type]);
 
     useEffect(() => {
-        if (open && !queried) {
-            fetchData();
-        }
-    }, [open]);
-
-    useEffect(() => {
         if (content && queried) {
             setQueried(false);
         }
     }, [content]);
 
+    useEffect(() => {
+        setQueried(false);
+        setOpen(false);
+        setIsShowMore(false);
+        if (reset) reset();
+    }, [content, reset]);
+
     if (!topicId || isNaN(topicId)) {
-        // If we cannot resolve topicId from route, silently do not render reference trigger.
-        return null;
+        return <DataStatus variant="empty" />;
     }
 
     const trigger = children ? (
@@ -111,9 +114,22 @@ export default function Reference({ content, triggerClassName = '', className, c
         <button
             type="button"
             className={`mt-3 text-xs underline decoration-dashed decoration-neutral-400 hover:text-primary transition-colors ${triggerClassName}`}
-            aria-haspopup="dialog"
+            onClick={fetchData}
         >
             View references
+        </button>
+    );
+
+    const triggerShowMore = (
+        <button
+            type="button"
+            className={`mt-2 text-xs underline decoration-dashed decoration-neutral-400 hover:text-primary transition-colors ${triggerClassName}`}
+            onClick={() => {
+                setIsShowMore(true);
+                setOpen(true);
+            }}
+        >
+            More
         </button>
     );
 
@@ -148,7 +164,9 @@ export default function Reference({ content, triggerClassName = '', className, c
 
             <ScrollArea>
                 <div className="mt-4 max-h-[62vh] pr-1 space-y-4 bg-background/50 rounded-md p-4">
-                    {!loading && !error && results?.map((item) => <ReferenceItem key={item.embeddingId} item={item} />)}
+                    {!loading &&
+                        !error &&
+                        results?.map((item) => <ReferenceItem key={item.embeddingId} item={item} isShowMore={true} />)}
                 </div>
             </ScrollArea>
         </div>
@@ -162,36 +180,67 @@ export default function Reference({ content, triggerClassName = '', className, c
         </Button>
     );
 
-    return (
-        <Modal
-            isOpen={open}
-            setIsOpen={setOpen}
-            trigger={trigger}
-            title="Nearest Reference Content"
-            description={null}
-            body={Body}
-            footer={Footer}
-            cancel={Cancel}
-            contentStyle={`w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5 ${className}`}
-        />
-    );
+    if (!results) {
+        return trigger;
+    }
+
+    if (!isShowMore) {
+        if (learningMaterial?.type === 'file') {
+            return (
+                <div className="mt-4">
+                    <FileReferenceItem item={results?.[0]} isShowMore={isShowMore} />
+                    {triggerShowMore}
+                </div>
+            );
+        } else if (learningMaterial?.type === 'youtube') {
+            return (
+                <div className="mt-4">
+                    <YouTubeReferenceItem item={results?.[0]} isShowMore={isShowMore} />
+                    {triggerShowMore}
+                </div>
+            );
+        }
+
+        return <DataStatus variant="empty" />;
+    }
+
+    if (learningMaterial?.type && isShowMore)
+        return (
+            <Modal
+                isOpen={open}
+                setIsOpen={() => {
+                    setOpen((prev) => !prev);
+                    setIsShowMore((prev) => !prev);
+                }}
+                trigger={trigger}
+                title="Nearest Reference Content"
+                description={null}
+                body={Body}
+                footer={Footer}
+                cancel={Cancel}
+                contentStyle={`w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5 ${className}`}
+            />
+        );
 }
 
 interface ReferenceItemProps {
     item: IReturnItemQuery;
+    isShowMore: boolean;
 }
 
-function ReferenceItem({ item }: ReferenceItemProps) {
-    if (item.contentType === 'file') {
-        return <FileReferenceItem item={item} />;
-    } else if (item.contentType === 'youtube') {
-        return <YouTubeReferenceItem item={item} />;
+function ReferenceItem({ item, isShowMore = true }: ReferenceItemProps) {
+    const { learningMaterial } = useTopicWorkspace();
+
+    if (learningMaterial?.type === 'file') {
+        return <FileReferenceItem item={item} isShowMore={isShowMore} />;
+    } else if (learningMaterial?.type === 'youtube') {
+        return <YouTubeReferenceItem item={item} isShowMore={isShowMore} />;
     }
 
     return <DataStatus variant="empty" />;
 }
 
-function YouTubeReferenceItem({ item }: ReferenceItemProps) {
+function YouTubeReferenceItem({ item, isShowMore }: ReferenceItemProps) {
     const [expanded, setExpanded] = useState(false);
 
     const rawContent =
@@ -209,6 +258,42 @@ function YouTubeReferenceItem({ item }: ReferenceItemProps) {
             description: 'Coming Soon',
         });
     };
+
+    if (!isShowMore) {
+        return (
+            <div className="px-2">
+                <div className="text-center">
+                    <p
+                        className="text-base md:text-[20px] text-center leading-relaxed whitespace-pre-wrap mb-2 cursor-pointer hover:opacity-65"
+                        onClick={handleReferenceOriginContent}
+                    >
+                        {displayText}...
+                    </p>
+
+                    {rawContent.length > 240 && (
+                        <div className="mt-2 text-center mb-2">
+                            <Button
+                                onClick={() => setExpanded((e) => !e)}
+                                className="text-xs underline decoration-dotted text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                            >
+                                {expanded ? 'Show less' : 'Show more'}
+                            </Button>
+                        </div>
+                    )}
+
+                    {timestamp && (
+                        <span
+                            className="text-[14px] px-2 py-1 rounded bg-secondary text-muted-foreground mt-4 cursor-pointer hover:bg-slate-600"
+                            title="Start time"
+                            onClick={handleReferenceOriginContent}
+                        >
+                            {timestamp}
+                        </span>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
@@ -255,23 +340,36 @@ function YouTubeReferenceItem({ item }: ReferenceItemProps) {
     );
 }
 
-function FileReferenceItem({ item }: ReferenceItemProps) {
+function FileReferenceItem({ item, isShowMore }: ReferenceItemProps) {
     const { pageNumber } = safeDestructure(item?.metadata as MetaDataFileContent, {
         pageNumber: -1,
     });
-
-    const charCount =
-        typeof item.originContent?.content === 'object' &&
-        item.originContent.content !== null &&
-        'charCount' in item.originContent.content
-            ? (item.originContent.content as { charCount: number }).charCount
-            : 0;
 
     const handleReferenceOriginContent = () => {
         toast({
             description: 'Coming Soon',
         });
     };
+
+    if (!isShowMore) {
+        return (
+            <div className="text-center">
+                <div
+                    className="flex flex-col items-center gap-3 cursor-pointer hover:opacity-65"
+                    onClick={handleReferenceOriginContent}
+                >
+                    {pageNumber > 0 && (
+                        <span
+                            className="text-[14px] px-3 py-1.5 rounded-full bg-secondary text-muted-foreground font-medium hover:bg-opacity-70"
+                            title="Page number"
+                        >
+                            Page {pageNumber}
+                        </span>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative rounded-xl border border-border bg-card text-card-foreground p-5 md:p-6 shadow-sm">
@@ -281,14 +379,14 @@ function FileReferenceItem({ item }: ReferenceItemProps) {
                         className="flex flex-col items-center gap-3 cursor-pointer hover:opacity-65"
                         onClick={handleReferenceOriginContent}
                     >
-                        <span
-                            className="text-[14px] px-3 py-1.5 rounded bg-secondary text-muted-foreground font-medium hover:bg-slate-600"
-                            title="Page number"
-                        >
-                            Page {pageNumber > 0 ? pageNumber : 'N/A'}
-                        </span>
-
-                        <p className="text-sm text-muted-foreground">{charCount} characters</p>
+                        {pageNumber > 0 && (
+                            <span
+                                className="text-[14px] px-3 py-1.5 rounded-full bg-secondary text-muted-foreground font-medium hover:bg-slate-600"
+                                title="Page number"
+                            >
+                                Page {pageNumber}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
