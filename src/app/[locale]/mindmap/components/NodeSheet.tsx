@@ -214,9 +214,9 @@ const NodeSheet = () => {
                             >
                                 <Bot className="h-4 w-4" /> Generate Flashcards
                             </Button>
-                            <Button onClick={handleViewDocument} variant="outline" className="justify-start gap-2">
+                            {/* <Button onClick={handleViewDocument} variant="outline" className="justify-start gap-2">
                                 <FileText className="h-4 w-4" /> View Document
-                            </Button>
+                            </Button> */}
                             <Button onClick={handleViewFlashcards} variant="outline" className="justify-start gap-2">
                                 <TableOfContents className="h-4 w-4" /> View Linked Flashcards
                             </Button>

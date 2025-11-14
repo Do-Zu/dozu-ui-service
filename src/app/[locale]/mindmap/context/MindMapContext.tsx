@@ -108,6 +108,8 @@ interface MindMapContextType {
     //Node Stats
     nodeStats: NodeStat[];
 
+    hasInitialized: boolean;
+
     // Cleanup
     cleanup: () => void;
 }
@@ -141,6 +143,9 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
     // Loading States
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
+
+    // for easily checking if fetching is done
+    const [hasInitialized, setHasInitialized] = useState<boolean>(false);
 
     // Initial nodes and edges
     const initialNodes: AppNode[] = [
@@ -455,10 +460,13 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
 
     // Initialize on mount
     useEffect(() => {
-        initializeMindmap();
-        loadPdfDocument();
+        const init = async () => {
+            await initializeMindmap();
+            await loadPdfDocument();
+            setHasInitialized(true);
+        };
 
-        return cleanup;
+        init();
     }, []);
 
     // Context value
@@ -526,6 +534,9 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
 
         //Node Stats
         nodeStats,
+
+        //hasInitialized
+        hasInitialized,
 
         //Generate
         executeGenerate: execute,

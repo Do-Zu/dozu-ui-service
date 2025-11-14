@@ -3,6 +3,25 @@ import ELK, { ElkExtendedEdge, ElkNode, LayoutOptions } from 'elkjs/lib/elk.bund
 
 const elk = new ELK();
 
+export interface GeneratedEdge {
+    id: string;
+    source: string;
+    target: string;
+}
+
+export interface GeneratedNode {
+    id: string;
+    position: { x: number; y: number };
+    data: {
+        label: string;
+        description: string;
+        pageStartIndex: number;
+        pageEndIndex: number;
+        isRoot: boolean;
+        color?: string;
+    };
+}
+
 export const getLayoutedElements = async (nodes: AppNode[], edges: AppEdge[], options: LayoutOptions = {}) => {
     const isHorizontal = options?.['elk.direction'] === 'RIGHT';
 
@@ -54,4 +73,17 @@ export const getLayoutedElements = async (nodes: AppNode[], edges: AppEdge[], op
         console.error(err);
         return { nodes, edges }; // fallback
     }
+};
+
+export const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEdge[]) => {
+    const updatedEdges = edges.map((edge: GeneratedEdge) => {
+        if (edge.source === oldId) {
+            edge.source = newId;
+        }
+        if (edge.target === oldId) {
+            edge.target = newId;
+        }
+        return edge;
+    });
+    return updatedEdges;
 };
