@@ -8,7 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Download, MoreVertical, RefreshCw, Users, Clock, TrendingUp, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { generateMockActivityData } from '../utils/mockData';
 import { ActivityMonitorData } from '@/types/activity';
 import { downloadExcelFile } from '../utils/excelGenerator';
 import activityService from '@/services/activity/activity.service';
@@ -34,7 +33,6 @@ export default function ActivityPage({ params }: ActivityPageProps) {
       try {
         setLoading(true);
         
-        // Try to fetch real data first
         const response = await activityService.getActivityMonitoringData(params.activityId);
         
         if (response.success && response.data) {
@@ -43,16 +41,12 @@ export default function ActivityPage({ params }: ActivityPageProps) {
           const adaptedData = adaptQuizClassResultsToActivityMonitor(quizResults, questionAnalysis);
           setActivityData(adaptedData);
         } else {
-          // Fallback to mock data for development
-          console.log('Using mock data for development');
-          const data = generateMockActivityData();
-          setActivityData(data);
+          console.error('Failed to fetch activity data:', response.message);
+          setActivityData(null);
         }
       } catch (error) {
         console.error('Error fetching activity data:', error);
-        // Fallback to mock data
-        const data = generateMockActivityData();
-        setActivityData(data);
+        setActivityData(null);
       } finally {
         setLoading(false);
       }

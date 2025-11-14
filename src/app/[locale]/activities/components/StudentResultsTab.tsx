@@ -33,7 +33,7 @@ export default function StudentResultsTab({ students, questions }: StudentResult
     if (questionAnswers.length === 0) return '-';
     const correctCount = questionAnswers.reduce((sum: number, val) => sum + val, 0);
     const percentage = (correctCount / questionAnswers.length) * 100;
-    return percentage.toFixed(1) + '%';
+    return percentage.toFixed(0) + '%';
   });
 
   // Refs for syncing row heights
@@ -155,7 +155,7 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                       className={`border-b border-gray-200 hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
                     >
                       <td className="p-3 font-medium bg-blue-50/30">{student.studentName}</td>
-                      <td className="p-3 text-center bg-purple-50/30">{Number(student.score || 0).toFixed(1)}%</td>
+                      <td className="p-3 text-center bg-purple-50/30">{Number(student.score || 0).toFixed(0)}%</td>
                       <td className="p-3 text-center bg-green-50/30">{student.correctAnswers}</td>
                       <td className="p-3 text-center bg-orange-50/30">{student.answers.length}</td>
                     </tr>
@@ -167,7 +167,7 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                       className="border-t-2 border-gray-300 bg-gradient-to-r from-gray-100 to-gray-50"
                     >
                       <td className="p-3 font-medium bg-blue-50/40">Average</td>
-                      <td className="p-3 text-center font-medium bg-purple-50/40">{averageScore.toFixed(1)}%</td>
+                      <td className="p-3 text-center font-medium bg-purple-50/40">{averageScore.toFixed(0)}%</td>
                       <td className="p-3 text-center font-medium bg-green-50/40">{averageCorrect}</td>
                       <td className="p-3 text-center font-medium bg-orange-50/40">{averageTotal}</td>
                     </tr>
@@ -259,12 +259,12 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                       'border-gray-200 text-gray-700'
                     }
                   >
-                    {Number(question.accuracyPercentage).toFixed(1)}%
+                    {Number(question.accuracyPercentage).toFixed(0)}%
                   </Badge>
                 </div>
                 <p className="text-sm text-gray-600">{question.definition}</p>
               </div>
-            ))}
+            ))} 
           </div>
         </CardContent>
       </Card>

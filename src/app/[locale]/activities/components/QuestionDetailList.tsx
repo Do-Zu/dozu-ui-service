@@ -139,7 +139,7 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
                       <div className="grid grid-cols-12 gap-4 items-start">
                         <div className="col-span-1">
                           <div className={`w-12 h-8 rounded flex items-center justify-center text-white font-semibold text-sm ${config.color}`}>
-                            {Number(question.accuracyPercentage).toFixed(1)}%
+                            {Number(question.accuracyPercentage).toFixed(0)}%
                           </div>
                         </div>
                         <div className="col-span-5">
