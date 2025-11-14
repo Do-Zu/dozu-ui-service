@@ -158,41 +158,6 @@ export default function PerformanceBreakdown({ performance }: PerformanceBreakdo
         </CardContent>
       </Card>
 
-      {/* Detailed Breakdown */}
-      {/* <div className="space-y-4">
-        {accuracyLevels.map((level) => (
-          <Card key={level.name} className="border-l-4" style={{ borderLeftColor: level.color }}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-8 h-8 rounded flex items-center justify-center text-white font-semibold text-sm"
-                    style={{ backgroundColor: level.color }}
-                  >
-                    {level.count}
-                  </div>
-                  <h3 className="font-semibold text-gray-900">{level.name}</h3>
-                </div>
-                <span className="text-sm text-gray-500">
-                  {level.percentage.toFixed(0)}%
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 mt-1">{level.description}</p>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className="h-full rounded-full"
-                  style={{ 
-                    width: `${level.percentage}%`,
-                    backgroundColor: level.color
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div> */}
     </div>
   );
 }

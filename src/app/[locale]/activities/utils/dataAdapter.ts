@@ -17,7 +17,7 @@ export function adaptQuizClassResultsToActivityMonitor(
     const activity: ActivityDetails = {
         id: quizInfo.classQuizId.toString(),
         title: quizInfo.title,
-        description: '',
+        description: quizInfo.content || '',
         topicId: 0,
         topicName: '',
         classId: 0,

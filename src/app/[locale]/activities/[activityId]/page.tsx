@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, MoreVertical, RefreshCw, Users, Clock, TrendingUp, AlertCircle } from 'lucide-react';
+import { Download, MoreVertical, RefreshCw, Users, Clock, TrendingUp, AlertCircle, Calendar, FileText, BookOpen, Info } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ActivityMonitorData } from '@/types/activity';
 import { downloadExcelFile } from '../utils/excelGenerator';
@@ -145,37 +145,57 @@ export default function ActivityPage({ params }: ActivityPageProps) {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <nav className="text-sm text-gray-500 mb-2">
-                <span>Your Library</span>
-                <span className="mx-2">/</span>
-                <span>Activities</span>
-              </nav>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Activity for {activity.title}
-              </h1>
-              <div className="flex items-center space-x-4 text-sm text-blue-600">
-                <span>{activity.title}</span>
-                <span>•</span>
-                <span>{activity.quizType}</span>
-                <span>•</span>
-                <span>Due by {new Date(activity.dueDate).toLocaleString()}</span>
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-md border border-gray-200 overflow-hidden">
+          <div className="p-6 md:p-8">
+            {/* Breadcrumb */}
+            <nav className="flex items-center text-sm text-gray-500 mb-4">
+              <span className="hover:text-gray-700 cursor-pointer">Your Library</span>
+              <span className="mx-2">/</span>
+              <span className="hover:text-gray-700 cursor-pointer">Activities</span>
+              <span className="mx-2">/</span>
+              <span className="text-gray-900 font-medium">{activity.title}</span>
+            </nav>
+
+            <div className="space-y-4">
+              {/* Title Section */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg mt-1">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                      {activity.title}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                      <Badge variant="secondary" className="text-xs">
+                        <FileText className="h-3 w-3 mr-1" />
+                        {activity.quizType}
+                      </Badge>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="h-4 w-4 mr-1.5" />
+                        <span>Due by {new Date(activity.dueDate).toLocaleDateString('en-US', { 
+                          weekday: 'short', 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleRefresh}
-                disabled={refreshing}
-              >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-              </Button>
-              <Button variant="outline" size="sm">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
+
+              {/* Description/Content Section */}
+              {activity.description && activity.description.trim() && (
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {activity.description}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
