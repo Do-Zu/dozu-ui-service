@@ -101,7 +101,7 @@ const NodeSheet = () => {
     };
 
     const handleAddChild = () => {
-        addChildNode({ screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
+        addChildNode({ nodes, screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
         dispatch(closeSheet());
     };
 
