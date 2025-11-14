@@ -1,15 +1,19 @@
 {
-    "topic.reference.trigger": "Xem tham chiếu",
-    "topic.reference.more": "Xem thêm",
-    "topic.reference.modalTitle": "Nội dung tham chiếu gần nhất",
-    "topic.reference.close": "Đóng",
-    "topic.reference.noResults": "Không tìm thấy nội dung tham chiếu liên quan.",
-    "topic.reference.retry": "Thử lại",
-    "topic.reference.contentTypeInvalid": "Loại nội dung không hợp lệ",
-    "topic.reference.showMore": "Hiển thị thêm",
-    "topic.reference.showLess": "Thu gọn",
-    "topic.reference.startTime": "Thời điểm bắt đầu",
-    "topic.reference.page": "Trang {pageNumber}",
-    "topic.reference.pageNumberTitle": "Số trang",
-    "topic.reference.pageInvalid": "Trang không hợp lệ"
+    "topic": {
+        "reference": {
+            "trigger": "Nội dung gốc",
+            "more": "Xem thêm",
+            "modalTitle": "Nội dung tham chiếu gần nhất",
+            "close": "Đóng",
+            "noResults": "Không tìm thấy nội dung tham chiếu liên quan.",
+            "retry": "Thử lại",
+            "contentTypeInvalid": "Loại nội dung không hợp lệ",
+            "showMore": "Hiển thị thêm",
+            "showLess": "Thu gọn",
+            "startTime": "Thời điểm bắt đầu",
+            "page": "Trang {pageNumber}",
+            "pageNumberTitle": "Số trang",
+            "pageInvalid": "Trang không hợp lệ"
+        }
+    }
 }

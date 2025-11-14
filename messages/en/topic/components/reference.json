@@ -1,15 +1,19 @@
 {
-    "topic.reference.trigger": "View references",
-    "topic.reference.more": "More",
-    "topic.reference.modalTitle": "Nearest Reference Content",
-    "topic.reference.close": "Close",
-    "topic.reference.noResults": "No related references found.",
-    "topic.reference.retry": "Retry",
-    "topic.reference.contentTypeInvalid": "Content Type Invalid",
-    "topic.reference.showMore": "Show more",
-    "topic.reference.showLess": "Show less",
-    "topic.reference.startTime": "Start time",
-    "topic.reference.page": "Page {pageNumber}",
-    "topic.reference.pageNumberTitle": "Page number",
-    "topic.reference.pageInvalid": "Page invalid"
+    "topic": {
+        "reference": {
+            "trigger": "View references",
+            "more": "More",
+            "modalTitle": "Nearest Reference Content",
+            "close": "Close",
+            "noResults": "No related references found.",
+            "retry": "Retry",
+            "contentTypeInvalid": "Content Type Invalid",
+            "showMore": "Show more",
+            "showLess": "Show less",
+            "startTime": "Start time",
+            "page": "Page {pageNumber}",
+            "pageNumberTitle": "Page number",
+            "pageInvalid": "Page invalid"
+        }
+    }
 }
