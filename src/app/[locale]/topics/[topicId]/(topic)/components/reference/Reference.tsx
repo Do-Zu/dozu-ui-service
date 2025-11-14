@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 import usePost from '@/hooks/usePost';
 import { formatSeconds, isEmpty, isNilOrEmpty, safeDestructure, toNumber, truncate } from '@/utils';
 import DataStatus from '@/components/errors/DataStatus';
+import { useTranslations } from 'next-intl';
 
 interface IProps {
     content: string;
@@ -41,6 +42,7 @@ interface IReturnItemQuery {
 }
 
 export default function Reference({ content, triggerClassName = '', className, children }: IProps) {
+    const t = useTranslations('topic.reference');
     const { learningMaterial } = useTopicWorkspace();
 
     const params = useParams();
@@ -116,7 +118,7 @@ export default function Reference({ content, triggerClassName = '', className, c
             className={`mt-3 text-xs underline decoration-dashed decoration-neutral-400 hover:text-primary transition-colors ${triggerClassName}`}
             onClick={fetchData}
         >
-            View references
+            {t('trigger')}
         </button>
     );
 
@@ -129,7 +131,7 @@ export default function Reference({ content, triggerClassName = '', className, c
                 setOpen(true);
             }}
         >
-            More
+            {t('more')}
         </button>
     );
 
@@ -153,13 +155,13 @@ export default function Reference({ content, triggerClassName = '', className, c
                         onClick={() => fetchData()}
                         className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-500"
                     >
-                        Retry
+                        {t('retry')}
                     </button>
                 </div>
             )}
 
             {!loading && !error && results?.length === 0 && queried && (
-                <p className="mt-4 text-sm text-neutral-500">No related references found.</p>
+                <p className="mt-4 text-sm text-neutral-500">{t('noResults')}</p>
             )}
 
             <ScrollArea>
@@ -186,7 +188,7 @@ export default function Reference({ content, triggerClassName = '', className, c
 
     const Cancel = (
         <Button onClick={() => setOpen(false)} className="text-xs px-3 py-1.5 rounded ">
-            Close
+            {t('close')}
         </Button>
     );
 
@@ -215,7 +217,7 @@ export default function Reference({ content, triggerClassName = '', className, c
             );
         }
 
-        return <DataStatus variant="error" title="Content Type Invalid" />;
+        return <DataStatus variant="error" title={t('contentTypeInvalid')} />;
     }
 
     return (
@@ -226,7 +228,7 @@ export default function Reference({ content, triggerClassName = '', className, c
                 setIsShowMore((prev) => !prev);
             }}
             trigger={trigger}
-            title="Nearest Reference Content"
+            title={t('modalTitle')}
             description={null}
             body={Body}
             footer={Footer}
@@ -255,6 +257,7 @@ function ReferenceItem({ item, isShowMore = true, onClose }: ReferenceItemProps)
 }
 
 function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
+    const t = useTranslations('topic.reference');
     const { seekTo } = useTopicWorkspace();
     const [expanded, setExpanded] = useState(false);
 
@@ -310,7 +313,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                             {timestamp && (
                                 <span
                                     className="inline-block mt-2 text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800"
-                                    title="Start time"
+                                    title={t('startTime')}
                                     onClick={handleReferenceOriginContent}
                                 >
                                     {timestamp}
@@ -355,7 +358,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                                         onClick={() => setExpanded((e) => !e)}
                                         className="text-xs underline decoration-dotted text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                                     >
-                                        {expanded ? 'Show less' : 'Show more'}
+                                        {expanded ? t('showLess') : t('showMore')}
                                     </button>
                                 </div>
                             )}
@@ -363,7 +366,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                             {timestamp && (
                                 <span
                                     className="inline-block mt-2 text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800"
-                                    title="Start time"
+                                    title={t('startTime')}
                                     onClick={handleReferenceOriginContent}
                                 >
                                     {timestamp}
@@ -378,6 +381,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
 }
 
 function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
+    const t = useTranslations('topic.reference');
     const { setPageNumber } = useTopicWorkspace();
 
     const { pageNumber } = safeDestructure(item?.metadata as MetaDataFileContent, {
@@ -390,7 +394,7 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
             setPageNumber(pageNumber);
         } else {
             toast({
-                description: 'Page invalid',
+                description: t('pageInvalid'),
             });
         }
     };
@@ -405,9 +409,9 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
                     {pageNumber > 0 && (
                         <span
                             className="text-[14px] px-3 py-1.5 rounded-full bg-secondary text-muted-foreground font-medium hover:bg-opacity-70"
-                            title="Page number"
+                            title={t('pageNumberTitle')}
                         >
-                            Page {pageNumber}
+                            {t('page', { pageNumber })}
                         </span>
                     )}
                 </div>
@@ -426,9 +430,9 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
                         {pageNumber > 0 && (
                             <span
                                 className="text-[14px] px-3 py-1.5 rounded-full bg-secondary text-muted-foreground font-medium hover:bg-slate-600"
-                                title="Page number"
+                                title={t('pageNumberTitle')}
                             >
-                                Page {pageNumber}
+                                {t('page', { pageNumber })}
                             </span>
                         )}
                     </div>

@@ -1,0 +1,15 @@
+{
+    "topic.reference.trigger": "View references",
+    "topic.reference.more": "More",
+    "topic.reference.modalTitle": "Nearest Reference Content",
+    "topic.reference.close": "Close",
+    "topic.reference.noResults": "No related references found.",
+    "topic.reference.retry": "Retry",
+    "topic.reference.contentTypeInvalid": "Content Type Invalid",
+    "topic.reference.showMore": "Show more",
+    "topic.reference.showLess": "Show less",
+    "topic.reference.startTime": "Start time",
+    "topic.reference.page": "Page {pageNumber}",
+    "topic.reference.pageNumberTitle": "Page number",
+    "topic.reference.pageInvalid": "Page invalid"
+}
