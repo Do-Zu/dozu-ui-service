@@ -27,7 +27,7 @@ export default function TermProgressTab({ questions, performance }: TermProgress
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Term Progress Details</CardTitle>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-muted-foreground">
             Detailed breakdown of student performance for each term
           </p>
         </CardHeader>

@@ -17,7 +17,7 @@ export function adaptQuizClassResultsToActivityMonitor(
     const activity: ActivityDetails = {
         id: quizInfo.classQuizId.toString(),
         title: quizInfo.title,
-        description: '',
+        description: quizInfo.content || '',
         topicId: 0,
         topicName: '',
         classId: 0,
@@ -47,18 +47,22 @@ export function adaptQuizClassResultsToActivityMonitor(
     activity.totalQuestions = maxQuestions;
 
     // Adapt student results
+    // Both APIs now return 1-based questionIndex (snapshotQuestionIdx), so no conversion needed
     const students: StudentQuizProgress[] = studentResults.map((result) => {
         const incorrectCount = (result.questionsCount || 0) - (result.correctCount || 0);
         
-        // Map answers if available
-        const answers = result.answers?.map(answer => ({
-            questionId: answer.questionIndex.toString(),
-            questionText: `Question ${answer.questionIndex + 1}`,
-            selectedAnswer: answer.userAnswerIndex,
-            correctAnswer: null, // Would need question data to get correct answer
-            isCorrect: answer.isCorrect,
-            answeredAt: answer.answeredAt || new Date().toISOString(),
-        })) || [];
+        // Map answers if available - questionIndex is already 1-based from API
+        const answers = result.answers?.map(answer => {
+            // answer.questionIndex is already 1-based (snapshotQuestionIdx: 1, 2, 3...)
+            return {
+                questionId: answer.questionIndex.toString(),
+                questionText: `Question ${answer.questionIndex}`,
+                selectedAnswer: answer.userAnswerIndex,
+                correctAnswer: null, // Would need question data to get correct answer
+                isCorrect: answer.isCorrect,
+                answeredAt: answer.answeredAt || new Date().toISOString(),
+            };
+        }) || [];
         
         return {
             studentId: result.userId.toString(),
@@ -99,14 +103,16 @@ export function adaptQuizClassResultsToActivityMonitor(
         };
 
         // Map question analysis to QuestionPerformance format
+        // questionIndex from API is already 1-based (after fix in service)
         questions = analysisQuestions.map(q => {
             // Get the correct answer text if choices are available
             const correctAnswer = q.choices && q.correctIndex !== undefined && q.choices[q.correctIndex] 
                 ? q.choices[q.correctIndex] 
                 : '';
             
+            // questionIndex is already 1-based from API (1, 2, 3...)
             return {
-                questionId: q.questionIndex.toString(),
+                questionId: q.questionIndex.toString(), // Already 1-based, use as-is
                 questionText: q.questionText || `Question ${q.questionIndex}`,
                 choices: q.choices,
                 correctIndex: q.correctIndex,
