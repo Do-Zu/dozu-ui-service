@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { pdfjs } from 'react-pdf';
 import CustomPDFViewer from './CustomPDFViewer';
-import { isNilOrEmpty, isNullOrEmpty, safeDestructure } from '@/utils';
+import { isNilOrEmpty, safeDestructure } from '@/utils';
 import useReaderFile from '@/hooks/useReaderFile';
-import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 

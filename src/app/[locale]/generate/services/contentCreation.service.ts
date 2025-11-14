@@ -10,6 +10,7 @@ import teacherTopicService from '@/services/class-based-learning/teacher/teacher
 import { RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resource';
 import { VideoInfo } from '../stores/features/contentExtractionSlice';
 import { UploadFileResponse } from '@/components/generative/types';
+import { toNumber } from '@/utils';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -36,6 +37,8 @@ type YoutubeResourceMetadata = {
     url: string;
     videoInfo: VideoInfo | null;
     content: string | null;
+    lengthContent: number;
+    wordCount: number;
 };
 
 type WebsiteResourceMetadata = {
@@ -63,17 +66,17 @@ type InsertContentTopicParams =
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.YOUTUBE;
-          payload: Partial<YoutubeResourceMetadata>;
+          payload: YoutubeResourceMetadata;
       }
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.WEBSITE;
-          payload: Partial<WebsiteResourceMetadata>;
+          payload: WebsiteResourceMetadata;
       }
     | {
           topicId: string | number;
           contentType: typeof RESOURCE_CONTENT_TYPE.TEXT;
-          payload: Partial<TextResourceMetadata>;
+          payload: TextResourceMetadata;
       }
     | {
           topicId: string | number;
@@ -146,6 +149,7 @@ export class ContentCreationService {
                 description,
                 imageFile,
             });
+
             const topic = data;
 
             if (!topic) {
@@ -198,6 +202,7 @@ export class ContentCreationService {
                 return;
             }
 
+            //Insert input set content
             await postRequest(INPUT_SET_RESOURCES_ENDPOINT, {
                 topicId: params.topicId,
                 contentType: params.contentType,
@@ -223,15 +228,12 @@ export class ContentCreationService {
             }
             case RESOURCE_CONTENT_TYPE.YOUTUBE: {
                 const url = params.payload?.url;
+
                 if (!url) {
                     return null;
                 }
 
-                return {
-                    url,
-                    videoInfo: params.payload?.videoInfo ?? null,
-                    content: params.payload?.content ?? null,
-                };
+                return { ...params.payload };
             }
             case RESOURCE_CONTENT_TYPE.WEBSITE: {
                 const url = params.payload?.url;
@@ -283,8 +285,6 @@ export class ContentCreationService {
         if (!quizData || quizData.length === 0) {
             throw new Error('No quiz data provided');
         }
-
-        console.log({ quizData });
 
         const questionsSubmitted = handleConvertToQuestionsSubmitted(quizData);
 

@@ -12,10 +12,15 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { isAfter } from 'date-fns';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
+import { useSearchParams } from 'next/navigation';
+import { ILearningMaterial } from '../service/learningMaterial.service';
+import { METHOD_LEARNING } from '@/utils/constants/method';
+import useYoutubePlayer from '../hooks/useYoutubePlayer';
+import usePdfToolBar from '../hooks/usePdfToolBar';
+import { YouTubePlayer } from 'react-youtube';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -25,6 +30,12 @@ interface ContextType {
     flashcards: IFlashcard[] | null;
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
+    learningMaterial: ILearningMaterial | null;
+    isPdfViewerFullscreen: boolean;
+    pageNumber: number;
+    contentTextOrigin: MutableRefObject<string>;
+    player: YouTubePlayer | null;
+
     setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
     setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
@@ -37,10 +48,11 @@ interface ContextType {
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
 
-    isPdfViewerFullscreen: boolean;
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
-
-    contentTextOrigin: MutableRefObject<string>;
+    setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
+    setPageNumber: Dispatch<SetStateAction<number>>;
+    setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
+    seekTo: (seconds: number) => void;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -52,16 +64,27 @@ interface IProviderProps {
 
 const DEFAULT_TAB = 'overview';
 
+const ALLOWED_TABS: TopicWorkspaceTabValue[] = [DEFAULT_TAB, ...Object.values(METHOD_LEARNING)];
+
 export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
-    const [tab, setTab] = useState<TopicWorkspaceTabValue>(DEFAULT_TAB);
+    const searchParams = useSearchParams();
+
+    const activeTab = useMemo(() => {
+        const raw = searchParams?.get('tab') as TopicWorkspaceTabValue;
+        return ALLOWED_TABS.includes(raw) ? raw : DEFAULT_TAB;
+    }, [searchParams]);
+
+    const [tab, setTab] = useState<TopicWorkspaceTabValue>(activeTab);
 
     const [topic, setTopic] = useState<ITopic | null>(null);
+    const [learningMaterial, setLearningMaterial] = useState<ILearningMaterial | null>(null);
 
     const topicIdRef = useRef<TypeTopicId>(topicIdInit);
 
     const contentTextOrigin = useRef<string>('');
 
-    const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
+    const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
+    const { player, setPlayer, seekTo } = useYoutubePlayer();
 
     const {
         flashcards,
@@ -87,6 +110,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             ankiSettings,
             isPdfViewerFullscreen,
             contentTextOrigin,
+            learningMaterial,
+            pageNumber,
+            player,
             setTab,
             setTopicId,
             setTopic,
@@ -95,6 +121,10 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             onReviewCard,
             setAnkiSettings,
             setIsPdfViewerFullScreen,
+            setLearningMaterial,
+            setPageNumber,
+            setPlayer,
+            seekTo,
         }),
         [
             tab,
@@ -103,13 +133,10 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             learningFlashcards,
             ankiSettings,
             isPdfViewerFullscreen,
-            setTab,
-            setTopic,
-            setFlashcards,
-            setLearningFlashcards,
-            onReviewCard,
-            setAnkiSettings,
-            setIsPdfViewerFullScreen,
+            learningMaterial,
+            pageNumber,
+            player,
+            seekTo,
         ],
     );
 

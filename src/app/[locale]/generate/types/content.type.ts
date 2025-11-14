@@ -4,7 +4,8 @@ export type YoutubeResourcePayload = {
     url: string;
     videoInfo: VideoInfo | null;
     content: string | null;
-    transcriptSegments: TranscriptSegment[];
+    lengthContent: number;
+    wordCount: number;
 };
 
 export type WebsiteResourcePayload = {
