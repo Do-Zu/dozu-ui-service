@@ -74,6 +74,7 @@ export default function PerformanceBreakdown({ performance }: PerformanceBreakdo
                   r="40"
                   fill="none"
                   stroke="#e5e7eb"
+                  className="dark:stroke-muted-foreground/30"
                   strokeWidth="8"
                 />
                 {/* Progress segments */}
@@ -119,8 +120,8 @@ export default function PerformanceBreakdown({ performance }: PerformanceBreakdo
                 })}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-gray-900">{totalTerms}</span>
-                <span className="text-sm text-gray-600">Thuật ngữ</span>
+                <span className="text-3xl font-bold text-gray-900 dark:text-foreground">{totalTerms}</span>
+                <span className="text-sm text-gray-600 dark:text-muted-foreground">Thuật ngữ</span>
               </div>
             </div>
 
@@ -134,14 +135,14 @@ export default function PerformanceBreakdown({ performance }: PerformanceBreakdo
                   />
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 dark:text-foreground">
                         {level.count} {level.name}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-muted-foreground">
                         ({level.percentage.toFixed(1)}%)
                       </span>
                     </div>
-                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="w-24 h-2 bg-gray-200 dark:bg-muted rounded-full overflow-hidden">
                       <div 
                         className="h-full rounded-full"
                         style={{ 
