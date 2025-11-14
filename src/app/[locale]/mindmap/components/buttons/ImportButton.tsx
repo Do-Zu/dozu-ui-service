@@ -21,6 +21,8 @@ import { Textarea } from '@/components/ui/textarea';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
 import { useSetMindmapLayout } from '@/app/[locale]/mindmap/hooks/useSetMindmapLayout';
+import { Tooltip } from '@radix-ui/react-tooltip';
+import { TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ImportButtonProps {
     isPanelExpanded: boolean;
@@ -123,12 +125,23 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
     return (
         <Dialog>
             <form>
-                <DialogTrigger asChild className="w-full">
-                    <Button variant="outline">
-                        <Import />
-                        {isPanelExpanded ? t('ImportButtonLabel') : ''}
-                    </Button>
-                </DialogTrigger>
+                <div className="flex items-center">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <DialogTrigger asChild>
+                                <Button
+                                    className="h-8 w-8 min-w-[2rem] flex items-center justify-center"
+                                    variant="outline"
+                                    size="icon-sm"
+                                >
+                                    <Import className="h-4 w-4" />
+                                </Button>
+                            </DialogTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">{t('ImportButtonLabel')}</TooltipContent>
+                    </Tooltip>
+                </div>
+
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>{t('ImportDialogTitle')}</DialogTitle>

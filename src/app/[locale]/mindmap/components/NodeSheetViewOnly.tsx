@@ -127,10 +127,10 @@ const NodeSheetViewOnly = () => {
 
                 {/* <SheetFooter> */}
                 <div className="flex flex-col gap-2 mt-6">
-                    <Button onClick={handleViewDocument} variant="outline" className="w-full">
+                    {/* <Button onClick={handleViewDocument} variant="outline" className="w-full">
                         <FileText />
                         View document
-                    </Button>
+                    </Button> */}
                     <Button onClick={handleViewFlashcards} variant="outline" className="w-full">
                         <TableOfContents />
                         View all linked flashcards

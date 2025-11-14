@@ -80,20 +80,39 @@ export const changeNodeLabel = ({
 };
 
 interface IAddChildNodeParams {
+    nodes: AppNode[];
     currentNodeId: string;
     screenToFlowPosition: any;
     setNodes: React.Dispatch<React.SetStateAction<AppNode[]>>;
     setEdges: React.Dispatch<React.SetStateAction<AppEdge[]>>;
 }
 
-export const addChildNode = ({ screenToFlowPosition, setNodes, setEdges, currentNodeId }: IAddChildNodeParams) => {
+export const addChildNode = ({
+    nodes,
+    screenToFlowPosition,
+    setNodes,
+    setEdges,
+    currentNodeId,
+}: IAddChildNodeParams) => {
+
+
+    const parent = nodes.find((node) => node.data.nodeId === currentNodeId);
+    if (!parent) return;
+
+    const distance = 300;
+    let newPos = { x: parent.position.x, y: parent.position.y };
+
+    newPos.y += distance;
+ 
+
     const id = uuidv4();
     const newNode: AppNode = {
         id: id,
         type: 'custom-react-flow-node',
-        position: screenToFlowPosition({ x: 0, y: 0 }),
+        // position: screenToFlowPosition({ x: 0, y: 0 }),
+        position: newPos,
         data: { nodeId: id, label: `Empty node` },
-        origin: [0.5, 0.0],
+        origin: [0.5, 0.5],
     };
 
     setNodes((nds) => nds.concat([newNode]));

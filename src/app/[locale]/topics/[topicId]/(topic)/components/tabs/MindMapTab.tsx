@@ -1,3 +1,10 @@
-export default function MindMapTab() {
-    return <p>Mind Map Content Implement Here</p>;
+import { MindMapProvider } from '@/app/[locale]/mindmap/context/MindMapContext';
+import MindmapContent from '../mindmap/MindmapContent';
+
+export default function MindmapTab() {
+    return (
+        <MindMapProvider>
+            <MindmapContent />
+        </MindMapProvider>
+    );
 }

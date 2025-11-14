@@ -5,7 +5,7 @@ import PreviewMindmap from './PreviewMindmap';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
 import { mindmapLayoutElkOptions } from '../constants';
-import { getLayoutedElements } from '../utils/mindmap.utils';
+import { getLayoutedElements, getUpdatedEdges } from '../utils/mindmap.utils';
 
 interface GenerateMindmapCardProps {
     mindmapData: any;
@@ -41,19 +41,6 @@ interface GeneratedNode {
 const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGenerated }: GenerateMindmapCardProps) => {
     const isMindmapUpdatedRef = useRef(false);
     const isMindmapLayoutedRef = useRef(false);
-
-    const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEdge[]) => {
-        const updatedEdges = edges.map((edge: GeneratedEdge) => {
-            if (edge.source === oldId) {
-                edge.source = newId;
-            }
-            if (edge.target === oldId) {
-                edge.target = newId;
-            }
-            return edge;
-        });
-        return updatedEdges;
-    };
 
     const getUpdatedMindmapData = (nodes: GeneratedNode[], edges: GeneratedEdge[]) => {
         let updatedEdges = edges.map((edge: any) => ({
@@ -99,10 +86,6 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
                     mindmapLayoutElkOptions,
                 );
 
-                // Optional: compress vertically or tweak spacing
-                layoutedNodes.forEach((node) => {
-                    node.position.y *= 0.7;
-                });
                 setUpdatedMindmapData({
                     nodes: layoutedNodes,
                     edges: layoutedEdges,

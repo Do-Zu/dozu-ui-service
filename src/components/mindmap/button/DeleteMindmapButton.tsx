@@ -1,3 +1,4 @@
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -10,11 +11,12 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 interface DeleteMindmapButtonProps {
@@ -22,8 +24,10 @@ interface DeleteMindmapButtonProps {
 }
 
 const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
-    const params = useParams();
-    const { topicId } = params as { topicId: string };
+    // const params = useParams();
+    // const { topicId } = params as { topicId: string };
+    const { topicId } = useMindMapContext();
+
     const router = useRouter();
     const t = useTranslations('DeleteMindmapButton');
 
@@ -41,11 +45,12 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
         await deleteAsync(topicId);
     }
     return (
+        // <Tooltip>
+        //     <TooltipTrigger asChild>
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive">
+                <Button variant="destructive" size="icon-sm">
                     <Trash />
-                    {isPanelExpanded ? <>{t('deleteMindmapButtonText')}</> : ''}
                 </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -56,7 +61,7 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
                     <AlertDialogCancel>{t('confirmationCancel')}</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={() => {
-                            deleteAsync(topicId);
+                            deleteAsync(topicId as string);
                         }}
                     >
                         {t('confirmationProceed')}
@@ -64,6 +69,9 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
+        //         <TooltipContent side="bottom"> {t('deleteMindmapButtonText')}</TooltipContent>
+        //     </TooltipTrigger>
+        // </Tooltip>
     );
 };
 
