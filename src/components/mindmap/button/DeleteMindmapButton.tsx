@@ -49,13 +49,7 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
         //     <TooltipTrigger asChild>
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button
-                    variant="destructive"
-                    size="icon-sm"
-                    onClick={() => {
-                        console.log('clicking');
-                    }}
-                >
+                <Button variant="destructive" size="icon-sm">
                     <Trash />
                 </Button>
             </AlertDialogTrigger>

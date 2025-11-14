@@ -231,7 +231,7 @@ export default function page() {
                             <Save />
                             {isSaving ? 'Saving...' : 'Save mindmap'}
                         </Button> */}
-                        <DownloadButton isPanelExpanded={isPanelExpanded} />
+                        <DownloadButton />
                     </div>
                     <FileSheet />
                     <NodeSheetViewOnly />

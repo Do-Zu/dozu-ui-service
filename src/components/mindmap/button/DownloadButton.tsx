@@ -19,11 +19,8 @@ function downloadImage(dataUrl: string) {
 const imageWidth = 3840; //hardcoded, change later if needed - DuyND
 const imageHeight = 2160;
 
-interface DownloadButtonProps {
-    isPanelExpanded: boolean;
-}
 
-const DownloadButton = ({ isPanelExpanded }: DownloadButtonProps) => {
+const DownloadButton = () => {
     const t = useTranslations('DownloadMindmapButton');
     const { getNodes } = useReactFlow();
     const onClick = () => {

@@ -51,10 +51,10 @@ const edgeTypes = {
 
 export default function MindmapContent() {
     const router = useRouter();
-      const params = useParams();
-        const classId = Number(params?.id as string);
+    const params = useParams();
+    const classId = Number(params?.id as string);
 
-          const [isPanelExpanded, setIsPanelExpanded] = useState(true);
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
     const {
         topicId,
@@ -232,7 +232,7 @@ export default function MindmapContent() {
                             <Save />
                             {isSaving ? 'Saving...' : 'Save mindmap'}
                         </Button>
-                        <DownloadButton isPanelExpanded={isPanelExpanded}/>
+                        <DownloadButton />
                     </div>
                     <FileSheet />
                     <TeacherNodeSheet classId={classId} />

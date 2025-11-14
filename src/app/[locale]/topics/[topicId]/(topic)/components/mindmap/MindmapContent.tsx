@@ -56,7 +56,7 @@ const MindmapContent = ({}) => {
             setShowGenerateModal(true);
             setHasShownModal(true);
         }
-    }, [hasInitialized, hasShownModal]);
+    }, [hasInitialized, hasShownModal, nodes.length]);
 
     const handleManualCreation = () => {
         setShowGenerateModal(false);

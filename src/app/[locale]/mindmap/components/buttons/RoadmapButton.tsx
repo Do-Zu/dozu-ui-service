@@ -28,16 +28,16 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges }: RoadmapButtonProps) =>
 
     return (
         <Sheet>
-            <SheetTrigger asChild>
-                <Tooltip>
-                    <TooltipTrigger asChild>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <SheetTrigger asChild>
                         <Button size="icon-sm" variant="outline">
                             <Signpost />
                         </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"> {t('RoadmapButtonLabel')}</TooltipContent>
-                </Tooltip>
-            </SheetTrigger>
+                    </SheetTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t('RoadmapButtonLabel')}</TooltipContent>
+            </Tooltip>
             <SheetContent>
                 <SheetHeader>
                     <SheetTitle>{t('RoadmapButtonLabel')}</SheetTitle>

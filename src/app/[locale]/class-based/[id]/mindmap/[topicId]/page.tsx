@@ -155,7 +155,7 @@ export default function MindmapContent() {
                 </Panel>
                 <Panel position="top-center">
                     <div className="flex gap-2 ">
-                        <DownloadButton isPanelExpanded={isPanelExpanded} />
+                        <DownloadButton />
                     </div>
                     <FileSheet />
                     <NodeSheetViewOnly />

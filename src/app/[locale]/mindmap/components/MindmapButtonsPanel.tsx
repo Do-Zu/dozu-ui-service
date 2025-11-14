@@ -42,16 +42,6 @@ const MindmapButtonsPanel = ({}) => {
 
     return (
         <Panel position="top-center">
-            {/* <Card className="p-2"> */}
-            {/* <div className="pb-2">
-                    <Toggle
-                        size="sm"
-                        pressed={isPanelExpanded}
-                        onPressedChange={(pressed) => setIsPanelExpanded(pressed)}
-                    >
-                        <Expand />
-                    </Toggle>
-                </div> */}
             <div className="flex gap-2 flex-row">
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -65,7 +55,7 @@ const MindmapButtonsPanel = ({}) => {
 
                 <EditMindmapButton isPanelExpanded={isPanelExpanded} />
                 <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} />
-                <DownloadButton isPanelExpanded={isPanelExpanded} />
+                <DownloadButton />
                 {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
                 <ImportButton isPanelExpanded={isPanelExpanded} />
                 <ExportToCSVButton isPanelExpanded={isPanelExpanded} />
