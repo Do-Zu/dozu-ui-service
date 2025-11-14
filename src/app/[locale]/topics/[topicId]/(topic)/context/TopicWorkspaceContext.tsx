@@ -144,6 +144,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             pageNumber,
             player,
             seekTo,
+            generatingFlashcards
         ],
     );
 

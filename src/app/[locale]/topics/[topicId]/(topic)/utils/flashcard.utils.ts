@@ -97,12 +97,7 @@ class FlashcardUtils {
         let flashcardsFilter;
 
         flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return (
-                !flashcard.serverInfo &&
-                (flashcard.front !== '' ||
-                    flashcard.back !== '' ||
-                    (flashcard.image !== null && flashcard.image !== undefined))
-            );
+            return !flashcard.serverInfo && (flashcard.front !== '' || flashcard.back !== '');
         });
         flashcardsAdded = flashcardsFilter.map((flashcard) => ({
             front: flashcard.front,
@@ -115,9 +110,7 @@ class FlashcardUtils {
                 flashcard.serverInfo &&
                 flashcard.serverInfo.isUpdated &&
                 !flashcard.serverInfo.isDeleted &&
-                (flashcard.front !== '' ||
-                    flashcard.back !== '' ||
-                    (flashcard.image !== null && flashcard.image !== undefined))
+                (flashcard.front !== '' || flashcard.back !== '')
             );
         });
         flashcardsUpdated = flashcardsFilter.map((flashcard) => ({

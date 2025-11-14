@@ -254,7 +254,7 @@ const EditingFlashcards = () => {
         await searchImagesAsync(card.front);
     }
 
-    async function handleSaveImageClick(image: IUnspashImage) {
+    function handleSaveImageClick(image: IUnspashImage) {
         if (!selectingFlashcard) {
             toastHelper.showErrorMessage('No selecting flashcard');
             return;
