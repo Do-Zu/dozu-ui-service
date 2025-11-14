@@ -1,7 +1,7 @@
 'use client';
 
 import { Textarea } from '@/components/ui/textarea';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import { Edit, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,8 +32,12 @@ import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../con
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import DataStatus from '@/components/errors/DataStatus';
+import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import Generate from '../../generate/Generate';
 
-interface ILocalFlashcard {
+export interface ILocalFlashcard {
     id: number;
     front: string;
     back: string;
@@ -53,123 +57,11 @@ export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
-const initialFlashcardsCount = 3;
-
-function isEmptyArray(array: any[]): boolean {
-    return array.length === 0;
-}
-
-function createInitialFlashcard(id: number): ILocalFlashcard {
-    return { id, front: '', back: '' };
-}
-
-function createInitialFlashcards(count: number): ILocalFlashcard[] {
-    const initialFlashcards: ILocalFlashcard[] = [];
-    for (let i = 0; i < count; ++i) {
-        initialFlashcards.push(createInitialFlashcard(i));
-    }
-    return initialFlashcards;
-}
-
-function getFlashcardType(flashcard: IEditingFlashcard): 'client' | 'server' {
-    return flashcard.serverInfo ? 'server' : 'client';
-}
-
-export function handleConvertToFlashcardsSubmitted(flashcards: IEditingFlashcard[]): IFlashcardsBatchInput | null {
-    if (!flashcards) return null;
-
-    let flashcardsFormatted = flashcards.map((flashcard) => {
-        return {
-            ...flashcard,
-            front: flashcard.front.trim(),
-            back: flashcard.back.trim(),
-        };
-    });
-
-    let flashcardsAdded: IFlashcardCreateInput[];
-    let flashcardsUpdated: IFlashcardUpdateInput[];
-    let flashcardsDeleted: number[];
-
-    let flashcardsFilter;
-
-    flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-        return (
-            !flashcard.serverInfo &&
-            (flashcard.front !== '' ||
-                flashcard.back !== '' ||
-                (flashcard.image !== null && flashcard.image !== undefined))
-        );
-    });
-    flashcardsAdded = flashcardsFilter.map((flashcard) => ({
-        front: flashcard.front,
-        back: flashcard.back,
-        image: flashcard.image ? flashcard.image : undefined,
-    }));
-
-    flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-        return (
-            flashcard.serverInfo &&
-            flashcard.serverInfo.isUpdated &&
-            !flashcard.serverInfo.isDeleted &&
-            (flashcard.front !== '' ||
-                flashcard.back !== '' ||
-                (flashcard.image !== null && flashcard.image !== undefined))
-        );
-    });
-    flashcardsUpdated = flashcardsFilter.map((flashcard) => ({
-        flashcardId: flashcard.serverInfo!.flashcardId,
-        front: flashcard.front,
-        back: flashcard.back,
-        image: flashcard.image ? flashcard.image : undefined,
-    }));
-
-    flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-        return (
-            flashcard.serverInfo &&
-            (flashcard.serverInfo.isDeleted ||
-                (flashcard.serverInfo.isUpdated && flashcard.front === '' && flashcard.back === ''))
-        );
-    });
-    flashcardsDeleted = flashcardsFilter.map((flashcard) => flashcard.serverInfo!.flashcardId);
-
-    if (
-        (!flashcardsAdded || flashcardsAdded.length === 0) &&
-        (!flashcardsUpdated || flashcardsUpdated.length === 0) &&
-        (!flashcardsDeleted || flashcardsDeleted.length === 0)
-    )
-        return null;
-
-    let dataSubmitted: IFlashcardsBatchInput = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
-    return dataSubmitted;
-}
-
-export function handleConvertToFlashcardsEdited(flashcards: IFlashcard[]): IEditingFlashcard[] {
-    let initialFlashcards: IEditingFlashcard[];
-    if (isEmptyArray(flashcards)) {
-        initialFlashcards = createInitialFlashcards(initialFlashcardsCount);
-    } else {
-        initialFlashcards = flashcards.map((flashcard, index) => {
-            return {
-                id: index,
-                front: flashcard.front,
-                back: flashcard.back,
-                imageUrl: flashcard.imageUrl,
-                serverInfo: {
-                    flashcardId: flashcard.flashcardId,
-                    topicId: flashcard.topicId,
-                    isUpdated: false,
-                    isDeleted: false,
-                },
-            };
-        });
-    }
-    return initialFlashcards;
-}
-
 const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
+    const tFlashcardLearning = useTranslations('flashcard.learning');
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
     const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false);
     const [selectingFlashcard, setSelectingFlashcard] = useState<ILocalFlashcard | null>();
@@ -184,6 +76,7 @@ const EditingFlashcards = () => {
     const { flashcards, setFlashcards } = useRequireFlashcards();
     const { setLearningFlashcards } = useRequireLearningFlashcards();
     const [editingFlashcards, setEditingFlashcards] = useState<IEditingFlashcard[]>([]);
+    const { generatingFlashcards, setGeneratingFlashcards } = useTopicWorkspace();
 
     const { loading: batchLoading, execute: batchFlashcards } = usePost<
         { topicId: string | number; flashcards: IFlashcardsBatchInput },
@@ -200,9 +93,22 @@ const EditingFlashcards = () => {
     });
 
     useEffect(() => {
-        const editingFlashcards = handleConvertToFlashcardsEdited(flashcards);
+        let editingFlashcards = flashcardUtils.convertToEditingFlashcards(flashcards);
+        if (generatingFlashcards && generatingFlashcards.length > 0) {
+            const lastId = editingFlashcards.length === 0 ? -1 : editingFlashcards[editingFlashcards.length - 1].id;
+            const result = generatingFlashcards.map((card, index) => ({
+                id: lastId + index + 1,
+                front: card.q,
+                back: card.a,
+            }));
+
+            editingFlashcards = editingFlashcards.concat(result);
+        }
+        if (editingFlashcards.length === 0) {
+            editingFlashcards = flashcardUtils.createInitialFlashcards(initialFlashcardsCount);
+        }
         setEditingFlashcards(editingFlashcards);
-    }, [flashcards]);
+    }, [flashcards, generatingFlashcards]);
 
     const { loading: searchImagesLoading, execute: searchImagesAsync } = usePost<string, IUnspashImage[]>(
         flashcardService.searchImages,
@@ -238,7 +144,7 @@ const EditingFlashcards = () => {
         setEditingFlashcards((prev) => {
             if (index < 0 || index >= prev.length) return prev;
             const currentFlashcard = prev[index];
-            const type = getFlashcardType(currentFlashcard);
+            const type = flashcardUtils.getFlashcardType(currentFlashcard);
             const newFlashcards = prev.map((e, i) => {
                 if (index !== i) return e;
                 if (type === 'client') return { ...e, [side]: value };
@@ -254,7 +160,7 @@ const EditingFlashcards = () => {
         setEditingFlashcards((prev) => {
             const result = [...prev];
             const lastId = prev.length === 0 ? -1 : prev[prev.length - 1].id;
-            result.push(createInitialFlashcard(lastId + 1));
+            result.push(flashcardUtils.createInitialFlashcard(lastId + 1));
             return result;
         });
     }
@@ -263,7 +169,7 @@ const EditingFlashcards = () => {
         setEditingFlashcards((prev) => {
             if (index < 0 || index >= prev.length) return prev;
             const currentFlashcard = prev[index];
-            const type = getFlashcardType(currentFlashcard);
+            const type = flashcardUtils.getFlashcardType(currentFlashcard);
             if (type === 'client') {
                 return prev.filter((e, i) => i !== index);
             }
@@ -320,11 +226,12 @@ const EditingFlashcards = () => {
     }
 
     async function handleSaveClick() {
-        const flashcardsSubmitted = handleConvertToFlashcardsSubmitted(editingFlashcards);
-        if (!topic || !flashcardsSubmitted) {
+        const flashcardsSubmitted = flashcardUtils.prepareFlashcardsForSubmit(editingFlashcards);
+        if (!flashcardsSubmitted) {
             toastHelper.showSuccessMessage(tFlashcardEdit('messages.noFlashcardChanges'));
             return;
         }
+        setGeneratingFlashcards(null);
         await batchFlashcards({
             topicId: topic.topicId,
             flashcards: flashcardsSubmitted,
@@ -444,11 +351,22 @@ const EditingFlashcards = () => {
     }
 
     if (!editingFlashcards) {
-        return <div>No Flashcards found</div>;
+        return <DataStatus variant="empty" />;
+    }
+
+    function onGenerateSuccess(data: { q: string; a: string }[]) {
+        setGeneratingFlashcards(data);
     }
 
     return (
-        <div>
+        <div className="flex flex-col">
+            {flashcardUtils.isInitialFlashcards(editingFlashcards) ? (
+                <div className="flex flex-col gap-4">
+                    <p>{tFlashcardLearning('flashcardsEmpty')}</p>
+                    <Generate type="flashcards" onSuccess={onGenerateSuccess} />
+                </div>
+            ) : null}
+
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
                 <div className="flex justify-end items-center px-[4rem] py-4">
                     <div className="flex flex-row items-center gap-4">

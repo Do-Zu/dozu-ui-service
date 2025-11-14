@@ -48,6 +48,9 @@ interface ContextType {
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
 
+    generatingFlashcards: { q: string; a: string }[] | null;
+    setGeneratingFlashcards: Dispatch<SetStateAction<{ q: string; a: string }[] | null>>;
+
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
     setPageNumber: Dispatch<SetStateAction<number>>;
@@ -94,6 +97,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         setLearningFlashcards,
         setAnkiSettings,
         onReviewCard,
+        generatingFlashcards,
+        setGeneratingFlashcards,
     } = useFlashCardWorkSpace();
 
     const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
@@ -125,6 +130,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setPageNumber,
             setPlayer,
             seekTo,
+            generatingFlashcards,
+            setGeneratingFlashcards,
         }),
         [
             tab,

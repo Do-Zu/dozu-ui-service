@@ -9,6 +9,7 @@ export default function useFlashCardWorkSpace() {
     const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
         null,
     );
+    const [generatingFlashcards, setGeneratingFlashcards] = useState<{ q: string; a: string }[] | null>(null);
 
     const onReviewCard = useCallback(
         ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
@@ -57,5 +58,7 @@ export default function useFlashCardWorkSpace() {
         setLearningFlashcards,
         setAnkiSettings,
         onReviewCard,
+        generatingFlashcards,
+        setGeneratingFlashcards,
     };
 }
