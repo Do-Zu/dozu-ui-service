@@ -9,21 +9,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Download, MoreVertical, RefreshCw, Users, Clock, TrendingUp, AlertCircle, Calendar, FileText, BookOpen, Info } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ActivityMonitorData } from '@/types/activity';
-import { downloadExcelFile } from '../utils/excelGenerator';
+import { downloadExcelFile } from '@/app/[locale]/activities/utils/excelGenerator';
 import activityService from '@/services/activity/activity.service';
-import { adaptQuizClassResultsToActivityMonitor } from '../utils/dataAdapter';
-import ActivitySummaryTab from '../components/ActivitySummaryTab';
-import StudentSummaryTab from '../components/StudentSummaryTab';
-import TermProgressTab from '../components/TermProgressTab';
-import StudentResultsTab from '../components/StudentResultsTab';
+import { adaptQuizClassResultsToActivityMonitor } from '@/app/[locale]/activities/utils/dataAdapter';
+import ActivitySummaryTab from '@/app/[locale]/activities/components/ActivitySummaryTab';
+import StudentSummaryTab from '@/app/[locale]/activities/components/StudentSummaryTab';
+import TermProgressTab from '@/app/[locale]/activities/components/TermProgressTab';
+import StudentResultsTab from '@/app/[locale]/activities/components/StudentResultsTab';
 
 interface ActivityPageProps {
   params: {
+    id: string;
     activityId: string;
   };
 }
 
-export default function ActivityPage({ params }: ActivityPageProps) {
+export default function TeacherActivityPage({ params }: ActivityPageProps) {
   const [activityData, setActivityData] = useState<ActivityMonitorData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -332,3 +333,4 @@ export default function ActivityPage({ params }: ActivityPageProps) {
     </div>
   );
 }
+

@@ -72,8 +72,8 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
               <DropdownMenuItem onSelect={() => router.push(ROUTES.TEACHER.CLASS_BASED_ID_CLASS_QUIZ_EDIT(classIdForRoute!, quiz.classQuizId))}>
                 <Edit className="mr-2 h-4 w-4"/><span>{tCommon('actions.edit')}</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => router.push(`/activities/${quiz.classQuizId}`)}>
-                <Info className="mr-2 h-4 w-4"/><span>Detail</span>
+              <DropdownMenuItem onSelect={() => router.push(ROUTES.TEACHER.CLASS_BASED_ID_CLASS_QUIZ_ACTIVITY(classIdForRoute!, quiz.classQuizId))}>
+                <Info className="mr-2 h-4 w-4"/><span>Activity</span>
               </DropdownMenuItem>
               {quiz.status === 'published' && quiz.acceptingSubmissions ? (
                 <DropdownMenuItem onSelect={() => classQuizTeacherService.pause(quiz.classQuizId)}>
