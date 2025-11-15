@@ -17,8 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
-import { CreateLlmModelInput, UpdateLlmModelInput, LlmModel } from '@/types/llmModel';
-import { LlmProvider, LlmProvidersResponse } from '@/types/llmProvider';
+import { CreateLlmModelInput, UpdateLlmModelInput, LlmModel } from '@/types/llm-admin/llmModel';
+import { LlmProvider, LlmProvidersResponse } from '@/types/llm-admin/llmProvider';
 import errorHelper from '@/utils/error.helper';
 import { getProviderColor } from '@/utils/providerColors';
 import { getRequest } from '@/api/api';

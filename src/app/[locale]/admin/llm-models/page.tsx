@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { withAuth } from '@/hoc/withAuth';
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
-import { LlmModel, LlmModelsResponse, GetLlmModelsQuery } from '@/types/llmModel';
+import { LlmModel, LlmModelsResponse, GetLlmModelsQuery } from '@/types/llm-admin/llmModel';
 import { DataTable } from '@/components/ui/data-table';
 import { getLlmModelColumns } from './components/Columns';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ function AdminLlmModelsPage() {
     const [total, setTotal] = useState(0);
 
     const fetchModels = useCallback(
-        async (params = filters) => {
+        async (params: GetLlmModelsQuery) => {
             try {
                 setLoading(true);
                 setError(null);
@@ -52,17 +52,20 @@ function AdminLlmModelsPage() {
                 setLoading(false);
             }
         },
-        [filters],
+        [],
     );
 
     useEffect(() => {
-        fetchModels();
-    }, [fetchModels]);
+        fetchModels(filters);
+    }, [fetchModels, filters]);
 
     const handleFilterChange = (newFilters: GetLlmModelsQuery) => {
         setFilters(newFilters);
-        fetchModels(newFilters);
     };
+
+    const refetch = useCallback(() => {
+        fetchModels(filters);
+    }, [fetchModels, filters]);
 
     const handleEdit = (model: LlmModel) => {
         setEditingModel(model);
@@ -74,7 +77,7 @@ function AdminLlmModelsPage() {
     };
 
     const handleSuccess = () => {
-        fetchModels();
+        refetch();
         handleDialogClose();
     };
 
@@ -96,7 +99,7 @@ function AdminLlmModelsPage() {
             <LlmModelFilter onFilterChange={handleFilterChange} />
 
             <DataTable
-                columns={getLlmModelColumns(fetchModels, handleEdit)}
+                columns={getLlmModelColumns(refetch, handleEdit)}
                 data={models}
                 loading={loading}
                 error={error}

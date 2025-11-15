@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
-import { LlmProvider } from '@/types/llmProvider';
+import { LlmProvider } from '@/types/llm-admin/llmProvider';
 import { AlertTriangle } from 'lucide-react';
 import errorHelper from '@/utils/error.helper';
 

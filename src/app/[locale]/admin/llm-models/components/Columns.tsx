@@ -1,7 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { LlmModel } from '@/types/llmModel';
+import { LlmModel } from '@/types/llm-admin/llmModel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import usePost from '@/hooks/usePost';
@@ -10,28 +10,7 @@ import { Edit, Trash2, Power } from 'lucide-react';
 import { useState } from 'react';
 import { DeleteModelDialog } from './DeleteModelDialog';
 import { getProviderColor } from '@/utils/providerColors';
-
-function AvailabilityBadge({ isAvailable }: { isAvailable: boolean }) {
-    return (
-        <Badge 
-            className={isAvailable 
-                ? 'bg-green-500 hover:bg-green-600 text-white' 
-                : 'bg-red-500 hover:bg-red-600 text-white'
-            }
-        >
-            {isAvailable ? 'Available' : 'Unavailable'}
-        </Badge>
-    );
-}
-
-function DefaultBadge({ isDefault }: { isDefault: boolean }) {
-    if (!isDefault) return null;
-    return (
-        <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            Default
-        </Badge>
-    );
-}
+import { AvailabilityBadge, DefaultBadge } from '@/components/admin/StatusBadges';
 
 function ActionButtons({
     model,

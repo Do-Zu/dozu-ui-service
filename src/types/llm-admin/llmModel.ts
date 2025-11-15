@@ -1,3 +1,5 @@
+import type { LlmProvider } from './llmProvider';
+
 export interface LlmModel {
   modelId: number;
   providerId: number;
@@ -16,7 +18,7 @@ export interface CreateLlmModelInput {
   priority?: number;
   isAvailable?: boolean;
   isDefault?: boolean;
-  description?: string;
+  description?: string | null;
 }
 
 export interface UpdateLlmModelInput {
@@ -38,21 +40,12 @@ export interface GetLlmModelsQuery {
   search?: string;
 }
 
-export interface LlmProvider {
-  providerId: number;
-  name: string;
-  isDefault: boolean;
-  isAvailable: boolean;
-  index: number;
-  description?: string | null;
-  baseUrl?: string | null;
-  createdAt: string;
-}
-
 export interface LlmModelsResponse {
   models: LlmModel[];
   total: number;
   page: number;
   limit: number;
 }
+
+export type { LlmProvider };
 

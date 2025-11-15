@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { GetLlmProvidersQuery } from '@/types/llmProvider';
+import { GetLlmProvidersQuery } from '@/types/llm-admin/llmProvider';
 import { X } from 'lucide-react';
 
 interface LlmProviderFilterProps {

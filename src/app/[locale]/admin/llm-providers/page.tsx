@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { withAuth } from '@/hoc/withAuth';
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
-import { LlmProvider, LlmProvidersResponse, GetLlmProvidersQuery } from '@/types/llmProvider';
+import { LlmProvider, LlmProvidersResponse, GetLlmProvidersQuery } from '@/types/llm-admin/llmProvider';
 import { DataTable } from '@/components/ui/data-table';
 import { getLlmProviderColumns } from './components/Columns';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ function AdminLlmProvidersPage() {
     const [total, setTotal] = useState(0);
 
     const fetchProviders = useCallback(
-        async (params = filters) => {
+        async (params: GetLlmProvidersQuery) => {
             try {
                 setLoading(true);
                 setError(null);
@@ -52,17 +52,20 @@ function AdminLlmProvidersPage() {
                 setLoading(false);
             }
         },
-        [filters],
+        [],
     );
 
     useEffect(() => {
-        fetchProviders();
-    }, [fetchProviders]);
+        fetchProviders(filters);
+    }, [fetchProviders, filters]);
 
     const handleFilterChange = (newFilters: GetLlmProvidersQuery) => {
         setFilters(newFilters);
-        fetchProviders(newFilters);
     };
+
+    const refetch = useCallback(() => {
+        fetchProviders(filters);
+    }, [fetchProviders, filters]);
 
     const handleEdit = (provider: LlmProvider) => {
         setEditingProvider(provider);
@@ -74,7 +77,7 @@ function AdminLlmProvidersPage() {
     };
 
     const handleSuccess = () => {
-        fetchProviders();
+        refetch();
         handleDialogClose();
     };
 
@@ -96,7 +99,7 @@ function AdminLlmProvidersPage() {
             <LlmProviderFilter onFilterChange={handleFilterChange} />
 
             <DataTable
-                columns={getLlmProviderColumns(fetchProviders, handleEdit)}
+                columns={getLlmProviderColumns(refetch, handleEdit)}
                 data={providers}
                 loading={loading}
                 error={error}

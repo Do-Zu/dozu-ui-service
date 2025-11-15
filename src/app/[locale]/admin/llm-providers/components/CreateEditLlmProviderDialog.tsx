@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
-import { CreateLlmProviderInput, UpdateLlmProviderInput, LlmProvider } from '@/types/llmProvider';
+import { CreateLlmProviderInput, UpdateLlmProviderInput, LlmProvider } from '@/types/llm-admin/llmProvider';
 import errorHelper from '@/utils/error.helper';
 
 interface CreateEditLlmProviderDialogProps {

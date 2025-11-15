@@ -5,15 +5,16 @@ export interface LlmProvider {
   isAvailable: boolean;
   index: number;
   description?: string | null;
-  baseUrl?: string | null;
+  baseUrl?: string;
   createdAt: string;
 }
+
 
 export interface CreateLlmProviderInput {
   name: string;
   isDefault?: boolean;
   isAvailable?: boolean;
-  description?: string;
+  description?: string | null;
   baseUrl?: string;
 }
 

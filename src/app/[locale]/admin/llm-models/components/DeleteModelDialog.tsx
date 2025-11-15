@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
-import { LlmModel } from '@/types/llmModel';
+import { LlmModel } from '@/types/llm-admin/llmModel';
 import { AlertTriangle } from 'lucide-react';
 import errorHelper from '@/utils/error.helper';
 import { getProviderBadgeClass } from '@/utils/providerColors';
