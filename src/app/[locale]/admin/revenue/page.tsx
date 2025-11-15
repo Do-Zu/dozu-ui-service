@@ -11,23 +11,88 @@ import { KPICard } from './components/KPICard';
 import { RevenueTrendChart } from './components/RevenueTrendChart';
 import { RevenueByGatewayChart } from './components/RevenueByGatewayChart';
 import { RevenueByPlanChart } from './components/RevenueByPlanChart';
-import { PeriodSelector } from './components/PeriodSelector';
+import { RevenueFilter, RevenueFilterData } from './components/RevenueFilter';
 import { formatVND } from '@/utils/formatters';
+import { format } from 'date-fns';
 
 function RevenueDashboardPage() {
     const [stats, setStats] = useState<RevenueStats | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [period, setPeriod] = useState<Period>('month');
+    const [filters, setFilters] = useState<RevenueFilterData>({
+        period: 'month',
+    });
+    const [subscriptionPlans, setSubscriptionPlans] = useState<{ value: string; label: string }[]>([]);
+    const [paymentGateways, setPaymentGateways] = useState<{ value: string; label: string }[]>([]);
 
-    const fetchStats = useCallback(async (selectedPeriod: Period) => {
+    // Fetch subscription plans and payment gateways
+    useEffect(() => {
+        const fetchFilterOptions = async () => {
+            try {
+                // Fetch plans
+                const plansResponse: ApiResponse<any[]> = await getRequest('/admin/subscription/plans');
+                if (plansResponse.data) {
+                    setSubscriptionPlans(
+                        plansResponse.data.map((plan) => ({
+                            value: plan.planId?.toString() || plan.name,
+                            label: plan.name || plan.planName || 'Unknown',
+                        }))
+                    );
+                }
+
+                // Extract payment gateways from stats if available
+                // This will be populated after first stats fetch
+            } catch (err) {
+                console.error('Failed to fetch filter options:', err);
+            }
+        };
+
+        fetchFilterOptions();
+    }, []);
+
+    const fetchStats = useCallback(async (filterData: RevenueFilterData) => {
         try {
             setLoading(true);
             setError(null);
 
-            const query = new URLSearchParams({ period: selectedPeriod }).toString();
+            const params = new URLSearchParams({ period: filterData.period });
+
+            // Add date range
+            if (filterData.dateRange?.from && filterData.dateRange?.to) {
+                params.append('startDate', format(filterData.dateRange.from, 'yyyy-MM-dd'));
+                params.append('endDate', format(filterData.dateRange.to, 'yyyy-MM-dd'));
+            }
+
+            // Add subscription plan filter
+            if (filterData.subscriptionPlan) {
+                params.append('subscriptionPlan', filterData.subscriptionPlan);
+            }
+
+            // Add payment gateway filter
+            if (filterData.paymentGateway) {
+                params.append('paymentGateway', filterData.paymentGateway);
+            }
+
+            // Add revenue range filters
+            if (filterData.minRevenue !== undefined) {
+                params.append('minRevenue', filterData.minRevenue.toString());
+            }
+            if (filterData.maxRevenue !== undefined) {
+                params.append('maxRevenue', filterData.maxRevenue.toString());
+            }
+
+            const query = params.toString();
             const response: ApiResponse<RevenueStats> = await getRequest(`/admin/revenue/stats?${query}`);
             setStats(response.data || null);
+
+            // Extract payment gateways from response for filter options
+            if (response.data?.revenueByGateway) {
+                const gateways = response.data.revenueByGateway.map((item) => ({
+                    value: item.gateway,
+                    label: item.gateway,
+                }));
+                setPaymentGateways(gateways);
+            }
         } catch (err: any) {
             setError(err.message || 'An error occurred while retrieving revenue statistics.');
         } finally {
@@ -35,13 +100,34 @@ function RevenueDashboardPage() {
         }
     }, []);
 
-    useEffect(() => {
-        fetchStats(period);
-    }, [period, fetchStats]);
-
-    const handlePeriodChange = (newPeriod: Period) => {
-        setPeriod(newPeriod);
+    const handleFiltersChange = (newFilters: RevenueFilterData) => {
+        setFilters(newFilters);
     };
+
+    const handleSearch = () => {
+        // Validate revenue range
+        if (
+            filters.minRevenue !== undefined &&
+            filters.maxRevenue !== undefined &&
+            filters.minRevenue > filters.maxRevenue
+        ) {
+            setError('Min revenue must be less than max revenue');
+            return;
+        }
+
+        // Validate date range
+        if (filters.dateRange?.from && filters.dateRange?.to && filters.dateRange.from > filters.dateRange.to) {
+            setError('Start date must be before end date');
+            return;
+        }
+
+        fetchStats(filters);
+    };
+
+    // Initial fetch on mount
+    useEffect(() => {
+        fetchStats(filters);
+    }, []); // Only on mount, search button triggers subsequent fetches
 
     if (loading) {
         return (
@@ -63,13 +149,19 @@ function RevenueDashboardPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Revenue Analytics</h2>
-                    <p className="text-muted-foreground">Track revenue, growth, and key financial metrics</p>
-                </div>
-                <PeriodSelector selected={period} onChange={handlePeriodChange} />
+            <div>
+                <h2 className="text-3xl font-bold tracking-tight">Revenue Analytics</h2>
+                <p className="text-muted-foreground">Track revenue, growth, and key financial metrics</p>
             </div>
+
+            {/* Filter Section */}
+            <RevenueFilter
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                onSearch={handleSearch}
+                subscriptionPlans={subscriptionPlans}
+                paymentGateways={paymentGateways}
+            />
 
             {/* Key KPIs */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -109,11 +201,11 @@ function RevenueDashboardPage() {
                 <CardHeader>
                     <CardTitle>Revenue Trend</CardTitle>
                     <CardDescription>
-                        Revenue growth over time by {period}
+                        Revenue growth over time by {filters.period}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <RevenueTrendChart data={stats.revenueTrend} period={period} />
+                    <RevenueTrendChart data={stats.revenueTrend} period={filters.period} />
                 </CardContent>
             </Card>
 
