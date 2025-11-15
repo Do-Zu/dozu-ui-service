@@ -54,7 +54,7 @@ const MindmapButtonsPanel = ({}) => {
                 {/* <Separator className="my-4" /> */}
 
                 <EditMindmapButton isPanelExpanded={isPanelExpanded} />
-                <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} />
+                <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} setNodes={setNodes} />
                 <DownloadButton />
                 {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
                 <ImportButton isPanelExpanded={isPanelExpanded} />

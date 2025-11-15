@@ -75,9 +75,9 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
                 ${data.isRoot ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
             `}
             style={{
-                background: data.isRoot
-                    ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
-                    : undefined,
+                // background: data.isRoot
+                //     ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
+                //     : undefined,
             }}
         >
             {/* Connection Handles */}

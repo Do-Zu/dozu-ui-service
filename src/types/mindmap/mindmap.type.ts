@@ -20,6 +20,7 @@ export type CustomNodeData = {
     pageEndIndex?: number;
     statistics?: NodeStat;
     color?: string;
+    roadmapOrder?: number;
 };
 
 export type AppNode = Node<CustomNodeData>;
