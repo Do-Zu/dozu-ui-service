@@ -159,6 +159,14 @@ export function CreateEditLlmModelDialog({
             return;
         }
 
+        if (!selectedProvider.isAvailable) {
+            toast({
+                description: 'Selected provider is not available. Please select an available provider.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
         if (isEditMode) {
             const updateData: UpdateLlmModelInput = {
                 providerId: formData.providerId,
@@ -170,7 +178,11 @@ export function CreateEditLlmModelDialog({
             };
             await updateModel(updateData);
         } else {
-            await createModel(formData);
+            const createData: CreateLlmModelInput = {
+                ...formData,
+                description: formData.description || null,
+            };
+            await createModel(createData);
         }
     };
 
