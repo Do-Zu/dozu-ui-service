@@ -86,6 +86,15 @@ async listClassQuizzes(classId: number, status?: ClassQuizStatus) {
       });
   }
 
+  /** GET /teacher/class-quiz/class-quizzes/:classQuizId */
+  getClassQuiz(classQuizId: number) {
+    return getRequest<unknown, { classQuizId: number; title: string; content: string }>(`${BASE}/class-quizzes/${classQuizId}`)
+      .then(r => {
+        if (r.status !== 'success') throw new Error(r.message);
+        return r.data;
+      });
+  }
+
   /** POST schedule/publish/pause/resume/close */
   schedule(classQuizId: number, body: IScheduleBody) {
     return postRequest<IScheduleBody, { status: 'scheduled' }>(`${BASE}/class-quizzes/${classQuizId}/schedule`, body)
