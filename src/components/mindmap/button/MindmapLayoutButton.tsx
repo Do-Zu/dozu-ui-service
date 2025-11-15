@@ -5,6 +5,7 @@ import ELK from 'elkjs/lib/elk.bundled.js';
 import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
 import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const elk = new ELK();
 
@@ -23,7 +24,6 @@ const elk = new ELK();
 //     'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
 // };
 
-
 const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
@@ -32,11 +32,6 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
             // const es = useInitialNodes ? initialEdges : edges;
 
             getLayoutedElements(nodes, edges, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-                // make vertical spacing smaller (flattened)
-                layoutedNodes.forEach((node) => {
-                    node.position.y = node.position.y * 0.7; // compress vertically
-                });
-
                 setNodes(layoutedNodes);
                 setEdges(layoutedEdges);
                 fitView();
@@ -46,15 +41,20 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
     );
 
     return (
-        <Button
-            variant="outline"
-            onClick={() => {
-                onLayout({ direction: 'DOWN' });
-            }}
-        >
-            <CircleDashed />
-            {isPanelExpanded ? 'Set Mindmap layout' : ''}
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    size="icon-sm"
+                    variant="outline"
+                    onClick={() => {
+                        onLayout({ direction: 'DOWN' });
+                    }}
+                >
+                    <CircleDashed />
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"> {'Mindmap layout'}</TooltipContent>
+        </Tooltip>
     );
 };
 

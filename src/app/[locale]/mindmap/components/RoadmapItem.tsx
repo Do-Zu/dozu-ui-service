@@ -33,7 +33,7 @@ export function RoadmapItem({
             )}
         >
             {/* Left side: reorder buttons */}
-            {/* <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
                 <Button variant="ghost" size="icon" disabled={index === 0} onClick={onMoveUp} className="h-6 w-6">
                     <ArrowUp className="h-4 w-4" />
                 </Button>
@@ -46,7 +46,7 @@ export function RoadmapItem({
                 >
                     <ArrowDown className="h-4 w-4" />
                 </Button>
-            </div> */}
+            </div>
 
             {/* Middle: item label */}
             <div className="flex-1 mx-3 font-medium truncate">{node.data.label}</div>

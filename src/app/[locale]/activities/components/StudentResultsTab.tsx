@@ -33,7 +33,7 @@ export default function StudentResultsTab({ students, questions }: StudentResult
     if (questionAnswers.length === 0) return '-';
     const correctCount = questionAnswers.reduce((sum: number, val) => sum + val, 0);
     const percentage = (correctCount / questionAnswers.length) * 100;
-    return percentage.toFixed(1) + '%';
+    return percentage.toFixed(0) + '%';
   });
 
   // Refs for syncing row heights
@@ -130,21 +130,21 @@ export default function StudentResultsTab({ students, questions }: StudentResult
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Detailed Student Results</CardTitle>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-muted-foreground">
             Individual student performance for each question
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex border border-gray-200 rounded-lg overflow-hidden" data-table-container>
+          <div className="flex border border-gray-200 dark:border-border rounded-lg overflow-hidden" data-table-container>
             {/* Fixed columns */}
-            <div className="flex-shrink-0 border-r border-gray-200">
+            <div className="flex-shrink-0 border-r border-gray-200 dark:border-border">
               <table className="border-collapse w-full">
                 <thead>
-                  <tr ref={fixedHeaderRef} className="border-b border-gray-200">
-                    <th className="text-left p-3 font-medium text-gray-900 min-w-[200px] w-[200px] bg-blue-100">Student</th>
-                    <th className="text-center p-3 font-medium text-gray-900 min-w-[80px] w-[80px] bg-purple-100">% Correct</th>
-                    <th className="text-center p-3 font-medium text-gray-900 min-w-[70px] w-[70px] bg-green-100">Correct</th>
-                    <th className="text-center p-3 font-medium text-gray-900 min-w-[60px] w-[60px] bg-orange-100">Total</th>
+                  <tr ref={fixedHeaderRef} className="border-b border-gray-200 dark:border-border">
+                    <th className="text-left p-3 font-medium text-gray-900 dark:text-foreground min-w-[200px] w-[200px] bg-blue-100 dark:bg-muted">Student</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[80px] w-[80px] bg-purple-100 dark:bg-muted">% Correct</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[70px] w-[70px] bg-green-100 dark:bg-muted">Correct</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[60px] w-[60px] bg-orange-100 dark:bg-muted">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -152,24 +152,24 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                     <tr 
                       key={student.studentId} 
                       ref={(el) => { fixedRowRefs.current[index] = el; }}
-                      className={`border-b border-gray-200 hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
+                      className={`border-b border-gray-200 dark:border-border hover:bg-gray-50 dark:hover:bg-muted/50 ${index % 2 === 0 ? 'bg-white dark:bg-background' : 'bg-gray-50/30 dark:bg-muted/30'}`}
                     >
-                      <td className="p-3 font-medium bg-blue-50/30">{student.studentName}</td>
-                      <td className="p-3 text-center bg-purple-50/30">{Number(student.score || 0).toFixed(1)}%</td>
-                      <td className="p-3 text-center bg-green-50/30">{student.correctAnswers}</td>
-                      <td className="p-3 text-center bg-orange-50/30">{student.answers.length}</td>
+                      <td className="p-3 font-medium bg-blue-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.studentName}</td>
+                      <td className="p-3 text-center bg-purple-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{Number(student.score || 0).toFixed(0)}%</td>
+                      <td className="p-3 text-center bg-green-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.correctAnswers}</td>
+                      <td className="p-3 text-center bg-orange-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.answers.length}</td>
                     </tr>
                   ))}
                   {/* Average Row */}
                   {completedStudents.length > 0 && (
                     <tr 
                       ref={fixedAverageRef}
-                      className="border-t-2 border-gray-300 bg-gradient-to-r from-gray-100 to-gray-50"
+                      className="border-t-2 border-gray-300 dark:border-border bg-gradient-to-r from-gray-100 to-gray-50 dark:from-muted dark:to-muted/80"
                     >
-                      <td className="p-3 font-medium bg-blue-50/40">Average</td>
-                      <td className="p-3 text-center font-medium bg-purple-50/40">{averageScore.toFixed(1)}%</td>
-                      <td className="p-3 text-center font-medium bg-green-50/40">{averageCorrect}</td>
-                      <td className="p-3 text-center font-medium bg-orange-50/40">{averageTotal}</td>
+                      <td className="p-3 font-medium bg-blue-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">Average</td>
+                      <td className="p-3 text-center font-medium bg-purple-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{averageScore.toFixed(0)}%</td>
+                      <td className="p-3 text-center font-medium bg-green-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{averageCorrect}</td>
+                      <td className="p-3 text-center font-medium bg-orange-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{averageTotal}</td>
                     </tr>
                   )}
                 </tbody>
@@ -180,11 +180,11 @@ export default function StudentResultsTab({ students, questions }: StudentResult
             <div className="flex-1 overflow-x-auto">
               <table className="border-collapse">
                 <thead>
-                  <tr ref={scrollableHeaderRef} className="border-b border-gray-200">
+                  <tr ref={scrollableHeaderRef} className="border-b border-gray-200 dark:border-border">
                     {questions.map((question, index) => (
                       <th 
                         key={question.questionId} 
-                        className="text-center p-3 font-medium text-gray-900 text-xs whitespace-nowrap border-r border-gray-200 last:border-r-0 bg-blue-100"
+                        className="text-center p-3 font-medium text-gray-900 dark:text-foreground text-xs whitespace-nowrap border-r border-gray-200 dark:border-border last:border-r-0 bg-blue-100 dark:bg-muted"
                       >
                         Q{index + 1}
                       </th>
@@ -196,21 +196,21 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                     <tr 
                       key={student.studentId} 
                       ref={(el) => { scrollableRowRefs.current[index] = el; }}
-                      className={`border-b border-gray-200 hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
+                      className={`border-b border-gray-200 dark:border-border hover:bg-gray-50 dark:hover:bg-muted/50 ${index % 2 === 0 ? 'bg-white dark:bg-background' : 'bg-gray-50/30 dark:bg-muted/30'}`}
                     >
                       {questions.map((question, qIndex) => {
                         const answer = student.answers?.find(a => a.questionId === question.questionId);
                         return (
-                          <td key={qIndex} className="p-3 text-center whitespace-nowrap border-r border-gray-200 last:border-r-0 bg-blue-50/20">
+                          <td key={qIndex} className="p-3 text-center whitespace-nowrap border-r border-gray-200 dark:border-border last:border-r-0 bg-blue-50/20 dark:bg-transparent">
                             {answer ? (
                               <Badge 
                                 variant={answer.isCorrect ? "default" : "destructive"}
-                                className={answer.isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+                                className={answer.isCorrect ? "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-destructive/20 dark:text-destructive"}
                               >
                                 {answer.isCorrect ? '✓' : '✗'}
                               </Badge>
                             ) : (
-                              <span className="text-gray-300">-</span>
+                              <span className="text-gray-300 dark:text-muted-foreground">-</span>
                             )}
                           </td>
                         );
@@ -221,11 +221,11 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                   {completedStudents.length > 0 && (
                     <tr 
                       ref={scrollableAverageRef}
-                      className="border-t-2 border-gray-300 bg-gradient-to-r from-gray-100 to-gray-50"
+                      className="border-t-2 border-gray-300 dark:border-border bg-gradient-to-r from-gray-100 to-gray-50 dark:from-muted dark:to-muted/80"
                     >
                       {averageQuestionAnswers.map((avg, index) => (
-                        <td key={index} className="p-3 text-center border-r border-gray-200 last:border-r-0 bg-blue-50/30">
-                          <span className="text-gray-700 font-medium">{avg}</span>
+                        <td key={index} className="p-3 text-center border-r border-gray-200 dark:border-border last:border-r-0 bg-blue-50/30 dark:bg-transparent">
+                          <span className="text-gray-700 dark:text-foreground font-medium">{avg}</span>
                         </td>
                       ))}
                     </tr>
@@ -245,26 +245,26 @@ export default function StudentResultsTab({ students, questions }: StudentResult
         <CardContent>
           <div className="space-y-4">
             {questions.map((question, index) => (
-              <div key={question.questionId} className="p-4 border rounded-lg">
+              <div key={question.questionId} className="p-4 border border-gray-200 dark:border-border rounded-lg">
                 <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-gray-900">
+                  <h4 className="font-medium text-gray-900 dark:text-foreground">
                     Q{index + 1}: {question.questionText}
                   </h4>
                   <Badge 
                     variant="outline"
                     className={
-                      question.accuracyLevel === 'thuong_sai' ? 'border-red-200 text-red-700' :
-                      question.accuracyLevel === 'doi_luc_sai' ? 'border-yellow-200 text-yellow-700' :
-                      question.accuracyLevel === 'it_khi_sai' ? 'border-green-200 text-green-700' :
-                      'border-gray-200 text-gray-700'
+                      question.accuracyLevel === 'thuong_sai' ? 'border-red-200 dark:border-destructive/50 text-red-700 dark:text-destructive' :
+                      question.accuracyLevel === 'doi_luc_sai' ? 'border-yellow-200 dark:border-yellow-500/50 text-yellow-700 dark:text-yellow-400' :
+                      question.accuracyLevel === 'it_khi_sai' ? 'border-green-200 dark:border-green-500/50 text-green-700 dark:text-green-400' :
+                      'border-gray-200 dark:border-border text-gray-700 dark:text-muted-foreground'
                     }
                   >
-                    {Number(question.accuracyPercentage).toFixed(1)}%
+                    {Number(question.accuracyPercentage).toFixed(0)}%
                   </Badge>
                 </div>
-                <p className="text-sm text-gray-600">{question.definition}</p>
+                <p className="text-sm text-gray-600 dark:text-muted-foreground">{question.definition}</p>
               </div>
-            ))}
+            ))} 
           </div>
         </CardContent>
       </Card>

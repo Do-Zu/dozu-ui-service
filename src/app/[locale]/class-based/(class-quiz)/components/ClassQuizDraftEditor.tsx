@@ -10,6 +10,8 @@ import { toDraftJsonFromQuestions, toQuestionsFromDraftJson } from '../utils/dra
 import classQuizTeacherService from '../services/classQuizTeacher.service';
 import { IDraftJson, IUpsertDraftResp } from '../types/classQuiz.type';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
 
 const questionsJump = 3;
@@ -20,11 +22,13 @@ const createInitialQuestion = (id: number): IQuestion => ({
 type Props = {
   quizId: number;
   initialDraft?: IDraftJson;     // nếu có thì hydrate từ đây
+  initialTitle?: string;          // title ban đầu của quiz
+  initialContent?: string;        // content ban đầu của quiz
   onSaved?(r: IUpsertDraftResp): void;
   onPublished?(): void;
 };
 
-export default function ClassQuizDraftEditor({ quizId, initialDraft, onSaved, onPublished }: Props) {
+export default function ClassQuizDraftEditor({ quizId, initialDraft, initialTitle, initialContent, onSaved, onPublished }: Props) {
   const { user } = useUserSession();
   const teacherId = Number(user?.userId);
 
@@ -33,6 +37,8 @@ export default function ClassQuizDraftEditor({ quizId, initialDraft, onSaved, on
                  : Array.from({length: questionsJump}, (_,i)=>createInitialQuestion(i))
   );
   const [seed, setSeed] = useState<string>(initialDraft?.orderSeed ?? '');
+  const [title, setTitle] = useState<string>(initialTitle ?? '');
+  const [content, setContent] = useState<string>(initialContent ?? '');
   const [saving, setSaving] = useState(false);
   const [savedMeta, setSavedMeta] = useState<IUpsertDraftResp | null>(null);
 
@@ -47,6 +53,11 @@ export default function ClassQuizDraftEditor({ quizId, initialDraft, onSaved, on
     setSeed(initialDraft.orderSeed ?? '');
     setSavedMeta(null);
   }, [initialDraft]);
+
+  useEffect(() => {
+    if (initialTitle !== undefined) setTitle(initialTitle);
+    if (initialContent !== undefined) setContent(initialContent);
+  }, [initialTitle, initialContent]);
 
 
   /** helpers */
@@ -99,14 +110,23 @@ export default function ClassQuizDraftEditor({ quizId, initialDraft, onSaved, on
       toast({ title:'Bạn cần đăng nhập', variant:'destructive' });
       return;
     }
+    if (!title.trim()) {
+      toast({ title:'Vui lòng nhập tên quiz', variant:'destructive' });
+      return;
+    }
     if (!hasAllValidQuestions(questions)) {
       toast({ title:'Câu hỏi chưa hợp lệ', description:'Mỗi câu cần tiêu đề, ≥2 đáp án hợp lệ, không trùng và có đáp án đúng.', variant:'destructive' });
       return;
     }
     setSaving(true);
     try {
+      // Lưu draft questions
       const draftJson = toDraftJsonFromQuestions(questions, seed || undefined);
       const r = await classQuizTeacherService.upsertDraft(quizId, { teacherId, draftJson });
+      
+      // Lưu title và content
+      await classQuizTeacherService.updateSettings(quizId, { title: title.trim(), content: content.trim() });
+      
       setSavedMeta(r);
       onSaved?.(r);
       toast({ title: `Đã lưu bản nháp (v${r.version})` });
@@ -139,17 +159,43 @@ export default function ClassQuizDraftEditor({ quizId, initialDraft, onSaved, on
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
+      {/* Quiz Title and Content Section */}
+      <div className="space-y-4 p-4 border rounded-lg bg-card">
+        <div className="space-y-2">
+          <Label htmlFor="quiz-title">Name Quiz *</Label>
+          <Input
+            id="quiz-title"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="Enter name quiz..."
+            className="w-full"
+            maxLength={255}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="quiz-content">Content Quiz</Label>
+          <Textarea
+            id="quiz-content"
+            value={content}
+            onChange={e => setContent(e.target.value)}
+            placeholder="Enter content quiz (optional)..."
+            className="w-full min-h-[100px]"
+          />
+        </div>
+      </div>
+
+      {/* Actions and Settings */}
+      <div className="flex items-center gap-3 flex-wrap">
         <Input
           value={seed}
           onChange={e=>setSeed(e.target.value)}
           placeholder="orderSeed (optional)"
           className="max-w-sm"
         />
-        <Button onClick={saveDraft} disabled={saving || !hasAllValidQuestions(questions)}>
+        <Button onClick={saveDraft} disabled={saving || !hasAllValidQuestions(questions) || !title.trim()}>
           <Save className="mr-2 h-4 w-4" /> Save Draft
         </Button>
-        <Button variant="secondary" onClick={publish} disabled={!hasAllValidQuestions(questions)}>
+        <Button variant="secondary" onClick={publish} disabled={!hasAllValidQuestions(questions) || !title.trim()}>
           <Send className="mr-2 h-4 w-4" /> Publish
         </Button>
         <Button variant="outline" onClick={quickSchedulePlus1h}>

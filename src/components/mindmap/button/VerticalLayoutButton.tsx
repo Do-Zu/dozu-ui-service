@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
 import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const elk = new ELK();
 
@@ -30,15 +31,21 @@ const VerticalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPan
     );
 
     return (
-        <Button
-            variant="outline"
-            onClick={() => {
-                onLayout({ direction: 'DOWN' });
-            }}
-        >
-            <ArrowDownFromLine />
-            {isPanelExpanded ? 'Set vertical layout' : ''}
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    size="icon-sm"
+                    variant="outline"
+                    onClick={() => {
+                        onLayout({ direction: 'DOWN' });
+                    }}
+                >
+                    <ArrowDownFromLine />
+                    {isPanelExpanded ? 'Set vertical layout' : ''}
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"> {'Vertical layout'}</TooltipContent>
+        </Tooltip>
     );
 };
 

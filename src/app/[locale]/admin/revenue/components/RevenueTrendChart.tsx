@@ -40,16 +40,16 @@ export function RevenueTrendChart({ data, period }: RevenueTrendProps) {
     return (
         <div className="space-y-6">
             {/* Area Chart */}
-            <div className="relative">
+            <div className="relative pl-20">
                 {/* Grid Lines */}
-                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pl-20">
                     {[0, 1, 2, 3, 4].map((i) => (
                         <div key={i} className="border-t border-dashed border-muted" />
                     ))}
                 </div>
 
                 {/* Y-axis labels */}
-                <div className="absolute -left-16 inset-y-0 flex flex-col justify-between text-xs text-muted-foreground">
+                <div className="absolute left-0 inset-y-0 flex flex-col justify-between text-xs text-muted-foreground w-16 pr-2 text-right">
                     {[
                         formatVND(maxRevenue),
                         formatVND(Math.floor(maxRevenue * 0.75)),
@@ -57,14 +57,18 @@ export function RevenueTrendChart({ data, period }: RevenueTrendProps) {
                         formatVND(Math.floor(maxRevenue * 0.25)),
                         '0 VND',
                     ].map((value, i) => (
-                        <span key={i}>{value}</span>
+                        <span key={i} className="whitespace-nowrap">{value}</span>
                     ))}
                 </div>
 
                 {/* Chart Container */}
-                <div className="relative h-80 pl-2">
+                <div className="relative h-80">
                     {/* SVG Area Chart */}
-                    <svg className="w-full h-full" preserveAspectRatio="none">
+                    <svg 
+                        className="w-full h-full" 
+                        viewBox="0 0 1000 320"
+                        preserveAspectRatio="none"
+                    >
                         {/* Generate area path */}
                         <defs>
                             <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -74,52 +78,66 @@ export function RevenueTrendChart({ data, period }: RevenueTrendProps) {
                         </defs>
 
                         {/* Area fill */}
-                        <path
-                            d={
-                                data.length > 0
-                                    ? `M 0 ${100 - (data[0].revenue / maxRevenue) * 100}% ${data
-                                          .map(
-                                              (item, i) =>
-                                                  `L ${(i / (data.length - 1 || 1)) * 100}% ${
-                                                      100 - (item.revenue / maxRevenue) * 100
-                                                  }%`
-                                          )
-                                          .join(' ')} L 100% 100% L 0 100% Z`
-                                    : ''
-                            }
-                            fill="url(#revenueGradient)"
-                        />
+                        {data.length > 0 && (() => {
+                            const width = 1000;
+                            const height = 320;
+                            const stepX = data.length > 1 ? width / (data.length - 1) : width;
+                            
+                            let pathData = '';
+                            
+                            // Start from first point
+                            const firstY = height - (data[0].revenue / maxRevenue) * height;
+                            pathData += `M 0 ${firstY} `;
+                            
+                            // Draw line to each point
+                            data.forEach((item, i) => {
+                                const x = data.length > 1 ? i * stepX : width / 2;
+                                const y = height - (item.revenue / maxRevenue) * height;
+                                pathData += `L ${x} ${y} `;
+                            });
+                            
+                            // Close the area
+                            pathData += `L ${width} ${height} L 0 ${height} Z`;
+                            
+                            return <path d={pathData} fill="url(#revenueGradient)" />;
+                        })()}
 
                         {/* Line */}
-                        <path
-                            d={
-                                data.length > 0
-                                    ? `M 0 ${100 - (data[0].revenue / maxRevenue) * 100}% ${data
-                                          .map(
-                                              (item, i) =>
-                                                  `L ${(i / (data.length - 1 || 1)) * 100}% ${
-                                                      100 - (item.revenue / maxRevenue) * 100
-                                                  }%`
-                                          )
-                                          .join(' ')}`
-                                    : ''
-                            }
-                            fill="none"
-                            stroke="rgb(59, 130, 246)"
-                            strokeWidth="2"
-                        />
+                        {data.length > 0 && (() => {
+                            const width = 1000;
+                            const height = 320;
+                            const stepX = data.length > 1 ? width / (data.length - 1) : width;
+                            
+                            let pathData = '';
+                            
+                            // Start from first point
+                            const firstY = height - (data[0].revenue / maxRevenue) * height;
+                            pathData += `M 0 ${firstY} `;
+                            
+                            // Draw line to each point
+                            data.forEach((item, i) => {
+                                const x = data.length > 1 ? i * stepX : width / 2;
+                                const y = height - (item.revenue / maxRevenue) * height;
+                                pathData += `L ${x} ${y} `;
+                            });
+                            
+                            return <path d={pathData} fill="none" stroke="rgb(59, 130, 246)" strokeWidth="2" />;
+                        })()}
 
                         {/* Data points */}
                         {data.map((item, i) => {
-                            const x = (i / (data.length - 1 || 1)) * 100;
-                            const y = 100 - (item.revenue / maxRevenue) * 100;
+                            const width = 1000;
+                            const height = 320;
+                            const stepX = data.length > 1 ? width / (data.length - 1) : width / 2;
+                            const x = i * stepX;
+                            const y = height - (item.revenue / maxRevenue) * height;
                             const isHovered = hoveredIndex === i;
 
                             return (
                                 <circle
                                     key={i}
-                                    cx={`${x}%`}
-                                    cy={`${y}%`}
+                                    cx={x}
+                                    cy={y}
                                     r={isHovered ? 6 : 4}
                                     fill="rgb(59, 130, 246)"
                                     stroke="white"
@@ -137,7 +155,7 @@ export function RevenueTrendChart({ data, period }: RevenueTrendProps) {
                         <div
                             className="absolute bg-popover text-popover-foreground border rounded-lg shadow-lg p-3 z-10 pointer-events-none"
                             style={{
-                                left: `${(hoveredIndex / (data.length - 1 || 1)) * 100}%`,
+                                left: `${data.length > 1 ? (hoveredIndex / (data.length - 1)) * 100 : 50}%`,
                                 top: `${100 - (data[hoveredIndex].revenue / maxRevenue) * 100}%`,
                                 transform: 'translate(-50%, -120%)',
                             }}

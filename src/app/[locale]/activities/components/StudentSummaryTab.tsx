@@ -16,13 +16,13 @@ export default function StudentSummaryTab({ students }: StudentSummaryTabProps) 
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Student Summary</CardTitle>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-muted-foreground">
             Overview of all students and their quiz completion status
           </p>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-muted-foreground">
               <span>({students.length}) Student A-Z</span>
               <span>Status</span>
             </div>
