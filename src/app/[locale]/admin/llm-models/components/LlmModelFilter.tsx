@@ -13,6 +13,7 @@ import { getProviderColor } from '@/utils/providerColors';
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
 import { toast } from '@/hooks/use-toast';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface LlmModelFilterProps {
     onFilterChange: (filters: GetLlmModelsQuery) => void;
@@ -34,7 +35,7 @@ export function LlmModelFilter({ onFilterChange }: LlmModelFilterProps) {
             try {
                 setLoadingProviders(true);
                 const response: ApiResponse<LlmProvidersResponse> = await getRequest<unknown, LlmProvidersResponse>(
-                    '/admin/llm-providers?limit=100'
+                    ROUTES.LLM_PROVIDERS_LIST_ALL
                 );
                 setProviders(response.data?.providers || []);
             } catch (error) {

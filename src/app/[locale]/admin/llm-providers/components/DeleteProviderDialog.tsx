@@ -2,6 +2,7 @@
 
 import { LlmProvider } from '@/types/llm-admin/llmProvider';
 import { DeleteConfirmationDialog, DeleteConfirmationDialogConfig } from '@/components/admin/DeleteConfirmationDialog';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface DeleteProviderDialogProps {
     provider: LlmProvider;
@@ -16,7 +17,7 @@ export function DeleteProviderDialog({ provider, open, onOpenChange, onSuccess }
         entityName: 'Provider',
         entityDisplayName: provider.name,
         entityId: provider.providerId,
-        endpoint: `/admin/llm-providers/${provider.providerId}`,
+        endpoint: ROUTES.LLM_PROVIDERS_DELETE(provider.providerId),
         description:
             'This action cannot be undone. This will permanently delete the provider and may affect related models and API keys.',
         renderInfoFields: (provider) => (

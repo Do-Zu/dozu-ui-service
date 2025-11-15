@@ -5,6 +5,7 @@ import { withAuth } from '@/hoc/withAuth';
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
 import { LlmModel, LlmModelsResponse, GetLlmModelsQuery } from '@/types/llm-admin/llmModel';
+import { ROUTES } from '@/utils/constants/routes';
 import { DataTable } from '@/components/ui/data-table';
 import { getLlmModelColumns } from './components/Columns';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,7 @@ function AdminLlmModelsPage() {
                     }, {} as Record<string, string>)
                 ).toString();
 
-                const url = query ? `/admin/llm-models?${query}` : '/admin/llm-models';
+                const url = ROUTES.LLM_MODELS_LIST(query);
                 const response: ApiResponse<LlmModelsResponse> = await getRequest<unknown, LlmModelsResponse>(url);
                 
                 if (response.data) {

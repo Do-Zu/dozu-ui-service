@@ -18,6 +18,7 @@ import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import { CreateLlmProviderInput, UpdateLlmProviderInput, LlmProvider } from '@/types/llm-admin/llmProvider';
 import errorHelper from '@/utils/error.helper';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface CreateEditLlmProviderDialogProps {
     open: boolean;
@@ -69,7 +70,7 @@ export function CreateEditLlmProviderDialog({
     };
 
     const { execute: createProvider, loading: createLoading } = usePost(
-        '/admin/llm-providers',
+        ROUTES.LLM_PROVIDERS_CREATE,
         'POST',
         {
             onError: (error) => {
@@ -87,7 +88,7 @@ export function CreateEditLlmProviderDialog({
     );
 
     const { execute: updateProvider, loading: updateLoading } = usePost(
-        `/admin/llm-providers/${provider?.providerId}`,
+        provider?.providerId ? ROUTES.LLM_PROVIDERS_UPDATE(provider.providerId) : '',
         'PATCH',
         {
             onError: (error) => {

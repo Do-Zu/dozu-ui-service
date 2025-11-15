@@ -23,6 +23,7 @@ import errorHelper from '@/utils/error.helper';
 import { getProviderColor } from '@/utils/providerColors';
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface CreateEditLlmModelDialogProps {
     open: boolean;
@@ -56,7 +57,7 @@ export function CreateEditLlmModelDialog({
             try {
                 setLoadingProviders(true);
                 const response: ApiResponse<LlmProvidersResponse> = await getRequest<unknown, LlmProvidersResponse>(
-                    '/admin/llm-providers?limit=100'
+                    ROUTES.LLM_PROVIDERS_LIST_ALL
                 );
                 setProviders(response.data?.providers || []);
             } catch (error) {
@@ -103,7 +104,7 @@ export function CreateEditLlmModelDialog({
     };
 
     const { execute: createModel, loading: createLoading } = usePost(
-        '/admin/llm-models',
+        ROUTES.LLM_MODELS_CREATE,
         'POST',
         {
             onError: (error) => {
@@ -121,7 +122,7 @@ export function CreateEditLlmModelDialog({
     );
 
     const { execute: updateModel, loading: updateLoading } = usePost(
-        `/admin/llm-models/${model?.modelId}`,
+        model?.modelId ? ROUTES.LLM_MODELS_UPDATE(model.modelId) : '',
         'PATCH',
         {
             onError: (error) => {

@@ -5,6 +5,7 @@ import { withAuth } from '@/hoc/withAuth';
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
 import { LlmProvider, LlmProvidersResponse, GetLlmProvidersQuery } from '@/types/llm-admin/llmProvider';
+import { ROUTES } from '@/utils/constants/routes';
 import { DataTable } from '@/components/ui/data-table';
 import { getLlmProviderColumns } from './components/Columns';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,7 @@ function AdminLlmProvidersPage() {
                     }, {} as Record<string, string>)
                 ).toString();
 
-                const url = query ? `/admin/llm-providers?${query}` : '/admin/llm-providers';
+                const url = ROUTES.LLM_PROVIDERS_LIST(query);
                 const response: ApiResponse<LlmProvidersResponse> = await getRequest<unknown, LlmProvidersResponse>(url);
                 
                 if (response.data) {

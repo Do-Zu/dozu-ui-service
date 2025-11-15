@@ -4,6 +4,7 @@ import { LlmModel } from '@/types/llm-admin/llmModel';
 import { DeleteConfirmationDialog, DeleteConfirmationDialogConfig } from '@/components/admin/DeleteConfirmationDialog';
 import { getProviderBadgeClass } from '@/utils/providerColors';
 import { Badge } from '@/components/ui/badge';
+import { ROUTES } from '@/utils/constants/routes';
 
 interface DeleteModelDialogProps {
     model: LlmModel;
@@ -18,7 +19,7 @@ export function DeleteModelDialog({ model, open, onOpenChange, onSuccess }: Dele
         entityName: 'Model',
         entityDisplayName: model.name,
         entityId: model.modelId,
-        endpoint: `/admin/llm-models/${model.modelId}`,
+        endpoint: ROUTES.LLM_MODELS_DELETE(model.modelId),
         description:
             'This action cannot be undone. This will permanently delete the model and may affect related API keys and configurations.',
         renderInfoFields: (model) => (

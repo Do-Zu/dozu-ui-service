@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import usePost from '@/hooks/usePost';
 import { toast } from '@/hooks/use-toast';
 import { Edit, Trash2, Power } from 'lucide-react';
+import { ROUTES } from '@/utils/constants/routes';
 import { useState } from 'react';
 import { DeleteProviderDialog } from './DeleteProviderDialog';
 import { getProviderColor } from '@/utils/providerColors';
@@ -24,7 +25,7 @@ function ActionButtons({
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     const { execute: toggleAvailability, loading: toggleLoading } = usePost(
-        `/admin/llm-providers/${provider.providerId}/toggle-availability`,
+        ROUTES.LLM_PROVIDERS_TOGGLE_AVAILABILITY(provider.providerId),
         'PATCH',
         {
             onMessageError: () =>
