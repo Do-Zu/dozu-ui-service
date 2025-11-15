@@ -16,19 +16,38 @@ export default function EditClassQuizPage() {
 
   // (optional) nếu muốn load draft hiện có từ BE thì thêm endpoint service; ở đây để sẵn state:
   const [initialDraft, setInitialDraft] = useState<IDraftJson | undefined>(undefined);
+  const [initialTitle, setInitialTitle] = useState<string | undefined>(undefined);
+  const [initialContent, setInitialContent] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
-  // TODO: gọi API load draft nếu bạn có endpoint; nếu chưa, bỏ useEffect này
+  // Load draft và quiz info
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const r = await classQuizTeacherService.getDraft(quizId);
+        // Load draft và quiz info song song
+        const [draftResult, quizResult] = await Promise.allSettled([
+          classQuizTeacherService.getDraft(quizId),
+          classQuizTeacherService.getClassQuiz(quizId).catch(() => null), // Nếu không có endpoint thì bỏ qua
+        ]);
+        
         if (!mounted) return;
-        // Nếu chưa có draft thì để undefined => editor sẽ tạo 3 câu trống mặc định
-        setInitialDraft(r.draftJson ?? undefined);
+
+        // Xử lý draft
+        if (draftResult.status === 'fulfilled') {
+          setInitialDraft(draftResult.value.draftJson ?? undefined);
+        } else {
+          // Nếu không có draft thì để undefined => editor sẽ tạo 3 câu trống mặc định
+          setInitialDraft(undefined);
+        }
+
+        // Xử lý quiz info
+        if (quizResult.status === 'fulfilled' && quizResult.value) {
+          setInitialTitle(quizResult.value.title);
+          setInitialContent(quizResult.value.content);
+        }
       } catch (e:any) {
-        toast({ title: 'Không tải được bản nháp', description: e?.message, variant: 'destructive' });
+        toast({ title: 'Không tải được thông tin quiz', description: e?.message, variant: 'destructive' });
       } finally {
         mounted && setLoading(false);
       }
@@ -44,6 +63,14 @@ export default function EditClassQuizPage() {
     router.push(ROUTES.TEACHER.CLASS_BASED_ID_CLASS_QUIZ_LIST(Number(id)));
   };
 
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 max-w-5xl">
+        <div>Đang tải...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 max-w-5xl">
       <h1 className="text-2xl font-bold mb-4">Edit Quiz #{quizId}</h1>
@@ -51,6 +78,8 @@ export default function EditClassQuizPage() {
         key={initialDraft ? JSON.stringify([initialDraft.orderSeed, initialDraft.items?.length]) : 'empty'}
         quizId={quizId}
         initialDraft={initialDraft}
+        initialTitle={initialTitle}
+        initialContent={initialContent}
         onSaved={handleSaved}
         onPublished={handlePublished}
       />
