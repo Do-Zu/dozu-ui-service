@@ -21,13 +21,13 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
     const rootNode = nodes.find((node) => node.data.isRoot === true);
     // const baseNodes: string[] = [];
     const baseNodes: AppNode[] = [];
-        const baseEdges = edges.filter((edge) => edge.source === rootNode?.data.nodeId);
-        baseEdges.forEach((edge) => {
-            const targetNode = nodes.find((node) => node.data.nodeId === edge.target);
-            if (targetNode) {
-                baseNodes.push(targetNode);
-            }
-        });
+    const baseEdges = edges.filter((edge) => edge.source === rootNode?.data.nodeId);
+    baseEdges.forEach((edge) => {
+        const targetNode = nodes.find((node) => node.data.nodeId === edge.target);
+        if (targetNode) {
+            baseNodes.push(targetNode);
+        }
+    });
 
     function normalizeRoadmapOrder(baseNodes: AppNode[]) {
         const total = baseNodes.length;
@@ -51,11 +51,16 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
         const finalOrdered = [...validNodes, ...invalidNodes];
 
         // Step 4: Assign new clean 0..N-1 order numbers
-        finalOrdered.forEach((node, index) => {
-            node.data.roadmapOrder = index;
-        });
+        // Avoid mutating the original node objects (they may be frozen).
+        const newFinal = finalOrdered.map((node, index) => ({
+            ...node,
+            data: {
+                ...node.data,
+                roadmapOrder: index,
+            },
+        }));
 
-        return finalOrdered;
+        return newFinal;
     }
 
     const orderedBaseNodes = normalizeRoadmapOrder(baseNodes);
@@ -76,7 +81,7 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
                 <SheetHeader>
                     <SheetTitle>{t('RoadmapButtonLabel')}</SheetTitle>
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                        <RoadmapList initialItems={orderedBaseNodes} setNodes={setNodes}/>
+                        <RoadmapList initialItems={orderedBaseNodes} setNodes={setNodes} />
                     </div>
                 </SheetHeader>
             </SheetContent>
