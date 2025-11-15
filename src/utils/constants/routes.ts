@@ -38,6 +38,23 @@ export const ROUTES = Object.freeze({
     ADMIN: '/admin',
     ADMIN_STATISTICS: '/admin/stats',
 
+    // LLM Models
+    LLM_MODELS: '/admin/llm-models',
+    LLM_MODELS_LIST: (query?: string) => (query ? `/admin/llm-models?${query}` : '/admin/llm-models'),
+    LLM_MODELS_CREATE: '/admin/llm-models',
+    LLM_MODELS_UPDATE: (id: string | number) => `/admin/llm-models/${id}`,
+    LLM_MODELS_DELETE: (id: string | number) => `/admin/llm-models/${id}`,
+    LLM_MODELS_TOGGLE_AVAILABILITY: (id: string | number) => `/admin/llm-models/${id}/toggle-availability`,
+
+    // LLM Providers
+    LLM_PROVIDERS: '/admin/llm-providers',
+    LLM_PROVIDERS_LIST: (query?: string) => (query ? `/admin/llm-providers?${query}` : '/admin/llm-providers'),
+    LLM_PROVIDERS_LIST_ALL: '/admin/llm-providers?limit=100',
+    LLM_PROVIDERS_CREATE: '/admin/llm-providers',
+    LLM_PROVIDERS_UPDATE: (id: string | number) => `/admin/llm-providers/${id}`,
+    LLM_PROVIDERS_DELETE: (id: string | number) => `/admin/llm-providers/${id}`,
+    LLM_PROVIDERS_TOGGLE_AVAILABILITY: (id: string | number) => `/admin/llm-providers/${id}/toggle-availability`,
+
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
