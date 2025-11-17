@@ -1,5 +1,9 @@
 {
     "flashcard": {
+        "common": {
+            "front": "Thuật ngữ",
+            "back": "Định nghĩa"
+        },
         "edit": {
             "import": "Tải lên",
             "save": "Lưu",

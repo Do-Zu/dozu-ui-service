@@ -68,7 +68,7 @@ const FeynmanPage = () => {
 
     const {
         execute: executeGetQuestion,
-        loading: isRegisterFetchQuestion,
+        isRegisterGenerate: isRegisterFetchQuestion,
         dataGenerated: dataFeynmanQuestion,
         isGenerating: isGeneratingQuestion,
         apiPostContentError: errorGenerateQuestion,
@@ -79,7 +79,7 @@ const FeynmanPage = () => {
 
     const {
         execute: executeReview,
-        loading: isRegisterReview,
+        isRegisterGenerate: isRegisterReview,
         dataGenerated: dataFeynmanReviewed,
         isGenerating: isGeneratingReview,
         apiPostContentError: errorReview,

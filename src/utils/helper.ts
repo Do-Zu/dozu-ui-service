@@ -251,6 +251,17 @@ const isNil = (val: unknown) => {
     return val === null || val === undefined;
 };
 
+const countWords = (text: string): number => {
+    if (!text || typeof text !== 'string') {
+        return 0;
+    }
+
+    const wordPattern = /\b[\w'-]+\b/g;
+    const matches = text.match(wordPattern);
+
+    return matches ? matches.length : 0;
+};
+
 export {
     deepClone,
     toTitleCase,
@@ -269,4 +280,5 @@ export {
     compareIgnoreCapitalization,
     validateArray,
     isNil,
+    countWords,
 };

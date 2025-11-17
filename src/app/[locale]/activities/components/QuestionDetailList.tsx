@@ -30,42 +30,42 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
       case 'thuong_sai':
         return {
           name: 'Thường sai',
-          color: 'bg-red-500',
-          textColor: 'text-red-700',
-          bgColor: 'bg-red-50',
-          borderColor: 'border-red-200'
+          color: 'bg-red-500 dark:bg-destructive',
+          textColor: 'text-red-700 dark:text-destructive',
+          bgColor: 'bg-red-50 dark:bg-destructive/10',
+          borderColor: 'border-red-200 dark:border-destructive/50'
         };
       case 'doi_luc_sai':
         return {
           name: 'Đôi lúc sai',
-          color: 'bg-yellow-500',
-          textColor: 'text-yellow-700',
-          bgColor: 'bg-yellow-50',
-          borderColor: 'border-yellow-200'
+          color: 'bg-yellow-500 dark:bg-yellow-600',
+          textColor: 'text-yellow-700 dark:text-yellow-300',
+          bgColor: 'bg-yellow-50 dark:bg-yellow-500/20',
+          borderColor: 'border-yellow-200 dark:border-yellow-500/50'
         };
       case 'it_khi_sai':
         return {
           name: 'Ít khi sai',
-          color: 'bg-green-500',
-          textColor: 'text-green-700',
-          bgColor: 'bg-green-50',
-          borderColor: 'border-green-200'
+          color: 'bg-green-500 dark:bg-green-600',
+          textColor: 'text-green-700 dark:text-green-300',
+          bgColor: 'bg-green-50 dark:bg-green-500/20',
+          borderColor: 'border-green-200 dark:border-green-500/50'
         };
       case 'chua_bat_dau':
         return {
           name: 'Chưa bắt đầu',
-          color: 'bg-gray-400',
-          textColor: 'text-gray-700',
-          bgColor: 'bg-gray-50',
-          borderColor: 'border-gray-200'
+          color: 'bg-gray-400 dark:bg-muted-foreground',
+          textColor: 'text-gray-700 dark:text-muted-foreground',
+          bgColor: 'bg-gray-50 dark:bg-muted',
+          borderColor: 'border-gray-200 dark:border-border'
         };
       default:
         return {
           name: 'Unknown',
-          color: 'bg-gray-400',
-          textColor: 'text-gray-700',
-          bgColor: 'bg-gray-50',
-          borderColor: 'border-gray-200'
+          color: 'bg-gray-400 dark:bg-muted-foreground',
+          textColor: 'text-gray-700 dark:text-muted-foreground',
+          bgColor: 'bg-gray-50 dark:bg-muted',
+          borderColor: 'border-gray-200 dark:border-border'
         };
     }
   };
@@ -102,7 +102,7 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
         return (
           <Card key={level} className={`${config.bgColor} ${config.borderColor} border-l-4`}>
             <CardHeader 
-              className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors"
+              className="pb-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-muted/50 transition-colors"
               onClick={() => toggleSection(level)}
             >
               <div className="flex items-center justify-between">
@@ -110,22 +110,22 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
                   <Badge className={`${config.bgColor} ${config.textColor} border-0`}>
                     {levelQuestions.length}
                   </Badge>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-foreground">
                     {levelQuestions.length} {config.name}
                   </h3>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-500 dark:text-muted-foreground">
                     {isExpanded ? 'Hide' : 'Show'} details
                   </span>
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
+                    <ChevronUp className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <ChevronDown className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
                   )}
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mt-1">{getDescription(level)}</p>
+              <p className="text-sm text-gray-600 dark:text-muted-foreground mt-1">{getDescription(level)}</p>
             </CardHeader>
             
             {isExpanded && (
@@ -134,21 +134,21 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
                   {levelQuestions.map((question) => (
                     <div 
                       key={question.questionId} 
-                      className="bg-white rounded-lg p-4 border border-gray-200"
+                      className="bg-white dark:bg-background rounded-lg p-4 border border-gray-200 dark:border-border"
                     >
                       <div className="grid grid-cols-12 gap-4 items-start">
                         <div className="col-span-1">
                           <div className={`w-12 h-8 rounded flex items-center justify-center text-white font-semibold text-sm ${config.color}`}>
-                            {Number(question.accuracyPercentage).toFixed(1)}%
+                            {Number(question.accuracyPercentage).toFixed(0)}%
                           </div>
                         </div>
                         <div className="col-span-5">
-                          <h4 className="font-medium text-gray-900 text-sm">
+                          <h4 className="font-medium text-gray-900 dark:text-foreground text-sm">
                             {question.questionText}
                           </h4>
                         </div>
                         <div className="col-span-6">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-muted-foreground">
                             {question.definition}
                           </p>
                         </div>

@@ -4,22 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import toastHelper from '@/utils/toast.helper';
-import { Download, Maximize, Minimize, RotateCwSquare } from 'lucide-react';
+import { Download, Loader2, Maximize, Minimize, RotateCwSquare } from 'lucide-react';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
-import React, { ChangeEvent, Dispatch, RefObject, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { Input } from '@/components/ui/input';
+
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import { Input } from '@/components/ui/input';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface ToolbarProps {
+    pdfUrl: string;
+    fileName: string;
     onRotateClick: () => void;
     scale: string;
     onScaleSelect: (value: string) => void;
-    onDownloadClick: (downloadRef: RefObject<HTMLAnchorElement>) => void;
     isFullScreen: boolean;
     onScreenModeToogle: () => void;
 
@@ -31,19 +33,17 @@ interface ToolbarProps {
 const scaleOptions = ['fit', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1', '1.1', '1.2'];
 
 function PdfToolbar({
+    pdfUrl,
+    fileName,
     onRotateClick,
     scale,
     onScaleSelect,
     isFullScreen,
     onScreenModeToogle,
-    onDownloadClick,
     pageNumber,
     setPageNumber,
     numPages,
 }: ToolbarProps) {
-
-    const downloadRef = useRef<HTMLAnchorElement>(null);
-
     function onPageNumberChange(event: ChangeEvent<HTMLInputElement>) {
         const raw = event.target.value;
         const value = Number(raw);
@@ -95,9 +95,15 @@ function PdfToolbar({
                     <RotateCwSquare className="h-4 w-4" />
                 </Button>
 
-                <Button variant="ghost" size="icon" onClick={() => onDownloadClick(downloadRef)}>
-                    <a ref={downloadRef}><Download className="h-4 w-4" /></a>
-                </Button>
+                <a
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                    href={pdfUrl}
+                    download={fileName}
+                    aria-label="Download PDF"
+                    title="Download PDF"
+                >
+                    <Download className="h-4 w-4" />
+                </a>
 
                 <Button variant="ghost" size="icon" onClick={onScreenModeToogle}>
                     {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -113,15 +119,14 @@ interface Props {
 }
 
 const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
+    const { pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
+
     const [numPages, setNumPages] = useState<number | null>(null);
-    const [pageNumber, setPageNumber] = useState<number>(1);
     const documentRef = useRef<HTMLDivElement>(null);
     const [documentSize, setDocumentSize] = useState<{ width: number; height: number }>();
     const [documentScale, setDocumentScale] = useState<number>(1);
 
     const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>();
-
-    const { isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
     const [rotate, setRotate] = useState<number>(0);
     const [selectedScaleOption, setSelectedScaleOption] = useState<string>('fit');
 
@@ -210,22 +215,25 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
         setIsPdfViewerFullScreen((prev) => !prev);
     }
 
-    function onDownloadClick(downloadRef: React.RefObject<HTMLAnchorElement>) {
-        if (!downloadRef.current) return;
-        downloadRef.current.href = pdfUrl;
-        downloadRef.current.download = fileName;
-        downloadRef.current.click();
+    function onPageLoading(pageNumber: number) {
+        return (
+            <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Loading page...</span>
+            </div>
+        );
     }
 
     return (
         <div className="flex flex-col gap-2">
             <PdfToolbar
+                pdfUrl={pdfUrl}
+                fileName={fileName}
                 onRotateClick={onRotateClick}
                 scale={selectedScaleOption}
                 onScaleSelect={onScaleSelect}
                 isFullScreen={isPdfViewerFullscreen}
                 onScreenModeToogle={onScreenModeToogle}
-                onDownloadClick={onDownloadClick}
                 pageNumber={pageNumber}
                 setPageNumber={setPageNumber}
                 numPages={numPages || 0}
@@ -236,8 +244,8 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
                     onLoadError={onDocumentLoadError}
                     onLoadSuccess={onDocumentLoadSuccess}
                     inputRef={documentRef}
-                    className="h-full overflow-y-auto"
                     onScroll={handleDocumentScroll}
+                    className="h-full overflow-y-auto"
                 >
                     {Array.from({ length: numPages || 0 }, (_, index) => {
                         const pageNumber = index + 1;
@@ -247,6 +255,7 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
                                 pageNumber={pageNumber}
                                 scale={documentScale}
                                 rotate={rotate}
+                                loading={() => onPageLoading(pageNumber)}
                             ></Page>
                         );
                     })}

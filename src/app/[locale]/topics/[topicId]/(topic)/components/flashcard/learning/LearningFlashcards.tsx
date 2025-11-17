@@ -17,12 +17,12 @@ import { METHOD_LEARNING } from '@/utils/constants/method';
 import LoadingPage from '@/app/loading';
 import BacklogCTA from '@/app/[locale]/flashcards/learning/components/BacklogCTA';
 import QuickQuizPrompt from '@/app/[locale]/flashcards/learning/components/QuickQuizPrompt';
-import LearningCard from '../LearningCard';
+import LearningCard from './LearningCard';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import LearningFlashcardsEmptyState from './LearningFlashcardsEmptyState';
 
-export default function LearningFlashcard() {
+export default function LearningFlashcards() {
     const { topic } = useRequireTopic();
     const { topicId, flashcardCounts } = topic;
     const { learningFlashcards: flashcards, onReviewCard } = useRequireLearningFlashcards();

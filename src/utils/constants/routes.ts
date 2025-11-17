@@ -1,4 +1,5 @@
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import { ContentType } from '@/app/[locale]/generate/components/ContentGenerationPreview';
 
 export const ROUTES = Object.freeze({
     LANDING: '/',
@@ -29,12 +30,30 @@ export const ROUTES = Object.freeze({
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
     FEYNMAN_REVIEW: (topicId: string | number, method: string) => `/feynman/${topicId}?method=${method}`,
     ANKI_SETTINGS: (topicId: string | number) => `/topics/${topicId}/settings/anki`,
-    TOPIC_WORKSPACE: ({ topicId }: { topicId: number }) => `/topics/${topicId}`,
+    TOPIC_WORKSPACE: ({ topicId, tab }: { topicId: number; tab?: ContentType | null }) =>
+        tab ? `/topics/${topicId}?tab=${tab}` : `/topics/${topicId}`,
 
     // ======================= ADMIN ROUTES ========================
 
     ADMIN: '/admin',
     ADMIN_STATISTICS: '/admin/stats',
+
+    // LLM Models
+    LLM_MODELS: '/admin/llm-models',
+    LLM_MODELS_LIST: (query?: string) => (query ? `/admin/llm-models?${query}` : '/admin/llm-models'),
+    LLM_MODELS_CREATE: '/admin/llm-models',
+    LLM_MODELS_UPDATE: (id: string | number) => `/admin/llm-models/${id}`,
+    LLM_MODELS_DELETE: (id: string | number) => `/admin/llm-models/${id}`,
+    LLM_MODELS_TOGGLE_AVAILABILITY: (id: string | number) => `/admin/llm-models/${id}/toggle-availability`,
+
+    // LLM Providers
+    LLM_PROVIDERS: '/admin/llm-providers',
+    LLM_PROVIDERS_LIST: (query?: string) => (query ? `/admin/llm-providers?${query}` : '/admin/llm-providers'),
+    LLM_PROVIDERS_LIST_ALL: '/admin/llm-providers?limit=100',
+    LLM_PROVIDERS_CREATE: '/admin/llm-providers',
+    LLM_PROVIDERS_UPDATE: (id: string | number) => `/admin/llm-providers/${id}`,
+    LLM_PROVIDERS_DELETE: (id: string | number) => `/admin/llm-providers/${id}`,
+    LLM_PROVIDERS_TOGGLE_AVAILABILITY: (id: string | number) => `/admin/llm-providers/${id}/toggle-availability`,
 
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
@@ -79,6 +98,19 @@ export const ROUTES = Object.freeze({
 
         CLASS_TOPIC_WORKSPACE: ({ classId, topicId }: { classId: number; topicId: number }) =>
             `/teacher/class-based/${classId}/topics/${topicId}`,
+        CLASS_BASED_ID_CLASS_QUIZ_LIST: (classId: number) => `/teacher/class-based/${classId}/class-quiz`,
+        CLASS_BASED_ID_CLASS_QUIZ_EDIT: (classId: number, classQuizId: number) =>
+            `/teacher/class-based/${classId}/class-quiz/${classQuizId}/edit`,
+        CLASS_BASED_ID_CLASS_QUIZ_ACTIVITY: (classId: number, classQuizId: number) =>
+            `/teacher/class-based/${classId}/activities/${classQuizId}`,
+    },
+
+    // ======================= STUDENT ROUTES ========================
+    STUDENT: {
+        CLASS_BASED_ID_CLASS_QUIZ_START: (classId: number, classQuizId: number) =>
+            `/class-based/${classId}/class-quiz/${classQuizId}/start`,
+        CLASS_BASED_ID_CLASS_QUIZ_SUBMIT: (classId: number, classQuizId: number, attemptId: number, ) =>
+            `/class-based/${classId}/class-quiz/${classQuizId}/submit?attemptId=${attemptId}`,
     },
 });
 

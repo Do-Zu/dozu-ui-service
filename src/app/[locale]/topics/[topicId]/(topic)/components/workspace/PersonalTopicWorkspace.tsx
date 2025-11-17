@@ -1,44 +1,32 @@
+import { useEffect, useState } from 'react';
+import useFetch from '@/hooks/useFetch';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Maximize, Minimize } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import LearningMaterial from '../material/LearningMaterial';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
-import TopicOverview from '../overview/TopicOverview';
-import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
-import useFetch from '@/hooks/useFetch';
+import { TopicWorkspaceTabValue } from '../../types';
+import LearningMaterial from '../material/LearningMaterial';
+import { TOPIC_WORKSPACE_TABS } from '../../layout/config.layout';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-import topicService from '@/services/topic/topic.service';
-import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
 import LoadingPage from '@/app/loading';
-import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import FlashcardContent from '../flashcard/FlashcardContent';
-import flashcardUtils from '../../utils/flashcard.utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import DataStatus from '@/components/errors/DataStatus';
+import topicService from '@/services/topic/topic.service';
+import { isEmpty } from '@/utils';
+import { cn } from '@/lib/utils';
 
-interface Props {
-    topicId: number;
-}
+export default function PersonalTopicWorkspace() {
+    const { topic, topicId, setTopic, isPdfViewerFullscreen, setTab, tab } = useTopicWorkspace();
 
-export default function PersonalTopicWorkspace({ topicId }: Props) {
     const [isFullscreen, setIsFullscreen] = useState(false);
+
     function handleScreenModeToggle() {
         setIsFullscreen((prev) => !prev);
     }
 
-    const { isPdfViewerFullscreen } = useTopicWorkspace();
-
-    const {
-        topic,
-        flashcards,
-        learningFlashcards,
-        setTopic,
-        setFlashcards,
-        setLearningFlashcards,
-        ankiSettings,
-        setAnkiSettings,
-    } = useTopicWorkspace();
+    function handleTabChange(value: string) {
+        setTab(value as TopicWorkspaceTabValue);
+    }
 
     const {
         data: topicContent,
@@ -50,42 +38,11 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
         setTopic(topicContent);
     }, [topicContent]);
 
-    //... flashcard content
-    const [shouldFetchFlashcardContent, setShouldFetchFlashcardContent] = useState(false);
-    const {
-        data: flashcardContent,
-        loading: flashcardContentLoading,
-        error: flashcardContentError,
-    } = useFetch<IFlashcardContent>(() => flashcardContentService.getFlashcardContent({ topicId }), {
-        shouldRun: shouldFetchFlashcardContent,
-    });
+    if (topicContentLoading) return <LoadingPage />;
 
-    useEffect(() => {
-        if (flashcardContent) {
-            setFlashcards(flashcardContent.flashcards);
-            setLearningFlashcards(flashcardContent.learningFlashcards);
-            setAnkiSettings(flashcardContent.ankiSettings);
-        }
-    }, [flashcardContent]);
+    if (topicContentError) return <DataStatus variant="error" title={topicContentError} />;
 
-    function handleTabChange(value: string) {
-        if (value === 'flashcards' && !shouldFetchFlashcardContent) {
-            setShouldFetchFlashcardContent(true);
-        }
-    }
-
-    useEffect(() => {
-        if (!flashcards || !learningFlashcards) return;
-        // recalculate flashcard counts
-        setTopic((prev) => {
-            if (!prev) return prev;
-            const updatedFlashcardCounts = flashcardUtils.recalculateFlashcardCounts({
-                flashcards,
-                learningFlashcards,
-            });
-            return { ...prev, flashcardCounts: updatedFlashcardCounts };
-        });
-    }, [flashcards, learningFlashcards]);
+    if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
     return (
         <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background m-2">
@@ -98,20 +55,16 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
 
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={35} className={isFullscreen ? 'hidden' : ''} minSize={35}>
-                    <ScrollArea className="flex flex-col h-full p-4 ml-1">
-                        <LearningMaterial topicId={topicId} />
-                    </ScrollArea>
+                    <div className="flex flex-col h-full p-4">
+                        <LearningMaterial />
+                    </div>
                 </ResizablePanel>
 
                 <ResizableHandle withHandle className={isFullscreen || isPdfViewerFullscreen ? 'hidden' : ''} />
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full">
-                        <Tabs
-                            defaultValue="overview"
-                            className="flex flex-col flex-1 h-full"
-                            onValueChange={handleTabChange}
-                        >
+                        <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
                             {!isFullscreen && (
                                 <div className="p-6 pb-2">
                                     <div className="flex items-center justify-between mb-4">
@@ -121,38 +74,19 @@ export default function PersonalTopicWorkspace({ topicId }: Props) {
                             )}
 
                             <div className={cn('flex-1 h-full', isFullscreen ? 'px-6 py-3' : 'px-3')}>
-                                <TabsList className="grid w-full grid-cols-4">
-                                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                                    <TabsTrigger value="mindmap">Mindmap</TabsTrigger>
-                                    <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
-                                    <TabsTrigger value="quiz">Quiz</TabsTrigger>
+                                <TabsList className="grid w-full grid-cols-5">
+                                    {TOPIC_WORKSPACE_TABS.map((t) => (
+                                        <TabsTrigger key={t.value} value={t.value}>
+                                            {t.label}
+                                        </TabsTrigger>
+                                    ))}
                                 </TabsList>
-                                <TabsContent value="overview" className="h-full p-4 border rounded-md">
-                                    {topicContentError ? <div>{topicContentError}</div> : null}
-                                    {topicContentLoading ? <LoadingPage /> : null}
-                                    {topic ? <TopicOverview mode={MODE_ACCESS_PAGE_ROLE.personal} /> : null}
-                                </TabsContent>
-                                <TabsContent value="mindmap" className="h-full p-4 border rounded-md">
-                                    <p>Mindmap content goes here.</p>
-                                </TabsContent>
-                                <TabsContent value="flashcards" className="h-full p-4 border rounded-md">
-                                    <>
-                                        {topicContentError || flashcardContentError ? (
-                                            <div className="p-8">{topicContentError || flashcardContentError}</div>
-                                        ) : null}
-                                        {topicContentLoading || flashcardContentLoading ? <LoadingPage /> : null}
-                                        {topic &&
-                                        flashcardContent &&
-                                        flashcards &&
-                                        learningFlashcards &&
-                                        ankiSettings ? (
-                                            <FlashcardContent mode={MODE_ACCESS_PAGE_ROLE.personal} />
-                                        ) : null}
-                                    </>
-                                </TabsContent>
-                                <TabsContent value="quiz" className="h-full p-4 border rounded-md">
-                                    <p>Quiz content goes here.</p>
-                                </TabsContent>
+
+                                {TOPIC_WORKSPACE_TABS.map((t) => (
+                                    <TabsContent key={t.value} value={t.value} className="h-full p-4 border rounded-md">
+                                        <t.component />
+                                    </TabsContent>
+                                ))}
                             </div>
                         </Tabs>
                     </div>

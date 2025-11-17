@@ -17,6 +17,7 @@ const DeleteNodeButton = ({ nodeId }: DeleteNodeButtonParams) => {
         deleteNode({ nodeId: nodeId, edges, setNodes, setEdges });
     };
     return (
+        
         <Button variant="ghost" onClick={handleOnClickDelete}>
             <Trash />
         </Button>

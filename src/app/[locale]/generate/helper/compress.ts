@@ -34,13 +34,11 @@ export const compressContent = (text: string): string => {
         const compressedSize = binaryString.length;
         const compressionRatio = (compressedSize / originalSize) * 100;
 
-        // console.log(
-        //   `Max compression: Original: ${originalSize / 1024} KB, Compressed: ${compressedSize / 1024} KB, Ratio: ${compressionRatio.toFixed(2)}%`,
-        // );
-
         return binaryString;
     } catch (error) {
-        console.error('Error compressing content:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error compressing content:', error);
+        }
         // Fall back to original text if compression fails
         return text;
     }

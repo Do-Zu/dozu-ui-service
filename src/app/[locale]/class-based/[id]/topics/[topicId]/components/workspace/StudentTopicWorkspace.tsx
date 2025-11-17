@@ -19,17 +19,9 @@ import FlashcardContent from '../../../../../../topics/[topicId]/(topic)/compone
 import flashcardUtils from '../../../../../../topics/[topicId]/(topic)/utils/flashcard.utils';
 import { UserRoleEnum } from '@/utils/constants/roles';
 
-interface Props {
-    topicId: number;
-}
-
-export default function StudentTopicWorkspace({ topicId }: Props) {
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    function handleScreenModeToogle() {
-        setIsFullscreen((prev) => !prev);
-    }
-
+export default function StudentTopicWorkspace() {
     const {
+        topicId,
         topic,
         flashcards,
         learningFlashcards,
@@ -39,6 +31,11 @@ export default function StudentTopicWorkspace({ topicId }: Props) {
         ankiSettings,
         setAnkiSettings,
     } = useTopicWorkspace();
+
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    function handleScreenModeToogle() {
+        setIsFullscreen((prev) => !prev);
+    }
 
     const {
         data: topicContent,
@@ -99,7 +96,7 @@ export default function StudentTopicWorkspace({ topicId }: Props) {
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={25} className={isFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full p-4">
-                        <LearningMaterial topicId={topicId} />
+                        <LearningMaterial />
                     </div>
                 </ResizablePanel>
 

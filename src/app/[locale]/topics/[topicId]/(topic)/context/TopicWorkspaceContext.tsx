@@ -1,15 +1,44 @@
 import { IAnkiCardReviewed, IDueAnkiCard, IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { ITopic } from '../../../types/topic.type';
-import React, { createContext, Dispatch, SetStateAction, useCallback, useContext, useState } from 'react';
-import { isAfter } from 'date-fns';
+import React, {
+    createContext,
+    Dispatch,
+    MutableRefObject,
+    ReactNode,
+    SetStateAction,
+    useCallback,
+    useContext,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
+import { TopicWorkspaceTabValue } from '../types';
+import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
+import useGamesWorkSpace, { GameType } from '../hooks/useGamesWorkSpace';
+import { useSearchParams } from 'next/navigation';
+import { ILearningMaterial } from '../service/learningMaterial.service';
+import { METHOD_LEARNING } from '@/utils/constants/method';
+import useYoutubePlayer from '../hooks/useYoutubePlayer';
+import usePdfToolBar from '../hooks/usePdfToolBar';
+import { YouTubePlayer } from 'react-youtube';
 
+export type TypeTopicId = number;
 interface ContextType {
+    tab: TopicWorkspaceTabValue;
+    topicId: TypeTopicId;
     topic: ITopic | null;
     flashcards: IFlashcard[] | null;
     learningFlashcards: IDueAnkiCard[] | null;
     ankiSettings: { settings: IAnkiSetting[]; activeSettingId: number } | null;
+    learningMaterial: ILearningMaterial | null;
+    isPdfViewerFullscreen: boolean;
+    pageNumber: number;
+    contentTextOrigin: MutableRefObject<string>;
+    player: YouTubePlayer | null;
 
+    setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
+    setTopicId: (topicId: TypeTopicId) => void;
     setTopic: Dispatch<SetStateAction<ITopic | null>>;
     setFlashcards: Dispatch<SetStateAction<IFlashcard[] | null>>;
     setLearningFlashcards: Dispatch<SetStateAction<IDueAnkiCard[] | null>>;
@@ -20,77 +49,119 @@ interface ContextType {
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
 
-    isPdfViewerFullscreen: boolean;
+    generatingFlashcards: { q: string; a: string }[] | null;
+    setGeneratingFlashcards: Dispatch<SetStateAction<{ q: string; a: string }[] | null>>;
+
+    selectedGame: GameType;
+    selectGame: (game: GameType) => void;
+    resetGame: () => void;
+
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
+    setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
+    setPageNumber: Dispatch<SetStateAction<number>>;
+    setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
+    seekTo: (seconds: number) => void;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
 
-export function TopicWorkspaceProvider({ children }: { children: React.ReactNode }) {
+interface IProviderProps {
+    topicIdInit: TypeTopicId;
+    children: ReactNode;
+}
+
+const DEFAULT_TAB = 'overview';
+
+const ALLOWED_TABS: TopicWorkspaceTabValue[] = [DEFAULT_TAB, ...Object.values(METHOD_LEARNING)];
+
+export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps) {
+    const searchParams = useSearchParams();
+
+    const activeTab = useMemo(() => {
+        const raw = searchParams?.get('tab') as TopicWorkspaceTabValue;
+        return ALLOWED_TABS.includes(raw) ? raw : DEFAULT_TAB;
+    }, [searchParams]);
+
+    const [tab, setTab] = useState<TopicWorkspaceTabValue>(activeTab);
+
     const [topic, setTopic] = useState<ITopic | null>(null);
-    const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
-    const [learningFlashcards, setLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
-    const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
-        null,
+    const [learningMaterial, setLearningMaterial] = useState<ILearningMaterial | null>(null);
+
+    const topicIdRef = useRef<TypeTopicId>(topicIdInit);
+
+    const contentTextOrigin = useRef<string>('');
+
+    const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
+    const { player, setPlayer, seekTo } = useYoutubePlayer();
+
+    const {
+        flashcards,
+        learningFlashcards,
+        ankiSettings,
+        setFlashcards,
+        setLearningFlashcards,
+        setAnkiSettings,
+        onReviewCard,
+        generatingFlashcards,
+        setGeneratingFlashcards,
+    } = useFlashCardWorkSpace();
+
+    const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
+
+    const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
+        topicIdRef.current = topicIdArg;
+    }, []);
+
+    const value = useMemo(
+        () => ({
+            tab,
+            topicId: topicIdRef.current,
+            topic,
+            flashcards,
+            learningFlashcards,
+            ankiSettings,
+            isPdfViewerFullscreen,
+            contentTextOrigin,
+            learningMaterial,
+            pageNumber,
+            player,
+            setTab,
+            setTopicId,
+            setTopic,
+            setFlashcards,
+            setLearningFlashcards,
+            onReviewCard,
+            setAnkiSettings,
+            setIsPdfViewerFullScreen,
+            setLearningMaterial,
+            setPageNumber,
+            setPlayer,
+            seekTo,
+            generatingFlashcards,
+            setGeneratingFlashcards,
+            selectedGame,
+            selectGame,
+            resetGame,
+        }),
+        [
+            tab,
+            topic,
+            flashcards,
+            learningFlashcards,
+            ankiSettings,
+            isPdfViewerFullscreen,
+            learningMaterial,
+            pageNumber,
+            player,
+            seekTo,
+            generatingFlashcards,
+            selectedGame,
+            selectGame,
+            resetGame,
+        ],
     );
-    const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
 
-    const onReviewCard = useCallback(
-        ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
-            const updatedLearningFlashcards = [...(learningFlashcards ?? [])];
-            updatedLearningFlashcards.shift();
-            if (reviewedCard) {
-                // INSERT this card to a suitable position (to maintain ORDER by nextReview)
-                let inserted = false;
-                for (let i = 0; i < updatedLearningFlashcards.length; ++i) {
-                    const card = updatedLearningFlashcards[i];
-                    if (isAfter(reviewedCard.nextReview, card.nextReview)) continue;
-                    updatedLearningFlashcards.splice(i, 0, {
-                        ...currentCard,
-                        nextReview: reviewedCard.nextReview,
-                        status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
-                    });
-                    inserted = true;
-                    break;
-                }
-
-                if (!inserted) {
-                    updatedLearningFlashcards.push({
-                        ...currentCard,
-                        nextReview: reviewedCard.nextReview,
-                        status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
-                    });
-                    inserted = true;
-                }
-            }
-
-            setLearningFlashcards(updatedLearningFlashcards);
-            return updatedLearningFlashcards;
-        },
-        [learningFlashcards],
-    );
-
-    return (
-        <TopicWorkspaceContext.Provider
-            value={{
-                topic,
-                flashcards,
-                learningFlashcards,
-                setTopic,
-                setFlashcards,
-                setLearningFlashcards,
-                onReviewCard,
-                ankiSettings,
-                setAnkiSettings,
-                isPdfViewerFullscreen,
-                setIsPdfViewerFullScreen,
-            }}
-        >
-            {children}
-        </TopicWorkspaceContext.Provider>
-    );
+    return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;
 }
 
 export function useTopicWorkspace() {

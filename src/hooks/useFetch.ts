@@ -3,7 +3,7 @@ import { FetchOptions, METHOD } from './type';
 import { callApiAsync } from './helper';
 import { z } from 'zod';
 import { AxiosError } from 'axios';
-import { isEmpty } from '@/utils';
+import { isEmpty, isNilOrEmpty } from '@/utils';
 
 /**
  * Custom hook for fetching data from an API or via a provided function with Zod validation
@@ -33,9 +33,9 @@ function useFetch<T, Z = T>(
     options?: Options<Z>,
     fetchOptions?: FetchOptions,
 ) {
-    const selector = options?.selector,
-        schema = options?.schema,
-        shouldRun = options?.shouldRun != undefined || options?.shouldRun != null ? options.shouldRun : true;
+    const selector = options?.selector;
+    const schema = options?.schema;
+    const shouldRun = !isNilOrEmpty(options?.shouldRun) ? options?.shouldRun : true;
 
     const [data, setData] = useState<Z | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
