@@ -453,7 +453,7 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
                 >
                     {pageNumber > 0 && (
                         <span
-                            className="mt-1 text-sm md:text-[15px] font-semibold text-slate-50 tracking-tight"
+                            className="mt-1 text-sm md:text-[15px] font-semibold text-slate-900/60 dark:text-slate-50 tracking-tight"
                             title={t('pageNumberTitle')}
                         >
                             {t('page', { pageNumber })}
