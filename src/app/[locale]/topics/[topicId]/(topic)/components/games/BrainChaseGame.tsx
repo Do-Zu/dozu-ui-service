@@ -73,7 +73,7 @@ export default function BrainChaseGame() {
                         <p className="text-lg md:text-xl mb-6 text-center max-w-2xl">{t('description')}</p>
                         {topicId && (
                             <p className="text-lg mb-4 text-muted-foreground">
-                                Topic: {topicInfo?.name || topicInfo?.title || `ID: ${topicId}`}
+                                {t('topicLabel')} {topicInfo?.name || topicInfo?.title || `ID: ${topicId}`}
                             </p>
                         )}
                         <Button size="lg" onClick={startGame} className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export default function BrainChaseGame() {
                     <TooltipProvider delayDuration={300}>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button variant="outline" size="icon" onClick={() => setShowSettings()}>
+                                <Button variant="outline" size="icon" onClick={() => setShowSettings(true)}>
                                     <Settings className="h-4 w-4" />
                                 </Button>
                             </TooltipTrigger>

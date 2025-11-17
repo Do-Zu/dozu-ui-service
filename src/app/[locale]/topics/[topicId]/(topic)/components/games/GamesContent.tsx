@@ -11,6 +11,7 @@ import { BrainChaseProvider } from '@/app/[locale]/games/brain-chase/context/bra
 import { MemoryMatchProvider } from '@/app/[locale]/games/memory-match/context/MemoryMatchContext';
 import BrainChaseGame from './BrainChaseGame';
 import MemoryMatchGame from './MemoryMatchGame';
+import { useTranslations } from 'next-intl';
 
 interface PersonalProps {
     mode: MODE_ACCESS_PAGE_ROLE.personal;
@@ -31,23 +32,24 @@ type Props = PersonalProps | StudentProps | TeacherProps;
 
 export default function GamesContent({ mode, role }: Props) {
     const { selectedGame, selectGame, resetGame, topicId } = useTopicWorkspace();
+    const t = useTranslations('games.common');
 
     const availableGames = useMemo(
         () => [
             {
                 id: 'brain-chase' as const,
-                name: 'Brain Chase',
-                description: 'Catch the correct answers as they fall! Test your knowledge with this fast-paced quiz game.',
+                name: t('brainChase'),
+                description: t('brainChaseDescription'),
                 icon: <Brain className="h-8 w-8" />,
             },
             {
                 id: 'memory-match' as const,
-                name: 'Memory Match',
-                description: 'Match flashcards by finding pairs. Improve your memory and recall skills!',
+                name: t('memoryMatch'),
+                description: t('memoryMatchDescription'),
                 icon: <MemoryStick className="h-8 w-8" />,
             },
         ],
-        [],
+        [t],
     );
 
     if (selectedGame) {
@@ -80,8 +82,8 @@ export default function GamesContent({ mode, role }: Props) {
     return (
         <div className="w-full h-full flex flex-col p-6">
             <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2">Games</h2>
-                <p className="text-muted-foreground">Choose a game to practice with your flashcards</p>
+                <h2 className="text-2xl font-bold mb-2">{t('gamesTitle')}</h2>
+                <p className="text-muted-foreground">{t('gamesDescription')}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
@@ -101,7 +103,7 @@ export default function GamesContent({ mode, role }: Props) {
                             <CardDescription className="text-base">{game.description}</CardDescription>
                             <Button className="w-full mt-auto" onClick={() => selectGame(game.id)}>
                                 <Gamepad2 className="mr-2 h-4 w-4" />
-                                Play Now
+                                {t('playNow')}
                             </Button>
                         </CardContent>
                     </Card>

@@ -218,11 +218,11 @@ export default function MemoryMatchGame() {
                             </Button>
                             <div>
                                 <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-                                {topicInfo && (
-                                    <p className="text-muted-foreground mt-1">
-                                        Topic: {topicInfo.name || topicInfo.title || 'Unknown'}
-                                    </p>
-                                )}
+                            {topicInfo && (
+                                <p className="text-muted-foreground mt-1">
+                                    {t('topicLabel')} {topicInfo.name || topicInfo.title || 'Unknown'}
+                                </p>
+                            )}
                             </div>
                         </div>
 

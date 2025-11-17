@@ -27,6 +27,7 @@
       "gameOver": "Game Over",
       "finalScore": "Final Score",
       "playAgain": "Play Again",
+      "topicLabel": "Topic:",
       "gameSettings": {
         "title": "Game Settings",
         "description": "Customize your game experience with these settings.",
@@ -139,7 +140,8 @@
         "fewerMovesHigherScore": "Fewer moves = higher score"
       },
       "gameStats": "Game Statistics",
-      "gameStatsDescription": "View your current game progress and performance metrics"
+      "gameStatsDescription": "View your current game progress and performance metrics",
+      "topicLabel": "Topic:"
     },
     "common": {
       "noFlashcards": "No flashcards available for this topic",
@@ -150,8 +152,13 @@
       "gameMenu": "Game Menu",
       "selectGame": "Select a Game",
       "brainChase": "Brain Chase",
-      "memoryMatch": "Memory Match",  
-      "memoryCard": "Memory Card"
+      "brainChaseDescription": "Catch the correct answers as they fall! Test your knowledge with this fast-paced quiz game.",
+      "memoryMatch": "Memory Match",
+      "memoryMatchDescription": "Match flashcards by finding pairs. Improve your memory and recall skills!",
+      "memoryCard": "Memory Card",
+      "gamesTitle": "Games",
+      "gamesDescription": "Choose a game to practice with your flashcards",
+      "playNow": "Play Now"
     }
   }
 }
