@@ -328,38 +328,25 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
     if (!isShowMore) {
         return (
             <div className="px-2 relative">
-                {/* similarity score badge */}
-                <div className="absolute right-0 -top-2 translate-y-[-50%]">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full shadow-sm ${similarityStyles.badge}`}>
-                        sim {similarity?.toFixed(2) ?? '--'}
-                    </span>
-                </div>
-
-                <div
-                    className={`rounded-lg p-4 transition-colors ${similarityStyles.card}`}
-                    // keep icon & text colors modern but readable
-                >
-                    <div className="flex gap-3">
+                <div className={`rounded-lg p-4 transition-colors ${similarityStyles.card}`}>
+                    <div className="">
                         <div className="flex-shrink-0">
-                            <svg
-                                className="w-5 h-5 text-sky-600 dark:text-sky-400"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                            >
-                                <path
-                                    fillRule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        </div>
-                        <div className="flex-1">
                             <p
                                 className="text-sm text-slate-900 dark:text-slate-50 leading-relaxed cursor-pointer hover:opacity-80"
                                 onClick={handleReferenceOriginContent}
                             >
                                 {displayText}
                             </p>
+                        </div>
+
+                        <div className="flex-1">
+                            <div className="">
+                                <span
+                                    className={`text-[10px] px-2 py-0.5 rounded-full shadow-sm ${similarityStyles.badge}`}
+                                >
+                                    similarity: {similarity?.toFixed(2) ?? '--'}
+                                </span>
+                            </div>
                             {timestamp && (
                                 <span
                                     className="inline-block mt-2 text-xs px-2 py-1 rounded bg-sky-100/80 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200 cursor-pointer hover:bg-sky-200/90 dark:hover:bg-sky-800/80"
