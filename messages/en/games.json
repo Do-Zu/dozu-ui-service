@@ -158,7 +158,9 @@
       "memoryCard": "Memory Card",
       "gamesTitle": "Games",
       "gamesDescription": "Choose a game to practice with your flashcards",
-      "playNow": "Play Now"
+      "playNow": "Play Now",
+      "cardView": "Card View",
+      "columnView": "Column View"
     }
   }
 }

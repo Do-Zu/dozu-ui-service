@@ -158,7 +158,9 @@
       "memoryCard": "Thẻ Ghi Nhớ",
       "gamesTitle": "Trò Chơi",
       "gamesDescription": "Chọn một trò chơi để luyện tập với flashcards của bạn",
-      "playNow": "Chơi Ngay"
+      "playNow": "Chơi Ngay",
+      "cardView": "Xem Dạng Thẻ",
+      "columnView": "Xem Dạng Cột"
     }
   }
 }
