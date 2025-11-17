@@ -464,25 +464,27 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
 
     if (!isShowMore) {
         return (
-            <div className="text-center relative">
-                <div className="absolute right-0 -top-2 translate-y-[-20%">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full shadow-sm ${similarityStyles.badge}`}>
-                        similarity: {similarity?.toFixed(2) ?? '--'}
-                    </span>
-                </div>
-                <div
-                    className={`flex flex-col items-center gap-3 cursor-pointer hover:opacity-80 rounded-lg px-4 py-3 transition-colors ${similarityStyles.card}`}
+            <div>
+                <button
+                    type="button"
                     onClick={handleReferenceOriginContent}
+                    className={`relative inline-flex flex-col items-center justify-center rounded-xl px-5 py-3 shadow-sm transition-all duration-150 hover:shadow-md hover:-translate-y-[1px] ${similarityStyles.card}`}
                 >
                     {pageNumber > 0 && (
                         <span
-                            className={`text-[14px] px-3 py-1.5 rounded-full font-medium ${similarityStyles.card}`}
+                            className="mt-1 text-sm md:text-[15px] font-semibold text-slate-50 tracking-tight"
                             title={t('pageNumberTitle')}
                         >
                             {t('page', { pageNumber })}
                         </span>
                     )}
-                </div>
+
+                    <span
+                        className={`mt-5 px-3 py-0.5 text-[11px] leading-none rounded-full shadow-sm border ${similarityStyles.badge}`}
+                    >
+                        similarity: {similarity?.toFixed(2) ?? '--'}
+                    </span>
+                </button>
             </div>
         );
     }
