@@ -27,6 +27,7 @@
       "gameOver": "Kết Thúc Trò Chơi",
       "finalScore": "Điểm Cuối Cùng",
       "playAgain": "Chơi Lại",
+      "topicLabel": "Chủ đề:",
       "gameSettings": {
         "title": "Cài Đặt Trò Chơi",
         "description": "Tùy chỉnh trải nghiệm trò chơi của bạn với các cài đặt này.",
@@ -139,7 +140,8 @@
         "fewerMovesHigherScore": "Ít lượt di chuyển = điểm cao hơn"
       },
       "gameStats": "Thống Kê Trò Chơi",
-      "gameStatsDescription": "Xem tiến độ trò chơi hiện tại và các chỉ số hiệu suất"
+      "gameStatsDescription": "Xem tiến độ trò chơi hiện tại và các chỉ số hiệu suất",
+      "topicLabel": "Chủ đề:"
     },
     "common": {
       "noFlashcards": "Không có flashcard nào cho chủ đề này",
@@ -150,8 +152,15 @@
       "gameMenu": "Menu Trò Chơi",
       "selectGame": "Chọn Trò Chơi",
       "brainChase": "Đua Trí Tuệ",
+      "brainChaseDescription": "Bắt các câu trả lời đúng khi chúng rơi xuống! Kiểm tra kiến thức của bạn với trò chơi đố vui tốc độ cao này.",
       "memoryMatch": "Ghép Thẻ Ghi Nhớ",
-      "memoryCard": "Thẻ Ghi Nhớ"
+      "memoryMatchDescription": "Ghép flashcards bằng cách tìm các cặp. Cải thiện trí nhớ và kỹ năng ghi nhớ của bạn!",
+      "memoryCard": "Thẻ Ghi Nhớ",
+      "gamesTitle": "Trò Chơi",
+      "gamesDescription": "Chọn một trò chơi để luyện tập với flashcards của bạn",
+      "playNow": "Chơi Ngay",
+      "cardView": "Xem Dạng Thẻ",
+      "columnView": "Xem Dạng Cột"
     }
   }
 }
