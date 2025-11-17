@@ -45,7 +45,7 @@ export default function PersonalTopicWorkspace() {
     if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
     return (
-        <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background">
+        <div className="relative w-full h-[100vh] border rounded-lg overflow-hidden bg-background">
             <div className={cn('absolute top-4 right-4 z-50', isPdfViewerFullscreen ? 'hidden' : '')}>
                 <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
                     {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -74,10 +74,11 @@ export default function PersonalTopicWorkspace() {
                             )}
 
                             <div className={cn('flex-1 h-full', isFullscreen ? 'px-6 py-3' : 'px-3')}>
-                                <TabsList className="grid w-full grid-cols-5">
+                                <TabsList className="grid w-full grid-cols-5 rounded-lg">
                                     {TOPIC_WORKSPACE_TABS.map((t) => (
-                                        <TabsTrigger key={t.value} value={t.value}>
-                                            {t.label}
+                                        <TabsTrigger className="rounded-lg flex items-center justify-center gap-2" key={t.value} value={t.value}>
+                                            {t.icon}
+                                            <span className="whitespace-nowrap">{t.label}</span>
                                         </TabsTrigger>
                                     ))}
                                 </TabsList>
