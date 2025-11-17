@@ -60,7 +60,7 @@ export default function BrainChaseGame() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-background">
+        <div className="flex flex-col h-full bg-background relative">
             {/* Game area */}
             <div className="flex-grow relative h-[90%]">
                 {gameActive ? (
@@ -161,8 +161,8 @@ export default function BrainChaseGame() {
 
             {/* Game over modal */}
             {!gameActive && score > 0 && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-background p-6 rounded-lg max-w-md w-full">
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-background p-6 rounded-lg max-w-md w-full mx-4">
                         <h2 className="text-2xl font-bold mb-4">{t('gameOver')}</h2>
                         <p className="mb-4">
                             {t('finalScore')}: {score} {t('of')} {settings.questionCount}

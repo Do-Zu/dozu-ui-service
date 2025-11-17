@@ -206,75 +206,77 @@ export default function MemoryMatchGame() {
 
     // Start screen layout (normal layout)
     return (
-        <div className="h-full p-4 bg-background overflow-y-auto">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                        <Button variant="outline" onClick={handleQuit} className="gap-2">
-                            <ArrowLeft className="h-4 w-4" />
-                            {t('back')}
-                        </Button>
-                        <div>
-                            <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-                            {topicInfo && (
-                                <p className="text-muted-foreground mt-1">
-                                    Topic: {topicInfo.name || topicInfo.title || 'Unknown'}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <Badge variant="secondary" className="gap-1">
-                            <Target className="h-3 w-3" />
-                            {stats.totalPairs} {t('pairs')}
-                        </Badge>
-                        <Badge variant="outline" className="gap-1">
-                            <Trophy className="h-3 w-3" />
-                            {t('score')}: {stats.score}
-                        </Badge>
-                    </div>
-                </div>
-
-                {/* Game Progress */}
-                <div className="mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium">{t('gameProgress')}</span>
-                        <span className="text-sm text-muted-foreground">
-                            {stats.matches}/{stats.totalPairs} {t('pairs')} {t('matched')}
-                        </span>
-                    </div>
-                    <Progress value={getGameProgress()} className="h-2" />
-                </div>
-
-                {/* Start screen content */}
-                <div className="flex flex-col items-center justify-center py-16">
-                    <div className="text-center max-w-lg">
-                        <div className="text-6xl mb-6">🧠</div>
-                        <p className="text-lg text-muted-foreground mb-6">{t('description')}</p>
-
-                        <div className="grid grid-cols-3 gap-4 mb-8 text-sm">
-                            <div className="flex flex-col items-center p-4 bg-card rounded-lg shadow-sm border">
-                                <Clock className="h-6 w-6 text-muted-foreground mb-2" />
-                                <span className="font-medium">{t('quickMemory')}</span>
-                                <span className="text-muted-foreground">{t('rememberPositions')}</span>
-                            </div>
-                            <div className="flex flex-col items-center p-4 bg-card rounded-lg shadow-sm border">
-                                <Target className="h-6 w-6 text-muted-foreground mb-2" />
-                                <span className="font-medium">{t('findPairs')}</span>
-                                <span className="text-muted-foreground">{t('matchFrontBack')}</span>
-                            </div>
-                            <div className="flex flex-col items-center p-4 bg-card rounded-lg shadow-sm border">
-                                <Zap className="h-6 w-6 text-muted-foreground mb-2" />
-                                <span className="font-medium">{t('scorePoints')}</span>
-                                <span className="text-muted-foreground">{t('fewerMovesHigherScore')}</span>
+        <div className="h-full flex flex-col bg-background overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-0 p-4">
+                <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 min-h-0">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                        <div className="flex items-center gap-4">
+                            <Button variant="outline" onClick={handleQuit} className="gap-2">
+                                <ArrowLeft className="h-4 w-4" />
+                                {t('back')}
+                            </Button>
+                            <div>
+                                <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+                                {topicInfo && (
+                                    <p className="text-muted-foreground mt-1">
+                                        Topic: {topicInfo.name || topicInfo.title || 'Unknown'}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
-                        <Button size="lg" onClick={startGame}>
-                            {t('startGame')}
-                        </Button>
+                        <div className="flex items-center gap-4">
+                            <Badge variant="secondary" className="gap-1">
+                                <Target className="h-3 w-3" />
+                                {stats.totalPairs} {t('pairs')}
+                            </Badge>
+                            <Badge variant="outline" className="gap-1">
+                                <Trophy className="h-3 w-3" />
+                                {t('score')}: {stats.score}
+                            </Badge>
+                        </div>
+                    </div>
+
+                    {/* Game Progress */}
+                    <div className="mb-4 flex-shrink-0">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-medium">{t('gameProgress')}</span>
+                            <span className="text-sm text-muted-foreground">
+                                {stats.matches}/{stats.totalPairs} {t('pairs')} {t('matched')}
+                            </span>
+                        </div>
+                        <Progress value={getGameProgress()} className="h-2" />
+                    </div>
+
+                    {/* Start screen content */}
+                    <div className="flex-1 flex flex-col items-center justify-center min-h-0">
+                        <div className="text-center max-w-lg">
+                            <div className="text-6xl mb-4">🧠</div>
+                            <p className="text-lg text-muted-foreground mb-4">{t('description')}</p>
+
+                            <div className="grid grid-cols-3 gap-4 mb-6 text-sm">
+                                <div className="flex flex-col items-center p-4 bg-card rounded-lg shadow-sm border">
+                                    <Clock className="h-6 w-6 text-muted-foreground mb-2" />
+                                    <span className="font-medium">{t('quickMemory')}</span>
+                                    <span className="text-muted-foreground text-xs">{t('rememberPositions')}</span>
+                                </div>
+                                <div className="flex flex-col items-center p-4 bg-card rounded-lg shadow-sm border">
+                                    <Target className="h-6 w-6 text-muted-foreground mb-2" />
+                                    <span className="font-medium">{t('findPairs')}</span>
+                                    <span className="text-muted-foreground text-xs">{t('matchFrontBack')}</span>
+                                </div>
+                                <div className="flex flex-col items-center p-4 bg-card rounded-lg shadow-sm border">
+                                    <Zap className="h-6 w-6 text-muted-foreground mb-2" />
+                                    <span className="font-medium">{t('scorePoints')}</span>
+                                    <span className="text-muted-foreground text-xs">{t('fewerMovesHigherScore')}</span>
+                                </div>
+                            </div>
+
+                            <Button size="lg" onClick={startGame}>
+                                {t('startGame')}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>

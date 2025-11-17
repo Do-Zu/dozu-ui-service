@@ -88,7 +88,7 @@ export default function GamesContent({ mode, role }: Props) {
                 {availableGames.map((game) => (
                     <Card
                         key={game.id}
-                        className="cursor-pointer hover:shadow-lg transition-shadow"
+                        className="cursor-pointer hover:shadow-lg transition-shadow h-64 flex flex-col"
                         onClick={() => selectGame(game.id)}
                     >
                         <CardHeader>
@@ -97,9 +97,9 @@ export default function GamesContent({ mode, role }: Props) {
                                 <CardTitle>{game.name}</CardTitle>
                             </div>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="flex flex-col flex-1">
                             <CardDescription className="text-base">{game.description}</CardDescription>
-                            <Button className="w-full mt-4" onClick={() => selectGame(game.id)}>
+                            <Button className="w-full mt-auto" onClick={() => selectGame(game.id)}>
                                 <Gamepad2 className="mr-2 h-4 w-4" />
                                 Play Now
                             </Button>
