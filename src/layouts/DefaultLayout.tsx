@@ -43,7 +43,7 @@ const DefaultLayout: React.FC<LayoutProps> = ({
         <div className="flex flex-col min-h-screen bg-background dark:bg-muted transition-colors">
             {displayHeader && <Header />}
             <main
-                className={`flex-1 ${className}`}
+                className={`flex-1 bg-background ${className}`}
                 style={
                     displayHeader
                         ? {
