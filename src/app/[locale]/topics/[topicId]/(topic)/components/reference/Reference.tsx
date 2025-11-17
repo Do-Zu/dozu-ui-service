@@ -44,34 +44,34 @@ interface IReturnItemQuery {
 const getSimilarityStyles = (s?: number) => {
     if (s == null) {
         return {
-            card: 'border-slate-200 bg-slate-50/70 dark:border-slate-700/70 dark:bg-slate-900/40',
+            card: 'border-slate-200 bg-slate-100/70 dark:border-slate-700/70 dark:bg-slate-900/40',
             badge: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200',
         };
     }
 
     if (s < 0.4) {
         return {
-            card: 'border-rose-200 bg-rose-50/80 dark:border-rose-900/60 dark:bg-rose-950/40',
+            card: 'border-rose-200 bg-rose-300/50 dark:border-rose-900/60 dark:bg-rose-800/20',
             badge: 'bg-rose-500/10 text-rose-700 border border-rose-200/70 dark:bg-rose-500/20 dark:text-rose-200 dark:border-rose-700/70',
         };
     }
 
     if (s >= 0.4 && s <= 0.5) {
         return {
-            card: 'border-amber-200 bg-amber-50/80 dark:border-amber-900/50 dark:bg-amber-950/40',
+            card: 'border-amber-200 bg-amber-100/70 dark:border-amber-900/50 dark:bg-amber-950/30',
             badge: 'bg-amber-500/10 text-amber-700 border border-amber-200/70 dark:bg-amber-500/20 dark:text-amber-200 dark:border-amber-700/70',
         };
     }
 
     if (s > 0.5 && s <= 0.65) {
         return {
-            card: 'border-sky-200 bg-sky-50/80 dark:border-sky-900/60 dark:bg-sky-950/40',
+            card: 'border-sky-200 bg-sky-200/50 dark:border-sky-900/60 dark:bg-sky-950/40',
             badge: 'bg-sky-500/10 text-sky-700 border border-sky-200/70 dark:bg-sky-500/20 dark:text-sky-200 dark:border-sky-700/70',
         };
     }
 
     return {
-        card: 'border-emerald-200 bg-emerald-50/80 dark:border-emerald-900/60 dark:bg-emerald-950/40',
+        card: 'border-emerald-200 bg-emerald-100/70 dark:border-emerald-900/60 dark:bg-emerald-950/30',
         badge: 'bg-emerald-500/10 text-emerald-700 border border-emerald-200/70 dark:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-700/70',
     };
 };
@@ -331,10 +331,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                 <div className={`rounded-lg p-4 transition-colors ${similarityStyles.card}`}>
                     <div className="">
                         <div className="flex-shrink-0">
-                            <p
-                                className="text-sm text-slate-900 dark:text-slate-50 leading-relaxed cursor-pointer hover:opacity-80"
-                                onClick={handleReferenceOriginContent}
-                            >
+                            <p className="text-sm text-slate-900 dark:text-slate-50 leading-relaxed hover:opacity-80">
                                 {displayText}
                             </p>
                         </div>
@@ -391,10 +388,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                             </svg>
                         </div>
                         <div className="flex-1">
-                            <p
-                                className="text-sm text-slate-900 dark:text-slate-50 leading-relaxed cursor-pointer hover:opacity-80"
-                                onClick={handleReferenceOriginContent}
-                            >
+                            <p className="text-sm text-slate-900 dark:text-slate-50 leading-relaxed hover:opacity-80">
                                 {displayText}
                             </p>
 
@@ -495,7 +489,7 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
                     >
                         {pageNumber > 0 && (
                             <span
-                                className="text-[14px] px-3 py-1.5 rounded-full bg-slate-900/5 text-slate-700 dark:bg-slate-50/10 dark:text-slate-100 font-medium"
+                                className="text-sm px-3 py-1.5 rounded-full bg-slate-900/5 text-slate-700 dark:bg-slate-50/10 dark:text-slate-100 font-medium"
                                 title={t('pageNumberTitle')}
                             >
                                 {t('page', { pageNumber })}
