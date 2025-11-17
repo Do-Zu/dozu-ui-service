@@ -398,7 +398,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                                 {displayText}
                             </p>
 
-                            {rawContent.length > 240 && (
+                            {rawContent.length > defaultLengthConcat && (
                                 <div className="mt-2">
                                     <button
                                         onClick={() => setExpanded((e) => !e)}
