@@ -52,14 +52,14 @@ export default function FlashcardContent({ mode, role }: Props) {
     }
 
     return (
-        <div className="w-full h-[90%] flex flex-col">
+        <div className="w-full h-full flex flex-col">
             <Tabs value={flashcardMode} onValueChange={handleModeSelect} className="w-full flex justify-center">
-                <TabsList className="w-[70%] grid grid-cols-5 rounded-lg bg-muted/30 p-1">
+                <TabsList className="w-[70%] grid grid-cols-5 rounded-2xl p-1">
                     {selectableItems.map((item) => (
                         <TabsTrigger
                             key={item}
                             value={item}
-                            className="flex items-center justify-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md"
+                            className="flex items-center justify-center gap-2 rounded-2xl"
                         >
                             {itemIcons.find((e) => e.item === item)?.icon}
                             <span className="whitespace-nowrap">{flashcardUtils.getDisplayModeName(item)}</span>
@@ -84,7 +84,7 @@ export default function FlashcardContent({ mode, role }: Props) {
                 ) : null}
 
                 {flashcardMode === 'edit' && selectableItems.includes('edit') && (
-                    <div className="h-full overflow-y-scroll p-8">
+                    <div className="h-full overflow-y-scroll">
                         <EditingFlashcards />
                     </div>
                 )}
