@@ -7,7 +7,17 @@ import { toast } from '@/hooks/use-toast';
 import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
 import { useReactFlow } from '@xyflow/react';
-import { Bot, CopyPlus, DiamondPlus, FileText, GraduationCap, SquarePen, TableOfContents, Trash } from 'lucide-react';
+import {
+    Bot,
+    CopyPlus,
+    DiamondPlus,
+    Edit,
+    FileText,
+    GraduationCap,
+    SquarePen,
+    TableOfContents,
+    Trash,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -20,9 +30,15 @@ interface Props {
     onViewNodeFlashcardsClick?: () => void;
     onLinkNodeFlashcardsClick?: () => void;
     onLearnNodeFlashcardsClick?: () => void;
+    onEditNodeFlashcardsClick?: () => void;
 }
 
-const NodeSheet = ({ onViewNodeFlashcardsClick, onLinkNodeFlashcardsClick, onLearnNodeFlashcardsClick }: Props) => {
+const NodeSheet = ({
+    onViewNodeFlashcardsClick,
+    onLinkNodeFlashcardsClick,
+    onLearnNodeFlashcardsClick,
+    onEditNodeFlashcardsClick,
+}: Props) => {
     const router = useRouter();
     const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
@@ -146,6 +162,13 @@ const NodeSheet = ({ onViewNodeFlashcardsClick, onLinkNodeFlashcardsClick, onLea
         router.push(`/mindmap/nodes/${selectedNodeData.nodeId}/flashcard`);
     };
 
+    const handleEditFlashcards = () => {
+        if (onEditNodeFlashcardsClick) {
+            onEditNodeFlashcardsClick();
+            return;
+        }
+    };
+
     const handleLearnFlashcardsClick = () => {
         if (onLearnNodeFlashcardsClick) {
             onLearnNodeFlashcardsClick();
@@ -240,6 +263,9 @@ const NodeSheet = ({ onViewNodeFlashcardsClick, onLinkNodeFlashcardsClick, onLea
                             </Button> */}
                             <Button onClick={handleViewFlashcards} variant="outline" className="justify-start gap-2">
                                 <TableOfContents className="h-4 w-4" /> Browse Linked Flashcards
+                            </Button>
+                            <Button onClick={handleEditFlashcards} variant="outline" className="justify-start gap-2">
+                                <Edit className="h-4 w-4" /> Edit Linked Flashcards
                             </Button>
                             <Button
                                 onClick={handleLearnFlashcardsClick}

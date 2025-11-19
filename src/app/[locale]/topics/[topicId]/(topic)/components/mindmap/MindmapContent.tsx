@@ -119,19 +119,26 @@ const MindmapContent = ({}) => {
         dispatch(openSheet());
     }
 
+    function handleNodeFlashcardsEditClose() {
+        setIsNodeFlashcardsEditOpen(false);
+        dispatch(openSheet());
+    }
+
     const showNodeFlashcardsPanel = useCallback(() => {
         if (!selectedNodeData) return null;
         if (isNodeFlashcardsBrowseOpen) {
             return <NodeFlashcardsBrowse nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsBrowseClose} />;
         }
         if (isNodeFlashcardsEditOpen) {
-            return <NodeFlashcardsEdit />;
+            return <NodeFlashcardsEdit nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsEditClose} />;
         }
         if (isNodeFlashcardsLinkerOpen) {
             return <NodeFlashcardsLinker nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsLinkerClose} />;
         }
         if (isNodeFlashcardsLearningOpen) {
-            return <NodeFlashcardsLearning nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsLearningClose} />;
+            return (
+                <NodeFlashcardsLearning nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsLearningClose} />
+            );
         }
     }, [
         selectedNodeData?.nodeId,
@@ -231,6 +238,7 @@ const MindmapContent = ({}) => {
                             onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
                             onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
                             onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
+                            onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
                         />
                         <Controls position="top-right" />
                         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />

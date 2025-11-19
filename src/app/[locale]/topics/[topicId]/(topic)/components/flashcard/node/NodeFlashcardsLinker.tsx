@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Save, X } from 'lucide-react';
+import { RefreshCw, Save, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckedState } from '@radix-ui/react-checkbox';
@@ -114,7 +114,13 @@ export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
                             disabled={linkFlashcardsToNodeLoading}
                             className="text-muted-foreground hover:text-primary"
                         >
-                            <Save size={18} />
+                            {linkFlashcardsToNodeLoading ? (
+                                <span className="flex items-center">
+                                    <RefreshCw size={18} className="animate-spin" />
+                                </span>
+                            ) : (
+                                <Save size={18} />
+                            )}
                         </Button>
                         <Button
                             className="text-muted-foreground hover:text-primary"

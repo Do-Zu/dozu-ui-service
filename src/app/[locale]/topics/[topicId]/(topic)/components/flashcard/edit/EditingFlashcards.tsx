@@ -78,8 +78,8 @@ const EditingFlashcards = () => {
     const [editingFlashcards, setEditingFlashcards] = useState<IEditingFlashcard[]>([]);
     const { generatingFlashcards, setGeneratingFlashcards } = useTopicWorkspace();
 
-    const { loading: batchLoading, execute: batchFlashcards } = usePost<
-        { topicId: string | number; flashcards: IFlashcardsBatchInput },
+    const { loading: batchLoading, execute: batchFlashcardsAsync } = usePost<
+        { topicId: number; flashcards: IFlashcardsBatchInput },
         { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
     >(({ topicId, flashcards }) => flashcardService.batchFlashcardsForTopicState({ topicId, flashcards }), 'POST', {
         onError(error) {
@@ -232,10 +232,7 @@ const EditingFlashcards = () => {
             return;
         }
         setGeneratingFlashcards(null);
-        await batchFlashcards({
-            topicId: topic.topicId,
-            flashcards: flashcardsSubmitted,
-        });
+        await batchFlashcardsAsync({ topicId: topic.topicId, flashcards: flashcardsSubmitted });
     }
 
     function handleImportModalOpen() {
