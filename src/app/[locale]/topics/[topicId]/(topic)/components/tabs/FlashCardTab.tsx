@@ -19,6 +19,7 @@ export default function FlashCardTab() {
         setTopic,
         setFlashcards,
         setLearningFlashcards,
+        ankiSettings,
         setAnkiSettings,
     } = useTopicWorkspace();
 
@@ -27,7 +28,9 @@ export default function FlashCardTab() {
         loading: flashcardContentLoading,
         error: flashcardContentError,
     } = useFetch<IFlashcardContent>(() => flashcardContentService.getFlashcardContent({ topicId }), {
-        shouldRun: (isNil(flashcards) || isNil(learningFlashcards)) && tab === METHOD_LEARNING.FLASHCARD,
+        shouldRun:
+            (isNil(flashcards) || isNil(learningFlashcards) || isNil(ankiSettings)) &&
+            tab === METHOD_LEARNING.FLASHCARD,
     });
 
     useEffect(() => {
@@ -37,19 +40,6 @@ export default function FlashCardTab() {
             setAnkiSettings(flashcardContent.ankiSettings);
         }
     }, [flashcardContent]);
-
-    useEffect(() => {
-        if (!flashcards || !learningFlashcards) return;
-        // recalculate flashcard counts
-        setTopic((prev) => {
-            if (!prev) return prev;
-            const updatedFlashcardCounts = flashcardUtils.recalculateFlashcardCounts({
-                flashcards,
-                learningFlashcards,
-            });
-            return { ...prev, flashcardCounts: updatedFlashcardCounts };
-        });
-    }, [flashcards, learningFlashcards]);
 
     if (flashcardContentLoading) return <LoadingPage />;
 
