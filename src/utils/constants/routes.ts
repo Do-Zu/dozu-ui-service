@@ -55,6 +55,21 @@ export const ROUTES = Object.freeze({
     LLM_PROVIDERS_DELETE: (id: string | number) => `/admin/llm-providers/${id}`,
     LLM_PROVIDERS_TOGGLE_AVAILABILITY: (id: string | number) => `/admin/llm-providers/${id}/toggle-availability`,
 
+    // LLM API Keys
+    LLM_API_KEYS: '/admin/llm-api-keys',
+    LLM_API_KEYS_LIST: (query?: string) => (query ? `/admin/llm-api-keys?${query}` : '/admin/llm-api-keys'),
+    LLM_API_KEYS_CREATE: '/admin/llm-api-keys',
+    LLM_API_KEYS_UPDATE: (id: string | number) => `/admin/llm-api-keys/${id}`,
+    LLM_API_KEYS_DELETE: (id: string | number) => `/admin/llm-api-keys/${id}`,
+    LLM_API_KEYS_TOGGLE_STATUS: (id: string | number) => `/admin/llm-api-keys/${id}/toggle-status`,
+
+    // LLM API Key-Model Relations
+    LLM_API_KEY_MODELS: '/admin/llm-api-key-models',
+    LLM_API_KEY_MODELS_LIST: (query?: string) => (query ? `/admin/llm-api-key-models?${query}` : '/admin/llm-api-key-models'),
+    LLM_API_KEY_MODELS_CREATE: '/admin/llm-api-key-models',
+    LLM_API_KEY_MODELS_UPDATE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
+    LLM_API_KEY_MODELS_DELETE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
+
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,

@@ -102,5 +102,15 @@
     "user": {
         "fullName": "Full Name",
         "username": "Username"
+    },
+    "userMenu": {
+        "plan": "Plan",
+        "planPro": "Pro",
+        "planFree": "Free",
+        "theme": "Theme",
+        "language": "Language",
+        "logout": "Logout",
+        "logoutFailed": "Logout failed. Try again.",
+        "logoutError": "There was an error logging you out. Please try again later."
     }
 }

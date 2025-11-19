@@ -11,6 +11,7 @@ import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import EditingFlashcards from './edit/EditingFlashcards';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import GamesContent from '../games/GamesContent';
 
 export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
 
@@ -96,7 +97,11 @@ export default function FlashcardContent({ mode, role }: Props) {
                 ) : null}
 
                 {flashcardMode === 'games' && selectableItems.includes('games') ? (
-                    <div>Feature coming soon..</div>
+                    mode === MODE_ACCESS_PAGE_ROLE.personal ? (
+                        <GamesContent mode={MODE_ACCESS_PAGE_ROLE.personal} />
+                    ) : (
+                        <GamesContent mode={MODE_ACCESS_PAGE_ROLE.classBased} role={role!} />
+                    )
                 ) : null}
             </div>
         </div>

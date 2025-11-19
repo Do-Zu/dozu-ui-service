@@ -15,6 +15,7 @@ import React, {
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
+import useGamesWorkSpace, { GameType } from '../hooks/useGamesWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
@@ -50,6 +51,10 @@ interface ContextType {
 
     generatingFlashcards: { q: string; a: string }[] | null;
     setGeneratingFlashcards: Dispatch<SetStateAction<{ q: string; a: string }[] | null>>;
+
+    selectedGame: GameType;
+    selectGame: (game: GameType) => void;
+    resetGame: () => void;
 
     setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
@@ -101,6 +106,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         setGeneratingFlashcards,
     } = useFlashCardWorkSpace();
 
+    const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
+
     const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
         topicIdRef.current = topicIdArg;
     }, []);
@@ -132,6 +139,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             seekTo,
             generatingFlashcards,
             setGeneratingFlashcards,
+            selectedGame,
+            selectGame,
+            resetGame,
         }),
         [
             tab,
@@ -145,6 +155,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             player,
             seekTo,
             generatingFlashcards,
+            selectedGame,
+            selectGame,
+            resetGame,
         ],
     );
 
