@@ -22,6 +22,8 @@ import { METHOD_LEARNING } from '@/utils/constants/method';
 import useYoutubePlayer from '../hooks/useYoutubePlayer';
 import usePdfToolBar from '../hooks/usePdfToolBar';
 import { YouTubePlayer } from 'react-youtube';
+import { INote } from '../types/note.type';
+import useNoteWorkspace from '../hooks/useNoteWorkspace';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -61,6 +63,9 @@ interface ContextType {
     setPageNumber: Dispatch<SetStateAction<number>>;
     setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
     seekTo: (seconds: number) => void;
+
+    note: INote | null;
+    setNote: Dispatch<SetStateAction<INote | null>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -108,6 +113,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
 
+    const { note, setNote } = useNoteWorkspace();
+
     const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
         topicIdRef.current = topicIdArg;
     }, []);
@@ -142,6 +149,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             selectedGame,
             selectGame,
             resetGame,
+            note,
+            setNote
         }),
         [
             tab,
@@ -158,6 +167,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             selectedGame,
             selectGame,
             resetGame,
+            note
         ],
     );
 

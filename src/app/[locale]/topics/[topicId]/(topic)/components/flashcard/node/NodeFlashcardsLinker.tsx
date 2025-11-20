@@ -13,6 +13,8 @@ import mindmapService from '../../../service/mindmap.service';
 import usePost from '@/hooks/usePost';
 import { ILinkFlashcardsToNodePayload, INodeFlashcards } from '@/types/mindmap/mindmap.type';
 import toastHelper from '@/utils/toast.helper';
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
+import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 
 interface Props {
     nodeId: string;
@@ -30,6 +32,7 @@ export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
     const { setLearningFlashcards } = useTopicWorkspace();
     const [linkedFlashcards, setLinkedFlashcards] = useState<ILinkedFlashcard[]>([]);
     const [linkingFlashcards, setLinkingFlashcards] = useState<number[]>([]);
+    const { nodes } = useMindMapContext();
 
     useEffect(() => {
         const linkedFlashcards: ILinkedFlashcard[] = flashcards
@@ -102,6 +105,12 @@ export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
         await linkFlashcardsToNodeAsync({ topicId, nodeId, linkedFlashcards: linkingFlashcards, unlinkedFlashcards });
     }
 
+    function getNodeLabel(flashcard: IFlashcard): string {
+        if (!flashcard.nodeId) return '';
+        const node = nodes.find((node) => node.data.nodeId === flashcard.nodeId);
+        return node === undefined ? '' : node.data.label;
+    }
+
     return (
         <div className="flex flex-col">
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
@@ -138,6 +147,7 @@ export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
                 <div className="px-[4rem] py-7 bg-background">
                     <div className="mt-7 flex flex-col gap-6 bg-background">
                         {flashcards.map((flashcard, index) => {
+                            const nodeLabel = getNodeLabel(flashcard);
                             return (
                                 <div
                                     key={flashcard.flashcardId}
@@ -148,6 +158,9 @@ export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
                                             <span className="text-xl font-bold text-muted-foreground select-none">
                                                 {index + 1}
                                             </span>
+                                            {nodeLabel ? (
+                                                <span className="text-sm text-muted-foreground">({nodeLabel})</span>
+                                            ) : null}
                                         </div>
 
                                         <Checkbox
