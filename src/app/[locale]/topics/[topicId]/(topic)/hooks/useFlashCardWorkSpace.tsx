@@ -13,8 +13,9 @@ export default function useFlashCardWorkSpace() {
 
     const onReviewCard = useCallback(
         ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
-            const updatedLearningFlashcards = [...(learningFlashcards ?? [])];
-            updatedLearningFlashcards.shift();
+            const updatedLearningFlashcards = (learningFlashcards || []).filter(
+                (card) => card.flashcardId !== currentCard.flashcardId,
+            );
             if (reviewedCard) {
                 // INSERT this card to a suitable position (to maintain ORDER by nextReview)
                 let inserted = false;

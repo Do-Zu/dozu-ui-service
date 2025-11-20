@@ -13,6 +13,7 @@
             }
         },
         "study": {
+            "studyOptions": "Lựa chọn",
             "card": "Thẻ",
             "of": "trên",
             "complete": "hoàn thành",
