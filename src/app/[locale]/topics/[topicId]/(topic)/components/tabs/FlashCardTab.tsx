@@ -3,7 +3,6 @@ import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import useFetch from '@/hooks/useFetch';
 import LoadingPage from '@/app/loading';
 import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
-import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import DataStatus from '@/components/errors/DataStatus';
 import { isEmpty, isNil } from '@/utils';
@@ -45,7 +44,7 @@ export default function FlashCardTab() {
 
     if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
 
-    if (isNil(learningFlashcards) || isNil(flashcards)) return <DataStatus variant="empty" />;
+    if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 
     return <FlashcardContent mode={MODE_ACCESS_PAGE_ROLE.personal} />;
 }

@@ -78,6 +78,7 @@ const MindmapContent = ({}) => {
         setIsNodeFlashcardsBrowseOpen(false);
         setIsNodeFlashcardsEditOpen(false);
         setIsNodeFlashcardsLinkerOpen(false);
+        setIsNodeFlashcardsLearningOpen(false);
     }
 
     function onViewNodeFlashcardsClick() {

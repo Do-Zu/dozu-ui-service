@@ -1,15 +1,9 @@
-import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
-import useFetch from '@/hooks/useFetch';
 import { cn } from '@/lib/utils';
-import flashcardService from '@/services/flashcard/flashcard.service';
 import { useCallback, useEffect, useState } from 'react';
 import Flashcard from '../Flashcard';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import DataStatus from '@/components/errors/DataStatus';
-import LoadingPage from '@/app/loading';
-import mindmapService from '../../../service/mindmap.service';
-import { INodeFlashcards } from '@/types/mindmap/mindmap.type';
 import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
 
 interface Props {
@@ -19,10 +13,7 @@ interface Props {
 
 export default function NodeFlashcardsBrowse({ nodeId, onClose }: Props) {
     const { flashcards } = useRequireFlashcards();
-    const [nodeFlashcards, setNodeFlashcards] = useState<IFlashcard[] | null>(null);
-    useEffect(() => {
-        setNodeFlashcards(flashcards.filter((card) => card.nodeId === nodeId));
-    }, [nodeId, flashcards]);
+    const nodeFlashcards = flashcards.filter((card) => card.nodeId === nodeId);
 
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
     const currentFlashcard = nodeFlashcards && nodeFlashcards.length > 0 ? nodeFlashcards[currentFlashcardIndex] : null;
@@ -66,10 +57,6 @@ export default function NodeFlashcardsBrowse({ nodeId, onClose }: Props) {
     function flipWithAnimation() {
         setIsAnimating(true);
         setIsFlipped((prev) => !prev);
-    }
-
-    if (!nodeFlashcards) {
-        return <DataStatus variant="error" />;
     }
 
     if (nodeFlashcards.length === 0 || !currentFlashcard) {

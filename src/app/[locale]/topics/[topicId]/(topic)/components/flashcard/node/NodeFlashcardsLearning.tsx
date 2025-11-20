@@ -18,21 +18,8 @@ interface Props {
 export default function NodeFlashcardsLearning({ nodeId, onClose }: Props) {
     const { topicId, onReviewCard } = useTopicWorkspace();
     const { learningFlashcards } = useRequireLearningFlashcards();
-    const [nodeLearningFlashcards, setNodeLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
-    const [flashcardStatusCounts, setFlashcardStatusCounts] = useState<IAnkiCardStatusCounts>({
-        [IAnkiStatus.NEW]: 0,
-        [IAnkiStatus.LEARNING]: 0,
-        [IAnkiStatus.REVIEW]: 0,
-    });
-
-    useEffect(() => {
-        setNodeLearningFlashcards(learningFlashcards.filter((card) => card.nodeId === nodeId));
-    }, [nodeId, learningFlashcards]);
-
-    useEffect(() => {
-        if (!nodeLearningFlashcards) return;
-        setFlashcardStatusCounts(flashcardUtils.getAnkiStatusCounts(nodeLearningFlashcards));
-    }, [nodeLearningFlashcards]);
+    const nodeLearningFlashcards = learningFlashcards.filter((card) => card.nodeId === nodeId);
+    const flashcardStatusCounts = flashcardUtils.getAnkiStatusCounts(nodeLearningFlashcards);
 
     const [isFlipped, setIsFlipped] = useState(false);
     const [isAnimating, setIsAnimating] = useState(true);

@@ -1,8 +1,6 @@
 import { MindMapProvider } from '@/app/[locale]/mindmap/context/MindMapContext';
 import MindmapContent from '../mindmap/MindmapContent';
 import useFetch from '@/hooks/useFetch';
-import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
-import flashcardService from '@/services/flashcard/flashcard.service';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { isNil } from '@/utils';
 import { METHOD_LEARNING } from '@/utils/constants/method';
@@ -44,7 +42,7 @@ export default function MindmapTab() {
 
     if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
 
-    if (isNil(learningFlashcards) || isNil(flashcards)) return <DataStatus variant="empty" />;
+    if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 
     return (
         <MindMapProvider>

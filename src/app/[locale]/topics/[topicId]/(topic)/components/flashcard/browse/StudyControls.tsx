@@ -75,7 +75,7 @@ export default function StudyControls({
 
             <Card>
                 <CardHeader className="p-4">
-                    <CardTitle className={cn('font-medium text-base')}>Study Options</CardTitle>
+                    <CardTitle className={cn('font-medium text-base')}>{t('studyOptions')}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 space-y-4">
                     <div className="flex items-center justify-between">
