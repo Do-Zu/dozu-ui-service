@@ -20,7 +20,7 @@ export default function LearningMaterial() {
         }
     }, [data, error]);
 
-    if (error) return <DataStatus variant="error" title={error} />;
+    if (!loading && error) return <DataStatus variant="error" title={error} />;
     if (loading) return <LoadingPage />;
     if (!data) return <DataStatus variant="empty" />;
 

@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button';
 import useGenerate from '@/hooks/generate/useGenerate';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ImportMethod, TypeMethodLeading } from '@/app/[locale]/generate/constants/resource';
 import DataStatus from '@/components/errors/DataStatus';
 import { isNilOrEmpty } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import GenerateStreaming from '@/components/generative/GenerateStreaming';
 
 /**
  * Props for the reusable Generate<TRes> component.
@@ -103,22 +104,7 @@ export default function Generate<TRes>({
         }
     };
 
-    if (isRegisterGenerate) {
-        return (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
-                {registerNode ? (
-                    registerNode
-                ) : (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Processing ...</span>
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    if (isGenerating) {
+    const generatingComponent = useMemo(() => {
         return (
             <div className="w-full flex items-center justify-center min-h-24 py-4">
                 {generateNode ? (
@@ -131,19 +117,59 @@ export default function Generate<TRes>({
                 )}
             </div>
         );
-    }
+    }, []);
 
-    if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
-        return (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
-                <DataStatus variant="error" />
-            </div>
-        );
-    }
+    // if (isRegisterGenerate) {
+    //     return (
+    //         <div className="w-full flex items-center justify-center min-h-24 py-4">
+    //             {registerNode ? (
+    //                 registerNode
+    //             ) : (
+    //                 <div className="flex items-center gap-2 text-muted-foreground">
+    //                     <Loader2 className="h-4 w-4 animate-spin" />
+    //                     <span>Processing ...</span>
+    //                 </div>
+    //             )}
+    //         </div>
+    //     );
+    // }
+
+    // if (isGenerating) {
+    //     return (
+    //         <div className="w-full flex items-center justify-center min-h-24 py-4">
+    //             {generateNode ? (
+    //                 generateNode
+    //             ) : (
+    //                 <div className="flex items-center gap-2 text-muted-foreground">
+    //                     <Loader2 className="h-4 w-4 animate-spin" />
+    //                     <span>Generating ...</span>
+    //                 </div>
+    //             )}
+    //         </div>
+    //     );
+    // }
+
+    // if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
+    //     return (
+    //         <div className="w-full flex items-center justify-center min-h-24 py-4">
+    //             <DataStatus variant="error" />
+    //         </div>
+    //     );
+    // }
 
     // Idle state: show custom trigger if provided; otherwise, a centered default button.
     // To customize label/appearance, pass a "trigger" node.
     const defaultTrigger = <Button onClick={handleStartGenerate}>Generate</Button>;
 
-    return <div className="w-full flex items-center justify-center py-4">{trigger ? trigger : defaultTrigger}</div>;
+    return (
+        <GenerateStreaming
+            content={contentTextOrigin.current}
+            trigger={trigger ? trigger : defaultTrigger}
+            type={type}
+            method={method}
+            loadingComponent={generatingComponent}
+        />
+    );
+
+    // return <div className="w-full flex items-center justify-center py-4">{trigger ? trigger : defaultTrigger}</div>;
 }
