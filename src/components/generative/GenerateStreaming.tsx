@@ -62,14 +62,33 @@ const GenerateStreaming = ({
         return component;
     };
 
+    const renderDefaultContent = (content: string, isStreaming: boolean) => (
+        <div className="max-h-[60vh] w-full overflow-y-auto rounded-md border border-input bg-background px-4 py-3 text-sm shadow-sm">
+            <div className="whitespace-pre-wrap leading-relaxed">
+                {content}
+                {isStreaming && <span className="ml-1 inline-block h-4 w-1 animate-pulse bg-primary align-middle" />}
+            </div>
+        </div>
+    );
+
     if (isGenerating) {
         return (
-            <>{previewStreamingComponent ? renderContent(previewStreamingComponent, streamData) : loadingComponent}</>
+            <>
+                {previewStreamingComponent
+                    ? renderContent(previewStreamingComponent, streamData)
+                    : renderDefaultContent(streamData, true)}
+            </>
         );
     }
 
     if (isCompleted) {
-        return <>{previewComponent ? renderContent(previewComponent, streamData) : <div>{streamData}</div>}</>;
+        return (
+            <>
+                {previewComponent
+                    ? renderContent(previewComponent, streamData)
+                    : renderDefaultContent(streamData, false)}
+            </>
+        );
     }
 
     if (isValidElement(trigger)) {

@@ -49,7 +49,7 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
     };
 
     const isGenerating: boolean = useMemo(() => {
-        return sseStatus === 'open';
+        return sseStatus === 'connecting';
     }, [sseStatus]);
 
     const reset = useCallback(() => {
