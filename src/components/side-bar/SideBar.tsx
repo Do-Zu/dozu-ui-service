@@ -35,6 +35,7 @@ import { ShieldCheck } from 'lucide-react';
 import ThemeToggle from '@/components/toolbar/ThemeToggle';
 import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
 import AuthButton from '@/components/toolbar/AuthButton';
+import { UserMenu } from '../toolbar/UserMenu';
 import TreeView from '@/app/[locale]/home/components/package/TreeView';
 import { ScrollArea } from '../ui/scroll-area';
 import { USER_ROLES } from '@/utils/constants/roles';
@@ -177,25 +178,28 @@ export function AppSidebar() {
             <SidebarGroup>
                 <SidebarGroupLabel></SidebarGroupLabel>
                 <SidebarGroupContent className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-4 group-data-[collapsible=icon]:hidden">
-                        <ThemeToggle />
-                        <LanguageSwitcher />
-                    </div>
+                    {!isAuthenticated && (
+                        <div className="flex flex-col gap-4 group-data-[collapsible=icon]:hidden">
+                            <ThemeToggle />
+                            <LanguageSwitcher />
+                        </div>
+                    )}
                     {/* Upgrade to Pro Button */}
                     {!isPro && isAuthenticated && (
                         <div className="px-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                             <Button
                                 onClick={openUpgradeModal}
                                 variant="outline"
-                                size="default"
-                                className="w-full justify-center gap-2 bg-gradient-to-r from-blue-100/80 via-indigo-100/80 to-purple-100/80 dark:from-blue-900/40 dark:via-indigo-900/40 dark:to-purple-900/40 border-blue-300/60 dark:border-blue-700/60 hover:from-blue-200/90 hover:via-indigo-200/90 hover:to-purple-200/90 dark:hover:from-blue-800/50 dark:hover:via-indigo-800/50 dark:hover:to-purple-800/50 text-blue-700 dark:text-blue-300 font-semibold shadow-sm hover:shadow-md transition-all duration-200 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:min-w-0"
+                                size="sm"
+                                className="w-full justify-center gap-1.5 py-1.5 bg-gradient-to-r from-blue-100/80 via-indigo-100/80 to-purple-100/80 dark:from-blue-900/40 dark:via-indigo-900/40 dark:to-purple-900/40 border-blue-300/60 dark:border-blue-700/60 hover:from-blue-200/90 hover:via-indigo-200/90 hover:to-purple-200/90 dark:hover:from-blue-800/50 dark:hover:via-indigo-800/50 dark:hover:to-purple-800/50 text-blue-700 dark:text-blue-300 font-semibold shadow-sm hover:shadow-md transition-all duration-200 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:min-w-0"
                             >
-                                <Crown className="h-4 w-4 flex-shrink-0" />
+                                <Crown className="h-3 w-3 flex-shrink-0" />
                                 <span className="group-data-[collapsible=icon]:hidden">Upgrade to Pro</span>
                             </Button>
                         </div>
                     )}
-                    <AuthButton />
+                    {isAuthenticated ? <UserMenu /> : <AuthButton />}
+                    
                 </SidebarGroupContent>
             </SidebarGroup>
 

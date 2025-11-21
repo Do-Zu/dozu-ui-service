@@ -208,13 +208,32 @@ class FlashcardService {
         topicId,
         flashcards,
     }: {
-        topicId: string | number;
+        topicId: number;
         flashcards: IFlashcardsBatchInput;
     }): Promise<{ flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }> {
         const response = await postRequest<
             IFlashcardsBatchInput,
             { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
         >(`/topics/${topicId}/flashcards/batch/state`, flashcards);
+        if (response.status != 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async batchFlashcardsForNodeState({
+        topicId,
+        nodeId,
+        flashcards,
+    }: {
+        topicId: number;
+        nodeId: string;
+        flashcards: IFlashcardsBatchInput;
+    }): Promise<{ flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }> {
+        const response = await postRequest<
+            IFlashcardsForNodeBatchInput,
+            { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
+        >(`/topics/${topicId}/flashcards/batch/node/state`, { nodeId, flashcards });
         if (response.status != 'success') {
             throw new Error(response.message);
         }

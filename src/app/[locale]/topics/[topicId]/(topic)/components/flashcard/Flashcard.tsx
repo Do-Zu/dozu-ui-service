@@ -12,11 +12,23 @@ interface FlashcardProps {
     isFlipped: boolean;
     isAnimating?: boolean;
     onClick: () => void;
+    className?: string | undefined;
 }
 
-export default function Flashcard({ front, back, imageUrl, isFlipped, isAnimating, onClick }: FlashcardProps) {
+export default function Flashcard({
+    front,
+    back,
+    imageUrl,
+    isFlipped,
+    isAnimating,
+    onClick,
+    className,
+}: FlashcardProps) {
     return (
-        <div className="relative w-[55%] h-[70%] perspective cursor-pointer select-none" onClick={onClick}>
+        <div
+            className={cn('relative w-[70%] h-[70%] perspective cursor-pointer select-none', className)}
+            onClick={onClick}
+        >
             <div
                 className={cn(
                     'absolute inset-0 transform-style-preserve-3d',

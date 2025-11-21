@@ -1,4 +1,5 @@
 import {
+    IAnkiCardStatusCounts,
     IDueAnkiCard,
     IFlashcard,
     IFlashcardCreateInput,
@@ -61,6 +62,19 @@ class FlashcardUtils {
             updatedFlashcardCounts[newStatus]++;
         }
         return updatedFlashcardCounts;
+    }
+
+    public getAnkiStatusCounts(learningFlashcards: IDueAnkiCard[]): IAnkiCardStatusCounts {
+        const result: IAnkiCardStatusCounts = {
+            [IAnkiStatus.NEW]: 0,
+            [IAnkiStatus.LEARNING]: 0,
+            [IAnkiStatus.REVIEW]: 0,
+        };
+        for (const card of learningFlashcards) {
+            const newStatus = card.status === IAnkiStatus.RELEARNING ? IAnkiStatus.LEARNING : card.status;
+            result[newStatus]++;
+        }
+        return result;
     }
 
     public createInitialFlashcard(id: number): ILocalFlashcard {

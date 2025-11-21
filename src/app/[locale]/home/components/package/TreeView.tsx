@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -48,12 +49,21 @@ import {
     removeTopicInPackage,
     updatePackage,
 } from '@/stores/features/package/package.thunk';
-import { compareIgnoreCapitalization, isEmpty, isNilOrEmpty, safeDestructure, truncate } from '@/utils';
-import { Modal } from '@/components/modal/Modal';
-import { toast } from '@/hooks/use-toast';
+import {
+    compareIgnoreCapitalization,
+    isEmpty,
+    isNilOrEmpty,
+    isNumber,
+    safeDestructure,
+    toNumber,
+    truncate,
+} from '@/utils';
+import { ROUTES } from '@/utils/constants/routes';
 import Spinner from '@/components/ui/spinner';
+import { Modal } from '@/components/modal/Modal';
 import { toggleExpendPackage } from '@/stores/features/package/packageSlice';
 import ListTopicUnAssign from './ListTopicUnAssign';
+import { toast } from '@/hooks/use-toast';
 
 export interface ITreeTopicItem {
     topicId: number | string;
@@ -65,6 +75,7 @@ export interface TreeViewProps {
 }
 
 const TreeView: React.FC<TreeViewProps> = ({ className }) => {
+    const router = useRouter();
     const dispatch = useAppDispatch();
     const t = useTranslations('packages');
 
@@ -176,6 +187,18 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
         } catch {
             toast({ title: t('toast.renameFail') });
         }
+    };
+
+    const handleRedirectForTopic = (topicId: TopicId) => {
+        const topicIdParse = toNumber(topicId);
+
+        if (!isNumber(topicIdParse)) return;
+
+        router.push(
+            ROUTES.TOPIC_WORKSPACE({
+                topicId: topicIdParse,
+            }),
+        );
     };
 
     const renderCreatePackage = () => (
@@ -362,6 +385,9 @@ const TreeView: React.FC<TreeViewProps> = ({ className }) => {
                                                                         'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-accent',
                                                                         selected && 'bg-accent',
                                                                     )}
+                                                                    onClick={() =>
+                                                                        handleRedirectForTopic(topic.topicId)
+                                                                    }
                                                                     onContextMenu={(e) => {
                                                                         e.preventDefault();
                                                                         setTopicMenu({

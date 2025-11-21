@@ -61,10 +61,10 @@ export default function StudyControls({
                 <CardContent className="p-4">
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-muted-foreground">
                                 {t('card')} {currentFlashcardIndex + 1} {t('of')} {flashcardsLength}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-muted-foreground">
                                 {progress}% {t('complete')}
                             </span>
                         </div>
@@ -75,18 +75,13 @@ export default function StudyControls({
 
             <Card>
                 <CardHeader className="p-4">
-                    <CardTitle className={cn('font-semibold', isFullScreen ? 'text-sm' : 'text-xs')}>
-                        Study Options
-                    </CardTitle>
+                    <CardTitle className={cn('font-medium text-base')}>{t('studyOptions')}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0 space-y-4">
                     <div className="flex items-center justify-between">
                         <Label
                             htmlFor="autoplay-switch"
-                            className={cn(
-                                'flex items-center gap-2 cursor-pointer',
-                                isFullScreen ? 'text-sm' : 'text-xs',
-                            )}
+                            className={cn('flex items-center gap-2 cursor-pointer font-medium')}
                         >
                             <Clock size={isFullScreen ? 16 : 12} />
                             <span>{t('autoPlay')}</span>
@@ -95,7 +90,7 @@ export default function StudyControls({
                     </div>
 
                     <div className="space-y-2">
-                        <Label className={cn('flex items-center gap-2', isFullScreen ? 'text-sm' : 'text-xs')}>
+                        <Label className={cn('flex items-center gap-2 font-medium')}>
                             <Clock size={isFullScreen ? 16 : 12} />
                             <span>
                                 {t('speed')}: {autoPlaySpeed}s
@@ -114,10 +109,7 @@ export default function StudyControls({
                     <div className="flex items-center justify-between">
                         <Label
                             htmlFor="shuffle-switch"
-                            className={cn(
-                                'flex items-center gap-2 cursor-pointer',
-                                isFullScreen ? 'text-sm' : 'text-xs',
-                            )}
+                            className={cn('flex items-center gap-2 cursor-pointer font-medium')}
                         >
                             <Shuffle size={isFullScreen ? 16 : 12} />
                             <span>{t('shuffle')}</span>
@@ -126,28 +118,18 @@ export default function StudyControls({
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                        <Label
-                            className={cn(
-                                'flex items-center gap-2 cursor-pointer',
-                                isFullScreen ? 'text-sm' : 'text-xs',
-                            )}
-                        >
+                        <Label className={cn('flex items-center gap-2 cursor-pointer font-medium')}>
                             <RotateCcw size={isFullScreen ? 16 : 12} />
                             <span>{t('resetProgress')}</span>
                         </Label>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleResetProgress}
-                            className={cn('h-7 px-2', isFullScreen ? 'text-sm' : 'text-xs')}
-                        >
+                        <Button variant="outline" size="sm" onClick={handleResetProgress} className={cn('h-7 px-2')}>
                             {t('reset')}
                         </Button>
                     </div>
 
                     <ShowIf when={isTeacher}>
                         <div className="flex items-center justify-between">
-                            <Label className={cn('flex items-center gap-2', isFullScreen ? 'text-sm' : 'text-xs')}>
+                            <Label className={cn('flex items-center gap-2 font-medium')}>
                                 <SquarePen size={isFullScreen ? 16 : 12} />
                                 <span>{t('edit')}</span>
                             </Label>
@@ -155,7 +137,7 @@ export default function StudyControls({
                                 variant="outline"
                                 size="sm"
                                 onClick={handleEditFlashcardsClick}
-                                className={cn('h-7 px-2', isFullScreen ? 'text-sm' : 'text-xs')}
+                                className={cn('h-7 px-2')}
                             >
                                 {t('edit')}
                             </Button>

@@ -38,6 +38,12 @@ export const layoutConfigs: PageLayoutConfig[] = [
         isDisplayFooter: false,
         isDisplaySidebar: false,
     },
+    {
+        pathPattern: '/${locale}/topics/*',
+        isDisplayHeader: false,
+        isDisplayFooter: false,
+        isDisplaySidebar: true,
+    },
 ];
 
 export const displayPackagesConfigs = [
