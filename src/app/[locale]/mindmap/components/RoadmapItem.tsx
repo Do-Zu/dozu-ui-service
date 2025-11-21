@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowUp, ArrowDown, Check } from 'lucide-react';
+import { ArrowUp, ArrowDown, Check, ChevronRight } from 'lucide-react'; // Import ChevronRight
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { AppNode } from '@/types/mindmap/mindmap.type';
@@ -12,9 +12,9 @@ interface RoadmapItemProps {
     onMoveUp?: () => void;
     onMoveDown?: () => void;
     onComplete?: () => void;
+    onExpand?: () => void; // New prop for expand action
     node: AppNode;
 }
-
 export function RoadmapItem({
     label,
     index,
@@ -23,38 +23,69 @@ export function RoadmapItem({
     onMoveUp,
     onMoveDown,
     onComplete,
+    onExpand,
     node,
 }: RoadmapItemProps) {
+    const completeButtonVariant = completed ? 'secondary' : 'outline';
+
     return (
         <div
             className={cn(
-                'flex items-center justify-between w-full rounded-xl border p-3 bg-background shadow-sm transition-all',
+                'relative flex items-center w-full rounded-xl border bg-background shadow-sm transition-all px-3 py-2',
                 completed && 'bg-muted text-muted-foreground',
             )}
         >
-            {/* Left side: reorder buttons */}
-            <div className="flex flex-col gap-1">
-                <Button variant="ghost" size="icon" disabled={index === 0} onClick={onMoveUp} className="h-6 w-6">
-                    <ArrowUp className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    disabled={index === total - 1}
-                    onClick={onMoveDown}
-                    className="h-6 w-6"
-                >
-                    <ArrowDown className="h-4 w-4" />
-                </Button>
+            {/* Left content (text truncates behind buttons) */}
+            <div className="flex items-center gap-3 flex-1 pr-20">
+                {/* Reorder buttons */}
+                <div className="flex flex-col gap-1.5">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled={index === 0}
+                        onClick={onMoveUp}
+                        className="h-6 w-6 p-0"
+                    >
+                        <ArrowUp className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled={index === total - 1}
+                        onClick={onMoveDown}
+                        className="h-6 w-6 p-0"
+                    >
+                        <ArrowDown className="h-4 w-4" />
+                    </Button>
+                </div>
+
+                {/* Label */}
+                <div className="font-medium truncate text-base">{label}</div>
             </div>
 
-            {/* Middle: item label */}
-            <div className="flex-1 mx-3 font-medium truncate">{node.data.label}</div>
+            {/* Right side action buttons (floated on top) */}
+            <div className="absolute right-0 top-0 h-full flex border-l">
+                {/* Expand */}
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={onExpand}
+                    className="h-full w-9 rounded-none border-r text-muted-foreground hover:text-foreground"
+                >
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
 
-            {/* Right side: complete button */}
-            {/* <Button variant={completed ? 'secondary' : 'default'} size="icon" onClick={onComplete} className="h-7 w-7">
-                <Check className="h-4 w-4" />
-            </Button> */}
+                {/* Complete */}
+                <Button
+                    variant={completeButtonVariant}
+                    size="icon"
+                    onClick={onComplete}
+                    className="h-full w-11 rounded-none"
+                >
+                    <Check className="h-4 w-4" />
+                </Button>
+            </div>
         </div>
     );
 }
