@@ -119,57 +119,36 @@ export default function Generate<TRes>({
         );
     }, []);
 
-    // if (isRegisterGenerate) {
-    //     return (
-    //         <div className="w-full flex items-center justify-center min-h-24 py-4">
-    //             {registerNode ? (
-    //                 registerNode
-    //             ) : (
-    //                 <div className="flex items-center gap-2 text-muted-foreground">
-    //                     <Loader2 className="h-4 w-4 animate-spin" />
-    //                     <span>Processing ...</span>
-    //                 </div>
-    //             )}
-    //         </div>
-    //     );
-    // }
+    if (isRegisterGenerate) {
+        return (
+            <div className="w-full flex items-center justify-center min-h-24 py-4">
+                {registerNode ? (
+                    registerNode
+                ) : (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Processing ...</span>
+                    </div>
+                )}
+            </div>
+        );
+    }
 
-    // if (isGenerating) {
-    //     return (
-    //         <div className="w-full flex items-center justify-center min-h-24 py-4">
-    //             {generateNode ? (
-    //                 generateNode
-    //             ) : (
-    //                 <div className="flex items-center gap-2 text-muted-foreground">
-    //                     <Loader2 className="h-4 w-4 animate-spin" />
-    //                     <span>Generating ...</span>
-    //                 </div>
-    //             )}
-    //         </div>
-    //     );
-    // }
+    if (isGenerating) {
+        return <>{generatingComponent}</>;
+    }
 
-    // if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
-    //     return (
-    //         <div className="w-full flex items-center justify-center min-h-24 py-4">
-    //             <DataStatus variant="error" />
-    //         </div>
-    //     );
-    // }
+    if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
+        return (
+            <div className="w-full flex items-center justify-center min-h-24 py-4">
+                <DataStatus variant="error" />
+            </div>
+        );
+    }
 
     // Idle state: show custom trigger if provided; otherwise, a centered default button.
     // To customize label/appearance, pass a "trigger" node.
     const defaultTrigger = <Button onClick={handleStartGenerate}>Generate</Button>;
 
-    return (
-        <GenerateStreaming
-            content={contentTextOrigin.current}
-            trigger={trigger ? trigger : defaultTrigger}
-            type={type}
-            method={method}
-            loadingComponent={generatingComponent}
-        />
-    );
-
-    // return <div className="w-full flex items-center justify-center py-4">{trigger ? trigger : defaultTrigger}</div>;
+    return <div className="w-full flex items-center justify-center py-4">{trigger ? trigger : defaultTrigger}</div>;
 }
