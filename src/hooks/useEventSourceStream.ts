@@ -33,7 +33,7 @@ export function useEventSourceStream<TReq, TRes>(
         return options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     }, [options?.timeoutMs]);
 
-    const ctrl = new AbortController();
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     const handleEventMessage = (data: string) => {
         try {
@@ -45,8 +45,10 @@ export function useEventSourceStream<TReq, TRes>(
 
             if (parsedData?.status === 'completed') {
                 setStatus('completed');
+                abortControllerRef.current?.abort();
             } else if (parsedData?.status === 'error') {
                 setStatus('error');
+                abortControllerRef.current?.abort();
             }
 
             if (options.onMessage) options.onMessage(parsedData);
@@ -58,6 +60,10 @@ export function useEventSourceStream<TReq, TRes>(
     const execute = useCallback(
         async (payload: TReq) => {
             // Cleanup previous connection if exists
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+            abortControllerRef.current = new AbortController();
 
             if (timeoutIdRef.current) {
                 clearTimeout(timeoutIdRef.current);
@@ -78,7 +84,7 @@ export function useEventSourceStream<TReq, TRes>(
                     Authorization: `Bearer ${user?.accessToken}`,
                 },
 
-                signal: ctrl.signal,
+                signal: abortControllerRef.current.signal,
 
                 async onopen(response) {
                     if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
@@ -104,6 +110,9 @@ export function useEventSourceStream<TReq, TRes>(
                 },
                 onclose() {
                     // if the server closes the connection unexpectedly, retry:
+                    if (abortControllerRef.current?.signal.aborted) {
+                        return;
+                    }
                     throw new RetirableError();
                 },
                 onerror(err) {
@@ -122,6 +131,7 @@ export function useEventSourceStream<TReq, TRes>(
     useEffect(() => {
         return () => {
             setStatus('closed');
+            abortControllerRef.current?.abort();
         };
     }, []);
 
