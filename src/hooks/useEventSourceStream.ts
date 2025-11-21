@@ -99,8 +99,6 @@ export function useEventSourceStream<TReq, TRes>(
                 onmessage(msg) {
                     // if the server emits an error message, throw an exception
                     // so it gets handled by the onerror callback below:
-                    console.log({ msg });
-                    console.log({ data: msg.data });
 
                     handleEventMessage(msg.data);
 
@@ -109,10 +107,10 @@ export function useEventSourceStream<TReq, TRes>(
                     }
                 },
                 onclose() {
-                    // if the server closes the connection unexpectedly, retry:
                     if (abortControllerRef.current?.signal.aborted) {
                         return;
                     }
+                    // if the server closes the connection unexpectedly, retry:
                     throw new RetirableError();
                 },
                 onerror(err) {
