@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Modal } from '@/components/modal/Modal';
 import { embeddingService, IQuerySimilarity, IResponseQuery } from '../../service/embedding.service';
@@ -18,6 +18,8 @@ interface IProps {
     triggerClassName?: string;
     children?: React.ReactNode;
     className?: string;
+    onAfterTrigger?: () => void;
+    onBeforeTrigger?: () => void;
 }
 
 /* Types mirrored from embedding.service.ts */
@@ -76,7 +78,19 @@ const getSimilarityStyles = (s?: number) => {
     };
 };
 
-export default function Reference({ content, triggerClassName = '', className, children }: IProps) {
+const formatSimilarity = (similarity?: number) => {
+    if (similarity === undefined || similarity === null) return '--';
+    return `${(similarity * 100).toFixed(1)}%`;
+};
+
+export default function Reference({
+    onBeforeTrigger,
+    onAfterTrigger,
+    content,
+    triggerClassName = '',
+    className,
+    children,
+}: IProps) {
     const t = useTranslations('topic.reference');
     const { learningMaterial } = useTopicWorkspace();
 
@@ -89,6 +103,7 @@ export default function Reference({ content, triggerClassName = '', className, c
     const [isShowMore, setIsShowMore] = useState(false);
 
     const [queried, setQueried] = useState(false);
+
     const {
         data: results,
         error,
@@ -212,6 +227,7 @@ export default function Reference({ content, triggerClassName = '', className, c
                                     setOpen(false);
                                     setIsShowMore(false);
                                 }}
+                                triggerShowMore={triggerShowMore}
                             />
                         ))}
                 </div>
@@ -239,15 +255,23 @@ export default function Reference({ content, triggerClassName = '', className, c
         if (learningMaterial?.type === 'file') {
             return (
                 <div className="mt-4">
-                    <FileReferenceItem item={highestResultSuggest} isShowMore={isShowMore} onClose={() => {}} />
-                    {triggerShowMore}
+                    <FileReferenceItem
+                        item={highestResultSuggest}
+                        isShowMore={isShowMore}
+                        onClose={() => {}}
+                        triggerShowMore={triggerShowMore}
+                    />
                 </div>
             );
         } else if (learningMaterial?.type === 'youtube') {
             return (
                 <div className="mt-4">
-                    <YouTubeReferenceItem item={highestResultSuggest} isShowMore={isShowMore} onClose={() => {}} />
-                    {triggerShowMore}
+                    <YouTubeReferenceItem
+                        item={highestResultSuggest}
+                        isShowMore={isShowMore}
+                        onClose={() => {}}
+                        triggerShowMore={triggerShowMore}
+                    />
                 </div>
             );
         }
@@ -274,24 +298,39 @@ export default function Reference({ content, triggerClassName = '', className, c
 }
 
 interface ReferenceItemProps {
+    triggerShowMore: ReactNode;
     item: IReturnItemQuery;
     isShowMore: boolean;
     onClose: () => void;
 }
 
-function ReferenceItem({ item, isShowMore = true, onClose }: ReferenceItemProps) {
+function ReferenceItem({ item, isShowMore = true, onClose, triggerShowMore }: ReferenceItemProps) {
     const { learningMaterial } = useTopicWorkspace();
 
     if (learningMaterial?.type === 'file') {
-        return <FileReferenceItem item={item} isShowMore={isShowMore} onClose={onClose} />;
+        return (
+            <FileReferenceItem
+                item={item}
+                isShowMore={isShowMore}
+                onClose={onClose}
+                triggerShowMore={triggerShowMore}
+            />
+        );
     } else if (learningMaterial?.type === 'youtube') {
-        return <YouTubeReferenceItem item={item} isShowMore={isShowMore} onClose={onClose} />;
+        return (
+            <YouTubeReferenceItem
+                item={item}
+                isShowMore={isShowMore}
+                onClose={onClose}
+                triggerShowMore={triggerShowMore}
+            />
+        );
     }
 
     return <DataStatus variant="empty" />;
 }
 
-function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
+function YouTubeReferenceItem({ item, isShowMore, onClose, triggerShowMore }: ReferenceItemProps) {
     const t = useTranslations('topic.reference');
     const { seekTo } = useTopicWorkspace();
     const [expanded, setExpanded] = useState(false);
@@ -341,7 +380,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                                 <span
                                     className={`text-[10px] px-2 py-0.5 rounded-full shadow-sm ${similarityStyles.badge}`}
                                 >
-                                    similarity: {similarity?.toFixed(2) ?? '--'}
+                                    similarity: {formatSimilarity(similarity)}
                                 </span>
                             </div>
                             {timestamp && (
@@ -355,6 +394,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                             )}
                         </div>
                     </div>
+                    {triggerShowMore}
                 </div>
             </div>
         );
@@ -367,7 +407,7 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
             {/* similarity score badge */}
             <div className="absolute right-4 top-3">
                 <span className={`text-[11px] px-2.5 py-0.5 rounded-full shadow-sm ${similarityStyles.badge}`}>
-                    similarity: {similarity?.toFixed(2) ?? '--'}
+                    similarity: {formatSimilarity(similarity)}
                 </span>
             </div>
 
@@ -416,11 +456,13 @@ function YouTubeReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps)
                     </div>
                 </div>
             </div>
+
+            {triggerShowMore}
         </div>
     );
 }
 
-function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
+function FileReferenceItem({ item, isShowMore, onClose, triggerShowMore }: ReferenceItemProps) {
     const t = useTranslations('topic.reference');
     const { setPageNumber } = useTopicWorkspace();
 
@@ -463,8 +505,10 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
                     <span
                         className={`mt-5 px-3 py-0.5 text-[11px] leading-none rounded-full shadow-sm border ${similarityStyles.badge}`}
                     >
-                        similarity: {similarity?.toFixed(2) ?? '--'}
+                        similarity: {formatSimilarity(similarity)}
                     </span>
+
+                    {triggerShowMore}
                 </button>
             </div>
         );
@@ -477,7 +521,7 @@ function FileReferenceItem({ item, isShowMore, onClose }: ReferenceItemProps) {
             {/* similarity badge */}
             <div className="absolute right-4 top-3">
                 <span className={`text-[11px] px-2.5 py-0.5 rounded-full shadow-sm ${similarityStyles.badge}`}>
-                    similarity {similarity?.toFixed(2) ?? '--'}
+                    similarity {formatSimilarity(similarity)}
                 </span>
             </div>
 
