@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Handle, Node, NodeToolbar, Position, useEdges, useReactFlow } from '@xyflow/react';
+import { Handle, Node, NodeToolbar, Position, useEdges, useInternalNode, useReactFlow } from '@xyflow/react';
 import { useState, useRef, useEffect } from 'react';
 import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
@@ -34,8 +34,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const [isClickedOn, setIsClickedOn] = useState(false);
     const isActive = isClickedOn || isHovered;
     const [isExpanded, setIsExpanded] = useState(false);
-    const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
+    const { screenToFlowPosition, fitView, getNodes, setNodes, setEdges, setViewport } = useReactFlow();
     const edges = useEdges();
+    const internalNode = useInternalNode(data.nodeId);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +93,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
 
     const handleRightClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
+        if (internalNode) {
+            fitView({ nodes: [internalNode], duration: 800, padding: 0.2 }); // Animate and add padding
+        }
+        setIsClickedOn(true);
+
         dispatch(setSelectedNodeData(data));
         dispatch(openSheet());
     };
