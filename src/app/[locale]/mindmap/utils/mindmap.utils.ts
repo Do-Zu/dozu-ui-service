@@ -87,3 +87,30 @@ export const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEd
     });
     return updatedEdges;
 };
+export const getAllChildNodeAndSelfIds = ({
+    nodes = [],
+    edges = [],
+    nodeId,
+    resultNodeIds = [],
+}: {
+    nodes: AppNode[];
+    edges: AppEdge[];
+    nodeId: string;
+    resultNodeIds?: string[];
+}): string[] => {
+    if (!nodes.length || !edges.length) return [nodeId]; // Safety: return just the nodeId if no data
+
+    const childEdges = edges.filter((edge) => edge.source === nodeId);
+    const childNodeIds = childEdges.map((edge) => edge.target);
+
+    // resultNodeIds = [...resultNodeIds, ...childNodeIds];
+    resultNodeIds.push(nodeId);
+    console.log(nodes.find(node=>node.data.nodeId===nodeId))
+    
+
+    for (const childId of childNodeIds) {
+        resultNodeIds = getAllChildNodeAndSelfIds({ nodes, edges, nodeId: childId, resultNodeIds });
+    }
+
+    return resultNodeIds;
+};

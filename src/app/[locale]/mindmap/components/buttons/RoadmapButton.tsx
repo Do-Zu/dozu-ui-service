@@ -22,7 +22,7 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
     const rootNode = nodes.find((node) => node.data.isRoot === true);
 
     // Helper function to get children of a given node
-    const getChildNodes = (parentNodeId: string): AppNode[] => {
+    const getImmediateChildNodes = (parentNodeId: string): AppNode[] => {
         const childEdges = edges.filter((edge) => edge.source === parentNodeId);
         const children: AppNode[] = [];
         childEdges.forEach((edge) => {
@@ -36,7 +36,7 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
 
     // Get root level children
     const rootChildren = useMemo(() => {
-        return rootNode ? getChildNodes(rootNode.data.nodeId) : [];//default empty if root node is not found
+        return rootNode ? getImmediateChildNodes(rootNode.data.nodeId) : []; //default empty if root node is not found
     }, [rootNode, nodes, edges]);
 
     function normalizeRoadmapOrder(baseNodes: AppNode[]) {
@@ -97,7 +97,7 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
                             setNodes={setNodes}
                             allNodes={nodes}
                             allEdges={edges}
-                            getChildNodes={getChildNodes}
+                            getImmediateChildNodes={getImmediateChildNodes}
                             normalizeRoadmapOrder={normalizeRoadmapOrder}
                         />
                     </div>

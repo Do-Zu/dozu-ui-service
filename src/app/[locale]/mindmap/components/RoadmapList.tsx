@@ -3,13 +3,14 @@ import { RoadmapItem } from './RoadmapItem';
 import { ArrowDown, ChevronLeft } from 'lucide-react';
 import { AppNode, AppEdge } from '@/types/mindmap/mindmap.type';
 import { Button } from '@/components/ui/button';
+import { getAllChildNodeAndSelfIds } from '../utils/mindmap.utils';
 
 interface RoadmapListProps {
     initialItems: AppNode[];
     setNodes?: (nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void;
     allNodes?: AppNode[];
     allEdges?: AppEdge[];
-    getChildNodes?: (parentNodeId: string) => AppNode[];
+    getImmediateChildNodes?: (parentNodeId: string) => AppNode[];
     normalizeRoadmapOrder?: (nodes: AppNode[]) => AppNode[];
 }
 
@@ -18,11 +19,10 @@ export default function RoadmapList({
     setNodes,
     allNodes,
     allEdges,
-    getChildNodes,
+    getImmediateChildNodes,
     normalizeRoadmapOrder,
 }: RoadmapListProps) {
     const [items, setItems] = useState<AppNode[]>(initialItems);
-    const [completed, setCompleted] = useState<string[]>([]);
     const [currentNode, setCurrentNode] = useState<AppNode | null>(null); // Track the node being drilled into
     const [breadcrumb, setBreadcrumb] = useState<AppNode[]>([]); // Track parent nodes for back navigation
 
@@ -52,24 +52,72 @@ export default function RoadmapList({
         }
     };
 
-    const toggleComplete = (nodeId: string) => {
-        setCompleted((prev) => (prev.includes(nodeId) ? prev.filter((l) => l !== nodeId) : [...prev, nodeId]));
-    };
-
-    const handleExpand = (node: AppNode) => {
-        // Drill into this node's children
-        if (getChildNodes && normalizeRoadmapOrder) {
-            const childNodes = getChildNodes(node.data.nodeId);
-            if (childNodes.length > 0) {
-                setBreadcrumb([...breadcrumb, node]);
-                setCurrentNode(node);
-                const orderedChildren = normalizeRoadmapOrder(childNodes);
-                setItems(orderedChildren);
-                setCompleted([]); // Reset completion state when switching roadmap
+    const toggleComplete = (nodeId: string, isComplete: boolean) => {
+        // Find and toggle the isComplete property on the node
+        const nodesToUpdate =
+            allNodes && allEdges ? getAllChildNodeAndSelfIds({ nodes: allNodes, edges: allEdges, nodeId }) : [nodeId]; // Fallback: just toggle the node itself if data is missing
+        const updatedItems = items.map((node) => {
+            if (nodesToUpdate.includes(node.data.nodeId)) {
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        isComplete: isComplete,
+                    },
+                };
             }
+            return node;
+        });
+
+        const updatedAllNodes = allNodes?.map((node) => {
+            if (nodesToUpdate.includes(node.data.nodeId)) {
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        isComplete: isComplete,
+                    },
+                };
+            }
+            return node;
+        });
+
+        setItems(updatedItems);
+
+        // Propagate the updated completion state back to the global nodes via setNodes if provided
+        if (setNodes && updatedAllNodes) {
+            setNodes(updatedAllNodes);
+            // setNodes(updatedItems);
         }
     };
 
+    const handleExpand = (node: AppNode) => {
+        if (getImmediateChildNodes && normalizeRoadmapOrder) {
+            const childNodes = getImmediateChildNodes(node.data.nodeId);
+
+            if (childNodes.length > 0) {
+                // Merge the completion state from items into childNodes
+                const enrichedChildNodes = childNodes.map((child) => {
+                    const itemWithState = items.find((item) => item.data.nodeId === child.data.nodeId);
+                    if (itemWithState?.data.isComplete !== undefined) {
+                        return {
+                            ...child,
+                            data: {
+                                ...child.data,
+                                isComplete: itemWithState.data.isComplete,
+                            },
+                        };
+                    }
+                    return child;
+                });
+
+                setBreadcrumb([...breadcrumb, node]);
+                setCurrentNode(node);
+                const orderedChildren = normalizeRoadmapOrder(enrichedChildNodes);
+                setItems(orderedChildren);
+            }
+        }
+    };
     const handleBack = () => {
         if (breadcrumb.length > 0) {
             const newBreadcrumb = [...breadcrumb];
@@ -84,13 +132,12 @@ export default function RoadmapList({
                 // Back to parent
                 const parentNode = newBreadcrumb[newBreadcrumb.length - 1];
                 setCurrentNode(parentNode);
-                if (getChildNodes && normalizeRoadmapOrder) {
-                    const childNodes = getChildNodes(parentNode.data.nodeId);
+                if (getImmediateChildNodes && normalizeRoadmapOrder) {
+                    const childNodes = getImmediateChildNodes(parentNode.data.nodeId);
                     const orderedChildren = normalizeRoadmapOrder(childNodes);
                     setItems(orderedChildren);
                 }
             }
-            setCompleted([]); // Reset completion state when switching roadmap
         }
     };
 
@@ -115,10 +162,10 @@ export default function RoadmapList({
                             label={node.data.label}
                             index={index}
                             total={items.length}
-                            completed={completed.includes(node.data.nodeId)}
+                            completed={node.data.isComplete}
                             onMoveUp={() => moveItem(index, 'up')}
                             onMoveDown={() => moveItem(index, 'down')}
-                            onComplete={() => toggleComplete(node.data.nodeId)}
+                            onComplete={() => toggleComplete(node.data.nodeId, !node.data.isComplete)}
                             onExpand={() => handleExpand(node)}
                             node={node}
                         />

@@ -19,7 +19,7 @@ export function RoadmapItem({
     label,
     index,
     total,
-    completed = false,
+    completed,
     onMoveUp,
     onMoveDown,
     onComplete,
