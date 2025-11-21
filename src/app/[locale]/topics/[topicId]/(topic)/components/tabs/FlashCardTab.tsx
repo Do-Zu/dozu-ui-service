@@ -3,7 +3,6 @@ import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import useFetch from '@/hooks/useFetch';
 import LoadingPage from '@/app/loading';
 import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
-import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import DataStatus from '@/components/errors/DataStatus';
 import { isEmpty, isNil } from '@/utils';
@@ -19,6 +18,7 @@ export default function FlashCardTab() {
         setTopic,
         setFlashcards,
         setLearningFlashcards,
+        ankiSettings,
         setAnkiSettings,
     } = useTopicWorkspace();
 
@@ -27,7 +27,9 @@ export default function FlashCardTab() {
         loading: flashcardContentLoading,
         error: flashcardContentError,
     } = useFetch<IFlashcardContent>(() => flashcardContentService.getFlashcardContent({ topicId }), {
-        shouldRun: (isNil(flashcards) || isNil(learningFlashcards)) && tab === METHOD_LEARNING.FLASHCARD,
+        shouldRun:
+            (isNil(flashcards) || isNil(learningFlashcards) || isNil(ankiSettings)) &&
+            tab === METHOD_LEARNING.FLASHCARD,
     });
 
     useEffect(() => {
@@ -38,24 +40,11 @@ export default function FlashCardTab() {
         }
     }, [flashcardContent]);
 
-    useEffect(() => {
-        if (!flashcards || !learningFlashcards) return;
-        // recalculate flashcard counts
-        setTopic((prev) => {
-            if (!prev) return prev;
-            const updatedFlashcardCounts = flashcardUtils.recalculateFlashcardCounts({
-                flashcards,
-                learningFlashcards,
-            });
-            return { ...prev, flashcardCounts: updatedFlashcardCounts };
-        });
-    }, [flashcards, learningFlashcards]);
-
     if (flashcardContentLoading) return <LoadingPage />;
 
     if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
 
-    if (isNil(learningFlashcards) || isNil(flashcards)) return <DataStatus variant="empty" />;
+    if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 
     return <FlashcardContent mode={MODE_ACCESS_PAGE_ROLE.personal} />;
 }

@@ -7,7 +7,17 @@ import { toast } from '@/hooks/use-toast';
 import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
 import { useReactFlow } from '@xyflow/react';
-import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash } from 'lucide-react';
+import {
+    Bot,
+    CopyPlus,
+    DiamondPlus,
+    Edit,
+    FileText,
+    GraduationCap,
+    SquarePen,
+    TableOfContents,
+    Trash,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -16,7 +26,19 @@ import { useMindMapContext } from '../context/MindMapContext';
 import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
 import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
 
-const NodeSheet = () => {
+interface Props {
+    onViewNodeFlashcardsClick?: () => void;
+    onLinkNodeFlashcardsClick?: () => void;
+    onLearnNodeFlashcardsClick?: () => void;
+    onEditNodeFlashcardsClick?: () => void;
+}
+
+const NodeSheet = ({
+    onViewNodeFlashcardsClick,
+    onLinkNodeFlashcardsClick,
+    onLearnNodeFlashcardsClick,
+    onEditNodeFlashcardsClick,
+}: Props) => {
     const router = useRouter();
     const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
@@ -106,6 +128,10 @@ const NodeSheet = () => {
     };
 
     const handleAddFlashcards = () => {
+        if (onLinkNodeFlashcardsClick) {
+            onLinkNodeFlashcardsClick();
+            return;
+        }
         router.push(`/mindmap/add-flashcard?topicId=${selectedNodeData.topicId}&nodeId=${selectedNodeData.nodeId}`);
     };
 
@@ -129,7 +155,25 @@ const NodeSheet = () => {
     };
 
     const handleViewFlashcards = () => {
+        if (onViewNodeFlashcardsClick) {
+            onViewNodeFlashcardsClick();
+            return;
+        }
         router.push(`/mindmap/nodes/${selectedNodeData.nodeId}/flashcard`);
+    };
+
+    const handleEditFlashcards = () => {
+        if (onEditNodeFlashcardsClick) {
+            onEditNodeFlashcardsClick();
+            return;
+        }
+    };
+
+    const handleLearnFlashcardsClick = () => {
+        if (onLearnNodeFlashcardsClick) {
+            onLearnNodeFlashcardsClick();
+            return;
+        }
     };
 
     const handleOnOpenChange = (open: boolean) => {
@@ -218,7 +262,17 @@ const NodeSheet = () => {
                                 <FileText className="h-4 w-4" /> View Document
                             </Button> */}
                             <Button onClick={handleViewFlashcards} variant="outline" className="justify-start gap-2">
-                                <TableOfContents className="h-4 w-4" /> View Linked Flashcards
+                                <TableOfContents className="h-4 w-4" /> Browse Linked Flashcards
+                            </Button>
+                            <Button onClick={handleEditFlashcards} variant="outline" className="justify-start gap-2">
+                                <Edit className="h-4 w-4" /> Edit Linked Flashcards
+                            </Button>
+                            <Button
+                                onClick={handleLearnFlashcardsClick}
+                                variant="outline"
+                                className="justify-start gap-2"
+                            >
+                                <GraduationCap className="h-4 w-4" /> Learn Linked Flashcards
                             </Button>
                         </div>
                     </div>
