@@ -30,7 +30,7 @@ function GenerateFlashcards({ content, onGenerateFlashcardsSuccess }: GenerateFl
                     Flashcards
                 </Button>
             }
-            type="flashcards"
+            type={METHOD_LEARNING.FLASHCARD}
             registerNode={<ProcessingNode />}
             generateNode={<ProcessingNode />}
             onSuccess={onGenerateFlashcardsSuccess}
