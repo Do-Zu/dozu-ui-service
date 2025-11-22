@@ -13,7 +13,11 @@ interface Props {
 export default function AttachmentsSection({ attachments }: Props) {
     const handleDownload = async (file: IAttachment) => {
         if (!file.fileUrl) {
-            alert('File URL is missing.');
+            toast({
+                variant: 'destructive',
+                title: 'Download failed',
+                description: 'File URL is missing.',
+            });
             return;
         }
         try {
