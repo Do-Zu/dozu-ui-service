@@ -172,14 +172,7 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
     return (
         <div className="p-6">
             <Tabs className="w-[100%]" defaultValue="details">
-                <TabsList className="w-[20%]">
-                    <TabsTrigger value="details" className="justify-center">
-                        Details
-                    </TabsTrigger>
-                    <TabsTrigger value="submissions" className="justify-center">
-                        Submissions
-                    </TabsTrigger>
-                </TabsList>
+
                 <TabsContent value="details" className="px-6 md:px-8 py-4">
                     <Separator />
                     <div className="max-w-3xl mx-auto p-6 space-y-6">

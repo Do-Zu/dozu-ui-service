@@ -6,6 +6,7 @@ export interface IAttachment {
     title: string;
     contentType: string | null;
     metadata: any;
+    fileUrl?: string;
 }
 
 export interface IInputResource {

@@ -2,11 +2,14 @@ import { Button } from '@/components/ui/button';
 import useGenerate from '@/hooks/generate/useGenerate';
 import { ReactNode } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import { ImportMethod, TypeMethodLeading } from '@/app/[locale]/generate/constants/resource';
+import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
 import DataStatus from '@/components/errors/DataStatus';
 import { isNilOrEmpty } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
+import { TypeMethodLearning } from '@/utils/constants/method';
+import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
 
 /**
  * Props for the reusable Generate<TRes> component.
@@ -18,7 +21,7 @@ interface IProps<TRes> {
     /** Import method used by the generator. Defaults to 'text'. */
     method?: ImportMethod;
     /** Required type describing what to generate (domain-specific). */
-    type: TypeMethodLeading;
+    type: TypeMethodLearning;
     /** Optional custom UI when "generating" (after request sent). Overrides the default spinner. */
     generateNode?: ReactNode;
     /** Optional custom UI while "registering" (pre-flight/queueing). Overrides the default spinner. */
@@ -43,25 +46,7 @@ interface IProps<TRes> {
 
 const DEFAULT_METHOD = 'text';
 
-/**
- * Generate<TRes>
- * Reusable generator trigger with built-in centered button, loading states, and error UI.
- * - Idle: renders "trigger" (or a default Generate button).
- * - Registering: shows a centered spinner (or "registerNode" if provided).
- * - Generating: shows a centered spinner (or "generateNode" if provided).
- * - Error: shows a centered DataStatus with "error".
- *
- * Usage:
- * <Generate<MyPayload>
- *   type="flashcard"
- *   method="text"
- *   trigger={<Button>Generate Flashcards</Button>}
- *   onHandleBeforeGenerate={() => { validate/save form
- *   onSuccess={(data) => {/* handle success }}
- *   onError={() => { handle error }}
- *
- */
-export default function Generate<TRes>({
+function GenerateContent<TRes>({
     method = DEFAULT_METHOD,
     type,
     trigger,
@@ -76,6 +61,7 @@ export default function Generate<TRes>({
 }: IProps<TRes>) {
     const { contentTextOrigin } = useTopicWorkspace();
     const generatingContent = customContent && customContent.length > 0 ? customContent : contentTextOrigin.current;
+    const { options } = useGenerateContext();
 
     const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
         onSuccess,
@@ -98,6 +84,7 @@ export default function Generate<TRes>({
                 content: generatingContent,
                 method,
                 type,
+                options,
             });
         } catch (error) {
             onFallBack?.(error);
@@ -142,11 +129,53 @@ export default function Generate<TRes>({
 
     // Idle state: show custom trigger if provided; otherwise, a centered default button.
     // To customize label/appearance, pass a "trigger" node.
-    const defaultTrigger = <Button onClick={handleStartGenerate}>Generate</Button>;
+    const defaultTrigger = (
+        <Button onClick={handleStartGenerate} className="rounded-2xl">
+            Generate
+        </Button>
+    );
 
-    return trigger ? (
-        <div onClick={handleStartGenerate}>{trigger}</div>
-    ) : (
-        <div className="w-full flex items-center justify-center py-4">{defaultTrigger}</div>
+    const renderCustomize = () => {
+        if (type === 'flashcard' || type === 'quiz')
+            return <CustomizeProperties className="mx-3" method={type} onGenerate={handleStartGenerate} />;
+
+        return <></>;
+    };
+
+    return (
+        <div className="w-full flex items-center justify-center py-4">
+            {renderCustomize()}
+            {trigger ? (
+                <div onClick={handleStartGenerate}>{trigger}</div>
+            ) : (
+                <div className="w-full flex items-center justify-center py-4">{defaultTrigger}</div>
+            )}
+        </div>
+    );
+}
+
+/**
+ * Generate<TRes>
+ * Reusable generator trigger with built-in centered button, loading states, and error UI.
+ * - Idle: renders "trigger" (or a default Generate button).
+ * - Registering: shows a centered spinner (or "registerNode" if provided).
+ * - Generating: shows a centered spinner (or "generateNode" if provided).
+ * - Error: shows a centered DataStatus with "error".
+ *
+ * Usage:
+ * <Generate<MyPayload>
+ *   type="flashcard"
+ *   method="text"
+ *   trigger={<Button>Generate Flashcards</Button>}
+ *   onHandleBeforeGenerate={() => { validate/save form
+ *   onSuccess={(data) => {/* handle success }}
+ *   onError={() => { handle error }}
+ *
+ */
+export default function Generate<TRes>(props: IProps<TRes>) {
+    return (
+        <GenerateProvider>
+            <GenerateContent {...props} />
+        </GenerateProvider>
     );
 }

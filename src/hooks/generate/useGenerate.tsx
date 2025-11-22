@@ -11,6 +11,12 @@ export interface IGenerateRequest {
     content: string;
     method: string;
     type: string;
+    options?: {
+        numberOfItem: number;
+        difficulty: string;
+        focus: string;
+        listType: string[];
+    };
 }
 
 export interface UsePostOptions<TReq, TRes> {
@@ -74,13 +80,14 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
         jobId ? `${BASE_URL_STREAM_GENERATE}/${jobId}` : null,
     );
 
-    const executeGenerate = async ({ content, method, type }: IGenerateRequest) => {
+    const executeGenerate = async ({ content, method, type, options }: IGenerateRequest) => {
         const compressedContent = compressContent(content);
 
         await execute({
             content: compressedContent,
             method: method,
             type: type,
+            options,
         });
     };
 

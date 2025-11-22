@@ -14,7 +14,7 @@ import React, {
 } from 'react';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { TopicWorkspaceTabValue } from '../types';
-import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
+import useFlashCardWorkSpace, { IResponseFlashCardGenerate } from '../hooks/useFlashCardWorkSpace';
 import useGamesWorkSpace, { GameType } from '../hooks/useGamesWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
@@ -27,6 +27,7 @@ import useNoteWorkspace from '../hooks/useNoteWorkspace';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 
 export type TypeTopicId = number;
+
 interface ContextType {
     tab: TopicWorkspaceTabValue;
     topicId: TypeTopicId;
@@ -52,8 +53,8 @@ interface ContextType {
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
 
-    generatingFlashcards: { q: string; a: string }[] | null;
-    setGeneratingFlashcards: Dispatch<SetStateAction<{ q: string; a: string }[] | null>>;
+    generatingFlashcards: IResponseFlashCardGenerate[] | null;
+    setGeneratingFlashcards: Dispatch<SetStateAction<IResponseFlashCardGenerate[] | null>>;
     flashcardTab: FlashcardTab;
     setFlashcardTab: Dispatch<SetStateAction<FlashcardTab>>;
 

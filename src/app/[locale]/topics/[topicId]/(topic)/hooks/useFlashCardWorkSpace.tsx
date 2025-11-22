@@ -4,13 +4,19 @@ import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { isAfter } from 'date-fns';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 
+export interface IResponseFlashCardGenerate {
+    q: string;
+    a: string;
+    type: string;
+}
+
 export default function useFlashCardWorkSpace() {
     const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
     const [learningFlashcards, setLearningFlashcards] = useState<IDueAnkiCard[] | null>(null);
     const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
         null,
     );
-    const [generatingFlashcards, setGeneratingFlashcards] = useState<{ q: string; a: string }[] | null>(null);
+    const [generatingFlashcards, setGeneratingFlashcards] = useState<IResponseFlashCardGenerate[] | null>(null);
 
     const onReviewCard = useCallback(
         ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
