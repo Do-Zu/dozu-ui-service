@@ -6,7 +6,7 @@ import {
     IFlashcardsBatchInput,
     IFlashcardUpdateInput,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
-import { FlashcardLearningMode } from '../components/flashcard/FlashcardContent';
+import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import { IFlashcardCounts } from '../../../types/topic.type';
 import { IAnkiStatus } from '@/types/anki';
 import { IEditingFlashcard, ILocalFlashcard } from '../components/flashcard/edit/EditingFlashcards';
@@ -40,8 +40,8 @@ class FlashcardUtils {
         return flashcardsRandom;
     }
 
-    public getDisplayModeName(mode: FlashcardLearningMode): string {
-        return mode.charAt(0).toUpperCase() + mode.slice(1);
+    public getDisplayModeName(tab: FlashcardTab): string {
+        return tab.charAt(0).toUpperCase() + tab.slice(1);
     }
 
     public recalculateFlashcardCounts({

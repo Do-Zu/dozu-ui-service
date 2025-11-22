@@ -22,6 +22,9 @@ import { METHOD_LEARNING } from '@/utils/constants/method';
 import useYoutubePlayer from '../hooks/useYoutubePlayer';
 import usePdfToolBar from '../hooks/usePdfToolBar';
 import { YouTubePlayer } from 'react-youtube';
+import { INote } from '../types/note.type';
+import useNoteWorkspace from '../hooks/useNoteWorkspace';
+import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 
 export type TypeTopicId = number;
 
@@ -52,6 +55,8 @@ interface ContextType {
 
     generatingFlashcards: IResponseFlashCardGenerate[] | null;
     setGeneratingFlashcards: Dispatch<SetStateAction<IResponseFlashCardGenerate[] | null>>;
+    flashcardTab: FlashcardTab;
+    setFlashcardTab: Dispatch<SetStateAction<FlashcardTab>>;
 
     selectedGame: GameType;
     selectGame: (game: GameType) => void;
@@ -62,6 +67,12 @@ interface ContextType {
     setPageNumber: Dispatch<SetStateAction<number>>;
     setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
     seekTo: (seconds: number) => void;
+
+    note: INote | null;
+    setNote: Dispatch<SetStateAction<INote | null>>;
+
+    selectingContentText: string;
+    setSelectingContentText: Dispatch<SetStateAction<string>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -91,6 +102,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const topicIdRef = useRef<TypeTopicId>(topicIdInit);
 
     const contentTextOrigin = useRef<string>('');
+    const [selectingContentText, setSelectingContentText] = useState<string>('');
 
     const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
     const { player, setPlayer, seekTo } = useYoutubePlayer();
@@ -105,9 +117,13 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         onReviewCard,
         generatingFlashcards,
         setGeneratingFlashcards,
+        flashcardTab,
+        setFlashcardTab,
     } = useFlashCardWorkSpace();
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
+
+    const { note, setNote } = useNoteWorkspace();
 
     const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
         topicIdRef.current = topicIdArg;
@@ -140,9 +156,15 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             seekTo,
             generatingFlashcards,
             setGeneratingFlashcards,
+            flashcardTab,
+            setFlashcardTab,
             selectedGame,
             selectGame,
             resetGame,
+            note,
+            setNote,
+            selectingContentText,
+            setSelectingContentText,
         }),
         [
             tab,
@@ -156,9 +178,12 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             player,
             seekTo,
             generatingFlashcards,
+            flashcardTab,
             selectedGame,
             selectGame,
             resetGame,
+            note,
+            selectingContentText,
         ],
     );
 

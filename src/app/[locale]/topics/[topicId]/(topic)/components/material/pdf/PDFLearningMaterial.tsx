@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { pdfjs } from 'react-pdf';
 import CustomPDFViewer from './CustomPDFViewer';
 import { isNilOrEmpty, safeDestructure } from '@/utils';
 import useReaderFile from '@/hooks/useReaderFile';
+import SelectMenu from '../SelectMenu';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -42,5 +43,17 @@ export default function PDFLearningMaterial({ data }: IProps) {
         }
     }, [text, isProcessing]);
 
-    return <CustomPDFViewer pdfUrl={pdfUrl} fileName={file?.name} />;
+    const ref = useRef<HTMLDivElement>(null);
+    const [refNode, setRefNode] = useState<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        setRefNode(ref.current);
+    }, []);
+
+    return (
+        <div className="h-full flex flex-col gap-4" ref={ref}>
+            <CustomPDFViewer pdfUrl={pdfUrl} fileName={file?.name} />
+            <SelectMenu refNode={refNode} type="pdf" />
+        </div>
+    );
 }
