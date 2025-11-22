@@ -25,6 +25,7 @@ import { compressContent } from '../../generate/helper/compress';
 import { useMindMapContext } from '../context/MindMapContext';
 import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
 import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
+import Reference from '../../topics/[topicId]/(topic)/components/reference/Reference';
 
 interface Props {
     onViewNodeFlashcardsClick?: () => void;
@@ -221,7 +222,12 @@ const NodeSheet = ({
                         )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <Reference
+                        content={`${selectedNodeData.label} : ${selectedNodeData.description}`}
+                        triggerClassName="item-center"
+                    />
+
+                    {/* <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <Label className="text-sm font-medium">Start Page</Label>
                             {isEditing ? (
@@ -240,7 +246,7 @@ const NodeSheet = ({
                                 <p className="text-sm text-muted-foreground">{selectedNodeData?.pageEndIndex ?? '—'}</p>
                             )}
                         </div>
-                    </div>
+                    </div> */}
 
                     <div className="border-t pt-4 space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
