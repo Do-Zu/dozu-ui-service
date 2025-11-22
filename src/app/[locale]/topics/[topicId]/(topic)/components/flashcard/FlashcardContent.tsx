@@ -4,6 +4,7 @@ import { Edit, Gamepad2, GraduationCap, LayoutGrid, Settings } from 'lucide-reac
 import { useMemo, useState } from 'react';
 import BrowseFlashcards from './browse/BrowseFlashcards';
 import LearningFlashcards from './learning/LearningFlashcards';
+import { useRequireFlashcards } from '../../context/useRequireFlashcardContent';
 import { UserTrackingProvider } from '@/contexts/tracking/UserTrackingContext';
 import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardSettings from './settings/FlashcardSettings';
@@ -12,6 +13,8 @@ import { UserRoleEnum } from '@/utils/constants/roles';
 import EditingFlashcards from './edit/EditingFlashcards';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
+import FlashcardsEmptyState from './browse/FlashcardsEmptyState';
+import { isEmpty } from '@/utils';
 
 export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
 
@@ -32,11 +35,14 @@ interface TeacherProps {
 type Props = PersonalProps | StudentProps | TeacherProps;
 
 export default function FlashcardContent({ mode, role }: Props) {
+    const { flashcards } = useRequireFlashcards();
+
     const selectableItems: FlashcardLearningMode[] = useMemo(() => {
         if (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER)
             return ['browse', 'learning', 'edit', 'settings', 'games'];
         return ['browse', 'learning', 'settings', 'games'];
     }, [mode, role]);
+
     const itemIcons: { item: FlashcardLearningMode; icon: JSX.Element }[] = [
         { item: 'browse', icon: <LayoutGrid className="mr-2 h-4 w-4" /> },
         { item: 'learning', icon: <GraduationCap className="mr-2 h-4 w-4" /> },
@@ -50,6 +56,10 @@ export default function FlashcardContent({ mode, role }: Props) {
     function handleModeSelect(mode: string) {
         if (!selectableItems.includes(mode as FlashcardLearningMode)) return;
         setFlashcardMode(mode as FlashcardLearningMode);
+    }
+
+    if (isEmpty(flashcards)) {
+        return <FlashcardsEmptyState />;
     }
 
     return (

@@ -35,7 +35,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import DataStatus from '@/components/errors/DataStatus';
 import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
-import Generate from '../../generate/Generate';
 
 export interface ILocalFlashcard {
     id: number;
@@ -357,26 +356,9 @@ const EditingFlashcards = () => {
 
     return (
         <div className="flex flex-col">
-            {flashcardUtils.isInitialFlashcards(editingFlashcards) ? (
-                <div className="flex flex-col gap-4">
-                    <p>{tFlashcardLearning('flashcardsEmpty')}</p>
-                    <Generate type="flashcards" onSuccess={onGenerateSuccess} />
-                </div>
-            ) : null}
-
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
                 <div className="flex justify-end items-center px-[4rem] py-4">
                     <div className="flex flex-row items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            onClick={handleGenerateQuiz}
-                            disabled={!hasAnyValidFlashcard(editingFlashcards) || loading}
-                            className="text-muted-foreground hover:text-primary flex flex-rol gap-2"
-                        >
-                            <Sparkles size={18} />
-                            Generate Quiz
-                        </Button>
-
                         <Button
                             variant="ghost"
                             size="icon"
