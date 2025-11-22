@@ -105,8 +105,7 @@ export const getAllChildNodeAndSelfIds = ({
 
     // resultNodeIds = [...resultNodeIds, ...childNodeIds];
     resultNodeIds.push(nodeId);
-    console.log(nodes.find(node=>node.data.nodeId===nodeId))
-    
+
 
     for (const childId of childNodeIds) {
         resultNodeIds = getAllChildNodeAndSelfIds({ nodes, edges, nodeId: childId, resultNodeIds });
