@@ -22,6 +22,7 @@ export type CustomNodeData = {
     statistics?: NodeStat;
     color?: string;
     roadmapOrder?: number;
+    isComplete?: boolean;
 };
 
 export type AppNode = Node<CustomNodeData>;
