@@ -103,5 +103,15 @@
     "user": {
         "fullName": "Họ và tên",
         "username": "Username"
+    },
+    "userMenu": {
+        "plan": "Gói",
+        "planPro": "Pro",
+        "planFree": "Miễn phí",
+        "theme": "Giao diện",
+        "language": "Ngôn ngữ",
+        "logout": "Đăng xuất",
+        "logoutFailed": "Đăng xuất thất bại. Vui lòng thử lại.",
+        "logoutError": "Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại sau."
     }
 }

@@ -97,7 +97,7 @@ export default function TopicOverview({ mode, role }: Props) {
             {/* --- GROUP 1: HEADER --- */}
             <div>
                 <div className="flex items-center gap-4">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">{topic.name}</h1>
+                    <h1 className="text-2xl font-extrabold tracking-tight lg:text-4xl">{topic.name}</h1>
                     {mode === MODE_ACCESS_PAGE_ROLE.personal || role === 'teacher' ? (
                         <>
                             <Button variant="ghost" size="icon" onClick={handleUpdateModalOpen}>

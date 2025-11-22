@@ -20,12 +20,10 @@ export default function NoteTab() {
         loading: noteLoading,
         error: noteError,
     } = useFetch<INote>(() => noteService.getNoteForTopic({ topicId }));
-    // console.log({ note });
 
     const [content, setContent] = useState<string>('');
 
     useEffect(() => {
-        // console.log('useEffect', { note, content: note?.content });
         if (note) {
             setContent(note.content);
         }
@@ -43,7 +41,6 @@ export default function NoteTab() {
                 toastHelper.showErrorMessage(error);
             },
             onSuccess(data) {
-                // console.log({ note });
                 if (data) {
                     toastHelper.showSuccessMessage('Save note successfully');
                     setNote(data);
@@ -69,7 +66,6 @@ export default function NoteTab() {
         return <DataStatus variant="error" />;
     }
     if (noteLoading || (note?.content && !content)) {
-        // console.log('loading...', { noteLoading, noteContent: note?.content, content });
         return <LoadingPage />;
     }
     if (!note) {

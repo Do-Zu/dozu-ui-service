@@ -14,9 +14,12 @@ import DataStatus from '@/components/errors/DataStatus';
 import topicService from '@/services/topic/topic.service';
 import { isEmpty } from '@/utils';
 import { cn } from '@/lib/utils';
+import flashcardUtils from '../../utils/flashcard.utils';
+import { ActiveDot } from '../ui/ActiveDot';
 
 export default function PersonalTopicWorkspace() {
-    const { topic, topicId, setTopic, isPdfViewerFullscreen, setTab, tab } = useTopicWorkspace();
+    const { topic, topicId, setTopic, isPdfViewerFullscreen, setTab, tab, flashcards, learningFlashcards } =
+        useTopicWorkspace();
 
     const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -38,21 +41,33 @@ export default function PersonalTopicWorkspace() {
         setTopic(topicContent);
     }, [topicContent]);
 
+    useEffect(() => {
+        if (!flashcards || !learningFlashcards) return;
+        // recalculate flashcard counts
+        setTopic((prev) => {
+            if (!prev) return prev;
+            const updatedFlashcardCounts = flashcardUtils.recalculateFlashcardCounts({
+                flashcards,
+                learningFlashcards,
+            });
+            return { ...prev, flashcardCounts: updatedFlashcardCounts };
+        });
+    }, [flashcards, learningFlashcards]);
+
     if (topicContentLoading) return <LoadingPage />;
 
     if (topicContentError) return <DataStatus variant="error" title={topicContentError} />;
 
     if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
-    return (
-        <div className="relative w-full h-[90vh] border rounded-lg overflow-hidden bg-background m-2">
-            <div className={cn('absolute top-4 right-4 z-50', isPdfViewerFullscreen ? 'hidden' : '')}>
-                <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
-                    {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-                    <span className="sr-only">Toggle Fullscreen</span>
-                </Button>
-            </div>
+    function getDisplayTopicName() {
+        if (!topic?.name) return '';
+        const len = 15;
+        return topic.name.slice(0, len) + (topic.name.length > len ? '...' : '');
+    }
 
+    return (
+        <div className="relative w-full h-[100vh] border rounded-lg overflow-hidden bg-background">
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={35} className={isFullscreen ? 'hidden' : ''} minSize={35}>
                     <div className="flex flex-col h-full p-4">
@@ -65,23 +80,38 @@ export default function PersonalTopicWorkspace() {
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full">
                         <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
-                            {!isFullscreen && (
-                                <div className="p-6 pb-2">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-xl font-bold">{topic?.name ?? ''}</h3>
-                                    </div>
+                            <div className="flex items-center justify-between mt-6 w-full px-6">
+                                <div className="font-bold text-lg">{getDisplayTopicName()}</div>
+
+                                <div className="flex-1 flex justify-center">
+                                    <TabsList className="grid grid-cols-5 w-[95%] rounded-2xl">
+                                        {TOPIC_WORKSPACE_TABS.map((t) => (
+                                            <TabsTrigger
+                                                className="rounded-2xl flex items-center justify-center gap-2 text-sm"
+                                                key={t.value}
+                                                value={t.value}
+                                            >
+                                                {tab === t.value ? <ActiveDot isActive={true} /> : null}
+                                                {t.icon}
+                                                <span className="whitespace-nowrap">{t.label}</span>
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
                                 </div>
-                            )}
 
-                            <div className={cn('flex-1 h-full', isFullscreen ? 'px-6 py-3' : 'px-3')}>
-                                <TabsList className="grid w-full grid-cols-5">
-                                    {TOPIC_WORKSPACE_TABS.map((t) => (
-                                        <TabsTrigger key={t.value} value={t.value}>
-                                            {t.label}
-                                        </TabsTrigger>
-                                    ))}
-                                </TabsList>
+                                <div>
+                                    <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
+                                        {isFullscreen ? (
+                                            <Minimize className="h-4 w-4" />
+                                        ) : (
+                                            <Maximize className="h-4 w-4" />
+                                        )}
+                                        <span className="sr-only">Toggle Fullscreen</span>
+                                    </Button>
+                                </div>
+                            </div>
 
+                            <div className={cn('flex-1 h-full px-6 py-3')}>
                                 {TOPIC_WORKSPACE_TABS.map((t) => (
                                     <TabsContent key={t.value} value={t.value} className="h-full p-4 border rounded-md">
                                         <t.component />

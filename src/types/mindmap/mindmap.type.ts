@@ -1,3 +1,4 @@
+import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { Edge, Node } from '@xyflow/react';
 import { NextRouter } from 'next/router';
 
@@ -46,3 +47,15 @@ export type NodeStat = {
     total: number;
     mature: number;
 };
+
+export interface INodeFlashcards {
+    flashcards: IFlashcard[];
+    summaryData: any;
+}
+
+export interface ILinkFlashcardsToNodePayload {
+    topicId: number;
+    nodeId: string;
+    unlinkedFlashcards: number[];
+    linkedFlashcards: number[];
+}

@@ -68,7 +68,7 @@ export type ICardNextReviewSchedule = {
     nextReviewIntervalsForRating: INextReviewIntervalForRating[];
 };
 
-export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName'> & {
+export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName' | 'nodeId'> & {
     nextReviewDataByRatings: INextReviewDataByRating[];
     nextReview: string;
     status: IAnkiStatus;

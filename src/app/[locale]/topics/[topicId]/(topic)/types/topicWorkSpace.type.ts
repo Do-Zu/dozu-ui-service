@@ -7,4 +7,5 @@ export interface TabConfig {
     value: TopicWorkspaceTabValue;
     label: string;
     component: ComponentType;
+    icon?: React.ReactNode;
 }
