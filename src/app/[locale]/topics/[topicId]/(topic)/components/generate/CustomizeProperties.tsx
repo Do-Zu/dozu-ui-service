@@ -6,6 +6,8 @@ import { Button } from '../../../../../../../components/ui/button';
 import { Textarea } from '../../../../../../../components/ui/textarea';
 import { TypeMethodLearning } from '@/utils/constants/method';
 import { useGenerateContext } from '../../context/GenerateContext';
+import { isEmpty, toNumber } from '@/utils';
+import { toast } from '@/hooks/use-toast';
 
 interface IProps {
     className?: string;
@@ -129,7 +131,16 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
                 <input
                     type="number"
                     value={numberOfItem}
-                    onChange={(e) => updateOption('numberOfItem', parseInt(e.target.value))}
+                    onChange={(e) => {
+                        const number = toNumber(e.target.value);
+
+                        if (isNaN(number) || number < 1) {
+                            toast({ description: 'Invalid Amount' });
+                            return;
+                        }
+
+                        updateOption('numberOfItem', number);
+                    }}
                     className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-700 placeholder:text-zinc-600"
                 />
             </div>
@@ -165,6 +176,7 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
     const footer = (
         <Button
             onClick={onGenerate}
+            disabled={isEmpty(listType)}
             className="px-4 py-2 rounded-md hover:bg-opacity-60 transition-colors font-medium text-sm"
         >
             Generate

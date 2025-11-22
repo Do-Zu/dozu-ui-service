@@ -16,7 +16,7 @@ interface IGenerateContext {
 const GenerateContext = createContext<IGenerateContext | undefined>(undefined);
 
 export const GenerateProvider = ({ children }: { children: ReactNode }) => {
-    const listDefaultType = ['Multiple Choice', 'Free Response', 'True or False', 'Fill in the blank'];
+    const DEFAULT_LIST_TYPE = ['Multiple Choice', 'Free Response', 'True or False', 'Fill in the blank'];
     const DEFAULT_DIFFICULT = 'Medium';
     const DEFAULT_NUMBER_OF_ITEM = 20;
 
@@ -24,7 +24,7 @@ export const GenerateProvider = ({ children }: { children: ReactNode }) => {
         numberOfItem: DEFAULT_NUMBER_OF_ITEM,
         difficulty: DEFAULT_DIFFICULT,
         focus: '',
-        listType: listDefaultType,
+        listType: DEFAULT_LIST_TYPE,
     });
 
     const updateOption = <K extends keyof IGenerateOptions>(key: K, value: IGenerateOptions[K]) => {
