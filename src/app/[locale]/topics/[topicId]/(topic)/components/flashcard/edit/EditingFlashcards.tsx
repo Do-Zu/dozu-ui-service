@@ -1,7 +1,7 @@
 'use client';
 
 import { Textarea } from '@/components/ui/textarea';
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 import { Edit, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -77,6 +77,7 @@ const EditingFlashcards = () => {
     const { setLearningFlashcards } = useRequireLearningFlashcards();
     const [editingFlashcards, setEditingFlashcards] = useState<IEditingFlashcard[]>([]);
     const { generatingFlashcards, setGeneratingFlashcards } = useTopicWorkspace();
+    const ref = useRef<HTMLDivElement>(null);
 
     const { loading: batchLoading, execute: batchFlashcardsAsync } = usePost<
         { topicId: number; flashcards: IFlashcardsBatchInput },
@@ -94,7 +95,9 @@ const EditingFlashcards = () => {
 
     useEffect(() => {
         let editingFlashcards = flashcardUtils.convertToEditingFlashcards(flashcards);
+        let firstGeneratingFlashcardIndex: number | null = null;
         if (generatingFlashcards && generatingFlashcards.length > 0) {
+            firstGeneratingFlashcardIndex = editingFlashcards.length;
             const lastId = editingFlashcards.length === 0 ? -1 : editingFlashcards[editingFlashcards.length - 1].id;
             const result = generatingFlashcards.map((card, index) => ({
                 id: lastId + index + 1,
@@ -107,6 +110,11 @@ const EditingFlashcards = () => {
         if (editingFlashcards.length === 0) {
             editingFlashcards = flashcardUtils.createInitialFlashcards(initialFlashcardsCount);
         }
+        // if (ref.current && firstGeneratingFlashcardIndex) {
+        //     const totalHeight = ref.current.scrollHeight - 50;
+        //     const scrollTo = (totalHeight / editingFlashcards.length) * (firstGeneratingFlashcardIndex - 1);
+        //     ref.current.scrollTo({ top: scrollTo, behavior: 'smooth' });
+        // }
         setEditingFlashcards(editingFlashcards);
     }, [flashcards, generatingFlashcards]);
 
@@ -356,7 +364,7 @@ const EditingFlashcards = () => {
     }
 
     return (
-        <div className="flex flex-col">
+        <div className="h-full flex flex-col pb-8">
             {flashcardUtils.isInitialFlashcards(editingFlashcards) ? (
                 <div className="flex flex-col gap-4">
                     <p>{tFlashcardLearning('flashcardsEmpty')}</p>
@@ -405,7 +413,7 @@ const EditingFlashcards = () => {
                 </div>
             </div>
 
-            <ScrollArea>
+            <div className="h-full overflow-y-auto" ref={ref}>
                 <div className="px-[4rem] py-7 bg-background">
                     <div className="mt-7 flex flex-col gap-6 bg-background">
                         {editingFlashcards?.map((flashcard, index) => {
@@ -530,7 +538,7 @@ const EditingFlashcards = () => {
                         </div>
                     </div>
                 </div>
-            </ScrollArea>
+            </div>
 
             <FlashcardImportModal
                 isOpen={isImportModalOpen}

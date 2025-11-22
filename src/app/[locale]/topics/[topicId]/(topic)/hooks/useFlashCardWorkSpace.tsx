@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { IFlashcard, IDueAnkiCard, IAnkiCardReviewed } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { isAfter } from 'date-fns';
+import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 
 export default function useFlashCardWorkSpace() {
     const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
@@ -51,6 +52,8 @@ export default function useFlashCardWorkSpace() {
         [learningFlashcards],
     );
 
+    const [flashcardTab, setFlashcardTab] = useState<FlashcardTab>('browse');
+
     return {
         flashcards,
         learningFlashcards,
@@ -61,5 +64,7 @@ export default function useFlashCardWorkSpace() {
         onReviewCard,
         generatingFlashcards,
         setGeneratingFlashcards,
+        flashcardTab,
+        setFlashcardTab,
     };
 }

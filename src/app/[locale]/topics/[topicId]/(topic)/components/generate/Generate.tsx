@@ -38,6 +38,7 @@ interface IProps<TRes> {
     onFallBack?: (error: unknown) => void;
     /** Always called after attempt finishes (success or failure). Useful for cleanup. */
     onFinally?: () => void;
+    customContent?: string;
 }
 
 const DEFAULT_METHOD = 'text';
@@ -71,8 +72,10 @@ export default function Generate<TRes>({
     onError,
     onFallBack,
     onFinally,
+    customContent,
 }: IProps<TRes>) {
     const { contentTextOrigin } = useTopicWorkspace();
+    const generatingContent = customContent && customContent.length > 0 ? customContent : contentTextOrigin.current;
 
     const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
         onSuccess,
@@ -84,7 +87,7 @@ export default function Generate<TRes>({
         try {
             onHandleBeforeGenerate?.();
 
-            if (isNilOrEmpty(contentTextOrigin.current)) {
+            if (isNilOrEmpty(generatingContent)) {
                 toast({
                     description: 'No content prepare',
                 });
@@ -92,7 +95,7 @@ export default function Generate<TRes>({
             }
 
             await execute({
-                content: contentTextOrigin.current,
+                content: generatingContent,
                 method,
                 type,
             });
@@ -104,31 +107,27 @@ export default function Generate<TRes>({
     };
 
     if (isRegisterGenerate) {
-        return (
+        return registerNode ? (
+            registerNode
+        ) : (
             <div className="w-full flex items-center justify-center min-h-24 py-4">
-                {registerNode ? (
-                    registerNode
-                ) : (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Processing ...</span>
-                    </div>
-                )}
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Processing ...</span>
+                </div>
             </div>
         );
     }
 
     if (isGenerating) {
-        return (
+        return generateNode ? (
+            generateNode
+        ) : (
             <div className="w-full flex items-center justify-center min-h-24 py-4">
-                {generateNode ? (
-                    generateNode
-                ) : (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Generating ...</span>
-                    </div>
-                )}
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Generating ...</span>
+                </div>
             </div>
         );
     }
@@ -145,5 +144,9 @@ export default function Generate<TRes>({
     // To customize label/appearance, pass a "trigger" node.
     const defaultTrigger = <Button onClick={handleStartGenerate}>Generate</Button>;
 
-    return <div className="w-full flex items-center justify-center py-4">{trigger ? trigger : defaultTrigger}</div>;
+    return trigger ? (
+        <div onClick={handleStartGenerate}>{trigger}</div>
+    ) : (
+        <div className="w-full flex items-center justify-center py-4">{defaultTrigger}</div>
+    );
 }

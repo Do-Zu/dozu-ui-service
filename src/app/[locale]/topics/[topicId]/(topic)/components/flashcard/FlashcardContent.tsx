@@ -12,8 +12,16 @@ import { UserRoleEnum } from '@/utils/constants/roles';
 import EditingFlashcards from './edit/EditingFlashcards';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 
-export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
+export type FlashcardTab = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
+export enum FlashcardTabEnum {
+    BROWSE = 'browse',
+    LEARNING = 'learning',
+    EDIT = 'edit',
+    SETTINGS = 'settings',
+    GAMES = 'games',
+}
 
 interface PersonalProps {
     mode: MODE_ACCESS_PAGE_ROLE.personal;
@@ -32,12 +40,12 @@ interface TeacherProps {
 type Props = PersonalProps | StudentProps | TeacherProps;
 
 export default function FlashcardContent({ mode, role }: Props) {
-    const selectableItems: FlashcardLearningMode[] = useMemo(() => {
+    const selectableItems: FlashcardTab[] = useMemo(() => {
         if (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER)
             return ['browse', 'learning', 'edit', 'settings', 'games'];
         return ['browse', 'learning', 'settings', 'games'];
     }, [mode, role]);
-    const itemIcons: { item: FlashcardLearningMode; icon: JSX.Element }[] = [
+    const itemIcons: { item: FlashcardTab; icon: JSX.Element }[] = [
         { item: 'browse', icon: <LayoutGrid className="mr-2 h-4 w-4" /> },
         { item: 'learning', icon: <GraduationCap className="mr-2 h-4 w-4" /> },
         { item: 'edit', icon: <Edit className="mr-2 h-4 w-4" /> },
@@ -45,16 +53,16 @@ export default function FlashcardContent({ mode, role }: Props) {
         { item: 'games', icon: <Gamepad2 className="mr-2 h-4 w-4" /> },
     ];
 
-    const [flashcardMode, setFlashcardMode] = useState<FlashcardLearningMode>('browse');
+    const { flashcardTab, setFlashcardTab } = useTopicWorkspace();
 
     function handleModeSelect(mode: string) {
-        if (!selectableItems.includes(mode as FlashcardLearningMode)) return;
-        setFlashcardMode(mode as FlashcardLearningMode);
+        if (!selectableItems.includes(mode as FlashcardTab)) return;
+        setFlashcardTab(mode as FlashcardTab);
     }
 
     return (
         <div className="w-full h-full flex flex-col">
-            <Tabs value={flashcardMode} onValueChange={handleModeSelect} className="w-full flex justify-center">
+            <Tabs value={flashcardTab} onValueChange={handleModeSelect} className="w-full flex justify-center">
                 <TabsList className="w-[70%] grid grid-cols-5 rounded-2xl p-1">
                     {selectableItems.map((item) => (
                         <TabsTrigger
@@ -70,9 +78,11 @@ export default function FlashcardContent({ mode, role }: Props) {
             </Tabs>
 
             <div className="flex-1 min-h-0">
-                {flashcardMode === 'browse' && selectableItems.includes('browse') ? <BrowseFlashcards /> : null}
+                {flashcardTab === FlashcardTabEnum.BROWSE && selectableItems.includes(FlashcardTabEnum.BROWSE) ? (
+                    <BrowseFlashcards />
+                ) : null}
 
-                {flashcardMode === 'learning' && selectableItems.includes('learning') ? (
+                {flashcardTab === FlashcardTabEnum.LEARNING && selectableItems.includes(FlashcardTabEnum.LEARNING) ? (
                     <UserTrackingProvider
                         autoStartTracking={true}
                         enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
@@ -84,19 +94,19 @@ export default function FlashcardContent({ mode, role }: Props) {
                     </UserTrackingProvider>
                 ) : null}
 
-                {flashcardMode === 'edit' && selectableItems.includes('edit') && (
-                    <div className="h-full overflow-y-scroll">
+                {flashcardTab === FlashcardTabEnum.EDIT && selectableItems.includes(FlashcardTabEnum.EDIT) && (
+                    <div className="h-full">
                         <EditingFlashcards />
                     </div>
                 )}
 
-                {flashcardMode === 'settings' && selectableItems.includes('settings') ? (
+                {flashcardTab === FlashcardTabEnum.SETTINGS && selectableItems.includes(FlashcardTabEnum.SETTINGS) ? (
                     <div className="h-full overflow-y-scroll">
                         <FlashcardSettings />
                     </div>
                 ) : null}
 
-                {flashcardMode === 'games' && selectableItems.includes('games') ? (
+                {flashcardTab === FlashcardTabEnum.GAMES && selectableItems.includes(FlashcardTabEnum.GAMES) ? (
                     mode === MODE_ACCESS_PAGE_ROLE.personal ? (
                         <GamesContent mode={MODE_ACCESS_PAGE_ROLE.personal} />
                     ) : (

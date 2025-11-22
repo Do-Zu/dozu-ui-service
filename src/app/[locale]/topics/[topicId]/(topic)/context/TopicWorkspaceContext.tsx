@@ -24,6 +24,7 @@ import usePdfToolBar from '../hooks/usePdfToolBar';
 import { YouTubePlayer } from 'react-youtube';
 import { INote } from '../types/note.type';
 import useNoteWorkspace from '../hooks/useNoteWorkspace';
+import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 
 export type TypeTopicId = number;
 interface ContextType {
@@ -53,6 +54,8 @@ interface ContextType {
 
     generatingFlashcards: { q: string; a: string }[] | null;
     setGeneratingFlashcards: Dispatch<SetStateAction<{ q: string; a: string }[] | null>>;
+    flashcardTab: FlashcardTab;
+    setFlashcardTab: Dispatch<SetStateAction<FlashcardTab>>;
 
     selectedGame: GameType;
     selectGame: (game: GameType) => void;
@@ -66,6 +69,9 @@ interface ContextType {
 
     note: INote | null;
     setNote: Dispatch<SetStateAction<INote | null>>;
+
+    selectingContentText: string;
+    setSelectingContentText: Dispatch<SetStateAction<string>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -95,6 +101,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const topicIdRef = useRef<TypeTopicId>(topicIdInit);
 
     const contentTextOrigin = useRef<string>('');
+    const [selectingContentText, setSelectingContentText] = useState<string>('');
 
     const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
     const { player, setPlayer, seekTo } = useYoutubePlayer();
@@ -109,6 +116,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         onReviewCard,
         generatingFlashcards,
         setGeneratingFlashcards,
+        flashcardTab,
+        setFlashcardTab,
     } = useFlashCardWorkSpace();
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
@@ -146,11 +155,15 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             seekTo,
             generatingFlashcards,
             setGeneratingFlashcards,
+            flashcardTab,
+            setFlashcardTab,
             selectedGame,
             selectGame,
             resetGame,
             note,
-            setNote
+            setNote,
+            selectingContentText,
+            setSelectingContentText,
         }),
         [
             tab,
@@ -164,10 +177,12 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             player,
             seekTo,
             generatingFlashcards,
+            flashcardTab,
             selectedGame,
             selectGame,
             resetGame,
-            note
+            note,
+            selectingContentText,
         ],
     );
 
