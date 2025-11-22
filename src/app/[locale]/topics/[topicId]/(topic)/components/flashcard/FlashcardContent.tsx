@@ -15,6 +15,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
 import FlashcardsEmptyState from './browse/FlashcardsEmptyState';
 import { isEmpty } from '@/utils';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 
 export type FlashcardLearningMode = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
 
@@ -36,6 +37,7 @@ type Props = PersonalProps | StudentProps | TeacherProps;
 
 export default function FlashcardContent({ mode, role }: Props) {
     const { flashcards } = useRequireFlashcards();
+    const { generatingFlashcards } = useTopicWorkspace();
 
     const selectableItems: FlashcardLearningMode[] = useMemo(() => {
         if (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER)
@@ -58,7 +60,7 @@ export default function FlashcardContent({ mode, role }: Props) {
         setFlashcardMode(mode as FlashcardLearningMode);
     }
 
-    if (isEmpty(flashcards)) {
+    if (isEmpty(flashcards) && isEmpty(generatingFlashcards)) {
         return <FlashcardsEmptyState />;
     }
 

@@ -35,6 +35,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import DataStatus from '@/components/errors/DataStatus';
 import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
 
 export interface ILocalFlashcard {
     id: number;
@@ -348,10 +349,6 @@ const EditingFlashcards = () => {
 
     if (!editingFlashcards) {
         return <DataStatus variant="empty" />;
-    }
-
-    function onGenerateSuccess(data: { q: string; a: string }[]) {
-        setGeneratingFlashcards(data);
     }
 
     return (
