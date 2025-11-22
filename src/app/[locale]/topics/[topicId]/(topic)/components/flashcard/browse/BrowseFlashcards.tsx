@@ -14,6 +14,7 @@ import { useRequireTopic } from '../../../context/useRequireTopic';
 import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
 import FlashcardsEmptyState from './FlashcardsEmptyState';
 import StudyControls from './StudyControls';
+import { isListEmpty } from '@/utils';
 
 const initialAutoPlaySpeed = 3;
 
@@ -145,7 +146,7 @@ export default function BrowseFlashcards() {
         };
     }, [autoPlayEnabled, autoPlaySpeed, flashcards.length]);
 
-    if (flashcards.length === 0) {
+    if (isListEmpty(flashcards)) {
         return <FlashcardsEmptyState />;
     }
 

@@ -43,9 +43,6 @@ interface TeacherProps {
 type Props = PersonalProps | StudentProps | TeacherProps;
 
 export default function FlashcardContent({ mode, role }: Props) {
-    const { flashcards } = useRequireFlashcards();
-    const { generatingFlashcards } = useTopicWorkspace();
-
     const selectableItems: FlashcardTab[] = useMemo(() => {
         if (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER)
             return ['browse', 'learning', 'edit', 'settings', 'games'];
@@ -65,10 +62,6 @@ export default function FlashcardContent({ mode, role }: Props) {
     function handleModeSelect(mode: string) {
         if (!selectableItems.includes(mode as FlashcardTab)) return;
         setFlashcardTab(mode as FlashcardTab);
-    }
-
-    if (isEmpty(flashcards) && isEmpty(generatingFlashcards)) {
-        return <FlashcardsEmptyState />;
     }
 
     return (

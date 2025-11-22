@@ -143,12 +143,12 @@ function GenerateContent<TRes>({
     };
 
     return (
-        <div className="w-full flex items-center justify-center py-4">
+        <div className="flex items-center justify-center">
             {renderCustomize()}
             {trigger ? (
                 <div onClick={handleStartGenerate}>{trigger}</div>
             ) : (
-                <div className="w-full flex items-center justify-center py-4">{defaultTrigger}</div>
+                <div className="py-4">{defaultTrigger}</div>
             )}
         </div>
     );
