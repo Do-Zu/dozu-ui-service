@@ -36,6 +36,7 @@ import DataStatus from '@/components/errors/DataStatus';
 import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
+import { cn } from '@/lib/utils';
 
 export interface ILocalFlashcard {
     id: number;
@@ -56,6 +57,9 @@ interface IFlashcardServer {
 export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
+
+const flashcardItemHeight = 300;
+const flashcardItemGap = 20;
 
 const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
@@ -110,11 +114,12 @@ const EditingFlashcards = () => {
         if (editingFlashcards.length === 0) {
             editingFlashcards = flashcardUtils.createInitialFlashcards(initialFlashcardsCount);
         }
-        // if (ref.current && firstGeneratingFlashcardIndex) {
-        //     const totalHeight = ref.current.scrollHeight - 50;
-        //     const scrollTo = (totalHeight / editingFlashcards.length) * (firstGeneratingFlashcardIndex - 1);
-        //     ref.current.scrollTo({ top: scrollTo, behavior: 'smooth' });
-        // }
+        requestAnimationFrame(() => {
+            if (ref.current && firstGeneratingFlashcardIndex) {
+                const scrollTo = (flashcardItemHeight + flashcardItemGap) * firstGeneratingFlashcardIndex;
+                ref.current.scrollTo({ top: scrollTo, behavior: 'smooth' });
+            }
+        });
         setEditingFlashcards(editingFlashcards);
     }, [flashcards, generatingFlashcards]);
 
@@ -382,9 +387,9 @@ const EditingFlashcards = () => {
                 </div>
             </div>
 
-            <div className="h-full overflow-y-auto" ref={ref}>
+            <div className="h-full overflow-y-auto pb-8" ref={ref}>
                 <div className="px-[4rem] py-7 bg-background">
-                    <div className="mt-7 flex flex-col gap-6 bg-background">
+                    <div className="mt-7 flex flex-col bg-background">
                         {editingFlashcards?.map((flashcard, index) => {
                             if (isFlashcardDeleted(flashcard))
                                 return (
@@ -410,6 +415,7 @@ const EditingFlashcards = () => {
                                 <div
                                     key={flashcard.id}
                                     className="rounded-xl border shadow-sm p-6 flex flex-col bg-muted/60 dark:bg-muted/40 text-card-foreground"
+                                    style={{ height: flashcardItemHeight, marginBottom: flashcardItemGap }}
                                 >
                                     <div className="flex justify-between items-center mb-4">
                                         <div className="flex items-baseline gap-2">
