@@ -10,16 +10,22 @@ import LoadingPage from '@/app/loading';
 import DataStatus from '@/components/errors/DataStatus';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
+import { isNil } from '@/utils';
 
 export default function NoteTab() {
-    const { topicId } = useTopicWorkspace();
+    const { topicId, tab, note, setNote } = useTopicWorkspace();
 
     const {
-        data: note,
-        setData: setNote,
-        loading: noteLoading,
-        error: noteError,
-    } = useFetch<INote>(() => noteService.getNoteForTopic({ topicId }));
+        data: fetchedNote,
+        loading: fetchedNoteLoading,
+        error: fetchedNoteError,
+    } = useFetch<INote>(() => noteService.getNoteForTopic({ topicId }), { shouldRun: isNil(note) && tab === 'note' });
+
+    useEffect(() => {
+        if (fetchedNote) {
+            setNote(fetchedNote);
+        }
+    }, [fetchedNote]);
 
     const [content, setContent] = useState<string>('');
 
@@ -62,14 +68,14 @@ export default function NoteTab() {
         [note, updateNoteAsync],
     );
 
-    if (noteError) {
+    if (fetchedNoteError) {
         return <DataStatus variant="error" />;
     }
-    if (noteLoading || (note?.content && !content)) {
+    if (fetchedNoteLoading || (fetchedNote?.content && !content)) {
         return <LoadingPage />;
     }
     if (!note) {
-        return <DataStatus variant="error" />;
+        return <DataStatus variant="empty" />;
     }
 
     return (

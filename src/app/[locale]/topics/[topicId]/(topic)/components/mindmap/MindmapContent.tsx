@@ -241,7 +241,7 @@ const MindmapContent = ({}) => {
                             onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
                             onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
                         />
-                        <Controls position="top-right" />
+                        <Controls position="bottom-right" />
                         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
                     </ReactFlow>
 
