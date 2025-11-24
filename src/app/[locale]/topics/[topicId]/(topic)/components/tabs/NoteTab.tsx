@@ -15,6 +15,7 @@ import Generate from '../generate/Generate';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import noteUtils from '../../utils/note.utils';
+import { Button } from '@/components/ui/button';
 
 export default function NoteTab() {
     const { topicId, tab, note, setNote } = useTopicWorkspace();
@@ -104,7 +105,17 @@ export default function NoteTab() {
     return (
         <ScrollArea className="w-full h-full flex-col gap-4 pb-16">
             {generatedSummary.length > 0 ? null : (
-                <Generate type={METHOD_LEARNING.SHORT_SUMMARY} onSuccess={onGenerateShortSummarySuccess} />
+                <div className="flex flex-row items-center justify-center gap-4 p-8">
+                    <div className="border rounded-xl px-4 py-2 bg-white shadow-sm text-muted-foreground">
+                        Create a brief summary based on your inputted content
+                    </div>
+
+                    <Generate
+                        type={METHOD_LEARNING.SHORT_SUMMARY}
+                        onSuccess={onGenerateShortSummarySuccess}
+                        trigger={<Button className="rounded-lg">Generate</Button>}
+                    />
+                </div>
             )}
 
             {generatedSummary.length > 0 ? (

@@ -37,6 +37,7 @@ import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
 import { cn } from '@/lib/utils';
+import Generate from '../../generate/Generate';
 
 export interface ILocalFlashcard {
     id: number;
@@ -358,31 +359,44 @@ const EditingFlashcards = () => {
         <div className="h-full flex flex-col">
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
                 <div className="flex justify-end items-center px-[4rem] py-4">
-                    <div className="flex flex-row items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleImportModalOpen}
-                            className="text-muted-foreground hover:text-primary"
-                        >
-                            <Import size={18} />
-                        </Button>
+                    <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-row items-center gap-4">
+                            {!generatingFlashcards || generatingFlashcards.length === 0 ? (
+                                <Generate
+                                    type="flashcard"
+                                    onSuccess={(data: IResponseFlashCardGenerate[]) => {
+                                        setGeneratingFlashcards(data);
+                                    }}
+                                />
+                            ) : null}
+                        </div>
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleSaveClick}
-                            disabled={batchLoading}
-                            className="text-muted-foreground hover:text-primary"
-                        >
-                            {batchLoading ? (
-                                <span className="flex items-center">
-                                    <RefreshCw size={18} className="animate-spin" />
-                                </span>
-                            ) : (
-                                <Save size={18} />
-                            )}
-                        </Button>
+                        <div className="flex flex-row items-center gap-4">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleImportModalOpen}
+                                className="text-muted-foreground hover:text-primary"
+                            >
+                                <Import size={18} />
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleSaveClick}
+                                disabled={batchLoading}
+                                className="text-muted-foreground hover:text-primary"
+                            >
+                                {batchLoading ? (
+                                    <span className="flex items-center">
+                                        <RefreshCw size={18} className="animate-spin" />
+                                    </span>
+                                ) : (
+                                    <Save size={18} />
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>

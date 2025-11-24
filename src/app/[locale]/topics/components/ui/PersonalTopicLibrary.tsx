@@ -206,73 +206,15 @@ export default function PersonalTopicLibrary() {
         const { topicId, name, description, imageUrl } = topic;
         return (
             <DropdownMenuContent align="start" side="top">
-                {/* Flashard section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <Layers className="mr-2 h-4 w-4" />
-                        <span>Flashcard</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnSelectEditFlashcard(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectBrowse(topicId)}>
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span>{tTopic('browse')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectLearning(topicId)}>
-                            <GraduationCap className="mr-2 h-4 w-4" />
-                            <span>{tTopic('learning')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectSettings(topicId)}>
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>{tTopic('settings')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Mindmap section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <GitFork className="mr-2 h-4 w-4" />
-                        <span>Mind Map</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickMindmap(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Quiz */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <ClipboardCheck className="mr-2 h-4 w-4" />
-                        <span>Quiz</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickStartQuiz(topicId)}>
-                            <Play className="mr-2 h-4 w-4" />
-                            <span>{tTopic('start-quiz')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnClickEditQuestion(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
                 {/* Topic itself */}
-                <DropdownMenuItem onSelect={() => handleUpdateTopicModalOpen({ topicId, name, description, imageUrl })}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    <span>{tCommon('actions.edit')}</span>
-                </DropdownMenuItem>
-
                 <DropdownMenuItem onSelect={() => onSelectTopicForPackage(topic)}>
                     <Package className="mr-2 h-4 w-4" />
                     <span>{tTopic('addPackage')}</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onSelect={() => handleUpdateTopicModalOpen({ topicId, name, description, imageUrl })}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>{tCommon('actions.edit')}</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onSelect={() => handleDeleteTopicModalOpen({ topicId, name })}>
@@ -289,18 +231,9 @@ export default function PersonalTopicLibrary() {
         const totalFlashcards = topic.flashcardCounts?.total || 0;
         const learningFlashcards = topic.flashcardCounts?.learning || 0;
         const dueTodayFlashcards = topic.flashcardCounts?.review || 0;
-
-        function handleOnSelectBrowse() {
-            router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
-        }
+        
         function handleOnSelectLearning() {
             router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
-        }
-        function handleOnClickMindmap() {
-            router.push(ROUTES.MINDMAP_EDIT(topicId));
-        }
-        function handleOnClickStartQuiz() {
-            router.push(ROUTES.QUIZ_START(topicId));
         }
 
         //TODO: note for update logic calculate remain flashcard remain and get progress
@@ -339,32 +272,6 @@ export default function PersonalTopicLibrary() {
                     >
                         {tTopic('learning')}
                     </Button>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
-                            onClick={handleOnSelectBrowse}
-                        >
-                            <BookOpen className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
-                            onClick={handleOnClickStartQuiz}
-                        >
-                            <ClipboardCheck className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
-                            onClick={handleOnClickMindmap}
-                        >
-                            <GitFork className="h-3.5 w-3.5" />
-                        </Button>
-                    </div>
                 </div>
             </div>
         );
