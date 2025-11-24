@@ -127,7 +127,7 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
 
             {/* Number of Questions */}
             <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-200">Number of Item</label>
+                <label className="text-sm font-medium dark:text-zinc-200">Number of Item</label>
                 <input
                     type="number"
                     value={numberOfItem}
@@ -141,13 +141,13 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
 
                         updateOption('numberOfItem', number);
                     }}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-700 placeholder:text-zinc-600"
+                    className="w-full border  rounded-lg px-4 py-3  focus:outline-none focus:ring-1 focus:ring-zinc-700 placeholder:text-zinc-600"
                 />
             </div>
 
             {/* Focus */}
             <div className="space-y-2">
-                <label className="text-sm font-medium ">What should the quiz focus on?</label>
+                <label className="text-sm font-medium ">What do you want to focus on?</label>
                 <Textarea
                     value={focus}
                     onChange={(e) => updateOption('focus', e.target.value)}
