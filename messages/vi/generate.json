@@ -104,6 +104,38 @@
             "footer": {
                 "wait": "Quá trình có thể mất một vài phút"
             }
+        },
+        "customize": {
+            "title": "Tùy chỉnh",
+            "types": {
+                "label": "Loại câu hỏi",
+                "required": "*",
+                "multipleChoice": "Trắc nghiệm",
+                "freeResponse": "Tự luận",
+                "trueOrFalse": "Đúng hoặc Sai",
+                "fillInTheBlank": "Điền vào chỗ trống"
+            },
+            "difficulty": {
+                "label": "Độ khó",
+                "required": "*",
+                "easy": "Dễ",
+                "medium": "Trung bình",
+                "hard": "Khó"
+            },
+            "numberOfItem": {
+                "label": "Số lượng câu hỏi"
+            },
+            "focus": {
+                "label": "Bạn muốn tập trung vào điều gì?",
+                "placeholder": "Tập trung vào các phần nói về..."
+            },
+            "buttons": {
+                "cancel": "Hủy",
+                "generate": "Tạo"
+            },
+            "toasts": {
+                "invalidAmount": "Số lượng không hợp lệ"
+            }
         }
     }
 }
