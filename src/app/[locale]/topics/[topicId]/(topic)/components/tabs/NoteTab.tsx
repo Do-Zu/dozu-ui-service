@@ -11,6 +11,10 @@ import DataStatus from '@/components/errors/DataStatus';
 import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { isNil } from '@/utils';
+import Generate from '../generate/Generate';
+import { METHOD_LEARNING } from '@/utils/constants/method';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import noteUtils from '../../utils/note.utils';
 
 export default function NoteTab() {
     const { topicId, tab, note, setNote } = useTopicWorkspace();
@@ -28,6 +32,7 @@ export default function NoteTab() {
     }, [fetchedNote]);
 
     const [content, setContent] = useState<string>('');
+    const [generatedSummary, setGeneratedSummary] = useState<string>('');
 
     useEffect(() => {
         if (note) {
@@ -68,6 +73,24 @@ export default function NoteTab() {
         [note, updateNoteAsync],
     );
 
+    const onAddSummaryToNote = async (summary: string) => {
+        if (!note) return;
+        const updatedContent = content.concat('<p></p>' + summary);
+        const payload: IUpdateNotePayload = { topicId: note.topicId, noteId: note.noteId, content: updatedContent };
+        await updateNoteAsync(payload);
+        setGeneratedSummary('');
+    };
+
+    function onGenerateShortSummarySuccess(data: any) {
+        const { isValid, summary } = noteUtils.validateGeneratedSummary(data);
+        if (!isValid) {
+            toastHelper.showErrorMessage('Failed to generate a short summary for your topic, please try again.');
+            return;
+        }
+        toastHelper.showSuccessMessage('Generate short summary successfully');
+        setGeneratedSummary(summary);
+    }
+
     if (fetchedNoteError) {
         return <DataStatus variant="error" />;
     }
@@ -79,13 +102,31 @@ export default function NoteTab() {
     }
 
     return (
-        <div className="w-full h-full">
-            <RichTextEditor
-                content={content}
-                onContentChange={onContentChange}
-                onSubmit={onSubmit}
-                loading={updateNoteLoading}
-            />
-        </div>
+        <ScrollArea className="w-full h-full flex-col gap-4 pb-16">
+            {generatedSummary.length > 0 ? null : (
+                <Generate type={METHOD_LEARNING.SHORT_SUMMARY} onSuccess={onGenerateShortSummarySuccess} />
+            )}
+
+            {generatedSummary.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                    <div className="text-xl font-bold">Summary Preview</div>
+                    <RichTextEditor
+                        key="generated_summary"
+                        content={generatedSummary}
+                        onContentChange={(content) => setGeneratedSummary(content)}
+                        onSubmit={onAddSummaryToNote}
+                        loading={updateNoteLoading}
+                    />
+                </div>
+            ) : (
+                <RichTextEditor
+                    key="main_content"
+                    content={content}
+                    onContentChange={onContentChange}
+                    onSubmit={onSubmit}
+                    loading={updateNoteLoading}
+                />
+            )}
+        </ScrollArea>
     );
 }

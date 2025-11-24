@@ -5,8 +5,6 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
-import { UserRoleEnum } from '@/utils/constants/roles';
 import { BrainChaseProvider } from '@/app/[locale]/games/brain-chase/context/brainChaseContext';
 import { MemoryMatchProvider } from '@/app/[locale]/games/memory-match/context/MemoryMatchContext';
 import BrainChaseGame from './BrainChaseGame';
@@ -14,26 +12,9 @@ import MemoryMatchGame from './MemoryMatchGame';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
-interface PersonalProps {
-    mode: MODE_ACCESS_PAGE_ROLE.personal;
-    role?: undefined;
-}
-
-interface StudentProps {
-    mode: MODE_ACCESS_PAGE_ROLE.classBased;
-    role: UserRoleEnum.USER;
-}
-
-interface TeacherProps {
-    mode: MODE_ACCESS_PAGE_ROLE.classBased;
-    role: UserRoleEnum.TEACHER;
-}
-
-type Props = PersonalProps | StudentProps | TeacherProps;
-
 type ViewMode = 'card' | 'column';
 
-export default function GamesContent({ mode, role }: Props) {
+export default function GamesContent() {
     const { selectedGame, selectGame, resetGame, topicId } = useTopicWorkspace();
     const t = useTranslations('games.common');
     const [viewMode, setViewMode] = useState<ViewMode>('card');
