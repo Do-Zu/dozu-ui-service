@@ -8,6 +8,7 @@ import { TypeMethodLearning } from '@/utils/constants/method';
 import { useGenerateContext } from '../../context/GenerateContext';
 import { isEmpty, toNumber } from '@/utils';
 import { toast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface IProps {
     className?: string;
@@ -20,6 +21,7 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
     const [isOpen, setIsOpen] = useState(false);
     const { options, updateOption } = useGenerateContext();
     const { listType, difficulty, numberOfItem, focus } = options;
+    const t = useTranslations('generate.customize');
 
     const toggleQuestionType = (type: string) => {
         const newListType = listType.includes(type) ? listType.filter((t) => t !== type) : [...listType, type];
@@ -81,30 +83,30 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
         <div className="flex flex-col gap-5">
             <div className="space-y-2">
                 <label className="text-sm font-medium ">
-                    Types <span className="text-red-500">*</span>
+                    {t('types.label')} <span className="text-red-500">{t('types.required')}</span>
                 </label>
                 <div className="border border-zinc-800 rounded-xl p-4 ">
                     <div className="flex flex-wrap gap-3">
                         <TypeButton
-                            label="Multiple Choice"
+                            label={t('types.multipleChoice')}
                             value="Multiple Choice"
                             icon={CheckSquare}
                             colorClass="border-blue-500/50 bg-blue-500/10 text-blue-400"
                         />
                         <TypeButton
-                            label="Free Response"
+                            label={t('types.freeResponse')}
                             value="Free Response"
                             icon={FileText}
                             colorClass="border-green-500/50 bg-green-500/10 text-green-400"
                         />
                         <TypeButton
-                            label="True or False"
+                            label={t('types.trueOrFalse')}
                             value="True or False"
                             icon={Eye}
                             colorClass="border-purple-500/50 bg-purple-500/10 text-purple-400"
                         />
                         <TypeButton
-                            label="Fill in the blank"
+                            label={t('types.fillInTheBlank')}
                             value="Fill in the blank"
                             icon={Type}
                             colorClass="border-orange-500/50 bg-orange-500/10 text-orange-400"
@@ -116,18 +118,18 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
             {/* Difficulty */}
             <div className="space-y-2">
                 <label className="text-sm font-medium">
-                    Difficulty <span className="text-red-500">*</span>
+                    {t('difficulty.label')} <span className="text-red-500">{t('difficulty.required')}</span>
                 </label>
                 <div className="border border-zinc-800 rounded-xl p-1.5  flex gap-1">
-                    <DifficultyButton label="Easy" stars={1} value="Easy" />
-                    <DifficultyButton label="Medium" stars={2} value="Medium" />
-                    <DifficultyButton label="Hard" stars={3} value="Hard" />
+                    <DifficultyButton label={t('difficulty.easy')} stars={1} value="Easy" />
+                    <DifficultyButton label={t('difficulty.medium')} stars={2} value="Medium" />
+                    <DifficultyButton label={t('difficulty.hard')} stars={3} value="Hard" />
                 </div>
             </div>
 
             {/* Number of Questions */}
             <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-200">Number of Item</label>
+                <label className="text-sm font-medium dark:text-zinc-200">{t('numberOfItem.label')}</label>
                 <input
                     type="number"
                     value={numberOfItem}
@@ -135,23 +137,23 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
                         const number = toNumber(e.target.value);
 
                         if (isNaN(number) || number < 1) {
-                            toast({ description: 'Invalid Amount' });
+                            toast({ description: t('toasts.invalidAmount') });
                             return;
                         }
 
                         updateOption('numberOfItem', number);
                     }}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-700 placeholder:text-zinc-600"
+                    className="w-full border  rounded-lg px-4 py-3  focus:outline-none focus:ring-1 focus:ring-zinc-700 placeholder:text-zinc-600"
                 />
             </div>
 
             {/* Focus */}
             <div className="space-y-2">
-                <label className="text-sm font-medium ">What should the quiz focus on?</label>
+                <label className="text-sm font-medium ">{t('focus.label')}</label>
                 <Textarea
                     value={focus}
                     onChange={(e) => updateOption('focus', e.target.value)}
-                    placeholder="Focus on the parts that are about..."
+                    placeholder={t('focus.placeholder')}
                     className="w-full  dark:bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 dark:text-zinc-200 focus:outline-none focus:ring-1 dark:focus:ring-zinc-700 min-h-[100px] resize-none dark:placeholder:text-zinc-600"
                 />
             </div>
@@ -169,7 +171,7 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
             variant="outline"
             className="px-4 py-2 rounded-md  hover:bg-opacity-60  transition-colors font-medium text-sm"
         >
-            Cancel
+            {t('buttons.cancel')}
         </Button>
     );
 
@@ -179,7 +181,7 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
             disabled={isEmpty(listType)}
             className="px-4 py-2 rounded-md hover:bg-opacity-60 transition-colors font-medium text-sm"
         >
-            Generate
+            {t('buttons.generate')}
         </Button>
     );
 
@@ -188,7 +190,7 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             trigger={trigger}
-            title="Customize"
+            title={t('title')}
             description={description}
             body={bodyContent}
             cancel={cancel}
