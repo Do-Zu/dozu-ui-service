@@ -41,7 +41,7 @@ const DefaultLayout: React.FC<LayoutProps> = ({
         } else {
             setLearningMode(MODE_ACCESS_PAGE_ROLE.personal);
         }
-    }, [pathname]);
+    }, [pathname, isStudent]);
 
     const configSettings = getLayoutSettings(pathname);
 

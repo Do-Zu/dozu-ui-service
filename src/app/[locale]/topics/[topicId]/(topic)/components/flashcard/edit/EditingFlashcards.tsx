@@ -31,12 +31,10 @@ import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/Fl
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import DataStatus from '@/components/errors/DataStatus';
 import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
-import { cn } from '@/lib/utils';
 import Generate from '../../generate/Generate';
 
 export interface ILocalFlashcard {
@@ -116,7 +114,7 @@ const EditingFlashcards = () => {
             editingFlashcards = flashcardUtils.createInitialFlashcards(initialFlashcardsCount);
         }
         requestAnimationFrame(() => {
-            if (ref.current && firstGeneratingFlashcardIndex) {
+            if (ref.current && firstGeneratingFlashcardIndex !== null) {
                 const scrollTo = (flashcardItemHeight + flashcardItemGap) * firstGeneratingFlashcardIndex;
                 ref.current.scrollTo({ top: scrollTo, behavior: 'smooth' });
             }
