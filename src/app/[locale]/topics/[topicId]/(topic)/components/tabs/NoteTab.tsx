@@ -16,6 +16,7 @@ import { METHOD_LEARNING } from '@/utils/constants/method';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import noteUtils from '../../utils/note.utils';
 import { Button } from '@/components/ui/button';
+import { useUpdateNoteAsync } from '../../hooks/useNote';
 
 export default function NoteTab() {
     const { topicId, tab, note, setNote } = useTopicWorkspace();
@@ -45,39 +46,23 @@ export default function NoteTab() {
         setContent(content);
     }
 
-    const { execute: updateNoteAsync, loading: updateNoteLoading } = usePost<IUpdateNotePayload, INote>(
-        noteService.updateNotebyId,
-        'PATCH',
-        {
-            onError(error) {
-                toastHelper.showErrorMessage(error);
-            },
-            onSuccess(data) {
-                if (data) {
-                    toastHelper.showSuccessMessage('Save note successfully');
-                    setNote(data);
-                }
-            },
-        },
-    );
+    const { updateNoteAsync, updateNoteLoading } = useUpdateNoteAsync();
 
     const onSubmit = useCallback(
         async (content: string) => {
-            if (!note) return;
-            if (content === note.content) {
+            if (note && content === note.content) {
                 toastHelper.showSuccessMessage('Please edit your note before submitting.');
                 return;
             }
-            const payload: IUpdateNotePayload = { topicId: note.topicId, noteId: note.noteId, content };
+            const payload: IUpdateNotePayload = { topicId, content };
             await updateNoteAsync(payload);
         },
         [note, updateNoteAsync],
     );
 
     const onAddSummaryToNote = async (summary: string) => {
-        if (!note) return;
         const updatedContent = content.concat('<p></p>' + summary);
-        const payload: IUpdateNotePayload = { topicId: note.topicId, noteId: note.noteId, content: updatedContent };
+        const payload: IUpdateNotePayload = { topicId, content: updatedContent };
         await updateNoteAsync(payload);
         setGeneratedSummary('');
     };
@@ -98,12 +83,9 @@ export default function NoteTab() {
     if (fetchedNoteLoading || (fetchedNote?.content && !content)) {
         return <LoadingPage />;
     }
-    if (!note) {
-        return <DataStatus variant="empty" />;
-    }
 
     return (
-        <ScrollArea className="w-full h-full flex-col gap-4 pb-16">
+        <ScrollArea className="w-full h-full flex-col gap-4 pb-16 pr-6">
             {generatedSummary.length > 0 ? null : (
                 <div className="flex flex-row items-center justify-center gap-4 p-8">
                     <div className="border rounded-xl px-4 py-2 bg-white shadow-sm text-muted-foreground">

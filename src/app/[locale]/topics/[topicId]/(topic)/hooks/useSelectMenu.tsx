@@ -5,6 +5,7 @@ import Generate from '../components/generate/Generate';
 import { Button } from '@/components/ui/button';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 import { FlashcardTabEnum } from '../components/flashcard/FlashcardContent';
+import { useUpdateNoteAsync } from './useNote';
 
 function ProcessingNode() {
     return (
@@ -39,9 +40,10 @@ function GenerateFlashcards({ content, onGenerateFlashcardsSuccess }: GenerateFl
 }
 
 export default function useSelectMenu() {
-    const { selectingContentText, setGeneratingFlashcards, setTab, setFlashcardTab } = useTopicWorkspace();
+    const { topicId, selectingContentText, setGeneratingFlashcards, setTab, setFlashcardTab, note } =
+        useTopicWorkspace();
 
-    const getGeneratingContent = useCallback(() => {
+    const getCleanedContent = useCallback(() => {
         return selectingContentText.replace(/\s+/g, ' ');
     }, [selectingContentText]);
 
@@ -51,12 +53,17 @@ export default function useSelectMenu() {
         setFlashcardTab(FlashcardTabEnum.EDIT);
     }
 
-    function onAddToNoteClick() {}
+    const { updateNoteAsync, updateNoteLoading } = useUpdateNoteAsync();
+
+    async function onAddToNoteClick() {
+        const content = (note?.content || '').concat('<p></p>' + getCleanedContent());
+        await updateNoteAsync({ topicId, content });
+    }
 
     return {
         GenerateFlashcards: (
             <GenerateFlashcards
-                content={getGeneratingContent()}
+                content={getCleanedContent()}
                 onGenerateFlashcardsSuccess={onGenerateFlashcardsSuccess}
             />
         ),
@@ -72,8 +79,14 @@ export default function useSelectMenu() {
                 className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md"
                 onClick={onAddToNoteClick}
             >
-                <NotebookText className="h-4 w-4" />
-                Add to note
+                {updateNoteLoading ? (
+                    <ProcessingNode />
+                ) : (
+                    <>
+                        <NotebookText className="h-4 w-4" />
+                        Add to note
+                    </>
+                )}
             </Button>
         ),
     };
