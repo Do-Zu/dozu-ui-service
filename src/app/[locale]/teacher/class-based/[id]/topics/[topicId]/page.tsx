@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { TopicWorkspaceProvider } from '@/app/[locale]/topics/[topicId]/(topic)/context/TopicWorkspaceContext';
-import TeacherTopicWorkspace from './components/workspace/TeacherTopicWorkspace';
+import TopicWorkspace from '@/app/[locale]/topics/[topicId]/(topic)/components/workspace/TopicWorkspace';
 
 export default function TopicPage() {
     const params = useParams();
@@ -17,7 +17,7 @@ export default function TopicPage() {
 
     return (
         <TopicWorkspaceProvider topicIdInit={topicId}>
-            <TeacherTopicWorkspace />
+            <TopicWorkspace />
         </TopicWorkspaceProvider>
     );
 }

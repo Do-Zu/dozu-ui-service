@@ -18,7 +18,7 @@ import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
 import topicUtils from '../../utils/topic.utils';
 
-export default function PersonalTopicWorkspace() {
+export default function TopicWorkspace() {
     const { topic, topicId, setTopic, isPdfViewerFullscreen, setTab, tab, flashcards, learningFlashcards } =
         useTopicWorkspace();
 

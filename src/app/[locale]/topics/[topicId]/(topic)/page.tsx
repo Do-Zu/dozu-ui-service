@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useParams } from 'next/navigation';
-import PersonalTopicWorkspace from './components/workspace/PersonalTopicWorkspace';
+import TopicWorkspace from './components/workspace/TopicWorkspace';
 import { TopicWorkspaceProvider } from './context/TopicWorkspaceContext';
 import { withAuth } from '@/hoc/withAuth';
 
@@ -20,7 +20,7 @@ const TopicPage = () => {
 
     return (
         <TopicWorkspaceProvider topicIdInit={topicId}>
-            <PersonalTopicWorkspace />
+            <TopicWorkspace />
         </TopicWorkspaceProvider>
     );
 };
