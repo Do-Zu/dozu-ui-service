@@ -15,6 +15,7 @@ import { useRequireFlashcards } from '../../../context/useRequireFlashcardConten
 import FlashcardsEmptyState from './FlashcardsEmptyState';
 import StudyControls from './StudyControls';
 import StarButton from '../../../../../../../../components/flashcard/StarButton';
+import VolumeButton from '../../../../../../../../components/flashcard/VolumeButton';
 import ViewModeToggle from './ViewModeToggle';
 import { isListEmpty } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -268,13 +269,17 @@ export default function BrowseFlashcards() {
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
                     >
-                        {/* Star button */}
-                        <div className="absolute top-20 right-8 z-20">
+                        {/* Star button and Volume button */}
+                        <div className="absolute top-20 right-8 z-20 flex items-center gap-2">
                             <StarButton
                                 isStarred={starredFlashcards.has(currentFlashcard.flashcardId)}
                                 onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
                                 size={24}
                                 buttonSize="lg"
+                            />
+                            <VolumeButton 
+                                text={isFlipped ? (currentFlashcard?.back || '') : (currentFlashcard?.front || '')} 
+                                className="h-10 w-10"
                             />
                         </div>
 
@@ -328,13 +333,17 @@ export default function BrowseFlashcards() {
                         <div className="p-6 space-y-4">
                             {flashcardsToDisplay.map((flashcard, index) => (
                                 <Card key={flashcard.flashcardId} className="overflow-hidden relative">
-                                    {/* Star button - Top right corner of the card */}
-                                    <div className="absolute top-4 right-4 z-10">
+                                    {/* Star button and Volume button - Top right corner of the card */}
+                                    <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                                         <StarButton
                                             isStarred={starredFlashcards.has(flashcard.flashcardId)}
                                             onToggle={() => handleToggleStar(flashcard.flashcardId)}
                                             size={20}
                                             buttonSize="md"
+                                        />
+                                        <VolumeButton 
+                                            text={flashcard.back || flashcard.front || ''} 
+                                            className="h-8 w-8"
                                         />
                                     </div>
                                     <CardContent className="p-0">
