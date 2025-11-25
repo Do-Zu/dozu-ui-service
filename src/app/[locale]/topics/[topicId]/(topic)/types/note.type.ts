@@ -7,7 +7,6 @@ export interface INote {
 
 export type IUpdateNotePayload = {
     topicId: number;
-    noteId: number;
     content?: string | undefined;
 };
 

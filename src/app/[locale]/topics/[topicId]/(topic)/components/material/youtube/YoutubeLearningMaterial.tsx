@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import TranscriptViewer from './TranscriptViewer';
 import { YouTubePlayer, YouTubeProps } from 'react-youtube';
 import YoutubePlayer from './YoutubePlayer';
@@ -7,6 +7,7 @@ import { isNilOrEmpty } from '@/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ITranscriptSegment } from '../../../types';
 import transcriptUtils from '../../../utils/transcript.utils';
+import SelectMenu from '../SelectMenu';
 
 interface Props {
     videoId: string;
@@ -15,6 +16,13 @@ interface Props {
 
 export default function YoutubeLearningMaterial({ videoId, content }: Props) {
     const { contentTextOrigin, player, setPlayer, seekTo } = useTopicWorkspace();
+    const { selectingContentText } = useTopicWorkspace();
+    const ref = useRef<HTMLDivElement>(null);
+    const [refNode, setRefNode] = useState<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        setRefNode(ref.current);
+    }, []);
 
     const onPlayerReady: YouTubeProps['onReady'] = (event) => {
         event.target.pauseVideo();
@@ -33,14 +41,22 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
         }
     }, [content]);
 
+    function onSegmentClick(seconds: number) {
+        if (selectingContentText) return;
+        seekTo(seconds);
+    }
+
     return (
-        <ScrollArea className="flex flex-col p-4">
+        <div className="flex flex-col p-4 h-full">
             <YoutubePlayer videoId={videoId} onPlayerReady={onPlayerReady} />
             {typeof content === 'string' ? (
                 <p>{content}</p>
             ) : (
-                <TranscriptViewer transcript={content} onSegmentClick={seekTo} />
+                <div className="overflow-y-auto" ref={ref}>
+                    <SelectMenu refNode={refNode} type="youtube" />
+                    <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} />
+                </div>
             )}
-        </ScrollArea>
+        </div>
     );
 }

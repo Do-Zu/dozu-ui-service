@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Signpost } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -17,17 +17,27 @@ interface RoadmapButtonProps {
 
 const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButtonProps) => {
     const t = useTranslations('RoadmapButton');
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     const rootNode = nodes.find((node) => node.data.isRoot === true);
-    // const baseNodes: string[] = [];
-    const baseNodes: AppNode[] = [];
-        const baseEdges = edges.filter((edge) => edge.source === rootNode?.data.nodeId);
-        baseEdges.forEach((edge) => {
-            const targetNode = nodes.find((node) => node.data.nodeId === edge.target);
-            if (targetNode) {
-                baseNodes.push(targetNode);
+
+    // Helper function to get children of a given node
+    const getImmediateChildNodes = (parentNodeId: string): AppNode[] => {
+        const childEdges = edges.filter((edge) => edge.source === parentNodeId);
+        const children: AppNode[] = [];
+        childEdges.forEach((edge) => {
+            const childNode = nodes.find((node) => node.data.nodeId === edge.target);
+            if (childNode) {
+                children.push(childNode);
             }
         });
+        return children;
+    };
+
+    // Get root level children
+    const rootChildren = useMemo(() => {
+        return rootNode ? getImmediateChildNodes(rootNode.data.nodeId) : []; //default empty if root node is not found
+    }, [rootNode, nodes, edges]);
 
     function normalizeRoadmapOrder(baseNodes: AppNode[]) {
         const total = baseNodes.length;
@@ -51,17 +61,22 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
         const finalOrdered = [...validNodes, ...invalidNodes];
 
         // Step 4: Assign new clean 0..N-1 order numbers
-        finalOrdered.forEach((node, index) => {
-            node.data.roadmapOrder = index;
-        });
+        // Avoid mutating the original node objects (they may be frozen).
+        const newFinal = finalOrdered.map((node, index) => ({
+            ...node,
+            data: {
+                ...node.data,
+                roadmapOrder: index,
+            },
+        }));
 
-        return finalOrdered;
+        return newFinal;
     }
 
-    const orderedBaseNodes = normalizeRoadmapOrder(baseNodes);
+    const orderedBaseNodes = normalizeRoadmapOrder(rootChildren);
 
     return (
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <SheetTrigger asChild>
@@ -75,8 +90,16 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
             <SheetContent>
                 <SheetHeader>
                     <SheetTitle>{t('RoadmapButtonLabel')}</SheetTitle>
-                    <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                        <RoadmapList initialItems={orderedBaseNodes} setNodes={setNodes}/>
+
+                    <div className="grid flex-1 auto-rows-min gap-6">
+                        <RoadmapList
+                            initialItems={orderedBaseNodes}
+                            setNodes={setNodes}
+                            allNodes={nodes}
+                            allEdges={edges}
+                            getImmediateChildNodes={getImmediateChildNodes}
+                            normalizeRoadmapOrder={normalizeRoadmapOrder}
+                        />
                     </div>
                 </SheetHeader>
             </SheetContent>

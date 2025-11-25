@@ -64,7 +64,7 @@ const geist = localFont({
             style: 'normal',
         },
     ],
-    variable: '--font-primary',
+    variable: '--font-geist',
     display: 'swap',
 });
 

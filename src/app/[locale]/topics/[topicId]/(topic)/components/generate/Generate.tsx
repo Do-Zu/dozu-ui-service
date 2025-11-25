@@ -2,11 +2,14 @@ import { Button } from '@/components/ui/button';
 import useGenerate from '@/hooks/generate/useGenerate';
 import { ReactNode } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import { ImportMethod, TypeMethodLeading } from '@/app/[locale]/generate/constants/resource';
+import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
 import DataStatus from '@/components/errors/DataStatus';
 import { isNilOrEmpty } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
+import { TypeMethodLearning } from '@/utils/constants/method';
+import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
 
 /**
  * Props for the reusable Generate<TRes> component.
@@ -18,7 +21,7 @@ interface IProps<TRes> {
     /** Import method used by the generator. Defaults to 'text'. */
     method?: ImportMethod;
     /** Required type describing what to generate (domain-specific). */
-    type: TypeMethodLeading;
+    type: TypeMethodLearning;
     /** Optional custom UI when "generating" (after request sent). Overrides the default spinner. */
     generateNode?: ReactNode;
     /** Optional custom UI while "registering" (pre-flight/queueing). Overrides the default spinner. */
@@ -38,9 +41,118 @@ interface IProps<TRes> {
     onFallBack?: (error: unknown) => void;
     /** Always called after attempt finishes (success or failure). Useful for cleanup. */
     onFinally?: () => void;
+    customContent?: string;
 }
 
 const DEFAULT_METHOD = 'text';
+
+function GenerateContent<TRes>({
+    method = DEFAULT_METHOD,
+    type,
+    trigger,
+    generateNode,
+    registerNode,
+    onHandleBeforeGenerate,
+    onSuccess,
+    onError,
+    onFallBack,
+    onFinally,
+    customContent,
+}: IProps<TRes>) {
+    const { contentTextOrigin } = useTopicWorkspace();
+    const generatingContent = customContent && customContent.length > 0 ? customContent : contentTextOrigin.current;
+    const { options } = useGenerateContext();
+
+    const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
+        onSuccess,
+        onError,
+    });
+
+    // Entry point: validates input and kicks off the generate call.
+    const handleStartGenerate = async () => {
+        try {
+            onHandleBeforeGenerate?.();
+
+            if (isNilOrEmpty(generatingContent)) {
+                toast({
+                    description: 'No content prepare',
+                });
+                return;
+            }
+
+            await execute({
+                content: generatingContent,
+                method,
+                type,
+                options,
+            });
+        } catch (error) {
+            onFallBack?.(error);
+        } finally {
+            onFinally?.();
+        }
+    };
+
+    if (isRegisterGenerate) {
+        return registerNode ? (
+            registerNode
+        ) : (
+            <div className="w-full flex items-center justify-center min-h-24 py-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Processing ...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (isGenerating) {
+        return generateNode ? (
+            generateNode
+        ) : (
+            <div className="w-full flex items-center justify-center min-h-24 py-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Generating ...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
+        return (
+            <div className="w-full flex items-center justify-center min-h-24 py-4">
+                <DataStatus variant="error" />
+            </div>
+        );
+    }
+
+    // Idle state: show custom trigger if provided; otherwise, a centered default button.
+    // To customize label/appearance, pass a "trigger" node.
+    const defaultTrigger = (
+        <Button onClick={handleStartGenerate} className="rounded-2xl">
+            Generate
+        </Button>
+    );
+
+    const renderCustomize = () => {
+        if (type === 'flashcard' || type === 'quiz')
+            return <CustomizeProperties className="mx-3" method={type} onGenerate={handleStartGenerate} />;
+
+        return <></>;
+    };
+
+    return (
+        <div className="flex items-center justify-center">
+            {renderCustomize()}
+            {trigger ? (
+                <div onClick={handleStartGenerate}>{trigger}</div>
+            ) : (
+                <div className="py-4">{defaultTrigger}</div>
+            )}
+        </div>
+    );
+}
 
 /**
  * Generate<TRes>
@@ -60,90 +172,10 @@ const DEFAULT_METHOD = 'text';
  *   onError={() => { handle error }}
  *
  */
-export default function Generate<TRes>({
-    method = DEFAULT_METHOD,
-    type,
-    trigger,
-    generateNode,
-    registerNode,
-    onHandleBeforeGenerate,
-    onSuccess,
-    onError,
-    onFallBack,
-    onFinally,
-}: IProps<TRes>) {
-    const { contentTextOrigin } = useTopicWorkspace();
-
-    const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
-        onSuccess,
-        onError,
-    });
-
-    // Entry point: validates input and kicks off the generate call.
-    const handleStartGenerate = async () => {
-        try {
-            onHandleBeforeGenerate?.();
-
-            if (isNilOrEmpty(contentTextOrigin.current)) {
-                toast({
-                    description: 'No content prepare',
-                });
-                return;
-            }
-
-            await execute({
-                content: contentTextOrigin.current,
-                method,
-                type,
-            });
-        } catch (error) {
-            onFallBack?.(error);
-        } finally {
-            onFinally?.();
-        }
-    };
-
-    if (isRegisterGenerate) {
-        return (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
-                {registerNode ? (
-                    registerNode
-                ) : (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Processing ...</span>
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    if (isGenerating) {
-        return (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
-                {generateNode ? (
-                    generateNode
-                ) : (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Generating ...</span>
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
-        return (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
-                <DataStatus variant="error" />
-            </div>
-        );
-    }
-
-    // Idle state: show custom trigger if provided; otherwise, a centered default button.
-    // To customize label/appearance, pass a "trigger" node.
-    const defaultTrigger = <Button onClick={handleStartGenerate}>Generate</Button>;
-
-    return <div className="w-full flex items-center justify-center py-4">{trigger ? trigger : defaultTrigger}</div>;
+export default function Generate<TRes>(props: IProps<TRes>) {
+    return (
+        <GenerateProvider>
+            <GenerateContent {...props} />
+        </GenerateProvider>
+    );
 }

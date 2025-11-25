@@ -1,25 +1,20 @@
-import { Button } from '@/components/ui/button';
-import { useTranslations } from 'next-intl';
 import Generate from '../../generate/Generate';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
+import { FlashcardTabEnum } from '../FlashcardContent';
 
 export default function FlashcardsEmptyState() {
-    const tFlashcardLearning = useTranslations('flashcard.learning');
-
-    function handleGenerateClick() {
-        // TODO: Logic generate flashcards
-        console.log('Generate flashcards clicked');
-    }
-
-    function onGenerateSuccess(data: any) {
-        console.log({ data });
-    }
+    const { setGeneratingFlashcards, setFlashcardTab } = useTopicWorkspace();
 
     return (
-        <div className="flex flex-col p-8">
-            <div className="flex flex-col gap-4">
-                <p>{tFlashcardLearning('flashcardsEmpty')}</p>
-                <Generate type="flashcards" onSuccess={onGenerateSuccess} />
-            </div>
+        <div className="flex flex-col">
+            <Generate
+                type="flashcard"
+                onSuccess={(data: IResponseFlashCardGenerate[]) => {
+                    setFlashcardTab(FlashcardTabEnum.EDIT);
+                    setGeneratingFlashcards(data);
+                }}
+            />
         </div>
     );
 }

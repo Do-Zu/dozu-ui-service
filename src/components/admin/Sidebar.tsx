@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import AuthButton from '@/components/toolbar/AuthButton';
-import { Home, Users, BarChart3, Clock, ListChecks, CreditCard, Star, TrendingUp, DollarSign, Wallet, Brain, Server } from 'lucide-react';
+import { Home, Users, BarChart3, Clock, ListChecks, CreditCard, Star, TrendingUp, DollarSign, Wallet, Brain, Server, Key, Link as LinkIcon } from 'lucide-react';
 
 interface SidebarProps {
     className?: string;
@@ -57,6 +57,16 @@ const navItems = [
         label: 'LLM Providers',
         icon: Server,
         href: '/admin/llm-providers'
+    },
+    {
+        label: 'LLM API Keys',
+        icon: Key,
+        href: '/admin/llm-api-keys'
+    },
+    {
+        label: 'LLM API Key-Models',
+        icon: LinkIcon,
+        href: '/admin/llm-api-key-models'
     },
     {
         label: 'Stats',

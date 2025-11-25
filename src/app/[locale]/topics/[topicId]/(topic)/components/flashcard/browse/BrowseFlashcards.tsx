@@ -14,6 +14,7 @@ import { useRequireTopic } from '../../../context/useRequireTopic';
 import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
 import FlashcardsEmptyState from './FlashcardsEmptyState';
 import StudyControls from './StudyControls';
+import { isListEmpty } from '@/utils';
 
 const initialAutoPlaySpeed = 3;
 
@@ -145,7 +146,7 @@ export default function BrowseFlashcards() {
         };
     }, [autoPlayEnabled, autoPlaySpeed, flashcards.length]);
 
-    if (flashcards.length === 0) {
+    if (isListEmpty(flashcards)) {
         return <FlashcardsEmptyState />;
     }
 
@@ -157,7 +158,7 @@ export default function BrowseFlashcards() {
                     className={cn(
                         'relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg',
                         'transform-all duration-300 ease-in-out',
-                        isSidebarOpen ? 'w-[75%]' : 'w-full',
+                        isSidebarOpen ? 'w-[70%]' : 'w-full',
                     )}
                 >
                     <div className="absolute top-8 right-8 z-20">
@@ -205,7 +206,7 @@ export default function BrowseFlashcards() {
 
                 <aside
                     className={cn(
-                        'absolute top-0 right-0 h-full p-5 w-[25%]',
+                        'absolute top-0 right-0 h-full p-5 w-[30%]',
                         'transform transition-transform duration-300 ease-in-out',
                         isSidebarOpen ? 'translate-x-0' : 'translate-x-full',
                     )}

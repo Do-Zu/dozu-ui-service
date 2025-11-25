@@ -392,64 +392,6 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
         const { topicId, name, description, imageUrl } = topic;
         return (
             <DropdownMenuContent align="start" side="top">
-                {/* Flashard section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <Layers className="mr-2 h-4 w-4" />
-                        <span>Flashcard</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnSelectEditFlashcard(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectBrowse(topicId)}>
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span>{tTopic('browse')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectLearning(topic)}>
-                            <GraduationCap className="mr-2 h-4 w-4" />
-                            <span>{tTopic('learning')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Mindmap section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <GitFork className="mr-2 h-4 w-4" />
-                        <span>Mind Map</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickEditMindmap(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Quiz */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <ClipboardCheck className="mr-2 h-4 w-4" />
-                        <span>Quiz</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickStartQuiz(topicId)}>
-                            <Play className="mr-2 h-4 w-4" />
-                            <span>{tTopic('start-quiz')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnClickEditQuestion(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.delete')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
                 {/* Topic itself */}
                 <DropdownMenuItem onSelect={() => handleUpdateTopicModalOpen({ topicId, name, description, imageUrl })}>
                     <Edit className="mr-2 h-4 w-4" />

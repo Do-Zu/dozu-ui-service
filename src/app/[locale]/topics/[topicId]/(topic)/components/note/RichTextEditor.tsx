@@ -6,6 +6,8 @@ import MenuBar from './MenuBar';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import './style.css';
+import { useEffect } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Props {
     content: string;
@@ -50,6 +52,12 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
         },
         immediatelyRender: false,
     });
+
+    useEffect(() => {
+        if (editor && content !== editor.getHTML()) {
+            editor.commands.setContent(content);
+        }
+    }, [editor, content]);
 
     if (!editor) {
         return null;
