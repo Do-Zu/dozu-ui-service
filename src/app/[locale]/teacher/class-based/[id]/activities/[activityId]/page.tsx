@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 import { ActivityMonitorData, StudentQuizProgress } from '@/types/activity';
 import { downloadExcelFile } from '@/app/[locale]/activities/utils/excelGenerator';
 import activityService from '@/services/activity/activity.service';
+import quizClassService from '@/services/class-based-learning/quizClass.service';
 import { adaptQuizClassResultsToActivityMonitor } from '@/app/[locale]/activities/utils/dataAdapter';
 import ActivitySummaryTab from '@/app/[locale]/activities/components/ActivitySummaryTab';
 import StudentSummaryTab from '@/app/[locale]/activities/components/StudentSummaryTab';
@@ -226,10 +227,52 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
     }
   }, [params.activityId]);
 
+  // Refetch question analysis when quiz is submitted to update questions and performance
+  const refetchQuestionAnalysis = useCallback(async () => {
+    if (!classQuizId || isNaN(classQuizId)) return;
+    
+    try {
+      const questionAnalysis = await quizClassService.getQuestionAnalysis(classQuizId);
+      
+      // Get current quiz results to merge with new question analysis
+      const response = await activityService.getActivityMonitoringData(params.activityId);
+      
+      if (response.success && response.data) {
+        const { quizResults } = response.data;
+        const adaptedData = adaptQuizClassResultsToActivityMonitor(quizResults, questionAnalysis);
+        
+        // Update only questions and performance, keep current students data
+        setActivityData((prev) => {
+          if (!prev) return adaptedData;
+          return {
+            ...prev,
+            questions: adaptedData.questions,
+            performance: adaptedData.performance,
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error refetching question analysis:', error);
+    }
+  }, [classQuizId, params.activityId]);
+
+  // Refetch question analysis when quiz is submitted
+  const handleActivityUpdateWithQuestionRefresh = useCallback((eventType: string, data: QuizActivityEventData) => {
+    handleActivityUpdate(eventType, data);
+    
+    // Refetch question analysis when quiz is submitted to update questions and performance
+    if (eventType === 'quiz-attempt-submitted') {
+      // Delay slightly to ensure backend has processed the submission
+      setTimeout(() => {
+        refetchQuestionAnalysis();
+      }, 1000);
+    }
+  }, [handleActivityUpdate, refetchQuestionAnalysis]);
+
   const { isConnected } = useQuizActivityWebSocket({
     enabled: !!classQuizId && !isNaN(classQuizId),
     classQuizId: classQuizId,
-    onActivityUpdate: handleActivityUpdate,
+    onActivityUpdate: handleActivityUpdateWithQuestionRefresh,
   });
 
   useEffect(() => {
