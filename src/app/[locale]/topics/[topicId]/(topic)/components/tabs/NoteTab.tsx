@@ -57,7 +57,7 @@ export default function NoteTab() {
             const payload: IUpdateNotePayload = { topicId, content };
             await updateNoteAsync(payload);
         },
-        [note, updateNoteAsync],
+        [note, topicId, updateNoteAsync],
     );
 
     const onAddSummaryToNote = async (summary: string) => {
