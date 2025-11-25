@@ -25,7 +25,7 @@ export default function QuizDoingPanel() {
         setShowSubmitDialog,
         setQuizMode,
         setViewMode,
-        setSelectedQuizResultId
+        setSelectedQuizResultId,
     } = useQuizWorkspace();
 
     const question = doingQuestions[currentQuestionIndex];
@@ -36,8 +36,8 @@ export default function QuizDoingPanel() {
         try {
             const results = doingQuestions.map((q) => ({
                 questionId: q.questionId,
-                correct: q.selectedAnswer === q.correctIndex,
-                userAnswerIndex: q.selectedAnswer ?? null,
+                correct: typeof q.isCorrect === 'boolean' ? q.isCorrect : q.selectedAnswer === q.correctIndex,
+                userAnswerIndex: typeof q.selectedAnswer === 'number' ? q.selectedAnswer : null,
             }));
 
             const response = await quizService.submitQuiz({
@@ -71,7 +71,6 @@ export default function QuizDoingPanel() {
 
     return (
         <div className="w-full h-full flex flex-col px-6">
-
             {/* exit */}
             <div className="w-full flex justify-end pt-4">
                 <button
@@ -83,10 +82,7 @@ export default function QuizDoingPanel() {
             </div>
 
             {/* progress bar */}
-            <QuizHeaderProgress
-                current={currentQuestionIndex + 1}
-                total={doingQuestions.length}
-            />
+            <QuizHeaderProgress current={currentQuestionIndex + 1} total={doingQuestions.length} />
 
             {/* question */}
             <div className="flex-1 flex flex-col justify-center pt-6 overflow-hidden">
@@ -98,10 +94,7 @@ export default function QuizDoingPanel() {
                         ${animDirection === 'right' ? 'animate-slide-right' : ''}
                     `}
                 >
-                    <QuizQuestionIndividual
-                        question={question}
-                        index={currentQuestionIndex}
-                    />
+                    <QuizQuestionIndividual question={question} index={currentQuestionIndex} />
                 </div>
             </div>
 
