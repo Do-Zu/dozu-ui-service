@@ -1,7 +1,9 @@
 import { useTranslations } from 'next-intl';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { IEditingFlashcard, ILocalFlashcard } from '../edit/EditingFlashcards';
-import ImagesPreviewModal, { IUnspashImage } from '@/app/[locale]/flashcards/components/ImagesPreview';
+import ImagesPreviewModal, {
+    IUnspashImage,
+} from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import usePost from '@/hooks/usePost';
@@ -9,14 +11,14 @@ import { IDueAnkiCard, IFlashcard, IFlashcardsBatchInput } from '@/app/[locale]/
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
-import { IFlashcardPreview } from '@/app/[locale]/flashcards/components/import/FlashcardPreview';
+import { IFlashcardPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
 import DataStatus from '@/components/errors/DataStatus';
 import { Button } from '@/components/ui/button';
 import { ImagePlus, Import, Plus, RefreshCw, Save, Trash2, Undo2, X } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/FlashcardImportModal';
+import FlashcardImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
 
 interface Props {
     nodeId: string;

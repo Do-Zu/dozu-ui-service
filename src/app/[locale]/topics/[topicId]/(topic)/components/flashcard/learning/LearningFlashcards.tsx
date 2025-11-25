@@ -21,6 +21,8 @@ import LearningCard from './LearningCard';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import LearningFlashcardsEmptyState from './LearningFlashcardsEmptyState';
+import useAnkiSettings from '../../../hooks/useAnkiSettings';
+import DataStatus from '@/components/errors/DataStatus';
 
 export default function LearningFlashcards() {
     const { topic } = useRequireTopic();
@@ -29,6 +31,8 @@ export default function LearningFlashcards() {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const tFlashcardLearning = useTranslations('flashcard.learning');
+
+    const { currentAnkiSetting } = useAnkiSettings();
 
     // studied list
     const [studied, setStudied] = useState<QuizCard[]>([]);
@@ -217,6 +221,10 @@ export default function LearningFlashcards() {
         return <LearningFlashcardsEmptyState topicId={topicId} />;
     }
 
+    if (!currentAnkiSetting) {
+        return <DataStatus variant="error" />;
+    }
+
     return (
         <>
             {/* Backlog banner */}
@@ -263,6 +271,7 @@ export default function LearningFlashcards() {
             ) : (
                 <LearningCard
                     flashcard={currentFlashcard}
+                    ankiSetting={currentAnkiSetting}
                     shouldShowTrackingOptions={shouldShowTrackingOptions}
                     isFlipped={isFlipped}
                     isAnimating={isAnimating}

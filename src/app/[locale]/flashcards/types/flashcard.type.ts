@@ -28,7 +28,7 @@ export interface IFlashcardsWithTopicName {
 
 export type IFlashcardLearningState = Pick<
     IItemSpacedRepetition,
-    'status' | 'lastReviewed' | 'nextReview' | 'repetitionNumber' | 'easinessFactor' | 'reviewInterval'
+    'status' | 'lastReviewed' | 'nextReview' | 'repetitionNumber' | 'easinessFactor' | 'reviewInterval' | 'step'
 > & { flashcardId?: number };
 
 export interface IQualityResponseNextReviewInterval {
@@ -69,15 +69,15 @@ export type ICardNextReviewSchedule = {
 };
 
 export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName' | 'nodeId'> & {
-    nextReviewDataByRatings: INextReviewDataByRating[];
+    learningState: IFlashcardLearningState;
     nextReview: string;
     status: IAnkiStatus;
 };
 
 export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
+    learningState: IFlashcardLearningState;
     nextReview: string;
     status: IAnkiStatus;
-    nextReviewDataByRatings: INextReviewDataByRating[];
     rating: IAnkiRating;
 };
 

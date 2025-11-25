@@ -23,9 +23,11 @@ import usePost from '@/hooks/usePost';
 import { any } from 'zod';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
-import FlashcardImportModal from './import/FlashcardImportModal';
-import { IFlashcardPreview } from './import/FlashcardPreview';
-import ImagesPreviewModal, { IUnspashImage } from './ImagesPreview';
+import FlashcardImportModal from '../../topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
+import { IFlashcardPreview } from '../../topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
+import ImagesPreviewModal, {
+    IUnspashImage,
+} from '../../topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
 import { IFlashcard as IFlashcardType } from '../types/flashcard.type';
 import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
 import { buildContentFromFlashcardsForQuiz } from '@/app/[locale]/question/utils/buildGenPayload';

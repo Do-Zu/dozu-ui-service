@@ -14,6 +14,7 @@ export interface IItemSpacedRepetition {
     lastReviewed: string | null;
     nextReview: string;
     status: IFlashcardStatus;
+    step: number | null;
 }
 
 export type IQualityResponse = 0 | 1 | 2 | 3 | 4 | 5;

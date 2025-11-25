@@ -25,9 +25,11 @@ import {
     IFlashcard,
     IDueAnkiCard,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
-import ImagesPreviewModal, { IUnspashImage } from '@/app/[locale]/flashcards/components/ImagesPreview';
-import { IFlashcardPreview } from '@/app/[locale]/flashcards/components/import/FlashcardPreview';
-import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/FlashcardImportModal';
+import ImagesPreviewModal, {
+    IUnspashImage,
+} from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
+import { IFlashcardPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
+import FlashcardImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { Label } from '@/components/ui/label';
