@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FlashcardViewer from './FlashcardViewer';
 import { ISseData } from '../../types';
+import { METHOD_LEARNING } from '@/utils/constants/method';
 
 export interface FlashcardItem {
     q: string;
@@ -14,7 +15,7 @@ export interface FinalProps {
 }
 const Final: React.FC<FinalProps> = ({ sseData }) => {
     const [flashcards, setFlashcards] = useState<FlashcardItem[]>([]);
-    const [selectedTab, setSelectedTab] = useState('flashcards');
+    const [selectedTab, setSelectedTab] = useState(METHOD_LEARNING.FLASHCARD.toString());
 
     const extractFlashcardsFromText = (textContent: string): FlashcardItem[] => {
         try {
@@ -57,15 +58,14 @@ const Final: React.FC<FinalProps> = ({ sseData }) => {
         <div className="space-y-4">
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
                 <TabsList className="w-full">
-                    <TabsTrigger value="flashcards" className="flex-1">
+                    <TabsTrigger value="flashcard" className="flex-1">
                         Flashcards
                     </TabsTrigger>
                     <TabsTrigger value="rawData" className="flex-1">
                         Raw Data
                     </TabsTrigger>
                 </TabsList>
-
-                <TabsContent value="flashcards" className="pt-4">
+                <TabsContent value="flashcard" className="pt-4">
                     {flashcards.length > 0 ? (
                         <FlashcardViewer flashcards={flashcards} />
                     ) : (
@@ -74,7 +74,6 @@ const Final: React.FC<FinalProps> = ({ sseData }) => {
                         </div>
                     )}
                 </TabsContent>
-
                 <TabsContent value="rawData" className="pt-4">
                     <div className="border rounded-md p-4 max-h-[500px] overflow-auto">
                         <pre className="text-sm whitespace-pre-wrap">
