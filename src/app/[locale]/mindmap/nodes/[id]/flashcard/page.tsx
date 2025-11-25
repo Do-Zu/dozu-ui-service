@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import '@xyflow/react/dist/style.css';
 import { useParams } from 'next/navigation';
 import Axios from '@/api/axios';
-import FlashcardEditor from '@/app/[locale]/flashcards/components/FlashcardEditor';
 
 //temporary view
 interface Flashcard {

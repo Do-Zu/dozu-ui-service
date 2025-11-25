@@ -35,7 +35,7 @@ export default function useFlashCardWorkSpace() {
                         ...currentCard,
                         nextReview: reviewedCard.nextReview,
                         status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
+                        learningState: reviewedCard.learningState,
                     });
                     inserted = true;
                     break;
@@ -46,7 +46,7 @@ export default function useFlashCardWorkSpace() {
                         ...currentCard,
                         nextReview: reviewedCard.nextReview,
                         status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
+                        learningState: reviewedCard.learningState,
                     });
                     inserted = true;
                 }

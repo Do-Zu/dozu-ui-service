@@ -1,4 +1,4 @@
-import { useLearningOptions } from '@/app/[locale]/flashcards/learning/hooks/useLearningOptions';
+import { useLearningOptions } from '@/app/[locale]/topics/[topicId]/(topic)/hooks/useLearningOptions';
 import { IAnkiCardStatusCounts, IDueAnkiCard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 import { IAnkiRating } from '@/types/anki';
@@ -10,9 +10,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Eye, X } from 'lucide-react';
+import flashcardService from '@/services/flashcard/flashcard.service';
+import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 
 interface Props {
     flashcard: IDueAnkiCard;
+    ankiSetting: IAnkiSetting;
     shouldShowTrackingOptions: boolean;
     isFlipped: boolean;
     isAnimating: boolean;
@@ -24,6 +27,7 @@ interface Props {
 
 export default function LearningCard({
     flashcard,
+    ankiSetting,
     shouldShowTrackingOptions,
     isFlipped,
     isAnimating,
@@ -87,7 +91,11 @@ export default function LearningCard({
                         <div className="grid grid-cols-12 gap-4 mt-4 w-[70%] h-[18%] mb-2">
                             {learningOptions.map((option, index) => {
                                 // Get the interval list if available, otherwise the array is empty
-                                const intervals = flashcard.nextReviewDataByRatings;
+                                const intervals = flashcardService.getNextReviewByRatings(
+                                    flashcard.flashcardId,
+                                    flashcard.learningState,
+                                    ankiSetting,
+                                );
 
                                 // Find interval by current rating (can be undefined)
                                 const found = intervals.find((i) => i.rating === option.rating);
