@@ -21,7 +21,6 @@ export default function ViewModeToggle({ viewMode, onViewModeChange }: ViewModeT
                 className="rounded-r-none"
             >
                 <Grid3x3 className="h-4 w-4 mr-2" />
-                Card
             </Button>
             <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -30,7 +29,6 @@ export default function ViewModeToggle({ viewMode, onViewModeChange }: ViewModeT
                 className="rounded-l-none"
             >
                 <List className="h-4 w-4 mr-2" />
-                List
             </Button>
         </div>
     );

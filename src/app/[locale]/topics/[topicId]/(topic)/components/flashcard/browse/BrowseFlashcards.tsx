@@ -3,7 +3,7 @@
 import type { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, PanelLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PanelLeft, PanelRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/utils/constants/routes';
 import { cn } from '@/lib/utils';
@@ -223,20 +223,6 @@ export default function BrowseFlashcards() {
         return <FlashcardsEmptyState />;
     }
 
-    if (filterType === 'starred' && flashcardsToDisplay.length === 0) {
-        return (
-            <div className="flex bg-gray-background w-full h-full items-center justify-center">
-                <div className="text-center">
-                    <p className="text-lg text-gray-600 dark:text-muted-foreground mb-4">
-                        Bạn chưa gắn dấu sao flashcard nào
-                    </p>
-                    <Button onClick={() => setFilterType('all')} variant="outline">
-                        Xem tất cả flashcard
-                    </Button>
-                </div>
-            </div>
-        );
-    }
 
     if (!currentFlashcard) {
         return <FlashcardsEmptyState />;
@@ -246,7 +232,7 @@ export default function BrowseFlashcards() {
         <div className="flex bg-gray-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
                 {/* Header with tabs and view mode controls */}
-                <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between mb-4">
+                <div className="absolute top-8 left-4 right-4 z-30 flex items-center gap-3 mb-4">
                     <Tabs value={filterType} onValueChange={(value) => setFilterType(value as FilterType)}>
                         <TabsList>
                             <TabsTrigger value="all">Tất cả ({flashcards.length})</TabsTrigger>
@@ -257,12 +243,20 @@ export default function BrowseFlashcards() {
                             )}
                         </TabsList>
                     </Tabs>
-                    <div className="flex items-center gap-2">
-                        <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-                        <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
-                            <PanelLeft size={18} />
-                        </Button>
-                    </div>
+                    <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+            
+                </div>
+
+                {/* Sidebar toggle button - Available in all view modes */}
+                <div 
+                    className={cn(
+                        'absolute top-8 z-50 pointer-events-auto transition-all duration-300 ease-in-out',
+                        isSidebarOpen ? 'right-[calc(30%+2rem)]' : 'right-8'
+                    )}
+                >
+                    <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
+                        <PanelLeft size={18} />
+                    </Button>
                 </div>
 
                 {/* Card View */}
@@ -329,8 +323,8 @@ export default function BrowseFlashcards() {
                             'transform-all duration-300 ease-in-out',
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
-                        style={{ paddingTop: '60px' }}
-                    >
+                        style={{ paddingTop: '70px' }}
+                    >   
                         <div className="p-6 space-y-4">
                             {flashcardsToDisplay.map((flashcard, index) => (
                                 <Card key={flashcard.flashcardId} className="overflow-hidden relative">
