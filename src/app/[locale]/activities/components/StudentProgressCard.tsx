@@ -57,7 +57,13 @@ export default function StudentProgressCard({ student }: StudentProgressCardProp
               <h3 className="font-medium text-gray-900 dark:text-foreground">{student.studentName}</h3>
               <p className="text-sm text-gray-500 dark:text-muted-foreground">
                 {student.status === 'completed' ? 
-                  `Completed on ${new Date(student.lastActivity).toLocaleDateString()}` : 
+                  `Completed on ${new Date(student.lastActivity).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}` : 
                   'Not completed yet'
                 }
               </p>

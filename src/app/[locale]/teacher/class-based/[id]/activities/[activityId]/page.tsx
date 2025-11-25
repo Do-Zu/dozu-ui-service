@@ -374,8 +374,6 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
             {/* Breadcrumb */}
             <div className="flex items-center justify-between mb-4">
               <nav className="flex items-center text-sm text-gray-500 dark:text-muted-foreground">
-                <span className="hover:text-gray-700 dark:hover:text-foreground cursor-pointer transition-colors">Your Library</span>
-                <span className="mx-2">/</span>
                 <span className="hover:text-gray-700 dark:hover:text-foreground cursor-pointer transition-colors">Activities</span>
                 <span className="mx-2">/</span>
                 <span className="text-gray-900 dark:text-foreground font-medium">{activity.title}</span>

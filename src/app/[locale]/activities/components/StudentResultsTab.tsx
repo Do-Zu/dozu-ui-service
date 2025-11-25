@@ -167,7 +167,25 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                       className={`border-b border-gray-200 dark:border-border hover:bg-gray-50 dark:hover:bg-muted/50 ${index % 2 === 0 ? 'bg-white dark:bg-background' : 'bg-gray-50/30 dark:bg-muted/30'}`}
                     >
                       <td className="p-3 font-medium bg-blue-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.studentName}</td>
-                      <td className="p-3 text-center bg-purple-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{Number(student.score || 0).toFixed(0)}%</td>
+                      <td className="p-3 text-center bg-purple-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">
+                        {(() => {
+                          // Calculate percentage from answers in realtime
+                          // If student has answers, calculate accuracy from answers array
+                          if (student.answers && student.answers.length > 0) {
+                            // If student is completed, use score; otherwise calculate from answers
+                            if (student.status === 'completed' && student.score !== null && student.score !== undefined) {
+                              return Number(student.score).toFixed(0) + '%';
+                            } else {
+                              // Calculate accuracy from answers array for realtime updates
+                              const correctCount = student.answers.filter(a => a.isCorrect === true).length;
+                              const totalCount = student.answers.length;
+                              const calculatedAccuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+                              return Number(calculatedAccuracy).toFixed(0) + '%';
+                            }
+                          }
+                          return '-';
+                        })()}
+                      </td>
                       <td className="p-3 text-center bg-green-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.correctAnswers}</td>
                       <td className="p-3 text-center bg-orange-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.answers.length}</td>
                     </tr>
