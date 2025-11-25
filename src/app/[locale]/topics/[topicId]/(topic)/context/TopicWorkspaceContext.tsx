@@ -14,7 +14,7 @@ import React, {
 } from 'react';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { TopicWorkspaceTabValue } from '../types';
-import useFlashCardWorkSpace from '../hooks/useFlashCardWorkSpace';
+import useFlashCardWorkSpace, { IResponseFlashCardGenerate } from '../hooks/useFlashCardWorkSpace';
 import useGamesWorkSpace, { GameType } from '../hooks/useGamesWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
@@ -22,8 +22,12 @@ import { METHOD_LEARNING } from '@/utils/constants/method';
 import useYoutubePlayer from '../hooks/useYoutubePlayer';
 import usePdfToolBar from '../hooks/usePdfToolBar';
 import { YouTubePlayer } from 'react-youtube';
+import { INote } from '../types/note.type';
+import useNoteWorkspace from '../hooks/useNoteWorkspace';
+import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 
 export type TypeTopicId = number;
+
 interface ContextType {
     tab: TopicWorkspaceTabValue;
     topicId: TypeTopicId;
@@ -49,8 +53,10 @@ interface ContextType {
         reviewedCard: IAnkiCardReviewed | null;
     }) => IDueAnkiCard[] | null;
 
-    generatingFlashcards: { q: string; a: string }[] | null;
-    setGeneratingFlashcards: Dispatch<SetStateAction<{ q: string; a: string }[] | null>>;
+    generatingFlashcards: IResponseFlashCardGenerate[] | null;
+    setGeneratingFlashcards: Dispatch<SetStateAction<IResponseFlashCardGenerate[] | null>>;
+    flashcardTab: FlashcardTab;
+    setFlashcardTab: Dispatch<SetStateAction<FlashcardTab>>;
 
     selectedGame: GameType;
     selectGame: (game: GameType) => void;
@@ -61,6 +67,12 @@ interface ContextType {
     setPageNumber: Dispatch<SetStateAction<number>>;
     setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
     seekTo: (seconds: number) => void;
+
+    note: INote | null;
+    setNote: Dispatch<SetStateAction<INote | null>>;
+
+    selectingContentText: string;
+    setSelectingContentText: Dispatch<SetStateAction<string>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -90,6 +102,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const topicIdRef = useRef<TypeTopicId>(topicIdInit);
 
     const contentTextOrigin = useRef<string>('');
+    const [selectingContentText, setSelectingContentText] = useState<string>('');
 
     const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
     const { player, setPlayer, seekTo } = useYoutubePlayer();
@@ -104,9 +117,13 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         onReviewCard,
         generatingFlashcards,
         setGeneratingFlashcards,
+        flashcardTab,
+        setFlashcardTab,
     } = useFlashCardWorkSpace();
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
+
+    const { note, setNote } = useNoteWorkspace();
 
     const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
         topicIdRef.current = topicIdArg;
@@ -139,9 +156,15 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             seekTo,
             generatingFlashcards,
             setGeneratingFlashcards,
+            flashcardTab,
+            setFlashcardTab,
             selectedGame,
             selectGame,
             resetGame,
+            note,
+            setNote,
+            selectingContentText,
+            setSelectingContentText,
         }),
         [
             tab,
@@ -155,9 +178,12 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             player,
             seekTo,
             generatingFlashcards,
+            flashcardTab,
             selectedGame,
             selectGame,
             resetGame,
+            note,
+            selectingContentText,
         ],
     );
 

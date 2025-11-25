@@ -49,8 +49,6 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
         learningMaterialService.getLearningMaterialWithAttachmentsById({ classId, learningMaterialId }),
     );
 
-  
-
     const error = learningMaterialWithAttachmentsError;
     const loading = learningMaterialWithAttachmentsLoading;
     const notfound = !learningMaterialWithAttachments;

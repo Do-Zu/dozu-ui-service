@@ -2,6 +2,13 @@ import { useState, useCallback } from 'react';
 import { IFlashcard, IDueAnkiCard, IAnkiCardReviewed } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import { isAfter } from 'date-fns';
+import { FlashcardTab } from '../components/flashcard/FlashcardContent';
+
+export interface IResponseFlashCardGenerate {
+    q: string;
+    a: string;
+    type: string;
+}
 
 export default function useFlashCardWorkSpace() {
     const [flashcards, setFlashcards] = useState<IFlashcard[] | null>(null);
@@ -9,12 +16,13 @@ export default function useFlashCardWorkSpace() {
     const [ankiSettings, setAnkiSettings] = useState<{ settings: IAnkiSetting[]; activeSettingId: number } | null>(
         null,
     );
-    const [generatingFlashcards, setGeneratingFlashcards] = useState<{ q: string; a: string }[] | null>(null);
+    const [generatingFlashcards, setGeneratingFlashcards] = useState<IResponseFlashCardGenerate[] | null>(null);
 
     const onReviewCard = useCallback(
         ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
-            const updatedLearningFlashcards = [...(learningFlashcards ?? [])];
-            updatedLearningFlashcards.shift();
+            const updatedLearningFlashcards = (learningFlashcards || []).filter(
+                (card) => card.flashcardId !== currentCard.flashcardId,
+            );
             if (reviewedCard) {
                 // INSERT this card to a suitable position (to maintain ORDER by nextReview)
                 let inserted = false;
@@ -27,7 +35,7 @@ export default function useFlashCardWorkSpace() {
                         ...currentCard,
                         nextReview: reviewedCard.nextReview,
                         status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
+                        learningState: reviewedCard.learningState,
                     });
                     inserted = true;
                     break;
@@ -38,7 +46,7 @@ export default function useFlashCardWorkSpace() {
                         ...currentCard,
                         nextReview: reviewedCard.nextReview,
                         status: reviewedCard.status,
-                        nextReviewDataByRatings: reviewedCard.nextReviewDataByRatings,
+                        learningState: reviewedCard.learningState,
                     });
                     inserted = true;
                 }
@@ -50,6 +58,8 @@ export default function useFlashCardWorkSpace() {
         [learningFlashcards],
     );
 
+    const [flashcardTab, setFlashcardTab] = useState<FlashcardTab>('browse');
+
     return {
         flashcards,
         learningFlashcards,
@@ -60,5 +70,7 @@ export default function useFlashCardWorkSpace() {
         onReviewCard,
         generatingFlashcards,
         setGeneratingFlashcards,
+        flashcardTab,
+        setFlashcardTab,
     };
 }

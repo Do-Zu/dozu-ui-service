@@ -1,4 +1,4 @@
-import { IFlashcardPreview } from "@/app/[locale]/flashcards/components/import/FlashcardPreview";
+import { IFlashcardPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
 
 class FlashcardContentConverter {
     public convertTextToFlashcards(text: string, sideDivider: string, cardDivider: string): IFlashcardPreview[] {

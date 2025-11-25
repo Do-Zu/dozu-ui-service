@@ -2,15 +2,9 @@
 
 import { useTheme } from 'next-themes';
 import { useEffect, useState, useCallback } from 'react';
-import { Moon, Sun, Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
-const THEMES: Array<{ key: string; icon: any; label: string }> = [
-    { key: 'light', icon: Sun, label: 'Light' },
-    { key: 'dark', icon: Moon, label: 'Dark' },
-    { key: 'system', icon: Monitor, label: 'System' },
-];
+import { THEMES } from '@/utils/constants/themes';
 
 export default function ThemeToggle() {
     const { setTheme, theme } = useTheme();

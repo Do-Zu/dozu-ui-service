@@ -24,7 +24,7 @@ export const EXTRACTION_TAB = {
 export type ExtractionTab = (typeof EXTRACTION_TAB)[keyof typeof EXTRACTION_TAB];
 
 export const METHOD_LEARNING = {
-    FLASHCARD: 'flashcards',
+    FLASHCARD: 'flashcard',
     QUIZ: 'quiz',
     MINDMAP: 'mindmap',
 } as const;

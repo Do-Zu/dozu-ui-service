@@ -38,6 +38,24 @@ export const layoutConfigs: PageLayoutConfig[] = [
         isDisplayFooter: false,
         isDisplaySidebar: false,
     },
+    {
+        pathPattern: '/${locale}/topics/*',
+        isDisplayHeader: false,
+        isDisplayFooter: false,
+        isDisplaySidebar: true,
+    },
+    {
+        pathPattern: '/${locale}/class-based/*/topics/*',
+        isDisplayHeader: false,
+        isDisplayFooter: false,
+        isDisplaySidebar: true,
+    },
+    {
+        pathPattern: '/${locale}/teacher/class-based/*/topics/*',
+        isDisplayHeader: false,
+        isDisplayFooter: false,
+        isDisplaySidebar: true,
+    },
 ];
 
 export const displayPackagesConfigs = [

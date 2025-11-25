@@ -1,13 +1,20 @@
-import { useTranslations } from 'next-intl';
+import Generate from '../../generate/Generate';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
+import { FlashcardTabEnum } from '../FlashcardContent';
 
 export default function FlashcardsEmptyState() {
-    const tFlashcardLearning = useTranslations('flashcard.learning');
+    const { setGeneratingFlashcards, setFlashcardTab } = useTopicWorkspace();
 
     return (
-        <div className="flex flex-col p-8">
-            <div className="flex flex-col gap-4">
-                <p>{tFlashcardLearning('flashcardsEmpty')}</p>
-            </div>
+        <div className="flex flex-col">
+            <Generate
+                type="flashcard"
+                onSuccess={(data: IResponseFlashCardGenerate[]) => {
+                    setFlashcardTab(FlashcardTabEnum.EDIT);
+                    setGeneratingFlashcards(data);
+                }}
+            />
         </div>
     );
 }

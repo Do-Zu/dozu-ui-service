@@ -225,7 +225,7 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
     }
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="h-[90%] flex flex-col gap-2">
             <PdfToolbar
                 pdfUrl={pdfUrl}
                 fileName={fileName}
@@ -238,7 +238,7 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
                 setPageNumber={setPageNumber}
                 numPages={numPages || 0}
             />
-            <div className="max-h-[80vh] border rounded-md p-2">
+            <div className="h-[90%] border rounded-md p-2">
                 <Document
                     file={pdfUrl}
                     onLoadError={onDocumentLoadError}

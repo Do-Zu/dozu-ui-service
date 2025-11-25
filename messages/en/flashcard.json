@@ -13,6 +13,7 @@
             }
         },
         "study": {
+            "studyOptions": "Study Options",
             "card": "Card",
             "of": "of",
             "complete": "complete",

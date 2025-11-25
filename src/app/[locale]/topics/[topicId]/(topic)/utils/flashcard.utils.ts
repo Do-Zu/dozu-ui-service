@@ -1,11 +1,12 @@
 import {
+    IAnkiCardStatusCounts,
     IDueAnkiCard,
     IFlashcard,
     IFlashcardCreateInput,
     IFlashcardsBatchInput,
     IFlashcardUpdateInput,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
-import { FlashcardLearningMode } from '../components/flashcard/FlashcardContent';
+import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import { IFlashcardCounts } from '../../../types/topic.type';
 import { IAnkiStatus } from '@/types/anki';
 import { IEditingFlashcard, ILocalFlashcard } from '../components/flashcard/edit/EditingFlashcards';
@@ -39,8 +40,8 @@ class FlashcardUtils {
         return flashcardsRandom;
     }
 
-    public getDisplayModeName(mode: FlashcardLearningMode): string {
-        return mode.charAt(0).toUpperCase() + mode.slice(1);
+    public getDisplayModeName(tab: FlashcardTab): string {
+        return tab.charAt(0).toUpperCase() + tab.slice(1);
     }
 
     public recalculateFlashcardCounts({
@@ -61,6 +62,19 @@ class FlashcardUtils {
             updatedFlashcardCounts[newStatus]++;
         }
         return updatedFlashcardCounts;
+    }
+
+    public getAnkiStatusCounts(learningFlashcards: IDueAnkiCard[]): IAnkiCardStatusCounts {
+        const result: IAnkiCardStatusCounts = {
+            [IAnkiStatus.NEW]: 0,
+            [IAnkiStatus.LEARNING]: 0,
+            [IAnkiStatus.REVIEW]: 0,
+        };
+        for (const card of learningFlashcards) {
+            const newStatus = card.status === IAnkiStatus.RELEARNING ? IAnkiStatus.LEARNING : card.status;
+            result[newStatus]++;
+        }
+        return result;
     }
 
     public createInitialFlashcard(id: number): ILocalFlashcard {

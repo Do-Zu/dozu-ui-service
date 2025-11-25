@@ -1,6 +1,5 @@
-import { useLearningOptions } from '@/app/[locale]/flashcards/learning/hooks/useLearningOptions';
-import { IFlashcardStatusCounts } from '@/app/[locale]/flashcards/learning/page';
-import { IDueAnkiCard } from '@/app/[locale]/flashcards/types/flashcard.type';
+import { useLearningOptions } from '@/app/[locale]/topics/[topicId]/(topic)/hooks/useLearningOptions';
+import { IAnkiCardStatusCounts, IDueAnkiCard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 import { IAnkiRating } from '@/types/anki';
 import { useTranslations } from 'next-intl';
@@ -10,26 +9,32 @@ import flashcardHelper from '@/utils/flashcard/flashcard.helper';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
+import flashcardService from '@/services/flashcard/flashcard.service';
+import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 
 interface Props {
     flashcard: IDueAnkiCard;
+    ankiSetting: IAnkiSetting;
     shouldShowTrackingOptions: boolean;
     isFlipped: boolean;
     isAnimating: boolean;
     onFlip: () => void;
     handleRatingClick: (rating: IAnkiRating) => void;
-    flashcardStatusCounts: IFlashcardStatusCounts;
+    flashcardStatusCounts: IAnkiCardStatusCounts;
+    onClose?: () => void;
 }
 
 export default function LearningCard({
     flashcard,
+    ankiSetting,
     shouldShowTrackingOptions,
     isFlipped,
     isAnimating,
     onFlip,
     handleRatingClick,
     flashcardStatusCounts,
+    onClose,
 }: Props) {
     const tFlashcard = useTranslations('flashcard.learning');
 
@@ -67,6 +72,13 @@ export default function LearningCard({
         <div className="flex bg-gray-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
                 <div className="relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg">
+                    {onClose ? (
+                        <div className="w-full flex justify-end px-4 mt-5">
+                            <Button className="hover:bg-background" size="icon" variant="ghost" onClick={onClose}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ) : null}
                     <Flashcard
                         front={flashcard.front}
                         back={flashcard.back}
@@ -76,10 +88,14 @@ export default function LearningCard({
                         onClick={onFlip}
                     />
                     {shouldShowTrackingOptions ? (
-                        <div className="grid grid-cols-12 gap-6 mt-4 w-[55%] h-[18%] mb-2">
+                        <div className="grid grid-cols-12 gap-4 mt-4 w-[70%] h-[18%] mb-2">
                             {learningOptions.map((option, index) => {
                                 // Get the interval list if available, otherwise the array is empty
-                                const intervals = flashcard.nextReviewDataByRatings;
+                                const intervals = flashcardService.getNextReviewByRatings(
+                                    flashcard.flashcardId,
+                                    flashcard.learningState,
+                                    ankiSetting,
+                                );
 
                                 // Find interval by current rating (can be undefined)
                                 const found = intervals.find((i) => i.rating === option.rating);

@@ -1,7 +1,7 @@
 'use client';
 
 import { Textarea } from '@/components/ui/textarea';
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 import { Edit, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,16 +25,18 @@ import {
     IFlashcard,
     IDueAnkiCard,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
-import ImagesPreviewModal, { IUnspashImage } from '@/app/[locale]/flashcards/components/ImagesPreview';
-import { IFlashcardPreview } from '@/app/[locale]/flashcards/components/import/FlashcardPreview';
-import FlashcardImportModal from '@/app/[locale]/flashcards/components/import/FlashcardImportModal';
+import ImagesPreviewModal, {
+    IUnspashImage,
+} from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
+import { IFlashcardPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
+import FlashcardImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import DataStatus from '@/components/errors/DataStatus';
 import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
 import Generate from '../../generate/Generate';
 
 export interface ILocalFlashcard {
@@ -57,6 +59,9 @@ export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
+const flashcardItemHeight = 300;
+const flashcardItemGap = 20;
+
 const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
@@ -77,9 +82,10 @@ const EditingFlashcards = () => {
     const { setLearningFlashcards } = useRequireLearningFlashcards();
     const [editingFlashcards, setEditingFlashcards] = useState<IEditingFlashcard[]>([]);
     const { generatingFlashcards, setGeneratingFlashcards } = useTopicWorkspace();
+    const ref = useRef<HTMLDivElement>(null);
 
-    const { loading: batchLoading, execute: batchFlashcards } = usePost<
-        { topicId: string | number; flashcards: IFlashcardsBatchInput },
+    const { loading: batchLoading, execute: batchFlashcardsAsync } = usePost<
+        { topicId: number; flashcards: IFlashcardsBatchInput },
         { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
     >(({ topicId, flashcards }) => flashcardService.batchFlashcardsForTopicState({ topicId, flashcards }), 'POST', {
         onError(error) {
@@ -94,7 +100,9 @@ const EditingFlashcards = () => {
 
     useEffect(() => {
         let editingFlashcards = flashcardUtils.convertToEditingFlashcards(flashcards);
+        let firstGeneratingFlashcardIndex: number | null = null;
         if (generatingFlashcards && generatingFlashcards.length > 0) {
+            firstGeneratingFlashcardIndex = editingFlashcards.length;
             const lastId = editingFlashcards.length === 0 ? -1 : editingFlashcards[editingFlashcards.length - 1].id;
             const result = generatingFlashcards.map((card, index) => ({
                 id: lastId + index + 1,
@@ -107,6 +115,12 @@ const EditingFlashcards = () => {
         if (editingFlashcards.length === 0) {
             editingFlashcards = flashcardUtils.createInitialFlashcards(initialFlashcardsCount);
         }
+        requestAnimationFrame(() => {
+            if (ref.current && firstGeneratingFlashcardIndex !== null) {
+                const scrollTo = (flashcardItemHeight + flashcardItemGap) * firstGeneratingFlashcardIndex;
+                ref.current.scrollTo({ top: scrollTo, behavior: 'smooth' });
+            }
+        });
         setEditingFlashcards(editingFlashcards);
     }, [flashcards, generatingFlashcards]);
 
@@ -232,10 +246,7 @@ const EditingFlashcards = () => {
             return;
         }
         setGeneratingFlashcards(null);
-        await batchFlashcards({
-            topicId: topic.topicId,
-            flashcards: flashcardsSubmitted,
-        });
+        await batchFlashcardsAsync({ topicId: topic.topicId, flashcards: flashcardsSubmitted });
     }
 
     function handleImportModalOpen() {
@@ -289,16 +300,6 @@ const EditingFlashcards = () => {
     function hasAnyValidFlashcard(cards: IEditingFlashcard[]) {
         return getUsableFlashcardsForGen(cards).length > 0;
     }
-
-    const handleGenerateQuiz = async () => {
-        if (!topic) return;
-        if (!hasAnyValidFlashcard(editingFlashcards)) {
-            toast({ description: 'No valid flashcards to create quiz', variant: 'destructive' });
-            return;
-        }
-        const payload = buildContentFromFlashcardsForQuiz(topic.topicId, editingFlashcards);
-        await regenerate(payload, 'quiz');
-    };
 
     const handleSaveGeneratedToThisTopic = async () => {
         if (!topic) return;
@@ -354,63 +355,55 @@ const EditingFlashcards = () => {
         return <DataStatus variant="empty" />;
     }
 
-    function onGenerateSuccess(data: { q: string; a: string }[]) {
-        setGeneratingFlashcards(data);
-    }
-
     return (
-        <div className="flex flex-col">
-            {flashcardUtils.isInitialFlashcards(editingFlashcards) ? (
-                <div className="flex flex-col gap-4">
-                    <p>{tFlashcardLearning('flashcardsEmpty')}</p>
-                    <Generate type="flashcards" onSuccess={onGenerateSuccess} />
-                </div>
-            ) : null}
-
+        <div className="h-full flex flex-col">
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
                 <div className="flex justify-end items-center px-[4rem] py-4">
-                    <div className="flex flex-row items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            onClick={handleGenerateQuiz}
-                            disabled={!hasAnyValidFlashcard(editingFlashcards) || loading}
-                            className="text-muted-foreground hover:text-primary flex flex-rol gap-2"
-                        >
-                            <Sparkles size={18} />
-                            Generate Quiz
-                        </Button>
+                    <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-row items-center gap-4">
+                            {!generatingFlashcards || generatingFlashcards.length === 0 ? (
+                                <Generate
+                                    type="flashcard"
+                                    onSuccess={(data: IResponseFlashCardGenerate[]) => {
+                                        setGeneratingFlashcards(data);
+                                    }}
+                                />
+                            ) : null}
+                        </div>
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleImportModalOpen}
-                            className="text-muted-foreground hover:text-primary"
-                        >
-                            <Import size={18} />
-                        </Button>
+                        <div className="flex flex-row items-center gap-4">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleImportModalOpen}
+                                className="text-muted-foreground hover:text-primary"
+                            >
+                                <Import size={18} />
+                            </Button>
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleSaveClick}
-                            disabled={batchLoading}
-                            className="text-muted-foreground hover:text-primary"
-                        >
-                            {batchLoading ? (
-                                <span className="flex items-center">
-                                    <RefreshCw size={18} className="animate-spin" />
-                                </span>
-                            ) : (
-                                <Save size={18} />
-                            )}
-                        </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleSaveClick}
+                                disabled={batchLoading}
+                                className="text-muted-foreground hover:text-primary"
+                            >
+                                {batchLoading ? (
+                                    <span className="flex items-center">
+                                        <RefreshCw size={18} className="animate-spin" />
+                                    </span>
+                                ) : (
+                                    <Save size={18} />
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <ScrollArea>
+            <div className="h-full overflow-y-auto pb-8" ref={ref}>
                 <div className="px-[4rem] py-7 bg-background">
-                    <div className="mt-7 flex flex-col gap-6 bg-background">
+                    <div className="mt-7 flex flex-col bg-background">
                         {editingFlashcards?.map((flashcard, index) => {
                             if (isFlashcardDeleted(flashcard))
                                 return (
@@ -436,6 +429,7 @@ const EditingFlashcards = () => {
                                 <div
                                     key={flashcard.id}
                                     className="rounded-xl border shadow-sm p-6 flex flex-col bg-muted/60 dark:bg-muted/40 text-card-foreground"
+                                    style={{ height: flashcardItemHeight, marginBottom: flashcardItemGap }}
                                 >
                                     <div className="flex justify-between items-center mb-4">
                                         <div className="flex items-baseline gap-2">
@@ -533,7 +527,7 @@ const EditingFlashcards = () => {
                         </div>
                     </div>
                 </div>
-            </ScrollArea>
+            </div>
 
             <FlashcardImportModal
                 isOpen={isImportModalOpen}

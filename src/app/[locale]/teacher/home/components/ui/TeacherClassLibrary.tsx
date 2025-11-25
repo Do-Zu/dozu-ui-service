@@ -19,8 +19,6 @@ import { useTranslations } from 'next-intl';
 import ClassLibrary from '../../../../class-based/components/common/class/ClassLibrary';
 import { DropdownMenuItem, DropdownMenuContent } from '@/components/ui/dropdown-menu';
 import ClassCard from '@/app/[locale]/class-based/components/common/class/ClassCard';
-import TopicCard from '@/app/[locale]/topics/components/common/TopicCard';
-import Flashcard from '@/app/[locale]/flashcards/components/Flashcard';
 
 export default function TeacherClassLibrary() {
     const tCommon = useTranslations('common');
