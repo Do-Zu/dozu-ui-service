@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StudentQuizProgress, QuestionPerformance } from '@/types/activity';
@@ -11,6 +12,8 @@ interface StudentResultsTabProps {
 }
 
 export default function StudentResultsTab({ students, questions }: StudentResultsTabProps) {
+  const t = useTranslations('activities');
+  
   // Calculate averages from all students with answers (including in-progress)
   // This allows teacher to see real-time progress, not just completed students
   const studentsWithAnswers = students.filter(s => s.answers && s.answers.length > 0);
@@ -141,9 +144,9 @@ export default function StudentResultsTab({ students, questions }: StudentResult
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Detailed Student Results</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('studentResults.title')}</CardTitle>
           <p className="text-sm text-gray-600 dark:text-muted-foreground">
-            Individual student performance for each question
+            {t('studentResults.description')}
           </p>
         </CardHeader>
         <CardContent>
@@ -153,10 +156,10 @@ export default function StudentResultsTab({ students, questions }: StudentResult
               <table className="border-collapse w-full">
                 <thead>
                   <tr ref={fixedHeaderRef} className="border-b border-gray-200 dark:border-border">
-                    <th className="text-left p-3 font-medium text-gray-900 dark:text-foreground min-w-[200px] w-[200px] bg-blue-100 dark:bg-muted">Student</th>
-                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[80px] w-[80px] bg-purple-100 dark:bg-muted">% Correct</th>
-                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[70px] w-[70px] bg-green-100 dark:bg-muted">Correct</th>
-                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[60px] w-[60px] bg-orange-100 dark:bg-muted">Total</th>
+                    <th className="text-left p-3 font-medium text-gray-900 dark:text-foreground min-w-[200px] w-[200px] bg-blue-100 dark:bg-muted">{t('studentResults.student')}</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[80px] w-[80px] bg-purple-100 dark:bg-muted">{t('studentResults.percentCorrect')}</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[70px] w-[70px] bg-green-100 dark:bg-muted">{t('studentResults.correct')}</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[60px] w-[60px] bg-orange-100 dark:bg-muted">{t('studentResults.total')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -195,7 +198,7 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                     ref={fixedAverageRef}
                     className="border-t-2 border-gray-300 dark:border-border bg-gradient-to-r from-gray-100 to-gray-50 dark:from-muted dark:to-muted/80"
                   >
-                    <td className="p-3 font-medium bg-blue-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">Average</td>
+                    <td className="p-3 font-medium bg-blue-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{t('studentResults.average')}</td>
                     <td className="p-3 text-center font-medium bg-purple-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">
                       {studentsWithAnswers.length > 0 ? averageScore.toFixed(0) + '%' : '-'}
                     </td>
@@ -272,7 +275,7 @@ export default function StudentResultsTab({ students, questions }: StudentResult
       {/* Question Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Question Details</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('studentResults.questionDetails')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

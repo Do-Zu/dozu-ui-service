@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -11,6 +12,7 @@ interface QuestionDetailListProps {
 }
 
 export default function QuestionDetailList({ questions }: QuestionDetailListProps) {
+  const t = useTranslations('activities');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     thuong_sai: true,
     doi_luc_sai: true,
@@ -29,7 +31,7 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
     switch (level) {
       case 'thuong_sai':
         return {
-          name: 'Thường sai',
+          name: t('termProgress.thuongSai'),
           color: 'bg-red-500 dark:bg-destructive',
           textColor: 'text-red-700 dark:text-destructive',
           bgColor: 'bg-red-50 dark:bg-destructive/10',
@@ -37,7 +39,7 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
         };
       case 'doi_luc_sai':
         return {
-          name: 'Đôi lúc sai',
+          name: t('termProgress.doiLucSai'),
           color: 'bg-yellow-500 dark:bg-yellow-600',
           textColor: 'text-yellow-700 dark:text-yellow-300',
           bgColor: 'bg-yellow-50 dark:bg-yellow-500/20',
@@ -45,7 +47,7 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
         };
       case 'it_khi_sai':
         return {
-          name: 'Ít khi sai',
+          name: t('termProgress.itKhiSai'),
           color: 'bg-green-500 dark:bg-green-600',
           textColor: 'text-green-700 dark:text-green-300',
           bgColor: 'bg-green-50 dark:bg-green-500/20',
@@ -53,7 +55,7 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
         };
       case 'chua_bat_dau':
         return {
-          name: 'Chưa bắt đầu',
+          name: t('termProgress.chuaBatDau'),
           color: 'bg-gray-400 dark:bg-muted-foreground',
           textColor: 'text-gray-700 dark:text-muted-foreground',
           bgColor: 'bg-gray-50 dark:bg-muted',
@@ -61,7 +63,7 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
         };
       default:
         return {
-          name: 'Unknown',
+          name: t('common.unknown'),
           color: 'bg-gray-400 dark:bg-muted-foreground',
           textColor: 'text-gray-700 dark:text-muted-foreground',
           bgColor: 'bg-gray-50 dark:bg-muted',
@@ -73,13 +75,13 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
   const getDescription = (level: string) => {
     switch (level) {
       case 'thuong_sai':
-        return 'Students have a 0%-25% correct answer rate for these terms.';
+        return t('termProgress.thuongSaiDesc');
       case 'doi_luc_sai':
-        return 'Students have a 25%-75% correct answer rate for these terms.';
+        return t('termProgress.doiLucSaiDesc');
       case 'it_khi_sai':
-        return 'Students have a 75%-100% correct answer rate for these terms.';
+        return t('termProgress.itKhiSaiDesc');
       case 'chua_bat_dau':
-        return 'Students have not learned these terms yet.';
+        return t('termProgress.chuaBatDauDesc');
       default:
         return '';
     }
@@ -111,12 +113,12 @@ export default function QuestionDetailList({ questions }: QuestionDetailListProp
                     {levelQuestions.length}
                   </Badge>
                   <h3 className="font-semibold text-gray-900 dark:text-foreground">
-                    {levelQuestions.length} {config.name}
+                   {config.name}
                   </h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-500 dark:text-muted-foreground">
-                    {isExpanded ? 'Hide' : 'Show'} details
+                    {isExpanded ? t('termProgress.hideDetails') : t('termProgress.showDetails')}
                   </span>
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />

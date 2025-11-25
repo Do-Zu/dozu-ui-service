@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +14,7 @@ interface StudentProgressCardProps {
 }
 
 export default function StudentProgressCard({ student }: StudentProgressCardProps) {
+  const t = useTranslations('activities');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getStatusColor = (status: string) => {
@@ -31,13 +33,13 @@ export default function StudentProgressCard({ student }: StudentProgressCardProp
   const getStatusText = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'Completed';
+        return t('studentProgress.completed');
       case 'in-progress':
-        return 'In Progress';
+        return t('studentProgress.inProgress');
       case 'not-started':
-        return 'Not Started';
+        return t('studentProgress.notStarted');
       default:
-        return 'Unknown';
+        return t('common.unknown');
     }
   };
 
@@ -57,14 +59,14 @@ export default function StudentProgressCard({ student }: StudentProgressCardProp
               <h3 className="font-medium text-gray-900 dark:text-foreground">{student.studentName}</h3>
               <p className="text-sm text-gray-500 dark:text-muted-foreground">
                 {student.status === 'completed' ? 
-                  `Completed on ${new Date(student.lastActivity).toLocaleDateString('en-US', { 
+                  `${t('studentProgress.completedOn')} ${new Date(student.lastActivity).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: '2-digit', 
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit'
                   })}` : 
-                  'Not completed yet'
+                  t('studentProgress.notCompletedYet')
                 }
               </p>
             </div>
@@ -90,22 +92,22 @@ export default function StudentProgressCard({ student }: StudentProgressCardProp
       <CardContent className="pt-0">
         <div className="space-y-3">
           <div className="flex justify-between text-sm text-gray-600 dark:text-muted-foreground">
-            <span>Progress</span>
-            <span>{student.correctAnswers}/{student.totalAnswers} questions</span>
+            <span>{t('studentProgress.progress')}</span>
+            <span>{student.correctAnswers}/{student.totalAnswers} {t('studentProgress.questions')}</span>
           </div>
           <Progress value={completionPercentage} className="h-2" />
           <div className="flex justify-between text-sm">
             <span className="text-green-600 dark:text-green-400 font-medium">
-              {student.correctAnswers} correct
+              {student.correctAnswers} {t('studentProgress.correct')}
             </span>
             <span className="text-red-600 dark:text-destructive font-medium">
-              {student.wrongAnswers} incorrect
+              {student.wrongAnswers} {t('studentProgress.incorrect')}
             </span>
           </div>
           
           {isExpanded && (
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-border">
-              <h4 className="font-medium text-gray-900 dark:text-foreground mb-3">Detailed Results</h4>
+              <h4 className="font-medium text-gray-900 dark:text-foreground mb-3">{t('studentProgress.detailedResults')}</h4>
               <div className="space-y-2">
                 {student.answers.map((answer, index) => (
                   <div key={answer.questionId} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-muted rounded">
@@ -119,7 +121,7 @@ export default function StudentProgressCard({ student }: StudentProgressCardProp
                         variant={answer.isCorrect ? "default" : "destructive"}
                         className={answer.isCorrect ? "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-destructive/20 dark:text-destructive"}
                       >
-                        {answer.isCorrect ? 'Correct' : 'Incorrect'}
+                        {answer.isCorrect ? t('studentProgress.correct') : t('studentProgress.incorrect')}
                       </Badge>
                     </div>
                   </div>

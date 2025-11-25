@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,7 @@ interface ActivityPageProps {
 }
 
 export default function TeacherActivityPage({ params }: ActivityPageProps) {
+  const t = useTranslations('activities.teacherPage');
   const [activityData, setActivityData] = useState<ActivityMonitorData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -198,11 +200,11 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
     // Show toast for important events
     if (eventType === 'quiz-attempt-submitted') {
       toast({
-        title: 'Quiz submitted',
-        description: `Student ${data.userId} has submitted their quiz${data.score ? ` with score ${data.score}%` : ''}`,
+        title: t('toast.quizSubmitted'),
+        description: `${t('toast.studentSubmittedQuiz', { userId: data.userId })}${data.score ? ` ${t('toast.withScore', { score: data.score })}` : ''}`,
       });
     }
-  }, []);
+  }, [t]);
 
   const fetchActivityData = useCallback(async () => {
     try {
@@ -323,21 +325,21 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
         const adaptedData = adaptQuizClassResultsToActivityMonitor(quizResults, questionAnalysis);
         setActivityData(adaptedData);
         toast({
-          title: 'Data refreshed',
-          description: 'Activity data has been updated successfully.',
+          title: t('toast.dataRefreshed'),
+          description: t('toast.dataUpdated'),
         });
       } else {
         toast({
-          title: 'Refresh failed',
-          description: 'Failed to refresh activity data.',
+          title: t('toast.refreshFailed'),
+          description: t('toast.failedToRefresh'),
           variant: 'destructive',
         });
       }
     } catch (error) {
       console.error('Error refreshing data:', error);
       toast({
-        title: 'Refresh failed',
-        description: 'An error occurred while refreshing data.',
+        title: t('toast.refreshFailed'),
+        description: t('toast.errorRefreshing'),
         variant: 'destructive',
       });
     } finally {
@@ -351,14 +353,14 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
         const filename = `Quizlet-activity-${activity.id}.xlsx`;
         downloadExcelFile(activityData, filename);
         toast({
-          title: 'Download successful',
-          description: `File ${filename} has been downloaded successfully.`,
+          title: t('toast.downloadSuccessful'),
+          description: t('toast.fileDownloaded', { filename }),
         });
       } catch (error) {
         console.error('Error downloading Excel file:', error);
         toast({
-          title: 'Download failed',
-          description: 'There was an error downloading the file. Please try again.',
+          title: t('toast.downloadFailed'),
+          description: t('toast.errorDownloading'),
           variant: 'destructive',
         });
       }
@@ -412,7 +414,7 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                       </Badge>
                       <div className="flex items-center text-sm text-gray-600 dark:text-muted-foreground">
                         <Calendar className="h-4 w-4 mr-1.5" />
-                        <span>Due by {new Date(activity.dueDate).toLocaleDateString('en-US', { 
+                        <span>{t('dueBy')} {new Date(activity.dueDate).toLocaleDateString('en-US', { 
                           weekday: 'short', 
                           year: 'numeric', 
                           month: 'short', 
@@ -444,10 +446,10 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-xl font-semibold text-gray-800 dark:text-foreground">
-                  Download student results
+                  {t('downloadStudentResults')}
                 </CardTitle>
                 <p className="text-sm text-gray-600 dark:text-muted-foreground mt-1">
-                  View and download results until {new Date(activity.dueDate).toLocaleDateString()} at 23:59
+                  {t('viewUntil')} {new Date(activity.dueDate).toLocaleDateString()} at 23:59
                 </p>
               </div>
               <Button 
@@ -458,7 +460,7 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                 className="flex items-center gap-2"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Refreshing...' : 'Refresh'}
+                {refreshing ? t('refreshing') : t('refresh')}
               </Button>
             </div>
           </CardHeader>
@@ -470,7 +472,7 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                   className="bg-blue-600 hover:bg-blue-700 dark:bg-primary dark:hover:bg-primary/90 text-white px-6 py-3"
                 >
                   <Download className="h-5 w-5 mr-2" />
-                  Download .xlsx file
+                  {t('downloadExcel')}
                 </Button>
               </div>
               <div className="hidden md:block">
@@ -492,7 +494,7 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                   <Users className="h-5 w-5 text-blue-600 dark:text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-muted-foreground">Tổng học sinh</p>
+                  <p className="text-sm text-gray-600 dark:text-muted-foreground">{t('totalStudents')}</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-foreground">{activity.totalStudents}</p>
                 </div>
               </div>
@@ -506,7 +508,7 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                   <TrendingUp className="h-5 w-5 text-green-600 dark:text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-muted-foreground">Đã hoàn thành</p>
+                  <p className="text-sm text-gray-600 dark:text-muted-foreground">{t('completed')}</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-foreground">{activity.completedStudents}</p>
                 </div>
               </div>
@@ -520,7 +522,7 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                   <Clock className="h-5 w-5 text-yellow-600 dark:text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-muted-foreground">Đang làm</p>
+                  <p className="text-sm text-gray-600 dark:text-muted-foreground">{t('inProgress')}</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-foreground">{activity.inProgressStudents}</p>
                 </div>
               </div>
@@ -534,7 +536,7 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                   <AlertCircle className="h-5 w-5 text-purple-600 dark:text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-muted-foreground">Chưa bắt đầu</p>
+                  <p className="text-sm text-gray-600 dark:text-muted-foreground">{t('notStarted')}</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-foreground">
                     {activity.totalStudents - activity.completedStudents - activity.inProgressStudents}
                   </p>
@@ -547,10 +549,10 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
         {/* Tab Navigation */}
         <Tabs defaultValue="activity-summary" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="activity-summary">Tóm lược hoạt động</TabsTrigger>
-            <TabsTrigger value="student-summary">Tóm lược học sinh</TabsTrigger>
-            <TabsTrigger value="term-progress">Tiến trình thuật ngữ</TabsTrigger>
-            <TabsTrigger value="student-results">Kết quả của học sinh</TabsTrigger>
+            <TabsTrigger value="activity-summary">{t('tabs.activitySummary')}</TabsTrigger>
+            <TabsTrigger value="student-summary">{t('tabs.studentSummary')}</TabsTrigger>
+            <TabsTrigger value="term-progress">{t('tabs.termProgress')}</TabsTrigger>
+            <TabsTrigger value="student-results">{t('tabs.studentResults')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="activity-summary" className="mt-6">
