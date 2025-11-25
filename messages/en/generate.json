@@ -73,7 +73,7 @@
                 "description": "We've analyzed your content and identified the following learning methods that would work best:"
             },
             "methods": {
-                "flashcards": "Flashcards",
+                "flashcard": "Flashcard",
                 "quiz": "Quiz",
                 "mindmap": "Mind Map"
             },
