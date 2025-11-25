@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,9 +15,9 @@ export default function VolumeButton({ text, className, onSpeakingChange }: Volu
     const [isSpeaking, setIsSpeaking] = useState(false);
     const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-    // Hàm phát hiện ngôn ngữ dựa trên ký tự tiếng Việt có dấu
+    // Function to detect language based on Vietnamese accented characters
     function detectLanguage(text: string): string {
-        // Regex để phát hiện ký tự tiếng Việt có dấu
+        // Regex to detect Vietnamese accented characters
         const vietnamesePattern = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđĐ]/i;
 
         if (vietnamesePattern.test(text)) {
@@ -26,83 +26,105 @@ export default function VolumeButton({ text, className, onSpeakingChange }: Volu
         return 'en-US';
     }
 
-    function handleTextToSpeech() {
-        // Dừng phát âm thanh hiện tại nếu đang phát
-        if (isSpeaking && speechSynthesisRef.current) {
-            window.speechSynthesis.cancel();
-            setIsSpeaking(false);
-            onSpeakingChange?.(false);
+    // Helper function to stop current utterance and clear handlers
+    const stopCurrentUtterance = useCallback(() => {
+        if (!('speechSynthesis' in window)) {
             return;
         }
 
-        // Lấy text để đọc
+        const utterance = speechSynthesisRef.current;
+        if (utterance) {
+            // Clear all handlers before canceling to prevent callbacks from firing after cancel
+            utterance.onstart = null;
+            utterance.onend = null;
+            utterance.onerror = null;
+            
+            // Cancel speech synthesis
+            window.speechSynthesis.cancel();
+            
+            // Update state only once from component logic
+            setIsSpeaking(false);
+            onSpeakingChange?.(false);
+            
+            // Clear reference
+            speechSynthesisRef.current = null;
+        }
+    }, [onSpeakingChange]);
+
+    function handleTextToSpeech() {
+        // Stop current speech if playing
+        if (isSpeaking && speechSynthesisRef.current) {
+            stopCurrentUtterance();
+            return;
+        }
+
+        // Get text to speak
         const textToSpeak = text || '';
 
         if (!textToSpeak.trim()) {
             return;
         }
 
-        // Kiểm tra browser có hỗ trợ Web Speech API không
+        // Check if browser supports Web Speech API
         if ('speechSynthesis' in window) {
-            // Tạo utterance mới
+            // Create new utterance
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
-            // Tự động phát hiện và cấu hình ngôn ngữ
+            // Auto-detect and configure language
             const detectedLang = detectLanguage(textToSpeak);
             utterance.lang = detectedLang;
-            utterance.rate = 1; // Tốc độ đọc (0.1 - 10)
-            utterance.pitch = 1; // Độ cao giọng (0 - 2)
-            utterance.volume = 1; // Âm lượng (0 - 1)
+            utterance.rate = 1; // Speech rate (0.1 - 10)
+            utterance.pitch = 1; // Voice pitch (0 - 2)
+            utterance.volume = 1; // Volume (0 - 1)
 
-            // Xử lý khi bắt đầu đọc
+            // Handle when speech starts
             utterance.onstart = () => {
                 setIsSpeaking(true);
                 onSpeakingChange?.(true);
             };
 
-            // Xử lý khi kết thúc đọc
+            // Handle when speech ends
             utterance.onend = () => {
-                setIsSpeaking(false);
-                onSpeakingChange?.(false);
-                speechSynthesisRef.current = null;
+                // Only update state if utterance is still the current one (not cleared)
+                if (speechSynthesisRef.current === utterance) {
+                    setIsSpeaking(false);
+                    onSpeakingChange?.(false);
+                    speechSynthesisRef.current = null;
+                }
             };
 
-            // Xử lý lỗi
+            // Handle errors
             utterance.onerror = (event) => {
                 console.error('Text-to-speech error:', event);
-                setIsSpeaking(false);
-                onSpeakingChange?.(false);
-                speechSynthesisRef.current = null;
+                // Only update state if utterance is still the current one (not cleared)
+                if (speechSynthesisRef.current === utterance) {
+                    setIsSpeaking(false);
+                    onSpeakingChange?.(false);
+                    speechSynthesisRef.current = null;
+                }
             };
 
-            // Lưu reference để có thể dừng sau
+            // Save reference to stop later
             speechSynthesisRef.current = utterance;
 
-            // Bắt đầu đọc
+            // Start speaking
             window.speechSynthesis.speak(utterance);
         } else {
             console.warn('Text-to-speech is not supported in this browser');
         }
     }
 
-    // Dừng phát âm thanh khi text thay đổi
+    // Stop speech when text changes
     useEffect(() => {
-        if (speechSynthesisRef.current && 'speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            setIsSpeaking(false);
-            onSpeakingChange?.(false);
-            speechSynthesisRef.current = null;
-        }
-    }, [text]);
+        stopCurrentUtterance();
+    }, [text, stopCurrentUtterance]);
 
-    // Cleanup khi component unmount
+    // Cleanup when component unmounts
     useEffect(() => {
         return () => {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-            }
+            stopCurrentUtterance();
         };
-    }, []);
+    }, [stopCurrentUtterance]);
 
     return (
         <Button
@@ -110,7 +132,8 @@ export default function VolumeButton({ text, className, onSpeakingChange }: Volu
             size="icon"
             className={cn('h-12 w-12 rounded-full', className)}
             onClick={handleTextToSpeech}
-            title={isSpeaking ? 'Dừng đọc' : 'Đọc âm thanh'}
+            title={isSpeaking ? 'Stop reading' : 'Read aloud'}
+            aria-label={isSpeaking ? 'Stop reading' : 'Read aloud'}
         >
             {isSpeaking ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
         </Button>

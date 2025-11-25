@@ -40,6 +40,7 @@ export default function StarButton({
                 isStarred && 'text-yellow-500',
                 className
             )}
+            aria-label={isStarred ? 'Unstar flashcard' : 'Star flashcard'}
         >
             <Star
                 size={size}

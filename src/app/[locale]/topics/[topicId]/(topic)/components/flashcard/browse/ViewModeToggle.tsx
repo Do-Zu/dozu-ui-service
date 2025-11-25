@@ -19,6 +19,7 @@ export default function ViewModeToggle({ viewMode, onViewModeChange }: ViewModeT
                 size="sm"
                 onClick={() => onViewModeChange('card')}
                 className="rounded-r-none"
+                aria-label="Card view"
             >
                 <Grid3x3 className="h-4 w-4 mr-2" />
             </Button>
@@ -27,6 +28,7 @@ export default function ViewModeToggle({ viewMode, onViewModeChange }: ViewModeT
                 size="sm"
                 onClick={() => onViewModeChange('list')}
                 className="rounded-l-none"
+                aria-label="List view"
             >
                 <List className="h-4 w-4 mr-2" />
             </Button>

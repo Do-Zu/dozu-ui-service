@@ -255,7 +255,12 @@ export default function BrowseFlashcards() {
                         isSidebarOpen ? 'right-[calc(30%+2rem)]' : 'right-8'
                     )}
                 >
-                    <Button size="icon" variant="outline" onClick={handleSidebarOpenToogle}>
+                    <Button 
+                        size="icon" 
+                        variant="outline" 
+                        onClick={handleSidebarOpenToogle}
+                        aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                    >
                         <PanelLeft size={18} />
                     </Button>
                 </div>
@@ -299,6 +304,7 @@ export default function BrowseFlashcards() {
                                     size="icon"
                                     className="h-12 w-12 rounded-full"
                                     onClick={handleBackFlashcardClick}
+                                    aria-label="Previous flashcard"
                                 >
                                     <ArrowLeft className="h-5 w-5" />
                                 </Button>
@@ -312,6 +318,7 @@ export default function BrowseFlashcards() {
                                     size="icon"
                                     className="h-12 w-12 rounded-full"
                                     onClick={handleNextFlashcardClick}
+                                    aria-label="Next flashcard"
                                 >
                                     <ArrowRight className="h-5 w-5" />
                                 </Button>
