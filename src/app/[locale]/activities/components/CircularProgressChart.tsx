@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { PerformanceBreakdown as PerformanceBreakdownType } from '@/types/activity';
 
 interface CircularProgressChartProps {
@@ -7,29 +8,30 @@ interface CircularProgressChartProps {
 }
 
 export default function CircularProgressChart({ performance }: CircularProgressChartProps) {
+  const t = useTranslations('activities');
   const { totalTerms, thuongSai, doiLucSai, itKhiSai, chuaBatDau } = performance;
 
   const accuracyLevels = [
     {
-      name: 'Thường sai',
+      name: t('termProgress.thuongSai'),
       count: thuongSai,
       percentage: (thuongSai / totalTerms) * 100,
       color: '#ef4444', // red-500
     },
     {
-      name: 'Đôi lúc sai',
+      name: t('termProgress.doiLucSai'),
       count: doiLucSai,
       percentage: (doiLucSai / totalTerms) * 100,
       color: '#eab308', // yellow-500
     },
     {
-      name: 'Ít khi sai',
+      name: t('termProgress.itKhiSai'),
       count: itKhiSai,
       percentage: (itKhiSai / totalTerms) * 100,
       color: '#10b981', // emerald-500
     },
     {
-      name: 'Chưa bắt đầu',
+      name: t('termProgress.chuaBatDau'),
       count: chuaBatDau,
       percentage: (chuaBatDau / totalTerms) * 100,
       color: '#9ca3af', // gray-400
@@ -108,7 +110,7 @@ export default function CircularProgressChart({ performance }: CircularProgressC
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-3xl font-bold text-gray-900">{totalTerms}</span>
-          <span className="text-sm text-gray-600">Thuật ngữ</span>
+          <span className="text-sm text-gray-600">{t('termProgress.terms')}</span>
         </div>
       </div>
 
