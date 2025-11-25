@@ -36,16 +36,12 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
 
   // WebSocket for real-time activity updates
   const handleActivityUpdate = useCallback((eventType: string, data: QuizActivityEventData) => {
-    console.log('[TeacherActivity] Activity update:', eventType, data, 'isCorrect:', data.isCorrect);
-    
     setActivityData((prev) => {
       if (!prev) return prev;
 
       const studentIndex = prev.students.findIndex(
         (s) => s.studentId === data.userId?.toString()
       );
-      
-      console.log('[TeacherActivity] Student index:', studentIndex, 'for userId:', data.userId, 'eventType:', eventType);
 
       let updatedStudents: typeof prev.students;
       
@@ -107,11 +103,9 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
                 updatedAnswers = originalStudent.answers.map((answer, idx) => 
                   idx === existingAnswerIndex ? answerData : { ...answer }
                 );
-                console.log('[TeacherActivity] Updated existing answer at index', existingAnswerIndex, 'old isCorrect:', originalStudent.answers[existingAnswerIndex]?.isCorrect, 'new isCorrect:', isCorrect);
               } else {
                 // Add new answer - create new array
                 updatedAnswers = [...originalStudent.answers, answerData];
-                console.log('[TeacherActivity] Added new answer for question', data.questionIndex);
               }
 
               // Recalculate correct/wrong counts from all answers
@@ -119,16 +113,6 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
               const wrongAnswers = updatedAnswers.filter(a => a.isCorrect === false).length;
               const totalAnswers = updatedAnswers.length;
               const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
-
-              console.log('[TeacherActivity] Updating answer:', {
-                questionIndex: data.questionIndex,
-                isCorrect,
-                existingAnswerIndex,
-                correctAnswers,
-                wrongAnswers,
-                totalAnswers,
-                answersLength: updatedAnswers.length
-              });
 
               // Create new student object with updated answers - always create new object
               updatedStudent = {
@@ -169,13 +153,6 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
           }
           return s; // Keep other students as-is to avoid unnecessary object creation
         });
-        
-        const updatedAnswer = updatedStudent.answers?.find((a: any) => a.questionId === data.questionIndex?.toString());
-        console.log('[TeacherActivity] Created new students array, updated student at index', studentIndex, 
-          'questionIndex:', data.questionIndex, 
-          'isCorrect:', updatedAnswer?.isCorrect,
-          'old isCorrect:', originalStudent.answers?.find((a: any) => a.questionId === data.questionIndex?.toString())?.isCorrect,
-          'answers count:', updatedStudent.answers?.length);
       } else {
         // No student found and not a start event, return unchanged to avoid unnecessary re-renders
         return prev;
@@ -193,7 +170,6 @@ export default function TeacherActivityPage({ params }: ActivityPageProps) {
         },
       };
       
-      console.log('[TeacherActivity] Returning new activity data, students count:', updatedStudents.length, 'eventType:', eventType);
       return newActivityData;
     });
 

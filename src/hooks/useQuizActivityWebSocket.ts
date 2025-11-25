@@ -78,9 +78,6 @@ export function useQuizActivityWebSocket(options: UseQuizActivityWebSocketOption
       socketRef.current = null;
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[QuizActivityWebSocket] Initializing connection:', { apiUrl, userId, classQuizId });
-    }
 
     // Create socket connection
     const socket = io(apiUrl, {
@@ -96,7 +93,6 @@ export function useQuizActivityWebSocket(options: UseQuizActivityWebSocketOption
 
     // Connection events
     socket.on('connect', () => {
-      console.log('[QuizActivityWebSocket] Connected:', socket.id);
       setIsConnected(true);
       reconnectAttemptsRef.current = 0;
 
@@ -111,20 +107,17 @@ export function useQuizActivityWebSocket(options: UseQuizActivityWebSocketOption
 
     // Listen for room join confirmation
     socket.on('quiz-room-joined', (data: { classQuizId: number; userId: number }) => {
-      console.log('[QuizActivityWebSocket] Joined quiz room:', data);
       setIsInRoom(true);
     });
 
     // Listen for student join/leave events (for teacher monitoring)
     socket.on('student-joined', (data: { classQuizId: number; userId: number; socketId: string }) => {
-      console.log('[QuizActivityWebSocket] Student joined:', data);
       if (onStudentJoinedRef.current) {
         onStudentJoinedRef.current(data);
       }
     });
 
     socket.on('student-left', (data: { classQuizId: number; userId: number; socketId: string }) => {
-      console.log('[QuizActivityWebSocket] Student left:', data);
       if (onStudentLeftRef.current) {
         onStudentLeftRef.current(data);
       }
@@ -132,35 +125,30 @@ export function useQuizActivityWebSocket(options: UseQuizActivityWebSocketOption
 
     // Listen for quiz activity events
     socket.on('quiz-attempt-started', (data: QuizActivityEventData) => {
-      console.log('[QuizActivityWebSocket] Quiz attempt started:', data);
       if (onActivityUpdateRef.current) {
         onActivityUpdateRef.current('quiz-attempt-started', data);
       }
     });
 
     socket.on('quiz-answer-saved', (data: QuizActivityEventData) => {
-      console.log('[QuizActivityWebSocket] Answer saved:', data);
       if (onActivityUpdateRef.current) {
         onActivityUpdateRef.current('quiz-answer-saved', data);
       }
     });
 
     socket.on('quiz-attempt-submitted', (data: QuizActivityEventData) => {
-      console.log('[QuizActivityWebSocket] Quiz submitted:', data);
       if (onActivityUpdateRef.current) {
         onActivityUpdateRef.current('quiz-attempt-submitted', data);
       }
     });
 
     socket.on('quiz-activity', (data: QuizActivityEventData) => {
-      console.log('[QuizActivityWebSocket] Quiz activity:', data);
       if (onActivityUpdateRef.current) {
         onActivityUpdateRef.current('quiz-activity', data);
       }
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('[QuizActivityWebSocket] Disconnected:', reason);
       setIsConnected(false);
       setIsInRoom(false);
     });
@@ -219,7 +207,6 @@ export function useQuizActivityWebSocket(options: UseQuizActivityWebSocketOption
       payload.attemptId = currentAttemptId;
     }
 
-    console.log(`[QuizActivityWebSocket] Emitting ${eventType}:`, payload);
     socketRef.current.emit(eventType, payload);
   }, [classQuizId, userId, attemptId]);
 
