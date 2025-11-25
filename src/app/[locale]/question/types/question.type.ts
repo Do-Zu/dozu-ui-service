@@ -34,6 +34,7 @@ export interface IQuestion {
   choices: string[];
   correctIndex: number;
   serverInfo?: IQuestionServerInfo;
+  questionType?: string
 }
 
 export interface IQuestionsBatchSubmitted {
