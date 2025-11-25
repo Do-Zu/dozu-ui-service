@@ -12,8 +12,8 @@ import { useTranslations } from 'next-intl';
 interface Props {
     topic: ITopic;
     handleNameClick: (topic: ITopic) => void;
-    menuContent: (topic: ITopic) => React.ReactNode;
-    footer: (topic: ITopic) => React.ReactNode;
+    menuContent: (topic: ITopic) => React.ReactNode | null;
+    footer: (topic: ITopic) => React.ReactNode | null;
 }
 
 export default function TopicCard({ topic, handleNameClick, menuContent, footer }: Props) {
@@ -75,14 +75,16 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
                                 {description}
                             </p>
                         </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
-                                    <MoreVertical className="h-4 w-4 text-gray-500" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            {menuContent(topic)}
-                        </DropdownMenu>
+                        {menuContent(topic) ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
+                                        <MoreVertical className="h-4 w-4 text-gray-500" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                {menuContent(topic)}
+                            </DropdownMenu>
+                        ) : null}
                     </div>
                 </CardHeader>
                 <CardContent>

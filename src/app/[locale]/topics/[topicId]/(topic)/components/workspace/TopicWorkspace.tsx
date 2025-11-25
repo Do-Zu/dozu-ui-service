@@ -16,8 +16,9 @@ import { isEmpty } from '@/utils';
 import { cn } from '@/lib/utils';
 import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
+import topicUtils from '../../utils/topic.utils';
 
-export default function PersonalTopicWorkspace() {
+export default function TopicWorkspace() {
     const { topic, topicId, setTopic, isPdfViewerFullscreen, setTab, tab, flashcards, learningFlashcards } =
         useTopicWorkspace();
 
@@ -60,12 +61,6 @@ export default function PersonalTopicWorkspace() {
 
     if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
-    function getDisplayTopicName() {
-        if (!topic?.name) return '';
-        const len = 15;
-        return topic.name.slice(0, len) + (topic.name.length > len ? '...' : '');
-    }
-
     return (
         <div className="relative w-full h-[100vh] border rounded-lg overflow-hidden bg-background">
             <ResizablePanelGroup direction="horizontal">
@@ -81,7 +76,9 @@ export default function PersonalTopicWorkspace() {
                     <div className="flex flex-col h-full">
                         <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
                             <div className="flex items-center justify-between mt-6 w-full px-6">
-                                <div className="font-bold text-lg">{getDisplayTopicName()}</div>
+                                <div className="font-bold text-lg">
+                                    {topicUtils.getDisplayTopicName(topic?.name || '')}
+                                </div>
 
                                 <div className="flex-1 flex justify-center">
                                     <TabsList className="grid grid-cols-5 w-[95%] rounded-2xl">

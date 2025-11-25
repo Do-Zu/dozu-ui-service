@@ -1,12 +1,16 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { usePathname } from 'next/navigation';
 import { getLayoutSettings } from '@/configs/layout/layoutConfig';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/side-bar/SideBar';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface LayoutProps {
     children: ReactNode;
@@ -24,6 +28,20 @@ const DefaultLayout: React.FC<LayoutProps> = ({
     isDisplayFooter: explicitFooter,
 }) => {
     const pathname = usePathname();
+    const { isStudent } = useRoleChecker();
+    const [learningMode, setLearningMode] = useLocalStorage<ILearningMode>(
+        'learningMode',
+        MODE_ACCESS_PAGE_ROLE.personal,
+    );
+
+    useEffect(() => {
+        if (!isStudent) return;
+        if (pathname.includes('class-based')) {
+            setLearningMode(MODE_ACCESS_PAGE_ROLE.classBased);
+        } else {
+            setLearningMode(MODE_ACCESS_PAGE_ROLE.personal);
+        }
+    }, [pathname, isStudent]);
 
     const configSettings = getLayoutSettings(pathname);
 

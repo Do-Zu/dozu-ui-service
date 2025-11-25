@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams } from 'next/navigation';
-import StudentTopicWorkspace from './components/workspace/StudentTopicWorkspace';
 import { TopicWorkspaceProvider } from '@/app/[locale]/topics/[topicId]/(topic)/context/TopicWorkspaceContext';
+import TopicWorkspace from '@/app/[locale]/topics/[topicId]/(topic)/components/workspace/TopicWorkspace';
 
 export default function TopicPage() {
     const params = useParams();
@@ -17,7 +17,7 @@ export default function TopicPage() {
 
     return (
         <TopicWorkspaceProvider topicIdInit={topicId}>
-            <StudentTopicWorkspace />
+            <TopicWorkspace />
         </TopicWorkspaceProvider>
     );
 }
