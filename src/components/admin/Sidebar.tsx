@@ -73,16 +73,16 @@ const navItems = [
         icon: BarChart3,
         href: '/admin/stats',
     },
-    {
-        label: 'Pending Teacher Requests',
-        icon: Clock,
-        href: '/admin/teacher-requests/pending'
-    },
-    {
-        label: 'Teacher Requests',
-        icon: ListChecks,
-        href: '/admin/teacher-requests'
-    }
+    // {
+    //     label: 'Pending Teacher Requests',
+    //     icon: Clock,
+    //     href: '/admin/teacher-requests/pending'
+    // },
+    // {
+    //     label: 'Teacher Requests',
+    //     icon: ListChecks,
+    //     href: '/admin/teacher-requests'
+    // }
 ];
 
 export function Sidebar({ className }: SidebarProps) {
@@ -92,7 +92,7 @@ export function Sidebar({ className }: SidebarProps) {
     return (
         <aside 
             className={cn(
-                'bg-muted border-r h-screen sticky top-0 p-4 transition-all duration-300 ease-in-out flex flex-col group',
+                'bg-muted border-r min-h-screen sticky top-0 p-4 transition-all duration-300 ease-in-out flex flex-col group',
                 isCollapsed ? 'w-[70px]' : 'w-[240px]',
                 className
             )}
@@ -127,7 +127,7 @@ export function Sidebar({ className }: SidebarProps) {
             </div>
 
             {/* Navigation Items */}
-            <div className="flex flex-col gap-1 flex-1 overflow-y-auto">
+            <div className="flex flex-col gap-1 flex-1 overflow-y-auto scrollbar-hide">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
