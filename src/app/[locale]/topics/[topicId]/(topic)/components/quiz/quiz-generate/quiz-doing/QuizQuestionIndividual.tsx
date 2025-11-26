@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { CornerDownRight } from 'lucide-react';
 import usePost from '@/hooks/usePost';
 import { useTopicWorkspace } from '../../../../context/TopicWorkspaceContext';
 import { useQuizWorkspace } from '../../context/QuizWorkspaceContext';
 import { Button } from '@/components/ui/button';
-import Reference from '../../../reference/Reference';
-import { safeDestructure } from '@/utils';
+import QuizResultFeedback from './components/QuizResultFeedback';
+import { isNilOrEmpty, safeDestructure } from '@/utils';
 import {
     IQuestionIndividual,
     ICompareAnswerRequest,
@@ -50,6 +51,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
         isFreeResponse && typeof question.selectedAnswer === 'string' ? question.selectedAnswer : '',
     );
     const [showExplanation, setShowExplanation] = useState<boolean>(Boolean(question.isShowExplain));
+    const [showHint, setShowHint] = useState<boolean>(false);
 
     const isAnswered =
         question.selectedAnswer !== undefined &&
@@ -80,9 +82,6 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
         if (!trimmed) return;
 
         const updated = [...doingQuestions];
-
-        // TODO Check valuable for correct answer
-
         const payload = {
             query: trimmed,
             pattern: correctText,
@@ -121,6 +120,21 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
         <div className="w-full max-w-3xl mx-auto">
             {/* Question text */}
             <h2 className="text-xl font-semibold mb-6 whitespace-pre-wrap">{questionText}</h2>
+
+            {question.hint && (
+                <div className="mb-6">
+                    {!showHint ? (
+                        <Button variant="outline" onClick={() => setShowHint(true)} className="gap-2">
+                            <CornerDownRight className="w-4 h-4" />
+                            Give me a hint
+                        </Button>
+                    ) : (
+                        <div className="p-4 bg-muted/50 rounded-3xl border border-border/50 animate-in fade-in slide-in-from-top-2">
+                            <p className="font-medium">{question.hint}</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* multi choice*/}
             {!isFreeResponse && Array.isArray(choices) && choices.length > 0 && (
@@ -180,7 +194,12 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                     />
 
                     {!isAnswered && (
-                        <Button className="mt-1" variant="default" onClick={handleSubmitFreeText}>
+                        <Button
+                            className="mt-1 rounded-3xl"
+                            variant="default"
+                            disabled={isNilOrEmpty(freeText.trim())}
+                            onClick={handleSubmitFreeText}
+                        >
                             Submit
                         </Button>
                     )}
@@ -189,39 +208,16 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
 
             {/* feedback */}
             {(question.isShowExplain || showExplanation) && (
-                <div className="mt-6 p-4 rounded-lg border bg-muted space-y-2">
-                    <p className="font-medium">{question.explain}</p>
-                    <p className="font-medium">{question.hint}</p>
-                    {isFreeResponse ? (
-                        <>
-                            <p className="text-sm font-medium text-muted-foreground">Your answer</p>
-                            <p className="text-sm whitespace-pre-wrap">
-                                {String(question.selectedAnswer ?? freeText ?? '').trim() || '—'}
-                            </p>
-                            {question?.score && question?.maxScore && (
-                                <p>
-                                    Score : {question?.score} / {question.maxScore}{' '}
-                                </p>
-                            )}
-                            <p className="mt-3 text-sm font-medium text-muted-foreground">Suggested answer</p>
-                            <p className="text-sm whitespace-pre-wrap">{correctText || '—'}</p>
-                            <Reference content={`${question.questionText}: ${correctText}`} />
-                        </>
-                    ) : question.isCorrect ? (
-                        <div>
-                            <p className="text-green-600 dark:text-green-400 font-medium">✔ Exactly! Good job.</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-1">
-                            <p className="text-red-600 dark:text-red-400 font-medium">✘ Incorrect.</p>
-                            {typeof correctIndex === 'number' && Array.isArray(choices) && choices[correctIndex] && (
-                                <p className="text-sm text-muted-foreground">
-                                    Correct answer: <span className="font-medium">{choices[correctIndex]}</span>
-                                </p>
-                            )}
-                        </div>
-                    )}
-                </div>
+                <QuizResultFeedback
+                    isFreeResponse={isFreeResponse}
+                    isCorrect={Boolean(question.isCorrect)}
+                    userAnswer={question.selectedAnswer ?? freeText}
+                    correctAnswerText={correctText}
+                    explanation={question.explain}
+                    score={question.score}
+                    maxScore={question.maxScore}
+                    questionText={question.questionText}
+                />
             )}
         </div>
     );
