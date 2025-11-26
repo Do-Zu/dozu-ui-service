@@ -32,7 +32,7 @@ function QuizTabContent() {
     };
 
     return (
-        <div className="relative w-full h-full flex flex-col">
+        <div className="relative w-full h-full flex flex-col min-h-0">
 
             {/* TABS */}
             <Tabs
