@@ -57,7 +57,7 @@ export function handleConvertToQuestionsEdited(
             }
         }
     } else {
-        initialQuestions = questionsProp?.map((q: IGenerateQuestionItemRaw, index: number) => ({
+        initialQuestions = (questionsProp ?? []).map((q: IGenerateQuestionItemRaw, index: number) => ({
             id: index,
             questionText: q?.q,
             choices: q?.o,
