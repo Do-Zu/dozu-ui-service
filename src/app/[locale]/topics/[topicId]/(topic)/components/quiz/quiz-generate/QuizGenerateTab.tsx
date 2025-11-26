@@ -25,7 +25,7 @@ import type { IGeneratedQuizItem, IQuestion } from '@/app/[locale]/question/type
 const DEFAULT_CHECK_TYPE = 'initial';
 
 export default function QuizGenerateTab() {
-    const { tab, topicId, topic } = useTopicWorkspace() as any;
+    const { tab, topicId, topic } = useTopicWorkspace();
 
     const {
         statistics,
