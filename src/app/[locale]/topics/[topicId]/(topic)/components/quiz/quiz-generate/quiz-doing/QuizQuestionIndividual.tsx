@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { CornerDownRight } from 'lucide-react';
 import usePost from '@/hooks/usePost';
 import { useTopicWorkspace } from '../../../../context/TopicWorkspaceContext';
 import { useQuizWorkspace } from '../../context/QuizWorkspaceContext';
 import { Button } from '@/components/ui/button';
 import QuizResultFeedback from './components/QuizResultFeedback';
+import { CornerDownRight, Loader2 } from 'lucide-react';
 import { isNilOrEmpty, safeDestructure } from '@/utils';
 import {
     IQuestionIndividual,
@@ -41,7 +41,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
     const correctIndex: number = question.correctIndex;
 
     // free response data
-    const correctText: string = choices[correctIndex]; //fix correctText cho đúng với data response feyment
+    const correctText: string = choices[correctIndex];
 
     // local state
     const [localChoiceAnswer, setLocalChoiceAnswer] = useState<number | null>(
@@ -181,7 +181,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
             {isFreeResponse && (
                 <div className="space-y-4">
                     <textarea
-                        disabled={isAnswered}
+                        disabled={isAnswered || isChecking}
                         value={
                             isAnswered && typeof question.selectedAnswer === 'string'
                                 ? question.selectedAnswer
@@ -197,10 +197,11 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                         <Button
                             className="mt-1 rounded-3xl"
                             variant="default"
-                            disabled={isNilOrEmpty(freeText.trim())}
+                            disabled={isNilOrEmpty(freeText.trim()) || isChecking}
                             onClick={handleSubmitFreeText}
                         >
-                            Submit
+                            {isChecking ? 'Evaluating...' : 'Submit'}
+                            {isChecking && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         </Button>
                     )}
                 </div>
