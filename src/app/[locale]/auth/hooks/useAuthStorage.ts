@@ -1,4 +1,5 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { User } from '@/types/auth';
 import { getISOTime } from '@/utils';
@@ -9,62 +10,69 @@ import { useCallback } from 'react';
  * Hook for managing authentication data in localStorage
  */
 export function useAuthStorage() {
-  const [user, setUserData, removeUser] = useLocalStorage<User | null>('user', null);
+    const [user, setUserData, removeUser] = useLocalStorage<User | null>('user', null);
 
-  const [isLoggedIn, setIsLoggedIn, removeLoginStatus] = useLocalStorage<boolean>(
-    'isLoggedIn',
-    false,
-  );
+    const [isLoggedIn, setIsLoggedIn, removeLoginStatus] = useLocalStorage<boolean>('isLoggedIn', false);
 
-  const [learningMode, setLearningMode, removeLearningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const [learningMode, setLearningMode, removeLearningMode] = useLocalStorage<ILearningMode>(
+        'learningMode',
+        MODE_ACCESS_PAGE_ROLE.personal,
+    );
 
-  const setAuthData = useCallback(
-    (userData: User) => {
-      const userWithTimestamp = {
-        ...userData,
-        lastLoginAt: getISOTime(),
-      };
-      setUserData(userWithTimestamp);
-      setIsLoggedIn(true);
-    },
-    [setUserData, setIsLoggedIn],
-  );
+    const [currentPlan, setCurrentPlan, removeCurrentPlanSession] = useSessionStorage('currentPlanUser');
 
-  const updateUser = useCallback(
-    (updatedUser: Partial<User>) => {
-      setUserData((prevUser) => (prevUser ? { ...prevUser, ...updatedUser } : null));
-    },
-    [setUserData],
-  );
+    const [redirectChain, setRedirectChain, removeRedirectChain] =
+        useSessionStorage<string>('auth_redirect_destination');
 
-  const markOnboardingComplete = useCallback(() => {
-    updateUser({ hasCompletedOnboarding: true, isNewUser: false });
-  }, [updateUser]);
+    const setAuthData = useCallback(
+        (userData: User) => {
+            const userWithTimestamp = {
+                ...userData,
+                lastLoginAt: getISOTime(),
+            };
+            setUserData(userWithTimestamp);
+            setIsLoggedIn(true);
+        },
+        [setUserData, setIsLoggedIn],
+    );
 
-  const updateLastLogin = useCallback(() => {
-    updateUser({ lastLoginAt: new Date().toISOString() });
-  }, [updateUser]);
+    const updateUser = useCallback(
+        (updatedUser: Partial<User>) => {
+            setUserData((prevUser) => (prevUser ? { ...prevUser, ...updatedUser } : null));
+        },
+        [setUserData],
+    );
 
-  const clearAuthData = useCallback(() => {
-    removeUser();
-    removeLoginStatus();
-    removeLearningMode();
-  }, [removeUser, removeLoginStatus, removeLearningMode]);
+    const markOnboardingComplete = useCallback(() => {
+        updateUser({ hasCompletedOnboarding: true, isNewUser: false });
+    }, [updateUser]);
 
-  const isAuthenticated = useCallback(() => {
-    return !!isLoggedIn && user !== null;
-  }, [isLoggedIn, user]);
+    const updateLastLogin = useCallback(() => {
+        updateUser({ lastLoginAt: new Date().toISOString() });
+    }, [updateUser]);
 
-  return {
-    user,
-    isLoggedIn,
+    const clearAuthData = useCallback(() => {
+        removeUser();
+        removeLoginStatus();
+        removeLearningMode();
+        removeRedirectChain();
+        removeCurrentPlanSession();
+    }, [removeUser, removeLoginStatus, removeLearningMode]);
 
-    setAuthData,
-    updateUser,
-    markOnboardingComplete,
-    updateLastLogin,
-    clearAuthData,
+    const isAuthenticated = useCallback(() => {
+        return !!isLoggedIn && user !== null;
+    }, [isLoggedIn, user]);
 
-    isAuthenticated: isAuthenticated(),
-  };
+    return {
+        user,
+        isLoggedIn,
+
+        setAuthData,
+        updateUser,
+        markOnboardingComplete,
+        updateLastLogin,
+        clearAuthData,
+
+        isAuthenticated: isAuthenticated(),
+    };
 }
