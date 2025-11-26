@@ -17,6 +17,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import noteUtils from '../../utils/note.utils';
 import { Button } from '@/components/ui/button';
 import { useUpdateNoteAsync } from '../../hooks/useNote';
+import { Loader2 } from 'lucide-react';
+import useGenerateStream from '@/hooks/generate/useGenerateStream';
 
 export default function NoteTab() {
     const { topicId, tab, note, setNote } = useTopicWorkspace();
@@ -42,10 +44,6 @@ export default function NoteTab() {
         }
     }, [note?.content]);
 
-    function onContentChange(content: string) {
-        setContent(content);
-    }
-
     const { updateNoteAsync, updateNoteLoading } = useUpdateNoteAsync();
 
     const onSubmit = useCallback(
@@ -67,14 +65,27 @@ export default function NoteTab() {
         setGeneratedSummary('');
     };
 
-    function onGenerateShortSummarySuccess(data: any) {
-        const { isValid, summary } = noteUtils.validateGeneratedSummary(data);
-        if (!isValid) {
+    const { contentTextOrigin } = useTopicWorkspace();
+
+    const { isGenerating, execute, reset } = useGenerateStream({
+        onChunk(chunk) {
+            const data = 'data' in chunk ? chunk.data : null;
+            if (data && typeof data === 'string') {
+                setGeneratedSummary((prev) => prev + data);
+            }
+        },
+        onSuccess() {
+            toastHelper.showSuccessMessage('Generate short summary successfully');
+        },
+        onError() {
             toastHelper.showErrorMessage('Failed to generate a short summary for your topic, please try again.');
-            return;
-        }
-        toastHelper.showSuccessMessage('Generate short summary successfully');
-        setGeneratedSummary(summary);
+        },
+    });
+
+    async function onGenerateClick() {
+        reset();
+        setGeneratedSummary('');
+        await execute({ content: contentTextOrigin.current, method: 'POST', type: METHOD_LEARNING.SHORT_SUMMARY });
     }
 
     if (fetchedNoteError) {
@@ -88,15 +99,17 @@ export default function NoteTab() {
         <ScrollArea className="w-full h-full flex-col gap-4 pb-16 pr-6">
             {generatedSummary.length > 0 ? null : (
                 <div className="flex flex-row items-center justify-center gap-4 p-8">
-                    <div className="border rounded-xl px-4 py-2 bg-white shadow-sm text-muted-foreground">
+                    <div className="bg-white shadow-sm text-muted-foreground">
                         Create a brief summary based on your inputted content
                     </div>
 
-                    <Generate
-                        type={METHOD_LEARNING.SHORT_SUMMARY}
-                        onSuccess={onGenerateShortSummarySuccess}
-                        trigger={<Button className="rounded-lg">Generate</Button>}
-                    />
+                    {isGenerating ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <Button className="rounded-lg" onClick={onGenerateClick} disabled={isGenerating}>
+                            Generate
+                        </Button>
+                    )}
                 </div>
             )}
 
@@ -109,13 +122,14 @@ export default function NoteTab() {
                         onContentChange={(content) => setGeneratedSummary(content)}
                         onSubmit={onAddSummaryToNote}
                         loading={updateNoteLoading}
+                        isGenerating={isGenerating}
                     />
                 </div>
             ) : (
                 <RichTextEditor
                     key="main_content"
                     content={content}
-                    onContentChange={onContentChange}
+                    onContentChange={(content) => setContent(content)}
                     onSubmit={onSubmit}
                     loading={updateNoteLoading}
                 />

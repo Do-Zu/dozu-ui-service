@@ -7,16 +7,17 @@ import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import './style.css';
 import { useEffect } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import LoadingNode from '../common/LoadingNode';
 
 interface Props {
     content: string;
     onContentChange: (content: string) => void;
     onSubmit: (content: string) => void;
     loading: boolean;
+    isGenerating?: boolean;
 }
 
-export default function RichTextEditor({ content, onContentChange, onSubmit, loading }: Props) {
+export default function RichTextEditor({ content, onContentChange, onSubmit, loading, isGenerating }: Props) {
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -64,9 +65,10 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
     }
 
     return (
-        <div>
+        <div className="flex flex-col gap-4">
             <MenuBar editor={editor} onSubmit={onSubmit} loading={loading} />
             <EditorContent editor={editor} />
+            {isGenerating ? <LoadingNode title="Generating" /> : null}
         </div>
     );
 }

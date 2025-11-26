@@ -97,7 +97,7 @@ export default function MenuBar({ editor, onSubmit, loading }: Props) {
     ];
 
     return (
-        <div className="flex justify-between items-center border rounded-md p-2 mb-4 z-50">
+        <div className="flex justify-between items-center border rounded-md p-2 z-50">
             <div className="flex space-x-2">
                 {options.map((option, index) => (
                     <Toggle key={index} pressed={option.pressed} onPressedChange={option.onClick}>
