@@ -31,6 +31,8 @@ export function handleConvertToQuestionsSubmitted(questions: IQuestion[]): IQues
             choices: q.choices,
             correctIndex: q.correctIndex,
             questionType: q.questionType,
+            hint: q.hint,
+            explain: q.explain,
         }));
 
     //update
