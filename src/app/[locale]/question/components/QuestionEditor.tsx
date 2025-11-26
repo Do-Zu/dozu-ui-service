@@ -18,6 +18,7 @@ import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGe
 import { CONTENT_TYPE_GENERATE } from '@/app/[locale]/generate/types';
 import { handleConvertToFlashcardsSubmitted } from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import flashcardService from '@/services/flashcard/flashcard.service';
+import { useQuizWorkspace } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/context/QuizWorkspaceContext';
 
 const questionsJump = 3;
 
@@ -27,7 +28,8 @@ function createInitialQuestion(id: number): IQuestion {
         questionText: '',
         choices: ['', '', '', ''],
         correctIndex: 0,
-    };
+        questionType: 'MULTIPLE_CHOICE',
+    } as IQuestion;
 }
 
 interface Props {
@@ -49,6 +51,7 @@ const QuestionEditor = ({
     topic,
 }: Props) => {
     const router = useRouter();
+    const {setGeneratedQuestionsForEdit } = useQuizWorkspace();
     const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
     const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({
         sseData,
@@ -157,6 +160,7 @@ const QuestionEditor = ({
         try {
             await postRequest(`/questions/batch?topicId=${topic?.topicId}`, dataSubmitted);
             toast({ title: 'Questions saved successfully' });
+            setGeneratedQuestionsForEdit(null);
             if (topic?.topicId !== undefined) {
                 router.push(ROUTES.QUIZ_DASBOARD(topic.topicId));
             }

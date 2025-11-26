@@ -155,7 +155,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     // Connection events
     socket.on('connect', () => {
-      console.log('[WebSocket] Connected:', socket.id);
       setIsConnected(true);
       reconnectAttemptsRef.current = 0;
       currentUserIdRef.current = userId; // Track connected userId

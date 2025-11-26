@@ -1,0 +1,97 @@
+{
+  "activities": {
+    "studentSummary": {
+      "title": "Student Summary",
+      "description": "Overview of all students and their quiz completion status",
+      "studentCount": "({count}) Student A-Z",
+      "status": "Status"
+    },
+    "studentProgress": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "notStarted": "Not Started",
+      "completedOn": "Completed on",
+      "notCompletedYet": "Not completed yet",
+      "progress": "Progress",
+      "questions": "questions",
+      "correct": "correct",
+      "incorrect": "incorrect",
+      "detailedResults": "Detailed Results"
+    },
+    "studentResults": {
+      "title": "Detailed Student Results",
+      "description": "Individual student performance for each question",
+      "student": "Student",
+      "percentCorrect": "% Correct",
+      "correct": "Correct",
+      "total": "Total",
+      "average": "Average",
+      "questionDetails": "Question Details"
+    },
+    "termProgress": {
+      "title": "Term Progress",
+      "termProgressDetails": "Term Progress Details",
+      "description": "Detailed breakdown of student performance for each term",
+      "thuongSai": "Often Wrong",
+      "doiLucSai": "Sometimes Wrong",
+      "itKhiSai": "Rarely Wrong",
+      "chuaBatDau": "Not Started",
+      "thuongSaiDesc": "Students have a 0%-25% correct answer rate for these terms.",
+      "doiLucSaiDesc": "Students have a 25%-75% correct answer rate for these terms.",
+      "itKhiSaiDesc": "Students have a 75%-100% correct answer rate for these terms.",
+      "chuaBatDauDesc": "Students have not learned these terms yet.",
+      "showDetails": "Show details",
+      "hideDetails": "Hide details",
+      "terms": "Terms"
+    },
+    "activitySummary": {
+      "overallProgress": "Overall Progress",
+      "participated": "participated",
+      "completed": "completed",
+      "notCompleted": "not completed",
+      "classStatistics": "Class Statistics",
+      "averageScore": "Average Score",
+      "studentsAbove80": "Students Above 80%",
+      "studentsBelow50": "Students Below 50%"
+    },
+    "teacherPage": {
+      "tabs": {
+        "activitySummary": "Activity Summary",
+        "studentSummary": "Student Summary",
+        "termProgress": "Term Progress",
+        "studentResults": "Student Results"
+      },
+      "downloadStudentResults": "Download student results",
+      "viewUntil": "View and download results until",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "downloadExcel": "Download .xlsx file",
+      "totalStudents": "Total Students",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "notStarted": "Not Started",
+      "dueBy": "Due by",
+      "liveUpdates": "Live updates",
+      "connecting": "Connecting...",
+      "yourLibrary": "Your Library",
+      "activities": "Activities",
+      "toast": {
+        "quizSubmitted": "Quiz submitted",
+        "studentSubmittedQuiz": "Student {userId} has submitted their quiz",
+        "withScore": "with score {score}%",
+        "dataRefreshed": "Data refreshed",
+        "dataUpdated": "Activity data has been updated successfully.",
+        "refreshFailed": "Refresh failed",
+        "failedToRefresh": "Failed to refresh activity data.",
+        "errorRefreshing": "An error occurred while refreshing data.",
+        "downloadSuccessful": "Download successful",
+        "fileDownloaded": "File {filename} has been downloaded successfully.",
+        "downloadFailed": "Download failed",
+        "errorDownloading": "There was an error downloading the file. Please try again."
+      }
+    },
+    "common": {
+      "unknown": "Unknown"
+    }
+  }
+}

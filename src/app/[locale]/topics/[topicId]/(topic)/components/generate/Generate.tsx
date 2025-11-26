@@ -7,7 +7,6 @@ import DataStatus from '@/components/errors/DataStatus';
 import { isNilOrEmpty } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import GenerateStreaming from '@/components/generative/GenerateStreaming';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
 import { TypeMethodLearning } from '@/utils/constants/method';
 import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';

@@ -1,6 +1,7 @@
 'use client';
 
 import { Dispatch, SetStateAction, useState } from 'react';
+import { IQuestion } from '@/app/[locale]/question/types/question.type';
 
 export type QuizMode = 'generate' | 'history' | 'edit';
 export type QuizViewMode = 'list' | 'detail';
@@ -57,6 +58,24 @@ export interface QuizWorkspaceState {
 
     showOnboarding: boolean;
     setShowOnboarding: Dispatch<SetStateAction<boolean>>;
+
+    doingQuestions: any[];
+    setDoingQuestions: Dispatch<SetStateAction<any[]>>;
+
+    currentQuestionIndex: number;
+    setCurrentQuestionIndex: Dispatch<SetStateAction<number>>;
+
+    quizResultData: any | null;
+    setQuizResultData: Dispatch<SetStateAction<any | null>>;
+
+    showSubmitDialog: boolean;
+    setShowSubmitDialog: Dispatch<SetStateAction<boolean>>;
+
+    doingMode: boolean;
+    setDoingMode: Dispatch<SetStateAction<boolean>>;
+
+    generatedQuestionsForEdit: IQuestion[] | null;
+    setGeneratedQuestionsForEdit: Dispatch<SetStateAction<IQuestion[] | null>>;
 }
 
 export default function useQuizWorkspaceState(): QuizWorkspaceState {
@@ -76,6 +95,17 @@ export default function useQuizWorkspaceState(): QuizWorkspaceState {
     const [defaultName, setDefaultName] = useState<string>('');
     const [defaultDescription, setDefaultDescription] = useState<string>('');
     const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
+
+    const [doingQuestions, setDoingQuestions] = useState<any[]>([]);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+
+    const [quizResultData, setQuizResultData] = useState<any | null>(null);
+
+    const [showSubmitDialog, setShowSubmitDialog] = useState<boolean>(false);
+
+    const [doingMode, setDoingMode] = useState<boolean>(false);
+
+    const [generatedQuestionsForEdit, setGeneratedQuestionsForEdit] = useState<IQuestion[] | null>(null);
 
     return {
         quizMode,
@@ -102,5 +132,17 @@ export default function useQuizWorkspaceState(): QuizWorkspaceState {
         setDefaultDescription,
         showOnboarding,
         setShowOnboarding,
+        doingQuestions,
+        setDoingQuestions,
+        currentQuestionIndex,
+        setCurrentQuestionIndex,
+        quizResultData,
+        setQuizResultData,
+        showSubmitDialog,
+        setShowSubmitDialog,
+        doingMode,
+        setDoingMode,
+        generatedQuestionsForEdit,
+        setGeneratedQuestionsForEdit,
     };
 }

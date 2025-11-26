@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StudentQuizProgress } from '@/types/activity';
@@ -10,21 +11,23 @@ interface StudentSummaryTabProps {
 }
 
 export default function StudentSummaryTab({ students }: StudentSummaryTabProps) {
+  const t = useTranslations('activities');
+  
   return (
     <div className="space-y-6">
       {/* Student List Header */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Student Summary</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('studentSummary.title')}</CardTitle>
           <p className="text-sm text-gray-600 dark:text-muted-foreground">
-            Overview of all students and their quiz completion status
+            {t('studentSummary.description')}
           </p>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-muted-foreground">
-              <span>({students.length}) Student A-Z</span>
-              <span>Status</span>
+              <span>{t('studentSummary.studentCount', { count: students.length })}</span>
+              <span>{t('studentSummary.status')}</span>
             </div>
           </div>
           
