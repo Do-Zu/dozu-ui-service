@@ -48,7 +48,7 @@ export default function useSelectMenu() {
     const { updateNoteAsync, updateNoteLoading } = useUpdateNoteAsync();
 
     async function onAddToNoteClick() {
-        const content = (note?.content || '').concat('<p></p>' + getCleanedContent());
+        const content = (note?.content || '').concat(getCleanedContent());
         await updateNoteAsync({ topicId, content });
     }
 

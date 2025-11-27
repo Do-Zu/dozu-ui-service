@@ -8,6 +8,16 @@ import Highlight from '@tiptap/extension-highlight';
 import './style.css';
 import { useEffect } from 'react';
 import LoadingNode from '../common/LoadingNode';
+import { CustomBubbleMenu } from './CustomBubbleMenu';
+import BubbleMenu from '@tiptap/extension-bubble-menu';
+import { ImageUploadNode } from '@/components/tiptap-node/image-upload-node';
+import { handleImageUpload } from '@/lib/tiptap-utils';
+import toastHelper from '@/utils/toast.helper';
+import Image from '@tiptap/extension-image';
+import { ImageUploadButton } from '@/components/tiptap-ui/image-upload-button';
+
+import './style.css';
+import '@/components/tiptap-node/image-node/image-node.scss';
 
 interface Props {
     content: string;
@@ -16,6 +26,8 @@ interface Props {
     loading: boolean;
     isGenerating?: boolean;
 }
+
+const maxFileSize = 1024 * 1024; // 1MB
 
 export default function RichTextEditor({ content, onContentChange, onSubmit, loading, isGenerating }: Props) {
     const editor = useEditor({
@@ -37,9 +49,16 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
             }),
             Highlight.configure({
                 multicolor: true,
-                // HTMLAttributes: {
-                //     class: 'hover:bg-blue-400',
-                // },
+            }),
+            BubbleMenu,
+            Image,
+            ImageUploadNode.configure({
+                accept: 'image/*',
+                upload: handleImageUpload,
+                onError() {
+                    toastHelper.showErrorMessage('Failed to upload image.');
+                },
+                maxSize: maxFileSize,
             }),
         ],
         content: content,
@@ -56,7 +75,7 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
 
     useEffect(() => {
         if (editor && content !== editor.getHTML()) {
-            editor.commands.setContent(content);
+            editor.commands.setContent(content, { emitUpdate: false });
         }
     }, [editor, content]);
 
@@ -67,6 +86,8 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
     return (
         <div className="flex flex-col gap-4">
             <MenuBar editor={editor} onSubmit={onSubmit} loading={loading} />
+            <CustomBubbleMenu editor={editor} />
+            <ImageUploadButton editor={editor} text="Add image" hideWhenUnavailable={true} />
             <EditorContent editor={editor} />
             {isGenerating ? <LoadingNode title="Generating" /> : null}
         </div>

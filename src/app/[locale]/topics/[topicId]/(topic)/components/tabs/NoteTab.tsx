@@ -59,7 +59,7 @@ export default function NoteTab() {
     );
 
     const onAddSummaryToNote = async (summary: string) => {
-        const updatedContent = content.concat('<p></p>' + summary);
+        const updatedContent = content.concat(summary);
         const payload: IUpdateNotePayload = { topicId, content: updatedContent };
         await updateNoteAsync(payload);
         setGeneratedSummary('');

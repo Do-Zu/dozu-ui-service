@@ -9,6 +9,8 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { Toaster } from '@/components/ui/toaster';
 import UpgradePlanModal from '@/components/upgrade-plan/UpgradePlanModal';
 import '../styles/globals.css';
+import '../styles/_variables.scss';
+import '../styles/_keyframe-animations.scss';
 
 const inter = Inter({
     subsets: ['latin', 'vietnamese'],
