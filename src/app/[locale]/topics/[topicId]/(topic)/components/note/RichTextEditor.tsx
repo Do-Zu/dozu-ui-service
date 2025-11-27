@@ -18,6 +18,7 @@ import { ImageUploadButton } from '@/components/tiptap-ui/image-upload-button';
 
 import './style.css';
 import '@/components/tiptap-node/image-node/image-node.scss';
+import noteUtils, { MAX_FILE_SIZE } from '../../utils/note.utils';
 
 interface Props {
     content: string;
@@ -26,8 +27,6 @@ interface Props {
     loading: boolean;
     isGenerating?: boolean;
 }
-
-const maxFileSize = 1024 * 1024; // 1MB
 
 export default function RichTextEditor({ content, onContentChange, onSubmit, loading, isGenerating }: Props) {
     const editor = useEditor({
@@ -54,11 +53,11 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
             Image,
             ImageUploadNode.configure({
                 accept: 'image/*',
-                upload: handleImageUpload,
-                onError() {
-                    toastHelper.showErrorMessage('Failed to upload image.');
+                upload: noteUtils.handleImageUpload,
+                onError(err) {
+                    toastHelper.showErrorMessage(`Failed to upload image: ${err.message}`,);
                 },
-                maxSize: maxFileSize,
+                maxSize: MAX_FILE_SIZE,
             }),
         ],
         content: content,
