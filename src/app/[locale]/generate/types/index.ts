@@ -22,6 +22,9 @@ export interface IGenerateQuestionItemRaw {
     q: string;
     o: string[];
     idx: number;
+    type: string;
+    hint: string;
+    explain: string;
 }
 
 export type IQuestionsFromSSERaw = IGenerateQuestionItemRaw[];

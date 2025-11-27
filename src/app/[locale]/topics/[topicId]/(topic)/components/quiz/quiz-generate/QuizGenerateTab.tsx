@@ -20,24 +20,12 @@ import { useQuizWorkspace } from '../context/QuizWorkspaceContext';
 import { IQuizStatistics } from '../../../hooks/useQuizWorkspace';
 import QuizDoingPanel from '../quiz-generate/quiz-doing/QuizDoingPanel';
 import Generate from '../../generate/Generate';
-import type { IQuestion } from '@/app/[locale]/question/types/question.type';
+import type { IGeneratedQuizItem, IQuestion } from '@/app/[locale]/question/types/question.type';
 
-
-const DEFAULT_CHECK_TYPE = 'initial'; 
-
-interface IGeneratedQuizItem {
-    q: string;
-    o: string[];
-    idx: number;
-    type?: string;
-}
+const DEFAULT_CHECK_TYPE = 'initial';
 
 export default function QuizGenerateTab() {
-    const {
-        tab,
-        topicId,
-        topic,
-    } = useTopicWorkspace() as any;
+    const { tab, topicId, topic } = useTopicWorkspace();
 
     const {
         statistics,
@@ -68,10 +56,9 @@ export default function QuizGenerateTab() {
         setQuizMode,
 
         setGeneratedQuestionsForEdit,
-
     } = useQuizWorkspace();
 
-    // null = Haven't finished checking yet, true = have question, false = haven't question 
+    // null = Haven't finished checking yet, true = have question, false = haven't question
     const [hasAnyQuestions, setHasAnyQuestions] = useState<boolean | null>(null);
 
     // fetch statistic
@@ -90,7 +77,7 @@ export default function QuizGenerateTab() {
     useEffect(() => {
         if (tab !== METHOD_LEARNING.QUIZ) return;
         if (!topicId) return;
-        if (hasAnyQuestions !== null) return; 
+        if (hasAnyQuestions !== null) return;
 
         const checkQuestions = async () => {
             try {
@@ -110,7 +97,7 @@ export default function QuizGenerateTab() {
         void checkQuestions();
     }, [tab, topicId, hasAnyQuestions]);
 
-    // select quiz type 
+    // select quiz type
     const handleSelectQuizType = async (type: string) => {
         try {
             const { data } = await quizService.generateQuiz(String(topicId), type);
@@ -146,9 +133,10 @@ export default function QuizGenerateTab() {
             const now = new Date();
             const ts = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
                 now.getDate(),
-            ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(
-                now.getMinutes(),
-            ).padStart(2, '0')}`;
+            ).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(
+                2,
+                '0',
+            )}`;
 
             setDefaultName(`${labelMap[type] || type} Quiz - ${ts}`);
             setDefaultDescription(`Auto-generated (${data.length} questions).`);
@@ -159,14 +147,8 @@ export default function QuizGenerateTab() {
         }
     };
 
-    // create quiz + start doing mode 
-    const handleCreateQuiz = async ({
-        name,
-        description,
-    }: {
-        name: string;
-        description?: string;
-    }) => {
+    // create quiz + start doing mode
+    const handleCreateQuiz = async ({ name, description }: { name: string; description?: string }) => {
         try {
             setLoadingOverlay(true);
 
@@ -240,14 +222,13 @@ export default function QuizGenerateTab() {
                 questionText: item.q ?? '',
                 choices: normalizedOptions,
                 correctIndex:
-                    typeof item.idx === 'number' && item.idx >= 0 && item.idx < normalizedOptions.length
-                        ? item.idx
-                        : 0,
+                    typeof item.idx === 'number' && item.idx >= 0 && item.idx < normalizedOptions.length ? item.idx : 0,
                 questionType: item.type,
-            } as IQuestion & { questionType?: string };
+                hint: item.hint,
+                explain: item.explain,
+            } as IQuestion;
         });
     };
-
 
     return (
         <div className="relative w-full h-full">
@@ -259,9 +240,7 @@ export default function QuizGenerateTab() {
             )}
 
             <header className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">
-                    {topic?.name ? `Quiz for "${topic.name}"` : 'Quiz'}
-                </h2>
+                <h2 className="text-xl font-semibold">{topic?.name ? `Quiz for "${topic.name}"` : 'Quiz'}</h2>
 
                 <Button variant="outline" onClick={() => setShowOnboarding(true)}>
                     Quiz Guide
@@ -275,8 +254,8 @@ export default function QuizGenerateTab() {
                     <div className="flex flex-col gap-1 mb-3">
                         <h3 className="text-base font-semibold">No questions in this topic yet</h3>
                         <p className="text-sm text-muted-foreground">
-                            Use AI to generate a set of quiz questions from this topic&apos;s content,
-                            then review them in the editor and save to database.
+                            Use AI to generate a set of quiz questions from this topic&apos;s content, then review them
+                            in the editor and save to database.
                         </p>
                     </div>
 
@@ -293,8 +272,8 @@ export default function QuizGenerateTab() {
 
                             const mapped = mapGeneratedToQuestions(generated);
 
-                            setGeneratedQuestionsForEdit(mapped);   
-                            setQuizMode("edit");     
+                            setGeneratedQuestionsForEdit(mapped);
+                            setQuizMode('edit');
                             setHasAnyQuestions(true);
                         }}
                     />
