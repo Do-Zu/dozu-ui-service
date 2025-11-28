@@ -38,6 +38,8 @@ interface Props {
     className?: string;
 }
 
+const imageUploadButtonRef = createRef<HTMLButtonElement>();
+
 // Create a Commands Extension
 const CommandsPlugin = Extension.create({
     name: 'insertMenu', // name of Extension
@@ -131,7 +133,7 @@ const CommandsPlugin = Extension.create({
                             {
                                 type: 'image',
                                 title: 'Add Image',
-                                imageUploadButtonRef: createRef<HTMLButtonElement>(),
+                                imageUploadButtonRef,
                                 command: ({ editor, range }: SuggestionProps) => {
                                     editor.chain().focus().deleteRange(range).run();
                                 },
