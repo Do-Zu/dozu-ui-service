@@ -39,15 +39,14 @@ const SelectMenu = ({ refNode, type }: Props) => {
             setSelectingText('');
         }
 
-        const node = refNode?.current;
-
         function onMouseUp() {
+            const node = refNode?.current;
             const selection = document.getSelection();
             const anchorNode = selection?.anchorNode;
             const text = selection?.toString();
 
             if (!selection || !node) return;
-            if (!anchorNode || !node?.contains(anchorNode)) return;
+            if (!anchorNode || !node.contains(anchorNode)) return;
 
             if (!text) {
                 setState('idle');
