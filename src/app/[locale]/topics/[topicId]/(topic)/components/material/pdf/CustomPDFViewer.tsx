@@ -6,7 +6,17 @@ import { Separator } from '@/components/ui/separator';
 import toastHelper from '@/utils/toast.helper';
 import { Download, Loader2, Maximize, Minimize, RotateCwSquare } from 'lucide-react';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api';
-import React, { ChangeEvent, Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, {
+    ChangeEvent,
+    Dispatch,
+    forwardRef,
+    memo,
+    RefObject,
+    SetStateAction,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { Input } from '@/components/ui/input';
@@ -118,7 +128,7 @@ interface Props {
     fileName: string;
 }
 
-const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
+const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName }, ref) => {
     const { pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
 
     const [numPages, setNumPages] = useState<number | null>(null);
@@ -225,7 +235,7 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
     }
 
     return (
-        <div className="h-[90%] flex flex-col gap-2">
+        <div className="h-full flex flex-col gap-2">
             <PdfToolbar
                 pdfUrl={pdfUrl}
                 fileName={fileName}
@@ -238,7 +248,7 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
                 setPageNumber={setPageNumber}
                 numPages={numPages || 0}
             />
-            <div className="h-[90%] border rounded-md p-2">
+            <div className="h-full border rounded-md p-2" ref={ref}>
                 <Document
                     file={pdfUrl}
                     onLoadError={onDocumentLoadError}
@@ -263,6 +273,8 @@ const CustomPDFViewer = ({ pdfUrl, fileName }: Props) => {
             </div>
         </div>
     );
-};
+});
 
-export default CustomPDFViewer;
+CustomPDFViewer.displayName = 'CustomPDFViewer';
+
+export default memo(CustomPDFViewer);
