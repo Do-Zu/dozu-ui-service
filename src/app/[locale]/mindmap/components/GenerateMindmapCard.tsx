@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
 import { mindmapLayoutElkOptions } from '../constants';
 import { getLayoutedElements, getUpdatedEdges } from '../utils/mindmap.utils';
+import toastHelper from '@/utils/toast.helper';
+import { useRouter } from 'next/navigation';
 
 interface GenerateMindmapCardProps {
     mindmapData: any;
@@ -39,6 +41,7 @@ interface GeneratedNode {
 }
 
 const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGenerated }: GenerateMindmapCardProps) => {
+    const router = useRouter();
     const isMindmapUpdatedRef = useRef(false);
     const isMindmapLayoutedRef = useRef(false);
 
@@ -70,7 +73,11 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
     const [updatedMindmapData, setUpdatedMindmapData] = useState<any>({});
 
     useEffect(() => {
-        if (mindmapData.nodes.length > 0 && mindmapData.edges.length) {
+        if (!mindmapData.nodes || !mindmapData.edges) {
+            toastHelper.showErrorMessage('Invalid data, please try again');
+            router.push('/home');
+        }
+        if (mindmapData.nodes?.length > 0 && mindmapData.edges?.length) {
             setUpdatedMindmapData(getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges));
         }
     }, [mindmapData.nodes, mindmapData.edges]);
