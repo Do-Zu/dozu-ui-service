@@ -70,11 +70,7 @@ const geist = localFont({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html
-            lang="en"
-            suppressHydrationWarning
-            className={`${inter.variable} ${geist.variable} scrollbar-thin scrollbar-hide`}
-        >
+        <html lang="en" suppressHydrationWarning className={`${inter.variable} ${geist.variable} scrollbar-hover`}>
             <body className="font-sans">
                 <StoreProvider>
                     <ThemeProvider>
