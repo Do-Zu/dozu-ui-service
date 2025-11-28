@@ -1,9 +1,41 @@
-.ProseMirror h1 {
+.tiptap h1 {
     @apply text-2xl font-bold;
 }
-.ProseMirror h2 {
+.tiptap h2 {
     @apply text-xl font-bold;
 }
-.ProseMirror h3 {
+.tiptap h3 {
     @apply text-lg font-bold;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    color: #aaa;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
+.tiptap blockquote {
+    border-left: 3px solid #000;
+    background-color: #fff;
+    color: #000;
+    margin: 1rem 1rem;
+    padding: 0rem 1rem;
+}
+
+.tiptap table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+    overflow: hidden;
+    margin: 0;
+}
+
+.tiptap th,
+.tiptap td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    vertical-align: top;
+    position: relative;
 }
