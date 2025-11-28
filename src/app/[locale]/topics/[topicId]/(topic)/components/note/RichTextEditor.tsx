@@ -263,7 +263,7 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
                 accept: 'image/*',
                 upload: noteUtils.handleImageUpload,
                 onError(err) {
-                    toastHelper.showErrorMessage(`Failed to upload image: ${err.message}`);
+                    toastHelper.showErrorMessage(err);
                 },
                 maxSize: MAX_FILE_SIZE,
             }),
