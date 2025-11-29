@@ -39,3 +39,74 @@
     vertical-align: top;
     position: relative;
 }
+
+/* Code styling */
+.tiptap {
+    .hljs-comment,
+    .hljs-quote {
+        color: #616161;
+    }
+
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-attribute,
+    .hljs-tag,
+    .hljs-regexp,
+    .hljs-link,
+    .hljs-name,
+    .hljs-selector-id,
+    .hljs-selector-class {
+        color: #f98181;
+    }
+
+    .hljs-number,
+    .hljs-meta,
+    .hljs-built_in,
+    .hljs-builtin-name,
+    .hljs-literal,
+    .hljs-type,
+    .hljs-params {
+        color: #fbbc88;
+    }
+
+    .hljs-string,
+    .hljs-symbol,
+    .hljs-bullet {
+        color: #b9f18d;
+    }
+
+    .hljs-title,
+    .hljs-section {
+        color: #faf594;
+    }
+
+    .hljs-keyword,
+    .hljs-selector-tag {
+        color: #70cff8;
+    }
+
+    .hljs-emphasis {
+        font-style: italic;
+    }
+
+    .hljs-strong {
+        font-weight: 700;
+    }
+}
+
+.tiptap pre {
+    background-color: #1e1e2f;
+    color: #f8f8f2;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 1rem 0;
+}
+
+.tiptap pre code {
+    display: block;
+    white-space: pre;
+}
