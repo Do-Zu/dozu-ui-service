@@ -25,12 +25,12 @@ interface StudentProps {
     role: UserRoleEnum.USER;
 }
 interface TeacherProps {
-    role: UserRoleEnum.TEACHER;
+    role?: UserRoleEnum.TEACHER;
 }
 
 type Props = StudentProps | TeacherProps;
 
-const MindmapButtonsPanel = ({ role }: Props) => {
+const MindmapButtonsPanel = ({ role = UserRoleEnum.TEACHER }: Props) => {
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
     const {
@@ -71,7 +71,13 @@ const MindmapButtonsPanel = ({ role }: Props) => {
 
                 {/* <Separator className="my-4" /> */}
 
-                <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} setNodes={setNodes} role={role}/>
+                <RoadmapButton
+                    isPanelExpanded={isPanelExpanded}
+                    nodes={nodes}
+                    edges={edges}
+                    setNodes={setNodes}
+                    role={role}
+                />
                 <DownloadButton />
                 {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
                 {role === UserRoleEnum.TEACHER ? (

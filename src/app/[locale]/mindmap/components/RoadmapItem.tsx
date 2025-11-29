@@ -15,7 +15,7 @@ interface RoadmapItemProps {
     onComplete?: () => void;
     onExpand?: () => void; // New prop for expand action
     node: AppNode;
-    role: UserRoleEnum.USER | UserRoleEnum.TEACHER;
+    role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
 export function RoadmapItem({
     label,
@@ -27,7 +27,7 @@ export function RoadmapItem({
     onComplete,
     onExpand,
     node,
-    role,
+    role = UserRoleEnum.TEACHER,
 }: RoadmapItemProps) {
     const completeButtonVariant = completed ? 'secondary' : 'outline';
 

@@ -14,18 +14,10 @@ interface RoadmapButtonProps {
     nodes: AppNode[];
     edges: AppEdge[];
     setNodes?: (nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void;
+    role: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
 
-interface StudentProps {
-    role: UserRoleEnum.USER;
-}
-interface TeacherProps {
-    role: UserRoleEnum.TEACHER;
-}
-
-type Props = StudentProps | TeacherProps;
-
-const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes,role }: RoadmapButtonProps) => {
+const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes, role }: RoadmapButtonProps) => {
     const t = useTranslations('RoadmapButton');
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
