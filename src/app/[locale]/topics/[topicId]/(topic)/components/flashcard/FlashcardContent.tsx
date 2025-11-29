@@ -13,9 +13,8 @@ import { UserRoleEnum } from '@/utils/constants/roles';
 import EditingFlashcards from './edit/EditingFlashcards';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
-import FlashcardsEmptyState from './browse/FlashcardsEmptyState';
-import { isEmpty } from '@/utils';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 
 export type FlashcardTab = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
 export enum FlashcardTabEnum {
@@ -26,27 +25,17 @@ export enum FlashcardTabEnum {
     GAMES = 'games',
 }
 
-interface PersonalProps {
-    mode: MODE_ACCESS_PAGE_ROLE.personal;
-    role?: undefined;
+interface Props {
+    mode: ILearningMode;
+    role: UserRoleEnum;
 }
-
-interface StudentProps {
-    mode: MODE_ACCESS_PAGE_ROLE.classBased;
-    role: UserRoleEnum.USER;
-}
-interface TeacherProps {
-    mode: MODE_ACCESS_PAGE_ROLE.classBased;
-    role: UserRoleEnum.TEACHER;
-}
-
-type Props = PersonalProps | StudentProps | TeacherProps;
 
 export default function FlashcardContent({ mode, role }: Props) {
-    const selectableItems: FlashcardTab[] = useMemo(() => {
+    const availableFlashcardTabs: FlashcardTab[] = useMemo(() => {
         if (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER)
             return ['browse', 'learning', 'edit', 'settings', 'games'];
-        return ['browse', 'learning', 'settings', 'games'];
+        if (role === UserRoleEnum.USER) return ['browse', 'learning', 'settings', 'games'];
+        return [];
     }, [mode, role]);
 
     const itemIcons: { item: FlashcardTab; icon: JSX.Element }[] = [
@@ -60,15 +49,21 @@ export default function FlashcardContent({ mode, role }: Props) {
     const { flashcardTab, setFlashcardTab } = useTopicWorkspace();
 
     function handleModeSelect(mode: string) {
-        if (!selectableItems.includes(mode as FlashcardTab)) return;
+        if (!availableFlashcardTabs.includes(mode as FlashcardTab)) return;
         setFlashcardTab(mode as FlashcardTab);
     }
 
     return (
         <div className="w-full h-full flex flex-col">
             <Tabs value={flashcardTab} onValueChange={handleModeSelect} className="w-full flex justify-center">
-                <TabsList className="w-[70%] grid grid-cols-5 rounded-2xl p-1">
-                    {selectableItems.map((item) => (
+                <TabsList
+                    className="w-[70%] rounded-2xl p-1"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: `repeat(${availableFlashcardTabs.length}, minmax(0, 1fr))`,
+                    }}
+                >
+                    {availableFlashcardTabs.map((item) => (
                         <TabsTrigger
                             key={item}
                             value={item}
@@ -82,11 +77,13 @@ export default function FlashcardContent({ mode, role }: Props) {
             </Tabs>
 
             <div className="flex-1 min-h-0">
-                {flashcardTab === FlashcardTabEnum.BROWSE && selectableItems.includes(FlashcardTabEnum.BROWSE) ? (
+                {flashcardTab === FlashcardTabEnum.BROWSE &&
+                availableFlashcardTabs.includes(FlashcardTabEnum.BROWSE) ? (
                     <BrowseFlashcards />
                 ) : null}
 
-                {flashcardTab === FlashcardTabEnum.LEARNING && selectableItems.includes(FlashcardTabEnum.LEARNING) ? (
+                {flashcardTab === FlashcardTabEnum.LEARNING &&
+                availableFlashcardTabs.includes(FlashcardTabEnum.LEARNING) ? (
                     <UserTrackingProvider
                         autoStartTracking={true}
                         enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
@@ -98,23 +95,24 @@ export default function FlashcardContent({ mode, role }: Props) {
                     </UserTrackingProvider>
                 ) : null}
 
-                {flashcardTab === FlashcardTabEnum.EDIT && selectableItems.includes(FlashcardTabEnum.EDIT) && (
+                {flashcardTab === FlashcardTabEnum.EDIT && availableFlashcardTabs.includes(FlashcardTabEnum.EDIT) && (
                     <div className="h-full">
                         <EditingFlashcards />
                     </div>
                 )}
 
-                {flashcardTab === FlashcardTabEnum.SETTINGS && selectableItems.includes(FlashcardTabEnum.SETTINGS) ? (
+                {flashcardTab === FlashcardTabEnum.SETTINGS &&
+                availableFlashcardTabs.includes(FlashcardTabEnum.SETTINGS) ? (
                     <div className="h-full overflow-y-scroll">
                         <FlashcardSettings />
                     </div>
                 ) : null}
 
-                {flashcardTab === FlashcardTabEnum.GAMES && selectableItems.includes(FlashcardTabEnum.GAMES) ? (
+                {flashcardTab === FlashcardTabEnum.GAMES && availableFlashcardTabs.includes(FlashcardTabEnum.GAMES) ? (
                     mode === MODE_ACCESS_PAGE_ROLE.personal ? (
-                        <GamesContent mode={MODE_ACCESS_PAGE_ROLE.personal} />
+                        <GamesContent />
                     ) : (
-                        <GamesContent mode={MODE_ACCESS_PAGE_ROLE.classBased} role={role!} />
+                        <GamesContent />
                     )
                 ) : null}
             </div>

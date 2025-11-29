@@ -8,8 +8,20 @@ import DataStatus from '@/components/errors/DataStatus';
 import { isEmpty, isNil } from '@/utils';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { METHOD_LEARNING } from '@/utils/constants/method';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { UserRoleEnum } from '@/utils/constants/roles';
 
 export default function FlashCardTab() {
+    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const { isStudent, isTeacher } = useRoleChecker();
+    const getRole = () => {
+        if (isStudent) return UserRoleEnum.USER;
+        if (isTeacher) return UserRoleEnum.TEACHER;
+        return UserRoleEnum.ADMIN;
+    };
+
     const {
         tab,
         topicId,
@@ -46,5 +58,5 @@ export default function FlashCardTab() {
 
     if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 
-    return <FlashcardContent mode={MODE_ACCESS_PAGE_ROLE.personal} />;
+    return <FlashcardContent mode={learningMode as ILearningMode} role={getRole()} />;
 }

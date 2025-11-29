@@ -9,6 +9,8 @@ import LearningCard from '../learning/LearningCard';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import LearningFlashcardsEmptyState from '../learning/LearningFlashcardsEmptyState';
 import flashcardUtils from '../../../utils/flashcard.utils';
+import useAnkiSettings from '../../../hooks/useAnkiSettings';
+import DataStatus from '@/components/errors/DataStatus';
 
 interface Props {
     nodeId: string;
@@ -27,6 +29,7 @@ export default function NodeFlashcardsLearning({ nodeId, onClose }: Props) {
     const currentFlashcard = nodeLearningFlashcards?.[0];
 
     const [shouldShowTrackingOptions, setShouldShowTrackingOptions] = useState<boolean>(false);
+    const { currentAnkiSetting } = useAnkiSettings();
 
     const { loading: reviewFlashcardLoading, execute: reviewFlashcardAsync } = usePost<
         IFlashcardReviewByAnkiPayload,
@@ -73,10 +76,15 @@ export default function NodeFlashcardsLearning({ nodeId, onClose }: Props) {
         return <LearningFlashcardsEmptyState topicId={topicId} />;
     }
 
+    if (!currentAnkiSetting) {
+        return <DataStatus variant="error" />;
+    }
+
     return (
         <div className="h-full flex flex-col">
             <LearningCard
                 flashcard={currentFlashcard}
+                ankiSetting={currentAnkiSetting}
                 shouldShowTrackingOptions={shouldShowTrackingOptions}
                 isFlipped={isFlipped}
                 isAnimating={isAnimating}

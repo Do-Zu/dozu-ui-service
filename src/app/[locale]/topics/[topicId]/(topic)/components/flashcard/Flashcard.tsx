@@ -37,8 +37,8 @@ export default function Flashcard({
                 )}
             >
                 {/* Front Side */}
-                <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden shadow-md text-center p-8 text-lg">
-                    {front}
+                <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden shadow-md text-center p-8 text-lg whitespace-pre-wrap break-words overflow-auto">
+                    <div className="w-full max-w-full">{front}</div>
                 </div>
                 {/* Back Side and image if have */}
                 <div className="absolute inset-0  flex items-center flex-col gap-2 justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden rotate-x-180 shadow-md text-center p-8 text-lg">
@@ -53,7 +53,13 @@ export default function Flashcard({
                         />
                     ) : null}
                     <div>{back}</div>
-                    <Reference content={`${front} : ${back}`} />
+                    <div
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                    >
+                        <Reference content={`${front} : ${back}`} />
+                    </div>
                 </div>
             </div>
         </div>

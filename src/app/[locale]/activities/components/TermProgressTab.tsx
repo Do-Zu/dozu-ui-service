@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { QuestionPerformance, PerformanceBreakdown } from '@/types/activity';
 import QuestionDetailList from './QuestionDetailList';
@@ -11,12 +12,14 @@ interface TermProgressTabProps {
 }
 
 export default function TermProgressTab({ questions, performance }: TermProgressTabProps) {
+  const t = useTranslations('activities');
+  
   return (
     <div className="space-y-6">
       {/* Progress of Terms Chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Tiến trình thuật ngữ</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('termProgress.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <CircularProgressChart performance={performance} />
@@ -26,9 +29,9 @@ export default function TermProgressTab({ questions, performance }: TermProgress
       {/* Term Progress Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Term Progress Details</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('termProgress.termProgressDetails')}</CardTitle>
           <p className="text-sm text-gray-600 dark:text-muted-foreground">
-            Detailed breakdown of student performance for each term
+            {t('termProgress.description')}
           </p>
         </CardHeader>
         <CardContent>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StudentQuizProgress, QuestionPerformance } from '@/types/activity';
@@ -11,22 +12,36 @@ interface StudentResultsTabProps {
 }
 
 export default function StudentResultsTab({ students, questions }: StudentResultsTabProps) {
-  // Calculate averages
+  const t = useTranslations('activities');
+  
+  // Calculate averages from all students with answers (including in-progress)
+  // This allows teacher to see real-time progress, not just completed students
+  const studentsWithAnswers = students.filter(s => s.answers && s.answers.length > 0);
   const completedStudents = students.filter(s => s.status === 'completed');
-  const averageScore = completedStudents.length > 0
-    ? completedStudents.reduce((sum, s) => sum + (s.score || 0), 0) / completedStudents.length
+  
+  // Calculate average score from all students with answers (use accuracy if score not available)
+  const averageScore = studentsWithAnswers.length > 0
+    ? studentsWithAnswers.reduce((sum, s) => {
+        // Use score if available, otherwise use accuracy (for in-progress students)
+        const studentScore = s.score !== null && s.score !== undefined ? s.score : (s.accuracy || 0);
+        return sum + studentScore;
+      }, 0) / studentsWithAnswers.length
     : 0;
-  const averageCorrect = completedStudents.length > 0
-    ? Math.round(completedStudents.reduce((sum, s) => sum + s.correctAnswers, 0) / completedStudents.length)
+  
+  // Calculate average correct answers from all students with answers
+  const averageCorrect = studentsWithAnswers.length > 0
+    ? Math.round(studentsWithAnswers.reduce((sum, s) => sum + s.correctAnswers, 0) / studentsWithAnswers.length)
     : 0;
-  const averageTotal = completedStudents.length > 0
-    ? Math.round(completedStudents.reduce((sum, s) => sum + s.totalAnswers, 0) / completedStudents.length)
+  
+  // Calculate average total answers from all students with answers
+  const averageTotal = studentsWithAnswers.length > 0
+    ? Math.round(studentsWithAnswers.reduce((sum, s) => sum + (s.answers?.length || 0), 0) / studentsWithAnswers.length)
     : 0;
 
-  // Calculate average correct answers for each question
+  // Calculate average correct answers for each question from all students with answers
   const averageQuestionAnswers = questions.map((question) => {
     const questionId = question.questionId;
-    const questionAnswers = completedStudents.map(s => {
+    const questionAnswers = studentsWithAnswers.map(s => {
       const answer = s.answers?.find(a => a.questionId === questionId);
       return answer?.isCorrect ? 1 : 0;
     });
@@ -129,9 +144,9 @@ export default function StudentResultsTab({ students, questions }: StudentResult
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Detailed Student Results</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('studentResults.title')}</CardTitle>
           <p className="text-sm text-gray-600 dark:text-muted-foreground">
-            Individual student performance for each question
+            {t('studentResults.description')}
           </p>
         </CardHeader>
         <CardContent>
@@ -141,10 +156,10 @@ export default function StudentResultsTab({ students, questions }: StudentResult
               <table className="border-collapse w-full">
                 <thead>
                   <tr ref={fixedHeaderRef} className="border-b border-gray-200 dark:border-border">
-                    <th className="text-left p-3 font-medium text-gray-900 dark:text-foreground min-w-[200px] w-[200px] bg-blue-100 dark:bg-muted">Student</th>
-                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[80px] w-[80px] bg-purple-100 dark:bg-muted">% Correct</th>
-                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[70px] w-[70px] bg-green-100 dark:bg-muted">Correct</th>
-                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[60px] w-[60px] bg-orange-100 dark:bg-muted">Total</th>
+                    <th className="text-left p-3 font-medium text-gray-900 dark:text-foreground min-w-[200px] w-[200px] bg-blue-100 dark:bg-muted">{t('studentResults.student')}</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[80px] w-[80px] bg-purple-100 dark:bg-muted">{t('studentResults.percentCorrect')}</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[70px] w-[70px] bg-green-100 dark:bg-muted">{t('studentResults.correct')}</th>
+                    <th className="text-center p-3 font-medium text-gray-900 dark:text-foreground min-w-[60px] w-[60px] bg-orange-100 dark:bg-muted">{t('studentResults.total')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -155,23 +170,45 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                       className={`border-b border-gray-200 dark:border-border hover:bg-gray-50 dark:hover:bg-muted/50 ${index % 2 === 0 ? 'bg-white dark:bg-background' : 'bg-gray-50/30 dark:bg-muted/30'}`}
                     >
                       <td className="p-3 font-medium bg-blue-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.studentName}</td>
-                      <td className="p-3 text-center bg-purple-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{Number(student.score || 0).toFixed(0)}%</td>
+                      <td className="p-3 text-center bg-purple-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">
+                        {(() => {
+                          // Calculate percentage from answers in realtime
+                          // If student has answers, calculate accuracy from answers array
+                          if (student.answers && student.answers.length > 0) {
+                            // If student is completed, use score; otherwise calculate from answers
+                            if (student.status === 'completed' && student.score !== null && student.score !== undefined) {
+                              return Number(student.score).toFixed(0) + '%';
+                            } else {
+                              // Calculate accuracy from answers array for realtime updates
+                              const correctCount = student.answers.filter(a => a.isCorrect === true).length;
+                              const totalCount = student.answers.length;
+                              const calculatedAccuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+                              return Number(calculatedAccuracy).toFixed(0) + '%';
+                            }
+                          }
+                          return '-';
+                        })()}
+                      </td>
                       <td className="p-3 text-center bg-green-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.correctAnswers}</td>
                       <td className="p-3 text-center bg-orange-50/30 dark:bg-transparent text-gray-900 dark:text-foreground">{student.answers.length}</td>
                     </tr>
                   ))}
-                  {/* Average Row */}
-                  {completedStudents.length > 0 && (
-                    <tr 
-                      ref={fixedAverageRef}
-                      className="border-t-2 border-gray-300 dark:border-border bg-gradient-to-r from-gray-100 to-gray-50 dark:from-muted dark:to-muted/80"
-                    >
-                      <td className="p-3 font-medium bg-blue-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">Average</td>
-                      <td className="p-3 text-center font-medium bg-purple-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{averageScore.toFixed(0)}%</td>
-                      <td className="p-3 text-center font-medium bg-green-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{averageCorrect}</td>
-                      <td className="p-3 text-center font-medium bg-orange-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{averageTotal}</td>
-                    </tr>
-                  )}
+                  {/* Average Row - Always show to track real-time progress */}
+                  <tr 
+                    ref={fixedAverageRef}
+                    className="border-t-2 border-gray-300 dark:border-border bg-gradient-to-r from-gray-100 to-gray-50 dark:from-muted dark:to-muted/80"
+                  >
+                    <td className="p-3 font-medium bg-blue-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">{t('studentResults.average')}</td>
+                    <td className="p-3 text-center font-medium bg-purple-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">
+                      {studentsWithAnswers.length > 0 ? averageScore.toFixed(0) + '%' : '-'}
+                    </td>
+                    <td className="p-3 text-center font-medium bg-green-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">
+                      {studentsWithAnswers.length > 0 ? averageCorrect : '-'}
+                    </td>
+                    <td className="p-3 text-center font-medium bg-orange-50/40 dark:bg-transparent text-gray-900 dark:text-foreground">
+                      {studentsWithAnswers.length > 0 ? averageTotal : '-'}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -217,19 +254,17 @@ export default function StudentResultsTab({ students, questions }: StudentResult
                       })}
                     </tr>
                   ))}
-                  {/* Average Row */}
-                  {completedStudents.length > 0 && (
-                    <tr 
-                      ref={scrollableAverageRef}
-                      className="border-t-2 border-gray-300 dark:border-border bg-gradient-to-r from-gray-100 to-gray-50 dark:from-muted dark:to-muted/80"
-                    >
-                      {averageQuestionAnswers.map((avg, index) => (
-                        <td key={index} className="p-3 text-center border-r border-gray-200 dark:border-border last:border-r-0 bg-blue-50/30 dark:bg-transparent">
-                          <span className="text-gray-700 dark:text-foreground font-medium">{avg}</span>
-                        </td>
-                      ))}
-                    </tr>
-                  )}
+                  {/* Average Row - Always show to track real-time progress */}
+                  <tr 
+                    ref={scrollableAverageRef}
+                    className="border-t-2 border-gray-300 dark:border-border bg-gradient-to-r from-gray-100 to-gray-50 dark:from-muted dark:to-muted/80"
+                  >
+                    {averageQuestionAnswers.map((avg, index) => (
+                      <td key={index} className="p-3 text-center border-r border-gray-200 dark:border-border last:border-r-0 bg-blue-50/30 dark:bg-transparent">
+                        <span className="text-gray-700 dark:text-foreground font-medium">{avg}</span>
+                      </td>
+                    ))}
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -240,7 +275,7 @@ export default function StudentResultsTab({ students, questions }: StudentResult
       {/* Question Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Question Details</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('studentResults.questionDetails')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

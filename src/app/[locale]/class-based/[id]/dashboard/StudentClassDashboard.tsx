@@ -227,58 +227,7 @@ export default function StudentClassDashboard() {
         </>
     );
 
-    const menuContentInCard = (topic: ITopic) => {
-        const { topicId } = topic;
-        return (
-            <DropdownMenuContent align="start" side="top">
-                {/* Flashard section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <Layers className="mr-2 h-4 w-4" />
-                        <span>Flashcard</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnSelectBrowse(topicId)}>
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span>{tTopic('browse')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectLearning(topic)}>
-                            <GraduationCap className="mr-2 h-4 w-4" />
-                            <span>{tTopic('learning')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Mindmap section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <GitFork className="mr-2 h-4 w-4" />
-                        <span>Mind Map</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickViewMindmap(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.view')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Quiz */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <ClipboardCheck className="mr-2 h-4 w-4" />
-                        <span>Quiz</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickStartQuiz(topicId)}>
-                            <Play className="mr-2 h-4 w-4" />
-                            <span>{tTopic('start-quiz')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-            </DropdownMenuContent>
-        );
-    };
+    const menuContentInCard = (topic: ITopic) => null;
 
     const cardFooter = (topic: ITopic) => (
         <div className="flex flex-col text-xs text-foreground justify-between">

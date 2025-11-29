@@ -56,7 +56,7 @@ export function UserMenu() {
             await execute({});
             clearAuthData();
             dispatch(logout());
-            router.replace(ROUTES.LANDING);
+            router.replace(ROUTES.LOGIN);
         } catch (error) {
             toast({
                 description: t('logoutError'),
@@ -120,102 +120,99 @@ export function UserMenu() {
                         <ChevronDown className="h-4 w-4 text-slate-500 flex-shrink-0 group-data-[collapsible=icon]:hidden" />
                     </button>
                 </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="end"
-                className="w-56"
-                side="top"
-                sideOffset={8}
-            >
-                <DropdownMenuLabel className="font-normal">
-                    <button
-                        onClick={() => router.push(ROUTES.PROFILE)}
-                        className="w-full text-left flex flex-col space-y-1 hover:opacity-80 transition-opacity cursor-pointer"
+                <DropdownMenuContent align="end" className="w-56" side="top" sideOffset={8}>
+                    <DropdownMenuLabel className="font-normal">
+                        <button
+                            onClick={() => router.push(ROUTES.PROFILE)}
+                            className="w-full text-left flex flex-col space-y-1 hover:opacity-80 transition-opacity cursor-pointer"
+                        >
+                            <p className="text-sm font-medium leading-none">{displayName}</p>
+                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                        </button>
+                    </DropdownMenuLabel>
+                    <DropdownMenuLabel className="text-xs text-muted-foreground">
+                        {t('plan')}: {userPlan}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        onSelect={(e) => {
+                            e.preventDefault();
+                            setShowThemeOptions(!showThemeOptions);
+                        }}
+                        className="cursor-pointer"
                     >
-                        <p className="text-sm font-medium leading-none">{displayName}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                    </button>
-                </DropdownMenuLabel>
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                    {t('plan')}: {userPlan}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    onSelect={(e) => {
-                        e.preventDefault();
-                        setShowThemeOptions(!showThemeOptions);
-                    }}
-                    className="cursor-pointer"
-                >
-                    <span className="flex-1 text-sm">{t('theme')}</span>
-                    {selectedTheme && mounted && (() => {
-                        const Icon = selectedTheme.icon;
-                        return (
+                        <span className="flex-1 text-sm">{t('theme')}</span>
+                        {selectedTheme &&
+                            mounted &&
+                            (() => {
+                                const Icon = selectedTheme.icon;
+                                return (
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                        <Icon className="h-3.5 w-3.5" />
+                                        {/* <span>{selectedTheme.label}</span> */}
+                                    </div>
+                                );
+                            })()}
+                    </DropdownMenuItem>
+                    {showThemeOptions && mounted && (
+                        <DropdownMenuRadioGroup value={currentTheme} onValueChange={setTheme}>
+                            {THEMES.map((themeOption) => {
+                                const Icon = themeOption.icon;
+                                return (
+                                    <DropdownMenuRadioItem
+                                        key={themeOption.key}
+                                        value={themeOption.key}
+                                        className="cursor-pointer pl-6"
+                                    >
+                                        <Icon className="mr-2 h-4 w-4" />
+                                        {themeOption.labelVi}
+                                    </DropdownMenuRadioItem>
+                                );
+                            })}
+                        </DropdownMenuRadioGroup>
+                    )}
+                    <DropdownMenuItem
+                        onSelect={(e) => {
+                            e.preventDefault();
+                            setShowLanguageOptions(!showLanguageOptions);
+                        }}
+                        className="cursor-pointer"
+                    >
+                        <span className="flex-1 text-sm">{t('language')}</span>
+                        {selectedLang && (
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Icon className="h-3.5 w-3.5" />
-                                {/* <span>{selectedTheme.label}</span> */}
+                                <span className="text-sm leading-none">{selectedLang.flag}</span>
+                                {/* <span>{selectedLang.label}</span> */}
                             </div>
-                        );
-                    })()}
-                </DropdownMenuItem>
-                {showThemeOptions && mounted && (
-                    <DropdownMenuRadioGroup value={currentTheme} onValueChange={setTheme}>
-                        {THEMES.map((themeOption) => {
-                            const Icon = themeOption.icon;
+                        )}
+                    </DropdownMenuItem>
+                    {showLanguageOptions &&
+                        LANGS.map((lang) => {
+                            const active = lang.code === currentLang;
                             return (
-                                <DropdownMenuRadioItem
-                                    key={themeOption.key}
-                                    value={themeOption.key}
-                                    className="cursor-pointer pl-6"
+                                <DropdownMenuItem
+                                    key={lang.code}
+                                    onSelect={() => changeLocale(lang.code)}
+                                    className="flex items-center gap-2 cursor-pointer pl-6"
+                                    disabled={isPending}
                                 >
-                                    <Icon className="mr-2 h-4 w-4" />
-                                    {themeOption.labelVi}
-                                </DropdownMenuRadioItem>
+                                    <span className="text-lg leading-none">{lang.flag}</span>
+                                    <span className="flex-1 text-sm">{lang.label}</span>
+                                    {isPending && <Loader2 className="h-4 w-4 animate-spin text-slate-500" />}
+                                    {!isPending && active && <Check className="h-4 w-4 text-indigo-500" />}
+                                </DropdownMenuItem>
                             );
                         })}
-                    </DropdownMenuRadioGroup>
-                )}
-                <DropdownMenuItem
-                    onSelect={(e) => {
-                        e.preventDefault();
-                        setShowLanguageOptions(!showLanguageOptions);
-                    }}
-                    className="cursor-pointer"
-                >
-                    <span className="flex-1 text-sm">{t('language')}</span>
-                    {selectedLang && (
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <span className="text-sm leading-none">{selectedLang.flag}</span>
-                            {/* <span>{selectedLang.label}</span> */}
-                        </div>
-                    )}
-                </DropdownMenuItem>
-                {showLanguageOptions && LANGS.map((lang) => {
-                    const active = lang.code === currentLang;
-                    return (
-                        <DropdownMenuItem
-                            key={lang.code}
-                            onSelect={() => changeLocale(lang.code)}
-                            className="flex items-center gap-2 cursor-pointer pl-6"
-                            disabled={isPending}
-                        >
-                            <span className="text-lg leading-none">{lang.flag}</span>
-                            <span className="flex-1 text-sm">{lang.label}</span>
-                            {isPending && <Loader2 className="h-4 w-4 animate-spin text-slate-500" />}
-                            {!isPending && active && <Check className="h-4 w-4 text-indigo-500" />}
-                        </DropdownMenuItem>
-                    );
-                })}
-                <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
-                >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    {t('logout')}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        {t('logout')}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 }
-

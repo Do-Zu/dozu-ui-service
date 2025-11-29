@@ -1,0 +1,97 @@
+{
+  "activities": {
+    "studentSummary": {
+      "title": "Tóm lược học sinh",
+      "description": "Tổng quan về tất cả học sinh và trạng thái hoàn thành bài kiểm tra",
+      "studentCount": "({count}) Học sinh A-Z",
+      "status": "Trạng thái"
+    },
+    "studentProgress": {
+      "completed": "Đã hoàn thành",
+      "inProgress": "Đang làm",
+      "notStarted": "Chưa bắt đầu",
+      "completedOn": "Hoàn thành vào",
+      "notCompletedYet": "Chưa hoàn thành",
+      "progress": "Tiến trình",
+      "questions": "câu hỏi",
+      "correct": "đúng",
+      "incorrect": "sai",
+      "detailedResults": "Kết quả chi tiết"
+    },
+    "studentResults": {
+      "title": "Kết quả chi tiết của học sinh",
+      "description": "Hiệu suất của từng học sinh cho từng câu hỏi",
+      "student": "Học sinh",
+      "percentCorrect": "% Đúng",
+      "correct": "Đúng",
+      "total": "Tổng",
+      "average": "Trung bình",
+      "questionDetails": "Chi tiết câu hỏi"
+    },
+    "termProgress": {
+      "title": "Tiến trình thuật ngữ",
+      "termProgressDetails": "Chi tiết tiến trình thuật ngữ",
+      "description": "Phân tích chi tiết hiệu suất của học sinh cho từng thuật ngữ",
+      "thuongSai": "Thường sai",
+      "doiLucSai": "Đôi lúc sai",
+      "itKhiSai": "Ít khi sai",
+      "chuaBatDau": "Chưa bắt đầu",
+      "thuongSaiDesc": "Học sinh có tỷ lệ trả lời đúng 0%-25% cho các thuật ngữ này.",
+      "doiLucSaiDesc": "Học sinh có tỷ lệ trả lời đúng 25%-75% cho các thuật ngữ này.",
+      "itKhiSaiDesc": "Học sinh có tỷ lệ trả lời đúng 75%-100% cho các thuật ngữ này.",
+      "chuaBatDauDesc": "Học sinh chưa học các thuật ngữ này.",
+      "showDetails": "Hiển thị chi tiết",
+      "hideDetails": "Ẩn chi tiết",
+      "terms": "Thuật ngữ"
+    },
+    "activitySummary": {
+      "overallProgress": "Tiến trình tổng thể",
+      "participated": "đã tham gia",
+      "completed": "đã hoàn thành",
+      "notCompleted": "chưa hoàn thành",
+      "classStatistics": "Thống kê lớp học",
+      "averageScore": "Điểm trung bình",
+      "studentsAbove80": "Học sinh trên 80%",
+      "studentsBelow50": "Học sinh dưới 50%"
+    },
+    "teacherPage": {
+      "tabs": {
+        "activitySummary": "Tóm lược hoạt động",
+        "studentSummary": "Tóm lược học sinh",
+        "termProgress": "Tiến trình thuật ngữ",
+        "studentResults": "Kết quả của học sinh"
+      },
+      "downloadStudentResults": "Tải xuống kết quả học sinh",
+      "viewUntil": "Xem và tải xuống kết quả cho đến",
+      "refresh": "Làm mới",
+      "refreshing": "Đang làm mới...",
+      "downloadExcel": "Tải xuống file .xlsx",
+      "totalStudents": "Tổng học sinh",
+      "completed": "Đã hoàn thành",
+      "inProgress": "Đang làm",
+      "notStarted": "Chưa bắt đầu",
+      "dueBy": "Hạn đến",
+      "liveUpdates": "Cập nhật trực tiếp",
+      "connecting": "Đang kết nối...",
+      "yourLibrary": "Thư viện của bạn",
+      "activities": "Hoạt động",
+      "toast": {
+        "quizSubmitted": "Đã nộp bài kiểm tra",
+        "studentSubmittedQuiz": "Học sinh {userId} đã nộp bài kiểm tra",
+        "withScore": "với điểm {score}%",
+        "dataRefreshed": "Đã làm mới dữ liệu",
+        "dataUpdated": "Dữ liệu hoạt động đã được cập nhật thành công.",
+        "refreshFailed": "Làm mới thất bại",
+        "failedToRefresh": "Không thể làm mới dữ liệu hoạt động.",
+        "errorRefreshing": "Đã xảy ra lỗi khi làm mới dữ liệu.",
+        "downloadSuccessful": "Tải xuống thành công",
+        "fileDownloaded": "File {filename} đã được tải xuống thành công.",
+        "downloadFailed": "Tải xuống thất bại",
+        "errorDownloading": "Đã xảy ra lỗi khi tải xuống file. Vui lòng thử lại."
+      }
+    },
+    "common": {
+      "unknown": "Không xác định"
+    }
+  }
+}

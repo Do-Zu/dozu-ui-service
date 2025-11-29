@@ -59,7 +59,7 @@ export const isSupportedContentType = (type: string): type is ContentType => {
 export const getContentTypeDisplayName = (type: ContentType | null): string => {
     switch (type) {
         case 'flashcard':
-            return 'Flashcards';
+            return 'Flashcard';
         case 'quiz':
             return 'Quiz';
         case 'mindmap':
