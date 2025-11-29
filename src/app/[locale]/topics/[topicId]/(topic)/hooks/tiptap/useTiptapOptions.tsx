@@ -11,6 +11,7 @@ import {
     Italic,
     List,
     ListOrdered,
+    ListTodo,
     Strikethrough,
     Type,
 } from 'lucide-react';
@@ -40,6 +41,7 @@ export default function useTiptapOptions({ editor }: Props) {
         isAlignRight,
         isBulletList,
         isOrderedList,
+        isTaskList,
         isHighlight,
     } = useEditorState({
         editor,
@@ -57,6 +59,7 @@ export default function useTiptapOptions({ editor }: Props) {
                 isAlignRight: context.editor.isActive({ textAlign: 'right' }),
                 isBulletList: context.editor.isActive('bulletList'),
                 isOrderedList: context.editor.isActive('orderedList'),
+                isTaskList: context.editor.isActive('taskList'),
                 isHighlight: context.editor.isActive('highlight'),
             };
         },
@@ -125,12 +128,18 @@ export default function useTiptapOptions({ editor }: Props) {
                 pressed: isOrderedList,
             },
             {
+                icon: <ListTodo className="size-4" />,
+                onClick: () => editor.chain().focus().toggleTaskList().run(),
+                pressed: isTaskList,
+            },
+            {
                 icon: <Highlighter className="size-4" />,
                 onClick: () => editor.chain().focus().toggleHighlight().run(),
                 pressed: isHighlight,
             },
         ],
         [
+            editor,
             isParagraph,
             isHeading1,
             isHeading2,
@@ -143,6 +152,7 @@ export default function useTiptapOptions({ editor }: Props) {
             isAlignRight,
             isBulletList,
             isOrderedList,
+            isTaskList,
             isHighlight,
         ],
     );

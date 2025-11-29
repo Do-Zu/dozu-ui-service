@@ -1,6 +1,6 @@
 import { SuggestionProps } from '@tiptap/suggestion';
 import { ItemProps, ItemTypeEnum } from '../../components/note/CommandsView';
-import { Code, Grid2X2, Heading1, Heading2, Heading3, List, ListOrdered, Quote, Type } from 'lucide-react';
+import { Code, Grid2X2, Heading1, Heading2, Heading3, List, ListOrdered, ListTodo, Quote, Type } from 'lucide-react';
 import { RefObject, useMemo } from 'react';
 
 interface Props {
@@ -69,6 +69,14 @@ export default function useCommandOptions({ imageUploadButtonRef }: Props) {
                 icon: <ListOrdered className="size-4" />,
                 command: ({ editor, range }: SuggestionProps) => {
                     editor.chain().focus().deleteRange(range).toggleOrderedList().run();
+                },
+            },
+            {
+                title: 'Task List',
+                group: ItemTypeEnum.BASIC,
+                icon: <ListTodo className="size-4" />,
+                command: ({ editor, range }: SuggestionProps) => {
+                    editor.chain().focus().deleteRange(range).toggleTaskList().run();
                 },
             },
             {
