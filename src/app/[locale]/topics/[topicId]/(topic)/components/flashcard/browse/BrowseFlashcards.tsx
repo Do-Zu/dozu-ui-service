@@ -230,7 +230,7 @@ export default function BrowseFlashcards() {
     }
 
     return (
-        <div className="flex bg-gray-background w-full h-full">
+        <div className="flex bg-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
                 {/* Header with tabs and view mode controls */}
                 <div className="absolute top-8 left-4 right-4 z-30 flex items-center gap-3 mb-4">
@@ -269,7 +269,7 @@ export default function BrowseFlashcards() {
                 {viewMode === 'card' && (
                     <div
                         className={cn(
-                            'relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg',
+                            'relative bg-muted flex flex-col h-full items-center justify-center rounded-lg',
                             'transform-all duration-300 ease-in-out',
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
@@ -309,7 +309,7 @@ export default function BrowseFlashcards() {
                                     <ArrowLeft className="h-5 w-5" />
                                 </Button>
 
-                                <div className="text-base">
+                                <div className="text-base text-foreground">
                                     {currentFlashcardIndex + 1} / {flashcardsToDisplay.length}{' '}
                                 </div>
 
@@ -331,7 +331,7 @@ export default function BrowseFlashcards() {
                 {viewMode === 'list' && (
                     <div
                         className={cn(
-                            'relative bg-gray-100 dark:bg-gray-850 rounded-lg h-full overflow-y-auto',
+                            'relative bg-muted rounded-lg h-full overflow-y-auto',
                             'transform-all duration-300 ease-in-out',
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
@@ -354,22 +354,22 @@ export default function BrowseFlashcards() {
                                         />
                                     </div>
                                     <CardContent className="p-0">
-                                        <div className="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700">
+                                        <div className="grid grid-cols-2 divide-x divide-border">
                                             {/* Front Side - Left */}
-                                            <div className="p-6 bg-white dark:bg-gray-800">
+                                            <div className="p-6 bg-background">
                                                 <div className="mb-2">
-                                                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                    <span className="text-sm font-medium text-muted-foreground">
                                                         {index + 1} Front
                                                     </span>
                                                 </div>
-                                                <div className="text-base text-gray-900 dark:text-foreground whitespace-pre-wrap">
+                                                <div className="text-base text-foreground whitespace-pre-wrap">
                                                     {flashcard.front}
                                                 </div>
                                             </div>
 
                                             {/* Back Side - Right */}
-                                            <div className="p-6 bg-gray-50 dark:bg-gray-900">
-                                                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                                            <div className="p-6 bg-muted">
+                                                <div className="text-sm font-medium text-muted-foreground mb-2">
                                                     Back
                                                 </div>
                                                 {flashcard.imageUrl && (
@@ -381,7 +381,7 @@ export default function BrowseFlashcards() {
                                                         />
                                                     </div>
                                                 )}
-                                                <div className="text-base text-gray-900 dark:text-foreground whitespace-pre-wrap">
+                                                <div className="text-base text-foreground whitespace-pre-wrap">
                                                     {flashcard.back}
                                                 </div>
                                             </div>
@@ -403,7 +403,7 @@ export default function BrowseFlashcards() {
                     )}
                 >
                     <StudyControls
-                        style="bg-gray-100 dark:bg-gray-850 h-full p-6 rounded-lg shadow-sm flex flex-col gap-6 overflow-hidden"
+                        style="bg-muted h-full p-6 rounded-lg shadow-sm flex flex-col gap-6 overflow-hidden"
                         currentFlashcardIndex={currentFlashcardIndex}
                         flashcardsLength={flashcardsToDisplay.length}
                         autoPlayEnabled={autoPlayEnabled}
