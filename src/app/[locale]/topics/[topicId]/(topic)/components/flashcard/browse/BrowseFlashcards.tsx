@@ -187,6 +187,25 @@ export default function BrowseFlashcards() {
         setCurrentFlashcardIndex(0);
     }
 
+    function renderCardActions() {
+        if (!currentFlashcard) return null;
+        
+        return (
+            <div className="flex items-center gap-2">
+                <StarButton
+                    isStarred={starredFlashcards.has(currentFlashcard.flashcardId)}
+                    onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
+                    size={24}
+                    buttonSize="lg"
+                />
+                <VolumeButton 
+                    text={isFlipped ? (currentFlashcard?.back || '') : (currentFlashcard?.front || '')} 
+                    className="h-10 w-10"
+                />
+            </div>
+        );
+    }
+
     useEffect(() => {
         if (!autoPlayEnabled || !flashcardsToDisplay || flashcardsToDisplay.length === 0) return;
 
@@ -274,20 +293,6 @@ export default function BrowseFlashcards() {
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
                     >
-                        {/* Star button and Volume button */}
-                        <div className="absolute top-20 right-8 z-20 flex items-center gap-2">
-                            <StarButton
-                                isStarred={starredFlashcards.has(currentFlashcard.flashcardId)}
-                                onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
-                                size={24}
-                                buttonSize="lg"
-                            />
-                            <VolumeButton 
-                                text={isFlipped ? (currentFlashcard?.back || '') : (currentFlashcard?.front || '')} 
-                                className="h-10 w-10"
-                            />
-                        </div>
-
                         <Flashcard
                             front={currentFlashcard.front}
                             back={currentFlashcard.back}
@@ -295,6 +300,7 @@ export default function BrowseFlashcards() {
                             isFlipped={isFlipped}
                             isAnimating={isAnimating}
                             onClick={flipWithAnimation}
+                            topRightActions={renderCardActions()}
                         />
 
                         <div className="grid grid-cols-3 mt-4 gap-4">

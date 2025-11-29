@@ -13,6 +13,7 @@ interface FlashcardProps {
     isAnimating?: boolean;
     onClick: () => void;
     className?: string | undefined;
+    topRightActions?: React.ReactNode;
 }
 
 export default function Flashcard({
@@ -23,6 +24,7 @@ export default function Flashcard({
     isAnimating,
     onClick,
     className,
+    topRightActions,
 }: FlashcardProps) {
     return (
         <div
@@ -56,6 +58,21 @@ export default function Flashcard({
                     <Reference content={`${front} : ${back}`} />
                 </div>
             </div>
+            {/* Top right actions - rendered on top of the card */}
+            {topRightActions && (
+                <div 
+                    className="absolute top-4 right-4 z-50 pointer-events-none"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div 
+                        className="pointer-events-auto" 
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                    >
+                        {topRightActions}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
