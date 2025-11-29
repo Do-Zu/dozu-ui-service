@@ -9,6 +9,7 @@ import Spinner from '@/components/ui/spinner';
 import { useEffect } from 'react';
 import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
 
 interface StudentProps {
     role: UserRoleEnum.USER;
@@ -17,10 +18,9 @@ interface TeacherProps {
     role?: UserRoleEnum.TEACHER;
 }
 
-
 type Props = StudentProps | TeacherProps;
 
-export default function MindmapTab({ role = UserRoleEnum.TEACHER }: Props) {
+export default function MindmapTab({}: Props) {
     const {
         tab,
         topicId,
@@ -31,8 +31,6 @@ export default function MindmapTab({ role = UserRoleEnum.TEACHER }: Props) {
         ankiSettings,
         setAnkiSettings,
     } = useTopicWorkspace();
-
-    
 
     const {
         data: flashcardContent,
@@ -51,6 +49,13 @@ export default function MindmapTab({ role = UserRoleEnum.TEACHER }: Props) {
         }
     }, [flashcardContent]);
 
+    const { isStudent } = useRoleChecker();
+    const getRole = () => {
+        if (isStudent) return UserRoleEnum.USER;
+        return UserRoleEnum.TEACHER;
+        // return UserRoleEnum.ADMIN;
+    };
+
     if (flashcardContentLoading) return <Spinner />;
 
     if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
@@ -59,7 +64,7 @@ export default function MindmapTab({ role = UserRoleEnum.TEACHER }: Props) {
 
     return (
         <MindMapProvider>
-            <MindmapContent role={role}/>
+            <MindmapContent role={getRole()} />
         </MindMapProvider>
     );
 }
