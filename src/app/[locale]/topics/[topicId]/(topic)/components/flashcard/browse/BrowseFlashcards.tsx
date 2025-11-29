@@ -20,6 +20,7 @@ import ViewModeToggle from './ViewModeToggle';
 import { isListEmpty } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import flashcardService from '@/services/flashcard/flashcard.service';
 
 const initialAutoPlaySpeed = 3;
 
@@ -29,7 +30,7 @@ type ViewMode = 'card' | 'list';
 export default function BrowseFlashcards() {
     const { topic } = useRequireTopic();
     const { topicId } = topic;
-    const { flashcards } = useRequireFlashcards();
+    const { flashcards, setFlashcards } = useRequireFlashcards();
     const router = useRouter();
 
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
@@ -44,36 +45,15 @@ export default function BrowseFlashcards() {
     const [isFlipped, setIsFlipped] = useState(false);
     const [isAnimating, setIsAnimating] = useState(true);
 
-    // Starred flashcards management
-    const [starredFlashcards, setStarredFlashcards] = useState<Set<number>>(new Set());
     const [filterType, setFilterType] = useState<FilterType>('all');
     const [viewMode, setViewMode] = useState<ViewMode>('card');
 
     useActivePomodoro();
 
-    // Load starred flashcards from localStorage on mount
-    useEffect(() => {
-        const storageKey = `starred_flashcards_${topicId}`;
-        try {
-            const saved = localStorage.getItem(storageKey);
-            if (saved) {
-                const parsed = JSON.parse(saved) as number[];
-                setStarredFlashcards(new Set(parsed));
-            }
-        } catch (error) {
-            console.error('Error loading starred flashcards:', error);
-        }
-    }, [topicId]);
-
-    // Save starred flashcards to localStorage whenever it changes
-    useEffect(() => {
-        const storageKey = `starred_flashcards_${topicId}`;
-        try {
-            localStorage.setItem(storageKey, JSON.stringify(Array.from(starredFlashcards)));
-        } catch (error) {
-            console.error('Error saving starred flashcards:', error);
-        }
-    }, [starredFlashcards, topicId]);
+    // Get starred flashcards from flashcard data
+    const starredFlashcards = useMemo(() => {
+        return new Set(flashcards.filter(fc => fc.isStar).map(fc => fc.flashcardId));
+    }, [flashcards]);
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -100,10 +80,10 @@ export default function BrowseFlashcards() {
     // Filter flashcards based on filter type
     const filteredFlashcards = useMemo(() => {
         if (filterType === 'starred') {
-            return flashcards.filter((fc) => starredFlashcards.has(fc.flashcardId));
+            return flashcards.filter((fc) => fc.isStar === true);
         }
         return flashcards;
-    }, [flashcards, filterType, starredFlashcards]);
+    }, [flashcards, filterType]);
 
     const flashcardsToDisplay = useMemo(() => {
         if (shuffleEnabled) {
@@ -123,16 +103,16 @@ export default function BrowseFlashcards() {
     const currentFlashcard = getCurrentFlashcard();
 
     // Handle star toggle
-    function handleToggleStar(flashcardId: number) {
-        setStarredFlashcards((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(flashcardId)) {
-                newSet.delete(flashcardId);
-            } else {
-                newSet.add(flashcardId);
-            }
-            return newSet;
-        });
+    async function handleToggleStar(flashcardId: number) {
+        try {
+            const { flashcardId: updatedFlashcardId, isStar } = await flashcardService.toggleStar(topicId, flashcardId);
+            // Update local flashcards state
+            setFlashcards((prev) =>
+                prev?.map((fc) => (fc.flashcardId === updatedFlashcardId ? { ...fc, isStar } : fc)) ?? []
+            );
+        } catch (error) {
+            console.error('Error toggling star:', error);
+        }
     }
 
     // Reset index when filter changes
@@ -143,10 +123,11 @@ export default function BrowseFlashcards() {
 
     // Auto switch to 'all' tab if no starred flashcards and currently on 'starred' tab
     useEffect(() => {
-        if (filterType === 'starred' && starredFlashcards.size === 0) {
+        const hasStarred = flashcards.some(fc => fc.isStar === true);
+        if (filterType === 'starred' && !hasStarred) {
             setFilterType('all');
         }
-    }, [starredFlashcards.size, filterType]);
+    }, [flashcards, filterType]);
 
     function handleSidebarOpenToogle() {
         setIsSidebarOpen(!isSidebarOpen);
@@ -192,12 +173,12 @@ export default function BrowseFlashcards() {
         
         return (
             <div className="flex items-center gap-2">
-                <StarButton
-                    isStarred={starredFlashcards.has(currentFlashcard.flashcardId)}
-                    onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
-                    size={24}
-                    buttonSize="lg"
-                />
+                                <StarButton
+                                    isStarred={currentFlashcard.isStar === true}
+                                    onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
+                                    size={24}
+                                    buttonSize="lg"
+                                />
                 <VolumeButton 
                     text={isFlipped ? (currentFlashcard?.back || '') : (currentFlashcard?.front || '')} 
                     className="h-10 w-10"
@@ -349,7 +330,7 @@ export default function BrowseFlashcards() {
                                     {/* Star button and Volume button - Top right corner of the card */}
                                     <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                                         <StarButton
-                                            isStarred={starredFlashcards.has(flashcard.flashcardId)}
+                                            isStarred={flashcard.isStar === true}
                                             onToggle={() => handleToggleStar(flashcard.flashcardId)}
                                             size={20}
                                             buttonSize="md"

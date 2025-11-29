@@ -239,6 +239,17 @@ class FlashcardService {
         }
         return response.data;
     }
+
+    public async toggleStar(topicId: string | number, flashcardId: string | number): Promise<{ flashcardId: number; isStar: boolean }> {
+        const response = await patchRequest<unknown, { flashcardId: number; isStar: boolean }>(
+            `/topics/${topicId}/flashcards/${flashcardId}/toggle-star`,
+            {}
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
 }
 
 export default new FlashcardService();
