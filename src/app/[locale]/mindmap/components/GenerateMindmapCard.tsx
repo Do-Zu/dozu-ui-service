@@ -76,6 +76,7 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
         if (!mindmapData.nodes || !mindmapData.edges) {
             toastHelper.showErrorMessage('Invalid data, please try again');
             router.push('/home');
+            return;
         }
         if (mindmapData.nodes?.length > 0 && mindmapData.edges?.length) {
             setUpdatedMindmapData(getUpdatedMindmapData(mindmapData.nodes, mindmapData.edges));
