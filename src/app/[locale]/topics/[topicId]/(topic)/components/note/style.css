@@ -1,9 +1,164 @@
-.ProseMirror h1 {
+.tiptap h1 {
     @apply text-2xl font-bold;
 }
-.ProseMirror h2 {
+.tiptap h2 {
     @apply text-xl font-bold;
 }
-.ProseMirror h3 {
+.tiptap h3 {
     @apply text-lg font-bold;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    @apply text-muted-foreground;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
+.tiptap blockquote {
+    border-left: 3px solid #000;
+    @apply bg-muted text-foreground border-border;
+    margin: 1rem 1rem;
+    padding: 0rem 1rem;
+}
+
+.tiptap table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+    overflow: hidden;
+    margin: 0;
+}
+
+.tiptap th,
+.tiptap td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    vertical-align: top;
+    position: relative;
+}
+
+/* Code styling */
+.tiptap {
+    .hljs-comment,
+    .hljs-quote {
+        color: #616161;
+    }
+
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-attribute,
+    .hljs-tag,
+    .hljs-regexp,
+    .hljs-link,
+    .hljs-name,
+    .hljs-selector-id,
+    .hljs-selector-class {
+        color: #f98181;
+    }
+
+    .hljs-number,
+    .hljs-meta,
+    .hljs-built_in,
+    .hljs-builtin-name,
+    .hljs-literal,
+    .hljs-type,
+    .hljs-params {
+        color: #fbbc88;
+    }
+
+    .hljs-string,
+    .hljs-symbol,
+    .hljs-bullet {
+        color: #b9f18d;
+    }
+
+    .hljs-title,
+    .hljs-section {
+        color: #faf594;
+    }
+
+    .hljs-keyword,
+    .hljs-selector-tag {
+        color: #70cff8;
+    }
+
+    .hljs-emphasis {
+        font-style: italic;
+    }
+
+    .hljs-strong {
+        font-weight: 700;
+    }
+}
+
+.tiptap pre {
+    background-color: #1e1e2f;
+    color: #f8f8f2;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 1rem 0;
+}
+
+.tiptap pre code {
+    display: block;
+    white-space: pre;
+}
+
+.tiptap {
+    :first-child {
+        margin-top: 0;
+    }
+
+    /* List styles */
+    ul,
+    ol {
+        padding: 0 1rem;
+        margin: 1.25rem 1rem 1.25rem 0.4rem;
+
+        li p {
+            margin-top: 0.25em;
+            margin-bottom: 0.25em;
+        }
+    }
+
+    /* Task list specific styles */
+    ul[data-type='taskList'] {
+        list-style: none;
+        margin-left: 0;
+        padding: 0;
+
+        li {
+            align-items: flex-start;
+            display: flex;
+
+            > label {
+                flex: 0 0 auto;
+                margin-right: 0.5rem;
+                user-select: none;
+            }
+
+            > div {
+                flex: 1 1 auto;
+            }
+        }
+
+        li[data-checked='true'] > div > p:first-of-type {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        input[type='checkbox'] {
+            cursor: pointer;
+        }
+
+        ul[data-type='taskList'] {
+            margin: 0;
+        }
+    }
 }

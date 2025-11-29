@@ -292,7 +292,7 @@ export const FeynmanEditor: React.FC<EditorProps> = ({
     // Keep external value in sync (e.g., restore)
     useEffect(() => {
         if (editor && editor.getText() !== value) {
-            editor.commands.setContent(value || '', false);
+            editor.commands.setContent(value || '', { emitUpdate: false });
         }
     }, [value, editor]);
 
