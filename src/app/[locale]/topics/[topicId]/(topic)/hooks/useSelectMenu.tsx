@@ -1,24 +1,17 @@
-import { Layers, ListChecks, Loader2, NotebookText } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
 import { useTopicWorkspace } from '../context/TopicWorkspaceContext';
-import { useCallback } from 'react';
-import Generate from '../components/generate/Generate';
+import { IResponseFlashCardGenerate } from './useFlashCardWorkSpace';
+import { useUpdateNoteAsync } from './useNote';
 import { Button } from '@/components/ui/button';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 import { FlashcardTabEnum } from '../components/flashcard/FlashcardContent';
-import { useUpdateNoteAsync } from './useNote';
-
-function ProcessingNode() {
-    return (
-        <div className="flex flex-row gap-2 items-center text-muted-foreground whitespace-nowrap">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Processing ...</span>
-        </div>
-    );
-}
+import LoadingNode from '../components/common/LoadingNode';
+import { Layers, ListChecks, Loader2, NotebookText } from 'lucide-react';
+import Generate from '../components/generate/Generate';
 
 interface GenerateFlashcardsProps {
     content: string;
-    onGenerateFlashcardsSuccess: (data: any) => void;
+    onGenerateFlashcardsSuccess: (data: IResponseFlashCardGenerate[]) => void;
 }
 
 function GenerateFlashcards({ content, onGenerateFlashcardsSuccess }: GenerateFlashcardsProps) {
@@ -32,8 +25,8 @@ function GenerateFlashcards({ content, onGenerateFlashcardsSuccess }: GenerateFl
                 </Button>
             }
             type={METHOD_LEARNING.FLASHCARD}
-            registerNode={<ProcessingNode />}
-            generateNode={<ProcessingNode />}
+            registerNode={<LoadingNode title="Generating" />}
+            generateNode={<LoadingNode title="Generating" />}
             onSuccess={onGenerateFlashcardsSuccess}
         />
     );
@@ -47,40 +40,51 @@ export default function useSelectMenu() {
         return selectingContentText.replace(/\s+/g, ' ');
     }, [selectingContentText]);
 
-    function onGenerateFlashcardsSuccess(data: any) {
-        setGeneratingFlashcards(data);
-        setTab(METHOD_LEARNING.FLASHCARD);
-        setFlashcardTab(FlashcardTabEnum.EDIT);
-    }
+    const onGenerateFlashcardsSuccess = useCallback(
+        (data: IResponseFlashCardGenerate[]) => {
+            setGeneratingFlashcards(data);
+            setTab(METHOD_LEARNING.FLASHCARD);
+            setFlashcardTab(FlashcardTabEnum.EDIT);
+        },
+        [setGeneratingFlashcards, setTab, setFlashcardTab],
+    );
 
     const { updateNoteAsync, updateNoteLoading } = useUpdateNoteAsync();
 
-    async function onAddToNoteClick() {
+    const onAddToNoteClick = useCallback(async () => {
         const content = (note?.content || '').concat('<p></p>' + getCleanedContent());
         await updateNoteAsync({ topicId, content });
-    }
+    }, [note, getCleanedContent, updateNoteAsync, topicId]);
 
-    return {
-        GenerateFlashcards: (
+    const GenerateFlashcardsComponent = useMemo(
+        () => (
             <GenerateFlashcards
                 content={getCleanedContent()}
                 onGenerateFlashcardsSuccess={onGenerateFlashcardsSuccess}
             />
         ),
-        GenerateQuiz: (
+        [getCleanedContent, onGenerateFlashcardsSuccess],
+    );
+
+    const GenerateQuizComponent = useMemo(
+        () => (
             <Button variant="ghost" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md">
                 <ListChecks className="h-4 w-4" />
                 Quiz
             </Button>
         ),
-        AddToNote: (
+        [],
+    );
+
+    const AddToNoteComponent = useMemo(
+        () => (
             <Button
                 variant="ghost"
                 className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md"
                 onClick={onAddToNoteClick}
             >
                 {updateNoteLoading ? (
-                    <ProcessingNode />
+                    <LoadingNode title="Saving" />
                 ) : (
                     <>
                         <NotebookText className="h-4 w-4" />
@@ -89,5 +93,12 @@ export default function useSelectMenu() {
                 )}
             </Button>
         ),
+        [onAddToNoteClick, updateNoteLoading],
+    );
+
+    return {
+        GenerateFlashcards: GenerateFlashcardsComponent,
+        GenerateQuiz: GenerateQuizComponent,
+        AddToNote: AddToNoteComponent,
     };
 }

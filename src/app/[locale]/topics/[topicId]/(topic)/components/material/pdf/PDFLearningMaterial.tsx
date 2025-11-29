@@ -44,16 +44,11 @@ export default function PDFLearningMaterial({ data }: IProps) {
     }, [text, isProcessing]);
 
     const ref = useRef<HTMLDivElement>(null);
-    const [refNode, setRefNode] = useState<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        setRefNode(ref.current);
-    }, []);
 
     return (
-        <div className="h-full flex flex-col gap-4" ref={ref}>
-            <CustomPDFViewer pdfUrl={pdfUrl} fileName={file?.name} />
-            <SelectMenu refNode={refNode} type="pdf" />
+        <div className="h-full flex flex-col gap-4">
+            <CustomPDFViewer pdfUrl={pdfUrl} fileName={file?.name} ref={ref} />
+            <SelectMenu refNode={ref} type="pdf" />
         </div>
     );
 }

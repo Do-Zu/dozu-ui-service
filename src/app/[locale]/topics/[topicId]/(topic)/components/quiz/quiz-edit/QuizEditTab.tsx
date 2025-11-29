@@ -8,6 +8,7 @@ import QuestionEditor from '@/app/[locale]/question/components/QuestionEditor';
 import { IQuestion, IQuestionBasic } from '@/app/[locale]/question/types/question.type';
 import { handleConvertToQuestionsEdited } from '@/app/[locale]/question/utils/handleConvertToQuestionsEdited';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { useQuizWorkspace } from '../context/QuizWorkspaceContext';
 
 interface IQuestionServer {
     questionId: number;
@@ -28,6 +29,8 @@ interface IQuestionsWithTopicName {
 export default function QuizEditTab() {
     const { topicId, topic } = useTopicWorkspace();
 
+    const { generatedQuestionsForEdit, setGeneratedQuestionsForEdit } = useQuizWorkspace();
+
     const {
         data: questionsExisted,
         loading,
@@ -44,6 +47,21 @@ export default function QuizEditTab() {
         });
         setQuestions(converted);
     }, [questionsExisted]);
+
+    // If there is generatedQuestionsForEdit => edit mode for AI
+    if (generatedQuestionsForEdit) {
+        return (
+            <div className="w-full h-full overflow-y-auto rounded-lg border bg-muted">
+                <QuestionEditor
+                    shouldShowBackButton={true}
+                    shouldShowSaveButton={true}
+                    questions={generatedQuestionsForEdit}
+                    setQuestions={setGeneratedQuestionsForEdit}
+                    topic={{ topicId, name: topic?.name || 'Questions' }}
+                />
+            </div>
+        );
+    }
 
     if (loading) return <LoadingPage />;
     if (error) return <DataStatus variant="error" title={error} />;

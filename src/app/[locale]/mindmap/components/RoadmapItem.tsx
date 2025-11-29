@@ -3,6 +3,7 @@ import { ArrowUp, ArrowDown, Check, ChevronRight } from 'lucide-react'; // Impor
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { AppNode } from '@/types/mindmap/mindmap.type';
+import { UserRoleEnum } from '@/utils/constants/roles';
 
 interface RoadmapItemProps {
     label: string;
@@ -14,6 +15,7 @@ interface RoadmapItemProps {
     onComplete?: () => void;
     onExpand?: () => void; // New prop for expand action
     node: AppNode;
+    role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
 export function RoadmapItem({
     label,
@@ -25,6 +27,7 @@ export function RoadmapItem({
     onComplete,
     onExpand,
     node,
+    role = UserRoleEnum.TEACHER,
 }: RoadmapItemProps) {
     const completeButtonVariant = completed ? 'secondary' : 'outline';
 
@@ -38,27 +41,34 @@ export function RoadmapItem({
             {/* Left content (text truncates behind buttons) */}
             <div className="flex items-center gap-3 flex-1 pr-20">
                 {/* Reorder buttons */}
-                <div className="flex flex-col gap-1.5">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        disabled={index === 0}
-                        onClick={onMoveUp}
-                        className="h-6 w-6 p-0"
-                    >
-                        <ArrowUp className="h-4 w-4" />
-                    </Button>
+                {role === UserRoleEnum.TEACHER ? (
+                    <>
+                        {' '}
+                        <div className="flex flex-col gap-1.5">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={index === 0}
+                                onClick={onMoveUp}
+                                className="h-6 w-6 p-0"
+                            >
+                                <ArrowUp className="h-4 w-4" />
+                            </Button>
 
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        disabled={index === total - 1}
-                        onClick={onMoveDown}
-                        className="h-6 w-6 p-0"
-                    >
-                        <ArrowDown className="h-4 w-4" />
-                    </Button>
-                </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={index === total - 1}
+                                onClick={onMoveDown}
+                                className="h-6 w-6 p-0"
+                            >
+                                <ArrowDown className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </>
+                ) : (
+                    ''
+                )}
 
                 {/* Label */}
                 <div className="font-medium truncate text-base">{label}</div>
@@ -77,14 +87,21 @@ export function RoadmapItem({
                 </Button>
 
                 {/* Complete */}
-                <Button
-                    variant={completeButtonVariant}
-                    size="icon"
-                    onClick={onComplete}
-                    className="h-full w-11 rounded-none"
-                >
-                    <Check className="h-4 w-4" />
-                </Button>
+
+                {role === UserRoleEnum.TEACHER ? (
+                    <>
+                        <Button
+                            variant={completeButtonVariant}
+                            size="icon"
+                            onClick={onComplete}
+                            className="h-full w-11 rounded-none"
+                        >
+                            <Check className="h-4 w-4" />
+                        </Button>
+                    </>
+                ) : (
+                    ''
+                )}
             </div>
         </div>
     );

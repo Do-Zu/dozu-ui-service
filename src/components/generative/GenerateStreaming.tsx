@@ -1,0 +1,101 @@
+import { ReactNode, useState, cloneElement, isValidElement } from 'react';
+import useGenerateStream, { ISseDataStream } from '../../hooks/generate/useGenerateStream';
+
+interface IGenerateStreaming {
+    trigger: ReactNode;
+    previewComponent?: ReactNode | ((data: any) => ReactNode);
+    loadingComponent?: ReactNode;
+    previewStreamingComponent?: ReactNode | ((data: any) => ReactNode);
+    content: string;
+    type: string;
+    method?: string;
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+}
+
+const GenerateStreaming = ({
+    trigger,
+    previewComponent,
+    loadingComponent,
+    previewStreamingComponent,
+    content,
+    type,
+    method = 'POST',
+    onSuccess,
+    onError,
+}: IGenerateStreaming) => {
+    const [streamData, setStreamData] = useState<string>('');
+    const [isCompleted, setIsCompleted] = useState(false);
+
+    const { execute, isGenerating, reset } = useGenerateStream({
+        onChunk: (chunk: ISseDataStream) => {
+            if (chunk && typeof chunk === 'object' && 'data' in chunk) {
+                const data = (chunk as any).data;
+                if (typeof data === 'string') {
+                    setStreamData((prev) => prev + data);
+                }
+            }
+        },
+        onSuccess: (data) => {
+            setIsCompleted(true);
+            if (onSuccess) onSuccess(data);
+        },
+        onError: (err) => {
+            if (onError) onError(err);
+        },
+    });
+
+    const handleClick = () => {
+        setStreamData('');
+        setIsCompleted(false);
+        reset();
+        execute({ content, method, type });
+    };
+
+    const renderContent = (component: ReactNode | ((data: any) => ReactNode), data: any) => {
+        if (typeof component === 'function') {
+            return component(data);
+        }
+        if (isValidElement(component)) {
+            return cloneElement(component as any, { data });
+        }
+        return component;
+    };
+
+    const renderDefaultContent = (content: string, isStreaming: boolean) => (
+        <div className="max-h-[60vh] w-full overflow-y-auto rounded-md border border-input bg-background px-4 py-3 text-sm shadow-sm">
+            <div className="whitespace-pre-wrap leading-relaxed">
+                {content}
+                {isStreaming && <span className="ml-1 inline-block h-4 w-1 animate-pulse bg-primary align-middle" />}
+            </div>
+        </div>
+    );
+
+    if (isGenerating) {
+        return (
+            <>
+                {previewStreamingComponent
+                    ? renderContent(previewStreamingComponent, streamData)
+                    : renderDefaultContent(streamData, true)}
+            </>
+        );
+    }
+
+    if (isCompleted) {
+        return (
+            <>
+                {previewComponent
+                    ? renderContent(previewComponent, streamData)
+                    : renderDefaultContent(streamData, false)}
+            </>
+        );
+    }
+
+    if (isValidElement(trigger)) {
+        return cloneElement(trigger as any, { onClick: handleClick });
+    }
+
+    return <div onClick={handleClick}>{trigger}</div>;
+};
+
+export default GenerateStreaming;

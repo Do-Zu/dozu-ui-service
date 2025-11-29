@@ -55,7 +55,13 @@ export default function Flashcard({
                         />
                     ) : null}
                     <div>{back}</div>
-                    <Reference content={`${front} : ${back}`} />
+                    <div
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                    >
+                        <Reference content={`${front} : ${back}`} />
+                    </div>
                 </div>
             </div>
             {/* Top right actions - rendered on top of the card */}

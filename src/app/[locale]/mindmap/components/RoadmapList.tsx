@@ -4,6 +4,7 @@ import { ArrowDown, ChevronLeft } from 'lucide-react';
 import { AppNode, AppEdge } from '@/types/mindmap/mindmap.type';
 import { Button } from '@/components/ui/button';
 import { getAllChildNodeAndSelfIds } from '../utils/mindmap.utils';
+import { UserRoleEnum } from '@/utils/constants/roles';
 
 interface RoadmapListProps {
     initialItems: AppNode[];
@@ -12,7 +13,10 @@ interface RoadmapListProps {
     allEdges?: AppEdge[];
     getImmediateChildNodes?: (parentNodeId: string) => AppNode[];
     normalizeRoadmapOrder?: (nodes: AppNode[]) => AppNode[];
+    role?:UserRoleEnum.USER|UserRoleEnum.TEACHER;
 }
+
+
 
 export default function RoadmapList({
     initialItems,
@@ -21,6 +25,7 @@ export default function RoadmapList({
     allEdges,
     getImmediateChildNodes,
     normalizeRoadmapOrder,
+    role
 }: RoadmapListProps) {
     const [items, setItems] = useState<AppNode[]>(initialItems);
     const [currentNode, setCurrentNode] = useState<AppNode | null>(null); // Track the node being drilled into
@@ -168,6 +173,7 @@ export default function RoadmapList({
                             onComplete={() => toggleComplete(node.data.nodeId, !node.data.isComplete)}
                             onExpand={() => handleExpand(node)}
                             node={node}
+                            role={role}
                         />
 
                         {/* Arrow between items */}

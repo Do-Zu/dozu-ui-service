@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import useGenerate from '@/hooks/generate/useGenerate';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
 import DataStatus from '@/components/errors/DataStatus';

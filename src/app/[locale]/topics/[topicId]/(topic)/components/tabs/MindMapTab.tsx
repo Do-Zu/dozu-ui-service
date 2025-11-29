@@ -8,8 +8,22 @@ import DataStatus from '@/components/errors/DataStatus';
 import Spinner from '@/components/ui/spinner';
 import { useEffect } from 'react';
 import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
+import { UserRoleEnum } from '@/utils/constants/roles';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
-export default function MindmapTab() {
+interface StudentProps {
+    role: UserRoleEnum.USER;
+}
+interface TeacherProps {
+    role?: UserRoleEnum.TEACHER;
+}
+
+type Props = StudentProps | TeacherProps;
+
+export default function MindmapTab({}: Props) {
     const {
         tab,
         topicId,
@@ -38,6 +52,14 @@ export default function MindmapTab() {
         }
     }, [flashcardContent]);
 
+    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const { isStudent } = useRoleChecker();
+    const getRole = () => {
+        if (isStudent && learningMode === MODE_ACCESS_PAGE_ROLE.classBased) return UserRoleEnum.USER;
+        return UserRoleEnum.TEACHER;
+        // return UserRoleEnum.ADMIN;
+    };
+
     if (flashcardContentLoading) return <Spinner />;
 
     if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
@@ -46,7 +68,7 @@ export default function MindmapTab() {
 
     return (
         <MindMapProvider>
-            <MindmapContent />
+            <MindmapContent role={getRole()} />
         </MindMapProvider>
     );
 }

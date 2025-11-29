@@ -1,6 +1,5 @@
 import { getRequest, patchRequest, postRequest } from '@/api/api';
-import { IUnspashImage } from '@/app/[locale]/flashcards/components/ImagesPreview';
-import { IFlashcardWithReviewPrediction } from '@/app/[locale]/flashcards/learning/[topicId]/page';
+import { IUnspashImage } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
 import {
     IFlashcard,
     IImageSaveInput,
@@ -11,11 +10,16 @@ import {
     IDueAnkiCard,
     IAnkiCardReviewed,
     IAnkiResult,
+    IFlashcardLearningState,
+    INextReviewDataByRating,
+    IAnkiCard,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { flashcardRoutes } from '@/utils/constants/api.routes';
 import { activityTrackingService } from '@/services/gamification/activityTracking.service';
+import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
+import AnkiService from '../anki/anki.service';
 
 export interface IFlashcardReviewPayload {
     topicId: string | number;
@@ -45,16 +49,6 @@ class FlashcardService {
             flashcardRoutes(topicId).GET_FLASHCARDS_WITH_TOPIC_INFO,
         );
 
-        if (response.status !== 'success') {
-            throw new Error(response.message);
-        }
-        return response.data;
-    }
-
-    public async getDueFlashcardsForTopic(topicId: string | number) {
-        const response = await getRequest<unknown, IFlashcardWithReviewPrediction[]>(
-            flashcardRoutes(topicId).GET_DUE_FLASHCARDS,
-        );
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -249,6 +243,37 @@ class FlashcardService {
             throw new Error(response.message);
         }
         return response.data;
+    }
+
+    public getNextReviewByRatings(
+        flashcardId: number,
+        learningState: IFlashcardLearningState,
+        ankiSetting: IAnkiSetting,
+    ): INextReviewDataByRating[] {
+        if (!learningState) {
+            throw new Error('Flashcard does not have learningState');
+        }
+        let result: INextReviewDataByRating[] = [];
+
+        let rating = IAnkiRating.AGAIN;
+        for (; rating <= IAnkiRating.EASY; ++rating) {
+            const ankiCard: IAnkiCard = {
+                ...learningState,
+                step: learningState.step,
+                flashcardId,
+                lastReviewed: learningState.lastReviewed ? new Date(learningState.lastReviewed) : null,
+                nextReview: new Date(learningState.nextReview),
+            };
+            const ankiService = new AnkiService(ankiSetting);
+            const ankiResult = ankiService.schedule(ankiCard, rating);
+            result.push({
+                rating,
+                interval: ankiResult.nextReviewInterval,
+                baseIntervalWithDeviation: ankiResult.baseIntervalWithDeviation,
+            });
+        }
+
+        return result;
     }
 }
 

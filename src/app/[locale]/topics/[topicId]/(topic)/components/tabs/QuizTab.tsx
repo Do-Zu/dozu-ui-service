@@ -2,6 +2,7 @@
 
 import { LayoutGrid, History as HistoryIcon, Edit as EditIcon } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { QuizWorkspaceProvider, useQuizWorkspace } from '../quiz/context/QuizWorkspaceContext';
 import { QuizMode } from '../../hooks/useQuizWorkspace';
 
@@ -9,15 +10,31 @@ import QuizGenerateTab from '../quiz/quiz-generate/QuizGenerateTab';
 import QuizHistoryTab from '../quiz/quiz-history/QuizHistoryTab';
 import QuizEditTab from '../quiz/quiz-edit/QuizEditTab';
 
-function QuizTabContent() {
-    const { quizMode, setQuizMode } = useQuizWorkspace();
+import QuizDoingPanel from '../quiz/quiz-generate/quiz-doing/QuizDoingPanel';
 
-    function handleModeChange(value: string) {
-        setQuizMode(value as QuizMode);
+function QuizTabContent() {
+    const {
+        quizMode,
+        setQuizMode,
+        doingMode,        
+    } = useQuizWorkspace();
+
+    if (doingMode) {
+        return (
+            <div className="relative w-full h-full flex flex-col px-4">
+                <QuizDoingPanel />
+            </div>
+        );
     }
 
+    const handleModeChange = (value: string) => {
+        setQuizMode(value as QuizMode);
+    };
+
     return (
-        <div className="relative w-full h-full flex flex-col">
+        <div className="relative w-full h-full flex flex-col min-h-0">
+
+            {/* TABS */}
             <Tabs
                 value={quizMode}
                 onValueChange={handleModeChange}
@@ -31,6 +48,7 @@ function QuizTabContent() {
                         <LayoutGrid className="h-4 w-4" />
                         <span className="whitespace-nowrap">Generate Quiz</span>
                     </TabsTrigger>
+
                     <TabsTrigger
                         value="history"
                         className="flex items-center justify-center gap-2 rounded-2xl"
@@ -38,6 +56,7 @@ function QuizTabContent() {
                         <HistoryIcon className="h-4 w-4" />
                         <span className="whitespace-nowrap">History</span>
                     </TabsTrigger>
+
                     <TabsTrigger
                         value="edit"
                         className="flex items-center justify-center gap-2 rounded-2xl"
@@ -48,6 +67,7 @@ function QuizTabContent() {
                 </TabsList>
             </Tabs>
 
+            {/* CONTENT */}
             <div className="flex-1 min-h-0 px-6 pb-4">
                 {quizMode === 'generate' && <QuizGenerateTab />}
                 {quizMode === 'history' && <QuizHistoryTab />}

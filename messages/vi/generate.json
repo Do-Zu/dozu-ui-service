@@ -73,7 +73,7 @@
                 "description": "Chúng tôi đã phân tích nội dung của bạn và xác định các phương pháp học phù hợp nhất:"
             },
             "methods": {
-                "flashcards": "Flashcards",
+                "flashcard": "Flashcard",
                 "quiz": "Quiz",
                 "mindmap": "Mind Map"
             },
