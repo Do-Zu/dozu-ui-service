@@ -10,6 +10,9 @@ import { useEffect } from 'react';
 import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface StudentProps {
     role: UserRoleEnum.USER;
@@ -49,9 +52,10 @@ export default function MindmapTab({}: Props) {
         }
     }, [flashcardContent]);
 
+    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const { isStudent } = useRoleChecker();
     const getRole = () => {
-        if (isStudent) return UserRoleEnum.USER;
+        if (isStudent && learningMode === MODE_ACCESS_PAGE_ROLE.classBased) return UserRoleEnum.USER;
         return UserRoleEnum.TEACHER;
         // return UserRoleEnum.ADMIN;
     };
