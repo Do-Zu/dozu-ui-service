@@ -73,7 +73,7 @@ const createCommandsPlugin = (options: CommandOptionProps[]) =>
                             options
                                 // only return items that match with the start of the query
                                 .filter((item) => {
-                                    return item.title.toLowerCase().startsWith(query.toLowerCase());
+                                    return item.title.toLowerCase().replace(' ', '').startsWith(query.toLowerCase());
                                 })
                                 // limit to 20 items
                                 .slice(0, 20)

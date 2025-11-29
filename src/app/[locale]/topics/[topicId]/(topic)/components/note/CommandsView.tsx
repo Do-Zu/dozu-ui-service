@@ -72,9 +72,6 @@ const CommandsView = forwardRef<CommandsViewRef, SuggestionProps<ItemProps, any>
         (id: number | null) => {
             const item = items.find((item) => item.id === id);
             if (item) command(item);
-            if (item && item.type === 'image') {
-                (item as ImageItemProps).imageUploadButtonRef.current?.click();
-            }
         },
         [items, command],
     );
