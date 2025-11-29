@@ -3,7 +3,7 @@ import { CommandOptionProps } from '../../hooks/tiptap/useCommandOptions';
 import { Extension, ReactRenderer } from '@tiptap/react';
 import { ComponentProps } from 'react';
 import CommandsView, { CommandsViewRef } from '../../components/note/CommandsView';
-import { computePosition, flip, offset, shift } from '@floating-ui/react';
+import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 
 // Create a Commands Extension
 const createCommandsPlugin = (options: CommandOptionProps[]) =>
@@ -28,7 +28,7 @@ const createCommandsPlugin = (options: CommandOptionProps[]) =>
                             options
                                 // only return items that match with the start of the query
                                 .filter((item) => {
-                                    return item.title.toLowerCase().replace(' ', '').startsWith(query.toLowerCase());
+                                    return item.title.toLowerCase().replaceAll(' ', '').startsWith(query.toLowerCase());
                                 })
                                 // limit to 20 items
                                 .slice(0, 20)

@@ -15,11 +15,6 @@ import Image from '@tiptap/extension-image';
 import './style.css';
 import '@/components/tiptap-node/image-node/image-node.scss';
 import noteUtils, { MAX_FILE_SIZE } from '../../utils/note.utils';
-
-import { Extension } from '@tiptap/react';
-import { Suggestion, SuggestionProps } from '@tiptap/suggestion';
-import CommandsView, { CommandsViewRef, ItemProps, ItemTypeEnum } from './CommandsView';
-import { computePosition, flip, offset, shift } from '@floating-ui/react';
 import { Placeholder } from '@tiptap/extensions';
 import Blockquote from '@tiptap/extension-blockquote';
 import { TableKit } from '@tiptap/extension-table';
