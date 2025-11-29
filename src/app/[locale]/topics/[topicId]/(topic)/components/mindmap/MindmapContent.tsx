@@ -250,6 +250,7 @@ const MindmapContent = ({ role }: Props) => {
                             onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
                             onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
                             onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
+                            role={role}
                         />
                         <Controls position="bottom-right" />
                         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
