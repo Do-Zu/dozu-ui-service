@@ -5,7 +5,6 @@ import { RootState } from '@/stores/store';
 import { useSelector } from 'react-redux';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
-import { useRouter } from 'next/navigation';
 import { Fragment, Suspense } from 'react';
 import { ShowIf } from '../ui/ShowIf';
 import { LearningModeSelect } from './LearningModeSelect';
@@ -27,10 +26,11 @@ function TokenHandler() {
 }
 
 export default function Navbar() {
-    const { isAuthenticated, clearAuthData } = useAuth();
+    const { isAuthenticated, currentPlanUser } = useAuth();
     const { isStudent } = useRoleChecker();
-    const router = useRouter();
     const { isDisplay: isDisplayPomodoro } = useSelector((state: RootState) => state.pomodoro);
+    
+    const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
 
     // useEffect(() => {
     //     const refreshToken = async () => {
@@ -72,11 +72,19 @@ export default function Navbar() {
                     >
                         Dozu
                     </Link>
+                    {isPro && (
+                        <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-md shadow-md">
+                            PRO
+                        </span>
+                    )}
                     <ShowIf when={isStudent}>
                         <LearningModeSelect />
                     </ShowIf>
                 </div>
-                {isDisplayPomodoro && <Pomodoro position="top-center" positionY={-6} positionX={-30} />}
+                
+                <div className="flex items-center gap-3">
+                    {isDisplayPomodoro && <Pomodoro position="top-center" positionY={-6} positionX={-30} />}
+                </div>
             </div>
 
             <Suspense fallback={null}>

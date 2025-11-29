@@ -33,7 +33,7 @@ export interface GamificationStats {
     weeklyActivity: number[];
     totalLessonsCompleted: number;
     totalQuizzesCompleted: number;
-    totalFlashcardsReviewed: number;
+    totalFlashcardsCompleted: number;
     averageScore: number;
     streakFreezeActive?: boolean;
     streakFreezeCount?: number;

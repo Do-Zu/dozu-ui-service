@@ -11,7 +11,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <div className="flex min-h-screen w-full">
-        <Sidebar className="w-64 border-r hidden md:block" />
+        {/* Sidebar with auto width - removes hardcoded w-64 */}
+        <Sidebar className="hidden md:block" />
 
         <div className="flex flex-1 flex-col">
           <Topbar />

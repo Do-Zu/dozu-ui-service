@@ -1,5 +1,3 @@
-import { object } from 'zod';
-
 /**
  * Converts various string formats to a number.
  * Supports thousand separators, comma decimals, underscores, currency symbols, and scientific notation.
@@ -8,7 +6,7 @@ import { object } from 'zod';
  * @param value - Input value (string or number).
  * @param defaultValue - Value to return when parsing fails.
  */
-const toNumber = (value: unknown, defaultValue: number): number => {
+const toNumberNormalize = (value: unknown, defaultValue: number = NaN): number => {
     if (typeof value === 'number') return Number.isFinite(value) ? value : defaultValue;
     if (typeof value !== 'string' || !value.trim()) return defaultValue;
 
@@ -27,6 +25,29 @@ const toNumber = (value: unknown, defaultValue: number): number => {
 
     const n = Number(s);
     return Number.isFinite(n) ? n : defaultValue;
+};
+
+/**
+ * Safely converts a value to a number.
+ * Returns defaultValue if conversion fails or result is not finite.
+ *
+ * @param value - Any input value.
+ * @param defaultValue - Value to return when parsing fails.
+ */
+const toNumber = (value: unknown, defaultValue: number = NaN): number => {
+    if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : defaultValue;
+    }
+
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (!trimmed) return defaultValue;
+
+        const parsed = Number(trimmed);
+        return Number.isFinite(parsed) ? parsed : defaultValue;
+    }
+
+    return defaultValue;
 };
 
 /**
@@ -169,10 +190,83 @@ const normalize = (text: string | undefined | null): string[] => {
         .filter(Boolean);
 };
 
+/**
+ * Utility function for safe destructuring without React hooks.
+ * Can be used in any TypeScript/JavaScript context.
+ *
+ * @template T - The expected type of the object
+ * @param {T | undefined | null} object - The object to safely destructure
+ * @param {Partial<T>} defaultValues - Default values for missing properties
+ * @returns {T} A safe object that won't crash on destructuring
+ *
+ * @example
+ * ```tsx
+ * const { name, age } = safeDestructure(user, { name: '', age: 0 });
+ * ```
+ */
+const safeDestructure = <T extends object>(object: T | undefined | null, defaultValues: Partial<T> = {}): T => {
+    if (isNilOrEmpty(object)) return defaultValues as T;
+
+    return { ...defaultValues, ...object } as T;
+};
+
+/**
+ * @description Normalizes a string by trimming whitespace and converting to lowercase.
+ *  Returns an empty string for nullish input.
+ * @param str1
+ * @param str - The string to normalize.
+ * @returns The normalized string, or empty string if input is nullish.
+ */
+const lowercase = (str: string | null | undefined): string => {
+    return str ? str.trim().toLowerCase() : '';
+};
+
+/**
+ * @description Compares two strings for equality without considering capitalization.
+ * This function is useful for case-insensitive comparisons, such as when checking user input or comparing
+ * @param str1
+ * @param str2
+ * @returns boolean - Returns true if both strings are equal ignoring case, false otherwise.
+ */
+const compareIgnoreCapitalization = (str1: string, str2: string) => {
+    if (str1 === str2) return true;
+    return lowercase(str1) === lowercase(str2);
+};
+
+/**
+ * Validates that a value is an array. Optionally ensures all items pass a type guard.
+ * Returns [] when invalid.
+ *
+ * @example
+ * const numbers = validateArray<number>(maybeNumbers, (v): v is number => typeof v === 'number');
+ * const anyArray = validateArray<any>(maybeArray); // only checks Array.isArray
+ */
+const validateArray = <T>(value: unknown, isItem?: (v: unknown) => v is T): T[] => {
+    if (!Array.isArray(value)) return [];
+    if (isItem && !value.every(isItem)) return [];
+    return value as T[];
+};
+
+const isNil = (val: unknown) => {
+    return val === null || val === undefined;
+};
+
+const countWords = (text: string): number => {
+    if (!text || typeof text !== 'string') {
+        return 0;
+    }
+
+    const wordPattern = /\b[\w'-]+\b/g;
+    const matches = text.match(wordPattern);
+
+    return matches ? matches.length : 0;
+};
+
 export {
     deepClone,
     toTitleCase,
     isNilOrEmpty,
+    isListEmpty,
     isEmpty,
     mergeObjects,
     isNullOrEmpty,
@@ -180,5 +274,12 @@ export {
     wait,
     truncate,
     normalize,
+    toNumberNormalize,
     toNumber,
+    safeDestructure,
+    lowercase,
+    compareIgnoreCapitalization,
+    validateArray,
+    isNil,
+    countWords,
 };

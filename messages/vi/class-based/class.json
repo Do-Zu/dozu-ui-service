@@ -8,7 +8,8 @@
             "title": "Tham gia lớp học",
             "description": "Nhập Mã lớp do Giáo viên cung cấp để tham gia lớp học",
             "label": "Tham gia",
-            "joinSuccess": "Tham gia lớp học thành công"
+            "joinSuccess": "Tham gia lớp học thành công",
+            "alreadyEnrolled": "Bạn đã tham gia lớp học này rồi"
         },
         "leave": {
             "title": "Rời lớp học",

@@ -4,4 +4,10 @@ export const USER_ROLES = Object.freeze({
     USER: 'user',
 });
 
-export type UserRole = keyof typeof USER_ROLES;
+export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+
+export enum UserRoleEnum {
+    ADMIN = 'admin',
+    USER = 'user',
+    TEACHER = 'teacher',
+}

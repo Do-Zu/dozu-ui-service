@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
@@ -24,6 +24,7 @@ import {
     GitFork,
     GraduationCap,
     Layers,
+    Package,
     Play,
     Plus,
     Search,
@@ -35,12 +36,12 @@ import { useTopics } from '../../hooks/useTopics';
 import { ITopic } from '../../types/topic.type';
 import Metric from '../common/Metric';
 import TopicCard from '../common/TopicCard';
-import TopicLibrary from '../common/TopicLibrary';
+import LearningSpace from '../common/LearningSpace';
 import { CreateTopicModal } from '../modals/CreateTopicModal';
 import { DeleteTopicModal } from '../modals/DeleteTopicModal';
 import TopicDetailsModal from '../modals/TopicDetailsModal';
 import { UpdateTopicModal } from '../modals/UpdateTopicModal';
-import { useMotionTemplate, useMotionValue } from 'framer-motion';
+import ListPackage from './ListPackage';
 
 type TopicFilteringAction =
     | 'newest'
@@ -69,7 +70,7 @@ export default function PersonalTopicLibrary() {
         list.forEach((t) => {
             fresh += t.flashcardCounts?.new || 0;
             learning += t.flashcardCounts?.learning || 0;
-            due += t.flashcardCounts?.dueToday || 0;
+            due += t.flashcardCounts?.review || 0;
             totalFlashcards += t.flashcardCounts?.total || 0;
         });
         return {
@@ -81,8 +82,12 @@ export default function PersonalTopicLibrary() {
         };
     }, [topicsFiltered]);
 
-    const { fetchTopics, createTopic, updateTopic, deleteTopic, showTopicDetails } = useTopics({ mode: 'personal' });
+    const { fetchTopics, createTopic, updateTopic, deleteTopic, showTopicDetails, selectPackage } = useTopics({
+        mode: 'personal',
+    });
+
     const { topics, topicsError, topicsLoading } = fetchTopics;
+
     const {
         isOpen: isCreateTopicModalOpen,
         setIsOpen: setIsCreateTopicModalOpen,
@@ -116,6 +121,13 @@ export default function PersonalTopicLibrary() {
         selectingTopic,
     } = showTopicDetails;
 
+    const {
+        isOpen: isOpenListPackage,
+        setIsOpen: setIsOpenListPackage,
+        open: onSelectTopicForPackage,
+        selectingTopic: selectingTopicForPackageModal,
+    } = selectPackage;
+
     useEffect(() => {
         if (!topics) {
             return;
@@ -143,7 +155,7 @@ export default function PersonalTopicLibrary() {
             if (sortBy === 'newest') return ts(b.createdAt) - ts(a.createdAt);
             if (sortBy === 'oldest') return ts(a.createdAt) - ts(b.createdAt);
             if (sortBy === 'flashcards-due-today')
-                return (b.flashcardCounts?.dueToday || 0) - (a.flashcardCounts?.dueToday || 0);
+                return (b.flashcardCounts?.review || 0) - (a.flashcardCounts?.review || 0);
             return 0;
         });
 
@@ -158,11 +170,11 @@ export default function PersonalTopicLibrary() {
         router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
     }
 
-    async function handleOnSelectLearning(topicId: number) {
+    function handleOnSelectLearning(topicId: number) {
         router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
     }
 
-    async function handleOnSelectSettings(topicId: number) {
+    function handleOnSelectSettings(topicId: number) {
         router.push(ROUTES.ANKI_SETTINGS(topicId));
     }
 
@@ -178,6 +190,10 @@ export default function PersonalTopicLibrary() {
         router.push(ROUTES.QUIZ_EDIT(topicId));
     }
 
+    function handleTopicNameClick({ topicId }: ITopic) {
+        router.push(ROUTES.TOPIC_WORKSPACE({ topicId }));
+    }
+
     const handleOpenCreateModal = useCallback(() => {
         setTimeout(() => {
             setIsCreateTopicModalOpen(true);
@@ -190,65 +206,12 @@ export default function PersonalTopicLibrary() {
         const { topicId, name, description, imageUrl } = topic;
         return (
             <DropdownMenuContent align="start" side="top">
-                {/* Flashard section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <Layers className="mr-2 h-4 w-4" />
-                        <span>Flashcard</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnSelectEditFlashcard(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectBrowse(topicId)}>
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span>{tTopic('browse')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectLearning(topicId)}>
-                            <GraduationCap className="mr-2 h-4 w-4" />
-                            <span>{tTopic('learning')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnSelectSettings(topicId)}>
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>{tTopic('settings')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Mindmap section */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <GitFork className="mr-2 h-4 w-4" />
-                        <span>Mind Map</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickMindmap(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                {/* Quiz */}
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <ClipboardCheck className="mr-2 h-4 w-4" />
-                        <span>Quiz</span>
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onSelect={() => handleOnClickStartQuiz(topicId)}>
-                            <Play className="mr-2 h-4 w-4" />
-                            <span>{tTopic('start-quiz')}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleOnClickEditQuestion(topicId)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>{tCommon('actions.edit')}</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
                 {/* Topic itself */}
+                <DropdownMenuItem onSelect={() => onSelectTopicForPackage(topic)}>
+                    <Package className="mr-2 h-4 w-4" />
+                    <span>{tTopic('addPackage')}</span>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem onSelect={() => handleUpdateTopicModalOpen({ topicId, name, description, imageUrl })}>
                     <Edit className="mr-2 h-4 w-4" />
                     <span>{tCommon('actions.edit')}</span>
@@ -267,19 +230,10 @@ export default function PersonalTopicLibrary() {
         const newFlashcards = topic.flashcardCounts?.new || 0;
         const totalFlashcards = topic.flashcardCounts?.total || 0;
         const learningFlashcards = topic.flashcardCounts?.learning || 0;
-        const dueTodayFlashcards = topic.flashcardCounts?.dueToday || 0;
-
-        function handleOnSelectBrowse() {
-            router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
-        }
+        const dueTodayFlashcards = topic.flashcardCounts?.review || 0;
+        
         function handleOnSelectLearning() {
             router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
-        }
-        function handleOnClickMindmap() {
-            router.push(ROUTES.MINDMAP_EDIT(topicId));
-        }
-        function handleOnClickStartQuiz() {
-            router.push(ROUTES.QUIZ_START(topicId));
         }
 
         //TODO: note for update logic calculate remain flashcard remain and get progress
@@ -318,32 +272,6 @@ export default function PersonalTopicLibrary() {
                     >
                         {tTopic('learning')}
                     </Button>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
-                            onClick={handleOnSelectBrowse}
-                        >
-                            <BookOpen className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
-                            onClick={handleOnClickStartQuiz}
-                        >
-                            <ClipboardCheck className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-slate-600 dark:text-slate-200"
-                            onClick={handleOnClickMindmap}
-                        >
-                            <GitFork className="h-3.5 w-3.5" />
-                        </Button>
-                    </div>
                 </div>
             </div>
         );
@@ -362,11 +290,11 @@ export default function PersonalTopicLibrary() {
         return (
             <div className="relative z-10 px-4 md:px-6 pb-8 pt-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {topicsFiltered.map((topic) => (
+                    {topicsFiltered?.map((topic) => (
                         <TopicCard
                             key={topic.topicId}
                             topic={topic}
-                            handleNameClick={handleTopicDetailsModalOpen}
+                            handleNameClick={handleTopicNameClick}
                             menuContent={menuContentInCard}
                             footer={cardFooter}
                         />
@@ -376,49 +304,59 @@ export default function PersonalTopicLibrary() {
         );
     };
 
-    const topicContent = (
-        <>
-            <div className="relative z-10 px-6 pt-6 md:px-8">
-                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <Metric label="Topics" value={metrics.topics} />
-                    <Metric label="Flashcards" value={metrics.totalFlashcards} />
+    const metricContent: ReactElement = (
+        <div className="relative z-10 px-6 pt-6 md:px-8">
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <Metric label="Topics" value={metrics.topics} />
+                <Metric label="Flashcards" value={metrics.totalFlashcards} />
+            </div>
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <Metric label="New" value={metrics.fresh} />
+                <Metric label="Learning" value={metrics.learning} />
+                <Metric label="Due Today" value={metrics.due} />
+            </div>
+            <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="relative w-full md:max-w-sm group">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-slate-700 dark:text-slate-500 dark:group-focus-within:text-slate-300 transition-colors" />
+                    <Input
+                        placeholder={t('searchPlaceholder')}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-indigo-400/40 focus:ring-0 transition-all"
+                    />
                 </div>
-                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <Metric label="New" value={metrics.fresh} />
-                    <Metric label="Learning" value={metrics.learning} />
-                    <Metric label="Due Today" value={metrics.due} />
-                </div>
-                <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="relative w-full md:max-w-sm group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-slate-700 dark:text-slate-500 dark:group-focus-within:text-slate-300 transition-colors" />
-                        <Input
-                            placeholder={t('searchPlaceholder')}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-indigo-400/40 focus:ring-0 transition-all"
-                        />
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        <Filter className="h-4 w-4" />
+                        <span>{t('sortBy')}</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                            <Filter className="h-4 w-4" />
-                            <span>{t('sortBy')}</span>
-                        </div>
-                        <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
-                            <SelectTrigger className="w-48 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200">
-                                <SelectValue placeholder={t('sortBy')} />
-                            </SelectTrigger>
-                            <SelectContent className="backdrop-blur-md bg-white/90 dark:bg-slate-900/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
-                                <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
-                                <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
-                                <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
-                                <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
-                                <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
-                                <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
+                        <SelectTrigger className="w-48 h-10 rounded-full bg-white/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200">
+                            <SelectValue placeholder={t('sortBy')} />
+                        </SelectTrigger>
+                        <SelectContent className="backdrop-blur-md bg-white/90 dark:bg-slate-900/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+                            <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
+                            <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
+                            <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
+                            <SelectItem value="title-desc">{t('sortOptions.titleDesc')}</SelectItem>
+                            <SelectItem value="recently-studied">{t('sortOptions.recentlyStudied')}</SelectItem>
+                            <SelectItem value="flashcards-due-today">Flashcards Due Today</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
+        </div>
+    );
+
+    const topicContent = (
+        <Fragment>
+            {metricContent}
+
+            <ListPackage
+                isOpenListPackage={isOpenListPackage}
+                setIsOpenListPackage={setIsOpenListPackage}
+                topic={selectingTopicForPackageModal}
+            />
 
             {/* LIST TOPICS SECTION */}
             {handleRenderTopicsSection()}
@@ -451,7 +389,7 @@ export default function PersonalTopicLibrary() {
                 setIsOpen={setIsTopicDetailsModalOpen}
                 topic={selectingTopic}
             />
-        </>
+        </Fragment>
     );
 
     const mainActionButtons = (
@@ -463,5 +401,5 @@ export default function PersonalTopicLibrary() {
         </Button>
     );
 
-    return <TopicLibrary mode="personal" topicContent={topicContent} mainActionButtons={mainActionButtons} />;
+    return <LearningSpace mode="personal" topicContent={topicContent} mainActionButtons={mainActionButtons} />;
 }

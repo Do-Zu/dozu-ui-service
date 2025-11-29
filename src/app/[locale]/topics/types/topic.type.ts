@@ -11,12 +11,12 @@ export interface ITopic {
     inputSetId?: number;
 }
 
-export interface IFlashcardCounts {
-    total?: number;
-    new?: number;
-    learning?: number; // SM-2 algorithm; including learning & RELEARNING states
-    dueToday?: number;
-}
+export type IFlashcardCounts = {
+    new: number;
+    learning: number;
+    review: number;
+    total: number;
+};
 
 export type ICreateTopicBody = Pick<ITopic, 'name' | 'description'> & {
     inputSetId?: number;

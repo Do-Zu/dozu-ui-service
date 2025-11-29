@@ -43,7 +43,7 @@ function TopicDetails({ topic }: { topic: ITopicDetails }) {
                     </div>
                     <div>
                         <p className="font-semibold text-muted-foreground">Due</p>
-                        <p className="text-lg">{flashcardCounts?.dueToday || 0}</p>
+                        <p className="text-lg">{flashcardCounts?.review || 0}</p>
                     </div>
                 </div>
             </div>

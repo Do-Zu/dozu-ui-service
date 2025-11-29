@@ -14,6 +14,8 @@ import { Expand, Save } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 // import ImportMindmapButton from './buttons/ImportMindmapButton';
 import ImportButton from './buttons/ImportButton';
+import RoadmapButton from './buttons/RoadmapButton';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
@@ -39,55 +41,52 @@ const MindmapButtonsPanel = ({}) => {
     const { fitView } = useReactFlow();
 
     return (
-        <Panel position="center-left">
-            <Card className="p-4">
-                <div className="pb-2">
-                    <Toggle
-                        size="sm"
-                        pressed={isPanelExpanded}
-                        onPressedChange={(pressed) => setIsPanelExpanded(pressed)}
-                    >
-                        <Expand />
-                    </Toggle>
-                </div>
-                <div className="flex gap-2 flex-col">
-                    <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                        <Save />
-                        {isPanelExpanded ? <> {isSaving ? 'Saving...' : 'Save mindmap'}</> : ''}
-                    </Button>
-                    <EditMindmapButton isPanelExpanded={isPanelExpanded} />
-                    <DownloadButton isPanelExpanded={isPanelExpanded} />
-                    {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
-                    <ImportButton isPanelExpanded={isPanelExpanded} />
-                    <ExportToCSVButton isPanelExpanded={isPanelExpanded} />
-                    <HorizontalLayoutButton
-                        nodes={nodes}
-                        edges={edges}
-                        setNodes={setNodes}
-                        setEdges={setEdges}
-                        fitView={fitView}
-                        isPanelExpanded={isPanelExpanded}
-                    />
-                    <VerticalLayoutButton
-                        nodes={nodes}
-                        edges={edges}
-                        setNodes={setNodes}
-                        setEdges={setEdges}
-                        fitView={fitView}
-                        isPanelExpanded={isPanelExpanded}
-                    />
-                    <MindmapLayoutButton
-                        nodes={nodes}
-                        edges={edges}
-                        setNodes={setNodes}
-                        setEdges={setEdges}
-                        fitView={fitView}
-                        isPanelExpanded={isPanelExpanded}
-                    />
+        <Panel position="top-center">
+            <div className="flex gap-2 flex-row">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button size="icon-sm" disabled={isSaving} variant="outline" onClick={saveMindmap}>
+                            <Save />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">{isSaving ? 'Saving...' : 'Save mindmap'}</TooltipContent>
+                </Tooltip>
+                {/* <Separator className="my-4" /> */}
 
-                    <DeleteMindmapButton isPanelExpanded={isPanelExpanded} />
-                </div>
-            </Card>
+                <EditMindmapButton isPanelExpanded={isPanelExpanded} />
+                <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} setNodes={setNodes} />
+                <DownloadButton />
+                {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
+                <ImportButton isPanelExpanded={isPanelExpanded} />
+                <ExportToCSVButton isPanelExpanded={isPanelExpanded} />
+                <HorizontalLayoutButton
+                    nodes={nodes}
+                    edges={edges}
+                    setNodes={setNodes}
+                    setEdges={setEdges}
+                    fitView={fitView}
+                    isPanelExpanded={isPanelExpanded}
+                />
+                <VerticalLayoutButton
+                    nodes={nodes}
+                    edges={edges}
+                    setNodes={setNodes}
+                    setEdges={setEdges}
+                    fitView={fitView}
+                    isPanelExpanded={isPanelExpanded}
+                />
+                <MindmapLayoutButton
+                    nodes={nodes}
+                    edges={edges}
+                    setNodes={setNodes}
+                    setEdges={setEdges}
+                    fitView={fitView}
+                    isPanelExpanded={isPanelExpanded}
+                />
+
+                <DeleteMindmapButton isPanelExpanded={isPanelExpanded} />
+            </div>
+            {/* </Card> */}
         </Panel>
     );
 };

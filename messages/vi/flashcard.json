@@ -1,11 +1,19 @@
 {
     "flashcard": {
+        "common": {
+            "front": "Thuật ngữ",
+            "back": "Định nghĩa"
+        },
         "edit": {
             "import": "Tải lên",
             "save": "Lưu",
-            "addCards": "Thêm thẻ"
+            "addCards": "Thêm thẻ",
+            "messages": {
+                "noFlashcardChanges": "Không phát hiện thay đổi nào. Vui lòng chỉnh sửa một số thẻ ghi nhớ."
+            }
         },
         "study": {
+            "studyOptions": "Lựa chọn",
             "card": "Thẻ",
             "of": "trên",
             "complete": "hoàn thành",

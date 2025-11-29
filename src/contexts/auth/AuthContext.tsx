@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 import { getAllFeatureBelongPlan, getCurrentPlanSubscription } from '@/services/features/feature.service';
@@ -8,6 +8,9 @@ import { ICurrentPlan } from '@/services/features/feature.type';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
 import { storeSessionData } from '@/utils/storage';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { NotificationSettings } from '@/types/profile';
+import { ProfileService } from '@/services/profile/profileService';
 
 interface AuthContextType {
     user: User | null | undefined;
@@ -16,12 +19,15 @@ interface AuthContextType {
     hasCompletedOnboarding: boolean;
     userType: UserType;
     currentPlanUser: ICurrentPlan | null;
+    notificationSettings: NotificationSettings | null;
     setAuthData: (userData: User) => void;
     clearAuthData: () => void;
     hasRole: (role: string) => boolean;
     hasPermission: (permission: string) => boolean;
     updateUser: (userData: Partial<User>) => void;
     markOnboardingComplete: () => void;
+    refreshUserPlan: () => Promise<void>;
+    refreshNotificationSettings: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +39,74 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         useAuthStorage();
 
     const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null);
+    const [notificationSettings, setNotificationSettings] = useState<NotificationSettings | null>(null);
+    const isAuthenticatedRef = useRef(isAuthenticated);
+
+    useEffect(() => {
+        isAuthenticatedRef.current = isAuthenticated;
+    }, [isAuthenticated]);
+
+    // Load notification settings
+    const loadNotificationSettings = useCallback(async () => {
+        if (!isAuthenticated) {
+            setNotificationSettings(null);
+            return;
+        }
+
+        try {
+            const profile = await ProfileService.getProfile();
+            if (!isAuthenticatedRef.current) {
+                return;
+            }
+            if (profile.notificationSettings) {
+                setNotificationSettings(profile.notificationSettings);
+            } else {
+                // Use default settings if not set
+                setNotificationSettings({
+                    dailyReminders: true,
+                    weeklyReports: true,
+                    achievementNotifications: true,
+                    emailNotifications: true,
+                    pushNotifications: true,
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load notification settings:', error);
+            if (!isAuthenticatedRef.current) {
+                return;
+            }
+            // Use default settings on error
+            setNotificationSettings({
+                dailyReminders: true,
+                weeklyReports: true,
+                achievementNotifications: true,
+                emailNotifications: true,
+                pushNotifications: true,
+            });
+        }
+    }, [isAuthenticated]);
+
+    // Load settings when authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            loadNotificationSettings();
+        } else {
+            setNotificationSettings(null);
+        }
+    }, [isAuthenticated, loadNotificationSettings]);
+
+    // Initialize WebSocket connection for notifications
+    // Memoize callback to prevent unnecessary reconnections
+    const handleNotification = useCallback((data: any) => {
+        // Additional notification handling can be added here
+        console.log('Notification received in AuthContext:', data);
+    }, []);
+
+    useWebSocket({
+        enabled: isAuthenticated,
+        onNotification: handleNotification,
+        notificationSettings: notificationSettings || undefined,
+    });
 
     const checkAuthStatus = useCallback(async () => {
         try {
@@ -56,6 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const getUserCurrentPlan = useCallback(async () => {
         const { data } = await getCurrentPlanSubscription();
+
+        if (!isAuthenticatedRef.current) {
+            return;
+        }
 
         const { plan } = data;
 
@@ -118,14 +196,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             hasCompletedOnboarding,
             userType,
             currentPlanUser,
+            notificationSettings,
             setAuthData,
             clearAuthData,
             hasRole,
             hasPermission,
             updateUser,
             markOnboardingComplete,
+            refreshUserPlan: getUserCurrentPlan,
+            refreshNotificationSettings: loadNotificationSettings,
         };
-    }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete]);
+    }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete, getUserCurrentPlan, currentPlanUser, notificationSettings, loadNotificationSettings]);
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }

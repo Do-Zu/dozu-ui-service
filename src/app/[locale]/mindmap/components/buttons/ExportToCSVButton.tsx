@@ -6,6 +6,7 @@ import { useMindMapContext } from '../../context/MindMapContext';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
 import Papa from 'papaparse';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface FindOuterLeafsParams {
     nodes: AppNode[];
@@ -23,7 +24,7 @@ interface ExportToCSVButtonProps {
 }
 
 const ExportToCSVButton = ({ isPanelExpanded }: ExportToCSVButtonProps) => {
-    const t = useTranslations('');
+    const t = useTranslations('ExportToCSVButton');
     const { nodes, edges } = useMindMapContext();
     const handleOnClickCSV = () => {
         let originNode = nodes.find((node) => node.data.isRoot);
@@ -99,10 +100,15 @@ const ExportToCSVButton = ({ isPanelExpanded }: ExportToCSVButtonProps) => {
     };
 
     return (
-        <Button variant="outline" onClick={handleOnClickCSV}>
-            <ChevronRight />
-            {isPanelExpanded ? <> {t('ExportToCSVButtonText')}</> : ''}
-        </Button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button size="icon-sm" variant="outline" onClick={handleOnClickCSV}>
+                    <ChevronRight />
+                    {isPanelExpanded ? <> </> : ''}
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"> {t('ExportToCSVButtonText')}</TooltipContent>
+        </Tooltip>
     );
 };
 

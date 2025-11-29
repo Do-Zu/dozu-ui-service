@@ -106,7 +106,7 @@ const TeacherNodeSheet = ({ classId }: TeacherNodeSheetProps) => {
     };
 
     const handleAddChild = () => {
-        addChildNode({ screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
+        addChildNode({ nodes, screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
     };
 
     const handleAddFlashcards = () => {
@@ -209,10 +209,10 @@ const TeacherNodeSheet = ({ classId }: TeacherNodeSheetProps) => {
                         <Bot />
                         Generate flashcards
                     </Button>
-                    <Button onClick={handleViewDocument} variant="outline" className="w-full">
+                    {/* <Button onClick={handleViewDocument} variant="outline" className="w-full">
                         <FileText />
                         View document
-                    </Button>
+                    </Button> */}
                     <Button onClick={handleViewFlashcards} variant="outline" className="w-full">
                         <TableOfContents />
                         View all linked flashcards

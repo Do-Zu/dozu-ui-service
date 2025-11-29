@@ -1,11 +1,19 @@
 {
     "flashcard": {
+        "common": {
+            "front": "Term",
+            "back": "Definition"
+        },
         "edit": {
             "import": "Import",
             "save": "Save",
-            "addCards": "Add Cards"
+            "addCards": "Add Cards",
+            "messages": {
+                "noFlashcardChanges": "No changes detected. Please make some edits to your flashcards."
+            }
         },
         "study": {
+            "studyOptions": "Study Options",
             "card": "Card",
             "of": "of",
             "complete": "complete",

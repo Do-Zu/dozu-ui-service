@@ -1,3 +1,4 @@
+import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { Edge, Node } from '@xyflow/react';
 import { NextRouter } from 'next/router';
 
@@ -6,6 +7,7 @@ export type CustomEdge = {
     type?: string;
     source: string;
     target: string;
+    color?: string;
 };
 
 export type CustomNodeData = {
@@ -18,6 +20,9 @@ export type CustomNodeData = {
     pageStartIndex?: number;
     pageEndIndex?: number;
     statistics?: NodeStat;
+    color?: string;
+    roadmapOrder?: number;
+    isComplete?: boolean;
 };
 
 export type AppNode = Node<CustomNodeData>;
@@ -28,9 +33,12 @@ export interface CustomNode {
     position: { x: number; y: number };
     data: {
         label: string;
+        description: string;
         pageStartIndex: string;
         pageEndIndex: string;
         nodeId: string; //includes more later like the above
+        isRoot?: boolean;
+        color?: string;
     };
     type: string;
 }
@@ -41,3 +49,14 @@ export type NodeStat = {
     mature: number;
 };
 
+export interface INodeFlashcards {
+    flashcards: IFlashcard[];
+    summaryData: any;
+}
+
+export interface ILinkFlashcardsToNodePayload {
+    topicId: number;
+    nodeId: string;
+    unlinkedFlashcards: number[];
+    linkedFlashcards: number[];
+}

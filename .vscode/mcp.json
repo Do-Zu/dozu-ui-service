@@ -1,0 +1,40 @@
+{
+    "servers": {
+        "github": {
+            "url": "https://api.githubcopilot.com/mcp/",
+            "capabilities": {
+                "commands": {
+                    "create_issue": {
+                        "enabled": true,
+                        "options": {
+                            "prefix_title": "[BUG]",
+                            "assign_from_contributors": true
+                        }
+                    },
+                    "create_branch": {
+                        "enabled": false
+                    },
+                    "create_pull_request": {
+                        "enabled": true
+                    },
+                    "update_file": {
+                        "enabled": false
+                    },
+                    "comment_issue": {
+                        "enabled": true
+                    }
+                }
+            },
+            "context": {
+                "repo": "perinst/dozu-ui-service"
+            },
+            "api": {
+                "base_url": "https://api.github.com",
+                "contributors_endpoint": "/repos/{owner}/{repo}/contributors",
+                "auth": {
+                    "token_secret": "GITHUB_TOKEN"
+                }
+            }
+        }
+    }
+}

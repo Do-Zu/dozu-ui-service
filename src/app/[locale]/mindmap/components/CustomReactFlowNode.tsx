@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Handle, Node, NodeToolbar, Position, useEdges, useReactFlow } from '@xyflow/react';
+import { Handle, Node, NodeToolbar, Position, useEdges, useInternalNode, useReactFlow } from '@xyflow/react';
 import { useState, useRef, useEffect } from 'react';
 import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import { useAppSelector } from '@/stores/hooks';
 import AddChildNodeButton from './buttons/AddChildNodeButton';
 import DeleteNodeButton from './buttons/DeleteNodeButton';
+import PaletteButton from './buttons/PaletteButton';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
@@ -25,7 +26,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const progress = total > 0 ? (mature / total) * 100 : 0;
 
     const dispatch = useDispatch();
-    const router = getRouter();
+    // const router = getRouter();
 
     const [editing, setEditing] = useState(false);
     const [label, setLabel] = useState(data.label);
@@ -33,8 +34,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const [isClickedOn, setIsClickedOn] = useState(false);
     const isActive = isClickedOn || isHovered;
     const [isExpanded, setIsExpanded] = useState(false);
-    const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
+    const { screenToFlowPosition, fitView, getNodes, setNodes, setEdges, setViewport } = useReactFlow();
     const edges = useEdges();
+    const internalNode = useInternalNode(data.nodeId);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +65,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         });
         setNodes((nds) => nds.filter((node) => node.id !== id));
         setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
-        console.log(edges);
     };
 
     const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +93,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
 
     const handleRightClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
+        if (internalNode) {
+            fitView({ nodes: [internalNode], duration: 800, padding: 0.2 }); // Animate and add padding
+        }
+        setIsClickedOn(true);
+
         dispatch(setSelectedNodeData(data));
         dispatch(openSheet());
     };
@@ -147,9 +153,10 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 ${isActive ? 'shadow-lg' : ''}
             `}
             style={{
-                background: data.isRoot
-                    ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
-                    : undefined,
+                borderColor: data.color || 'hsl(var(--border))', // use custom color or fallback
+                // background: data.isRoot
+                //     ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
+                //     : undefined,
             }}
         >
             {/* Connection Handles */}
@@ -223,7 +230,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                 <motion.p
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
-                                    className="text-xs text-muted-foreground mt-1 leading-relaxed"
+                                    className={`text-xs text-muted-foreground mt-1 leading-relaxed ${isActive ? '' : 'truncate'}`}
                                     style={{ lineHeight: '1.4' }}
                                 >
                                     {data.description}
@@ -292,6 +299,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             <NodeToolbar isVisible={isEditingMindmap} position={Position.Top}>
                 <AddChildNodeButton nodeId={data.nodeId} />
                 <DeleteNodeButton nodeId={data.nodeId} />
+                <PaletteButton nodeId={data.nodeId} />
             </NodeToolbar>
         </motion.div>
     );

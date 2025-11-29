@@ -6,6 +6,8 @@ import {
     IDeleteTopicInClassPayload,
     IUpdateTopicInClassPayload,
 } from '@/services/topic/topic.service';
+import fileHelper from '@/utils/file.helper';
+import { HttpStatusCode, isAxiosError } from 'axios';
 
 class TeacherTopicService {
     public async getTopicsInClass(classId: number) {
@@ -25,16 +27,24 @@ class TeacherTopicService {
             formData.append('inputSetId', inputSetId.toString());
         }
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
-        const response = await postRequest<FormData, ICreateTopicForClassResponse>(
-            `/classes/teacher/${classId}/topics`,
-            formData,
-        );
-        if (response.status !== 'created') {
-            throw new Error(response.message);
+        try {
+            const response = await postRequest<FormData, ICreateTopicForClassResponse>(
+                `/classes/teacher/${classId}/topics`,
+                formData,
+            );
+            if (response.status !== 'created') {
+                throw new Error(response.message);
+            }
+            return response.data;
+        } catch (e) {
+            if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
+                throw new Error('The size of your image is too large, please try with another image.');
+            }
+            throw e;
         }
-        return response.data;
     }
 
     public async updateTopicInClass(topic: IUpdateTopicInClassPayload) {
@@ -43,16 +53,24 @@ class TeacherTopicService {
         formData.append('name', name);
         formData.append('description', description);
         if (imageFile) {
+            fileHelper.validateFileSize(imageFile, 1);
             formData.append('file', imageFile);
         }
-        const response = await putRequest<FormData, IUpdateTopicResponse>(
-            `/classes/teacher/${classId}/topics/${topicId}`,
-            formData,
-        );
-        if (response.status !== 'success') {
-            throw new Error(response.message);
+        try {
+            const response = await putRequest<FormData, IUpdateTopicResponse>(
+                `/classes/teacher/${classId}/topics/${topicId}`,
+                formData,
+            );
+            if (response.status !== 'success') {
+                throw new Error(response.message);
+            }
+            return response.data;
+        } catch (e) {
+            if (isAxiosError(e) && e.response?.status === HttpStatusCode.PayloadTooLarge) {
+                throw new Error('The size of your image is too large, please try with another image.');
+            }
+            throw e;
         }
-        return response.data;
     }
 
     public async deleteTopicInClass({ classId, topicId }: IDeleteTopicInClassPayload): Promise<number> {

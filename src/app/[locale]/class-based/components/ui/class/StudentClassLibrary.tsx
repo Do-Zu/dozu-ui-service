@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import useFetch from '@/hooks/useFetch';
 import LoadingPage from '@/app/loading';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import studentClassService from '@/services/class-based-learning/student/studentClass.service';
 import usePost from '@/hooks/usePost';
@@ -20,6 +20,7 @@ export default function StudentClassLibrary() {
     const tJoinClass = useTranslations('class.join');
     const tLeaveClass = useTranslations('class.leave');
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     // manage current class that is selected, showing list of topics in the class
     const [classIdSelected, setClassIdSelected] = useState<number | null>();
@@ -109,6 +110,24 @@ export default function StudentClassLibrary() {
         setIsJoinClassModalOpen(false);
         setInvitationCode('');
     }
+
+    // Handle invitation code from URL
+    useEffect(() => {
+        const codeFromUrl = searchParams.get('code');
+        if (codeFromUrl && classes) {
+            const existingClass = classes.find((c) => c.invitationCode === codeFromUrl);
+            if (existingClass) {
+                toastHelper.showSuccessMessage(tJoinClass('alreadyEnrolled'));
+                router.push(ROUTES.CLASS_BASED_ID(existingClass.classId));
+            } else {
+                handleJoinClick(codeFromUrl);
+            }
+
+            const url = new URL(window.location.href);
+            url.searchParams.delete('code');
+            window.history.replaceState({}, '', url.toString());
+        }
+    }, [searchParams, classes, tJoinClass, router, handleJoinClick]);
 
     // ... UI
     // button actions

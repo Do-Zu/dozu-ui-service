@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { streakProgressService, StreakProgressData } from '@/services/gamification/streakProgress.service';
+import { streakProgressService, StreakProgressData } from '@/services/progress/streakProgress.service';
 import { ContentType, ProgressStatus } from '@/types/progress';
 
 export interface StreakProgressResult {

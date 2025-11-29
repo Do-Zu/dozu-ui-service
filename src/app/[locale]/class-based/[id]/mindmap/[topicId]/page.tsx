@@ -13,11 +13,6 @@ import {
     handleConvertToFlashcardsSubmitted,
     IFlashcardWithServer,
 } from '@/app/[locale]/flashcards/components/FlashcardEditor';
-import {
-    IFlashcardsBatchInput,
-    IFlashcardCreateInput,
-    IFlashcardUpdateInput,
-} from '@/app/[locale]/flashcards/types/flashcard.type';
 import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
 import DownloadButton from '@/components/mindmap/button/DownloadButton';
@@ -160,7 +155,7 @@ export default function MindmapContent() {
                 </Panel>
                 <Panel position="top-center">
                     <div className="flex gap-2 ">
-                        <DownloadButton isPanelExpanded={isPanelExpanded} />
+                        <DownloadButton />
                     </div>
                     <FileSheet />
                     <NodeSheetViewOnly />

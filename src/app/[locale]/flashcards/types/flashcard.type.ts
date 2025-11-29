@@ -1,4 +1,10 @@
-import { IAnkiRating, IAnkiStatus, INextReviewInterval, INextReviewIntervalForRating } from '@/types/anki';
+import {
+    IAnkiRating,
+    IAnkiStatus,
+    IBaseIntervalWithDeviation,
+    INextReviewInterval,
+    INextReviewIntervalForRating,
+} from '@/types/anki';
 import { IFlashcardStatus, IItemSpacedRepetition, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { TimeUnit } from '@/utils';
 
@@ -22,7 +28,7 @@ export interface IFlashcardsWithTopicName {
 
 export type IFlashcardLearningState = Pick<
     IItemSpacedRepetition,
-    'status' | 'lastReviewed' | 'nextReview' | 'repetitionNumber' | 'easinessFactor' | 'reviewInterval'
+    'status' | 'lastReviewed' | 'nextReview' | 'repetitionNumber' | 'easinessFactor' | 'reviewInterval' | 'step'
 > & { flashcardId?: number };
 
 export interface IQualityResponseNextReviewInterval {
@@ -31,7 +37,9 @@ export interface IQualityResponseNextReviewInterval {
 }
 
 export type IFlashcardCreateInput = Pick<IFlashcard, 'front' | 'back'> & { image?: IImageSaveInput | null };
-export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'>;
+export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'> & {
+    image?: IImageSaveInput | null;
+};
 
 export type IFlashcardsBatchInput = {
     flashcardsAdded?: IFlashcardCreateInput[];
@@ -60,22 +68,23 @@ export type ICardNextReviewSchedule = {
     nextReviewIntervalsForRating: INextReviewIntervalForRating[];
 };
 
-export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName'> & {
-    nextReviewDataByRatings: INextReviewDataByRating[];
+export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName' | 'nodeId'> & {
+    learningState: IFlashcardLearningState;
     nextReview: string;
     status: IAnkiStatus;
 };
 
 export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
+    learningState: IFlashcardLearningState;
     nextReview: string;
     status: IAnkiStatus;
-    nextReviewDataByRatings: INextReviewDataByRating[];
     rating: IAnkiRating;
 };
 
 export interface INextReviewDataByRating {
     rating: IAnkiRating;
-    data: IAnkiResult;
+    interval: INextReviewInterval;
+    baseIntervalWithDeviation: IBaseIntervalWithDeviation | null;
 }
 
 export interface IAnkiCard {
@@ -92,4 +101,7 @@ export interface IAnkiCard {
 export interface IAnkiResult extends IAnkiCard {
     nextReview: Date;
     nextReviewInterval: INextReviewInterval;
+    baseIntervalWithDeviation: IBaseIntervalWithDeviation | null;
 }
+
+export type IAnkiCardStatusCounts = Record<Exclude<IAnkiStatus, IAnkiStatus.RELEARNING>, number>;

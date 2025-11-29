@@ -174,7 +174,27 @@ const getCurrentTime = (): string => {
     return formatTime(getCurrentSystemDateTime(), 'HH:mm');
 };
 
-export { formatDate, formatDateCustom, formatTime, getCurrentSystemDate, getCurrentSystemDateTime, getCurrentTime };
+/* Utility: format seconds -> HH:MM:SS */
+const formatSeconds = (sec?: number): string => {
+    if (sec == null || isNaN(sec)) return '';
+    const hours = Math.floor(sec / 3600);
+    const minutes = Math.floor((sec % 3600) / 60);
+    const seconds = Math.floor(sec % 60);
+    const h = hours.toString().padStart(2, '0');
+    const m = minutes.toString().padStart(2, '0');
+    const s = seconds.toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
+};
+
+export {
+    formatDate,
+    formatDateCustom,
+    formatTime,
+    getCurrentSystemDate,
+    getCurrentSystemDateTime,
+    getCurrentTime,
+    formatSeconds,
+};
 export enum TimeUnit {
     SECOND = 'seconds',
     MINUTE = 'minutes',

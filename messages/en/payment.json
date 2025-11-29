@@ -1,0 +1,56 @@
+{
+    "payment": {
+        "title": "Checkout",
+        "beautyTitle": "Beauty Checkout",
+        "beautySubtitle": "A gentle, secure payment experience",
+        "planSummary": "Plan summary",
+        "orderSummary": "Order summary",
+        "orderCode": "Order code",
+        "status": "Status",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "total": "Total",
+        "promoLabel": "Promo code",
+        "promoPlaceholder": "BEAUTY10 / GLOW15",
+        "apply": "Apply",
+        "paymentMethods": "Payment methods",
+        "payosLink": "PayOS link",
+        "payOSGateWay": "Pay OS GateWay",
+        "scanQR": "Scan QR",
+        "redirectNotice": "You’ll be redirected to a secure PayOS page to complete your payment.",
+        "qrUnavailable": "QR code unavailable",
+        "qrHint": "Scan with your banking app to pay instantly.",
+        "success": {
+            "title": "Payment Successful",
+            "subtitle": "Your subscription has been activated successfully.",
+            "cta": "Continue to dashboard"
+        },
+        "cancel": {
+            "title": "Payment Cancelled",
+            "subtitle": "No charges were made to your account."
+        },
+        "error": {
+            "title": "Payment Error",
+            "tryAgain": "Try again"
+        },
+        "backToPlans": "Back to plans",
+        "payNow": "Pay now",
+        "completePurchase": "Complete Purchase",
+        "securedBy": "Secured by PayOS",
+        "saveMethod": "Save payment method",
+        "saveMethodHint": "For faster checkout next time",
+        "fullName": "Full name",
+        "email": "Email",
+        "cardNumber": "Card number",
+        "expiry": "Expiry",
+        "cvv": "CVV",
+        "applePay": " Apple Pay",
+        "googlePay": "G Pay",
+        "continueApple": "Continue with  Apple Pay",
+        "continueGoogle": "Continue with G Pay",
+        "orScanToPay": "Or scan to pay",
+        "promoApplied": "Promo applied",
+        "promoInvalid": "Promo code not valid",
+        "dashboard": "Dashboard"
+    }
+}

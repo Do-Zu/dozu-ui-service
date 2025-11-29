@@ -21,8 +21,9 @@ import { useFeynmanService } from './hooks/useFeynmanService';
 import History from '@/components/feynman/History';
 import LeftMissionPanel from '@/components/feynman/LeftMissionPanel';
 import { toast } from '@/hooks/use-toast';
+import { withAuth } from '@/hoc/withAuth';
 
-export default function FeynmanPage() {
+const FeynmanPage = () => {
     const tCommon = useTranslations('common');
     const tFeynman = useTranslations('feynman');
 
@@ -67,7 +68,7 @@ export default function FeynmanPage() {
 
     const {
         execute: executeGetQuestion,
-        loading: isRegisterFetchQuestion,
+        isRegisterGenerate: isRegisterFetchQuestion,
         dataGenerated: dataFeynmanQuestion,
         isGenerating: isGeneratingQuestion,
         apiPostContentError: errorGenerateQuestion,
@@ -78,7 +79,7 @@ export default function FeynmanPage() {
 
     const {
         execute: executeReview,
-        loading: isRegisterReview,
+        isRegisterGenerate: isRegisterReview,
         dataGenerated: dataFeynmanReviewed,
         isGenerating: isGeneratingReview,
         apiPostContentError: errorReview,
@@ -439,4 +440,6 @@ export default function FeynmanPage() {
             {renderLeftSide()}
         </div>
     );
-}
+};
+
+export default withAuth(FeynmanPage);

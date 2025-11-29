@@ -7,7 +7,17 @@ import { toast } from '@/hooks/use-toast';
 import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
 import { useReactFlow } from '@xyflow/react';
-import { Bot, CopyPlus, DiamondPlus, FileText, SquarePen, TableOfContents, Trash } from 'lucide-react';
+import {
+    Bot,
+    CopyPlus,
+    DiamondPlus,
+    Edit,
+    FileText,
+    GraduationCap,
+    SquarePen,
+    TableOfContents,
+    Trash,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -15,8 +25,21 @@ import { compressContent } from '../../generate/helper/compress';
 import { useMindMapContext } from '../context/MindMapContext';
 import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
 import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
+import Reference from '../../topics/[topicId]/(topic)/components/reference/Reference';
 
-const NodeSheet = () => {
+interface Props {
+    onViewNodeFlashcardsClick?: () => void;
+    onLinkNodeFlashcardsClick?: () => void;
+    onLearnNodeFlashcardsClick?: () => void;
+    onEditNodeFlashcardsClick?: () => void;
+}
+
+const NodeSheet = ({
+    onViewNodeFlashcardsClick,
+    onLinkNodeFlashcardsClick,
+    onLearnNodeFlashcardsClick,
+    onEditNodeFlashcardsClick,
+}: Props) => {
     const router = useRouter();
     const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
@@ -43,7 +66,12 @@ const NodeSheet = () => {
         if (!selectedNodeData?.nodeId) {
             toast({ description: 'Missing nodeId', variant: 'destructive' });
         } else {
-            deleteNode({ nodeId: selectedNodeData?.nodeId, edges: edges, setNodes: setNodes, setEdges: setEdges });
+            deleteNode({
+                nodeId: selectedNodeData?.nodeId,
+                edges: edges,
+                setNodes: setNodes,
+                setEdges: setEdges,
+            });
             dispatch(closeSheet());
         }
     };
@@ -76,7 +104,7 @@ const NodeSheet = () => {
             setNewLabel(selectedNodeData?.label);
             setNewDescription(selectedNodeData.description || '');
         }
-        setIsEditing((isEditing) => !isEditing);
+        setIsEditing((prev) => !prev);
     };
 
     const onChangeNewLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,11 +124,15 @@ const NodeSheet = () => {
     };
 
     const handleAddChild = () => {
-        addChildNode({ screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
+        addChildNode({ nodes, screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
         dispatch(closeSheet());
     };
 
     const handleAddFlashcards = () => {
+        if (onLinkNodeFlashcardsClick) {
+            onLinkNodeFlashcardsClick();
+            return;
+        }
         router.push(`/mindmap/add-flashcard?topicId=${selectedNodeData.topicId}&nodeId=${selectedNodeData.nodeId}`);
     };
 
@@ -124,13 +156,29 @@ const NodeSheet = () => {
     };
 
     const handleViewFlashcards = () => {
+        if (onViewNodeFlashcardsClick) {
+            onViewNodeFlashcardsClick();
+            return;
+        }
         router.push(`/mindmap/nodes/${selectedNodeData.nodeId}/flashcard`);
     };
 
-    const handleOnOpenChange = (open: boolean) => {
-        if (!open) {
-            setIsEditing(false);
+    const handleEditFlashcards = () => {
+        if (onEditNodeFlashcardsClick) {
+            onEditNodeFlashcardsClick();
+            return;
         }
+    };
+
+    const handleLearnFlashcardsClick = () => {
+        if (onLearnNodeFlashcardsClick) {
+            onLearnNodeFlashcardsClick();
+            return;
+        }
+    };
+
+    const handleOnOpenChange = (open: boolean) => {
+        if (!open) setIsEditing(false);
         dispatch(setIsSheetOpen(open));
     };
 
@@ -141,85 +189,110 @@ const NodeSheet = () => {
 
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
-            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col">
-                <SheetHeader>
+            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col space-y-4">
+                <SheetHeader className="pb-3 border-b">
                     <SheetTitle>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between gap-2">
                             {isEditing ? (
-                                <Input value={newLabel} onChange={onChangeNewLabel} />
+                                <Input value={newLabel} onChange={onChangeNewLabel} placeholder="Enter node title" />
                             ) : (
-                                selectedNodeData?.label
+                                <h2 className="text-lg font-semibold">{selectedNodeData?.label}</h2>
                             )}
-
-                            <Button variant="ghost" onClick={handleEditTitle}>
-                                <SquarePen />
+                            <Button size="icon" variant="ghost" onClick={handleEditTitle}>
+                                <SquarePen className="h-4 w-4" />
                             </Button>
                         </div>
                     </SheetTitle>
-
-                    {/* <SheetDescription>Node ID: {selectedNodeData?.nodeId}</SheetDescription> */}
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto pr-2">
-                    <Label>Description</Label>
-                    {isEditing ? (
-                        <Textarea value={newDescription} onChange={onChangeNewDescription} />
-                    ) : (
-                        <p>{selectedNodeData.description}</p>
-                    )}
-                </div>
-
-                {/* <SheetFooter> */}
-                <div className="flex flex-col gap-2 mt-6">
-                    <div className="grid grid-cols-2 w-full gap-3">
-                        <Label>Starts at page #</Label>
-
+                <div className="flex-1 overflow-y-auto pr-2 space-y-5">
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">Description</Label>
                         {isEditing ? (
-                            <Input type="number" value={pageStartIndex} onChange={onChangePageStartIndex} />
+                            <Textarea
+                                value={newDescription}
+                                onChange={onChangeNewDescription}
+                                placeholder="Write a short description..."
+                                className="min-h-[100px]"
+                            />
                         ) : (
-                            selectedNodeData?.pageStartIndex
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                {selectedNodeData.description || 'No description provided.'}
+                            </p>
                         )}
                     </div>
-                    <div className="grid grid-cols-2 w-full gap-3">
-                        <Label>Ends at page #</Label>
-                        {isEditing ? (
-                            <Input type="number" value={pageEndIndex} onChange={onChangePageEndIndex} />
-                        ) : (
-                            selectedNodeData?.pageEndIndex
-                        )}
+
+                    <Reference
+                        content={`${selectedNodeData.label} : ${selectedNodeData.description}`}
+                        triggerClassName="item-center"
+                    />
+
+                    {/* <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <Label className="text-sm font-medium">Start Page</Label>
+                            {isEditing ? (
+                                <Input type="number" value={pageStartIndex ?? ''} onChange={onChangePageStartIndex} />
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    {selectedNodeData?.pageStartIndex ?? '—'}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-sm font-medium">End Page</Label>
+                            {isEditing ? (
+                                <Input type="number" value={pageEndIndex ?? ''} onChange={onChangePageEndIndex} />
+                            ) : (
+                                <p className="text-sm text-muted-foreground">{selectedNodeData?.pageEndIndex ?? '—'}</p>
+                            )}
+                        </div>
+                    </div> */}
+
+                    <div className="border-t pt-4 space-y-2">
+                        <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
+                        <div className="grid grid-cols-1 gap-2">
+                            <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
+                                <DiamondPlus className="h-4 w-4" /> Add Child
+                            </Button>
+                            <Button onClick={handleAddFlashcards} variant="outline" className="justify-start gap-2">
+                                <CopyPlus className="h-4 w-4" /> Add Flashcards
+                            </Button>
+                            <Button
+                                onClick={handleGenerateFlashcards}
+                                variant="outline"
+                                className="justify-start gap-2"
+                            >
+                                <Bot className="h-4 w-4" /> Generate Flashcards
+                            </Button>
+                            {/* <Button onClick={handleViewDocument} variant="outline" className="justify-start gap-2">
+                                <FileText className="h-4 w-4" /> View Document
+                            </Button> */}
+                            <Button onClick={handleViewFlashcards} variant="outline" className="justify-start gap-2">
+                                <TableOfContents className="h-4 w-4" /> Browse Linked Flashcards
+                            </Button>
+                            <Button onClick={handleEditFlashcards} variant="outline" className="justify-start gap-2">
+                                <Edit className="h-4 w-4" /> Edit Linked Flashcards
+                            </Button>
+                            <Button
+                                onClick={handleLearnFlashcardsClick}
+                                variant="outline"
+                                className="justify-start gap-2"
+                            >
+                                <GraduationCap className="h-4 w-4" /> Learn Linked Flashcards
+                            </Button>
+                        </div>
                     </div>
-                    <Button onClick={handleAddChild} variant="outline" className="w-full">
-                        <DiamondPlus />
-                        Add child
-                    </Button>
-                    <Button onClick={handleAddFlashcards} variant="outline" className="w-full">
-                        <CopyPlus />
-                        Add flashcards
-                    </Button>
-                    <Button onClick={handleGenerateFlashcards} variant="outline" className="w-full">
-                        <Bot />
-                        Generate flashcards
-                    </Button>
-                    <Button onClick={handleViewDocument} variant="outline" className="w-full">
-                        <FileText />
-                        View document
-                    </Button>
-                    <Button onClick={handleViewFlashcards} variant="outline" className="w-full">
-                        <TableOfContents />
-                        View all linked flashcards
-                    </Button>
-                    <Button onClick={handleDeleteNode} variant="destructive">
-                        <Trash />
-                        Delete this node
-                    </Button>
-                    {/* <SheetClose asChild>
-                        <Button variant="outline">
-                            <PanelRightClose />
-                            Close
+
+                    <div className="border-t pt-4">
+                        <Button
+                            onClick={handleDeleteNode}
+                            variant="destructive"
+                            className="w-full justify-center gap-2"
+                        >
+                            <Trash className="h-4 w-4" /> Delete Node
                         </Button>
-                    </SheetClose> */}
+                    </div>
                 </div>
-                {/* </SheetFooter> */}
             </SheetContent>
         </Sheet>
     );

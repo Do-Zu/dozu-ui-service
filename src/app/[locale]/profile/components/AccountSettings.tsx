@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Bell } from 'lucide-react';
 import { NotificationSettings, PrivacySettings } from '../../../../types/profile';
 import { ProfileService } from '../../../../services/profile/profileService';
+import toastHelper from '@/utils/toast.helper';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 interface AccountSettingsProps {
   onSettingsChange?: (notifications: NotificationSettings, privacy: PrivacySettings) => Promise<void>;
@@ -16,19 +18,13 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
   onSettingsChange, 
   onDeleteAccount 
 }) => {
+  const { refreshNotificationSettings } = useAuth();
   const [notifications, setNotifications] = useState<NotificationSettings>({
     dailyReminders: true,
     weeklyReports: true,
     achievementNotifications: false,
     emailNotifications: true,
     pushNotifications: false
-  });
-
-  const [privacy, setPrivacy] = useState<PrivacySettings>({
-    showProfile: true,
-    showProgress: true,
-    showAchievements: true,
-    allowMessages: true
   });
 
   const [loading, setLoading] = useState(false);
@@ -48,11 +44,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
       if (profile.notificationSettings) {
         setNotifications(profile.notificationSettings);
       }
-      if (profile.privacySettings) {
-        setPrivacy(profile.privacySettings);
-      }
     } catch (error) {
-      console.log('Using default settings - backend settings not available');
     } finally {
       setLoading(false);
     }
@@ -65,33 +57,31 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
     }));
   };
 
-  const handlePrivacyChange = (key: keyof PrivacySettings, value: boolean) => {
-    setPrivacy(prev => ({
-      ...prev,
-      [key]: value
-    }));
+  const handleToggleAll = (enabled: boolean) => {
+    setNotifications({
+      dailyReminders: enabled,
+      weeklyReports: enabled,
+      achievementNotifications: enabled,
+      emailNotifications: enabled,
+      pushNotifications: enabled
+    });
   };
 
+  const allNotificationsEnabled = Object.values(notifications).every(v => v);
+  const someNotificationsEnabled = Object.values(notifications).some(v => v);
+
   const handleSaveSettings = async () => {
+    setSaveLoading(true);
     try {
-      setSaveLoading(true);
-      
-      if (onSettingsChange) {
-        await onSettingsChange(notifications, privacy);
-        console.log('✅ Settings saved successfully');
-        alert('Settings saved successfully!');
-      } else {
-        // Fallback: save directly to backend
-        await Promise.all([
-          ProfileService.updateNotificationSettings(notifications),
-          ProfileService.updatePrivacySettings(privacy)
-        ]);
-        console.log('✅ Settings saved to backend');
-        alert('Settings saved successfully!');
-      }
-    } catch (error: any) {
-      console.error('❌ Failed to save settings:', error);
-      alert(`Failed to save settings: ${error.message || 'Unknown error'}`);
+      await (onSettingsChange 
+        ? onSettingsChange(notifications, {} as PrivacySettings)
+        : ProfileService.updateNotificationSettings(notifications)
+      );
+      // Refresh notification settings in AuthContext to update WebSocket behavior
+      await refreshNotificationSettings();
+      toastHelper.showSuccessMessage('Settings saved successfully!');
+    } catch (error) {
+      toastHelper.showErrorMessage(error);
     } finally {
       setSaveLoading(false);
     }
@@ -105,30 +95,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
       emailNotifications: true,
       pushNotifications: false
     });
-    setPrivacy({
-      showProfile: true,
-      showProgress: true,
-      showAchievements: true,
-      allowMessages: true
-    });
-  };
-
-  const handleDeleteAccount = async () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      try {
-        if (onDeleteAccount) {
-          onDeleteAccount();
-        } else {
-          // Fallback: delete via backend
-          await ProfileService.deleteAccount();
-          alert('Account deleted successfully. You will be redirected to login.');
-          window.location.href = '/login';
-        }
-      } catch (error: any) {
-        console.error('❌ Failed to delete account:', error);
-        alert(`Failed to delete account: ${error.message || 'Unknown error'}`);
-      }
-    }
   };
 
   return (
@@ -140,13 +106,55 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
         </div>
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="space-y-5">
+            {/* Header */}
             <div>
-          <Label className="text-base font-medium">Email Notifications</Label>
-          <p className="text-sm text-muted-foreground mb-3">
-            Choose what notifications you want to receive
-          </p>
-          <div className="space-y-2">
+              <Label className="text-xl font-semibold flex items-center gap-2 mb-2">
+                <Bell className="h-5 w-5" />
+                Email Notifications
+              </Label>
+              <p className="text-sm text-muted-foreground mb-4">
+                Select which notifications you'd like to receive. Stay updated with your learning progress and achievements.
+              </p>
+              
+              {/* Group Toggle */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 mb-4">
+                <div>
+                  <Label className="text-sm font-semibold cursor-pointer">
+                    Toggle all notifications
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Turn all notifications on or off at once
+                  </p>
+                </div>
+                <div className="relative inline-block w-12 h-6">
+                  <input
+                    type="checkbox"
+                    checked={allNotificationsEnabled}
+                    onChange={(e) => handleToggleAll(e.target.checked)}
+                    className="sr-only peer"
+                    id="toggle-all"
+                  />
+                  <label
+                    htmlFor="toggle-all"
+                    className={`absolute inset-0 rounded-full transition-colors duration-200 cursor-pointer ${
+                      allNotificationsEnabled || someNotificationsEnabled
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500'
+                        : 'bg-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full shadow-md transition-transform duration-200 ${
+                        allNotificationsEnabled ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            {/* Notification Options */}
+            <div className="space-y-3">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input 
                 type="checkbox" 
@@ -192,94 +200,39 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
               />
               <span className="text-sm">Push notifications</span>
             </label>
-          </div>
-        </div>
+            </div>
 
-        <div>
-          <Label className="text-base font-medium">Privacy Settings</Label>
-          <p className="text-sm text-muted-foreground mb-3">
-            Control your profile visibility
-          </p>
-          <div className="space-y-2">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={privacy.showProfile}
-                onChange={(e) => handlePrivacyChange('showProfile', e.target.checked)}
-                className="rounded" 
-              />
-              <span className="text-sm">Show profile to other users</span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={privacy.showProgress}
-                onChange={(e) => handlePrivacyChange('showProgress', e.target.checked)}
-                className="rounded" 
-              />
-              <span className="text-sm">Show learning progress</span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={privacy.showAchievements}
-                onChange={(e) => handlePrivacyChange('showAchievements', e.target.checked)}
-                className="rounded" 
-              />
-              <span className="text-sm">Show achievements</span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={privacy.allowMessages}
-                onChange={(e) => handlePrivacyChange('allowMessages', e.target.checked)}
-                className="rounded" 
-              />
-              <span className="text-sm">Allow messages from other users</span>
-            </label>
-          </div>
-        </div>
-
-        <div className="pt-4">
-          <Button 
-            onClick={handleSaveSettings} 
-            className="mr-4"
-            disabled={saveLoading}
-          >
-            {saveLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Saving...
-              </>
-            ) : (
-              'Save Settings'
-            )}
-          </Button>
-          <Button variant="outline" onClick={handleResetToDefault}>
-            Reset to Default
-          </Button>
-        </div>
-      </div>
-
-      <div className="border-t pt-6">
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-medium text-red-600">Danger Zone</h4>
-            <p className="text-sm text-muted-foreground mb-4">
-              Irreversible and destructive actions
-            </p>
-            <div>
-              <h4 className="font-medium">Delete Account</h4>
-              <p className="text-sm text-muted-foreground">
-                Permanently delete your account and all associated data
-              </p>
-              <Button variant="destructive" className="mt-2" onClick={handleDeleteAccount}>
-                Delete Account
+            {/* Action Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row gap-3 border-t border-gray-100">
+              <Button 
+                onClick={handleSaveSettings} 
+                variant="gradient"
+                className="flex-1 sm:flex-none"
+                disabled={saveLoading}
+                size="lg"
+              >
+                {saveLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Bell className="h-4 w-4 mr-2" />
+                    Save Settings
+                  </>
+                )}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleResetToDefault}
+                className="border-2 hover:bg-gray-50"
+                size="lg"
+              >
+                Reset to Default
               </Button>
             </div>
           </div>
-        </div>
-      </div>
         </>
       )}
     </div>

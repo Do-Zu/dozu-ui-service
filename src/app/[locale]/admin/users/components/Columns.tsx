@@ -18,6 +18,22 @@ function ActiveBadge({ isActive }: { isActive: boolean }) {
     return <Badge variant={isActive ? 'default' : 'secondary'}>{isActive ? 'Active' : 'Inactive'}</Badge>;
 }
 
+function PlanBadge({ planType }: { planType?: string | null }) {
+    if (!planType || planType === 'free') {
+        return <Badge variant="outline" className="text-muted-foreground">FREE</Badge>;
+    }
+    
+    if (planType === 'pro') {
+        return (
+            <Badge variant="default" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                PRO
+            </Badge>
+        );
+    }
+    
+    return <Badge variant="outline">{planType.toUpperCase()}</Badge>;
+}
+
 function ActionButtons({ user, refetch }: { user: UserBasic; refetch: () => void }) {
     const { execute: toggleActive, loading: toggleLoading } = usePost(
         `/admin/users/${user.id}/toggle-active`,
@@ -102,6 +118,11 @@ export const getUserColumns = (refetch: () => void): ColumnDef<UserBasic>[] => [
         accessorKey: 'role',
         header: 'Role',
         cell: ({ row }) => <RoleBadge role={row.original.role} />,
+    },
+    {
+        accessorKey: 'planType',
+        header: 'Plan',
+        cell: ({ row }) => <PlanBadge planType={row.original.planType} />,
     },
     {
         accessorKey: 'isActive',

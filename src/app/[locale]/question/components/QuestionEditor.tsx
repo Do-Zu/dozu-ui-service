@@ -16,8 +16,12 @@ import { buildContentFromQuestionsForFlashcards } from '@/app/[locale]/question/
 import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
 import { CONTENT_TYPE_GENERATE } from '@/app/[locale]/generate/types';
-import { handleConvertToFlashcardsSubmitted } from '@/app/[locale]/flashcards/components/FlashcardEditor';
+import {
+    handleConvertToFlashcardsSubmitted,
+    IFlashcardWithServer,
+} from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import flashcardService from '@/services/flashcard/flashcard.service';
+import { useQuizWorkspace } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/context/QuizWorkspaceContext';
 
 const questionsJump = 3;
 
@@ -27,7 +31,8 @@ function createInitialQuestion(id: number): IQuestion {
         questionText: '',
         choices: ['', '', '', ''],
         correctIndex: 0,
-    };
+        questionType: 'MULTIPLE_CHOICE',
+    } as IQuestion;
 }
 
 interface Props {
@@ -49,7 +54,8 @@ const QuestionEditor = ({
     topic,
 }: Props) => {
     const router = useRouter();
-    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus } = useGenerateFromExisting();
+    const { setGeneratedQuestionsForEdit } = useQuizWorkspace();
+    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
     const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({
         sseData,
         sseStatus,
@@ -132,11 +138,35 @@ const QuestionEditor = ({
     };
 
     const handleOnClickSave = async () => {
+        // check if question list is empty
+        if (!Array.isArray(questions) || questions.length === 0) {
+            toast({
+                title: 'No questions to save',
+                description: 'Please add at least one question before saving.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        // check if all questions are valid (title, >=2 answers, correct index)
+        if (!hasAllValidQuestions(questions)) {
+            toast({
+                title: 'Invalid questions detected',
+                description:
+                    'Please make sure every question has a title, at least two non-empty and unique answers, and a valid correct answer index.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
         const dataSubmitted = handleConvertToQuestionsSubmitted(questions);
         try {
             await postRequest(`/questions/batch?topicId=${topic?.topicId}`, dataSubmitted);
             toast({ title: 'Questions saved successfully' });
-            router.push(ROUTES.HOME);
+            setGeneratedQuestionsForEdit(null);
+            if (topic?.topicId !== undefined) {
+                router.push(ROUTES.QUIZ_DASBOARD(topic.topicId));
+            }
         } catch (err) {
             console.error(err);
             toast({ title: 'Error saving questions', variant: 'destructive' });
@@ -151,6 +181,28 @@ const QuestionEditor = ({
                 Array.isArray(q.choices) &&
                 q.choices.some((c) => (c ?? '').trim().length > 0),
         );
+    };
+
+    // check: must have title, >=2 answers not empty, valid correctIndex
+    const hasAllValidQuestions: (list: IQuestion[]) => boolean = (list: IQuestion[]): boolean => {
+        if (!Array.isArray(list) || list.length === 0) return false;
+
+        return list.every((q) => {
+            const hasValidText = q.questionText?.trim().length > 0;
+            const nonEmptyChoices = Array.isArray(q.choices) ? q.choices.filter((c) => c?.trim().length > 0) : [];
+            const hasEnoughChoices = nonEmptyChoices.length >= 2;
+
+            //duplicate check (case-insensitive)
+            const lowerChoices = nonEmptyChoices.map((c) => c.toLowerCase());
+            const hasDuplicateChoices = new Set(lowerChoices).size !== lowerChoices.length;
+
+            const hasValidCorrectIndex =
+                typeof q.correctIndex === 'number' &&
+                q.correctIndex >= 0 &&
+                q.correctIndex < q.choices.length &&
+                q.choices[q.correctIndex]?.trim().length > 0;
+            return hasValidText && hasEnoughChoices && !hasDuplicateChoices && hasValidCorrectIndex;
+        });
     };
 
     const handleGenerateFlashcards = async () => {
@@ -173,7 +225,7 @@ const QuestionEditor = ({
         }
 
         if (contentType === CONTENT_TYPE_GENERATE.FLASH_CARD) {
-            const batchFlashcards = handleConvertToFlashcardsSubmitted(dataGenerated as any);
+            const batchFlashcards = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]);
             if (!batchFlashcards) {
                 toast({ description: 'No valid flashcards to save', variant: 'destructive' });
                 return;
@@ -184,38 +236,36 @@ const QuestionEditor = ({
     };
 
     const canSaveGenerated =
-      contentType === CONTENT_TYPE_GENERATE.FLASH_CARD &&
-      Array.isArray(dataGenerated) &&
-      dataGenerated.length > 0;
+        contentType === CONTENT_TYPE_GENERATE.FLASH_CARD && Array.isArray(dataGenerated) && dataGenerated.length > 0;
 
     if (previewOpen) {
-    return (
-    <div className="px-[4rem] py-7 bg-muted min-h-screen">
-      <ContentGenerationPreview
-        shouldCreateTopic={false}
-        shouldCreateFeed={false}
-        sseData={sseData}
-        dataGenerated={dataGenerated}
-        setDataGenerated={setDataGenerated}
-        onSave={handleSaveGeneratedToThisTopic}
-      />
-      <div className="mt-4 flex gap-3">
-        <Button onClick={handleSaveGeneratedToThisTopic} disabled={!canSaveGenerated}>
-          Save to this topic
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setPreviewOpen(false);
-            setDataGenerated(null);
-          }}
-        >
-          Close
-        </Button>
-      </div>
-    </div>
-  );
-}  
+        return (
+            <div className="px-[4rem] py-7 bg-muted min-h-screen">
+                <ContentGenerationPreview
+                    shouldCreateTopic={false}
+                    shouldCreateFeed={false}
+                    sseData={sseData}
+                    dataGenerated={dataGenerated}
+                    setDataGenerated={setDataGenerated}
+                    onSave={handleSaveGeneratedToThisTopic}
+                />
+                <div className="mt-4 flex gap-3">
+                    <Button onClick={handleSaveGeneratedToThisTopic} disabled={!canSaveGenerated}>
+                        Save to this topic
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            setPreviewOpen(false);
+                            setDataGenerated(null);
+                        }}
+                    >
+                        Close
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="px-[4rem] py-7 bg-muted">
@@ -227,7 +277,7 @@ const QuestionEditor = ({
                     </h1>
                 </div>
                 <div className="flex gap-4">
-                    <Button onClick={handleGenerateFlashcards} disabled={!hasAnyValidQuestion(questions)}>
+                    <Button onClick={handleGenerateFlashcards} disabled={!hasAnyValidQuestion(questions) || loading}>
                         Generate Flashcards
                     </Button>
                     <Button>
@@ -249,6 +299,7 @@ const QuestionEditor = ({
                             key={question.id}
                             question={question}
                             index={index}
+                            allQuestions={questions}
                             onChangeText={handleChangeQuestionText}
                             onChangeChoice={handleChangeChoice}
                             onChangeCorrectIndex={handleChangeCorrectIndex}
@@ -260,6 +311,15 @@ const QuestionEditor = ({
                     <Button onClick={handleAddQuestions}>+ Add Questions</Button>
                 </div>
             </div>
+
+            {loading && (
+                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">
+                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p className="text-gray-800 font-medium">Generating flashcards...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

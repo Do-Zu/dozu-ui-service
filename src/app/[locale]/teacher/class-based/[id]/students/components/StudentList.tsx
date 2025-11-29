@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { MoreHorizontal, MoreVertical, User, UserMinus, Trophy, Star, TrendingUp, Shield, Flame } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { MoreHorizontal, MoreVertical, User, UserMinus, Trophy, Star, TrendingUp, Shield, Flame, Users, Search, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -18,67 +19,55 @@ import { useTranslations } from 'next-intl';
 import AvatarWithStreak from '@/components/ui/AvatarWithStreak';
 import { useStreakListener, useGamification } from '@/contexts/gamification/GamificationContext';
 import { useGamification as useGamificationHook } from '@/hooks/useGamification';
-import { Leaderboard } from '@/components/gamification/Leaderboard';
-import { leaderboardService } from '@/services/gamification/leaderboard.service';
-import { LeaderboardEntry } from '@/types/streaks/leaderboard.types';
-import { GamificationStats } from '@/types/streaks/gamification.type';
+    import { GamificationStats } from '@/types/streaks/gamification.type';
 import StreakStatusBadge from './StreakStatusBadge';
+import { InviteStudentsModal } from '@/components/class/InviteStudentsModal';
 
 interface StudentListProps {
     students: IStudentInClass[];
     classId?: number;
     handleRemoveClick: (studentId: number) => void;
     handleViewProfile: (student: IStudentInClass) => void;
+    invitationCode?: string;
 }
 
-export function StudentList({ students, classId, handleRemoveClick, handleViewProfile }: StudentListProps) {
+export function StudentList({ students, classId, handleRemoveClick, handleViewProfile, invitationCode }: StudentListProps) {
     const tCommon = useTranslations('common');
     const tUser = useTranslations('user');
     const tStudentList = useTranslations('class.studentList');
     
     const [studentsWithStreaks, setStudentsWithStreaks] = useState<StudentWithStreak[]>(students);
-    const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
-    const [showLeaderboard, setShowLeaderboard] = useState(false);
-    const [timeRange, setTimeRange] = useState<'week' | 'month'>('week');
+    const [showInviteModal, setShowInviteModal] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const streakUpdate = useStreakListener();
     const { getStudentStreaks, getClassStudentStreaks } = useGamification();
     const { rank: currentUserRank, freeze: currentUserFreeze } = useGamificationHook();
 
-    // Fetch streak data and leaderboard for all students
+    // Fetch streak data for all students
     const fetchStudentData = async () => {
             try {
                 let streakMap: Map<number, GamificationStats>;
-                let leaderboard: any = null;
                 
                 // Use batch API if classId is available, otherwise fallback to individual calls
                 const userIds = students.map(student => student.userId);
                 
                 if (classId) {
-                    const [classStreakMap, leaderboardData] = await Promise.all([
-                        getClassStudentStreaks(classId, userIds),
-                        leaderboardService.getWeeklyLeaderboard(classId)
-                    ]);
-                    streakMap = classStreakMap;
-                    leaderboard = leaderboardData;
+                    streakMap = await getClassStudentStreaks(classId, userIds);
                 } else {
-                    const [individualStreakMap] = await Promise.all([
-                        getStudentStreaks(userIds)
-                    ]);
-                    streakMap = individualStreakMap;
+                    streakMap = await getStudentStreaks(userIds);
                 }
                 
-                // First, create students with basic data
+                // Create students with streak data
                 const studentsWithBasicData = students.map(student => {
                     const streakData = streakMap.get(student.userId);
-                    const leaderboardEntry = leaderboard?.entries?.find((entry: any) => entry.userId === student.userId);
                     
                     return {
                         ...student,
                         currentStreak: streakData?.currentStreak || 0,
-                        points: leaderboardEntry?.points || streakData?.totalPoints || 0,
-                        lessonsCompleted: leaderboardEntry?.lessonsCompleted || streakData?.totalLessonsCompleted || 0,
-                        quizzesCompleted: leaderboardEntry?.quizzesCompleted || streakData?.totalQuizzesCompleted || 0,
-                        averageScore: leaderboardEntry?.averageScore || streakData?.averageScore || 0,
+                        points: streakData?.totalPoints || 0,
+                        lessonsCompleted: streakData?.totalLessonsCompleted || 0,
+                        quizzesCompleted: streakData?.totalQuizzesCompleted || 0,
+                        averageScore: streakData?.averageScore || 0,
                         streakFreezeActive: streakData?.streakFreezeActive || false,
                         streakFreezeCount: streakData?.streakFreezeCount || 0,
                         lastStudyDate: streakData?.lastStudyDate || null,
@@ -95,7 +84,6 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                 }));
 
                 setStudentsWithStreaks(studentsWithStreakData);
-                setLeaderboardData(leaderboard?.entries || []);
             } catch (error) {
                 console.error('Error fetching student data:', error);
                 setStudentsWithStreaks(students.map(s => ({ ...s, currentStreak: 0 })));
@@ -121,17 +109,65 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
         }
     }, [streakUpdate]);
 
+    // Filter students based on search query
+    const filteredStudents = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return studentsWithStreaks;
+        }
+
+        const query = searchQuery.toLowerCase().trim();
+        return studentsWithStreaks.filter(student => {
+            const fullName = student.fullName?.toLowerCase() || '';
+            const username = student.username?.toLowerCase() || '';
+            
+            return fullName.includes(query) || 
+                   username.includes(query) ;
+        });
+    }, [studentsWithStreaks, searchQuery]);
+
+    // Clear search function
+    const clearSearch = () => {
+        setSearchQuery('');
+    };
+
     if (!students || students.length === 0) {
         return (
-            <div className="w-full max-w-[95%] mx-auto mt-4">
+            <div className="w-full max-w-[95%] mx-auto mt-4 space-y-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>{tStudentList('title')}</CardTitle>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle>{tStudentList('title')}</CardTitle>
+                                <CardDescription>{tStudentList('description')}</CardDescription>
+                            </div>
+                            {classId && (
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setShowInviteModal(true)}
+                                    >
+                                        <Users className="w-4 h-4 mr-2" />
+                                        Invite Students
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground">{tStudentList('emptyMessage')}</p>
                     </CardContent>
                 </Card>
+
+                {/* Invite Students Modal */}
+                {classId && (
+                    <InviteStudentsModal
+                        open={showInviteModal}
+                        onOpenChange={setShowInviteModal}
+                        classId={classId}
+                        invitationCode={invitationCode}
+                    />
+                )}
             </div>
         );
     }
@@ -154,7 +190,9 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle>{tStudentList('title')} ({studentsWithStreaks.length})</CardTitle>
+                            <CardTitle>
+                                {tStudentList('title')} ({filteredStudents.length}{searchQuery ? ` of ${studentsWithStreaks.length}` : ''})
+                            </CardTitle>
                             <CardDescription>{tStudentList('description')}</CardDescription>
                         </div>
                         {classId && (
@@ -162,34 +200,47 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setShowLeaderboard(!showLeaderboard)}
+                                    onClick={() => setShowInviteModal(true)}
                                 >
-                                    <Trophy className="w-4 h-4 mr-2" />
-                                    {showLeaderboard ? 'Hide' : 'Show'} Leaderboard
+                                    <Users className="w-4 h-4 mr-2" />
+                                    Invite Students
                                 </Button>
-                                {showLeaderboard && (
-                                    <div className="flex gap-1">
-                                        <Button
-                                            variant={timeRange === 'week' ? 'default' : 'outline'}
-                                            size="sm"
-                                            onClick={() => setTimeRange('week')}
-                                        >
-                                            Weekly
-                                        </Button>
-                                        <Button
-                                            variant={timeRange === 'month' ? 'default' : 'outline'}
-                                            size="sm"
-                                            onClick={() => setTimeRange('month')}
-                                        >
-                                            Monthly
-                                        </Button>
-                                    </div>
-                                )}
                             </div>
                         )}
                     </div>
                 </CardHeader>
                 <CardContent>
+                    {/* Search Input */}
+                    <div className="mb-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Input
+                                placeholder="Search students username"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 pr-10"
+                            />
+                            {searchQuery && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={clearSearch}
+                                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100"
+                                >
+                                    <X className="w-4 h-4" />
+                                </Button>
+                            )}
+                        </div>
+                        {searchQuery && (
+                            <p className="text-sm text-gray-500 mt-1">
+                                {filteredStudents.length === 0 
+                                    ? 'No students found matching your search'
+                                    : `Found ${filteredStudents.length} student${filteredStudents.length === 1 ? '' : 's'}`
+                                }
+                            </p>
+                        )}
+                    </div>
+
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -205,7 +256,20 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {studentsWithStreaks.map((student) => (
+                            {filteredStudents.length === 0 && searchQuery ? (
+                                <TableRow>
+                                    <TableCell colSpan={9} className="text-center py-8">
+                                        <div className="flex flex-col items-center gap-2">
+                                            <Search className="w-8 h-8 text-gray-400" />
+                                            <p className="text-gray-500">No students found matching "{searchQuery}"</p>
+                                            <Button variant="outline" size="sm" onClick={clearSearch}>
+                                                Clear search
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                filteredStudents.map((student) => (
                                 <TableRow key={student.userId}>
                                     <TableCell>
                                         <AvatarWithStreak
@@ -294,17 +358,20 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                                         </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                                ))
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
             </Card>
-            
-            {showLeaderboard && classId && (
-                <Leaderboard 
-                    classId={classId} 
-                    timeRange={timeRange}
-                    limit={20}
+
+            {/* Invite Students Modal */}
+            {classId && (
+                <InviteStudentsModal
+                    open={showInviteModal}
+                    onOpenChange={setShowInviteModal}
+                    classId={classId}
+                    invitationCode={invitationCode}
                 />
             )}
         </div>

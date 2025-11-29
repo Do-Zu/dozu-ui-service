@@ -35,7 +35,6 @@ import '@xyflow/react/dist/style.css';
 import { useTheme } from 'next-themes';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
 
-
 import MindmapButtonsPanel from '../components/MindmapButtonsPanel';
 
 const defaultEdgeOptions = {
@@ -50,7 +49,7 @@ const edgeTypes = {
     floating: FloatingEdge,
 };
 
-export default function MindmapContent() {
+export default function page() {
     const { resolvedTheme } = useTheme();
     const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();
@@ -69,8 +68,6 @@ export default function MindmapContent() {
         sseStatus,
         isProcessingRegisterGenerate,
     } = useMindMapContext();
-
-
 
     const { dataGenerated, setDataGenerated } = useContentGeneration({ sseData, sseStatus });
 
@@ -223,15 +220,15 @@ export default function MindmapContent() {
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
-                edgeTypes={edgeTypes}
                 colorMode={colorMode}
                 fitView
             >
-                <Panel position="top-left">
+                {/* <Panel position="top-left">
                     <ViewFileButton />
-                </Panel>
+                </Panel> */}
 
                 <MindmapButtonsPanel />
                 <FileSheet />

@@ -44,7 +44,7 @@ interface CommentThreadProps {
     nodeId: string;
     nodeTitle?: string;
     classId: string | number;
-    topicId: string | number;
+    topicId: string | number | null;
     filterType?: 'all' | 'top' | 'recent';
     typeNode: TypeNodeComment;
     triggerText?: string;
@@ -87,14 +87,14 @@ const CommentThread = ({
         data: apiCommentsData,
         loading: fetchingComments,
         error: fetchCommentsError,
-    } = useGetCommentsByNode(classId || '', topicId || '');
+    } = useGetCommentsByNode(classId || '', topicId);
 
     const {
         execute: fetchReplyComments,
         data: apiReplyCommentsData,
         loading: isFetchingReplyComment,
         error: fetchReplyCommentsError,
-    } = useGetCommentReplies(classId || '', topicId || '');
+    } = useGetCommentReplies(classId || '', topicId);
 
     const {
         execute: createNewComment,
@@ -116,16 +116,14 @@ const CommentThread = ({
 
             setIsAddCommentDialogOpen(false);
         },
-        onMessageSuccess: () => {
-            toast({ description: t('toast.sent') });
-        },
+        onMessageSuccess: () => {},
         onError: () => {
             toast({ description: t('toast.failedCreate') });
         },
     });
 
     const handleAddComment = async (content: string) => {
-        if (!classId || !topicId || !nodeId) {
+        if (!classId || !nodeId) {
             toast({ description: t('toast.missingParams') });
             return;
         }
@@ -471,7 +469,7 @@ const CommentThread = ({
 
     const handleQueryCommentForNode = useCallback(
         async (targetPage: number, { append = false }: { append?: boolean } = {}) => {
-            if (!classId || !topicId || !nodeId) return;
+            if (!classId || !nodeId) return;
 
             try {
                 if (append) {

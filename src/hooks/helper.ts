@@ -27,6 +27,7 @@ export const callApiAsync = async <T = any>(
         ...(hasBody && isWriteMethod ? { 'Content-Type': 'application/json' } : {}),
       },
       signal: options?.signal,
+      responseType: options?.responseType || 'json', // Support text, blob, etc.
     };
 
     if (method === 'GET' && options && 'params' in options) {
