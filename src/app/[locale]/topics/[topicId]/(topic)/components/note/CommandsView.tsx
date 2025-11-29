@@ -42,7 +42,7 @@ const CommandsView = forwardRef<CommandsViewRef, SuggestionProps<ItemProps, any>
 
     useEffect(() => {
         const availableIds = items.map((item) => item.id);
-        const firstItemId = availableIds[0];
+        const firstItemId = availableIds.length > 0 ? availableIds[0] : null;
         setSelectedId(firstItemId);
     }, [items]);
 

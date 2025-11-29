@@ -4,7 +4,7 @@ import { EditorContent, ReactRenderer, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
-import { ComponentProps, createRef, useEffect } from 'react';
+import { ComponentProps, createRef, useEffect, useRef } from 'react';
 import LoadingNode from '../common/LoadingNode';
 import { CustomBubbleMenu } from './CustomBubbleMenu';
 import BubbleMenu from '@tiptap/extension-bubble-menu';
@@ -169,7 +169,7 @@ const createCommandsPlugin = (options: CommandOptionProps[]) =>
     });
 
 export default function RichTextEditor({ content, onContentChange, isGenerating, className }: Props) {
-    const imageUploadButtonRef = createRef<HTMLButtonElement>();
+    const imageUploadButtonRef = useRef<HTMLButtonElement>(null);
     const { options } = useCommandOptions({ imageUploadButtonRef });
 
     const editor = useEditor({
