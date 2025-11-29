@@ -8,8 +8,19 @@ import DataStatus from '@/components/errors/DataStatus';
 import Spinner from '@/components/ui/spinner';
 import { useEffect } from 'react';
 import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
+import { UserRoleEnum } from '@/utils/constants/roles';
 
-export default function MindmapTab() {
+interface StudentProps {
+    role: UserRoleEnum.USER;
+}
+interface TeacherProps {
+    role?: UserRoleEnum.TEACHER;
+}
+
+
+type Props = StudentProps | TeacherProps;
+
+export default function MindmapTab({ role = UserRoleEnum.TEACHER }: Props) {
     const {
         tab,
         topicId,
@@ -20,6 +31,8 @@ export default function MindmapTab() {
         ankiSettings,
         setAnkiSettings,
     } = useTopicWorkspace();
+
+    
 
     const {
         data: flashcardContent,
@@ -46,7 +59,7 @@ export default function MindmapTab() {
 
     return (
         <MindMapProvider>
-            <MindmapContent />
+            <MindmapContent role={role}/>
         </MindMapProvider>
     );
 }

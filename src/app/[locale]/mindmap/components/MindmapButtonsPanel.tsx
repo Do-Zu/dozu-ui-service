@@ -16,11 +16,21 @@ import { Toggle } from '@/components/ui/toggle';
 import ImportButton from './buttons/ImportButton';
 import RoadmapButton from './buttons/RoadmapButton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { UserRoleEnum } from '@/utils/constants/roles';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
 
-const MindmapButtonsPanel = ({}) => {
+interface StudentProps {
+    role: UserRoleEnum.USER;
+}
+interface TeacherProps {
+    role: UserRoleEnum.TEACHER;
+}
+
+type Props = StudentProps | TeacherProps;
+
+const MindmapButtonsPanel = ({ role }: Props) => {
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
     const {
@@ -43,21 +53,34 @@ const MindmapButtonsPanel = ({}) => {
     return (
         <Panel position="top-center">
             <div className="flex gap-2 flex-row">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button size="icon-sm" disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                            <Save />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">{isSaving ? 'Saving...' : 'Save mindmap'}</TooltipContent>
-                </Tooltip>
+                {role === UserRoleEnum.TEACHER ? (
+                    <>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button size="icon-sm" disabled={isSaving} variant="outline" onClick={saveMindmap}>
+                                    <Save />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">{isSaving ? 'Saving...' : 'Save mindmap'}</TooltipContent>
+                        </Tooltip>
+                        <EditMindmapButton isPanelExpanded={isPanelExpanded} />
+                    </>
+                ) : (
+                    ''
+                )}
+
                 {/* <Separator className="my-4" /> */}
 
-                <EditMindmapButton isPanelExpanded={isPanelExpanded} />
-                <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} setNodes={setNodes} />
+                <RoadmapButton isPanelExpanded={isPanelExpanded} nodes={nodes} edges={edges} setNodes={setNodes} role={role}/>
                 <DownloadButton />
                 {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
-                <ImportButton isPanelExpanded={isPanelExpanded} />
+                {role === UserRoleEnum.TEACHER ? (
+                    <>
+                        <ImportButton isPanelExpanded={isPanelExpanded} />
+                    </>
+                ) : (
+                    ''
+                )}
                 <ExportToCSVButton isPanelExpanded={isPanelExpanded} />
                 <HorizontalLayoutButton
                     nodes={nodes}

@@ -18,6 +18,7 @@ import { useTopicWorkspace } from '../../../../../../topics/[topicId]/(topic)/co
 import FlashcardContent from '../../../../../../topics/[topicId]/(topic)/components/flashcard/FlashcardContent';
 import flashcardUtils from '../../../../../../topics/[topicId]/(topic)/utils/flashcard.utils';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import MindmapTab from '@/app/[locale]/topics/[topicId]/(topic)/components/tabs/MindMapTab';
 
 export default function StudentTopicWorkspace() {
     const {
@@ -135,7 +136,7 @@ export default function StudentTopicWorkspace() {
                                     ) : null}
                                 </TabsContent>
                                 <TabsContent value="mindmap" className="h-full p-4 border rounded-md">
-                                    <p>Mindmap content goes here.</p>
+                                    <MindmapTab role={UserRoleEnum.USER} />
                                 </TabsContent>
                                 <TabsContent value="flashcards" className="h-full p-4 border rounded-md">
                                     <>
