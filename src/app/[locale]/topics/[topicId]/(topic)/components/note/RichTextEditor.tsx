@@ -105,7 +105,7 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
         content: content,
         editorProps: {
             attributes: {
-                class: cn('min-h-[20vh] border-2 rounded-lg p-6', 'tiptap'),
+                class: cn('min-h-[60vh] border-2 rounded-lg p-6', 'tiptap'),
             },
         },
         onUpdate: ({ editor }) => {

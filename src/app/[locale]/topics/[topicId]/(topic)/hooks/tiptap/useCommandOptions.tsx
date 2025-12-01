@@ -68,30 +68,6 @@ export default function useCommandOptions({ imageUploadButtonRef }: Props) {
                 },
             },
             {
-                title: 'Bulleted List',
-                group: ItemTypeEnum.BASIC,
-                icon: <List className="size-4" />,
-                command: ({ editor, range }: SuggestionProps) => {
-                    editor.chain().focus().deleteRange(range).toggleBulletList().run();
-                },
-            },
-            {
-                title: 'Numbered List',
-                group: ItemTypeEnum.BASIC,
-                icon: <ListOrdered className="size-4" />,
-                command: ({ editor, range }: SuggestionProps) => {
-                    editor.chain().focus().deleteRange(range).toggleOrderedList().run();
-                },
-            },
-            {
-                title: 'Task List',
-                group: ItemTypeEnum.BASIC,
-                icon: <ListTodo className="size-4" />,
-                command: ({ editor, range }: SuggestionProps) => {
-                    editor.chain().focus().deleteRange(range).toggleTaskList().run();
-                },
-            },
-            {
                 title: 'Quote',
                 group: ItemTypeEnum.BASIC,
                 icon: <Quote className="size-4" />,
@@ -118,6 +94,30 @@ export default function useCommandOptions({ imageUploadButtonRef }: Props) {
                 icon: <SeparatorHorizontal className="size-4" />,
                 command: ({ editor, range }: SuggestionProps) => {
                     editor.chain().focus().deleteRange(range).setHorizontalRule().run();
+                },
+            },
+            {
+                title: 'Bulleted List',
+                group: ItemTypeEnum.LIST,
+                icon: <List className="size-4" />,
+                command: ({ editor, range }: SuggestionProps) => {
+                    editor.chain().focus().deleteRange(range).toggleBulletList().run();
+                },
+            },
+            {
+                title: 'Numbered List',
+                group: ItemTypeEnum.LIST,
+                icon: <ListOrdered className="size-4" />,
+                command: ({ editor, range }: SuggestionProps) => {
+                    editor.chain().focus().deleteRange(range).toggleOrderedList().run();
+                },
+            },
+            {
+                title: 'Task List',
+                group: ItemTypeEnum.LIST,
+                icon: <ListTodo className="size-4" />,
+                command: ({ editor, range }: SuggestionProps) => {
+                    editor.chain().focus().deleteRange(range).toggleTaskList().run();
                 },
             },
             {
