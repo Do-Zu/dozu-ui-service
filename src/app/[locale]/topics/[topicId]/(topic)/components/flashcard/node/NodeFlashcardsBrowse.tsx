@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import DataStatus from '@/components/errors/DataStatus';
 import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
+import EmptyNodeFlashcards from './EmptyNodeFlashcards';
+import { isListEmpty } from '@/utils';
 
 interface Props {
     nodeId: string;
@@ -59,8 +61,8 @@ export default function NodeFlashcardsBrowse({ nodeId, onClose }: Props) {
         setIsFlipped((prev) => !prev);
     }
 
-    if (nodeFlashcards.length === 0 || !currentFlashcard) {
-        return <DataStatus variant="empty" />;
+    if (isListEmpty(nodeFlashcards) || !currentFlashcard) {
+        return <EmptyNodeFlashcards onClose={onClose} />;
     }
 
     return (

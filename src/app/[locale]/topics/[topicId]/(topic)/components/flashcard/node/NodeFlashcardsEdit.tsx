@@ -23,6 +23,8 @@ import { Textarea } from '@/components/ui/textarea';
 import FlashcardImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
 import EditImageModal from '../flashcard-image/EditImageModal';
 import FlashcardDetailsModal from '../FlashcardDetailsModal';
+import EmptyNodeFlashcards from './EmptyNodeFlashcards';
+import { isListEmpty } from '@/utils';
 
 interface Props {
     nodeId: string;
@@ -245,8 +247,8 @@ export default function NodeFlashcardsEdit({ nodeId, onClose }: Props) {
         setIsAddImageModalOpen(false);
     }
 
-    if (!nodeEditingFlashcards) {
-        return <DataStatus variant="empty" />;
+    if (isListEmpty(nodeEditingFlashcards)) {
+        return <EmptyNodeFlashcards onClose={onClose} />;
     }
 
     return (

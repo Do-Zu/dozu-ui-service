@@ -12,7 +12,7 @@ import flashcardUtils from '../../../utils/flashcard.utils';
 import Flashcard from '../Flashcard';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
-import FlashcardsEmptyState from './FlashcardsEmptyState';
+import GenerateFlashcards from './GenerateFlashcards';
 import StudyControls from './StudyControls';
 import StarButton from '../../../../../../../../components/flashcard/StarButton';
 import VolumeButton from '../../../../../../../../components/flashcard/VolumeButton';
@@ -52,7 +52,7 @@ export default function BrowseFlashcards() {
 
     // Get starred flashcards from flashcard data
     const starredFlashcards = useMemo(() => {
-        return new Set(flashcards.filter(fc => fc.isStar).map(fc => fc.flashcardId));
+        return new Set(flashcards.filter((fc) => fc.isStar).map((fc) => fc.flashcardId));
     }, [flashcards]);
 
     useEffect(() => {
@@ -107,8 +107,8 @@ export default function BrowseFlashcards() {
         try {
             const { flashcardId: updatedFlashcardId, isStar } = await flashcardService.toggleStar(topicId, flashcardId);
             // Update local flashcards state
-            setFlashcards((prev) =>
-                prev?.map((fc) => (fc.flashcardId === updatedFlashcardId ? { ...fc, isStar } : fc)) ?? []
+            setFlashcards(
+                (prev) => prev?.map((fc) => (fc.flashcardId === updatedFlashcardId ? { ...fc, isStar } : fc)) ?? [],
             );
         } catch (error) {
             console.error('Error toggling star:', error);
@@ -123,7 +123,7 @@ export default function BrowseFlashcards() {
 
     // Auto switch to 'all' tab if no starred flashcards and currently on 'starred' tab
     useEffect(() => {
-        const hasStarred = flashcards.some(fc => fc.isStar === true);
+        const hasStarred = flashcards.some((fc) => fc.isStar === true);
         if (filterType === 'starred' && !hasStarred) {
             setFilterType('all');
         }
@@ -140,7 +140,8 @@ export default function BrowseFlashcards() {
 
     function handleNextFlashcardClick() {
         setFlipInstantly(false);
-        if (currentFlashcardIndex < flashcardsToDisplay.length - 1) setCurrentFlashcardIndex((prevIndex) => prevIndex + 1);
+        if (currentFlashcardIndex < flashcardsToDisplay.length - 1)
+            setCurrentFlashcardIndex((prevIndex) => prevIndex + 1);
     }
 
     function flipWithAnimation() {
@@ -170,17 +171,17 @@ export default function BrowseFlashcards() {
 
     function renderCardActions() {
         if (!currentFlashcard) return null;
-        
+
         return (
             <div className="flex items-center gap-2">
-                                <StarButton
-                                    isStarred={currentFlashcard.isStar === true}
-                                    onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
-                                    size={24}
-                                    buttonSize="lg"
-                                />
-                <VolumeButton 
-                    text={isFlipped ? (currentFlashcard?.back || '') : (currentFlashcard?.front || '')} 
+                <StarButton
+                    isStarred={currentFlashcard.isStar === true}
+                    onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
+                    size={24}
+                    buttonSize="lg"
+                />
+                <VolumeButton
+                    text={isFlipped ? currentFlashcard?.back || '' : currentFlashcard?.front || ''}
                     className="h-10 w-10"
                 />
             </div>
@@ -220,13 +221,8 @@ export default function BrowseFlashcards() {
         };
     }, [autoPlayEnabled, autoPlaySpeed, flashcardsToDisplay.length]);
 
-    if (isListEmpty(flashcards)) {
-        return <FlashcardsEmptyState />;
-    }
-
-
-    if (!currentFlashcard) {
-        return <FlashcardsEmptyState />;
+    if (isListEmpty(flashcards) || !currentFlashcard) {
+        return <GenerateFlashcards />;
     }
 
     return (
@@ -238,26 +234,23 @@ export default function BrowseFlashcards() {
                         <TabsList>
                             <TabsTrigger value="all">Tất cả ({flashcards.length})</TabsTrigger>
                             {starredFlashcards.size > 0 && (
-                                <TabsTrigger value="starred">
-                                    Gắn dấu sao ({starredFlashcards.size})
-                                </TabsTrigger>
+                                <TabsTrigger value="starred">Gắn dấu sao ({starredFlashcards.size})</TabsTrigger>
                             )}
                         </TabsList>
                     </Tabs>
                     <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-            
                 </div>
 
                 {/* Sidebar toggle button - Available in all view modes */}
-                <div 
+                <div
                     className={cn(
                         'absolute top-8 z-50 pointer-events-auto transition-all duration-300 ease-in-out',
-                        isSidebarOpen ? 'right-[calc(30%+2rem)]' : 'right-8'
+                        isSidebarOpen ? 'right-[calc(30%+2rem)]' : 'right-8',
                     )}
                 >
-                    <Button 
-                        size="icon" 
-                        variant="outline" 
+                    <Button
+                        size="icon"
+                        variant="outline"
                         onClick={handleSidebarOpenToogle}
                         aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
                     >
@@ -323,7 +316,7 @@ export default function BrowseFlashcards() {
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
                         style={{ paddingTop: '70px' }}
-                    >   
+                    >
                         <div className="p-6 space-y-4">
                             {flashcardsToDisplay.map((flashcard, index) => (
                                 <Card key={flashcard.flashcardId} className="overflow-hidden relative">
@@ -335,8 +328,8 @@ export default function BrowseFlashcards() {
                                             size={20}
                                             buttonSize="md"
                                         />
-                                        <VolumeButton 
-                                            text={flashcard.back || flashcard.front || ''} 
+                                        <VolumeButton
+                                            text={flashcard.back || flashcard.front || ''}
                                             className="h-8 w-8"
                                         />
                                     </div>
