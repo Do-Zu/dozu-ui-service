@@ -34,21 +34,24 @@ const ReferenceDocumentViaPage = ({
     const t = useTranslations('topic.reference');
     const { setPageNumber } = useTopicWorkspace();
 
-    const handleReferenceOriginContent = useCallback((pageNumber?: number) => {
-        if (isEditing) return;
+    const handleReferenceOriginContent = useCallback(
+        (pageNumber?: number) => {
+            if (isEditing) return;
 
-        if (isNilOrEmpty(pageNumber) || !isNumber(pageNumber) || toNumber(pageNumber) <= 0) {
-            toast({
-                description: t('pageInvalid'),
-            });
-            return;
-        }
+            if (isNilOrEmpty(pageNumber) || !isNumber(pageNumber) || toNumber(pageNumber) <= 0) {
+                toast({
+                    description: t('pageInvalid'),
+                });
+                return;
+            }
 
-        setPageNumber(pageNumber!);
-    }, []);
+            setPageNumber(pageNumber!);
+        },
+        [isEditing, setPageNumber],
+    );
 
     useEffect(() => {
-        if (isEmpty(references)) return;
+        if (isEditing || isEmpty(references)) return;
 
         const highestPageIndex = (references[0].metadata as MetaDataFileContent).pageNumber;
 
@@ -90,7 +93,7 @@ const ReferenceDocumentViaPage = ({
 
         setPageStartIndex(newPageStartIndex);
         setPageEndIndex(newPageEndIndex);
-    }, [references, setPageStartIndex, setPageEndIndex]);
+    }, [references, isEditing]);
 
     if (isEmpty(references)) return <DataStatus variant="empty" />;
 
