@@ -26,12 +26,14 @@ import { useMindMapContext } from '../context/MindMapContext';
 import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
 import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
 import Reference from '../../topics/[topicId]/(topic)/components/reference/Reference';
+import { UserRoleEnum } from '@/utils/constants/roles';
 
 interface Props {
     onViewNodeFlashcardsClick?: () => void;
     onLinkNodeFlashcardsClick?: () => void;
     onLearnNodeFlashcardsClick?: () => void;
     onEditNodeFlashcardsClick?: () => void;
+    role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
 
 const NodeSheet = ({
@@ -39,6 +41,7 @@ const NodeSheet = ({
     onLinkNodeFlashcardsClick,
     onLearnNodeFlashcardsClick,
     onEditNodeFlashcardsClick,
+    role = UserRoleEnum.TEACHER,
 }: Props) => {
     const router = useRouter();
     const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
@@ -251,28 +254,50 @@ const NodeSheet = ({
                     <div className="border-t pt-4 space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
                         <div className="grid grid-cols-1 gap-2">
-                            <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
-                                <DiamondPlus className="h-4 w-4" /> Add Child
-                            </Button>
-                            <Button onClick={handleAddFlashcards} variant="outline" className="justify-start gap-2">
-                                <CopyPlus className="h-4 w-4" /> Add Flashcards
-                            </Button>
-                            <Button
-                                onClick={handleGenerateFlashcards}
-                                variant="outline"
-                                className="justify-start gap-2"
-                            >
-                                <Bot className="h-4 w-4" /> Generate Flashcards
-                            </Button>
+                            {role === UserRoleEnum.TEACHER ? (
+                                <>
+                                    <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
+                                        <DiamondPlus className="h-4 w-4" /> Add Child
+                                    </Button>
+                                    <Button
+                                        onClick={handleAddFlashcards}
+                                        variant="outline"
+                                        className="justify-start gap-2"
+                                    >
+                                        <CopyPlus className="h-4 w-4" /> Add Flashcards
+                                    </Button>{' '}
+                                    <Button
+                                        onClick={handleGenerateFlashcards}
+                                        variant="outline"
+                                        className="justify-start gap-2"
+                                    >
+                                        <Bot className="h-4 w-4" /> Generate Flashcards
+                                    </Button>
+                                </>
+                            ) : (
+                                ''
+                            )}
+
                             {/* <Button onClick={handleViewDocument} variant="outline" className="justify-start gap-2">
                                 <FileText className="h-4 w-4" /> View Document
                             </Button> */}
                             <Button onClick={handleViewFlashcards} variant="outline" className="justify-start gap-2">
                                 <TableOfContents className="h-4 w-4" /> Browse Linked Flashcards
                             </Button>
-                            <Button onClick={handleEditFlashcards} variant="outline" className="justify-start gap-2">
-                                <Edit className="h-4 w-4" /> Edit Linked Flashcards
-                            </Button>
+                            {role === UserRoleEnum.TEACHER ? (
+                                <>
+                                    <Button
+                                        onClick={handleEditFlashcards}
+                                        variant="outline"
+                                        className="justify-start gap-2"
+                                    >
+                                        <Edit className="h-4 w-4" /> Edit Linked Flashcards
+                                    </Button>
+                                </>
+                            ) : (
+                                ''
+                            )}
+
                             <Button
                                 onClick={handleLearnFlashcardsClick}
                                 variant="outline"
@@ -282,16 +307,22 @@ const NodeSheet = ({
                             </Button>
                         </div>
                     </div>
-
-                    <div className="border-t pt-4">
-                        <Button
-                            onClick={handleDeleteNode}
-                            variant="destructive"
-                            className="w-full justify-center gap-2"
-                        >
-                            <Trash className="h-4 w-4" /> Delete Node
-                        </Button>
-                    </div>
+                    {role === UserRoleEnum.TEACHER ? (
+                        <>
+                            {' '}
+                            <div className="border-t pt-4">
+                                <Button
+                                    onClick={handleDeleteNode}
+                                    variant="destructive"
+                                    className="w-full justify-center gap-2"
+                                >
+                                    <Trash className="h-4 w-4" /> Delete Node
+                                </Button>
+                            </div>
+                        </>
+                    ) : (
+                        ''
+                    )}
                 </div>
             </SheetContent>
         </Sheet>

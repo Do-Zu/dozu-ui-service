@@ -27,6 +27,7 @@ import { closeSheet, openSheet } from '@/stores/features/mindmap/selectedNodeSli
 import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
+import { UserRoleEnum } from '@/utils/constants/roles';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -36,7 +37,16 @@ const edgeTypes = {
     floating: FloatingEdge,
 };
 
-const MindmapContent = ({}) => {
+interface StudentProps {
+    role: UserRoleEnum.USER;
+}
+interface TeacherProps {
+    role: UserRoleEnum.TEACHER;
+}
+
+type Props = StudentProps | TeacherProps;
+
+const MindmapContent = ({ role }: Props) => {
     const {
         topicId,
         isLoading,
@@ -233,13 +243,14 @@ const MindmapContent = ({}) => {
                         minZoom={0.001}
                         className={showGenerateModal ? 'blur-sm' : ''}
                     >
-                        <MindmapButtonsPanel />
+                        <MindmapButtonsPanel role={role}/>
 
                         <NodeSheet
                             onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
                             onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
                             onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
                             onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
+                            role={role}
                         />
                         <Controls position="bottom-right" />
                         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />

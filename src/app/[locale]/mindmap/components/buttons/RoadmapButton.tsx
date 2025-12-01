@@ -7,15 +7,17 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import RoadmapList from '../RoadmapList';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { UserRoleEnum } from '@/utils/constants/roles';
 
 interface RoadmapButtonProps {
     isPanelExpanded: boolean;
     nodes: AppNode[];
     edges: AppEdge[];
     setNodes?: (nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void;
+    role: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
 
-const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButtonProps) => {
+const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes, role }: RoadmapButtonProps) => {
     const t = useTranslations('RoadmapButton');
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -99,6 +101,7 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes }: RoadmapButto
                             allEdges={edges}
                             getImmediateChildNodes={getImmediateChildNodes}
                             normalizeRoadmapOrder={normalizeRoadmapOrder}
+                            role={role}
                         />
                     </div>
                 </SheetHeader>
