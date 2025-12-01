@@ -64,7 +64,11 @@ const CommandsView = forwardRef<CommandsViewRef, SuggestionProps<ItemProps, any>
         const nextId = prevPos >= 0 ? availableIds[prevPos] : availableIds[availableIds.length - 1];
 
         setSelectedId(nextId);
-        itemRefs.current.get(nextId)?.scrollIntoView();
+        itemRefs.current.get(nextId)?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'nearest',
+        });
     }, [items, selectedId, selectedGroup]);
 
     const downHandler = useCallback(() => {
@@ -77,7 +81,11 @@ const CommandsView = forwardRef<CommandsViewRef, SuggestionProps<ItemProps, any>
         const nextId = nextPos < availableIds.length ? availableIds[nextPos] : availableIds[0];
 
         setSelectedId(nextId);
-        itemRefs.current.get(nextId)?.scrollIntoView();
+        itemRefs.current.get(nextId)?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'nearest',
+        });
     }, [items, selectedId, selectedGroup]);
 
     const selectItem = useCallback(
@@ -126,7 +134,7 @@ const CommandsView = forwardRef<CommandsViewRef, SuggestionProps<ItemProps, any>
     return (
         <Command className="p-1 rounded-lg border shadow-md w-64">
             {/* <CommandInput placeholder="Type a command or search..." /> */}
-            <Tabs className="mb-2" value={selectedGroup ?? "none"}>
+            <Tabs className="mb-2" value={selectedGroup ?? 'none'}>
                 <TabsList className="grid grid-cols-4">
                     {itemTypes.map((group) => (
                         <TabsTrigger
