@@ -361,6 +361,9 @@ export const useContentGeneration = ({
     // Process SSE data when it changes
     useEffect(() => {
         if (sseData && sseStatus === 'completed') {
+            if (!sseData.status || !sseData.data) {
+                return; 
+            }
             if (!sseData?.data?.data) {
                 setDataGenerated(null);
             } else {
