@@ -57,11 +57,21 @@ export type IFlashcardBatchResult = {
     flashcardsUpdated: IFlashcard[];
 };
 
-export interface IImageSaveInput {
-    id: string;
-    url: string;
-    downloadLocation: string;
+export interface IUnspashImageSaveInput {
+    type: 'unsplash';
+    data: {
+        id: string;
+        url: string;
+        downloadLocation: string;
+    };
 }
+
+export interface IUploadImageSaveInput {
+    type: 'upload';
+    data: string;
+}
+
+export type IImageSaveInput = IUnspashImageSaveInput | IUploadImageSaveInput;
 
 export type ICardNextReviewSchedule = {
     flashcardId: number;
@@ -105,3 +115,21 @@ export interface IAnkiResult extends IAnkiCard {
 }
 
 export type IAnkiCardStatusCounts = Record<Exclude<IAnkiStatus, IAnkiStatus.RELEARNING>, number>;
+
+export interface IUnspashImage {
+    id: string;
+    description: string | null;
+    url: {
+        thumb: string;
+        small: string;
+    };
+    // user: Basic;
+    links: {
+        self: string;
+        html: string;
+        download: string;
+        download_location: string;
+    };
+    width?: number;
+    height?: number;
+}

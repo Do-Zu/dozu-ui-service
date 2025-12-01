@@ -110,7 +110,9 @@ export default function ImagesPreviewModal({
                                 />
                             </div>
                         </div>
-                    ) : <div className='px-6 text-muted-foreground'>No image selected</div>}
+                    ) : (
+                        <div className="px-6 text-muted-foreground">No image selected</div>
+                    )}
 
                     {loading && !images ? (
                         <LoadingPage />
