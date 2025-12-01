@@ -30,16 +30,16 @@ export const detectContentType = (sseData: ISseData | null): ContentType | null 
         if (firstItem && typeof firstItem === 'object' && 'q' in firstItem && 'a' in firstItem) {
             return 'flashcard';
         }
-        
-        // Check if it looks like quiz data
+
+        // Check if it looks like flashcard data
         if (firstItem && typeof firstItem === 'object' && 'q' in firstItem && 'o' in firstItem && 'idx' in firstItem) {
             return 'quiz';
         }
 
-        // // Check if it looks like quiz data
-        // if (firstItem && typeof firstItem === 'object' && 'question' in firstItem && 'options' in firstItem) {
-        //     return 'quiz';
-        // }
+        // Check if it looks like quiz data
+        if (firstItem && typeof firstItem === 'object' && 'question' in firstItem && 'options' in firstItem) {
+            return 'quiz';
+        }
 
         // Check if it looks like mindmap data
         if (firstItem && typeof firstItem === 'object' && 'nodes' in firstItem && 'edges' in firstItem) {
