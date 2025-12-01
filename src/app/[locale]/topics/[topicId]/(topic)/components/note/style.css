@@ -162,3 +162,14 @@
         }
     }
 }
+
+.tiptap hr {
+    border: none;
+    border-top: 2px solid hsl(var(--border));
+    cursor: pointer;
+    margin: 1rem 0;
+
+    &.ProseMirror-selectednode {
+        border-top: 2px solid hsl(var(--foreground));
+    }
+}

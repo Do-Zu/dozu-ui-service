@@ -32,6 +32,7 @@ import useCommandOptions, { CommandOptionProps } from '../../hooks/tiptap/useCom
 import { TaskItem, TaskList } from '@tiptap/extension-list';
 import createCommandsPlugin from '../../utils/tiptap/createCommandsPlugin';
 import { MAX_IMAGE_SIZE } from '@/services/image/image.service';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
 
 interface Props {
     content: string;
@@ -99,6 +100,7 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
             TaskItem.configure({
                 nested: true,
             }),
+            HorizontalRule,
         ],
         content: content,
         editorProps: {

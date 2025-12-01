@@ -1,6 +1,18 @@
 import { SuggestionProps } from '@tiptap/suggestion';
 import { ItemProps, ItemTypeEnum } from '../../components/note/CommandsView';
-import { Code, Grid2X2, Heading1, Heading2, Heading3, List, ListOrdered, ListTodo, Quote, Type } from 'lucide-react';
+import {
+    Code,
+    Grid2X2,
+    Heading1,
+    Heading2,
+    Heading3,
+    List,
+    ListOrdered,
+    ListTodo,
+    Quote,
+    SeparatorHorizontal,
+    Type,
+} from 'lucide-react';
 import { RefObject, useMemo } from 'react';
 
 interface Props {
@@ -98,6 +110,14 @@ export default function useCommandOptions({ imageUploadButtonRef }: Props) {
                         .deleteRange(range)
                         .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
                         .run();
+                },
+            },
+            {
+                title: 'Separator',
+                group: ItemTypeEnum.BASIC,
+                icon: <SeparatorHorizontal className="size-4" />,
+                command: ({ editor, range }: SuggestionProps) => {
+                    editor.chain().focus().deleteRange(range).setHorizontalRule().run();
                 },
             },
             {
