@@ -1,5 +1,4 @@
 import { getRequest, patchRequest, postRequest } from '@/api/api';
-import { IUnspashImage } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
 import {
     IFlashcard,
     IImageSaveInput,
@@ -13,6 +12,7 @@ import {
     IFlashcardLearningState,
     INextReviewDataByRating,
     IAnkiCard,
+    IUnspashImage,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';

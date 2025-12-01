@@ -3,7 +3,7 @@
 import { Textarea } from '@/components/ui/textarea';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
-import { Edit, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
+import { Edit, FileSearch, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
@@ -24,10 +24,8 @@ import {
     IImageSaveInput,
     IFlashcard,
     IDueAnkiCard,
-} from '@/app/[locale]/flashcards/types/flashcard.type';
-import ImagesPreviewModal, {
     IUnspashImage,
-} from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
+} from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IFlashcardPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
 import FlashcardImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
 import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
@@ -38,6 +36,8 @@ import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
 import Generate from '../../generate/Generate';
+import EditImageModal from '../flashcard-image/EditImageModal';
+import FlashcardDetailsModal from '../FlashcardDetailsModal';
 
 export interface ILocalFlashcard {
     id: number;
@@ -66,11 +66,9 @@ const EditingFlashcards = () => {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
-    const tFlashcardLearning = useTranslations('flashcard.learning');
     const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
-    const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false);
+    const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false); // add image modal
     const [selectingFlashcard, setSelectingFlashcard] = useState<ILocalFlashcard | null>();
-    const [imagesPreview, setImagesPreview] = useState<IUnspashImage[] | null>(null);
     const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
     const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({
         sseData,
@@ -83,6 +81,8 @@ const EditingFlashcards = () => {
     const [editingFlashcards, setEditingFlashcards] = useState<IEditingFlashcard[]>([]);
     const { generatingFlashcards, setGeneratingFlashcards } = useTopicWorkspace();
     const ref = useRef<HTMLDivElement>(null);
+
+    const [isFlashcardDetailsModalOpen, setIsFlashcardDetailsModalOpen] = useState<boolean>(false);
 
     const { loading: batchLoading, execute: batchFlashcardsAsync } = usePost<
         { topicId: number; flashcards: IFlashcardsBatchInput },
@@ -123,27 +123,6 @@ const EditingFlashcards = () => {
         });
         setEditingFlashcards(editingFlashcards);
     }, [flashcards, generatingFlashcards]);
-
-    const { loading: searchImagesLoading, execute: searchImagesAsync } = usePost<string, IUnspashImage[]>(
-        flashcardService.searchImages,
-        'POST',
-        {
-            onError(error) {
-                toastHelper.showErrorMessage(error);
-                setIsAddImageModalOpen(false);
-            },
-            onSuccess(data) {
-                setImagesPreview(data);
-            },
-        },
-    );
-
-    useEffect(() => {
-        if (!isAddImageModalOpen) {
-            setSelectingFlashcard(null);
-            setImagesPreview(null);
-        }
-    }, [isAddImageModalOpen]);
 
     function handleFlashcardChange({
         event,
@@ -255,42 +234,56 @@ const EditingFlashcards = () => {
         }, 50);
     }
 
-    async function handleAddImageModalOpen(card: ILocalFlashcard) {
-        if (card.front === '') {
-            toastHelper.showErrorMessage('Cannot search image with card having empty front');
-            return;
-        }
+    function handleAddImageModalOpen(card: ILocalFlashcard) {
         setIsAddImageModalOpen(true);
         setSelectingFlashcard(card);
-        await searchImagesAsync(card.front);
     }
 
-    function handleSaveImageClick(image: IUnspashImage) {
-        if (!selectingFlashcard) {
-            toastHelper.showErrorMessage('No selecting flashcard');
-            return;
-        }
+    function handleFlashcardDetailsModalOpen(card: ILocalFlashcard) {
+        setIsFlashcardDetailsModalOpen(true);
+        setSelectingFlashcard(card);
+    }
+
+    function handleSaveImageClick({ flashcard, image }: { flashcard: ILocalFlashcard; image: IUnspashImage }) {
         const imageSaveInput = {
             id: image.id,
             url: image.url.small,
             downloadLocation: image.links.download_location,
         };
-        let newFlashcards;
-        newFlashcards = editingFlashcards.map((flashcard) => {
-            return flashcard.id === selectingFlashcard.id
-                ? {
-                      ...flashcard,
-                      image: imageSaveInput,
-                      thumb: image.url.thumb,
-                      serverInfo: flashcard.serverInfo
-                          ? { ...flashcard.serverInfo, isUpdated: true, isDeleted: false }
-                          : undefined,
-                  }
-                : flashcard;
-        });
-        setEditingFlashcards(newFlashcards);
-        setIsAddImageModalOpen(false);
         toastHelper.showSuccessMessage('Insert image into card successfully');
+        setEditingFlashcards((prev) => {
+            return prev.map((editingFlashcard) => {
+                return editingFlashcard.id === flashcard.id
+                    ? {
+                          ...editingFlashcard,
+                          serverInfo: editingFlashcard.serverInfo
+                              ? { ...editingFlashcard.serverInfo, isUpdated: true, isDeleted: false }
+                              : undefined,
+                          image: { type: 'unsplash', data: imageSaveInput },
+                          thumb: image.url.thumb,
+                      }
+                    : editingFlashcard;
+            });
+        });
+        setIsAddImageModalOpen(false);
+    }
+
+    function onUploadImageSuccess({ flashcard, imageUrl }: { flashcard: ILocalFlashcard; imageUrl: string }) {
+        setEditingFlashcards((prev) => {
+            return prev.map((editingFlashcard) => {
+                return editingFlashcard.id === flashcard.id
+                    ? {
+                          ...editingFlashcard,
+                          serverInfo: editingFlashcard.serverInfo
+                              ? { ...editingFlashcard.serverInfo, isUpdated: true, isDeleted: false }
+                              : undefined,
+                          image: { type: 'upload', data: imageUrl },
+                          thumb: undefined,
+                      }
+                    : editingFlashcard;
+            });
+        });
+        setIsAddImageModalOpen(false);
     }
 
     function getUsableFlashcardsForGen(cards: IEditingFlashcard[]) {
@@ -447,6 +440,14 @@ const EditingFlashcards = () => {
                                             <Button
                                                 variant="outline"
                                                 size="icon"
+                                                onClick={() => handleFlashcardDetailsModalOpen(flashcard)}
+                                                className="text-muted-foreground hover:text-primary hover:border-primary/50"
+                                            >
+                                                <FileSearch size={18} />
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
                                                 onClick={() => handleAddImageModalOpen(flashcard)}
                                                 className="text-muted-foreground hover:text-primary hover:border-primary/50"
                                             >
@@ -535,15 +536,24 @@ const EditingFlashcards = () => {
                 onSubmit={handleAddFlashcardsImported}
             />
 
-            <ImagesPreviewModal
-                isOpen={isAddImageModalOpen}
-                setIsOpen={setIsAddImageModalOpen}
-                currentThumb={selectingFlashcard?.thumb}
-                currentImageUrl={selectingFlashcard?.imageUrl}
-                images={imagesPreview}
-                loading={searchImagesLoading}
-                handleSaveClick={handleSaveImageClick}
-            />
+            {selectingFlashcard ? (
+                <EditImageModal
+                    isOpen={isAddImageModalOpen}
+                    setIsOpen={setIsAddImageModalOpen}
+                    flashcard={selectingFlashcard}
+                    onSaveImageClick={handleSaveImageClick}
+                    onUploadImageSuccess={onUploadImageSuccess}
+                />
+            ) : null}
+
+            {selectingFlashcard ? (
+                <FlashcardDetailsModal
+                    isOpen={isFlashcardDetailsModalOpen}
+                    setIsOpen={setIsFlashcardDetailsModalOpen}
+                    flashcard={selectingFlashcard}
+                />
+            ) : null}
+
             {loading && (
                 <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
                     <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">

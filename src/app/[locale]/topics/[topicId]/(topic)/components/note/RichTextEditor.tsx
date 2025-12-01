@@ -14,7 +14,7 @@ import Image from '@tiptap/extension-image';
 
 import './style.css';
 import '@/components/tiptap-node/image-node/image-node.scss';
-import noteUtils, { MAX_FILE_SIZE } from '../../utils/note.utils';
+import noteUtils from '../../utils/note.utils';
 import { Placeholder } from '@tiptap/extensions';
 import Blockquote from '@tiptap/extension-blockquote';
 import { TableKit } from '@tiptap/extension-table';
@@ -31,6 +31,7 @@ import cpp from 'highlight.js/lib/languages/cpp';
 import useCommandOptions, { CommandOptionProps } from '../../hooks/tiptap/useCommandOptions';
 import { TaskItem, TaskList } from '@tiptap/extension-list';
 import createCommandsPlugin from '../../utils/tiptap/createCommandsPlugin';
+import { MAX_IMAGE_SIZE } from '@/services/image/image.service';
 
 interface Props {
     content: string;
@@ -79,7 +80,7 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
                 onError(err) {
                     toastHelper.showErrorMessage(err);
                 },
-                maxSize: MAX_FILE_SIZE,
+                maxSize: MAX_IMAGE_SIZE,
             }),
             createCommandsPlugin(options),
             Placeholder.configure({

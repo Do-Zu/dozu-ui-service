@@ -2,7 +2,7 @@
 
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import { Edit, ImagePlus, Import, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,9 +25,7 @@ import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import FlashcardImportModal from '../../topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
 import { IFlashcardPreview } from '../../topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
-import ImagesPreviewModal, {
-    IUnspashImage,
-} from '../../topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
+import ImagesPreviewModal, { IUnspashImage } from './ImagesPreview';
 import { IFlashcard as IFlashcardType } from '../types/flashcard.type';
 import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
 import { buildContentFromFlashcardsForQuiz } from '@/app/[locale]/question/utils/buildGenPayload';
@@ -151,7 +149,7 @@ interface BaseProps {
     shouldShowBackButton?: boolean;
     shouldShowSaveButton?: boolean;
     flashcards: IFlashcardWithServer[];
-    setFlashcards: (flashcards: IFlashcardWithServer[]) => void;
+    setFlashcards: Dispatch<SetStateAction<IFlashcardWithServer[] | null>>;
     topic?: {
         topicId: string | number;
         name: string;
@@ -488,20 +486,21 @@ const FlashcardEditor = ({
             url: image.url.small,
             downloadLocation: image.links.download_location,
         };
-        let newFlashcards;
-        newFlashcards = flashcards.map((flashcard) => {
-            return flashcard.id === selectingFlashcard.id
-                ? {
-                      ...flashcard,
-                      image: imageSaveInput,
-                      thumb: image.url.thumb,
-                      serverInfo: flashcard.serverInfo
-                          ? { ...flashcard.serverInfo, isUpdated: true, isDeleted: false }
-                          : undefined,
-                  }
-                : flashcard;
+        setFlashcards((prev) => {
+            if (!prev) return null;
+            return prev.map((editingFlashcard) => {
+                return editingFlashcard.id === selectingFlashcard.id
+                    ? {
+                          ...editingFlashcard,
+                          serverInfo: editingFlashcard.serverInfo
+                              ? { ...editingFlashcard.serverInfo, isUpdated: true, isDeleted: false }
+                              : undefined,
+                          image: { type: 'unsplash', data: imageSaveInput },
+                          thumb: image.url.thumb,
+                      }
+                    : editingFlashcard;
+            });
         });
-        setFlashcards(newFlashcards);
         setIsAddImageModalOpen(false);
         toastHelper.showSuccessMessage('Insert image into card successfully');
     }
