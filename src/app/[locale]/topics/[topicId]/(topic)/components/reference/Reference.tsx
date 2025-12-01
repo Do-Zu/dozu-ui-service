@@ -1,46 +1,32 @@
 'use client';
 
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Modal } from '@/components/modal/Modal';
-import { embeddingService, IQuerySimilarity, IResponseQuery } from '../../service/embedding.service';
-import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
-import usePost from '@/hooks/usePost';
-import { formatSeconds, isEmpty, isNilOrEmpty, safeDestructure, toNumber, truncate } from '@/utils';
-import DataStatus from '@/components/errors/DataStatus';
 import { useTranslations } from 'next-intl';
+import usePost from '@/hooks/usePost';
+import { embeddingService, IQuerySimilarity } from '../../service/embedding.service';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import { compareIgnoreCapitalization, formatSeconds, isEmpty, safeDestructure, toNumber, truncate } from '@/utils';
+import { EnumLearningMaterial, IReturnItemQuery, MetaDataFileContent, MetaDataYoutubeContent } from '../../types';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Modal } from '@/components/modal/Modal';
+import { Button } from '@/components/ui/button';
+import DataStatus from '@/components/errors/DataStatus';
+import { toast } from '@/hooks/use-toast';
+
+interface IRenderReferenceByLearningMaterial {
+    type: string;
+    component: ({ references }: { references: IReturnItemQuery[] }) => ReactNode;
+}
 
 interface IProps {
     content: string;
     triggerClassName?: string;
-    children?: React.ReactNode;
+    children?: ReactNode;
     className?: string;
+    customerBodyComponents?: IRenderReferenceByLearningMaterial[];
     onAfterTrigger?: () => void;
     onBeforeTrigger?: () => void;
-}
-
-/* Types mirrored from embedding.service.ts */
-type TypeMetaDataChunkEmbed = {
-    type: string;
-    content: string | number | object | Array<unknown>;
-};
-
-export type MetaDataYoutubeContent = { startTime: number };
-
-export type MetaDataFileContent = {
-    pageNumber: number;
-};
-interface IReturnItemQuery {
-    embeddingId: number;
-    topicId: number;
-    contentType: string;
-    originContent: TypeMetaDataChunkEmbed;
-    metadata: MetaDataYoutubeContent | MetaDataFileContent | null;
-    createdAt: string | Date;
-    similarity: number;
 }
 
 const getSimilarityStyles = (s?: number) => {
@@ -83,14 +69,17 @@ const formatSimilarity = (similarity?: number) => {
     return `${(similarity * 100).toFixed(1)}%`;
 };
 
-export default function Reference({
+const DEFAULT_TYPE_EMBEDDING_MAPPING = 'text';
+
+const Reference = ({
     onBeforeTrigger,
     onAfterTrigger,
+    customerBodyComponents,
     content,
     triggerClassName = '',
     className,
     children,
-}: IProps) {
+}: IProps) => {
     const t = useTranslations('topic.reference');
     const { learningMaterial } = useTopicWorkspace();
 
@@ -121,10 +110,12 @@ export default function Reference({
     );
 
     // Map learning material type to supported embedding input type
-    const mapEmbeddingType = (t?: string): 'text' | 'file' | 'youtube' => {
-        if (t === 'youtube') return 'youtube';
-        if (t === 'file') return 'file';
-        return 'text';
+    const mapEmbeddingType = (
+        t?: string,
+    ): typeof DEFAULT_TYPE_EMBEDDING_MAPPING | EnumLearningMaterial.file | EnumLearningMaterial.youtube => {
+        if (t === EnumLearningMaterial.youtube) return EnumLearningMaterial.youtube;
+        if (t === EnumLearningMaterial.file) return EnumLearningMaterial.file;
+        return DEFAULT_TYPE_EMBEDDING_MAPPING;
     };
 
     const fetchData = useCallback(async () => {
@@ -252,28 +243,46 @@ export default function Reference({
     if (!isShowMore) {
         const highestResultSuggest = results[0];
 
-        if (learningMaterial?.type === 'file') {
-            return (
-                <div className="mt-4">
-                    <FileReferenceItem
-                        item={highestResultSuggest}
-                        isShowMore={isShowMore}
-                        onClose={() => {}}
-                        triggerShowMore={triggerShowMore}
-                    />
-                </div>
+        if (learningMaterial?.type === EnumLearningMaterial.file) {
+            const customComponent = customerBodyComponents?.find((item) =>
+                compareIgnoreCapitalization(item.type, EnumLearningMaterial.file),
             );
-        } else if (learningMaterial?.type === 'youtube') {
-            return (
-                <div className="mt-4">
-                    <YouTubeReferenceItem
-                        item={highestResultSuggest}
-                        isShowMore={isShowMore}
-                        onClose={() => {}}
-                        triggerShowMore={triggerShowMore}
-                    />
-                </div>
+
+            if (!customComponent)
+                return (
+                    <div className="mt-4">
+                        <FileReferenceItem
+                            item={highestResultSuggest}
+                            isShowMore={isShowMore}
+                            onClose={() => {}}
+                            triggerShowMore={triggerShowMore}
+                        />
+                    </div>
+                );
+
+            const { component: CustomComponent } = safeDestructure(customComponent);
+
+            return <CustomComponent references={results} />;
+        } else if (learningMaterial?.type === EnumLearningMaterial.youtube) {
+            const customComponent = customerBodyComponents?.find((item) =>
+                compareIgnoreCapitalization(item.type, EnumLearningMaterial.youtube),
             );
+
+            if (!customComponent)
+                return (
+                    <div className="mt-4">
+                        <YouTubeReferenceItem
+                            item={highestResultSuggest}
+                            isShowMore={isShowMore}
+                            onClose={() => {}}
+                            triggerShowMore={triggerShowMore}
+                        />
+                    </div>
+                );
+
+            const { component: CustomComponent } = safeDestructure(customComponent);
+
+            return <CustomComponent references={results} />;
         }
 
         return <DataStatus variant="error" title={t('contentTypeInvalid')} />;
@@ -295,7 +304,9 @@ export default function Reference({
             contentStyle={`w-[92vw] max-w-[960px] md:max-w-[1000px] lg:max-w-[1100px] max-h-[88vh] p-5 ${className}`}
         />
     );
-}
+};
+
+export default memo(Reference);
 
 interface ReferenceItemProps {
     triggerShowMore: ReactNode;
@@ -304,10 +315,10 @@ interface ReferenceItemProps {
     onClose: () => void;
 }
 
-function ReferenceItem({ item, isShowMore = true, onClose, triggerShowMore }: ReferenceItemProps) {
+const ReferenceItem = memo(({ item, isShowMore = true, onClose, triggerShowMore }: ReferenceItemProps) => {
     const { learningMaterial } = useTopicWorkspace();
 
-    if (learningMaterial?.type === 'file') {
+    if (learningMaterial?.type === EnumLearningMaterial.file) {
         return (
             <FileReferenceItem
                 item={item}
@@ -316,7 +327,7 @@ function ReferenceItem({ item, isShowMore = true, onClose, triggerShowMore }: Re
                 triggerShowMore={triggerShowMore}
             />
         );
-    } else if (learningMaterial?.type === 'youtube') {
+    } else if (learningMaterial?.type === EnumLearningMaterial.youtube) {
         return (
             <YouTubeReferenceItem
                 item={item}
@@ -328,7 +339,7 @@ function ReferenceItem({ item, isShowMore = true, onClose, triggerShowMore }: Re
     }
 
     return <DataStatus variant="empty" />;
-}
+});
 
 function YouTubeReferenceItem({ item, isShowMore, onClose, triggerShowMore }: ReferenceItemProps) {
     const t = useTranslations('topic.reference');

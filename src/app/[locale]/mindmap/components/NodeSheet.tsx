@@ -27,6 +27,8 @@ import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
 import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
 import Reference from '../../topics/[topicId]/(topic)/components/reference/Reference';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import { EnumLearningMaterial, IReturnItemFileReference } from '../../topics/[topicId]/(topic)/types';
+import ReferenceDocumentViaPage from './ReferenceDocumentViaPage';
 
 interface Props {
     onViewNodeFlashcardsClick?: () => void;
@@ -228,28 +230,24 @@ const NodeSheet = ({
                     <Reference
                         content={`${selectedNodeData.label} : ${selectedNodeData.description}`}
                         triggerClassName="item-center"
+                        customerBodyComponents={[
+                            {
+                                type: EnumLearningMaterial.file,
+                                component: ({ references }) => (
+                                    <ReferenceDocumentViaPage
+                                        references={references as IReturnItemFileReference[]}
+                                        isEditing={isEditing}
+                                        pageStartIndex={pageStartIndex}
+                                        pageEndIndex={pageEndIndex}
+                                        setPageStartIndex={setPageStartIndex}
+                                        setPageEndIndex={setPageEndIndex}
+                                        onChangePageStartIndex={onChangePageStartIndex}
+                                        onChangePageEndIndex={onChangePageEndIndex}
+                                    />
+                                ),
+                            },
+                        ]}
                     />
-
-                    {/* <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <Label className="text-sm font-medium">Start Page</Label>
-                            {isEditing ? (
-                                <Input type="number" value={pageStartIndex ?? ''} onChange={onChangePageStartIndex} />
-                            ) : (
-                                <p className="text-sm text-muted-foreground">
-                                    {selectedNodeData?.pageStartIndex ?? '—'}
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-1">
-                            <Label className="text-sm font-medium">End Page</Label>
-                            {isEditing ? (
-                                <Input type="number" value={pageEndIndex ?? ''} onChange={onChangePageEndIndex} />
-                            ) : (
-                                <p className="text-sm text-muted-foreground">{selectedNodeData?.pageEndIndex ?? '—'}</p>
-                            )}
-                        </div>
-                    </div> */}
 
                     <div className="border-t pt-4 space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
