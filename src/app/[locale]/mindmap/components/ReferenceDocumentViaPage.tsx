@@ -53,13 +53,24 @@ const ReferenceDocumentViaPage = ({
     useEffect(() => {
         if (isEditing || isEmpty(references)) return;
 
-        const highestPageIndex = (references[0].metadata as MetaDataFileContent).pageNumber;
+        const firstMetadata = references[0].metadata;
+
+        const keyConstraint = 'pageNumber';
+
+        if (isEmpty(firstMetadata) || !(keyConstraint in firstMetadata!)) return;
+
+        const highestPageIndex = firstMetadata.pageNumber;
 
         const sortPageIndex = references
-            .filter((item) => !!item.metadata)
+            .filter(
+                (item): item is IReturnItemFileReference =>
+                    !isEmpty(item) && !isEmpty(item.metadata) && keyConstraint in item.metadata,
+            )
             .sort((a, b) => a.metadata!.pageNumber - b.metadata!.pageNumber);
 
         const indexItem = sortPageIndex.findIndex((item) => item.metadata?.pageNumber === highestPageIndex);
+
+        if (indexItem === -1) return;
 
         let startIndex = indexItem;
         let endIndex = indexItem;
@@ -70,8 +81,8 @@ const ReferenceDocumentViaPage = ({
             const previousIndex = startIndex - 1;
 
             if (
-                sortPageIndex[previousIndex].metadata!.pageNumber !==
-                sortPageIndex[startIndex].metadata!.pageNumber - 1
+                sortPageIndex[previousIndex].metadata.pageNumber !==
+                sortPageIndex[startIndex].metadata.pageNumber - 1
             ) {
                 break;
             }
@@ -81,15 +92,15 @@ const ReferenceDocumentViaPage = ({
 
         while (endIndex < length - 1) {
             const nextIndex = endIndex + 1;
-            if (sortPageIndex[nextIndex].metadata!.pageNumber !== sortPageIndex[endIndex].metadata!.pageNumber + 1) {
+            if (sortPageIndex[nextIndex].metadata!.pageNumber !== sortPageIndex[endIndex].metadata.pageNumber + 1) {
                 break;
             }
 
             endIndex = nextIndex;
         }
 
-        const newPageStartIndex = sortPageIndex[startIndex].metadata!.pageNumber;
-        const newPageEndIndex = sortPageIndex[endIndex].metadata!.pageNumber;
+        const newPageStartIndex = sortPageIndex[startIndex].metadata.pageNumber;
+        const newPageEndIndex = sortPageIndex[endIndex].metadata.pageNumber;
 
         setPageStartIndex(newPageStartIndex);
         setPageEndIndex(newPageEndIndex);

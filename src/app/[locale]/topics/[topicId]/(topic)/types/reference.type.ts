@@ -24,7 +24,7 @@ interface IReturnItemFileReference {
     topicId: number;
     contentType: string;
     originContent: TypeMetaDataChunkEmbed;
-    metadata: MetaDataFileContent | null;
+    metadata: MetaDataFileContent;
     createdAt: string | Date;
     similarity: number;
 }
