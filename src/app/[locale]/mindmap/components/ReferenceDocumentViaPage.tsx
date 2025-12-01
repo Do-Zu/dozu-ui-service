@@ -9,16 +9,14 @@ import { isEmpty, isNilOrEmpty, isNumber, toNumber } from '@/utils';
 import DataStatus from '@/components/errors/DataStatus';
 import { IReturnItemFileReference, MetaDataFileContent } from '../../topics/[topicId]/(topic)/types';
 import { toast } from '@/hooks/use-toast';
-import { TooltipArrow } from '@radix-ui/react-tooltip';
-import { Popover } from '@/components/ui/popover';
 
 interface ReferenceDocumentViaPageProps {
     references: IReturnItemFileReference[];
     isEditing: boolean;
     pageStartIndex?: number;
     pageEndIndex?: number;
-    setPageStartIndex: (page: any) => void;
-    setPageEndIndex: (page: any) => void;
+    setPageStartIndex: (page: number | undefined) => void;
+    setPageEndIndex: (page: number | undefined) => void;
     onChangePageStartIndex: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onChangePageEndIndex: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
