@@ -12,17 +12,17 @@ const TransactionHistory: React.FC = () => {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'success':
-                return 'bg-green-100 text-green-800';
+                return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300';
             case 'pending':
-                return 'bg-yellow-100 text-yellow-800';
+                return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
             case 'processing':
-                return 'bg-blue-100 text-blue-800';
+                return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
             case 'failed':
             case 'expired':
             case 'cancelled':
-                return 'bg-red-100 text-red-800';
+                return 'bg-destructive/10 text-destructive';
             default:
-                return 'bg-gray-100 text-gray-800';
+                return 'bg-muted text-muted-foreground';
         }
     };
 
@@ -58,10 +58,10 @@ const TransactionHistory: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+            <div className="bg-background rounded-lg shadow-md p-6 border border-border">
+                <h2 className="text-xl font-bold mb-4 text-foreground">{t('title')}</h2>
                 <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-500">{t('loading')}</div>
+                    <div className="text-muted-foreground">{t('loading')}</div>
                 </div>
             </div>
         );
@@ -69,58 +69,58 @@ const TransactionHistory: React.FC = () => {
 
     if (error) {
         return (
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+            <div className="bg-background rounded-lg shadow-md p-6 border border-border">
+                <h2 className="text-xl font-bold mb-4 text-foreground">{t('title')}</h2>
                 <div className="flex justify-center items-center py-8">
-                    <div className="text-red-500">{t('error')}: {error}</div>
+                    <div className="text-destructive">{t('error')}: {error}</div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+        <div className="bg-background rounded-lg shadow-md p-6 border border-border">
+            <h2 className="text-xl font-bold mb-4 text-foreground">{t('title')}</h2>
             
             {transactions.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                     <p>{t('noTransactions')}</p>
                 </div>
             ) : (
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-border">
+                        <thead className="bg-muted">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     {t('table.transactionCode')}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     {t('table.description')}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     {t('table.amount')}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     {t('table.status')}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     {t('table.transactionDate')}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     {t('table.gateway')}
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-background divide-y divide-border">
                             {transactions.map((transaction: Transaction) => (
-                                <tr key={transaction.transactionId} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <tr key={transaction.transactionId} className="hover:bg-muted transition-colors">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                                         {transaction.code || `#${transaction.transactionId}`}
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                    <td className="px-6 py-4 text-sm text-foreground">
                                         {transaction.description || t('notAvailable')}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                                         {formatAmount(transaction.amount, transaction.currency)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -132,10 +132,10 @@ const TransactionHistory: React.FC = () => {
                                             {getStatusText(transaction.status)}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                         {formatDate(transaction.transactionDate || transaction.createdAt)}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                         {transaction.gateway}
                                     </td>
                                 </tr>

@@ -118,7 +118,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
               </p>
               
               {/* Group Toggle */}
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 mb-4">
+              <div className="flex items-center justify-between p-3 bg-muted rounded-lg border border-border mb-4">
                 <div>
                   <Label className="text-sm font-semibold cursor-pointer">
                     Toggle all notifications
@@ -140,11 +140,11 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
                     className={`absolute inset-0 rounded-full transition-colors duration-200 cursor-pointer ${
                       allNotificationsEnabled || someNotificationsEnabled
                         ? 'bg-gradient-to-r from-blue-500 to-purple-500'
-                        : 'bg-gray-300'
+                        : 'bg-muted'
                     }`}
                   >
                     <span
-                      className={`absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full shadow-md transition-transform duration-200 ${
+                      className={`absolute top-0.5 left-0.5 bg-background w-5 h-5 rounded-full shadow-md transition-transform duration-200 ${
                         allNotificationsEnabled ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />
@@ -203,7 +203,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-4 flex flex-col sm:flex-row gap-3 border-t border-gray-100">
+            <div className="pt-4 flex flex-col sm:flex-row gap-3 border-t border-border">
               <Button 
                 onClick={handleSaveSettings} 
                 variant="gradient"
@@ -226,7 +226,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
               <Button 
                 variant="outline" 
                 onClick={handleResetToDefault}
-                className="border-2 hover:bg-gray-50"
+                className="border-2 hover:bg-muted"
                 size="lg"
               >
                 Reset to Default

@@ -105,8 +105,8 @@ const ProfilePage: React.FC = () => {
       <div className="container mx-auto py-8 space-y-6">
         {/* Show API connection status */}
         {!isApiLoaded && !loading && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
-            <p className="text-yellow-800 text-sm">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4 mb-4">
+            <p className="text-yellow-800 dark:text-yellow-300 text-sm">
               ⚠️ Using demo data - API connection failed. {error && `Error: ${error}`}
             </p>
           </div>
