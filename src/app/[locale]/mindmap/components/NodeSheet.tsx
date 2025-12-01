@@ -29,6 +29,7 @@ import Reference from '../../topics/[topicId]/(topic)/components/reference/Refer
 import { UserRoleEnum } from '@/utils/constants/roles';
 import { EnumLearningMaterial, IReturnItemFileReference } from '../../topics/[topicId]/(topic)/types';
 import ReferenceDocumentViaPage from './ReferenceDocumentViaPage';
+import { isNullOrEmpty, toNumber } from '@/utils';
 
 interface Props {
     onViewNodeFlashcardsClick?: () => void;
@@ -117,11 +118,41 @@ const NodeSheet = ({
     };
 
     const onChangePageStartIndex = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPageStartIndex(parseInt(e.target.value));
+        const val = e.target.value;
+
+        if (isNullOrEmpty(val)) {
+            setPageStartIndex(undefined);
+        }
+
+        const pageNumber = parseInt(toNumber(val).toString(), 10);
+
+        if (pageNumber <= 0) {
+            toast({
+                description: 'Invalid Page Number',
+            });
+            return;
+        }
+
+        setPageStartIndex(pageNumber);
     };
 
     const onChangePageEndIndex = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPageEndIndex(parseInt(e.target.value));
+        const val = e.target.value;
+
+        if (isNullOrEmpty(val)) {
+            setPageEndIndex(undefined);
+        }
+
+        const pageNumber = parseInt(toNumber(val).toString(), 10);
+
+        if (pageNumber <= 0) {
+            toast({
+                description: 'Invalid Page Number',
+            });
+            return;
+        }
+
+        setPageEndIndex(pageNumber);
     };
 
     const onChangeNewDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

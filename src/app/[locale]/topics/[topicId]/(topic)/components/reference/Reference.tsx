@@ -260,9 +260,8 @@ const Reference = ({
                     </div>
                 );
 
-            const { component: CustomComponent } = safeDestructure(customComponent);
-
-            return <CustomComponent references={results} />;
+            const { component } = safeDestructure(customComponent);
+            return component({ references: results });
         } else if (learningMaterial?.type === EnumLearningMaterial.youtube) {
             const customComponent = customerBodyComponents?.find((item) =>
                 compareIgnoreCapitalization(item.type, EnumLearningMaterial.youtube),
@@ -280,9 +279,8 @@ const Reference = ({
                     </div>
                 );
 
-            const { component: CustomComponent } = safeDestructure(customComponent);
-
-            return <CustomComponent references={results} />;
+            const { component } = safeDestructure(customComponent);
+            return component({ references: results });
         }
 
         return <DataStatus variant="error" title={t('contentTypeInvalid')} />;
