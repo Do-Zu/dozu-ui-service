@@ -68,13 +68,12 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({ questions, setQuest
     }
 
     return (
-        <h1>hello</h1>
-        // <QuestionEditor
-        //     questions={questions}
-        //     setQuestions={setQuestions}
-        //     shouldShowBackButton={false}
-        //     shouldShowSaveButton={false}
-        // />
+        <QuestionEditor
+            questions={questions}
+            setQuestions={setQuestions}
+            shouldShowBackButton={false}
+            shouldShowSaveButton={false}
+        />
     );
 };
 

@@ -166,7 +166,12 @@ const QuestionEditor = ({
             toast({ title: 'Questions saved successfully' });
             setGeneratedQuestionsForEdit?.(null);
             if (topic?.topicId !== undefined) {
-                router.push(ROUTES.QUIZ_DASBOARD(topic.topicId));
+                router.push(
+                ROUTES.TOPIC_WORKSPACE({
+                    topicId: Number(topic.topicId),
+                    tab: CONTENT_TYPE_GENERATE.QUIZ, 
+                }),
+            );
             }
         } catch (err) {
             console.error(err);
