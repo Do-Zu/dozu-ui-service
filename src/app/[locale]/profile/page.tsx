@@ -5,7 +5,8 @@ import { withAuth } from '@/hoc/withAuth';
 import { 
   ProfileHeader, 
   SettingsTab,
-  LoadingState
+  LoadingState,
+  TransactionHistory
 } from './components';
 import { 
   ProfileData, 
@@ -137,6 +138,9 @@ const ProfilePage: React.FC = () => {
             onDeleteAccount={handleDeleteAccount}
           />
         </div>
+
+        {/* Transaction History */}
+        <TransactionHistory />
       </div>
     </LoadingState>
   );
