@@ -2,11 +2,15 @@ import React, { memo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicWorkspaceContext';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { isEmpty, isNilOrEmpty, isNumber, toNumber } from '@/utils';
 import DataStatus from '@/components/errors/DataStatus';
 import { IReturnItemFileReference, MetaDataFileContent } from '../../topics/[topicId]/(topic)/types';
 import { toast } from '@/hooks/use-toast';
+import { TooltipArrow } from '@radix-ui/react-tooltip';
+import { Popover } from '@/components/ui/popover';
 
 interface ReferenceDocumentViaPageProps {
     references: IReturnItemFileReference[];
@@ -94,20 +98,42 @@ const ReferenceDocumentViaPage = ({
 
     return (
         <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1" onClick={() => handleReferenceOriginContent(pageStartIndex)}>
+            <div className="space-y-1">
                 <Label className="text-sm font-medium">Start Page</Label>
                 {isEditing ? (
                     <Input type="number" value={pageStartIndex ?? ''} onChange={onChangePageStartIndex} />
                 ) : (
-                    <p className="text-sm text-muted-foreground">{pageStartIndex ?? 'N/A'}</p>
+                    <Tooltip delayDuration={500}>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="default"
+                                className="mx-2 justify-start text-left font-normal"
+                                onClick={() => handleReferenceOriginContent(pageStartIndex)}
+                            >
+                                {pageStartIndex ?? 'N/A'}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Click to view content</TooltipContent>
+                    </Tooltip>
                 )}
             </div>
-            <div className="space-y-1" onClick={() => handleReferenceOriginContent(pageEndIndex)}>
+            <div className="space-y-1">
                 <Label className="text-sm font-medium">End Page</Label>
                 {isEditing ? (
                     <Input type="number" value={pageEndIndex ?? ''} onChange={onChangePageEndIndex} />
                 ) : (
-                    <p className="text-sm text-muted-foreground">{pageEndIndex ?? '—'}</p>
+                    <Tooltip delayDuration={500}>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="default"
+                                className="mx-2 justify-start text-left font-normal"
+                                onClick={() => handleReferenceOriginContent(pageEndIndex)}
+                            >
+                                {pageEndIndex ?? '—'}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Click to view content</TooltipContent>
+                    </Tooltip>
                 )}
             </div>
         </div>
