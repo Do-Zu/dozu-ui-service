@@ -1,9 +1,9 @@
 'use client';
 
 import { Textarea } from '@/components/ui/textarea';
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
-import { Edit, FileSearch, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2 } from 'lucide-react';
+import { Edit, FileSearch, ImagePlus, Import, Plus, RefreshCw, Save, Sparkles, Trash2, Undo2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
@@ -28,16 +28,15 @@ import {
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IFlashcardPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
 import FlashcardImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
-import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
 import { useRequireTopic } from '../../../context/useRequireTopic';
 import { Label } from '@/components/ui/label';
 import DataStatus from '@/components/errors/DataStatus';
 import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
-import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
-import Generate from '../../generate/Generate';
 import EditImageModal from '../flashcard-image/EditImageModal';
 import FlashcardDetailsModal from '../FlashcardDetailsModal';
+import flashcardEditUtils from '../../../utils/flashcard/flashcardEdit.utils';
+import { isListEmpty } from '@/utils';
 
 export interface ILocalFlashcard {
     id: number;
@@ -62,7 +61,25 @@ export interface IEditingFlashcard extends ILocalFlashcard {
 const flashcardItemHeight = 300;
 const flashcardItemGap = 20;
 
-const EditingFlashcards = () => {
+interface Props {
+    flashcards: IFlashcard[]; // flashcards of node or topic
+    generatingFlashcards: IResponseFlashCardGenerate[] | null;
+    isSaving: boolean;
+    onSaveClick: (editingFlashcards: IEditingFlashcard[]) => void;
+    emptyComponent?: React.ReactNode;
+    generateComponent?: React.ReactNode;
+    onClose?: () => void;
+}
+
+export default function FlashcardsEdit({
+    flashcards,
+    generatingFlashcards,
+    isSaving,
+    onSaveClick,
+    emptyComponent,
+    generateComponent,
+    onClose,
+}: Props) {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
@@ -76,27 +93,10 @@ const EditingFlashcards = () => {
     });
 
     const { topic } = useRequireTopic();
-    const { flashcards, setFlashcards } = useRequireFlashcards();
-    const { setLearningFlashcards } = useRequireLearningFlashcards();
     const [editingFlashcards, setEditingFlashcards] = useState<IEditingFlashcard[]>([]);
-    const { generatingFlashcards, setGeneratingFlashcards } = useTopicWorkspace();
     const ref = useRef<HTMLDivElement>(null);
 
     const [isFlashcardDetailsModalOpen, setIsFlashcardDetailsModalOpen] = useState<boolean>(false);
-
-    const { loading: batchLoading, execute: batchFlashcardsAsync } = usePost<
-        { topicId: number; flashcards: IFlashcardsBatchInput },
-        { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
-    >(({ topicId, flashcards }) => flashcardService.batchFlashcardsForTopicState({ topicId, flashcards }), 'POST', {
-        onError(error) {
-            toastHelper.showErrorMessage(error);
-        },
-        onSuccess(data) {
-            setFlashcards(data.flashcards);
-            setLearningFlashcards(data.dueAnkiCards);
-            toastHelper.showSuccessMessage(tCommon('messages.updateSuccess', { name: 'Flashcards' }));
-        },
-    });
 
     useEffect(() => {
         let editingFlashcards = flashcardUtils.convertToEditingFlashcards(flashcards);
@@ -172,22 +172,6 @@ const EditingFlashcards = () => {
         });
     }
 
-    function isFlashcardEditing(flashcard: IEditingFlashcard) {
-        if (!flashcard.serverInfo) return false;
-        const originalFlashcard = flashcards.find((card) => card.flashcardId === flashcard.serverInfo?.flashcardId);
-
-        if (!originalFlashcard) return false;
-        return flashcard.front !== originalFlashcard.front || flashcard.back !== originalFlashcard.back;
-    }
-
-    function isFlashcardNew(flashcard: IEditingFlashcard) {
-        return flashcard.serverInfo === undefined;
-    }
-
-    function isFlashcardDeleted(flashcard: IEditingFlashcard) {
-        return flashcard.serverInfo?.isDeleted === true;
-    }
-
     function handleUndoDelete(index: number) {
         setEditingFlashcards((prev) => {
             return prev.map((e, i) => {
@@ -218,20 +202,8 @@ const EditingFlashcards = () => {
         setIsImportModalOpen(false);
     }
 
-    async function handleSaveClick() {
-        const flashcardsSubmitted = flashcardUtils.prepareFlashcardsForSubmit(editingFlashcards);
-        if (!flashcardsSubmitted) {
-            toastHelper.showSuccessMessage(tFlashcardEdit('messages.noFlashcardChanges'));
-            return;
-        }
-        setGeneratingFlashcards(null);
-        await batchFlashcardsAsync({ topicId: topic.topicId, flashcards: flashcardsSubmitted });
-    }
-
     function handleImportModalOpen() {
-        setTimeout(() => {
-            setIsImportModalOpen(true);
-        }, 50);
+        setIsImportModalOpen(true);
     }
 
     function handleAddImageModalOpen(card: ILocalFlashcard) {
@@ -344,8 +316,8 @@ const EditingFlashcards = () => {
         );
     }
 
-    if (!editingFlashcards) {
-        return <DataStatus variant="empty" />;
+    if (isListEmpty(editingFlashcards)) {
+        return emptyComponent ? <>{emptyComponent}</> : <DataStatus variant="empty" />;
     }
 
     return (
@@ -353,16 +325,9 @@ const EditingFlashcards = () => {
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
                 <div className="flex justify-end items-center px-[4rem] py-4">
                     <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-row items-center gap-4">
-                            {!generatingFlashcards || generatingFlashcards.length === 0 ? (
-                                <Generate
-                                    type="flashcard"
-                                    onSuccess={(data: IResponseFlashCardGenerate[]) => {
-                                        setGeneratingFlashcards(data);
-                                    }}
-                                />
-                            ) : null}
-                        </div>
+                        {generateComponent ? (
+                            <div className="flex flex-row items-center gap-4">{generateComponent}</div>
+                        ) : null}
 
                         <div className="flex flex-row items-center gap-4">
                             <Button
@@ -377,11 +342,11 @@ const EditingFlashcards = () => {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={handleSaveClick}
-                                disabled={batchLoading}
+                                onClick={() => onSaveClick(editingFlashcards)}
+                                disabled={isSaving}
                                 className="text-muted-foreground hover:text-primary"
                             >
-                                {batchLoading ? (
+                                {isSaving ? (
                                     <span className="flex items-center">
                                         <RefreshCw size={18} className="animate-spin" />
                                     </span>
@@ -389,6 +354,17 @@ const EditingFlashcards = () => {
                                     <Save size={18} />
                                 )}
                             </Button>
+
+                            {onClose ? (
+                                <Button
+                                    className="text-muted-foreground hover:text-primary"
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={onClose}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            ) : null}
                         </div>
                     </div>
                 </div>
@@ -398,7 +374,7 @@ const EditingFlashcards = () => {
                 <div className="px-[4rem] py-7 bg-background">
                     <div className="mt-7 flex flex-col bg-background">
                         {editingFlashcards?.map((flashcard, index) => {
-                            if (isFlashcardDeleted(flashcard))
+                            if (flashcardEditUtils.isFlashcardDeleted(flashcard))
                                 return (
                                     <div
                                         key={flashcard.id}
@@ -429,10 +405,11 @@ const EditingFlashcards = () => {
                                             <span className="text-xl font-bold text-muted-foreground select-none">
                                                 {index + 1}
                                             </span>
-                                            {flashcard.serverInfo?.isUpdated && isFlashcardEditing(flashcard) ? (
+                                            {flashcard.serverInfo?.isUpdated &&
+                                            flashcardEditUtils.isFlashcardEditing(flashcards, flashcard) ? (
                                                 <span className="text-sm text-muted-foreground">(editing)</span>
                                             ) : null}
-                                            {isFlashcardNew(flashcard) ? (
+                                            {flashcardEditUtils.isFlashcardNew(flashcard) ? (
                                                 <span className="text-sm text-muted-foreground">(new)</span>
                                             ) : null}
                                         </div>
@@ -564,6 +541,4 @@ const EditingFlashcards = () => {
             )}
         </div>
     );
-};
-
-export default EditingFlashcards;
+}

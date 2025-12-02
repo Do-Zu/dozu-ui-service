@@ -60,7 +60,6 @@
         "@reduxjs/toolkit": "2.5.0",
         "@shadcn/ui": "0.0.4",
         "@tanstack/react-table": "8.20.6",
-        "@tiptap/extension-blockquote": "3.11.0",
         "@tiptap/extension-bubble-menu": "3.11.0",
         "@tiptap/extension-code-block-lowlight": "3.11.0",
         "@tiptap/extension-heading": "3.11.0",

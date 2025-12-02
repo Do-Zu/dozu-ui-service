@@ -3,7 +3,7 @@
 import type { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, PanelLeft, PanelRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PanelLeft, PanelRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/utils/constants/routes';
 import { cn } from '@/lib/utils';
@@ -11,26 +11,39 @@ import useActivePomodoro from '@/hooks/useActivePomodoro';
 import flashcardUtils from '../../../utils/flashcard.utils';
 import Flashcard from '../Flashcard';
 import { useRequireTopic } from '../../../context/useRequireTopic';
-import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
-import FlashcardsEmptyState from './FlashcardsEmptyState';
+import GenerateFlashcards from './GenerateFlashcards';
 import StudyControls from './StudyControls';
-import StarButton from '../../../../../../../../components/flashcard/StarButton';
-import VolumeButton from '../../../../../../../../components/flashcard/VolumeButton';
+import StarButton from '@/components/flashcard/StarButton';
+import VolumeButton from '@/components/flashcard/VolumeButton';
 import ViewModeToggle from './ViewModeToggle';
 import { isListEmpty } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import flashcardService from '@/services/flashcard/flashcard.service';
 
 const initialAutoPlaySpeed = 3;
 
 type FilterType = 'all' | 'starred';
 type ViewMode = 'card' | 'list';
 
-export default function BrowseFlashcards() {
+interface Props {
+    flashcards: IFlashcard[];
+    enableFavouriteFlashcards?: boolean;
+    onStarToggle?: (flashcardId: number) => void;
+    enableSidebar?: boolean;
+    emptyComponent?: React.ReactNode;
+    onClose?: () => void;
+}
+
+export default function FlashcardsBrowse({
+    flashcards,
+    onStarToggle,
+    emptyComponent,
+    onClose,
+    enableFavouriteFlashcards = true,
+    enableSidebar = true,
+}: Props) {
     const { topic } = useRequireTopic();
     const { topicId } = topic;
-    const { flashcards, setFlashcards } = useRequireFlashcards();
     const router = useRouter();
 
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
@@ -52,7 +65,7 @@ export default function BrowseFlashcards() {
 
     // Get starred flashcards from flashcard data
     const starredFlashcards = useMemo(() => {
-        return new Set(flashcards.filter(fc => fc.isStar).map(fc => fc.flashcardId));
+        return new Set(flashcards.filter((fc) => fc.isStar).map((fc) => fc.flashcardId));
     }, [flashcards]);
 
     useEffect(() => {
@@ -72,10 +85,6 @@ export default function BrowseFlashcards() {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [flashcards, currentFlashcardIndex]);
-
-    const flashcardsShuffled = useMemo(() => {
-        return flashcardUtils.getFlashcardsShuffled(flashcards);
-    }, [shuffleEnabled]);
 
     // Filter flashcards based on filter type
     const filteredFlashcards = useMemo(() => {
@@ -102,19 +111,6 @@ export default function BrowseFlashcards() {
 
     const currentFlashcard = getCurrentFlashcard();
 
-    // Handle star toggle
-    async function handleToggleStar(flashcardId: number) {
-        try {
-            const { flashcardId: updatedFlashcardId, isStar } = await flashcardService.toggleStar(topicId, flashcardId);
-            // Update local flashcards state
-            setFlashcards((prev) =>
-                prev?.map((fc) => (fc.flashcardId === updatedFlashcardId ? { ...fc, isStar } : fc)) ?? []
-            );
-        } catch (error) {
-            console.error('Error toggling star:', error);
-        }
-    }
-
     // Reset index when filter changes
     useEffect(() => {
         setCurrentFlashcardIndex(0);
@@ -123,7 +119,7 @@ export default function BrowseFlashcards() {
 
     // Auto switch to 'all' tab if no starred flashcards and currently on 'starred' tab
     useEffect(() => {
-        const hasStarred = flashcards.some(fc => fc.isStar === true);
+        const hasStarred = flashcards.some((fc) => fc.isStar === true);
         if (filterType === 'starred' && !hasStarred) {
             setFilterType('all');
         }
@@ -140,7 +136,8 @@ export default function BrowseFlashcards() {
 
     function handleNextFlashcardClick() {
         setFlipInstantly(false);
-        if (currentFlashcardIndex < flashcardsToDisplay.length - 1) setCurrentFlashcardIndex((prevIndex) => prevIndex + 1);
+        if (currentFlashcardIndex < flashcardsToDisplay.length - 1)
+            setCurrentFlashcardIndex((prevIndex) => prevIndex + 1);
     }
 
     function flipWithAnimation() {
@@ -169,18 +166,18 @@ export default function BrowseFlashcards() {
     }
 
     function renderCardActions() {
-        if (!currentFlashcard) return null;
-        
+        if (!currentFlashcard || !enableFavouriteFlashcards) return null;
+
         return (
             <div className="flex items-center gap-2">
-                                <StarButton
-                                    isStarred={currentFlashcard.isStar === true}
-                                    onToggle={() => handleToggleStar(currentFlashcard.flashcardId)}
-                                    size={24}
-                                    buttonSize="lg"
-                                />
-                <VolumeButton 
-                    text={isFlipped ? (currentFlashcard?.back || '') : (currentFlashcard?.front || '')} 
+                <StarButton
+                    isStarred={currentFlashcard.isStar === true}
+                    onToggle={() => onStarToggle?.(currentFlashcard.flashcardId)}
+                    size={24}
+                    buttonSize="lg"
+                />
+                <VolumeButton
+                    text={isFlipped ? currentFlashcard?.back || '' : currentFlashcard?.front || ''}
                     className="h-10 w-10"
                 />
             </div>
@@ -220,50 +217,46 @@ export default function BrowseFlashcards() {
         };
     }, [autoPlayEnabled, autoPlaySpeed, flashcardsToDisplay.length]);
 
-    if (isListEmpty(flashcards)) {
-        return <FlashcardsEmptyState />;
-    }
-
-
-    if (!currentFlashcard) {
-        return <FlashcardsEmptyState />;
+    if (isListEmpty(flashcards) || !currentFlashcard) {
+        return emptyComponent ? <>{emptyComponent}</> : <GenerateFlashcards />;
     }
 
     return (
         <div className="flex bg-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
                 {/* Header with tabs and view mode controls */}
-                <div className="absolute top-8 left-4 right-4 z-30 flex items-center gap-3 mb-4">
-                    <Tabs value={filterType} onValueChange={(value) => setFilterType(value as FilterType)}>
-                        <TabsList>
-                            <TabsTrigger value="all">Tất cả ({flashcards.length})</TabsTrigger>
-                            {starredFlashcards.size > 0 && (
-                                <TabsTrigger value="starred">
-                                    Gắn dấu sao ({starredFlashcards.size})
-                                </TabsTrigger>
-                            )}
-                        </TabsList>
-                    </Tabs>
-                    <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-            
-                </div>
+                {enableFavouriteFlashcards ? (
+                    <div className="absolute top-8 left-4 right-4 z-30 flex items-center gap-3 mb-4">
+                        <Tabs value={filterType} onValueChange={(value) => setFilterType(value as FilterType)}>
+                            <TabsList>
+                                <TabsTrigger value="all">Tất cả ({flashcards.length})</TabsTrigger>
+                                {starredFlashcards.size > 0 && (
+                                    <TabsTrigger value="starred">Gắn dấu sao ({starredFlashcards.size})</TabsTrigger>
+                                )}
+                            </TabsList>
+                        </Tabs>
+                        <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+                    </div>
+                ) : null}
 
                 {/* Sidebar toggle button - Available in all view modes */}
-                <div 
-                    className={cn(
-                        'absolute top-8 z-50 pointer-events-auto transition-all duration-300 ease-in-out',
-                        isSidebarOpen ? 'right-[calc(30%+2rem)]' : 'right-8'
-                    )}
-                >
-                    <Button 
-                        size="icon" 
-                        variant="outline" 
-                        onClick={handleSidebarOpenToogle}
-                        aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                {enableSidebar ? (
+                    <div
+                        className={cn(
+                            'absolute top-8 z-50 pointer-events-auto transition-all duration-300 ease-in-out',
+                            isSidebarOpen ? 'right-[calc(30%+2rem)]' : 'right-8',
+                        )}
                     >
-                        <PanelLeft size={18} />
-                    </Button>
-                </div>
+                        <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={handleSidebarOpenToogle}
+                            aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                        >
+                            <PanelLeft size={18} />
+                        </Button>
+                    </div>
+                ) : null}
 
                 {/* Card View */}
                 {viewMode === 'card' && (
@@ -274,6 +267,11 @@ export default function BrowseFlashcards() {
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
                     >
+                        <div className="w-full flex justify-end px-4">
+                            <Button className="hover:bg-background" size="icon" variant="ghost" onClick={onClose}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
                         <Flashcard
                             front={currentFlashcard.front}
                             back={currentFlashcard.back}
@@ -297,7 +295,7 @@ export default function BrowseFlashcards() {
                                 </Button>
 
                                 <div className="text-base text-foreground">
-                                    {currentFlashcardIndex + 1} / {flashcardsToDisplay.length}{' '}
+                                    {currentFlashcardIndex + 1} / {flashcardsToDisplay.length}
                                 </div>
 
                                 <Button
@@ -315,7 +313,7 @@ export default function BrowseFlashcards() {
                 )}
 
                 {/* List View */}
-                {viewMode === 'list' && (
+                {enableFavouriteFlashcards && viewMode === 'list' && (
                     <div
                         className={cn(
                             'relative bg-muted rounded-lg h-full overflow-y-auto',
@@ -323,7 +321,7 @@ export default function BrowseFlashcards() {
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
                         style={{ paddingTop: '70px' }}
-                    >   
+                    >
                         <div className="p-6 space-y-4">
                             {flashcardsToDisplay.map((flashcard, index) => (
                                 <Card key={flashcard.flashcardId} className="overflow-hidden relative">
@@ -331,12 +329,12 @@ export default function BrowseFlashcards() {
                                     <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                                         <StarButton
                                             isStarred={flashcard.isStar === true}
-                                            onToggle={() => handleToggleStar(flashcard.flashcardId)}
+                                            onToggle={() => onStarToggle?.(flashcard.flashcardId)}
                                             size={20}
                                             buttonSize="md"
                                         />
-                                        <VolumeButton 
-                                            text={flashcard.back || flashcard.front || ''} 
+                                        <VolumeButton
+                                            text={flashcard.back || flashcard.front || ''}
                                             className="h-8 w-8"
                                         />
                                     </div>

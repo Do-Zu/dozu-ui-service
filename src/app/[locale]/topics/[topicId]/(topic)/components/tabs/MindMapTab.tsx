@@ -55,7 +55,7 @@ export default function MindmapTab({}: Props) {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const { isStudent } = useRoleChecker();
     const getRole = () => {
-        if (isStudent && learningMode === MODE_ACCESS_PAGE_ROLE.classBased) return UserRoleEnum.USER;
+        if (isStudent) return UserRoleEnum.USER;
         return UserRoleEnum.TEACHER;
         // return UserRoleEnum.ADMIN;
     };
@@ -68,7 +68,7 @@ export default function MindmapTab({}: Props) {
 
     return (
         <MindMapProvider>
-            <MindmapContent role={getRole()} />
+            <MindmapContent mode={learningMode as ILearningMode} role={getRole()} />
         </MindMapProvider>
     );
 }

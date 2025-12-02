@@ -9,17 +9,21 @@ import { useAppSelector } from '@/stores/hooks';
 import { useReactFlow } from '@xyflow/react';
 import {
     Bot,
+    ChevronDown,
     CopyPlus,
     DiamondPlus,
     Edit,
     FileText,
     GraduationCap,
+    Layers,
+    LayoutGrid,
+    Plus,
     SquarePen,
     TableOfContents,
     Trash,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { compressContent } from '../../generate/helper/compress';
 import { useMindMapContext } from '../context/MindMapContext';
@@ -30,12 +34,30 @@ import { UserRoleEnum } from '@/utils/constants/roles';
 import { EnumLearningMaterial, IReturnItemFileReference } from '../../topics/[topicId]/(topic)/types';
 import ReferenceDocumentViaPage from './ReferenceDocumentViaPage';
 import { isNullOrEmpty, toNumber } from '@/utils';
+import Generate from '../../topics/[topicId]/(topic)/components/generate/Generate';
+import { METHOD_LEARNING } from '@/utils/constants/method';
+import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicWorkspaceContext';
+import { IResponseFlashCardGenerate } from '../../topics/[topicId]/(topic)/hooks/useFlashCardWorkSpace';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+
+enum FlashcardActionEnum {
+    BROWSE = 'browse',
+    LEARNING = 'learning',
+    LINK = 'link',
+    EDIT = 'edit',
+    GENERATE = 'generate',
+}
+type FlashcardActionType = (typeof FlashcardActionEnum)[keyof typeof FlashcardActionEnum];
+const flashcardActionsTypes: FlashcardActionType[] = Object.values(FlashcardActionEnum);
 
 interface Props {
     onViewNodeFlashcardsClick?: () => void;
     onLinkNodeFlashcardsClick?: () => void;
     onLearnNodeFlashcardsClick?: () => void;
     onEditNodeFlashcardsClick?: () => void;
+    setIsNodeFlashcardsEditOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+    mode?: ILearningMode;
     role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
 
@@ -44,6 +66,8 @@ const NodeSheet = ({
     onLinkNodeFlashcardsClick,
     onLearnNodeFlashcardsClick,
     onEditNodeFlashcardsClick,
+    setIsNodeFlashcardsEditOpen,
+    mode,
     role = UserRoleEnum.TEACHER,
 }: Props) => {
     const router = useRouter();
@@ -60,11 +84,49 @@ const NodeSheet = ({
     const [newDescription, setNewDescription] = useState(selectedNodeData?.description || '');
     const [pageStartIndex, setPageStartIndex] = useState(selectedNodeData?.pageStartIndex);
     const [pageEndIndex, setPageEndIndex] = useState(selectedNodeData?.pageEndIndex);
+    const [generatedContent, setGeneratedContent] = useState<string>('');
+
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    const toggleExpand = () => setIsExpanded(!isExpanded);
+    const availableFlashcardActions: FlashcardActionType[] = useMemo(() => {
+        if (role === UserRoleEnum.TEACHER || mode === MODE_ACCESS_PAGE_ROLE.personal) return flashcardActionsTypes;
+        if (role === UserRoleEnum.USER) return [FlashcardActionEnum.BROWSE, FlashcardActionEnum.LEARNING];
+        return [];
+    }, [mode, role]);
+
+    const { setGeneratingFlashcards } = useTopicWorkspace();
 
     useEffect(() => {
         setPageStartIndex(selectedNodeData?.pageStartIndex);
         setPageEndIndex(selectedNodeData?.pageEndIndex);
     }, [selectedNodeData]);
+
+    useEffect(() => {
+        if (!pageStartIndex || !pageEndIndex) {
+            setGeneratedContent('');
+            return;
+        }
+
+        let isMounted = true;
+
+        const getGeneratedContent = async () => {
+            const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
+
+            if (!text) {
+                toast({ description: 'No text found in the specified page range.' });
+                return;
+            }
+
+            if (isMounted) setGeneratedContent(text);
+        };
+
+        getGeneratedContent();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [pageStartIndex, pageEndIndex, extractTextByRange]);
 
     const dispatch = useDispatch();
 
@@ -223,6 +285,12 @@ const NodeSheet = ({
         setIsFileSheetOpen(true);
     };
 
+    const onGenerateFlashcardsSuccess = (data: IResponseFlashCardGenerate[]) => {
+        setGeneratingFlashcards(data);
+        dispatch(setIsSheetOpen(false));
+        setIsNodeFlashcardsEditOpen?.(true);
+    };
+
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
             <SheetContent className="w-[400px] sm:w-[540px] flex flex-col space-y-4">
@@ -283,62 +351,84 @@ const NodeSheet = ({
                     <div className="border-t pt-4 space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
                         <div className="grid grid-cols-1 gap-2">
-                            {role === UserRoleEnum.TEACHER ? (
+                            {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                                 <>
                                     <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
                                         <DiamondPlus className="h-4 w-4" /> Add Child
                                     </Button>
-                                    <Button
-                                        onClick={handleAddFlashcards}
-                                        variant="outline"
-                                        className="justify-start gap-2"
-                                    >
-                                        <CopyPlus className="h-4 w-4" /> Add Flashcards
-                                    </Button>{' '}
-                                    <Button
-                                        onClick={handleGenerateFlashcards}
-                                        variant="outline"
-                                        className="justify-start gap-2"
-                                    >
-                                        <Bot className="h-4 w-4" /> Generate Flashcards
-                                    </Button>
                                 </>
-                            ) : (
-                                ''
-                            )}
+                            ) : null}
 
-                            {/* <Button onClick={handleViewDocument} variant="outline" className="justify-start gap-2">
-                                <FileText className="h-4 w-4" /> View Document
-                            </Button> */}
-                            <Button onClick={handleViewFlashcards} variant="outline" className="justify-start gap-2">
-                                <TableOfContents className="h-4 w-4" /> Browse Linked Flashcards
-                            </Button>
-                            {role === UserRoleEnum.TEACHER ? (
-                                <>
-                                    <Button
-                                        onClick={handleEditFlashcards}
-                                        variant="outline"
-                                        className="justify-start gap-2"
-                                    >
-                                        <Edit className="h-4 w-4" /> Edit Linked Flashcards
-                                    </Button>
-                                </>
-                            ) : (
-                                ''
-                            )}
-
-                            <Button
-                                onClick={handleLearnFlashcardsClick}
-                                variant="outline"
-                                className="justify-start gap-2"
-                            >
-                                <GraduationCap className="h-4 w-4" /> Learn Linked Flashcards
-                            </Button>
+                            <div className="flex flex-col space-y-2 w-full">
+                                <Button
+                                    variant="outline"
+                                    onClick={toggleExpand}
+                                    className="w-full justify-between pr-3"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Layers className="h-4 w-4" />
+                                        <span>Flashcard Actions</span>
+                                    </div>
+                                    <ChevronDown
+                                        className={`h-4 w-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                                    />
+                                </Button>
+                                <div
+                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                        isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                    }`}
+                                >
+                                    <div className="flex flex-col space-y-2 pl-4">
+                                        {availableFlashcardActions.includes(FlashcardActionEnum.GENERATE) ? (
+                                            <Generate
+                                                type={METHOD_LEARNING.FLASHCARD}
+                                                customContent={generatedContent}
+                                                onSuccess={onGenerateFlashcardsSuccess}
+                                            />
+                                        ) : null}
+                                        {availableFlashcardActions.includes(FlashcardActionEnum.BROWSE) ? (
+                                            <Button
+                                                onClick={handleViewFlashcards}
+                                                variant="outline"
+                                                className="justify-start gap-2"
+                                            >
+                                                <LayoutGrid className="h-4 w-4" /> Browse Linked Flashcards
+                                            </Button>
+                                        ) : null}
+                                        {availableFlashcardActions.includes(FlashcardActionEnum.LEARNING) ? (
+                                            <Button
+                                                onClick={handleLearnFlashcardsClick}
+                                                variant="outline"
+                                                className="justify-start gap-2"
+                                            >
+                                                <GraduationCap className="h-4 w-4" /> Learn Linked Flashcards
+                                            </Button>
+                                        ) : null}
+                                        {availableFlashcardActions.includes(FlashcardActionEnum.LINK) ? (
+                                            <Button
+                                                onClick={handleAddFlashcards}
+                                                variant="outline"
+                                                className="justify-start gap-2"
+                                            >
+                                                <CopyPlus className="h-4 w-4" /> Link Flashcards
+                                            </Button>
+                                        ) : null}
+                                        {availableFlashcardActions.includes(FlashcardActionEnum.EDIT) ? (
+                                            <Button
+                                                onClick={handleEditFlashcards}
+                                                variant="outline"
+                                                className="justify-start gap-2"
+                                            >
+                                                <Edit className="h-4 w-4" /> Edit Linked Flashcards
+                                            </Button>
+                                        ) : null}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {role === UserRoleEnum.TEACHER ? (
+                    {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                         <>
-                            {' '}
                             <div className="border-t pt-4">
                                 <Button
                                     onClick={handleDeleteNode}
@@ -349,9 +439,7 @@ const NodeSheet = ({
                                 </Button>
                             </div>
                         </>
-                    ) : (
-                        ''
-                    )}
+                    ) : null}
                 </div>
             </SheetContent>
         </Sheet>

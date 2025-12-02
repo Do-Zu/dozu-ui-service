@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import { Loader2, Search } from 'lucide-react';
 import React, { ChangeEventHandler, useEffect, useState } from 'react';
-import { ILocalFlashcard } from '../edit/EditingFlashcards';
+import { ILocalFlashcard } from '../edit/FlashcardsEdit';
 import { cn } from '@/lib/utils';
 import EditImage from './EditImage';
 import usePost from '@/hooks/usePost';
