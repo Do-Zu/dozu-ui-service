@@ -369,7 +369,7 @@ function resolveTopicId(): number | null {
                 // ...routing to your page
                 if (creatingQuiz) return;
                 if (!isLoggedIn || !user?.userId) {
-                    toastHelper.showErrorMessage('Bạn cần đăng nhập để tạo quiz');
+                    toastHelper.showErrorMessage('You need to log in to create a quiz');
                     return;
                 }
                 try {

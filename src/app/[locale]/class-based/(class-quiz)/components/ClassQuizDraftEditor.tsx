@@ -107,15 +107,15 @@ export default function ClassQuizDraftEditor({ quizId, initialDraft, initialTitl
 
   async function saveDraft() {
     if (!teacherId) {
-      toast({ title:'Bạn cần đăng nhập', variant:'destructive' });
+      toast({ title:'You need to log in', variant:'destructive' });
       return;
     }
     if (!title.trim()) {
-      toast({ title:'Vui lòng nhập tên quiz', variant:'destructive' });
+      toast({ title:'Please enter quiz name', variant:'destructive' });
       return;
     }
     if (!hasAllValidQuestions(questions)) {
-      toast({ title:'Câu hỏi chưa hợp lệ', description:'Mỗi câu cần tiêu đề, ≥2 đáp án hợp lệ, không trùng và có đáp án đúng.', variant:'destructive' });
+      toast({ title:'Invalid question', description:'Each question needs a title, ≥2 valid answers, no duplicates and a correct answer.', variant:'destructive' });
       return;
     }
     setSaving(true);

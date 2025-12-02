@@ -1,4 +1,3 @@
-// ===== Enums & basics =====
 export type ClassQuizStatus = 'draft' | 'scheduled' | 'published' | 'closed';
 
 export interface IClassQuizListItem {
