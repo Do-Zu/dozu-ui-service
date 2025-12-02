@@ -1,22 +1,56 @@
 'use client';
 
-import { EditorContent, useEditor } from '@tiptap/react';
+import { EditorContent, ReactRenderer, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import MenuBar from './MenuBar';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
+import { ComponentProps, createRef, useEffect, useRef } from 'react';
+import LoadingNode from '../common/LoadingNode';
+import { CustomBubbleMenu } from './CustomBubbleMenu';
+import BubbleMenu from '@tiptap/extension-bubble-menu';
+import { ImageUploadNode } from '@/components/tiptap-node/image-upload-node';
+import toastHelper from '@/utils/toast.helper';
+import Image from '@tiptap/extension-image';
+
 import './style.css';
-import { useEffect } from 'react';
+import '@/components/tiptap-node/image-node/image-node.scss';
+import noteUtils from '../../utils/note.utils';
+import { Placeholder } from '@tiptap/extensions';
+import { TableKit } from '@tiptap/extension-table';
+import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { createLowlight } from 'lowlight';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import html from 'highlight.js/lib/languages/xml';
+import css from 'highlight.js/lib/languages/css';
+import js from 'highlight.js/lib/languages/javascript';
+import ts from 'highlight.js/lib/languages/typescript';
+import c from 'highlight.js/lib/languages/c';
+import cpp from 'highlight.js/lib/languages/cpp';
+import useCommandOptions, { CommandOptionProps } from '../../hooks/tiptap/useCommandOptions';
+import { TaskItem, TaskList } from '@tiptap/extension-list';
+import createCommandsPlugin from '../../utils/tiptap/createCommandsPlugin';
+import { MAX_IMAGE_SIZE } from '@/services/image/image.service';
 
 interface Props {
     content: string;
     onContentChange: (content: string) => void;
-    onSubmit: (content: string) => void;
-    loading: boolean;
+    isGenerating?: boolean;
+    className?: string;
 }
 
-export default function RichTextEditor({ content, onContentChange, onSubmit, loading }: Props) {
+const lowlight = createLowlight();
+lowlight.register('html', html);
+lowlight.register('css', css);
+lowlight.register('js', js);
+lowlight.register('ts', ts);
+lowlight.register('c', c);
+lowlight.register('cpp', cpp);
+
+export default function RichTextEditor({ content, onContentChange, isGenerating, className }: Props) {
+    const imageUploadButtonRef = useRef<HTMLButtonElement>(null);
+    const { options } = useCommandOptions({ imageUploadButtonRef });
+
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -36,15 +70,38 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
             }),
             Highlight.configure({
                 multicolor: true,
-                // HTMLAttributes: {
-                //     class: 'hover:bg-blue-400',
-                // },
+            }),
+            BubbleMenu,
+            Image,
+            ImageUploadNode.configure({
+                accept: 'image/*',
+                upload: noteUtils.handleImageUpload,
+                onError(err) {
+                    toastHelper.showErrorMessage(err);
+                },
+                maxSize: MAX_IMAGE_SIZE,
+            }),
+            createCommandsPlugin(options),
+            Placeholder.configure({
+                placeholder: () => {
+                    return "Press '/' to see command list...";
+                },
+            }),
+            TableKit.configure({
+                table: { resizable: true },
+            }),
+            CodeBlockLowlight.configure({
+                lowlight,
+            }),
+            TaskList,
+            TaskItem.configure({
+                nested: true,
             }),
         ],
         content: content,
         editorProps: {
             attributes: {
-                class: 'min-h-[20vh] border rounded-md px-2 py-3',
+                class: cn('min-h-[60vh] border-2 rounded-lg p-6', 'tiptap'),
             },
         },
         onUpdate: ({ editor }) => {
@@ -55,7 +112,7 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
 
     useEffect(() => {
         if (editor && content !== editor.getHTML()) {
-            editor.commands.setContent(content);
+            editor.commands.setContent(content, { emitUpdate: false });
         }
     }, [editor, content]);
 
@@ -64,9 +121,10 @@ export default function RichTextEditor({ content, onContentChange, onSubmit, loa
     }
 
     return (
-        <div>
-            <MenuBar editor={editor} onSubmit={onSubmit} loading={loading} />
+        <ScrollArea className={cn('h-full flex flex-col gap-4 relative pb-20', className)}>
+            <CustomBubbleMenu editor={editor} />
             <EditorContent editor={editor} />
-        </div>
+            {isGenerating ? <LoadingNode title="Generating" /> : null}
+        </ScrollArea>
     );
 }

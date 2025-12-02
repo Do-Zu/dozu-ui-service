@@ -155,7 +155,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="absolute -top-1 -right-1 h-9 w-9 p-0 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors z-10 shadow-sm border border-gray-200 hover:border-red-300 bg-white"
+            className="absolute -top-1 -right-1 h-9 w-9 p-0 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors z-10 shadow-sm border border-border hover:border-destructive bg-background"
             title="Close"
           >
             <X className="h-5 w-5" />
@@ -163,7 +163,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
         )}
       {/* Current Password */}
       <div className="space-y-2">
-        <Label htmlFor="currentPassword" className="text-sm font-semibold text-gray-700">
+        <Label htmlFor="currentPassword" className="text-sm font-semibold text-foreground">
           Current Password
         </Label>
         <div className="relative group">
@@ -173,19 +173,19 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
             value={passwordData.currentPassword}
             onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
             placeholder="Enter your current password"
-            className="pr-10- h-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+            className="pr-10- h-10 rounded-lg border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 p-0 hover:bg-gray-100 rounded-md transition-colors"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 p-0 hover:bg-muted rounded-md transition-colors"
             onClick={() => togglePasswordVisibility('current')}
           >
             {showPassword.current ? (
-              <EyeOff className="h-4 w-4 text-gray-500" />
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-500" />
+              <Eye className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
         </div>
@@ -194,14 +194,14 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
       {/* New Password */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <Label htmlFor="newPassword" className="text-sm font-semibold text-gray-700">
+          <Label htmlFor="newPassword" className="text-sm font-semibold text-foreground">
             New Password
           </Label>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Info className="h-4 w-4 text-gray-400 cursor-help hover:text-gray-600 transition-colors" />
+              <Info className="h-4 w-4 text-muted-foreground cursor-help hover:text-foreground transition-colors" />
             </TooltipTrigger>
-            <TooltipContent className="max-w-xs bg-gray-900 text-white border-0 shadow-xl">
+            <TooltipContent className="max-w-xs bg-popover text-popover-foreground border border-border shadow-xl">
               <p className="text-sm">Use at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special symbol (!@#$%^&*...)</p>
             </TooltipContent>
           </Tooltip>
@@ -213,28 +213,28 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
             value={passwordData.newPassword}
             onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
             placeholder="Enter your new password"
-            className="pr-11 h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+            className="pr-11 h-11 rounded-lg border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 p-0 hover:bg-gray-100 rounded-md transition-colors"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 p-0 hover:bg-muted rounded-md transition-colors"
             onClick={() => togglePasswordVisibility('new')}
           >
             {showPassword.new ? (
-              <EyeOff className="h-4 w-4 text-gray-500" />
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-500" />
+              <Eye className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
         </div>
         
         {/* Password Strength Meter */}
         {passwordData.newPassword && passwordStrength && (
-          <div className="mt-3 p-4 bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-xl border border-gray-200 space-y-3 animate-in fade-in-50 duration-300">
+          <div className="mt-3 p-4 bg-muted rounded-xl border border-border space-y-3 animate-in fade-in-50 duration-300">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-600">Password strength</span>
+              <span className="text-xs font-medium text-foreground">Password strength</span>
               <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                 passwordStrength.score <= 2 ? 'bg-red-100 text-red-700' :
                 passwordStrength.score === 3 ? 'bg-yellow-100 text-yellow-700' :
@@ -244,7 +244,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
                 {passwordStrength.label}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+            <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden shadow-inner">
               <div 
                 className={`h-full transition-all duration-500 ease-out rounded-full shadow-sm ${passwordStrength.color}`}
                 style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
@@ -252,50 +252,50 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
             </div>
             <div className="grid grid-cols-2 gap-2.5 text-xs">
               <div className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                passwordData.newPassword.length >= 8 ? 'bg-green-50' : 'bg-gray-50'
+                passwordData.newPassword.length >= 8 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'
               }`}>
                 {passwordData.newPassword.length >= 8 ? (
-                  <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                  <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
                 ) : (
-                  <X className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                  <X className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                 )}
-                <span className={passwordData.newPassword.length >= 8 ? 'text-green-700 font-medium' : 'text-gray-600'}>
+                <span className={passwordData.newPassword.length >= 8 ? 'text-green-700 dark:text-green-300 font-medium' : 'text-muted-foreground'}>
                   8+ characters
                 </span>
               </div>
               <div className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                /[a-z]/.test(passwordData.newPassword) && /[A-Z]/.test(passwordData.newPassword) ? 'bg-green-50' : 'bg-gray-50'
+                /[a-z]/.test(passwordData.newPassword) && /[A-Z]/.test(passwordData.newPassword) ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'
               }`}>
                 {/[a-z]/.test(passwordData.newPassword) && /[A-Z]/.test(passwordData.newPassword) ? (
-                  <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                  <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
                 ) : (
-                  <X className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                  <X className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                 )}
-                <span className={/[a-z]/.test(passwordData.newPassword) && /[A-Z]/.test(passwordData.newPassword) ? 'text-green-700 font-medium' : 'text-gray-600'}>
+                <span className={/[a-z]/.test(passwordData.newPassword) && /[A-Z]/.test(passwordData.newPassword) ? 'text-green-700 dark:text-green-300 font-medium' : 'text-muted-foreground'}>
                   Upper & lowercase
                 </span>
               </div>
               <div className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                /\d/.test(passwordData.newPassword) ? 'bg-green-50' : 'bg-gray-50'
+                /\d/.test(passwordData.newPassword) ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'
               }`}>
                 {/\d/.test(passwordData.newPassword) ? (
-                  <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                  <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
                 ) : (
-                  <X className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                  <X className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                 )}
-                <span className={/\d/.test(passwordData.newPassword) ? 'text-green-700 font-medium' : 'text-gray-600'}>
+                <span className={/\d/.test(passwordData.newPassword) ? 'text-green-700 dark:text-green-300 font-medium' : 'text-muted-foreground'}>
                   One number
                 </span>
               </div>
               <div className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                /[!@#$%^&*(),.?":{}|<>]/.test(passwordData.newPassword) ? 'bg-green-50' : 'bg-gray-50'
+                /[!@#$%^&*(),.?":{}|<>]/.test(passwordData.newPassword) ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'
               }`}>
                 {/[!@#$%^&*(),.?":{}|<>]/.test(passwordData.newPassword) ? (
-                  <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                  <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
                 ) : (
-                  <X className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                  <X className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                 )}
-                <span className={/[!@#$%^&*(),.?":{}|<>]/.test(passwordData.newPassword) ? 'text-green-700 font-medium' : 'text-gray-600'}>
+                <span className={/[!@#$%^&*(),.?":{}|<>]/.test(passwordData.newPassword) ? 'text-green-700 dark:text-green-300 font-medium' : 'text-muted-foreground'}>
                   Special character
                 </span>
               </div>
@@ -304,7 +304,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
         )}
         
         {!passwordData.newPassword && (
-          <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1.5">
+          <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
             <Info className="h-3 w-3" />
             <span>Password must be at least 8 characters with uppercase, lowercase, number, and special character</span>
           </p>
@@ -313,7 +313,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
 
       {/* Confirm New Password */}
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700">
+        <Label htmlFor="confirmPassword" className="text-sm font-semibold text-foreground">
           Confirm New Password
         </Label>
         <div className="relative group">
@@ -323,11 +323,11 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
             value={passwordData.confirmPassword}
             onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
             placeholder="Confirm your new password"
-            className={`pr-11 h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+            className={`pr-11 h-11 rounded-lg border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 ${
               passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword 
-                ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' 
+                ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
                 : passwordData.confirmPassword && passwordData.newPassword === passwordData.confirmPassword
-                ? 'border-green-300 focus:border-green-500 focus:ring-green-500/20'
+                ? 'border-green-500 dark:border-green-400 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20'
                 : ''
             }`}
           />
@@ -335,13 +335,13 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 p-0 hover:bg-gray-100 rounded-md transition-colors"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 p-0 hover:bg-muted rounded-md transition-colors"
             onClick={() => togglePasswordVisibility('confirm')}
           >
             {showPassword.confirm ? (
-              <EyeOff className="h-4 w-4 text-gray-500" />
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-500" />
+              <Eye className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
         </div>

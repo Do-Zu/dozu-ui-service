@@ -5,17 +5,9 @@ import { useUpdateNoteAsync } from './useNote';
 import { Button } from '@/components/ui/button';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 import { FlashcardTabEnum } from '../components/flashcard/FlashcardContent';
+import LoadingNode from '../components/common/LoadingNode';
 import { Layers, ListChecks, Loader2, NotebookText } from 'lucide-react';
 import Generate from '../components/generate/Generate';
-
-function ProcessingNode() {
-    return (
-        <div className="flex flex-row gap-2 items-center text-muted-foreground whitespace-nowrap">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Processing ...</span>
-        </div>
-    );
-}
 
 interface GenerateFlashcardsProps {
     content: string;
@@ -33,8 +25,8 @@ function GenerateFlashcards({ content, onGenerateFlashcardsSuccess }: GenerateFl
                 </Button>
             }
             type={METHOD_LEARNING.FLASHCARD}
-            registerNode={<ProcessingNode />}
-            generateNode={<ProcessingNode />}
+            registerNode={<LoadingNode title="Generating" />}
+            generateNode={<LoadingNode title="Generating" />}
             onSuccess={onGenerateFlashcardsSuccess}
         />
     );
@@ -92,7 +84,7 @@ export default function useSelectMenu() {
                 onClick={onAddToNoteClick}
             >
                 {updateNoteLoading ? (
-                    <ProcessingNode />
+                    <LoadingNode title="Saving" />
                 ) : (
                     <>
                         <NotebookText className="h-4 w-4" />

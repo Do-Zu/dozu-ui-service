@@ -1,5 +1,4 @@
 import { getRequest, patchRequest, postRequest } from '@/api/api';
-import { IUnspashImage } from '@/app/[locale]/topics/[topicId]/(topic)/components/flashcard/flashcard-image/ImagesPreview';
 import {
     IFlashcard,
     IImageSaveInput,
@@ -13,6 +12,7 @@ import {
     IFlashcardLearningState,
     INextReviewDataByRating,
     IAnkiCard,
+    IUnspashImage,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
@@ -229,6 +229,17 @@ class FlashcardService {
             { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
         >(`/topics/${topicId}/flashcards/batch/node/state`, { nodeId, flashcards });
         if (response.status != 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async toggleStar(topicId: string | number, flashcardId: string | number): Promise<{ flashcardId: number; isStar: boolean }> {
+        const response = await patchRequest<unknown, { flashcardId: number; isStar: boolean }>(
+            `/topics/${topicId}/flashcards/${flashcardId}/toggle-star`,
+            {}
+        );
+        if (response.status !== 'success') {
             throw new Error(response.message);
         }
         return response.data;

@@ -17,6 +17,8 @@ import ImportButton from './buttons/ImportButton';
 import RoadmapButton from './buttons/RoadmapButton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import SelectMultipleButton from '@/components/mindmap/button/SelectMultipleButton';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
@@ -29,9 +31,9 @@ interface TeacherProps {
     role?: UserRoleEnum.TEACHER;
 }
 
-type Props = StudentProps | TeacherProps;
+type Props = { mode?: ILearningMode } & (StudentProps | TeacherProps);
 
-const MindmapButtonsPanel = ({ role = UserRoleEnum.TEACHER }: Props) => {
+const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
     const {
@@ -54,7 +56,7 @@ const MindmapButtonsPanel = ({ role = UserRoleEnum.TEACHER }: Props) => {
     return (
         <Panel position="top-center">
             <div className="flex gap-2 flex-row">
-                {role === UserRoleEnum.TEACHER ? (
+                {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                     <>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -82,7 +84,7 @@ const MindmapButtonsPanel = ({ role = UserRoleEnum.TEACHER }: Props) => {
                 />
                 <DownloadButton />
                 {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
-                {role === UserRoleEnum.TEACHER ? (
+                {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                     <>
                         <ImportButton isPanelExpanded={isPanelExpanded} />
                     </>

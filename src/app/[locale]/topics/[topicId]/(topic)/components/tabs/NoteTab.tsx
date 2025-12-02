@@ -8,15 +8,14 @@ import noteService from '../../service/note.service';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import LoadingPage from '@/app/loading';
 import DataStatus from '@/components/errors/DataStatus';
-import usePost from '@/hooks/usePost';
 import toastHelper from '@/utils/toast.helper';
 import { isNil } from '@/utils';
-import Generate from '../generate/Generate';
 import { METHOD_LEARNING } from '@/utils/constants/method';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import noteUtils from '../../utils/note.utils';
 import { Button } from '@/components/ui/button';
 import { useUpdateNoteAsync } from '../../hooks/useNote';
+import { Loader2, Save } from 'lucide-react';
+import useGenerateStream from '@/hooks/generate/useGenerateStream';
+import '@/styles/_variables.scss';
 
 export default function NoteTab() {
     const { topicId, tab, note, setNote } = useTopicWorkspace();
@@ -42,10 +41,6 @@ export default function NoteTab() {
         }
     }, [note?.content]);
 
-    function onContentChange(content: string) {
-        setContent(content);
-    }
-
     const { updateNoteAsync, updateNoteLoading } = useUpdateNoteAsync();
 
     const onSubmit = useCallback(
@@ -61,20 +56,33 @@ export default function NoteTab() {
     );
 
     const onAddSummaryToNote = async (summary: string) => {
-        const updatedContent = content.concat('<p></p>' + summary);
+        const updatedContent = content.concat(summary);
         const payload: IUpdateNotePayload = { topicId, content: updatedContent };
         await updateNoteAsync(payload);
         setGeneratedSummary('');
     };
 
-    function onGenerateShortSummarySuccess(data: any) {
-        const { isValid, summary } = noteUtils.validateGeneratedSummary(data);
-        if (!isValid) {
+    const { contentTextOrigin } = useTopicWorkspace();
+
+    const { isGenerating, execute, reset } = useGenerateStream({
+        onChunk(chunk) {
+            const data = 'data' in chunk ? chunk.data : null;
+            if (data && typeof data === 'string') {
+                setGeneratedSummary((prev) => prev + data);
+            }
+        },
+        onSuccess() {
+            toastHelper.showSuccessMessage('Generate short summary successfully');
+        },
+        onError() {
             toastHelper.showErrorMessage('Failed to generate a short summary for your topic, please try again.');
-            return;
-        }
-        toastHelper.showSuccessMessage('Generate short summary successfully');
-        setGeneratedSummary(summary);
+        },
+    });
+
+    async function onGenerateClick() {
+        reset();
+        setGeneratedSummary('');
+        await execute({ content: contentTextOrigin.current, method: 'POST', type: METHOD_LEARNING.SHORT_SUMMARY });
     }
 
     if (fetchedNoteError) {
@@ -85,41 +93,64 @@ export default function NoteTab() {
     }
 
     return (
-        <ScrollArea className="w-full h-full flex-col gap-4 pb-16 pr-6">
+        <div className="w-full h-full flex-col gap-4 pb-10 pr-6">
             {generatedSummary.length > 0 ? null : (
-                <div className="flex flex-row items-center justify-center gap-4 p-8">
-                    <div className="border rounded-xl px-4 py-2 bg-white shadow-sm text-muted-foreground">
+                <div className="flex flex-row items-center justify-center gap-4 pt-8">
+                    <div className="bg-white shadow-sm text-muted-foreground">
                         Create a brief summary based on your inputted content
                     </div>
 
-                    <Generate
-                        type={METHOD_LEARNING.SHORT_SUMMARY}
-                        onSuccess={onGenerateShortSummarySuccess}
-                        trigger={<Button className="rounded-lg">Generate</Button>}
-                    />
+                    {isGenerating ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <Button className="rounded-lg" onClick={onGenerateClick} disabled={isGenerating}>
+                            Generate
+                        </Button>
+                    )}
                 </div>
             )}
 
             {generatedSummary.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                    <div className="text-xl font-bold">Summary Preview</div>
+                <div className="h-full flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <div className="text-xl font-bold">Summary Preview</div>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => onAddSummaryToNote(generatedSummary)}
+                            hidden={isGenerating}
+                            disabled={updateNoteLoading}
+                        >
+                            {updateNoteLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save />}
+                        </Button>
+                    </div>
                     <RichTextEditor
                         key="generated_summary"
                         content={generatedSummary}
                         onContentChange={(content) => setGeneratedSummary(content)}
-                        onSubmit={onAddSummaryToNote}
-                        loading={updateNoteLoading}
+                        isGenerating={isGenerating}
+                        className="pb-10"
                     />
                 </div>
             ) : (
-                <RichTextEditor
-                    key="main_content"
-                    content={content}
-                    onContentChange={onContentChange}
-                    onSubmit={onSubmit}
-                    loading={updateNoteLoading}
-                />
+                <div className="h-full flex flex-col gap-4">
+                    <div className="flex justify-end">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => onSubmit(content)}
+                            disabled={updateNoteLoading}
+                        >
+                            {updateNoteLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save />}
+                        </Button>
+                    </div>
+                    <RichTextEditor
+                        key="main_content"
+                        content={content}
+                        onContentChange={(content) => setContent(content)}
+                    />
+                </div>
             )}
-        </ScrollArea>
+        </div>
     );
 }

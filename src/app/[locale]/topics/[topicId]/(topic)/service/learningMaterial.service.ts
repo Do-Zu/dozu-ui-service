@@ -1,15 +1,15 @@
 import { getRequest } from '@/api/api';
 import { IResponseFileFromInputSet } from '@/app/[locale]/mindmap/types/context.types';
-import { IInputSetResponse, ITranscriptSegment } from '../types/learningMaterial.type';
+import { EnumLearningMaterial, IInputSetResponse, ITranscriptSegment } from '../types/learningMaterial.type';
 
 export type ILearningMaterial =
     | {
-          type: 'file';
+          type: EnumLearningMaterial.file;
           blobUrl: string;
           file: File;
       }
     | {
-          type: 'youtube';
+          type: EnumLearningMaterial.youtube;
           videoId: string;
           embedUrl: string;
           content: string | ITranscriptSegment[];
@@ -61,7 +61,7 @@ class LearningMaterialService {
 
             if (response?.data?.fileUrl) {
                 const result = await this.getPdfDocument(response as IResponseFileFromInputSet);
-                return { ...result, type: 'file' };
+                return { ...result, type: EnumLearningMaterial.file };
             } else {
                 const youtubeContent = response.data as {
                     url?: string | null | undefined;
@@ -80,7 +80,7 @@ class LearningMaterialService {
                     throw new Error('Error: Youtube content does not exist');
                 }
                 return {
-                    type: 'youtube',
+                    type: EnumLearningMaterial.youtube,
                     videoId: youtubeContent.videoInfo.videoId,
                     embedUrl: `https://www.youtube.com/embed/${youtubeContent.videoInfo.videoId}`,
                     content: youtubeContent.content,

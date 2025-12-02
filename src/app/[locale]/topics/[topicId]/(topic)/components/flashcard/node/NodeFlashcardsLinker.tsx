@@ -15,6 +15,8 @@ import { ILinkFlashcardsToNodePayload, INodeFlashcards } from '@/types/mindmap/m
 import toastHelper from '@/utils/toast.helper';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
+import GenerateFlashcards from '../browse/GenerateFlashcards';
+import { isListEmpty } from '@/utils';
 
 interface Props {
     nodeId: string;
@@ -109,6 +111,10 @@ export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
         if (!flashcard.nodeId) return '';
         const node = nodes.find((node) => node.data.nodeId === flashcard.nodeId);
         return node === undefined ? '' : node.data.label;
+    }
+
+    if (isListEmpty(flashcards)) {
+        return <GenerateFlashcards message="There is no flashcard in this topic. Let's generate some." />;
     }
 
     return (

@@ -2,7 +2,6 @@
 
 import { Edit, Gamepad2, GraduationCap, LayoutGrid, Settings } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import BrowseFlashcards from './browse/BrowseFlashcards';
 import LearningFlashcards from './learning/LearningFlashcards';
 import { useRequireFlashcards } from '../../context/useRequireFlashcardContent';
 import { UserTrackingProvider } from '@/contexts/tracking/UserTrackingContext';
@@ -10,11 +9,12 @@ import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardSettings from './settings/FlashcardSettings';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { UserRoleEnum } from '@/utils/constants/roles';
-import EditingFlashcards from './edit/EditingFlashcards';
+import TopicFlashcardsEdit from './edit/TopicFlashcardsEdit';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import TopicFlashcardsBrowse from './browse/TopicFlashcardsBrowse';
 
 export type FlashcardTab = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
 export enum FlashcardTabEnum {
@@ -79,7 +79,7 @@ export default function FlashcardContent({ mode, role }: Props) {
             <div className="flex-1 min-h-0">
                 {flashcardTab === FlashcardTabEnum.BROWSE &&
                 availableFlashcardTabs.includes(FlashcardTabEnum.BROWSE) ? (
-                    <BrowseFlashcards />
+                    <TopicFlashcardsBrowse />
                 ) : null}
 
                 {flashcardTab === FlashcardTabEnum.LEARNING &&
@@ -97,7 +97,7 @@ export default function FlashcardContent({ mode, role }: Props) {
 
                 {flashcardTab === FlashcardTabEnum.EDIT && availableFlashcardTabs.includes(FlashcardTabEnum.EDIT) && (
                     <div className="h-full">
-                        <EditingFlashcards />
+                        <TopicFlashcardsEdit />
                     </div>
                 )}
 

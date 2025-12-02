@@ -19,7 +19,6 @@ import {
 } from '@/app/[locale]/mindmap/utils/mindmap.utils';
 import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import EditingFlashcards from '../flashcard/edit/EditingFlashcards';
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
 import { useDispatch } from 'react-redux';
@@ -28,6 +27,7 @@ import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -44,9 +44,9 @@ interface TeacherProps {
     role: UserRoleEnum.TEACHER;
 }
 
-type Props = StudentProps | TeacherProps;
+type Props = { mode: ILearningMode } & (StudentProps | TeacherProps);
 
-const MindmapContent = ({ role }: Props) => {
+const MindmapContent = ({ mode, role }: Props) => {
     const {
         topicId,
         isLoading,
@@ -243,13 +243,15 @@ const MindmapContent = ({ role }: Props) => {
                         minZoom={0.001}
                         className={showGenerateModal ? 'blur-sm' : ''}
                     >
-                        <MindmapButtonsPanel role={role}/>
+                        <MindmapButtonsPanel mode={mode} role={role} />
 
                         <NodeSheet
                             onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
                             onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
                             onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
                             onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
+                            setIsNodeFlashcardsEditOpen={setIsNodeFlashcardsEditOpen}
+                            mode={mode}
                             role={role}
                         />
                         <Controls position="bottom-right" />
