@@ -47,7 +47,7 @@ const ReactFlowNodeInClass = ({ data }: { data: CustomNodeData }) => {
                 onClick={(e) => {
                     e.stopPropagation();
                 }}
-                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                className="h-7 px-2 text-xs rounded-full transition-all duration-300 transform hover:scale-105 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 hover:shadow-lg hover:shadow-blue-500/20"
             >
                 <MessageCircle className="w-3 h-3 mr-1" />
                 comments

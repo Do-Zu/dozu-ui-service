@@ -193,7 +193,9 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                             <CardTitle>
                                 {tStudentList('title')} ({filteredStudents.length}{searchQuery ? ` of ${studentsWithStreaks.length}` : ''})
                             </CardTitle>
-                            <CardDescription>{tStudentList('description')}</CardDescription>
+                            <CardDescription 
+                                className="text-muted-foreground pt-4"
+                            >{tStudentList('description')}</CardDescription>
                         </div>
                         {classId && (
                             <div className="flex gap-2">
@@ -249,16 +251,14 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                                 <TableHead>{tUser('username')}</TableHead>
                                 <TableHead>Streak</TableHead>
                                 <TableHead>Points</TableHead>
-                                <TableHead>Freeze</TableHead>
                                 <TableHead>Rank</TableHead>
-                                <TableHead>Progress</TableHead>
                                 <TableHead className="text-right">{tCommon('actions.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredStudents.length === 0 && searchQuery ? (
                                 <TableRow>
-                                    <TableCell colSpan={9} className="text-center py-8">
+                                    <TableCell colSpan={7} className="text-center py-8">
                                         <div className="flex flex-col items-center gap-2">
                                             <Search className="w-8 h-8 text-gray-400" />
                                             <p className="text-gray-500">No students found matching "{searchQuery}"</p>
@@ -303,14 +303,6 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex items-center gap-1">
-                                            <Shield className={`w-4 h-4 ${student.streakFreezeActive ? 'text-blue-500' : 'text-gray-400'}`} />
-                                            <span className={`text-sm font-medium ${student.streakFreezeActive ? 'text-blue-600' : 'text-gray-500'}`}>
-                                                {student.streakFreezeCount || 0}
-                                            </span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
                                         {student.rank && student.rank > 0 ? (
                                             <Badge variant={student.rank <= 3 ? "default" : "secondary"}>
                                                 #{student.rank}
@@ -318,18 +310,6 @@ export function StudentList({ students, classId, handleRemoveClick, handleViewPr
                                         ) : (
                                             <span className="text-gray-400">-</span>
                                         )}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="text-xs space-y-1">
-                                            <div className="flex items-center gap-1">
-                                                <TrendingUp className="w-3 h-3" />
-                                                <span>{student.lessonsCompleted || 0} lessons</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <Trophy className="w-3 h-3" />
-                                                <span>{student.quizzesCompleted || 0} quizzes</span>
-                                            </div>
-                                        </div>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>

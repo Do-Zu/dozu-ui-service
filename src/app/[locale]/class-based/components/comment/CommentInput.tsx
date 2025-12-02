@@ -237,7 +237,9 @@ export default function CommentInput({
                                             size="sm"
                                             className={cn(
                                                 'h-8 px-4 text-xs gap-1.5 rounded-full transition-all duration-300 transform hover:scale-105 disabled:transform-none',
-                                                comment.trim() ? 'bg-gradient-to-r' : 'bg-gray-100 ',
+                                                comment.trim() 
+                                                    ? 'relative overflow-hidden bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-blue-500/20 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400' 
+                                                    : 'bg-gray-100 text-gray-400',
                                             )}
                                         >
                                             <Send className="h-3.5 w-3.5" />
