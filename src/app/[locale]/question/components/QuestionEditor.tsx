@@ -21,7 +21,7 @@ import {
     IFlashcardWithServer,
 } from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import flashcardService from '@/services/flashcard/flashcard.service';
-import { useQuizWorkspace } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/context/QuizWorkspaceContext';
+import { useOptionalQuizWorkspace } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/context/QuizWorkspaceContext';
 
 const questionsJump = 3;
 
@@ -54,9 +54,10 @@ const QuestionEditor = ({
     topic,
 }: Props) => {
     const router = useRouter();
-    const { setGeneratedQuestionsForEdit } = useQuizWorkspace();
+    const quizWorkspace = useOptionalQuizWorkspace();
+    const setGeneratedQuestionsForEdit = quizWorkspace?.setGeneratedQuestionsForEdit;
     const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
-    const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({
+    const { contentType, dataGenerated, setDataGenerated } = useContentGeneration({
         sseData,
         sseStatus,
     });
@@ -163,9 +164,14 @@ const QuestionEditor = ({
         try {
             await postRequest(`/questions/batch?topicId=${topic?.topicId}`, dataSubmitted);
             toast({ title: 'Questions saved successfully' });
-            setGeneratedQuestionsForEdit(null);
+            setGeneratedQuestionsForEdit?.(null);
             if (topic?.topicId !== undefined) {
-                router.push(ROUTES.QUIZ_DASBOARD(topic.topicId));
+                router.push(
+                ROUTES.TOPIC_WORKSPACE({
+                    topicId: Number(topic.topicId),
+                    tab: CONTENT_TYPE_GENERATE.QUIZ, 
+                }),
+            );
             }
         } catch (err) {
             console.error(err);
