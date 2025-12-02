@@ -5,7 +5,7 @@ import { Handle, Node, NodeToolbar, Position, useEdges, useInternalNode, useReac
 import { useState, useRef, useEffect } from 'react';
 import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
-import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
+import { openSheet, setSelectedNodeData, toggleNodeSelection } from '@/stores/features/mindmap/selectedNodeSlice';
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,11 +32,15 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const [label, setLabel] = useState(data.label);
     const [isHovered, setIsHovered] = useState(false);
     const [isClickedOn, setIsClickedOn] = useState(false);
-    const isActive = isClickedOn || isHovered;
+    const isInMultiSelect = useAppSelector((state) => state.selectedNodeSlice.selectedNodeIds.includes(data.nodeId));
+    const isActive = isClickedOn || isHovered || isInMultiSelect;
     const [isExpanded, setIsExpanded] = useState(false);
     const { screenToFlowPosition, fitView, getNodes, setNodes, setEdges, setViewport } = useReactFlow();
     const edges = useEdges();
     const internalNode = useInternalNode(data.nodeId);
+
+    const isEditingMindmap = useAppSelector((state) => state.isEditingMindmapSlice.isEditingMindmap);
+    const isMultiSelectMode = useAppSelector((state) => state.selectedNodeSlice.isMultiSelectMode);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -87,6 +91,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const handleClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         dispatch(setSelectedNodeData(data));
+        if (isMultiSelectMode) {
+            dispatch(toggleNodeSelection(data.nodeId));
+        }
         setIsClickedOn(true);
         // dispatch(openSheet());
     };
@@ -109,8 +116,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             handleCancel();
         }
     };
-
-    const isEditingMindmap = useAppSelector((state) => state.isEditingMindmapSlice.isEditingMindmap);
 
     // Animation variants
     const nodeVariants = {
@@ -150,7 +155,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 rounded-xl shadow-sm hover:shadow-md
                 transition-all duration-200 ease-out
                 ${data.isRoot ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
-                ${isActive ? 'shadow-lg' : ''}
+                ${isActive ? 'shadow-2xl ring-2 ring-primary/60 border-primary/40' : ''}
             `}
             style={{
                 borderColor: data.color || 'hsl(var(--border))', // use custom color or fallback
