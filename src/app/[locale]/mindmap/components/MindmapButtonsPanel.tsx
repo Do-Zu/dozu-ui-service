@@ -30,7 +30,7 @@ interface TeacherProps {
     role?: UserRoleEnum.TEACHER;
 }
 
-type Props = { mode: ILearningMode } & (StudentProps | TeacherProps);
+type Props = { mode?: ILearningMode } & (StudentProps | TeacherProps);
 
 const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);

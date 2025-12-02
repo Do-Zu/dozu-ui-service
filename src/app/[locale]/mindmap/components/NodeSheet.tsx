@@ -123,7 +123,7 @@ const NodeSheet = ({
         return () => {
             isMounted = false;
         };
-    }, [pageStartIndex, pageEndIndex]);
+    }, [pageStartIndex, pageEndIndex, extractTextByRange]);
 
     const dispatch = useDispatch();
 
