@@ -103,7 +103,10 @@ const NodeSheet = ({
     }, [selectedNodeData]);
 
     useEffect(() => {
-        if (!pageStartIndex || !pageEndIndex) return;
+        if (!pageStartIndex || !pageEndIndex) {
+            setGeneratedContent('');
+            return;
+        }
 
         let isMounted = true;
 
