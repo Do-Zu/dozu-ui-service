@@ -140,9 +140,13 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
                 </div>
                 <div className="flex flex-col">
                     <div className="font-medium text-base text-foreground">{quiz.title}</div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                        {subtitle}
-                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">{subtitle}</div>
+
+                    {quiz.status === 'scheduled' && quiz.autoPublishError && (
+                        <div className="text-xs text-destructive mt-1">
+                            Auto publish failed: {quiz.autoPublishError}
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -11,6 +11,8 @@ export interface IClassQuizListItem {
   maxAttempts: number | null;
   submittedCount: number; 
   __createdForSort?: string; 
+  autoPublishError?: string | null;
+  autoPublishLastTriedAt?: string | null;
 }
 
 export type DraftItem =
