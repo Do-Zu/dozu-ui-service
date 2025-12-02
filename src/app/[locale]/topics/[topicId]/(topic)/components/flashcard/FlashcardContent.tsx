@@ -2,7 +2,6 @@
 
 import { Edit, Gamepad2, GraduationCap, LayoutGrid, Settings } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import BrowseFlashcards from './browse/BrowseFlashcards';
 import LearningFlashcards from './learning/LearningFlashcards';
 import { useRequireFlashcards } from '../../context/useRequireFlashcardContent';
 import { UserTrackingProvider } from '@/contexts/tracking/UserTrackingContext';
@@ -15,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import TopicFlashcardsBrowse from './browse/TopicFlashcardsBrowse';
 
 export type FlashcardTab = 'browse' | 'learning' | 'edit' | 'settings' | 'games';
 export enum FlashcardTabEnum {
@@ -79,7 +79,7 @@ export default function FlashcardContent({ mode, role }: Props) {
             <div className="flex-1 min-h-0">
                 {flashcardTab === FlashcardTabEnum.BROWSE &&
                 availableFlashcardTabs.includes(FlashcardTabEnum.BROWSE) ? (
-                    <BrowseFlashcards />
+                    <TopicFlashcardsBrowse />
                 ) : null}
 
                 {flashcardTab === FlashcardTabEnum.LEARNING &&
