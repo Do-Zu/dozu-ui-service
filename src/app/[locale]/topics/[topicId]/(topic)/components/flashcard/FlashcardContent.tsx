@@ -10,7 +10,7 @@ import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardSettings from './settings/FlashcardSettings';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { UserRoleEnum } from '@/utils/constants/roles';
-import EditingFlashcards from './edit/EditingFlashcards';
+import TopicFlashcardsEdit from './edit/TopicFlashcardsEdit';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
@@ -97,7 +97,7 @@ export default function FlashcardContent({ mode, role }: Props) {
 
                 {flashcardTab === FlashcardTabEnum.EDIT && availableFlashcardTabs.includes(FlashcardTabEnum.EDIT) && (
                     <div className="h-full">
-                        <EditingFlashcards />
+                        <TopicFlashcardsEdit />
                     </div>
                 )}
 

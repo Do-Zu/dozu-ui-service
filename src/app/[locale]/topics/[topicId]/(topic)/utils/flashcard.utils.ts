@@ -9,7 +9,7 @@ import {
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import { IFlashcardCounts } from '../../../types/topic.type';
 import { IAnkiStatus } from '@/types/anki';
-import { IEditingFlashcard, ILocalFlashcard } from '../components/flashcard/edit/EditingFlashcards';
+import { IEditingFlashcard, ILocalFlashcard } from '../components/flashcard/edit/FlashcardsEdit';
 
 export const initialFlashcardsCount = 3;
 class FlashcardUtils {
