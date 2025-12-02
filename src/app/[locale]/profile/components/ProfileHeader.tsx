@@ -55,14 +55,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   }, [profileData]);
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-white via-white to-gray-50/50">
+    <Card className="overflow-hidden border border-border shadow-lg bg-background">
       <CardContent className="pt-8 pb-8 px-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Avatar Section */}
           <div className="flex flex-col items-center lg:items-start space-y-4 flex-shrink-0">
             <div className="relative group">
               <div className="p-1 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg">
-                <div className="rounded-full bg-white p-0.5">
+                <div className="rounded-full bg-background p-0.5">
                   <AvatarManager 
                     profileData={profileData}
                     onAvatarUpdate={onAvatarUpdate}
@@ -79,12 +79,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               <div className="space-y-5">
                 {/* Name and Username with Member since */}
                 <div className="space-y-2">
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  <h1 className="text-4xl font-bold text-foreground">
                     {profileData?.fullName || profileData?.username || 'Unknown User'}
                   </h1>
                   <div className="flex flex-wrap items-center gap-3">
                     {(profileData?.fullName || profileData?.username) && (
-                      <p className="text-lg text-gray-500 font-medium">
+                      <p className="text-lg text-muted-foreground font-medium">
                         @{profileData?.username}
                       </p>
                     )}
@@ -99,40 +99,40 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
                 {/* Contact Info */}
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-gray-600 group/item hover:text-gray-900 transition-colors">
-                    <Mail className="h-5 w-5 text-gray-400 group-hover/item:text-gray-600 transition-colors" />
+                  <div className="flex items-center gap-3 text-muted-foreground group/item hover:text-foreground transition-colors">
+                    <Mail className="h-5 w-5 text-muted-foreground group-hover/item:text-foreground transition-colors" />
                     <span className="text-base font-medium">{profileData?.email || 'No email'}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-gray-600 group/item hover:text-gray-900 transition-colors">
-                    <MapPin className="h-5 w-5 text-gray-400 group-hover/item:text-gray-600 transition-colors" />
+                  <div className="flex items-center gap-3 text-muted-foreground group/item hover:text-foreground transition-colors">
+                    <MapPin className="h-5 w-5 text-muted-foreground group-hover/item:text-foreground transition-colors" />
                     <span className="text-base font-medium">{profileData?.location || 'No location'}</span>
                   </div>
                   {profileData?.university && (
-                    <div className="flex items-center gap-3 text-gray-600 group/item hover:text-gray-900 transition-colors">
-                      <Building2 className="h-5 w-5 text-gray-400 group-hover/item:text-gray-600 transition-colors" />
+                    <div className="flex items-center gap-3 text-muted-foreground group/item hover:text-foreground transition-colors">
+                      <Building2 className="h-5 w-5 text-muted-foreground group-hover/item:text-foreground transition-colors" />
                       <span className="text-base font-medium">{profileData.university}</span>
                     </div>
                   )}
                   {profileData?.major && (
-                    <div className="flex items-center gap-3 text-gray-600 group/item hover:text-gray-900 transition-colors">
-                      <GraduationCap className="h-5 w-5 text-gray-400 group-hover/item:text-gray-600 transition-colors" />
+                    <div className="flex items-center gap-3 text-muted-foreground group/item hover:text-foreground transition-colors">
+                      <GraduationCap className="h-5 w-5 text-muted-foreground group-hover/item:text-foreground transition-colors" />
                       <span className="text-base font-medium">{profileData.major}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Bio - Inline editable */}
-                <div className="pt-2 border-t border-gray-100">
+                <div className="pt-2 border-t border-border">
                   {profileData?.bio ? (
                     <p 
-                      className="text-base text-gray-600 leading-relaxed cursor-text hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors"
+                      className="text-base text-foreground leading-relaxed cursor-text hover:bg-muted rounded-md p-2 -m-2 transition-colors"
                       onClick={() => !isEditing && setIsEditing(true)}
                     >
                       {profileData.bio}
                     </p>
                   ) : (
                     <p 
-                      className="text-base text-gray-400 italic cursor-text hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors"
+                      className="text-base text-muted-foreground italic cursor-text hover:bg-muted rounded-md p-2 -m-2 transition-colors"
                       onClick={() => !isEditing && setIsEditing(true)}
                     >
                       Click to add a bio...
@@ -165,9 +165,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       value={editData.username}
                       readOnly
                       disabled
-                      className="bg-gray-50 cursor-not-allowed h-11"
+                      className="bg-muted cursor-not-allowed h-11"
                     />
-                    <p className="text-xs text-gray-500 mt-1.5">
+                    <p className="text-xs text-muted-foreground mt-1.5">
                       Username cannot be changed
                     </p>
                   </div>
@@ -182,9 +182,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       value={editData.email}
                       readOnly
                       disabled
-                      className="bg-gray-50 cursor-not-allowed h-11"
+                      className="bg-muted cursor-not-allowed h-11"
                     />
-                    <p className="text-xs text-gray-500 mt-1.5">
+                    <p className="text-xs text-muted-foreground mt-1.5">
                       Email cannot be changed
                     </p>
                   </div>
@@ -221,7 +221,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </div>
 
           {/* Action Button */}
-          <div className="flex lg:flex-col lg:items-end lg:justify-start gap-3 lg:pt-0 pt-4 border-t lg:border-t-0 lg:border-l border-gray-100 lg:pl-8">
+          <div className="flex lg:flex-col lg:items-end lg:justify-start gap-3 lg:pt-0 pt-4 border-t lg:border-t-0 lg:border-l border-border lg:pl-8">
             {!isEditing ? (
               <Button 
                 onClick={handleEdit} 
@@ -245,7 +245,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <Button 
                   variant="ghost" 
                   onClick={handleCancel} 
-                  className="h-11 w-11 p-0 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-600 transition-all duration-200 border border-gray-200 hover:border-red-300 bg-white"
+                  className="h-11 w-11 p-0 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all duration-200 border border-border hover:border-destructive bg-background"
                   size="lg"
                   title="Cancel"
                 >

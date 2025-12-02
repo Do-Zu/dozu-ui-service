@@ -12,8 +12,8 @@ export const LoadingState: React.FC<LoadingStateProps> = ({ loading, error, chil
     return (
       <div className="flex items-center justify-center p-8">
         <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading...</span>
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="text-foreground">Loading...</span>
         </div>
       </div>
     );
