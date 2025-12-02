@@ -75,6 +75,15 @@ export interface IPublishResp {
   questionsCount: number;
 }
 
+export type ITeacherClassQuizDetail = {
+  classQuizId: number;
+  title: string;
+  content: string;
+  startAt: string | null;
+  endAt: string | null;
+  durationSeconds: number | null;
+};
+
 // === Student shapes ===
 export interface IPlayableMeta {
   classQuizId: number;
