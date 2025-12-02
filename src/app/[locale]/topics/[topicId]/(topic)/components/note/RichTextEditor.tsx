@@ -16,7 +16,6 @@ import './style.css';
 import '@/components/tiptap-node/image-node/image-node.scss';
 import noteUtils from '../../utils/note.utils';
 import { Placeholder } from '@tiptap/extensions';
-import Blockquote from '@tiptap/extension-blockquote';
 import { TableKit } from '@tiptap/extension-table';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -32,7 +31,6 @@ import useCommandOptions, { CommandOptionProps } from '../../hooks/tiptap/useCom
 import { TaskItem, TaskList } from '@tiptap/extension-list';
 import createCommandsPlugin from '../../utils/tiptap/createCommandsPlugin';
 import { MAX_IMAGE_SIZE } from '@/services/image/image.service';
-import HorizontalRule from '@tiptap/extension-horizontal-rule';
 
 interface Props {
     content: string;
@@ -89,7 +87,6 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
                     return "Press '/' to see command list...";
                 },
             }),
-            Blockquote,
             TableKit.configure({
                 table: { resizable: true },
             }),
@@ -100,7 +97,6 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
             TaskItem.configure({
                 nested: true,
             }),
-            HorizontalRule,
         ],
         content: content,
         editorProps: {
