@@ -11,3 +11,8 @@ export interface ITranscriptSegment {
     endTime: number;
     text: string;
 }
+
+export enum EnumLearningMaterial {
+    file = 'file',
+    youtube = 'youtube',
+}

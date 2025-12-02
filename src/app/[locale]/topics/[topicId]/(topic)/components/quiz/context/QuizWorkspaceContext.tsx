@@ -17,3 +17,8 @@ export function useQuizWorkspace() {
     }
     return ctx;
 }
+
+//Hook can be used even without provider, just return null
+export function useOptionalQuizWorkspace() {
+    return useContext(QuizWorkspaceContext); // QuizWorkspaceState | null
+}

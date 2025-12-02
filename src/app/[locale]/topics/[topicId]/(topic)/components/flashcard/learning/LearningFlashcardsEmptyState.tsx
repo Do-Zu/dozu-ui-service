@@ -1,15 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { METHOD_LEARNING } from '@/utils/constants/method';
-import { ROUTES } from '@/utils/constants/routes';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 
 export default function LearningFlashcardsEmptyState({ topicId }: { topicId: number }) {
-    const router = useRouter();
     const tFlashcardLearning = useTranslations('flashcard.learning');
+    const { setTab } = useTopicWorkspace();
 
-    function handleRedirectFeynmanPage() {
-        router.push(ROUTES.FEYNMAN_REVIEW(topicId, METHOD_LEARNING.FLASHCARD));
+    function handleRedirectReview() {
+        setTab(METHOD_LEARNING.QUIZ);
     }
 
     return (
@@ -29,7 +29,7 @@ export default function LearningFlashcardsEmptyState({ topicId }: { topicId: num
                 <p className="text-gray-700 max-w-md">{tFlashcardLearning('flashcardsCompleted')}</p>
                 <div className="pt-4">
                     <Button
-                        onClick={handleRedirectFeynmanPage}
+                        onClick={handleRedirectReview}
                         className="px-6 py-2  rounded-lg transition-colors border border-gray-300"
                     >
                         {tFlashcardLearning('reviewKnowledge')}
