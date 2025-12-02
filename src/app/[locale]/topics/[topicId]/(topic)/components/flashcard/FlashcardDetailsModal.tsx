@@ -3,7 +3,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Modal } from '@/components/modal/Modal';
 import { Dispatch, SetStateAction, useMemo } from 'react';
-import { ILocalFlashcard } from './edit/EditingFlashcards';
+import { ILocalFlashcard } from './edit/FlashcardsEdit';
 
 interface Props {
     isOpen: boolean;

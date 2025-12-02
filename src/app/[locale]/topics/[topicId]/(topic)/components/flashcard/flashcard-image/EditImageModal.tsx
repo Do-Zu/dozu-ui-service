@@ -1,7 +1,7 @@
 import { Modal } from '@/components/modal/Modal';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ILocalFlashcard } from '../edit/EditingFlashcards';
+import { ILocalFlashcard } from '../edit/FlashcardsEdit';
 import SearchTab from './SearchTab';
 import { IUnspashImage } from '@/app/[locale]/flashcards/types/flashcard.type';
 import UploadTab from './UploadTab';
