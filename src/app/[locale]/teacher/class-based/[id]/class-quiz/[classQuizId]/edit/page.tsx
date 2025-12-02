@@ -1,4 +1,3 @@
-// app/[locale]/class-based/(class-quiz)/[id]/[classQuizId]/edit/page.tsx
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -10,79 +9,90 @@ import { toast } from '@/hooks/use-toast';
 import { ROUTES } from '@/utils/constants/routes';
 
 export default function EditClassQuizPage() {
-  const { id, classQuizId } = useParams<{ id: string; classQuizId: string }>();
-  const router = useRouter();
-  const quizId = Number(classQuizId);
+    const { id, classQuizId } = useParams<{ id: string; classQuizId: string }>();
+    const router = useRouter();
+    const quizId = Number(classQuizId);
 
-  // (optional) nếu muốn load draft hiện có từ BE thì thêm endpoint service; ở đây để sẵn state:
-  const [initialDraft, setInitialDraft] = useState<IDraftJson | undefined>(undefined);
-  const [initialTitle, setInitialTitle] = useState<string | undefined>(undefined);
-  const [initialContent, setInitialContent] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
+    // (optional) nếu muốn load draft hiện có từ BE thì thêm endpoint service; ở đây để sẵn state:
+    const [initialDraft, setInitialDraft] = useState<IDraftJson | undefined>(undefined);
+    const [initialTitle, setInitialTitle] = useState<string | undefined>(undefined);
+    const [initialContent, setInitialContent] = useState<string | undefined>(undefined);
+    const [initialStartAt, setInitialStartAt] = useState<string | null | undefined>(undefined);
+    const [initialEndAt, setInitialEndAt] = useState<string | null | undefined>(undefined);
+    const [initialDurationSeconds, setInitialDurationSeconds] = useState<number | null | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
 
-  // Load draft và quiz info
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        // Load draft và quiz info song song
-        const [draftResult, quizResult] = await Promise.allSettled([
-          classQuizTeacherService.getDraft(quizId),
-          classQuizTeacherService.getClassQuiz(quizId).catch(() => null), // Nếu không có endpoint thì bỏ qua
-        ]);
-        
-        if (!mounted) return;
+    // Load draft và quiz info
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                // Load draft và quiz info song song
+                const [draftResult, quizResult] = await Promise.allSettled([
+                    classQuizTeacherService.getDraft(quizId),
+                    classQuizTeacherService.getClassQuiz(quizId).catch(() => null), // Nếu không có endpoint thì bỏ qua
+                ]);
 
-        // Xử lý draft
-        if (draftResult.status === 'fulfilled') {
-          setInitialDraft(draftResult.value.draftJson ?? undefined);
-        } else {
-          // Nếu không có draft thì để undefined => editor sẽ tạo 3 câu trống mặc định
-          setInitialDraft(undefined);
-        }
+                if (!mounted) return;
 
-        // Xử lý quiz info
-        if (quizResult.status === 'fulfilled' && quizResult.value) {
-          setInitialTitle(quizResult.value.title);
-          setInitialContent(quizResult.value.content);
-        }
-      } catch (e:any) {
-        toast({ title: 'Không tải được thông tin quiz', description: e?.message, variant: 'destructive' });
-      } finally {
-        mounted && setLoading(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, [quizId]);
+                // Xử lý draft
+                if (draftResult.status === 'fulfilled') {
+                    setInitialDraft(draftResult.value.draftJson ?? undefined);
+                } else {
+                    // Nếu không có draft thì để undefined => editor sẽ tạo 3 câu trống mặc định
+                    setInitialDraft(undefined);
+                }
 
-  const handleSaved = (r: IUpsertDraftResp) => {
-    // Bạn có thể cập nhật UI/telemetry ở đây
-  };
-  const handlePublished = () => {
-    // điều hướng về danh sách quiz của lớp
-    router.push(ROUTES.TEACHER.CLASS_BASED_ID_CLASS_QUIZ_LIST(Number(id)));
-  };
+                // Xử lý quiz info
+                if (quizResult.status === 'fulfilled' && quizResult.value) {
+                    setInitialTitle(quizResult.value.title);
+                    setInitialContent(quizResult.value.content);
+                    setInitialStartAt(quizResult.value.startAt ?? null);
+                    setInitialEndAt(quizResult.value.endAt ?? null);
+                    setInitialDurationSeconds(quizResult.value.durationSeconds ?? null);
+                }
+            } catch (e: any) {
+                toast({ title: 'Không tải được thông tin quiz', description: e?.message, variant: 'destructive' });
+            } finally {
+                mounted && setLoading(false);
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, [quizId]);
 
-  if (loading) {
+    const handleSaved = (r: IUpsertDraftResp) => {
+        // Bạn có thể cập nhật UI/telemetry ở đây
+    };
+    const handlePublished = () => {
+        // điều hướng về danh sách quiz của lớp
+        router.push(ROUTES.TEACHER.CLASS_BASED_ID_CLASS_QUIZ_LIST(Number(id)));
+    };
+
+    if (loading) {
+        return (
+            <div className="container mx-auto py-8 max-w-5xl">
+                <div>Đang tải...</div>
+            </div>
+        );
+    }
+
     return (
-      <div className="container mx-auto py-8 max-w-5xl">
-        <div>Đang tải...</div>
-      </div>
+        <div className="container mx-auto py-8 max-w-5xl">
+            <h1 className="text-2xl font-bold mb-4">Edit Quiz #{quizId}</h1>
+            <ClassQuizDraftEditor
+                key={initialDraft ? JSON.stringify([initialDraft.orderSeed, initialDraft.items?.length]) : 'empty'}
+                quizId={quizId}
+                initialDraft={initialDraft}
+                initialTitle={initialTitle}
+                initialContent={initialContent}
+                initialStartAt={initialStartAt}
+                initialEndAt={initialEndAt}
+                initialDurationSeconds={initialDurationSeconds}
+                onSaved={handleSaved}
+                onPublished={handlePublished}
+            />
+        </div>
     );
-  }
-
-  return (
-    <div className="container mx-auto py-8 max-w-5xl">
-      <h1 className="text-2xl font-bold mb-4">Edit Quiz #{quizId}</h1>
-      <ClassQuizDraftEditor
-        key={initialDraft ? JSON.stringify([initialDraft.orderSeed, initialDraft.items?.length]) : 'empty'}
-        quizId={quizId}
-        initialDraft={initialDraft}
-        initialTitle={initialTitle}
-        initialContent={initialContent}
-        onSaved={handleSaved}
-        onPublished={handlePublished}
-      />
-    </div>
-  );
 }

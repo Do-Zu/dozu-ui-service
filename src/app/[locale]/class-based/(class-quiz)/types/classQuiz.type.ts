@@ -1,4 +1,3 @@
-// ===== Enums & basics =====
 export type ClassQuizStatus = 'draft' | 'scheduled' | 'published' | 'closed';
 
 export interface IClassQuizListItem {
@@ -12,6 +11,8 @@ export interface IClassQuizListItem {
   maxAttempts: number | null;
   submittedCount: number; 
   __createdForSort?: string; 
+  autoPublishError?: string | null;
+  autoPublishLastTriedAt?: string | null;
 }
 
 export type DraftItem =
@@ -75,6 +76,15 @@ export interface IPublishResp {
   choicesShuffleSeed: string;
   questionsCount: number;
 }
+
+export type ITeacherClassQuizDetail = {
+  classQuizId: number;
+  title: string;
+  content: string;
+  startAt: string | null;
+  endAt: string | null;
+  durationSeconds: number | null;
+};
 
 // === Student shapes ===
 export interface IPlayableMeta {
