@@ -35,31 +35,33 @@ export default function ClassLibrary({
 
     return (
         <div className="w-full">
-            {/* Main Header */}
-            <HeaderSection
-                icon={School}
-                title={tClass('myClasses')}
-                slogan={tClass('slogan')}
-                actionButton={mainActionButtons}
-                description={
-                    <ShowIf when={roleHelper.isStudent(role)}>
-                        <div className="text-muted-foreground text-sm">{tClass('classesEnrolling')}</div>
-                    </ShowIf>
-                }
-            />
+            <div className="w-full max-w-[80%] mx-auto mb-12 p-6 rounded-lg shadow-md">
+                {/* Main Header */}
+                <HeaderSection
+                    icon={School}
+                    title={tClass('myClasses')}
+                    slogan={tClass('slogan')}
+                    actionButton={mainActionButtons}
+                    description={
+                        <ShowIf when={roleHelper.isStudent(role)}>
+                            <div className="text-muted-foreground text-sm">{tClass('classesEnrolling')}</div>
+                        </ShowIf>
+                    }
+                />
 
-            {/* Content */}
-            <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 pt-12">
+                {/* Content */}
+                <div className="w-full pt-11">
 
-                {/* Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {classes.map((myClass: IClass) => (
-                        <div key={myClass.classId}>{classCard(myClass)}</div>
-                    ))}
+                    {/* Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {classes.map((myClass: IClass) => (
+                            <div key={myClass.classId}>{classCard(myClass)}</div>
+                        ))}
+                    </div>
+
+                    {/* Modals */}
+                    {modals}
                 </div>
-
-                {/* Modals */}
-                {modals}
             </div>
         </div>
     );

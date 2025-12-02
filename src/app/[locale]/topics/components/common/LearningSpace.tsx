@@ -4,7 +4,7 @@ import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CircleUserRound, School } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface BaseProps {
     topicContent: React.ReactNode;
@@ -30,6 +30,9 @@ export default function LearningSpace(props: Props) {
     const t = useTranslations('home.contentLibrary');
     const tCommon = useTranslations('common');
     const tClass = useTranslations('class');
+    const [activeTab, setActiveTab] = useState<ClassDashboardTab>(
+        mode === 'class-based' ? (props.defaultTab || ClassDashboardTab.FEEDS) : ClassDashboardTab.FEEDS
+    );
 
     return (
         <div className="relative w-full max-w-6xl mx-auto mb-16 px-4 md:px-8">
@@ -86,22 +89,28 @@ export default function LearningSpace(props: Props) {
                 <div className="relative z-10">
                     {mode === 'class-based' ? (
                         <div className="pt-6">
-                            <Tabs defaultValue={props.defaultTab || ClassDashboardTab.FEEDS} className="w-full">
-                                <TabsList className="w-full mx-6 md:mx-8 bg-transparent p-0 border-b border-slate-200 dark:border-white/10">
-                                    {classDashboardTabs.map((tab) => (
-                                        <TabsTrigger
-                                            key={tab}
-                                            value={tab}
-                                            style={{ width: `${75 / classDashboardTabs.length}%` }}
-                                            className="data-[state=active]:bg-background/80 data-[state=active]:shadow-sm 
-                                                data-[state=active]:border-b-2 data-[state=active]:border-primary 
-                                                rounded-b-none text-base font-medium px-4 py-2 transition-all 
-                                                -mb-px"
-                                        >
-                                            {classUtils.getTabLabel(tab)}
-                                        </TabsTrigger>
-                                    ))}
-                                </TabsList>
+                            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ClassDashboardTab)} className="w-full">
+                                <div className="flex justify-center">
+                                    <TabsList className="inline-flex h-10 items-center justify-center rounded-md text-muted-foreground bg-transparent p-0 border-b border-slate-200 dark:border-white/10 relative">
+                                        {classDashboardTabs.map((tab) => (
+                                            <TabsTrigger
+                                                key={tab}
+                                                value={tab}
+                                                className="relative overflow-hidden rounded-b-none text-base font-medium px-8 py-2 transition-all 
+                                                    -mb-px min-w-[300px] data-[state=active]:bg-background/80 data-[state=active]:shadow-sm
+                                                    data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground"
+                                            >
+                                                {classUtils.getTabLabel(tab)}
+                                                <span 
+                                                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-blue-500 dark:bg-blue-400 
+                                                        transition-all duration-300 ease-out origin-center ${
+                                                            activeTab === tab ? 'w-full' : 'w-0'
+                                                        }`}
+                                                />
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
+                                </div>
 
                                 <TabsContent value="feeds" className="px-6 md:px-8 py-4">
                                     {props.feedContent}
