@@ -129,8 +129,12 @@ export default function TeacherClassLibrary() {
     // ... UI
     // button actions
     const mainActionButtons = (
-        <Button className="bg-background text-foreground" onClick={() => setIsCreateClassModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> {tCommon('titles.createNew', { name: classLabel })}
+        <Button 
+            variant="default"
+            className="shadow-sm hover:shadow-md transition-all duration-200 rounded-lg px-5 py-2.5 h-auto font-medium" 
+            onClick={() => setIsCreateClassModalOpen(true)}
+        >
+            <Plus className="h-4 w-4" /> {tCommon('titles.createNew', { name: classLabel })}
         </Button>
     );
 
@@ -145,18 +149,18 @@ export default function TeacherClassLibrary() {
     const menuContentInCard = (myClass: IClass) => {
         const { classId, name, description, imageUrl } = myClass;
         return (
-            <DropdownMenuContent align="start" side="top">
-                <DropdownMenuItem onSelect={() => handleGenerateClick(classId)}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    <span>{tClass('generateContent')}</span>
+            <DropdownMenuContent align="start" side="top" className="rounded-lg border-0 shadow-lg bg-popover p-1.5 min-w-[180px]">
+                <DropdownMenuItem onSelect={() => handleGenerateClick(classId)} className="rounded-md px-3 py-2 cursor-pointer">
+                    <Sparkles className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{tClass('generateContent')}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => handleManageStudentsClick(classId)}>
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>{tClass('manageStudents')}</span>
+                <DropdownMenuItem onSelect={() => handleManageStudentsClick(classId)} className="rounded-md px-3 py-2 cursor-pointer">
+                    <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{tClass('manageStudents')}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => handleOpenUpdateModal({ classId, name, description, imageUrl })}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    <span>{tCommon('actions.edit')}</span>
+                <DropdownMenuItem onSelect={() => handleOpenUpdateModal({ classId, name, description, imageUrl })} className="rounded-md px-3 py-2 cursor-pointer">
+                    <Edit className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{tCommon('actions.edit')}</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         );

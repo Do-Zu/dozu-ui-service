@@ -5,6 +5,7 @@ import { IClass } from '../../../types/class.type';
 import ClassCard, { ClassCardProps } from './ClassCard';
 import React from 'react';
 import roleHelper from '@/utils/role.helper';
+import { HeaderSection } from '@/components/common/HeaderSection';
 
 interface BaseProps {
     classes: IClass[];
@@ -31,31 +32,35 @@ export default function ClassLibrary({
     modals,
 }: Props) {
     const tClass = useTranslations('class');
+
     return (
-        <div className="w-full max-w-[85%] mx-auto mb-12 p-6 rounded-lg bg-gray-100 shadow-md dark:bg-gray-800">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="flex flex-col gap-2">
-                    <div className="flex flex-row gap-2 items-center">
-                        <School />
-                        <h2 className="text-2xl font-semibold">{tClass('myClasses')}</h2>
-                    </div>
+        <div className="w-full">
+            {/* Main Header */}
+            <HeaderSection
+                icon={School}
+                title={tClass('myClasses')}
+                slogan={tClass('slogan')}
+                actionButton={mainActionButtons}
+                description={
                     <ShowIf when={roleHelper.isStudent(role)}>
-                        <div>{tClass('classesEnrolling')}</div>
+                        <div className="text-muted-foreground text-sm">{tClass('classesEnrolling')}</div>
                     </ShowIf>
+                }
+            />
+
+            {/* Content */}
+            <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 pt-12">
+
+                {/* Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {classes.map((myClass: IClass) => (
+                        <div key={myClass.classId}>{classCard(myClass)}</div>
+                    ))}
                 </div>
-                {mainActionButtons}
-            </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {classes.map((myClass: IClass) => (
-                    <div key={myClass.classId}>{classCard(myClass)}</div>
-                ))}
+                {/* Modals */}
+                {modals}
             </div>
-
-            {/* Modals */}
-            {modals}
         </div>
     );
 }

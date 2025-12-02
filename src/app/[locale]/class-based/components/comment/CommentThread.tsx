@@ -378,7 +378,10 @@ const CommentThread = ({
                             {t('noCommentsTitle')}
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400 mb-4">{t('noCommentsBody')}</p>
-                        <Button onClick={() => setIsAddCommentDialogOpen(true)} className="bg-gradient-to-r">
+                        <Button 
+                            onClick={() => setIsAddCommentDialogOpen(true)} 
+                            className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-blue-500/20 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400 transition-all duration-300 transform hover:scale-105"
+                        >
                             {t('startDiscussion')}
                         </Button>
                     </div>
@@ -421,7 +424,7 @@ const CommentThread = ({
 
                             <Dialog open={isAddCommentDialogOpen} onOpenChange={setIsAddCommentDialogOpen}>
                                 <DialogTrigger asChild>
-                                    <Button className="shadow-lg dark:shadow-gray-900/10 dark:hover:shadow-gray-900/10 transition-all duration-300 transform hover:scale-105 gap-2">
+                                    <Button className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-blue-500/20 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400 transition-all duration-300 transform hover:scale-105 gap-2">
                                         <Plus className="h-4 w-4" />
                                         {t('actions.comment')}
                                     </Button>
@@ -550,7 +553,10 @@ const CommentThread = ({
         <Dialog open={isCommentsDialogOpen} onOpenChange={setIsCommentsDialogOpen}>
             <DialogTrigger asChild>
                 {triggerComponent ?? (
-                    <Button variant="outline" className="gap-2">
+                    <Button 
+                        variant="outline" 
+                        className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-blue-500/20 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400 transition-all duration-300 transform hover:scale-105 gap-2 border-0"
+                    >
                         <MessageCircle className="h-4 w-4" />
                         {triggerText ?? t('open')}
                     </Button>

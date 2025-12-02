@@ -348,7 +348,10 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
             {feeds ? (
                 <div className="mt-5 flex flex-col gap-4">
                     <div className="flex flex-col md:flex-row justify-between items-start">
-                        <Button className="bg-background text-foreground" onClick={() => handleCreateFeedModalOpen()}>
+                        <Button 
+                            className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-blue-500/20 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400 transition" 
+                            onClick={() => handleCreateFeedModalOpen()}
+                        >
                             <BellRing className="mr-2 h-4 w-4" />
                             Post an Announcement
                         </Button>
@@ -415,11 +418,17 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
     const topicContent = (
         <div className="w-full mx-auto mt-5">
             <div className="mb-4 flex flex-row justify-start items-start gap-4">
-                <Button className="bg-background text-foreground" onClick={handleCreateTopicModalOpen}>
+                <Button 
+                    className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-lg shadow-green-500/20 hover:from-green-400 hover:via-emerald-400 hover:to-teal-400 transition" 
+                    onClick={handleCreateTopicModalOpen}
+                >
                     <Plus className="mr-2 h-4 w-4" />
                     {t('createNewContent')}
                 </Button>
-                <Button className="bg-background text-foreground" onClick={handleGenerateClick}>
+                <Button 
+                    className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-500 text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-400 hover:via-sky-400 hover:to-cyan-400 transition" 
+                    onClick={handleGenerateClick}
+                >
                     <Sparkles className="mr-2 h-4 w-4" />
                     {tClass('generateContent')}
                 </Button>
