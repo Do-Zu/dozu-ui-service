@@ -39,29 +39,31 @@ export default function LearningSpace(props: Props) {
             <div className="pointer-events-none absolute -inset-x-10 -top-6 h-40 bg-gradient-to-r from-indigo-300/20 via-sky-300/20 to-cyan-300/20 dark:from-indigo-500/10 dark:via-sky-500/10 dark:to-cyan-500/10 blur-2xl" />
             <div className="relative rounded-2xl p-5 border border-slate-200/60 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] overflow-hidden">
                 <div className="relative z-10 px-6 pt-6 md:px-8">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="flex flex-col gap-1 md:flex-grow">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        <div className="flex flex-col gap-3 md:flex-grow">
                             {mode === 'class-based' && props.myClass ? (
                                 <>
-                                    <div className="flex flex-row gap-3 items-center text-xl md:text-2xl font-semibold tracking-tight">
-                                        <School
-                                            className="text-slate-700 dark:text-indigo-300 flex-shrink-0"
-                                            size={28}
-                                        />
-                                        <h2 className="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
-                                            {tClass('classWithName', { name: props.myClass.name })}
+                                    <div className="flex flex-row gap-3 items-center">
+                                        <div className="p-2 rounded-lg bg-muted">
+                                            <School
+                                                className="text-foreground flex-shrink-0"
+                                                size={24}
+                                            />
+                                        </div>
+                                        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                                            {props.myClass.name}
                                         </h2>
                                     </div>
-                                    <div className="pl-10 mt-1 text-sm text-muted-foreground">
-                                        <p>
-                                            {props.myClass.description
-                                                ? props.myClass.description
-                                                : tCommon('labels.noDescription')}
+                                    {props.myClass.description && (
+                                        <p className="text-base text-muted-foreground">
+                                            {props.myClass.description}
                                         </p>
-                                        <p className="mt-1">
-                                            <span className="font-medium">{tClass('invitationCode')}:</span>{' '}
+                                    )}
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="text-sm font-medium text-muted-foreground">{tClass('invitationCode')}:</span>
+                                        <div className="px-2.5 py-1 rounded-full bg-muted border border-border font-mono text-xs font-semibold text-foreground">
                                             {props.myClass.invitationCode}
-                                        </p>
+                                        </div>
                                     </div>
                                 </>
                             ) : (

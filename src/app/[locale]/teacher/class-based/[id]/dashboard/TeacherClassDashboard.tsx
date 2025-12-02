@@ -245,8 +245,18 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
         if (!topics) {
             return;
         }
-        const topicsCopied = [...topics];
-        const topicsFiltered = topicsCopied.sort((a, b) => {
+        
+        // Filter by search query
+        let topicsFiltered = [...topics];
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase().trim();
+            topicsFiltered = topicsFiltered.filter(topic => 
+                topic.name.toLowerCase().includes(query)
+            );
+        }
+        
+        // Sort filtered topics
+        topicsFiltered.sort((a, b) => {
             if (sortBy === 'title-asc') {
                 return a.name.localeCompare(b.name, 'vi');
             } else if (sortBy === 'title-desc') {
@@ -263,8 +273,9 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
                 return 0;
             }
         });
+        
         setTopicsFiltered(topicsFiltered);
-    }, [topics, sortBy]);
+    }, [topics, sortBy, searchQuery]);
 
     function handleGenerateClick() {
         router.push(ROUTES.TEACHER.CLASS_BASED_ID_GENERATE(classId));
@@ -319,12 +330,14 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
     // UI Section
 
     const mainActionButtons = (
-        <div className="flex flex-col gap-4">
-            <Button className="bg-background text-foreground" onClick={handleManageStudentsClick}>
-                <Users className="mr-2 h-4 w-4" />
-                <span>{tClass('manageStudents')}</span>
-            </Button>
-        </div>
+        <Button 
+            variant="outline" 
+            className="border-border bg-background hover:bg-muted shadow-sm font-medium" 
+            onClick={handleManageStudentsClick}
+        >
+            <Users className="mr-2 h-4 w-4" />
+            <span>{tClass('manageStudents')}</span>
+        </Button>
     );
 
     const renderFeedCard = (feedGroup: IFeedGroup) => {
@@ -436,7 +449,7 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div className="relative w-full md:w-[300px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
                         placeholder={t('searchPlaceholder')}
                         value={searchQuery}
@@ -447,8 +460,8 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
 
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="flex items-center gap-2">
-                        <Filter className="text-gray-500 h-4 w-4" />
-                        <span className="text-sm text-gray-600">{t('sortBy')}</span>
+                        <Filter className="text-muted-foreground h-4 w-4" />
+                        <span className="text-sm text-muted-foreground">{t('sortBy')}</span>
                     </div>
                     <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
                         <SelectTrigger className="w-[180px]">
