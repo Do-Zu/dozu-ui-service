@@ -30,6 +30,10 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
     const tCommon = useTranslations('common');
     const router = useRouter();
 
+    if (role === USER_ROLES.USER && quiz.status !== 'published') {
+        return null;
+    }
+
     const statusBadge =
         quiz.status === 'draft' ? (
             <Badge variant="secondary">Draft</Badge>
@@ -41,13 +45,31 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
             <Badge variant="outline">Closed</Badge>
         );
 
+    // helper format date + time
+    const formatDateTime = (value?: string | null) => {
+        if (!value) return '—';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return '—';
+
+        const datePart = formatDate(d, DATE_DMY_DASH_FORMAT);
+        const timePart = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        return `${datePart} ${timePart}`;
+    };
+
     const subtitle = (() => {
-        if (quiz.publishedAt) return `Published: ${formatDate(quiz.publishedAt, DATE_DMY_DASH_FORMAT)}`;
-        if (quiz.startAt || quiz.endAt) {
-            const s = quiz.startAt ? formatDate(quiz.startAt, DATE_DMY_DASH_FORMAT) : '—';
-            const e = quiz.endAt ? formatDate(quiz.endAt, DATE_DMY_DASH_FORMAT) : '—';
-            return `Window: ${s} → ${e}`;
+        const s = formatDateTime(quiz.startAt);
+        const e = formatDateTime(quiz.endAt);
+
+        if (quiz.publishedAt) {
+            const p = formatDateTime(quiz.publishedAt);
+            return `Published: ${p} · Time: ${s} → ${e}`;
         }
+
+        if (quiz.startAt || quiz.endAt) {
+            return `Time: ${s} → ${e}`;
+        }
+
         return '—';
     })();
 
@@ -68,7 +90,37 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
         });
     };
 
-    const canStudentStart = quiz.status === 'published' && !!quiz.acceptingSubmissions;
+    const canStudentSeeStartButton = quiz.status === 'published' && !!quiz.acceptingSubmissions;
+
+    const handleStudentStart = () => {
+        if (!classIdForRoute) return;
+
+        const now = new Date();
+        const start = quiz.startAt ? new Date(quiz.startAt) : null;
+        const end = quiz.endAt ? new Date(quiz.endAt) : null;
+
+        if (start && now < start) {
+            const startLabel = quiz.startAt ? formatDate(quiz.startAt, DATE_DMY_DASH_FORMAT) : '';
+            toast({
+                title: 'Quiz has not started yet',
+                description: `This quiz will open at ${startLabel}.`,
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        if (end && now > end) {
+            const endLabel = formatDate(quiz.endAt!, DATE_DMY_DASH_FORMAT);
+            toast({
+                title: 'Quiz has already ended',
+                description: `This quiz closed at ${endLabel}.`,
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        router.push(ROUTES.STUDENT.CLASS_BASED_ID_CLASS_QUIZ_START(classIdForRoute, quiz.classQuizId));
+    };
 
     return (
         <div className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md">
@@ -89,7 +141,7 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
                 <div className="flex flex-col">
                     <div className="font-medium text-base text-foreground">{quiz.title}</div>
                     <div className="text-sm text-muted-foreground mt-1">
-                        {subtitle} · {quiz.submittedCount} submissions
+                        {subtitle}
                     </div>
                 </div>
             </div>
@@ -97,15 +149,8 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
             <div className="flex items-center gap-3">
                 {statusBadge}
                 {role === USER_ROLES.USER ? (
-                    canStudentStart ? (
-                        <Button
-                            size="sm"
-                            onClick={() =>
-                                router.push(
-                                    ROUTES.STUDENT.CLASS_BASED_ID_CLASS_QUIZ_START(classIdForRoute!, quiz.classQuizId),
-                                )
-                            }
-                        >
+                    canStudentSeeStartButton ? (
+                        <Button size="sm" onClick={handleStudentStart}>
                             <Play className="mr-2 h-4 w-4" /> Start
                         </Button>
                     ) : null
