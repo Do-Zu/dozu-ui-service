@@ -253,12 +253,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
                     </Button>
                 </CardFooter>
             </Card>
-            {isUploading && (
-                <LoadingOverlay
-                    title={tFileTab('loading.uploading.title')}
-                    description={tFileTab('loading.uploading.description')}
-                />
-            )}
         </Fragment>
     );
 };
