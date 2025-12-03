@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Save, Import } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,8 @@ import {
 } from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import { useOptionalQuizWorkspace } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/context/QuizWorkspaceContext';
+import QuestionImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionImportModal';
+import { IQuestionPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionPreview';
 
 const questionsJump = 3;
 
@@ -54,6 +56,7 @@ const QuestionEditor = ({
     topic,
 }: Props) => {
     const router = useRouter();
+    const [isImportOpen, setIsImportOpen] = useState(false);
     const quizWorkspace = useOptionalQuizWorkspace();
     const setGeneratedQuestionsForEdit = quizWorkspace?.setGeneratedQuestionsForEdit;
     const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
@@ -74,6 +77,31 @@ const QuestionEditor = ({
         const newQuestions = Array.from({ length: questionsJump }, (_, i) => createInitialQuestion(lastId + i + 1));
         setQuestions([...questions, ...newQuestions]);
     };
+
+const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
+    // 1. Remove ALL empty questions at the bottom or top
+    let cleaned = [...questions].filter(q =>
+        q.questionText.trim() !== '' ||
+        q.choices.some(c => (c ?? '').trim() !== '')
+    );
+
+    // 2. Recalculate lastId
+    const lastId = cleaned.length > 0 ? Math.max(...cleaned.map(q => q.id)) : -1;
+
+    // 3. Convert imported into new questions
+    const newItems = imported.map((item, idx) => ({
+        id: lastId + idx + 1,
+        questionText: item.questionText,
+        choices: item.choices,
+        correctIndex: item.correctIndex,
+        questionType: "MULTIPLE_CHOICE",
+    }));
+
+    // 4. Apply final list
+    setQuestions([...cleaned, ...newItems]);
+    setIsImportOpen(false);
+};
+
 
     const handleChangeQuestionText = (order: number, text: string) => {
         setQuestions(
@@ -167,11 +195,11 @@ const QuestionEditor = ({
             setGeneratedQuestionsForEdit?.(null);
             if (topic?.topicId !== undefined) {
                 router.push(
-                ROUTES.TOPIC_WORKSPACE({
-                    topicId: Number(topic.topicId),
-                    tab: CONTENT_TYPE_GENERATE.QUIZ, 
-                }),
-            );
+                    ROUTES.TOPIC_WORKSPACE({
+                        topicId: Number(topic.topicId),
+                        tab: CONTENT_TYPE_GENERATE.QUIZ,
+                    }),
+                );
             }
         } catch (err) {
             console.error(err);
@@ -283,16 +311,30 @@ const QuestionEditor = ({
                     </h1>
                 </div>
                 <div className="flex gap-4">
-                    <Button onClick={handleGenerateFlashcards} disabled={!hasAnyValidQuestion(questions) || loading}>
+                    {/* <Button onClick={handleGenerateFlashcards} disabled={!hasAnyValidQuestion(questions) || loading}>
                         Generate Flashcards
+                    </Button> */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsImportOpen(true)}
+                        className="text-muted-foreground hover:text-primary"
+                    >
+                        <Import size={18} />
                     </Button>
-                    <Button>
-                        <Import size={24} /> Import
-                    </Button>
+
                     {shouldShowSaveButton && (
-                        <Button onClick={handleOnClickSave}>
-                            <Save size={24} /> Save
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleOnClickSave}
+                            className="text-muted-foreground hover:text-primary"
+                        >
+                            <Save size={18} />
                         </Button>
+                        // <Button onClick={handleOnClickSave}>
+                        //     <Save size={24} /> Save
+                        // </Button>
                     )}
                 </div>
             </div>
@@ -317,6 +359,12 @@ const QuestionEditor = ({
                     <Button onClick={handleAddQuestions}>+ Add Questions</Button>
                 </div>
             </div>
+
+            <QuestionImportModal
+                isOpen={isImportOpen}
+                setIsOpen={setIsImportOpen}
+                onSubmit={handleAddQuestionsImported}
+            />
 
             {loading && (
                 <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
