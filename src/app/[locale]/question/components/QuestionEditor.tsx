@@ -84,9 +84,7 @@ const QuestionEditor = ({
     const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
         // remove các câu rỗng trước khi append (giống flashcards)
         let cleaned = [...questions].filter(
-            (q) =>
-                q.questionText.trim() !== '' ||
-                q.choices.some((c) => (c ?? '').trim() !== ''),
+            (q) => q.questionText.trim() !== '' || q.choices.some((c) => (c ?? '').trim() !== ''),
         );
 
         const lastId = cleaned.length > 0 ? Math.max(...cleaned.map((q) => q.id)) : -1;
@@ -268,6 +266,15 @@ const QuestionEditor = ({
         }
     };
 
+    const totalRealQuestions = questions.filter((q) => {
+        if (q.serverInfo?.isDeleted) return false;
+
+        const hasText = q.questionText.trim().length > 0;
+        const hasChoice = q.choices.some((c) => (c ?? '').trim().length > 0);
+
+        return hasText || hasChoice;
+    }).length;
+
     const canSaveGenerated =
         contentType === CONTENT_TYPE_GENERATE.FLASH_CARD && Array.isArray(dataGenerated) && dataGenerated.length > 0;
 
@@ -301,7 +308,7 @@ const QuestionEditor = ({
         );
     }
 
-    //MAIN UI 
+    //MAIN UI
     return (
         <div className="h-full flex flex-col bg-muted">
             {/* HEADER STICKY giống FlashcardsEdit */}
@@ -313,9 +320,7 @@ const QuestionEditor = ({
                             <h1 className="text-[1.6rem] font-bold text-primary leading-none">
                                 {topic ? topic.name : 'Questions'}
                             </h1>
-                            <span className="text-xs text-muted-foreground mt-1">
-                                {questions.filter((q) => !q.serverInfo?.isDeleted).length} questions
-                            </span>
+                            <span className="text-xs text-muted-foreground mt-1">{totalRealQuestions} questions</span>
                         </div>
                     </div>
 

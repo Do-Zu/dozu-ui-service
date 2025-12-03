@@ -13,7 +13,6 @@ export default function EditClassQuizPage() {
     const router = useRouter();
     const quizId = Number(classQuizId);
 
-    // (optional) nếu muốn load draft hiện có từ BE thì thêm endpoint service; ở đây để sẵn state:
     const [initialDraft, setInitialDraft] = useState<IDraftJson | undefined>(undefined);
     const [initialTitle, setInitialTitle] = useState<string | undefined>(undefined);
     const [initialContent, setInitialContent] = useState<string | undefined>(undefined);
@@ -30,7 +29,7 @@ export default function EditClassQuizPage() {
                 // Load draft và quiz info song song
                 const [draftResult, quizResult] = await Promise.allSettled([
                     classQuizTeacherService.getDraft(quizId),
-                    classQuizTeacherService.getClassQuiz(quizId).catch(() => null), // Nếu không có endpoint thì bỏ qua
+                    classQuizTeacherService.getClassQuiz(quizId).catch(() => null), 
                 ]);
 
                 if (!mounted) return;
@@ -63,10 +62,9 @@ export default function EditClassQuizPage() {
     }, [quizId]);
 
     const handleSaved = (r: IUpsertDraftResp) => {
-        // Bạn có thể cập nhật UI/telemetry ở đây
+        // update UI/telemetry (none))
     };
     const handlePublished = () => {
-        // điều hướng về danh sách quiz của lớp
         router.push(ROUTES.TEACHER.CLASS_BASED_ID_CLASS_QUIZ_LIST(Number(id)));
     };
 
