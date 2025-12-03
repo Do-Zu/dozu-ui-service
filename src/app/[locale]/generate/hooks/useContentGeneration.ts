@@ -166,8 +166,6 @@ export const useContentGeneration = ({
 
     const handleInsertResourceContent = async (topicId: string | number | undefined): Promise<boolean> => {
         try {
-            dispatch(startUploading());
-
             if (isNilOrEmpty(topicId as string)) {
                 toast({
                     description: tCommon('labels.noContent'),
@@ -220,6 +218,7 @@ export const useContentGeneration = ({
                             ...fileInfo,
                         },
                     });
+
                     break;
                 case RESOURCE_CONTENT_TYPE.YOUTUBE: {
                     const youtubePayload: YoutubeResourcePayload = {
@@ -269,8 +268,6 @@ export const useContentGeneration = ({
                 description: tCommon('messages.createError'),
             });
             return false;
-        } finally {
-            dispatch(stopUploading());
         }
     };
 
@@ -284,6 +281,8 @@ export const useContentGeneration = ({
                 });
                 return;
             }
+
+            dispatch(startUploading());
 
             let result;
 
@@ -316,6 +315,9 @@ export const useContentGeneration = ({
                 });
                 return;
             }
+            toast({
+                description: 'Content Topic Saved',
+            });
 
             const topicId = result?.topicId;
 
@@ -355,6 +357,8 @@ export const useContentGeneration = ({
                 description: tCommon('messages.createError'),
                 variant: 'destructive',
             });
+        } finally {
+            dispatch(stopUploading());
         }
     };
 

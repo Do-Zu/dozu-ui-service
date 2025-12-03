@@ -231,7 +231,7 @@ export default function PersonalTopicLibrary() {
         const totalFlashcards = topic.flashcardCounts?.total || 0;
         const learningFlashcards = topic.flashcardCounts?.learning || 0;
         const dueTodayFlashcards = topic.flashcardCounts?.review || 0;
-        
+
         function handleOnSelectLearning() {
             router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
         }
@@ -262,16 +262,6 @@ export default function PersonalTopicLibrary() {
                         />
                         <div className="absolute inset-0 animate-[shimmer_2.5s_infinite] bg-[linear-gradient(110deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.5)_40%,rgba(255,255,255,0)_80%)] dark:bg-[linear-gradient(110deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.15)_40%,rgba(255,255,255,0)_80%)] bg-[length:200%_100%]" />
                     </div>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                    <Button
-                        size="sm"
-                        variant="secondary"
-                        className="h-7 px-3 rounded-full bg-slate-900/5 dark:bg-slate-800/80 hover:bg-slate-900/10 dark:hover:bg-slate-700/70 text-[0.65rem] font-medium tracking-wide border border-slate-300/60 dark:border-transparent backdrop-blur-sm"
-                        onClick={handleOnSelectLearning}
-                    >
-                        {tTopic('learning')}
-                    </Button>
                 </div>
             </div>
         );
