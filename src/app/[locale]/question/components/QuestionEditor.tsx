@@ -190,6 +190,8 @@ const QuestionEditor = ({
             await postRequest(`/questions/batch?topicId=${topic?.topicId}`, dataSubmitted);
             toast({ title: 'Questions saved successfully' });
             setGeneratedQuestionsForEdit?.(null);
+            quizWorkspace?.setQuizMode('generate');
+            quizWorkspace?.setHasAnyQuestions(true);
 
             if (topic?.topicId !== undefined) {
                 router.push(

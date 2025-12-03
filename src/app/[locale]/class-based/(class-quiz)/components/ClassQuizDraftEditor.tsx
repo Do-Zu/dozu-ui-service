@@ -212,13 +212,7 @@ export default function ClassQuizDraftEditor({
         );
     };
     const onDelete = (id: number) => {
-        setQuestions((prev) =>
-            prev
-                .map((q) =>
-                    q.id !== id ? q : q.serverInfo ? { ...q, serverInfo: { ...q.serverInfo, isDeleted: true } } : q,
-                )
-                .filter((q) => q),
-        );
+        setQuestions((prev) => prev.filter((q) => q.id !== id));
     };
 
     async function saveDraft(): Promise<boolean> {
