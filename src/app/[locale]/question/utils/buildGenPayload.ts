@@ -1,6 +1,5 @@
 import { IFlashcardWithServer } from '@/app/[locale]/flashcards/components/FlashcardEditor';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
-import type { IFlashcardWithReviewPrediction } from '@/app/[locale]/flashcards/learning/[topicId]/page';
 import { IDueAnkiCard } from '../../flashcards/types/flashcard.type';
 
 export const buildContentFromFlashcardsForQuiz = (

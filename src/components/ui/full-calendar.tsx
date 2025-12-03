@@ -454,7 +454,7 @@ CalendarPrevTrigger.displayName = 'CalendarPrevTrigger';
 
 const CalendarTodayTrigger = forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
     ({ children, onClick, ...props }, ref) => {
-        const { setDate, enableHotkeys, today } = useCalendar();
+        const { setDate, enableHotkeys, today, view, handleGetGenerateScheduleEvent } = useCalendar();
 
         useHotkeys('t', () => jumpToToday(), {
             enabled: enableHotkeys,
@@ -464,16 +464,21 @@ const CalendarTodayTrigger = forwardRef<HTMLButtonElement, React.HTMLAttributes<
             setDate(today);
         }, [today, setDate]);
 
+        const handleClickCallback = (e: React.MouseEvent<HTMLButtonElement>) => {
+            jumpToToday();
+            onClick?.(e);
+
+            if (view === 'week') {
+                // If the current view is 'week', fetch events for the current week
+                handleGetGenerateScheduleEvent(today);
+            } else if (view === 'day') {
+                // If the current view is 'day', fetch events for the current day
+                // Current logic will be inherited from week, so no need to call again
+            }
+        };
+
         return (
-            <Button
-                variant="outline"
-                ref={ref}
-                {...props}
-                onClick={(e) => {
-                    jumpToToday();
-                    onClick?.(e);
-                }}
-            >
+            <Button variant="outline" ref={ref} {...props} onClick={handleClickCallback}>
                 {children}
             </Button>
         );

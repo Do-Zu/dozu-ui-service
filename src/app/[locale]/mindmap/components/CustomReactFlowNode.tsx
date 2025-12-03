@@ -1,18 +1,22 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Handle, Node, Position, useEdges, useReactFlow } from '@xyflow/react';
+import { Handle, Node, NodeToolbar, Position, useEdges, useInternalNode, useReactFlow } from '@xyflow/react';
 import { useState, useRef, useEffect } from 'react';
 import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
-import { openSheet, setSelectedNodeData } from '@/stores/features/mindmap/selectedNodeSlice';
+import { openSheet, setSelectedNodeData, toggleNodeSelection } from '@/stores/features/mindmap/selectedNodeSlice';
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle } from 'lucide-react';
+import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
+import { useAppSelector } from '@/stores/hooks';
+import AddChildNodeButton from './buttons/AddChildNodeButton';
+import DeleteNodeButton from './buttons/DeleteNodeButton';
+import PaletteButton from './buttons/PaletteButton';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
@@ -22,16 +26,21 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const progress = total > 0 ? (mature / total) * 100 : 0;
 
     const dispatch = useDispatch();
-    const router = getRouter();
+    // const router = getRouter();
 
     const [editing, setEditing] = useState(false);
     const [label, setLabel] = useState(data.label);
     const [isHovered, setIsHovered] = useState(false);
     const [isClickedOn, setIsClickedOn] = useState(false);
-    const isActive = isClickedOn || isHovered;
+    const isInMultiSelect = useAppSelector((state) => state.selectedNodeSlice.selectedNodeIds.includes(data.nodeId));
+    const isActive = isClickedOn || isHovered || isInMultiSelect;
     const [isExpanded, setIsExpanded] = useState(false);
-    const { screenToFlowPosition, getNodes, setNodes, setEdges } = useReactFlow();
+    const { screenToFlowPosition, fitView, getNodes, setNodes, setEdges, setViewport } = useReactFlow();
     const edges = useEdges();
+    const internalNode = useInternalNode(data.nodeId);
+
+    const isEditingMindmap = useAppSelector((state) => state.isEditingMindmapSlice.isEditingMindmap);
+    const isMultiSelectMode = useAppSelector((state) => state.selectedNodeSlice.isMultiSelectMode);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -60,7 +69,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         });
         setNodes((nds) => nds.filter((node) => node.id !== id));
         setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
-        console.log(edges);
     };
 
     const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,12 +91,20 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const handleClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         dispatch(setSelectedNodeData(data));
+        if (isMultiSelectMode) {
+            dispatch(toggleNodeSelection(data.nodeId));
+        }
         setIsClickedOn(true);
         // dispatch(openSheet());
     };
 
     const handleRightClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
+        if (internalNode) {
+            fitView({ nodes: [internalNode], duration: 800, padding: 0.2 }); // Animate and add padding
+        }
+        setIsClickedOn(true);
+
         dispatch(setSelectedNodeData(data));
         dispatch(openSheet());
     };
@@ -139,12 +155,13 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 rounded-xl shadow-sm hover:shadow-md
                 transition-all duration-200 ease-out
                 ${data.isRoot ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
-                ${isActive ? 'shadow-lg' : ''}
+                ${isActive ? 'shadow-2xl ring-2 ring-primary/60 border-primary/40' : ''}
             `}
             style={{
-                background: data.isRoot
-                    ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
-                    : undefined,
+                borderColor: data.color || 'hsl(var(--border))', // use custom color or fallback
+                // background: data.isRoot
+                //     ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
+                //     : undefined,
             }}
         >
             {/* Connection Handles */}
@@ -218,7 +235,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                 <motion.p
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
-                                    className="text-xs text-muted-foreground mt-1 leading-relaxed"
+                                    className={`text-xs text-muted-foreground mt-1 leading-relaxed ${isActive ? '' : 'truncate'}`}
                                     style={{ lineHeight: '1.4' }}
                                 >
                                     {data.description}
@@ -284,6 +301,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 className="absolute inset-0 rounded-xl ring-2 ring-primary/0 group-focus-within:ring-primary/40 transition-all duration-200 pointer-events-none"
                 aria-hidden="true"
             />
+            <NodeToolbar isVisible={isEditingMindmap} position={Position.Top}>
+                <AddChildNodeButton nodeId={data.nodeId} />
+                <DeleteNodeButton nodeId={data.nodeId} />
+                <PaletteButton nodeId={data.nodeId} />
+            </NodeToolbar>
         </motion.div>
     );
 };

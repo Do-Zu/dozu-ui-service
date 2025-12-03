@@ -1,0 +1,127 @@
+properties([
+    parameters([
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['production', 'stage', 'release', 'test-pipeline'],
+             description: '''Select deployment environment:
+                production -> main branch
+                stage -> feature/merge branch
+                release -> develop branch
+                test-pipeline -> feature/pipeline branch
+                '''
+        ),
+    ])
+])
+
+pipeline {
+
+    agent any
+
+    environment {
+        NODE_VERSION = '18'
+        CONTAINER_PORT = 3555
+        APP_PORT = 3000
+        PM2_APP_NAME = 'dozu-ui-service'
+        REGISTRY_NAME = 'pernist/dozu-ui'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    switch(value: params.ENVIRONMENT) {
+                        case 'production':
+                            env.BRANCH = 'develop'
+                            break;
+                        case 'develop':
+                            env.BRANCH = 'feature/merge'
+                            break;
+                        default:
+                            env.BRANCH = 'develop'
+                            break;
+                    }
+
+                }
+            }
+        }
+
+        stage('Clone Repository') {
+            steps {
+                git branch: "${env.BRANCH}", credentialsId: 'github-token', url: 'https://github.com/perinst/dozu-ui-service.git'
+            }
+        }
+
+        stage('Clean Environment') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                            docker ps -q -f name=${PM2_APP_NAME}-container | xargs --no-run-if-empty docker stop
+                            docker ps -aq -f name=${PM2_APP_NAME}-container | xargs --no-run-if-empty docker rm
+                            docker images ${REGISTRY_NAME} -q | xargs --no-run-if-empty docker rmi -f
+                        '''
+                    } catch (err) {
+                        echo "Clean environment failed: ${err}"
+                    }
+                }
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                sh '''
+                    docker build -t ${REGISTRY_NAME}:${params.TAG} \
+                        --build-arg NODE_ENV=production \
+                        --build-arg PORT=${APP_PORT} .
+                '''
+            }
+        }
+
+        stage('Test Container') {
+            steps {
+                sh '''
+                    # Run container
+                    docker run -d --name ${PM2_APP_NAME}-container \
+                        -p ${CONTAINER_PORT}:${APP_PORT} \
+                        ${REGISTRY_NAME}:${params.TAG}
+
+                    # Wait for container to start
+                    sleep 10
+
+                    # Health check
+                    if ! curl -f http://localhost:${CONTAINER_PORT}; then
+                        echo "❌ Container health check failed"
+                        docker logs ${PM2_APP_NAME}-container
+                        exit 1
+                    fi
+
+                    # Cleanup test container
+                    docker stop ${PM2_APP_NAME}-container
+                    docker rm ${PM2_APP_NAME}-container
+                '''
+            }
+        }
+
+       stage('Push to Registry') {
+            steps {
+                sh '''
+                    docker push ${REGISTRY_NAME}:${params.TAG}
+                '''
+            }
+       }
+
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                    # Verify image exists in registry
+                    docker pull ${REGISTRY_NAME}:${params.TAG}
+
+                    # Check image details
+                    docker inspect ${REGISTRY_NAME}:${params.TAG}
+
+                    echo "✅ Image successfully built and pushed: ${REGISTRY_NAME}:${params.TAG}"
+                '''
+            }
+        }
+    }
+}

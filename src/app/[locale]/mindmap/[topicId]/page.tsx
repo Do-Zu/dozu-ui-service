@@ -2,14 +2,13 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow } from '@xyflow/react';
+import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow, useReactFlow } from '@xyflow/react';
 import { useAppSelector } from '@/stores/hooks';
 import { toast } from '@/hooks/use-toast';
 import { setRouterRef } from '@/utils/routerService';
 
 import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
-import DownloadButton from '@/components/mindmap/button/DownloadButton';
+
 import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton';
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
@@ -34,6 +33,9 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import { useTheme } from 'next-themes';
+import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
+
+import MindmapButtonsPanel from '../components/MindmapButtonsPanel';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -47,7 +49,7 @@ const edgeTypes = {
     floating: FloatingEdge,
 };
 
-export default function MindmapContent() {
+export default function page() {
     const { resolvedTheme } = useTheme();
     const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();
@@ -56,6 +58,8 @@ export default function MindmapContent() {
         topicId,
         nodes,
         edges,
+        setNodes,
+        setEdges,
         onNodesChange,
         onEdgesChange,
         isSaving,
@@ -72,6 +76,8 @@ export default function MindmapContent() {
     useEffect(() => {
         setRouterRef(router);
     }, [router]);
+
+    useSetCenterOnRoot({ nodes });
 
     useEffect(() => {
         if (sseStatus === 'timeout' || sseStatus === 'error') {
@@ -214,25 +220,19 @@ export default function MindmapContent() {
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
-                edgeTypes={edgeTypes}
                 colorMode={colorMode}
+                fitView
             >
-                <Panel position="top-left">
+                {/* <Panel position="top-left">
                     <ViewFileButton />
-                </Panel>
-                <Panel position="top-center">
-                    <div className="flex gap-2 ">
-                        <Button disabled={isSaving} variant="outline" onClick={saveMindmap}>
-                            <Save />
-                            {isSaving ? 'Saving...' : 'Save mindmap'}
-                        </Button>
-                        <DownloadButton />
-                    </div>
-                    <FileSheet />
-                    <NodeSheet />
-                </Panel>
+                </Panel> */}
+
+                <MindmapButtonsPanel />
+                <FileSheet />
+                <NodeSheet />
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>

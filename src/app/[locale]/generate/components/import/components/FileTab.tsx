@@ -1,7 +1,9 @@
 'use client';
 
-import React, { memo, useCallback, useState, useEffect } from 'react';
-import { Upload, CloudUpload } from 'lucide-react';
+import React, { memo, useCallback, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
+
+import { Upload } from 'lucide-react';
 import { setFiles } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import { toast } from '@/hooks/use-toast';
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_MB, validateFileSize, validateFileType } from '../../../helper/validate';
@@ -9,25 +11,15 @@ import useReaderFile from '../../../hooks/useReaderFile';
 import { useCardImportSelector, useCardImportDispatch } from '../../../hooks/useReduxStore';
 import FileUploadArea from './FileUploadArea';
 import LoadingOverlay from './LoadingOverlay';
-import uploadService from '@/services/upload';
-import { useTranslations } from 'next-intl';
 
 const FileTab: React.FC = () => {
     const dispatch = useCardImportDispatch();
     const t = useTranslations('generate.fileTab');
     const { files } = useCardImportSelector((state) => state.importDialog);
-    const [isUploading, setIsUploading] = useState(false);
-    const { text, loading: isLoadingExtractFile, error: errorExtractFile } = useReaderFile();
+    const { loading: isLoadingExtractFile, error: errorExtractFile } = useReaderFile();
 
     const handleFileUpload = async (file: File) => {
-        setIsUploading(true);
         try {
-            const result = await uploadService.uploadFile(file);
-
-            if (!result || !result.fileName) {
-                throw new Error('File upload failed');
-            }
-
             dispatch(setFiles([file]));
         } catch (error) {
             toast({
@@ -35,8 +27,6 @@ const FileTab: React.FC = () => {
                 variant: 'destructive',
             });
             dispatch(setFiles([]));
-        } finally {
-            setIsUploading(false);
         }
     };
 
@@ -142,10 +132,6 @@ const FileTab: React.FC = () => {
                 <p className="text-sm mb-2">{t('ui.dragDrop.subtitle')}</p>
                 <p className="text-xs">{t('ui.dragDrop.supported')}</p>
             </div>
-
-            {isUploading && (
-                <LoadingOverlay title={t('loading.uploading.title')} description={t('loading.uploading.description')} />
-            )}
 
             {isLoadingExtractFile && (
                 <LoadingOverlay

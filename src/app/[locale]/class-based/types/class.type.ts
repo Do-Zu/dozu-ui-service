@@ -37,10 +37,23 @@ export interface IStudentInClass {
     enrolledAt: Date;
 }
 
-export type TypeNodeComment = 'mindmap' | 'flashcard' | 'quiz';
+export interface StudentWithStreak extends IStudentInClass {
+    currentStreak?: number;
+    points?: number;
+    rank?: number | null;
+    lessonsCompleted?: number;
+    quizzesCompleted?: number;
+    averageScore?: number;
+    streakFreezeActive?: boolean;
+    streakFreezeCount?: number;
+    lastStudyDate?: Date | null;
+}
+
+export type TypeNodeComment = 'mindmap' | 'flashcard' | 'quiz' | 'feed';
 
 export enum EnumNodeComment {
     MINDMAP = 'mindmap',
     FLASHCARD = 'flashcard',
     QUIZ = 'quiz',
+    FEED = 'feed',
 }

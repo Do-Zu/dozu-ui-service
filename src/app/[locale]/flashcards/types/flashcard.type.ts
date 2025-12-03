@@ -1,4 +1,11 @@
-import { IItemSpacedRepetition, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
+import {
+    IAnkiRating,
+    IAnkiStatus,
+    IBaseIntervalWithDeviation,
+    INextReviewInterval,
+    INextReviewIntervalForRating,
+} from '@/types/anki';
+import { IFlashcardStatus, IItemSpacedRepetition, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { TimeUnit } from '@/utils';
 
 export interface IFlashcard {
@@ -8,6 +15,7 @@ export interface IFlashcard {
     front: string;
     back: string;
     imageUrl?: string | null;
+    isStar?: boolean;
     createdAt: Date;
     learningState?: IFlashcardLearningState;
 
@@ -21,7 +29,7 @@ export interface IFlashcardsWithTopicName {
 
 export type IFlashcardLearningState = Pick<
     IItemSpacedRepetition,
-    'status' | 'lastReviewed' | 'nextReview' | 'repetitionNumber' | 'easinessFactor' | 'reviewInterval'
+    'status' | 'lastReviewed' | 'nextReview' | 'repetitionNumber' | 'easinessFactor' | 'reviewInterval' | 'step'
 > & { flashcardId?: number };
 
 export interface IQualityResponseNextReviewInterval {
@@ -30,7 +38,9 @@ export interface IQualityResponseNextReviewInterval {
 }
 
 export type IFlashcardCreateInput = Pick<IFlashcard, 'front' | 'back'> & { image?: IImageSaveInput | null };
-export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'>;
+export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'> & {
+    image?: IImageSaveInput | null;
+};
 
 export type IFlashcardsBatchInput = {
     flashcardsAdded?: IFlashcardCreateInput[];
@@ -48,50 +58,79 @@ export type IFlashcardBatchResult = {
     flashcardsUpdated: IFlashcard[];
 };
 
-export interface IImageSaveInput {
-    id: string;
-    url: string;
-    downloadLocation: string;
+export interface IUnspashImageSaveInput {
+    type: 'unsplash';
+    data: {
+        id: string;
+        url: string;
+        downloadLocation: string;
+    };
 }
 
-export enum IAnkiRating {
-    AGAIN = 1,
-    HARD = 2,
-    GOOD = 3,
-    EASY = 4,
+export interface IUploadImageSaveInput {
+    type: 'upload';
+    data: string;
 }
 
-export enum IAnkiStatus {
-    NEW = 'new',
-    LEARNING = 'learning',
-    REVIEW = 'review',
-    RELEARNING = 'relearning',
-}
-
-export interface INextReviewInterval {
-    interval: number;
-    timeUnit: TimeUnit;
-}
-
-export interface INextReviewIntervalForRating {
-    rating: IAnkiRating;
-    interval: INextReviewInterval;
-}
+export type IImageSaveInput = IUnspashImageSaveInput | IUploadImageSaveInput;
 
 export type ICardNextReviewSchedule = {
     flashcardId: number;
     nextReviewIntervalsForRating: INextReviewIntervalForRating[];
 };
 
-export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName'> & {
-    nextReviewSchedule: ICardNextReviewSchedule;
+export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName' | 'nodeId'> & {
+    learningState: IFlashcardLearningState;
     nextReview: string;
     status: IAnkiStatus;
 };
 
 export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
+    learningState: IFlashcardLearningState;
     nextReview: string;
     status: IAnkiStatus;
-    nextReviewSchedule: ICardNextReviewSchedule;
     rating: IAnkiRating;
 };
+
+export interface INextReviewDataByRating {
+    rating: IAnkiRating;
+    interval: INextReviewInterval;
+    baseIntervalWithDeviation: IBaseIntervalWithDeviation | null;
+}
+
+export interface IAnkiCard {
+    flashcardId: number;
+    status: IFlashcardStatus;
+
+    step: number | null; // should start at 0
+    easinessFactor: string;
+    lastReviewed: Date | null;
+    nextReview: Date;
+    reviewInterval: number;
+}
+
+export interface IAnkiResult extends IAnkiCard {
+    nextReview: Date;
+    nextReviewInterval: INextReviewInterval;
+    baseIntervalWithDeviation: IBaseIntervalWithDeviation | null;
+}
+
+export type IAnkiCardStatusCounts = Record<Exclude<IAnkiStatus, IAnkiStatus.RELEARNING>, number>;
+
+export interface IUnspashImage {
+    id: string;
+    description: string | null;
+    url: {
+        thumb: string;
+        small: string;
+    };
+    // user: Basic;
+    links: {
+        self: string;
+        html: string;
+        download: string;
+        download_location: string;
+    };
+    width?: number;
+    height?: number;
+}

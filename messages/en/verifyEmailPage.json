@@ -1,6 +1,9 @@
 {
   "VerifyEmailPage": {
     "title": "Email verified successfully",
-    "subtitle": "Please log in again"
+    "subtitle": "Please log in again",
+    "invalidUrlErrorMessage":"Invalid URL",
+    "errorTitle":"Verification unsuccessful",
+    "verifySuccessMessage":"Verified successfully"
   }
 }

@@ -1,0 +1,6 @@
+{
+    "assignment": {
+        "assignment": "Assignment",
+        "deleteConfirmation": "This will also delete all related grades and comments. Continue?"
+    }
+}

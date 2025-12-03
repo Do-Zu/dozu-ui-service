@@ -26,11 +26,11 @@ export default function MemoryGameBoard() {
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex items-center justify-center">
       <div 
-        className={`grid ${getGridClass()} gap-2 max-w-4xl mx-auto p-4 bg-muted/20 rounded-lg border shadow-lg`}
+        className={`grid ${getGridClass()} gap-3 w-full h-full p-4 bg-muted/20 rounded-lg border shadow-lg overflow-auto`}
         style={{
-          height: 'calc(100vh - 180px)',
+          height: '100%',
           gridAutoRows: 'minmax(120px, 1fr)',
           backgroundColor: 'var(--muted)',
           borderColor: 'var(--border)',
@@ -45,11 +45,6 @@ export default function MemoryGameBoard() {
           />
         ))}
       </div>
-      
-      {/* Game board info */}
-      {/* <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-        Grid: {getGridClass().replace('grid-cols-', '')} columns • Total Cards: {cards.length}
-      </div> */}
     </div>
   );
 }

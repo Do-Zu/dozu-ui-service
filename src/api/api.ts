@@ -1,42 +1,58 @@
 import Axios from './axios';
 import { addTimezoneInfo } from '../utils/date/apiDateUtils';
 import { ApiResponse } from './type';
+import { AxiosRequestConfig } from 'axios';
 
-export type RequestData = Record<string, any> | FormData | void | null | undefined;
+export type RequestData = Record<string, any> | FormData | void | null | undefined | unknown;
 
-export const getRequest = async <T, R>(url: string): Promise<ApiResponse<R>> => {
+export const getRequest = async <T, R>(
+    url: string,
+    config?: AxiosRequestConfig<any> | undefined,
+): Promise<ApiResponse<R>> => {
     try {
-        const response = await Axios.get<T>(url);
+        const response = await Axios.get<T>(url, config);
         return response.data as ApiResponse<R>;
     } catch (error) {
         throw error;
     }
 };
 
-export const postRequest = async <T extends RequestData, R>(url: string, data: T): Promise<ApiResponse<R>> => {
+export const postRequest = async <T extends RequestData, R>(
+    url: string,
+    data: T,
+    config?: AxiosRequestConfig<any> | undefined,
+): Promise<ApiResponse<R>> => {
     try {
         const enhancedData = addTimezoneInfo(data);
-        const response = await Axios.post<ApiResponse<R>>(url, enhancedData);
+        const response = await Axios.post<ApiResponse<R>>(url, enhancedData, config);
         return response.data;
     } catch (error) {
         throw error;
     }
 };
 
-export const putRequest = async <T extends RequestData, R>(url: string, data: T): Promise<ApiResponse<R>> => {
+export const putRequest = async <T extends RequestData, R>(
+    url: string,
+    data: T,
+    config?: AxiosRequestConfig<any> | undefined,
+): Promise<ApiResponse<R>> => {
     try {
         const enhancedData = addTimezoneInfo(data);
-        const response = await Axios.put<ApiResponse<R>>(url, enhancedData);
+        const response = await Axios.put<ApiResponse<R>>(url, enhancedData, config);
         return response.data;
     } catch (error) {
         throw error;
     }
 };
 
-export const patchRequest = async <T extends RequestData, R>(url: string, data: T): Promise<ApiResponse<R>> => {
+export const patchRequest = async <T extends RequestData, R>(
+    url: string,
+    data: T,
+    config?: AxiosRequestConfig<any> | undefined,
+): Promise<ApiResponse<R>> => {
     try {
         const enhancedData = addTimezoneInfo(data);
-        const response = await Axios.patch<ApiResponse<R>>(url, enhancedData);
+        const response = await Axios.patch<ApiResponse<R>>(url, enhancedData, config);
         return response.data;
     } catch (error) {
         throw error;

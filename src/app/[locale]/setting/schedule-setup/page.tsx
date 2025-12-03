@@ -2,9 +2,11 @@
 
 import SetupForm from '@/app/[locale]/setting/schedule-setup/components/SetupForm';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 const ScheduleSetupPage = () => {
     const router = useRouter();
+    const t = useTranslations('schedule.setup');
 
     const handleComplete = () => {
         // You can add success notification here if needed
@@ -13,8 +15,8 @@ const ScheduleSetupPage = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-md shadow-sm">
-            <h1 className="text-xl font-semibold">Schedule Setup</h1>
+        <div className="max-w-full p-6 bg-white rounded-md shadow-sm overflow-auto">
+            <h1 className="text-xl font-semibold">{t('pageTitle')}</h1>
             <SetupForm onComplete={handleComplete} />
         </div>
     );

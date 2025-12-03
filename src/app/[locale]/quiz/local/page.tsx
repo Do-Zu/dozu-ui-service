@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { readLocalQuiz, clearLocalQuiz, LocalQuizQuestion } from '../utils/localQuiz.storage';
 import QuizQuestion from '@/app/[locale]/quiz/components/QuizQuestion'; 
 import { Button } from '@/components/ui/button';
+import { useQuizStreakTracking } from '@/hooks/useStreakProgress';
 
 type LocalQuestion = LocalQuizQuestion & { selectedAnswer?: number | null };
 
@@ -13,10 +14,12 @@ export default function LocalQuizPage() {
   const search = useSearchParams();
   const topicId = search.get('topicId');
   const chunk = search.get('chunk'); // NEW
+  const { trackQuizCompletion } = useQuizStreakTracking();
 
   const [questions, setQuestions] = useState<LocalQuestion[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [startTime] = useState(Date.now());
 
   useEffect(() => {
     if (!topicId) return;
@@ -36,10 +39,48 @@ export default function LocalQuizPage() {
     [questions]
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const correct = questions.reduce((acc, q) => acc + (q.selectedAnswer === q.correctIndex ? 1 : 0), 0);
     setScore(correct);
     setSubmitted(true);
+    
+    // Track quiz completion for streak progress
+    if (topicId) {
+      try {
+        const userString = localStorage.getItem('user');
+        if (!userString) {
+          console.warn('No user data found in localStorage');
+          return;
+        }
+        
+        let user;
+        try {
+          user = JSON.parse(userString);
+        } catch (parseError) {
+          console.error('Invalid user data in localStorage:', parseError);
+          return;
+        }
+        
+        const userId = user?.userId;
+        if (!userId) {
+          console.warn('No userId found in user data');
+          return;
+        }
+        
+        const accuracy = questions.length > 0 ? (correct / questions.length) * 100 : 0;
+        const actualDuration = Math.round((Date.now() - startTime) / 1000); // seconds
+        
+        await trackQuizCompletion(
+          userId.toString(),
+          topicId,
+          accuracy,
+          actualDuration
+        );
+        console.log('Local quiz completion tracked for streak progress');
+      } catch (error) {
+        console.error('Error tracking local quiz completion:', error);
+      }
+    }
   };
 
   const handleExit = () => {

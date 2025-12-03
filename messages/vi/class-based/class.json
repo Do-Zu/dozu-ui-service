@@ -3,12 +3,14 @@
         "class": "lớp học",
         "classWithName": "Lớp {name}",
         "myClasses": "Lớp học của tôi",
+        "slogan": "Lớp học của bạn – Nơi bắt đầu hành trình học thông minh.",
         "classesEnrolling": "Bạn đang tham gia các lớp sau",
         "join": {
             "title": "Tham gia lớp học",
             "description": "Nhập Mã lớp do Giáo viên cung cấp để tham gia lớp học",
             "label": "Tham gia",
-            "joinSuccess": "Tham gia lớp học thành công"
+            "joinSuccess": "Tham gia lớp học thành công",
+            "alreadyEnrolled": "Bạn đã tham gia lớp học này rồi"
         },
         "leave": {
             "title": "Rời lớp học",
@@ -18,6 +20,7 @@
         },
         "invitationCode": "Mã mời",
         "manageStudents": "Quản lý học sinh",
+        "viewMyProgress": "Xem tiến trình của tôi",
         "generateContent": "Generate nội dung",
         "studentList": {
             "title": "Học sinh",

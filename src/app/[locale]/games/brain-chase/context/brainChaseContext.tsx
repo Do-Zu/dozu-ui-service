@@ -108,6 +108,7 @@ interface BrainChaseContextType {
   topicId?: string | null;
   topicInfo?: ITopicInfo | null;
   flashcards?: IFlashcard[] | null;
+  questions?: IQuestion[] | null;
 
   // Current question data
   currentQuestion: string;
@@ -308,7 +309,7 @@ export function BrainChaseProvider({ children, topicId }: { children: ReactNode;
     setScore(score + 1);
 
     // Move to the next question or end game if completed all questions
-    if (currentQuestionIndex + 1 >= Math.min(settings.questionCount, sampleQuestions.length)) {
+    if (currentQuestionIndex + 1 >= Math.min(settings.questionCount, questions.length)) {
       setGameActive(false); // End game
     } else {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -333,7 +334,7 @@ export function BrainChaseProvider({ children, topicId }: { children: ReactNode;
 
   //
   const handleNextQuestion = () => {
-    if (currentQuestionIndex + 1 >= Math.min(settings.questionCount, sampleQuestions.length)) {
+    if (currentQuestionIndex + 1 >= Math.min(settings.questionCount, questions.length)) {
       // End game
       setGameActive(false);
     } else {
@@ -354,6 +355,7 @@ export function BrainChaseProvider({ children, topicId }: { children: ReactNode;
     topicId,
     topicInfo,
     flashcards,
+    questions,
     currentQuestion,
     formattedAnswers,
     settings,

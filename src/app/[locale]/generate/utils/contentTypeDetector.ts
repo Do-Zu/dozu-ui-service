@@ -31,6 +31,11 @@ export const detectContentType = (sseData: ISseData | null): ContentType | null 
             return 'flashcard';
         }
 
+        // Check if it looks like flashcard data
+        if (firstItem && typeof firstItem === 'object' && 'q' in firstItem && 'o' in firstItem && 'idx' in firstItem) {
+            return 'quiz';
+        }
+
         // Check if it looks like quiz data
         if (firstItem && typeof firstItem === 'object' && 'question' in firstItem && 'options' in firstItem) {
             return 'quiz';
@@ -59,7 +64,7 @@ export const isSupportedContentType = (type: string): type is ContentType => {
 export const getContentTypeDisplayName = (type: ContentType | null): string => {
     switch (type) {
         case 'flashcard':
-            return 'Flashcards';
+            return 'Flashcard';
         case 'quiz':
             return 'Quiz';
         case 'mindmap':

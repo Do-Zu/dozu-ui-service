@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Background, BackgroundVariant, Controls, Panel, ReactFlow } from '@xyflow/react';
 import { useAppSelector } from '@/stores/hooks';
@@ -51,8 +51,10 @@ const edgeTypes = {
 
 export default function MindmapContent() {
     const router = useRouter();
-      const params = useParams();
-        const classId = Number(params?.id as string);
+    const params = useParams();
+    const classId = Number(params?.id as string);
+
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
     const {
         topicId,

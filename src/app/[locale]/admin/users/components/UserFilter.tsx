@@ -12,12 +12,14 @@ interface UserFilterProps {
 export function UserFilter({ onFilterChange }: UserFilterProps) {
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('');
+  const [planType, setPlanType] = useState('');
 
 const handleApply = () => {
   const filters = {
     ...(role !== 'all' && role !== '' ? { role } : {}),
     ...(status === 'active' ? { isActive: 'true' } : {}),
     ...(status === 'inactive' ? { isActive: 'false' } : {}),
+    ...(planType !== 'all' && planType !== '' ? { planType } : {}),
   };
 
   onFilterChange(filters);
@@ -26,6 +28,7 @@ const handleApply = () => {
   const handleReset = () => {
     setRole('');
     setStatus('');
+    setPlanType('');
     onFilterChange({});
   };
 
@@ -55,6 +58,20 @@ const handleApply = () => {
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="inactive">Disabled</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Plan</label>
+        <Select value={planType} onValueChange={setPlanType}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="All" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="free">Free</SelectItem>
+            <SelectItem value="pro">Pro</SelectItem>
           </SelectContent>
         </Select>
       </div>

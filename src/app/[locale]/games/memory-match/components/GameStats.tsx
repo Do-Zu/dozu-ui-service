@@ -8,9 +8,7 @@ import {
   Clock, 
   Target, 
   Zap, 
-  TrendingUp,
-  Trophy,
-  Move
+  Trophy
 } from 'lucide-react';
 import { useMemoryMatch } from '../context/MemoryMatchContext';
 import { useTranslations } from 'next-intl';
@@ -30,19 +28,6 @@ export default function GameStats() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 80) return 'text-green-600 bg-green-50 border-green-200';
-    if (accuracy >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    return 'text-red-600 bg-red-50 border-red-200';
-  };
-
-  const getEfficiencyRating = () => {
-    const efficiency = stats.totalPairs > 0 ? (stats.matches / stats.moves) * 100 : 0;
-    if (efficiency >= 80) return { text: t('excellent'), color: 'text-green-600' };
-    if (efficiency >= 60) return { text: t('good'), color: 'text-yellow-600' };
-    if (efficiency >= 40) return { text: t('fair'), color: 'text-orange-600' };
-    return { text: t('keepTrying'), color: 'text-red-600' };
-  };
 
   return (
     <div className="space-y-4">
@@ -102,47 +87,6 @@ export default function GameStats() {
         </Card>
       )}
 
-      {/* Performance Stats */}
-      {stats.moves > 0 && (
-        <Card 
-          className="bg-card shadow-sm"
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              {t('performance')} 
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Accuracy */}
-            <div className="flex justify-between items-center">
-              <span className="text-sm">{t('accuracy')}</span>
-              <Badge
-                variant="outline" 
-                className={`${getAccuracyColor(stats.accuracy)}`}
-              >
-                {stats.accuracy.toFixed(1)}%
-              </Badge>
-            </div>
-
-            {/* Efficiency Rating */}
-            <div className="flex justify-between items-center">
-              <span className="text-sm">{t('efficiency')}</span>
-              <span className={`text-sm font-medium ${getEfficiencyRating().color}`}>
-                {getEfficiencyRating().text}
-              </span>
-            </div>
-
-            {/* Move efficiency */}
-            <div className="flex justify-between items-center">
-              <span className="text-sm">{t('bestPossible')}</span>
-              <span className="text-sm text-muted-foreground">
-                {stats.totalPairs * 2} {t('movesUnit')}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Game Tips */}
       {gameStatus === 'playing' && (

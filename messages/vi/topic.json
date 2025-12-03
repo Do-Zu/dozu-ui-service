@@ -4,6 +4,23 @@
         "browse": "Lướt",
         "learning": "Học tập",
         "start-quiz": "Làm Quiz",
-        "deleteConfirmation": "Bạn có chắc muốn xóa chủ đề {name} không? Tất cả dữ liệu trong topic này sẽ bị xóa theo."
+        "deleteConfirmation": "Bạn có chắc muốn xóa chủ đề {name} không? Tất cả dữ liệu trong topic này sẽ bị xóa theo.",
+        "settings": "Settings",
+        "addPackage": "Phân loại",
+        "reference": {
+            "trigger": "Nội dung gốc",
+            "more": "Xem thêm",
+            "modalTitle": "Nội dung tham chiếu gần nhất",
+            "close": "Đóng",
+            "noResults": "Không tìm thấy nội dung tham chiếu liên quan.",
+            "retry": "Thử lại",
+            "contentTypeInvalid": "Loại nội dung không hợp lệ",
+            "showMore": "Hiển thị thêm",
+            "showLess": "Thu gọn",
+            "startTime": "Thời điểm bắt đầu",
+            "page": "Trang {pageNumber}",
+            "pageNumberTitle": "Số trang",
+            "pageInvalid": "Trang không hợp lệ"
+        }
     }
 }

@@ -1,8 +1,9 @@
 import { TypeNodeComment } from '@/app/[locale]/class-based/types/class.type';
 
+export type TopicIdCommentNode = number | string | null;
 export interface IClassTopicComment {
     commentId: number | string;
-    topicId: number | string;
+    topicId: TopicIdCommentNode;
     nodeId: number | string;
     author: {
         user_id: number;
@@ -26,7 +27,7 @@ export interface ICreateCommentBody {
     typeNode: TypeNodeComment;
     content: string;
     parentCmtId?: number | string | null;
-    topicId: number | string;
+    topicId: TopicIdCommentNode;
     author: {
         user_id: number;
         name: string;

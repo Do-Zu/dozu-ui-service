@@ -28,6 +28,9 @@ function ImagesPreview({
     images: IUnspashImage[];
     handleSaveClick: (image: IUnspashImage) => void;
 }) {
+    if (images.length === 0) {
+        return <div>No images found, please try again.</div>;
+    }
     return (
         <div className="w-full h-full grid grid-cols-4 gap-4">
             {images.map((image) => {
@@ -84,7 +87,7 @@ export default function ImagesPreviewModal({
                             <div className="flex-1 relative">
                                 <Image
                                     src={currentThumb}
-                                    alt='Flashcard image'
+                                    alt="Flashcard image"
                                     fill
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     className="object-contain object-left"
@@ -93,7 +96,7 @@ export default function ImagesPreviewModal({
                         </div>
                     )}
 
-                    {currentImageUrl && (
+                    {currentImageUrl ? (
                         <div className="w-1/2 relative flex flex-col gap-3">
                             <h3 className="text-xl font-semibold tracking-wide">Current image</h3>
                             <div className="flex-1 relative">
@@ -107,6 +110,8 @@ export default function ImagesPreviewModal({
                                 />
                             </div>
                         </div>
+                    ) : (
+                        <div className="px-6 text-muted-foreground">No image selected</div>
                     )}
 
                     {loading && !images ? (

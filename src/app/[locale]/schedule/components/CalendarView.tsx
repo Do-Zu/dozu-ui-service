@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -16,8 +16,11 @@ import CalendarWeekView from '@/components/schedule/CalendarWeekView';
 import LoadingPage from '@/app/loading';
 
 export default function CalendarView() {
-    const { date, isLoading, handleGetGenerateScheduleEvent } = useCalendar();
+    const { date, isLoading, handleGetGenerateScheduleEvent, view } = useCalendar();
+
     const t = useTranslations('schedule.calendar');
+
+    const currentViewButton = useMemo(() => (view === 'day' ? t('controls.today') : t('controls.currentWeek')), [view]);
 
     useEffect(() => {
         handleGetGenerateScheduleEvent(date);
@@ -43,7 +46,7 @@ export default function CalendarView() {
                     <span className="sr-only">{t('controls.previous')}</span>
                 </CalendarPrevTrigger>
 
-                <CalendarTodayTrigger>{t('controls.today')}</CalendarTodayTrigger>
+                <CalendarTodayTrigger>{currentViewButton}</CalendarTodayTrigger>
 
                 <CalendarNextTrigger>
                     <ChevronRight size={20} />

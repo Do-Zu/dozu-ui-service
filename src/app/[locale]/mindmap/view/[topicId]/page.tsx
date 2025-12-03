@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { setRouterRef } from '@/utils/routerService';
@@ -43,10 +43,11 @@ const edgeTypes = {
     floating: FloatingEdge,
 };
 
-export default function MindmapContent() {
+export default function page() {
     const { resolvedTheme } = useTheme();
     const colorMode = resolvedTheme as ColorMode;
     const router = useRouter();
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
     const {
         isLoading,

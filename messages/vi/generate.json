@@ -26,16 +26,16 @@
             },
             "loading": {
                 "uploading": {
-                    "title": "Đang tải tệp của bạn...",
+                    "title": "Đang tải nội dung của bạn...",
                     "description": "Vui lòng chờ trong khi chúng tôi tải nội dung lên"
                 },
                 "processing": {
-                    "title": "Đang xử lý tệp của bạn...",
+                    "title": "Đang xử lý nội dung của bạn...",
                     "description": "Vui lòng chờ trong khi chúng tôi trích xuất nội dung"
                 }
             },
             "toasts": {
-                "uploadFailed": "Tải tệp lên thất bại. Vui lòng thử lại."
+                "uploadFailed": "Tải nội dung lên thất bại. Vui lòng thử lại."
             },
             "validations": {
                 "fileRejected": "Tệp bị từ chối. Chỉ cho phép các tệp {types} dung lượng tối đa {size}MB."
@@ -73,7 +73,7 @@
                 "description": "Chúng tôi đã phân tích nội dung của bạn và xác định các phương pháp học phù hợp nhất:"
             },
             "methods": {
-                "flashcards": "Flashcards",
+                "flashcard": "Flashcard",
                 "quiz": "Quiz",
                 "mindmap": "Mind Map"
             },
@@ -103,6 +103,38 @@
             },
             "footer": {
                 "wait": "Quá trình có thể mất một vài phút"
+            }
+        },
+        "customize": {
+            "title": "Tùy chỉnh",
+            "types": {
+                "label": "Loại câu hỏi",
+                "required": "*",
+                "multipleChoice": "Trắc nghiệm",
+                "freeResponse": "Tự luận",
+                "trueOrFalse": "Đúng hoặc Sai",
+                "fillInTheBlank": "Điền vào chỗ trống"
+            },
+            "difficulty": {
+                "label": "Độ khó",
+                "required": "*",
+                "easy": "Dễ",
+                "medium": "Trung bình",
+                "hard": "Khó"
+            },
+            "numberOfItem": {
+                "label": "Số lượng câu hỏi"
+            },
+            "focus": {
+                "label": "Bạn muốn tập trung vào điều gì?",
+                "placeholder": "Tập trung vào các phần nói về..."
+            },
+            "buttons": {
+                "cancel": "Hủy",
+                "generate": "Tạo"
+            },
+            "toasts": {
+                "invalidAmount": "Số lượng không hợp lệ"
             }
         }
     }

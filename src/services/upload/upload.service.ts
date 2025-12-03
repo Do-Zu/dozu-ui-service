@@ -1,8 +1,6 @@
 import axios, { HttpStatusCode } from 'axios';
 import Axios from '@/api/axios';
 import { UploadApiResponse, UploadFileResponse } from '@/components/generative/types';
-import { updateInputSetId } from '@/stores/features/inputSet/inputSetSlice';
-import { store } from '@/stores/store';
 import { uploadApi } from './upload.api';
 // Types for upload functionality
 export interface PresignedUrlRequest {
@@ -109,19 +107,6 @@ class UploadService {
 
             const uploadResult = await this.uploadFileOnCloudflareR2(file, presignedResponse, fileId);
 
-            // Step 3: Notify server of completion
-            const { data: completeNotify } = await this.apiUpload.notifyUploadComplete({
-                fileName: file?.name,
-                fileSize: file?.size,
-                contentType: file?.type,
-                fileKey: presignedResponse?.fileKey,
-            });
-
-            if (completeNotify?.setId) {
-                //set inputSetId if logged in (setId is only returned when logged in) - DuyND
-                store.dispatch(updateInputSetId(completeNotify.setId));
-            }
-
             return uploadResult;
         } catch (error) {
             this.updateProgress(fileId, {
@@ -206,9 +191,10 @@ class UploadService {
             return {
                 fileName: file.name,
                 originalName: file.name,
-                size: file.size,
+                fileSize: file.size,
                 mimeType: file.type,
                 status: 'completed',
+                fileKey: presignedResponse?.fileKey,
             };
         } catch (error) {
             this.updateProgress(fileId, {

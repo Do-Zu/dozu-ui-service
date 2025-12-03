@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppSelector } from '@/stores/hooks';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -13,11 +13,6 @@ import {
     handleConvertToFlashcardsSubmitted,
     IFlashcardWithServer,
 } from '@/app/[locale]/flashcards/components/FlashcardEditor';
-import {
-    IFlashcardsBatchInput,
-    IFlashcardCreateInput,
-    IFlashcardUpdateInput,
-} from '@/app/[locale]/flashcards/types/flashcard.type';
 import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
 import DownloadButton from '@/components/mindmap/button/DownloadButton';
@@ -60,6 +55,8 @@ export default function MindmapContent() {
         sseStatus,
         isProcessingRegisterGenerate,
     } = useMindMapContext();
+
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
     const { dataGenerated, setDataGenerated } = useContentGeneration({ sseData, sseStatus });
 

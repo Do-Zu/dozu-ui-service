@@ -240,7 +240,7 @@ const CommentCard = ({
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-8 px-2 text-xs gap-1.5 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full transition-all duration-200 hover:scale-105"
+                                        className="h-8 px-2 text-xs gap-1.5 rounded-full transition-all duration-200 hover:scale-105 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 hover:shadow-lg hover:shadow-blue-500/20"
                                         onClick={() => onReply(id)}
                                     >
                                         <ReplyIcon className="h-3.5 w-3.5" />

@@ -6,7 +6,7 @@ import { formatDate, TimeUnit } from '@/utils';
 import Link from 'next/link';
 import { DATETIME_DMY_12H_FORMAT } from '@/utils/date/constant';
 import { Button } from '@/components/ui/button';
-import { Edit, MoreVertical, SquarePen, Trash2 } from 'lucide-react';
+import { Edit, MessageCircle, MoreVertical, SquarePen, Trash2, ArrowUpRight } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,6 +16,9 @@ import {
 import { useTranslations } from 'next-intl';
 import { IUpdatingFeed } from '@/app/[locale]/teacher/feeds/components/modals/UpdateFeedModal';
 import { ISubtractedDate } from '@/utils/feeds/feed.helper';
+import CommentThread from '../../comment/CommentThread';
+import { useMemo } from 'react';
+import { EnumNodeComment } from '../../../types/class.type';
 
 interface TeacherProps {
     role: 'teacher';
@@ -36,7 +39,7 @@ export default function ClassFeedCard(props: Props) {
     const tCommon = useTranslations('common');
     const tClassFeed = useTranslations('class.classFeed');
     const { feed, role } = props;
-    const { classFeedId, title, content, createdAt, updatedAt, sender, link } = feed;
+    const { classFeedId, title, content, createdAt, updatedAt, sender, link, classId } = feed;
     const { group } = props;
 
     function getDisplayDate(createdAt: string): string {
@@ -48,6 +51,23 @@ export default function ClassFeedCard(props: Props) {
         }
         return formatDate(createdAt, DATETIME_DMY_12H_FORMAT);
     }
+
+    const triggerComponent = useMemo(
+        () => (
+            <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                    e.stopPropagation();
+                }}
+                className="h-7 px-2 text-xs rounded-full transition-all duration-300 transform hover:scale-105 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 hover:shadow-lg hover:shadow-blue-500/20"
+            >
+                <MessageCircle className="w-3 h-3 mr-1" />
+                comments
+            </Button>
+        ),
+        [],
+    );
 
     return (
         <Card>
@@ -108,11 +128,31 @@ export default function ClassFeedCard(props: Props) {
                         ) : (
                             <p className="text-sm text-muted-foreground">No content yet</p>
                         )}
-                        {link ? (
-                            <Link href={link} className="text-sm underline text-blue-600 hover:text-blue-800">
-                                View Content
-                            </Link>
-                        ) : null}
+                        <div className="flex items-center gap-3 mt-2">
+                            {link ? (
+                                <Button asChild size="sm" variant="outline" className="h-7 px-3 rounded-full gap-1">
+                                    <Link
+                                        href={link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="View content"
+                                    >
+                                        View Content
+                                        <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+                                    </Link>
+                                </Button>
+                            ) : null}
+                            {classId && (
+                                <CommentThread
+                                    triggerComponent={triggerComponent}
+                                    nodeId={classFeedId.toString()}
+                                    nodeTitle={title}
+                                    classId={classId}
+                                    topicId={null}
+                                    typeNode={EnumNodeComment.FEED}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </CardContent>

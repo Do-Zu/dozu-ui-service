@@ -29,7 +29,7 @@ export function DeleteTopicModal({ isOpen, setIsOpen, topic, handleDeleteClick, 
             body={
                 <div className="flex justify-end">
                     <Button variant="destructive" onClick={() => handleDeleteClick(topicId)} disabled={loading}>
-                        {loading ? tCommon('saving') : tCommon('actions.delete')}
+                        {loading ? tCommon('status.saving') : tCommon('actions.delete')}
                     </Button>
                 </div>
             }

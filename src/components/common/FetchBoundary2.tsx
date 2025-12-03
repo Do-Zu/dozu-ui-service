@@ -1,0 +1,35 @@
+import React from 'react';
+import ErrorPage from './ErrorPage';
+import LoadingPage from '@/app/loading';
+
+interface Props<T> {
+    data: T | null | undefined;
+    status: 'idle' | 'pending' | 'succeeded' | 'failed';
+    error: string | null;
+    children: (data: T) => React.ReactNode;
+    onNull?: string | React.ReactNode;
+    onEmpty?: string | React.ReactNode;
+}
+
+export default function FetchBoundary<T>({ data, status, error, children, onNull, onEmpty }: Props<T>) {
+    if (status === 'failed' || error) {
+        return <ErrorPage message={error} />;
+    }
+    if (status === 'idle' || status === 'pending') {
+        return <LoadingPage />;
+    }
+
+    if (data === null || data === undefined) {
+        if (onNull) {
+            return typeof onNull === 'string' ? <div className="p-8">{onNull}</div> : <>{onNull}</>;
+        }
+        return <div className="p-8">Data not found. Please try again.</div>;
+    }
+
+    if (onEmpty && Array.isArray(data) && data.length === 0) {
+        if (typeof onEmpty === 'string') return <div className="p-8">{onEmpty}</div>;
+        return onEmpty;
+    }
+
+    return <>{children(data)}</>;
+}

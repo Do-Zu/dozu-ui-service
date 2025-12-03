@@ -1,3 +1,6 @@
+import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import { ContentType } from '@/app/[locale]/generate/components/ContentGenerationPreview';
+
 export const ROUTES = Object.freeze({
     LANDING: '/',
     HOME: '/home',
@@ -11,6 +14,7 @@ export const ROUTES = Object.freeze({
     FLASHCARDS_EDIT: (topicId: string | number) => `/flashcards/edit/${topicId}`,
     FLASHCARDS_BROWSE: (topicId: string | number) => `/flashcards/browse/${topicId}`,
     FLASHCARDS_LEARNING: (topicId: string | number) => `/flashcards/learning/${topicId}`,
+    QUIZ_DASBOARD: (topicId: string | number) => `/quiz/${topicId}/quiz-type`,
     SETTING_SCHEDULE_SETUP: '/setting/schedule-setup',
     UNAUTHORIZED: '/unauthorized',
     SCHEDULE: '/schedule',
@@ -25,17 +29,56 @@ export const ROUTES = Object.freeze({
     PROFILE_SETTINGS: '/setting/profile/settings',
     PAYMENT: (planId: string | number) => `/payment?planId=${planId}`,
     FEYNMAN_REVIEW: (topicId: string | number, method: string) => `/feynman/${topicId}?method=${method}`,
+    ANKI_SETTINGS: (topicId: string | number) => `/topics/${topicId}/settings/anki`,
+    TOPIC_WORKSPACE: ({ topicId, tab }: { topicId: number; tab?: ContentType | null }) =>
+        tab ? `/topics/${topicId}?tab=${tab}` : `/topics/${topicId}`,
 
     // ======================= ADMIN ROUTES ========================
 
     ADMIN: '/admin',
     ADMIN_STATISTICS: '/admin/stats',
 
+    // LLM Models
+    LLM_MODELS: '/admin/llm-models',
+    LLM_MODELS_LIST: (query?: string) => (query ? `/admin/llm-models?${query}` : '/admin/llm-models'),
+    LLM_MODELS_CREATE: '/admin/llm-models',
+    LLM_MODELS_UPDATE: (id: string | number) => `/admin/llm-models/${id}`,
+    LLM_MODELS_DELETE: (id: string | number) => `/admin/llm-models/${id}`,
+    LLM_MODELS_TOGGLE_AVAILABILITY: (id: string | number) => `/admin/llm-models/${id}/toggle-availability`,
+
+    // LLM Providers
+    LLM_PROVIDERS: '/admin/llm-providers',
+    LLM_PROVIDERS_LIST: (query?: string) => (query ? `/admin/llm-providers?${query}` : '/admin/llm-providers'),
+    LLM_PROVIDERS_LIST_ALL: '/admin/llm-providers?limit=100',
+    LLM_PROVIDERS_CREATE: '/admin/llm-providers',
+    LLM_PROVIDERS_UPDATE: (id: string | number) => `/admin/llm-providers/${id}`,
+    LLM_PROVIDERS_DELETE: (id: string | number) => `/admin/llm-providers/${id}`,
+    LLM_PROVIDERS_TOGGLE_AVAILABILITY: (id: string | number) => `/admin/llm-providers/${id}/toggle-availability`,
+
+    // LLM API Keys
+    LLM_API_KEYS: '/admin/llm-api-keys',
+    LLM_API_KEYS_LIST: (query?: string) => (query ? `/admin/llm-api-keys?${query}` : '/admin/llm-api-keys'),
+    LLM_API_KEYS_CREATE: '/admin/llm-api-keys',
+    LLM_API_KEYS_UPDATE: (id: string | number) => `/admin/llm-api-keys/${id}`,
+    LLM_API_KEYS_DELETE: (id: string | number) => `/admin/llm-api-keys/${id}`,
+    LLM_API_KEYS_TOGGLE_STATUS: (id: string | number) => `/admin/llm-api-keys/${id}/toggle-status`,
+
+    // LLM API Key-Model Relations
+    LLM_API_KEY_MODELS: '/admin/llm-api-key-models',
+    LLM_API_KEY_MODELS_LIST: (query?: string) => (query ? `/admin/llm-api-key-models?${query}` : '/admin/llm-api-key-models'),
+    LLM_API_KEY_MODELS_CREATE: '/admin/llm-api-key-models',
+    LLM_API_KEY_MODELS_UPDATE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
+    LLM_API_KEY_MODELS_DELETE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
+
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
     CLASS_BASED_ID_GENERATE: (classId: string | number) => `/class-based/${classId}/generate`,
     CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
+    ASSIGNMENT_DETAILS: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+        `/class-based/${classId}/assignments/${assignmentId}/details`,
+    CLASS_TOPIC_WORKSPACE: ({ classId, topicId }: { classId: number; topicId: number }) =>
+        `/class-based/${classId}/topics/${topicId}`,
 
     MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
     MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
@@ -54,9 +97,35 @@ export const ROUTES = Object.freeze({
     TEACHER: {
         HOME: '/teacher/home',
         CLASS_BASED: '/teacher/class-based',
-        CLASS_BASED_ID: (classId: string | number) => `/teacher/class-based/${classId}`,
+        CLASS_BASED_ID: (classId: string | number, defaultTab?: ClassDashboardTab) =>
+            `/teacher/class-based/${classId}${defaultTab ? `?defaultTab=${defaultTab}` : ''}`,
         CLASS_BASED_ID_GENERATE: (classId: string | number) => `/teacher/class-based/${classId}/generate`,
         CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/teacher/class-based/${classId}/students`,
+        CLASS_BASED_ID_MINDMAP_EDIT: (classId: string | number, topicId: string | number) =>
+            `/teacher/class-based/${classId}/mindmap/${topicId}`,
+        CLASS_BASED_ID_ASSIGNMENTS: (classId: string | number) => `/teacher/class-based/${classId}/assignments`,
+        CLASS_BASED_ID_ASSIGNMENT_ID_EDIT: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+            `/teacher/class-based/${classId}/assignments/${assignmentId}/edit`,
+        CLASS_BASED_ID_ASSIGNMENT_ID_DETAILS: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
+            `/teacher/class-based/${classId}/assignments/${assignmentId}/details`,
+        CLASS_BASED_ID_LEARNING_MATERIAL: (classId: string | number) =>
+            `/teacher/class-based/${classId}/learning-material`,
+
+        CLASS_TOPIC_WORKSPACE: ({ classId, topicId }: { classId: number; topicId: number }) =>
+            `/teacher/class-based/${classId}/topics/${topicId}`,
+        CLASS_BASED_ID_CLASS_QUIZ_LIST: (classId: number) => `/teacher/class-based/${classId}`,
+        CLASS_BASED_ID_CLASS_QUIZ_EDIT: (classId: number, classQuizId: number) =>
+            `/teacher/class-based/${classId}/class-quiz/${classQuizId}/edit`,
+        CLASS_BASED_ID_CLASS_QUIZ_ACTIVITY: (classId: number, classQuizId: number) =>
+            `/teacher/class-based/${classId}/activities/${classQuizId}`,
+    },
+
+    // ======================= STUDENT ROUTES ========================
+    STUDENT: {
+        CLASS_BASED_ID_CLASS_QUIZ_START: (classId: number, classQuizId: number) =>
+            `/class-based/${classId}/class-quiz/${classQuizId}/start`,
+        CLASS_BASED_ID_CLASS_QUIZ_SUBMIT: (classId: number, classQuizId: number, attemptId: number, ) =>
+            `/class-based/${classId}/class-quiz/${classQuizId}/submit?attemptId=${attemptId}`,
     },
 });
 

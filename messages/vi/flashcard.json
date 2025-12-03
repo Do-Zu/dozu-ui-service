@@ -1,11 +1,19 @@
 {
     "flashcard": {
+        "common": {
+            "front": "Thuật ngữ",
+            "back": "Định nghĩa"
+        },
         "edit": {
             "import": "Tải lên",
             "save": "Lưu",
-            "addCards": "Thêm thẻ"
+            "addCards": "Thêm thẻ",
+            "messages": {
+                "noFlashcardChanges": "Không phát hiện thay đổi nào. Vui lòng chỉnh sửa một số thẻ ghi nhớ."
+            }
         },
         "study": {
+            "studyOptions": "Lựa chọn",
             "card": "Thẻ",
             "of": "trên",
             "complete": "hoàn thành",
@@ -32,7 +40,17 @@
             "greatJob": "Làm tốt lắm! 🎉",
             "flashcardsCompleted": "Bạn đã hoàn thành tất cả flashcard cho chủ đề này. Hiện tại bạn có thể đánh giá kiến thức của mình.",
             "flashcardsEmpty": "Không có flashcard nào cho topic này! Bạn hãy thử tạo bộ flashcard",
-            "reviewKnowledge": "Đánh giá kiến thức"
+            "reviewKnowledge": "Đánh giá kiến thức",
+            "noFlashcardsAvailable": "Không có Flashcard",
+            "noFlashcardsToStudy": "Không có Flashcard để học",
+            "noFlashcardsAvailableBody": "Hiện tại không có flashcard nào để học. Vui lòng quay lại sau hoặc liên hệ với giáo viên của bạn.",
+            "noFlashcardsToStudyBody": "Bạn không có flashcard nào được lên lịch để ôn tập ngay bây giờ. Hãy quay lại sau khi có thẻ mới.",
+            "sessionSummaryTitle": "Tóm tắt phiên học",
+            "cardsReviewedLabel": "Thẻ đã xem:",
+            "correctAnswersLabel": "Câu trả lời đúng:",
+            "pointsEarnedLabel": "Điểm kiếm được:",
+            "accuracyLabel": "Độ chính xác:",
+            "goBack": "Quay lại"
         },
         "import": {
             "title": "Nhập dữ liệu của bạn",

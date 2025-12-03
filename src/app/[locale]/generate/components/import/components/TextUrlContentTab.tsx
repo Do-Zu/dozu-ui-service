@@ -20,6 +20,7 @@ import {
     extractWebsiteContent,
 } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
 import { setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import { ExtractionTab } from '../../../constants/resource';
 
 const TabContent: React.FC = () => {
     const dispatch = useCardImportDispatch();
@@ -122,7 +123,7 @@ const TabContent: React.FC = () => {
     }, [isLoading, extractionError]);
 
     return (
-        <Tabs value={activeTab} onValueChange={(value) => dispatch(setActiveTab(value))}>
+        <Tabs value={activeTab} onValueChange={(value) => dispatch(setActiveTab(value as ExtractionTab))}>
             <TabsList className="grid grid-cols-2 w-full">
                 <TabsTrigger value="url" className="flex items-center gap-2">
                     <Link className="h-4 w-4" />

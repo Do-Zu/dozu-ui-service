@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import FlashcardEditor, { IFlashcardWithServer } from '../../flashcards/components/FlashcardEditor';
 import { GeneratedContent, TypeDataGenerated } from './ContentGenerationPreview';
 import QuestionEditor from '../../question/components/QuestionEditor';
@@ -39,7 +39,7 @@ const ContentRender: React.FC<ContentRenderProps> = ({ content, dataGenerated, s
 // Individual content type renderers
 interface FlashcardRendererProps {
     flashcards: IFlashcardWithServer[] | null;
-    setFlashcards: (flashcards: IFlashcardWithServer[] | null) => void;
+    setFlashcards: Dispatch<SetStateAction<IFlashcardWithServer[] | null>>;
 }
 
 const FlashcardRenderer: React.FC<FlashcardRendererProps> = ({ flashcards, setFlashcards }) => {

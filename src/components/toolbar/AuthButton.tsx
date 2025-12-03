@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut, Loader2 } from 'lucide-react';
@@ -12,6 +11,7 @@ import LoadingPage from '@/app/loading';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/stores/hooks';
 import { logout } from '@/stores/features/auth/authSlice';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
 
 /**
  * Unified auth action button.
@@ -22,7 +22,11 @@ import { logout } from '@/stores/features/auth/authSlice';
 export function AuthButton() {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const { isAuthenticated, clearAuthData } = useAuth();
+    const { isAuthenticated, clearAuthData, currentPlanUser } = useAuth();
+    const { isAdmin } = useRoleChecker();
+    
+    const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
+    const shouldShowProBadge = isPro && !isAdmin;
 
     const { execute, loading } = usePost<any, any>('/auth/logout', 'POST', {
         onError: () => toast({ description: 'Logout failed. Try again.' }),
@@ -66,17 +70,27 @@ export function AuthButton() {
     }
 
     return (
-        <Button
-            disabled={loading}
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            aria-label="Logout"
-            className="w-full justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500/20 via-sky-500/20 to-cyan-500/20 dark:from-indigo-400/15 dark:via-sky-400/15 dark:to-cyan-400/15 border-slate-300/60 dark:border-slate-600 hover:from-indigo-500/30 hover:via-sky-500/30 hover:to-cyan-500/30 dark:hover:from-indigo-400/25 dark:hover:via-sky-400/25 dark:hover:to-cyan-400/25 backdrop-blur group-data-[collapsible=icon]:px-0"
-        >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
-            <span className="group-data-[collapsible=icon]:hidden">Logout</span>
-        </Button>
+        <div className="space-y-2">
+            {shouldShowProBadge && (
+                <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-1">
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <span className="text-xs font-bold group-data-[collapsible=icon]:hidden">PRO Member</span>
+                </div>
+            )}
+            <Button
+                disabled={loading}
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                aria-label="Logout"
+                className="w-full justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500/20 via-sky-500/20 to-cyan-500/20 dark:from-indigo-400/15 dark:via-sky-400/15 dark:to-cyan-400/15 border-slate-300/60 dark:border-slate-600 hover:from-indigo-500/30 hover:via-sky-500/30 hover:to-cyan-500/30 dark:hover:from-indigo-400/25 dark:hover:via-sky-400/25 dark:hover:to-cyan-400/25 backdrop-blur group-data-[collapsible=icon]:px-0"
+            >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+                <span className="group-data-[collapsible=icon]:hidden">Logout</span>
+            </Button>
+        </div>
     );
 }
 

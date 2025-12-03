@@ -3,12 +3,14 @@
         "class": "class",
         "classWithName": "Class {name}",
         "myClasses": "My Classes",
+        "slogan": "Your classes – Where the smart learning journey begins.",
         "classesEnrolling": "You're enrolled in the following classes",
         "join": {
             "title": "Join Class",
             "description": "Enter your Class Id provided by your Teacher to join Class",
             "label": "Join",
-            "joinSuccess": "Join class successfully"
+            "joinSuccess": "Join class successfully",
+            "alreadyEnrolled": "You are already enrolled in this class"
         },
         "leave": {
             "title": "Leave Class",
@@ -18,6 +20,7 @@
         },
         "invitationCode": "Invitation Code",
         "manageStudents": "Manage Students",
+        "viewMyProgress": "View My Progress",
         "generateContent": "Generate Content",
         "studentList": {
             "title": "Students",

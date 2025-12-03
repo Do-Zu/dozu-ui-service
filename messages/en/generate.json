@@ -26,16 +26,16 @@
             },
             "loading": {
                 "uploading": {
-                    "title": "Uploading your file...",
+                    "title": "Uploading your content...",
                     "description": "Please wait while we upload the content"
                 },
                 "processing": {
-                    "title": "Processing your file...",
+                    "title": "Processing your content...",
                     "description": "Please wait while we extract the content"
                 }
             },
             "toasts": {
-                "uploadFailed": "Failed to upload file. Please try again."
+                "uploadFailed": "Failed to upload content. Please try again."
             },
             "validations": {
                 "fileRejected": "File rejected. Only {types} files up to {size}MB are allowed."
@@ -73,7 +73,7 @@
                 "description": "We've analyzed your content and identified the following learning methods that would work best:"
             },
             "methods": {
-                "flashcards": "Flashcards",
+                "flashcard": "Flashcard",
                 "quiz": "Quiz",
                 "mindmap": "Mind Map"
             },
@@ -103,6 +103,38 @@
             },
             "footer": {
                 "wait": "This may take a few moments"
+            }
+        },
+        "customize": {
+            "title": "Customize",
+            "types": {
+                "label": "Types",
+                "required": "*",
+                "multipleChoice": "Multiple Choice",
+                "freeResponse": "Free Response",
+                "trueOrFalse": "True or False",
+                "fillInTheBlank": "Fill in the blank"
+            },
+            "difficulty": {
+                "label": "Difficulty",
+                "required": "*",
+                "easy": "Easy",
+                "medium": "Medium",
+                "hard": "Hard"
+            },
+            "numberOfItem": {
+                "label": "Number of Item"
+            },
+            "focus": {
+                "label": "What do you want to focus on?",
+                "placeholder": "Focus on the parts that are about..."
+            },
+            "buttons": {
+                "cancel": "Cancel",
+                "generate": "Generate"
+            },
+            "toasts": {
+                "invalidAmount": "Invalid Amount"
             }
         }
     }

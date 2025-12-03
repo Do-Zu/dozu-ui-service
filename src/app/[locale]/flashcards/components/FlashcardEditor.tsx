@@ -2,7 +2,7 @@
 
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import { Edit, ImagePlus, Import, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,8 +23,8 @@ import usePost from '@/hooks/usePost';
 import { any } from 'zod';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
-import FlashcardImportModal from './import/FlashcardImportModal';
-import { IFlashcardPreview } from './import/FlashcardPreview';
+import FlashcardImportModal from '../../topics/[topicId]/(topic)/components/flashcard/import/FlashcardImportModal';
+import { IFlashcardPreview } from '../../topics/[topicId]/(topic)/components/flashcard/import/FlashcardPreview';
 import ImagesPreviewModal, { IUnspashImage } from './ImagesPreview';
 import { IFlashcard as IFlashcardType } from '../types/flashcard.type';
 import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
@@ -34,8 +34,6 @@ import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGe
 import { CONTENT_TYPE_GENERATE } from '@/app/[locale]/generate/types';
 import { handleConvertToQuestionsSubmitted } from '@/app/[locale]/question/utils/handleConvertToQuestionsSubmitted';
 import { postRequest } from '@/api/api';
-
-
 
 interface IFlashcard {
     id: number;
@@ -151,7 +149,7 @@ interface BaseProps {
     shouldShowBackButton?: boolean;
     shouldShowSaveButton?: boolean;
     flashcards: IFlashcardWithServer[];
-    setFlashcards: (flashcards: IFlashcardWithServer[]) => void;
+    setFlashcards: Dispatch<SetStateAction<IFlashcardWithServer[] | null>>;
     topic?: {
         topicId: string | number;
         name: string;
@@ -226,8 +224,11 @@ const FlashcardEditor = ({
     const [isAddImageModalOpen, setIsAddImageModalOpen] = useState<boolean>(false);
     const [selectingFlashcard, setSelectingFlashcard] = useState<IFlashcard | null>();
     const [imagesPreview, setImagesPreview] = useState<IUnspashImage[] | null>(null);
-    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus } = useGenerateFromExisting();
-    const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({ sseData, sseStatus });
+    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
+    const { contentType, dataGenerated, setDataGenerated, isContentReady } = useContentGeneration({
+        sseData,
+        sseStatus,
+    });
 
     const { loading: batchLoading, execute: batchFlashcards } = usePost<
         { topicId: string | number; flashcards: IFlashcardsBatchInput },
@@ -297,8 +298,8 @@ const FlashcardEditor = ({
                 newFlashcards.push(cardWithServer);
                 ++startId;
             }
-            if(newFlashcards.length === 0) {
-                for(let i = 0; i < 3; ++i) {
+            if (newFlashcards.length === 0) {
+                for (let i = 0; i < 3; ++i) {
                     newFlashcards.push(createInitialFlashcard(i));
                 }
             }
@@ -450,10 +451,7 @@ const FlashcardEditor = ({
     async function handleSaveClick() {
         const flashcardsSubmitted = handleConvertToFlashcardsSubmitted(flashcards);
         if (!topic || !flashcardsSubmitted) {
-            toast({
-                title: 'Topic or flashcards submitted is null',
-                variant: 'destructive',
-            });
+            toastHelper.showSuccessMessage(tFlashcardEdit('messages.noFlashcardChanges'));
             return;
         }
         await batchFlashcards({
@@ -488,100 +486,92 @@ const FlashcardEditor = ({
             url: image.url.small,
             downloadLocation: image.links.download_location,
         };
-        let newFlashcards;
-        newFlashcards = flashcards.map((flashcard) => {
-            return flashcard.id === selectingFlashcard.id
-                ? {
-                      ...flashcard,
-                      image: imageSaveInput,
-                      thumb: image.url.thumb,
-                      serverInfo: flashcard.serverInfo
-                          ? { ...flashcard.serverInfo, isUpdated: true, isDeleted: false }
-                          : undefined,
-                  }
-                : flashcard;
+        setFlashcards((prev) => {
+            if (!prev) return null;
+            return prev.map((editingFlashcard) => {
+                return editingFlashcard.id === selectingFlashcard.id
+                    ? {
+                          ...editingFlashcard,
+                          serverInfo: editingFlashcard.serverInfo
+                              ? { ...editingFlashcard.serverInfo, isUpdated: true, isDeleted: false }
+                              : undefined,
+                          image: { type: 'unsplash', data: imageSaveInput },
+                          thumb: image.url.thumb,
+                      }
+                    : editingFlashcard;
+            });
         });
-        setFlashcards(newFlashcards);
         setIsAddImageModalOpen(false);
         toastHelper.showSuccessMessage('Insert image into card successfully');
-    } 
+    }
 
     function getUsableFlashcardsForGen(cards: IFlashcardWithServer[]) {
-       return cards.filter(
-         (c) =>
-         !c.serverInfo?.isDeleted &&
-         c.front.trim() !== '' &&
-         c.back.trim() !== ''
-        );
+        return cards.filter((c) => !c.serverInfo?.isDeleted && c.front.trim() !== '' && c.back.trim() !== '');
     }
 
     function hasAnyValidFlashcard(cards: IFlashcardWithServer[]) {
-      return getUsableFlashcardsForGen(cards).length > 0;
+        return getUsableFlashcardsForGen(cards).length > 0;
     }
 
-
     const handleGenerateQuiz = async () => {
-       if (!topic) return;
-         if (!hasAnyValidFlashcard(flashcards)) {
-           toast({ description: 'No valid flashcards to create quiz', variant: 'destructive' });
-           return;
-         }
-       const payload = buildContentFromFlashcardsForQuiz(topic.topicId, flashcards);
-       await regenerate(payload, 'quiz');
+        if (!topic) return;
+        if (!hasAnyValidFlashcard(flashcards)) {
+            toast({ description: 'No valid flashcards to create quiz', variant: 'destructive' });
+            return;
+        }
+        const payload = buildContentFromFlashcardsForQuiz(topic.topicId, flashcards);
+        await regenerate(payload, 'quiz');
     };
 
     const handleSaveGeneratedToThisTopic = async () => {
-       if (!topic) return;
-       if (!dataGenerated) {
-         toast({ description: 'No data to save', variant: 'destructive' });
-         return;
-       }
+        if (!topic) return;
+        if (!dataGenerated) {
+            toast({ description: 'No data to save', variant: 'destructive' });
+            return;
+        }
 
-       if (contentType === CONTENT_TYPE_GENERATE.QUIZ) {
-           const batchQuestions = handleConvertToQuestionsSubmitted(dataGenerated as any);
-           if (!batchQuestions) {
-             toast({ description: 'There are no valid questions to save.', variant: 'destructive' });
-             return;
+        if (contentType === CONTENT_TYPE_GENERATE.QUIZ) {
+            const batchQuestions = handleConvertToQuestionsSubmitted(dataGenerated as any);
+            if (!batchQuestions) {
+                toast({ description: 'There are no valid questions to save.', variant: 'destructive' });
+                return;
             }
-        await postRequest(`/questions/batch?topicId=${topic.topicId}`, batchQuestions);
-        toast({ description: 'Saved Questions to topic', variant: 'default' });
+            await postRequest(`/questions/batch?topicId=${topic.topicId}`, batchQuestions);
+            toast({ description: 'Saved Questions to topic', variant: 'default' });
         }
     };
 
     const canSaveGenerated =
-       contentType === CONTENT_TYPE_GENERATE.QUIZ &&
-       Array.isArray(dataGenerated) &&
-       dataGenerated.length > 0;
-    
-    if (previewOpen) {
-     return (
-    <div className="px-[4rem] py-7 bg-muted min-h-screen">
-      <ContentGenerationPreview
-        shouldCreateTopic={false}
-        shouldCreateFeed={false}
-        sseData={sseData}
-        dataGenerated={dataGenerated}
-        setDataGenerated={setDataGenerated}
-        onSave={handleSaveGeneratedToThisTopic}
-      />
-      <div className="mt-4 flex gap-3">
-        <Button onClick={handleSaveGeneratedToThisTopic} disabled={!canSaveGenerated}>
-          Save to this topic
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setPreviewOpen(false);
-            setDataGenerated(null);
-          }}
-        >
-          Close
-        </Button>
-      </div>
-    </div>
-  );
-}
+        contentType === CONTENT_TYPE_GENERATE.QUIZ && Array.isArray(dataGenerated) && dataGenerated.length > 0;
 
+    if (previewOpen) {
+        return (
+            <div className="px-[4rem] py-7 bg-muted min-h-screen">
+                <ContentGenerationPreview
+                    shouldCreateTopic={false}
+                    shouldCreateFeed={false}
+                    sseData={sseData}
+                    dataGenerated={dataGenerated}
+                    setDataGenerated={setDataGenerated}
+                    onSave={handleSaveGeneratedToThisTopic}
+                />
+                <div className="mt-4 flex gap-3">
+                    <Button onClick={handleSaveGeneratedToThisTopic} disabled={!canSaveGenerated}>
+                        Save to this topic
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            setPreviewOpen(false);
+                            setDataGenerated(null);
+                        }}
+                    >
+                        Close
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     if (!flashcards) {
         return <div>No Flashcards found</div>;
@@ -597,8 +587,12 @@ const FlashcardEditor = ({
                     </div>
                 </div>
                 <div className="flex flex-row gap-4">
-                    <Button className="flex flex-row items-center" onClick={handleGenerateQuiz} disabled={!hasAnyValidFlashcard(flashcards)}>
-                       Generate Quiz
+                    <Button
+                        className="flex flex-row items-center"
+                        onClick={handleGenerateQuiz}
+                        disabled={!hasAnyValidFlashcard(flashcards) || loading}
+                    >
+                        Generate Quiz
                     </Button>
 
                     <Button className="flex flex-row items-center" onClick={handleImportModalOpen}>
@@ -690,11 +684,16 @@ const FlashcardEditor = ({
                 loading={searchImagesLoading}
                 handleSaveClick={handleSaveImageClick}
             />
-
+            {loading && (
+                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">
+                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p className="text-gray-800 font-medium">Generating quiz...</p>
+                    </div>
+                </div>
+            )}
         </div>
-
     );
-    
 };
 
 export default FlashcardEditor;
