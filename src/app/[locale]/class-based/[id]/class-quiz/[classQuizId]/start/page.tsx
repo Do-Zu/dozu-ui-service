@@ -202,7 +202,7 @@ export default function StudentStartClassQuizPage() {
         }, 1000);
 
         return () => clearInterval(t);
-    }, [timeLeft]);
+    }, [timeLeft, attempt, onSubmit]);
 
     function formatMs(ms: number) {
         const sec = Math.floor(ms / 1000);
