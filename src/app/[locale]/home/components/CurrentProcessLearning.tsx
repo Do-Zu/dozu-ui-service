@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { ROUTES } from '@/utils/constants/routes';
+import { METHOD_LEARNING } from '../../generate/constants/resource';
 
 interface CurrentLearning {
     topicName?: string;
@@ -86,11 +87,20 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
             return;
         }
 
+        let tab = null;
+
         if (currentLearning.type === 'flashcard') {
-            router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
+            tab = METHOD_LEARNING.FLASHCARD;
         } else if (currentLearning.type === 'question') {
-            router.push(ROUTES.QUIZ_START(topicId));
+            tab = METHOD_LEARNING.QUIZ;
         }
+
+        router.push(
+            ROUTES.TOPIC_WORKSPACE({
+                topicId,
+                tab,
+            }),
+        );
     };
 
     if (loading) {
