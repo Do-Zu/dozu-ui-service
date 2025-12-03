@@ -71,7 +71,7 @@ export function RoadmapItem({
                 )}
 
                 {/* Label */}
-                <div className="font-medium truncate text-base">{label}</div>
+                <div className="font-medium text-base break-words line-clamp-2">{label}</div>
             </div>
 
             {/* Right side action buttons (floated on top) */}
