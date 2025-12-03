@@ -13,6 +13,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
+import QuestionImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionImportModal';
+import { IQuestionPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionPreview';
+import { Import } from 'lucide-react';
 
 const questionsJump = 3;
 const createInitialQuestion = (id: number): IQuestion => ({
@@ -43,9 +46,9 @@ const toIsoFromLocalInput = (value: string): string | null => {
 
 type Props = {
     quizId: number;
-    initialDraft?: IDraftJson; 
-    initialTitle?: string; 
-    initialContent?: string; 
+    initialDraft?: IDraftJson;
+    initialTitle?: string;
+    initialContent?: string;
     initialStartAt?: string | null;
     initialEndAt?: string | null;
     initialDurationSeconds?: number | null;
@@ -78,6 +81,7 @@ export default function ClassQuizDraftEditor({
     const [content, setContent] = useState<string>(initialContent ?? '');
     const [saving, setSaving] = useState(false);
     const [savedMeta, setSavedMeta] = useState<IUpsertDraftResp | null>(null);
+    const [isImportOpen, setIsImportOpen] = useState(false);
 
     // state for start / end / duration
     const [startAtLocal, setStartAtLocal] = useState<string>(initialStartAt ? toLocalInputValue(initialStartAt) : '');
@@ -103,7 +107,7 @@ export default function ClassQuizDraftEditor({
         if (initialContent !== undefined) setContent(initialContent);
     }, [initialTitle, initialContent]);
 
-    // hydrate time/duration 
+    // hydrate time/duration
     useEffect(() => {
         if (initialStartAt !== undefined) {
             setStartAtLocal(initialStartAt ? toLocalInputValue(initialStartAt) : '');
@@ -141,6 +145,30 @@ export default function ClassQuizDraftEditor({
         const lastId = questions.length ? Math.max(...questions.map((q) => q.id)) : -1;
         const more = Array.from({ length: questionsJump }, (_, i) => createInitialQuestion(lastId + i + 1));
         setQuestions((prev) => [...prev, ...more]);
+    };
+
+    const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
+        // 1. Remove empty initial questions
+        let cleaned = [...questions].filter(
+            (q) => q.questionText.trim() !== '' || q.choices.some((c) => (c ?? '').trim() !== ''),
+        );
+
+        // 2. Determine next id
+        const lastId = cleaned.length > 0 ? Math.max(...cleaned.map((q) => q.id)) : -1;
+
+        // 3. Convert imported list into IQuestion[]
+        const newItems: IQuestion[] = imported.map((item, idx) => ({
+            id: lastId + idx + 1,
+            questionText: item.questionText,
+            choices: item.choices,
+            correctIndex: item.correctIndex,
+        }));
+
+        // 4. Update state
+        setQuestions([...cleaned, ...newItems]);
+
+        // Close modal
+        setIsImportOpen(false);
     };
 
     const onChangeText = (idx: number, text: string) => {
@@ -184,13 +212,7 @@ export default function ClassQuizDraftEditor({
         );
     };
     const onDelete = (id: number) => {
-        setQuestions((prev) =>
-            prev
-                .map((q) =>
-                    q.id !== id ? q : q.serverInfo ? { ...q, serverInfo: { ...q.serverInfo, isDeleted: true } } : q,
-                )
-                .filter((q) => q),
-        );
+        setQuestions((prev) => prev.filter((q) => q.id !== id));
     };
 
     async function saveDraft(): Promise<boolean> {
@@ -406,6 +428,15 @@ export default function ClassQuizDraftEditor({
           placeholder="orderSeed (optional)"
           className="max-w-sm"
         /> */}
+                <Button
+                    variant="outline"
+                    onClick={() => setIsImportOpen(true)}
+                    className="border-primary/40 text-primary hover:bg-primary/5"
+                >
+                    <Import className="w-4 h-4 mr-2" />
+                    Import Questions
+                </Button>
+
                 <Button onClick={saveDraft} disabled={saving || !hasAllValidQuestions(questions) || !title.trim()}>
                     <Save className="mr-2 h-4 w-4" /> Save Draft
                 </Button>
@@ -426,6 +457,13 @@ export default function ClassQuizDraftEditor({
                     Draft v{savedMeta.version} — saved at {new Date(savedMeta.updatedAt).toLocaleString()}
                 </div>
             ) : null}
+
+            <QuestionImportModal
+                isOpen={isImportOpen}
+                setIsOpen={setIsImportOpen}
+                onSubmit={handleAddQuestionsImported}
+            />
+            {/* Questions List */}
 
             <div className="grid grid-cols-12 gap-8 mt-2">
                 {questions

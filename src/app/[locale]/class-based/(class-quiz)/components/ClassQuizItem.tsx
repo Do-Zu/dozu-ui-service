@@ -141,7 +141,7 @@ if (role === USER_ROLES.USER) {
             toast({ title: 'No attempt found', variant: 'destructive' });
             return;
         }
-        router.push(`/class-based/${classIdForRoute}/class-quiz/${quiz.classQuizId}/history?attemptId=${id}`);
+        router.push(`/class-based/${classIdForRoute}/class-quiz/${quiz.classQuizId}/history`);
     };
 
     return (
