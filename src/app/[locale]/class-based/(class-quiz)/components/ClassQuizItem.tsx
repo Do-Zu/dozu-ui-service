@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { DATE_DMY_DASH_FORMAT } from '@/utils/date/constant';
 import { formatDate } from '@/utils';
 import { USER_ROLES, UserRole } from '@/utils/constants/roles';
-import { IClassQuizListItem } from '../types/classQuiz.type';
+import { IClassQuizListItem, IMyAttemptRow } from '../types/classQuiz.type';
 import classQuizTeacherService from '../services/classQuizTeacher.service';
 import { ROUTES } from '@/utils/constants/routes';
 import { toast } from '@/hooks/use-toast';
@@ -24,15 +24,26 @@ interface Props {
     quiz: IClassQuizListItem;
     onRemoved?: (id: number) => void;
     classIdForRoute?: number;
+    attempt?: IMyAttemptRow;
 }
 
-export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
+export default function ClassQuizItem({ role, quiz, classIdForRoute, attempt }: Props) {
     const tCommon = useTranslations('common');
     const router = useRouter();
 
-    if (role === USER_ROLES.USER && quiz.status !== 'published') {
+if (role === USER_ROLES.USER) {
+    const hasAttempt = !!attempt;
+
+    // hide draft + scheduled
+    if (quiz.status === 'draft' || quiz.status === 'scheduled') {
         return null;
     }
+
+    // hide closed quiz UNLESS user has attempt
+    if (quiz.status === 'closed' && !hasAttempt) {
+        return null;
+    }
+}
 
     const statusBadge =
         quiz.status === 'draft' ? (
@@ -122,6 +133,17 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
         router.push(ROUTES.STUDENT.CLASS_BASED_ID_CLASS_QUIZ_START(classIdForRoute, quiz.classQuizId));
     };
 
+    const hasSubmitted = attempt?.status === 'submitted';
+
+    const goHistory = () => {
+        const id = attempt?.attemptId;
+        if (!id) {
+            toast({ title: 'No attempt found', variant: 'destructive' });
+            return;
+        }
+        router.push(`/class-based/${classIdForRoute}/class-quiz/${quiz.classQuizId}/history?attemptId=${id}`);
+    };
+
     return (
         <div className="flex items-center justify-between py-5 px-3 hover:bg-muted/50 rounded-md">
             <div className="flex items-center gap-4">
@@ -153,7 +175,11 @@ export default function ClassQuizItem({ role, quiz, classIdForRoute }: Props) {
             <div className="flex items-center gap-3">
                 {statusBadge}
                 {role === USER_ROLES.USER ? (
-                    canStudentSeeStartButton ? (
+                    hasSubmitted ? (
+                        <Button size="sm" onClick={goHistory}>
+                            History
+                        </Button>
+                    ) : canStudentSeeStartButton ? (
                         <Button size="sm" onClick={handleStudentStart}>
                             <Play className="mr-2 h-4 w-4" /> Start
                         </Button>
