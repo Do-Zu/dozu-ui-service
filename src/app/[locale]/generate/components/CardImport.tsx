@@ -26,7 +26,7 @@ import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
-    onComplete?: (data: any) => void;
+    onComplete?: (data: unknown) => void;
     classProps: ClassPropsInGenerate;
 }
 
@@ -36,7 +36,7 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
     const tFileTab = useTranslations('generate.fileTab');
 
     const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
-    const { step, importMethod, files, selectedMethod, isProcessing, isUploading } = useCardImportSelector(
+    const { step, importMethod, files, selectedMethod, isProcessing } = useCardImportSelector(
         (state) => state.importDialog,
     );
 
@@ -253,12 +253,6 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
                     </Button>
                 </CardFooter>
             </Card>
-            {isUploading && (
-                <LoadingOverlay
-                    title={tFileTab('loading.uploading.title')}
-                    description={tFileTab('loading.uploading.description')}
-                />
-            )}
         </Fragment>
     );
 };

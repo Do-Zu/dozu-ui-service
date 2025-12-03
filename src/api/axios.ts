@@ -2,10 +2,12 @@ import axios from 'axios';
 import { openUpgradeModal } from '@/stores/features/subscription/subscriptionUtils';
 import { getTimestampWithClientOffset } from '@/utils';
 import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
-import { log } from 'console';
+import { ROUTES } from '@/utils/constants/routes';
+
+const BASE_URL_MAI_API = process.env.NEXT_PUBLIC_API_URL;
 
 const Axios = axios.create({
-    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+    baseURL: `${BASE_URL_MAI_API}/api`,
     // attach headers in requestInterceptor later
     // headers: {
     //     'Content-Type': 'application/json',
@@ -15,7 +17,7 @@ const Axios = axios.create({
 Axios.defaults.withCredentials = true;
 
 const RefreshTokenAxiosClient = axios.create({
-    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+    baseURL: `${BASE_URL_MAI_API}/api`,
     // attach headers in requestInterceptor later
     // headers: {
     //     'Content-Type': 'application/json',
@@ -100,7 +102,6 @@ const responseInterceptor = Axios.interceptors.response.use(
         if (error.response) {
             // Handle errors based on HTTP status codes (e.g., 401 Unauthorized, 500 Server Error)
             if (error.response.status === 401 && !originalRequest._retry) {
-
                 //checks if already retried
                 originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
                 try {
@@ -120,9 +121,12 @@ const responseInterceptor = Axios.interceptors.response.use(
                     try {
                         window.localStorage.removeItem('user');
                         window.localStorage.removeItem('isLoggedIn');
+
+                        window.location.href = ROUTES.LOGIN;
                     } catch (localStorageError) {
                         console.error(localStorageError);
                     }
+
                     return Promise.reject(refreshTokenError);
                 }
 

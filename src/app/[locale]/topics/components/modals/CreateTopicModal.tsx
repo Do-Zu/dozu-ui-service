@@ -1,11 +1,12 @@
+import { ChangeEvent, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ICreateTopicPayload } from '@/services/topic/topic.service';
-import { useTranslations } from 'next-intl';
-import Image from 'next/image';
-import { ChangeEvent, useEffect, useState } from 'react';
+import LoadingOverlay from '@/components/loading/LoadingOverLay';
 
 interface Props {
     isOpen: boolean;
@@ -66,6 +67,8 @@ export function CreateTopicModal({ isOpen, setIsOpen, onSubmit, loading }: Props
             title={tCommon('titles.createNew', { name: tTopic('topic') })}
             body={
                 <div className="flex flex-col gap-4">
+                    {loading && <LoadingOverlay />}
+
                     <div className="flex flex-col gap-2">
                         <div className="text-primary text-base font-normal">{tCommon('labels.name')}</div>
                         <Input value={name} onChange={handleNameChange} />

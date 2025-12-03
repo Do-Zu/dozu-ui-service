@@ -2,7 +2,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { User } from '@/types/auth';
-import { getISOTime } from '@/utils';
+import { getISOTime, isNilOrEmpty } from '@/utils';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { useCallback } from 'react';
 
@@ -60,7 +60,7 @@ export function useAuthStorage() {
     }, [removeUser, removeLoginStatus, removeLearningMode]);
 
     const isAuthenticated = useCallback(() => {
-        return !!isLoggedIn && user !== null;
+        return !!isLoggedIn && !isNilOrEmpty(user);
     }, [isLoggedIn, user]);
 
     return {

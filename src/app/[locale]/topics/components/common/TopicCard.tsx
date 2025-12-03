@@ -7,7 +7,6 @@ import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu
 import { ITopic } from '../../types/topic.type';
 
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
-import { useTranslations } from 'next-intl';
 
 interface Props {
     topic: ITopic;
