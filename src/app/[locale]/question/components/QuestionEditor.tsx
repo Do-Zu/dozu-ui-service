@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, Import } from 'lucide-react';
+import { Save, Import, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { postRequest } from '@/api/api';
@@ -57,14 +57,17 @@ const QuestionEditor = ({
 }: Props) => {
     const router = useRouter();
     const [isImportOpen, setIsImportOpen] = useState(false);
+
     const quizWorkspace = useOptionalQuizWorkspace();
     const setGeneratedQuestionsForEdit = quizWorkspace?.setGeneratedQuestionsForEdit;
+
     const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
     const { contentType, dataGenerated, setDataGenerated } = useContentGeneration({
         sseData,
         sseStatus,
     });
 
+    // khởi tạo 3 câu rỗng khi lần đầu mở editor
     useEffect(() => {
         if (questions.length === 0) {
             const initial = Array.from({ length: questionsJump }, (_, i) => createInitialQuestion(i));
@@ -78,30 +81,27 @@ const QuestionEditor = ({
         setQuestions([...questions, ...newQuestions]);
     };
 
-const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
-    // 1. Remove ALL empty questions at the bottom or top
-    let cleaned = [...questions].filter(q =>
-        q.questionText.trim() !== '' ||
-        q.choices.some(c => (c ?? '').trim() !== '')
-    );
+    const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
+        // remove các câu rỗng trước khi append (giống flashcards)
+        let cleaned = [...questions].filter(
+            (q) =>
+                q.questionText.trim() !== '' ||
+                q.choices.some((c) => (c ?? '').trim() !== ''),
+        );
 
-    // 2. Recalculate lastId
-    const lastId = cleaned.length > 0 ? Math.max(...cleaned.map(q => q.id)) : -1;
+        const lastId = cleaned.length > 0 ? Math.max(...cleaned.map((q) => q.id)) : -1;
 
-    // 3. Convert imported into new questions
-    const newItems = imported.map((item, idx) => ({
-        id: lastId + idx + 1,
-        questionText: item.questionText,
-        choices: item.choices,
-        correctIndex: item.correctIndex,
-        questionType: "MULTIPLE_CHOICE",
-    }));
+        const newItems: IQuestion[] = imported.map((item, idx) => ({
+            id: lastId + idx + 1,
+            questionText: item.questionText,
+            choices: item.choices,
+            correctIndex: item.correctIndex,
+            questionType: 'MULTIPLE_CHOICE',
+        }));
 
-    // 4. Apply final list
-    setQuestions([...cleaned, ...newItems]);
-    setIsImportOpen(false);
-};
-
+        setQuestions([...cleaned, ...newItems]);
+        setIsImportOpen(false);
+    };
 
     const handleChangeQuestionText = (order: number, text: string) => {
         setQuestions(
@@ -167,7 +167,6 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
     };
 
     const handleOnClickSave = async () => {
-        // check if question list is empty
         if (!Array.isArray(questions) || questions.length === 0) {
             toast({
                 title: 'No questions to save',
@@ -177,7 +176,6 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
             return;
         }
 
-        // check if all questions are valid (title, >=2 answers, correct index)
         if (!hasAllValidQuestions(questions)) {
             toast({
                 title: 'Invalid questions detected',
@@ -189,10 +187,12 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
         }
 
         const dataSubmitted = handleConvertToQuestionsSubmitted(questions);
+
         try {
             await postRequest(`/questions/batch?topicId=${topic?.topicId}`, dataSubmitted);
             toast({ title: 'Questions saved successfully' });
             setGeneratedQuestionsForEdit?.(null);
+
             if (topic?.topicId !== undefined) {
                 router.push(
                     ROUTES.TOPIC_WORKSPACE({
@@ -217,8 +217,7 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
         );
     };
 
-    // check: must have title, >=2 answers not empty, valid correctIndex
-    const hasAllValidQuestions: (list: IQuestion[]) => boolean = (list: IQuestion[]): boolean => {
+    const hasAllValidQuestions = (list: IQuestion[]): boolean => {
         if (!Array.isArray(list) || list.length === 0) return false;
 
         return list.every((q) => {
@@ -226,7 +225,6 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
             const nonEmptyChoices = Array.isArray(q.choices) ? q.choices.filter((c) => c?.trim().length > 0) : [];
             const hasEnoughChoices = nonEmptyChoices.length >= 2;
 
-            //duplicate check (case-insensitive)
             const lowerChoices = nonEmptyChoices.map((c) => c.toLowerCase());
             const hasDuplicateChoices = new Set(lowerChoices).size !== lowerChoices.length;
 
@@ -235,6 +233,7 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
                 q.correctIndex >= 0 &&
                 q.correctIndex < q.choices.length &&
                 q.choices[q.correctIndex]?.trim().length > 0;
+
             return hasValidText && hasEnoughChoices && !hasDuplicateChoices && hasValidCorrectIndex;
         });
     };
@@ -272,6 +271,7 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
     const canSaveGenerated =
         contentType === CONTENT_TYPE_GENERATE.FLASH_CARD && Array.isArray(dataGenerated) && dataGenerated.length > 0;
 
+    //PREVIEW KHI ĐANG GENERATE FLASHCARDS
     if (previewOpen) {
         return (
             <div className="px-[4rem] py-7 bg-muted min-h-screen">
@@ -301,65 +301,96 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
         );
     }
 
+    //MAIN UI 
     return (
-        <div className="px-[4rem] py-7 bg-muted">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                    {shouldShowBackButton && <BackButton />}
-                    <h1 className="text-[1.7rem] font-bold text-primary">
-                        {topic ? topic.name : 'Questions Generated'}
-                    </h1>
-                </div>
-                <div className="flex gap-4">
-                    {/* <Button onClick={handleGenerateFlashcards} disabled={!hasAnyValidQuestion(questions) || loading}>
-                        Generate Flashcards
-                    </Button> */}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsImportOpen(true)}
-                        className="text-muted-foreground hover:text-primary"
-                    >
-                        <Import size={18} />
-                    </Button>
+        <div className="h-full flex flex-col bg-muted">
+            {/* HEADER STICKY giống FlashcardsEdit */}
+            <div className="sticky top-0 z-40 w-full bg-background border-b shadow-sm">
+                <div className="flex items-center justify-between px-[4rem] py-4">
+                    <div className="flex items-center gap-4">
+                        {shouldShowBackButton && <BackButton />}
+                        <div className="flex flex-col">
+                            <h1 className="text-[1.6rem] font-bold text-primary leading-none">
+                                {topic ? topic.name : 'Questions'}
+                            </h1>
+                            <span className="text-xs text-muted-foreground mt-1">
+                                {questions.filter((q) => !q.serverInfo?.isDeleted).length} questions
+                            </span>
+                        </div>
+                    </div>
 
-                    {shouldShowSaveButton && (
+                    <div className="flex items-center gap-3">
+                        {/* Generate flashcards từ questions */}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleGenerateFlashcards}
+                            disabled={!hasAnyValidQuestion(questions) || loading}
+                            className="hidden md:inline-flex border-primary/30 text-primary hover:bg-primary/5"
+                        >
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Generate Flashcards
+                        </Button>
+
+                        {/* Import questions */}
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={handleOnClickSave}
+                            onClick={() => setIsImportOpen(true)}
                             className="text-muted-foreground hover:text-primary"
                         >
-                            <Save size={18} />
+                            <Import size={18} />
                         </Button>
-                        // <Button onClick={handleOnClickSave}>
-                        //     <Save size={24} /> Save
-                        // </Button>
-                    )}
+
+                        {/* Save */}
+                        {shouldShowSaveButton && (
+                            <Button
+                                variant="default"
+                                size="sm"
+                                onClick={handleOnClickSave}
+                                className="flex items-center gap-2"
+                            >
+                                <Save size={16} />
+                                <span className="hidden sm:inline">Save</span>
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-8 mt-7">
-                {questions
-                    .filter((q) => !q.serverInfo?.isDeleted)
-                    .map((question, index) => (
-                        <QuestionCard
-                            key={question.id}
-                            question={question}
-                            index={index}
-                            allQuestions={questions}
-                            onChangeText={handleChangeQuestionText}
-                            onChangeChoice={handleChangeChoice}
-                            onChangeCorrectIndex={handleChangeCorrectIndex}
-                            onDelete={handleDeleteQuestion}
-                        />
-                    ))}
+            {/* BODY SCROLLABLE */}
+            <div className="h-full overflow-y-auto pb-8">
+                <div className="px-[4rem] py-7">
+                    <div className="grid grid-cols-12 gap-6">
+                        {questions
+                            .filter((q) => !q.serverInfo?.isDeleted)
+                            .map((question, index) => (
+                                <QuestionCard
+                                    key={question.id}
+                                    question={question}
+                                    index={index}
+                                    allQuestions={questions}
+                                    onChangeText={handleChangeQuestionText}
+                                    onChangeChoice={handleChangeChoice}
+                                    onChangeCorrectIndex={handleChangeCorrectIndex}
+                                    onDelete={handleDeleteQuestion}
+                                />
+                            ))}
 
-                <div className="col-span-12 flex justify-center">
-                    <Button onClick={handleAddQuestions}>+ Add Questions</Button>
+                        <div className="col-span-12 mt-2">
+                            <Button
+                                onClick={handleAddQuestions}
+                                variant="outline"
+                                className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
+                            >
+                                + Add more questions
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            {/* IMPORT MODAL */}
             <QuestionImportModal
                 isOpen={isImportOpen}
                 setIsOpen={setIsImportOpen}
@@ -367,10 +398,12 @@ const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
             />
 
             {loading && (
-                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
-                    <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">
-                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                        <p className="text-gray-800 font-medium">Generating flashcards...</p>
+                <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center bg-background px-6 py-5 rounded-xl shadow-lg border border-border">
+                        <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p className="text-sm text-muted-foreground font-medium">
+                            Generating flashcards from your questions...
+                        </p>
                     </div>
                 </div>
             )}
