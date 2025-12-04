@@ -58,8 +58,8 @@ export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
-const flashcardItemHeight = 300;
-const flashcardItemGap = 20;
+export const flashcardItemHeight = 300;
+export const flashcardItemGap = 20;
 
 interface Props {
     flashcards: IFlashcard[]; // flashcards of node or topic

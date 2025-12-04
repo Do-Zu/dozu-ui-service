@@ -118,7 +118,7 @@ const ReferenceDocumentViaPage = ({
                     <Tooltip delayDuration={500}>
                         <TooltipTrigger asChild>
                             <Button
-                                variant="default"
+                                variant="outline"
                                 className="mx-2 justify-start text-left font-normal"
                                 onClick={() => handleReferenceOriginContent(pageStartIndex)}
                             >
@@ -137,7 +137,7 @@ const ReferenceDocumentViaPage = ({
                     <Tooltip delayDuration={500}>
                         <TooltipTrigger asChild>
                             <Button
-                                variant="default"
+                                variant="outline"
                                 className="mx-2 justify-start text-left font-normal"
                                 onClick={() => handleReferenceOriginContent(pageEndIndex)}
                             >

@@ -28,6 +28,8 @@ import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { IGenerateNodeFlashcardsItem } from '../../types/generate.type';
+import MultiNodeFlashcardsPreview from '../flashcard/node/MultiNodeFlashcardsPreview';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -78,11 +80,15 @@ const MindmapContent = ({ mode, role }: Props) => {
     const [isNodeFlashcardsLinkerOpen, setIsNodeFlashcardsLinkerOpen] = useState<boolean>(false);
     const [isNodeFlashcardsLearningOpen, setIsNodeFlashcardsLearningOpen] = useState<boolean>(false);
 
+    const [generatedNodeFlashcards, setGeneratedNodeFlashcards] = useState<IGenerateNodeFlashcardsItem[]>([]);
+    const [isMultiNodeFlashcardsPreviewOpen, setIsMultiNodeFlashcardsPreviewOpen] = useState<boolean>(false);
+
     const isNodeFlashcardsPanelOpen =
         isNodeFlashcardsBrowseOpen ||
         isNodeFlashcardsEditOpen ||
         isNodeFlashcardsLinkerOpen ||
-        isNodeFlashcardsLearningOpen;
+        isNodeFlashcardsLearningOpen ||
+        isMultiNodeFlashcardsPreviewOpen;
 
     function closeAllNodeFlashcardsPanels() {
         setIsNodeFlashcardsBrowseOpen(false);
@@ -135,6 +141,13 @@ const MindmapContent = ({ mode, role }: Props) => {
         dispatch(openSheet());
     }
 
+    function onGenerateMultiNodeFlashcardsSuccess(data: IGenerateNodeFlashcardsItem[]) {
+        dispatch(closeSheet());
+        closeAllNodeFlashcardsPanels();
+        setGeneratedNodeFlashcards(data);
+        setIsMultiNodeFlashcardsPreviewOpen(true);
+    }
+
     const showNodeFlashcardsPanel = useCallback(() => {
         if (!selectedNodeData) return null;
         if (isNodeFlashcardsBrowseOpen) {
@@ -151,12 +164,16 @@ const MindmapContent = ({ mode, role }: Props) => {
                 <NodeFlashcardsLearning nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsLearningClose} />
             );
         }
+        if (isMultiNodeFlashcardsPreviewOpen) {
+            return <MultiNodeFlashcardsPreview generatedNodeFlashcards={generatedNodeFlashcards} />;
+        }
     }, [
         selectedNodeData?.nodeId,
         isNodeFlashcardsBrowseOpen,
         isNodeFlashcardsEditOpen,
         isNodeFlashcardsLinkerOpen,
         isNodeFlashcardsLearningOpen,
+        isMultiNodeFlashcardsPreviewOpen,
     ]);
 
     useEffect(() => {
@@ -251,6 +268,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                             onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
                             onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
                             setIsNodeFlashcardsEditOpen={setIsNodeFlashcardsEditOpen}
+                            onGenerateMultiNodeFlashcardsSuccess={onGenerateMultiNodeFlashcardsSuccess}
                             mode={mode}
                             role={role}
                         />

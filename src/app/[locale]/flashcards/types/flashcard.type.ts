@@ -134,3 +134,14 @@ export interface IUnspashImage {
     width?: number;
     height?: number;
 }
+
+export type IMultiNodeFlashcardInput = {
+    nodeId: string;
+    front: string;
+    back: string;
+};
+
+export type IMultiNodeFlashcardsCreatePayload = {
+    topicId: number;
+    flashcards: IMultiNodeFlashcardInput[];
+};

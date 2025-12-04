@@ -13,6 +13,8 @@ import {
     INextReviewDataByRating,
     IAnkiCard,
     IUnspashImage,
+    IMultiNodeFlashcardsCreatePayload,
+    IMultiNodeFlashcardInput,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
@@ -234,10 +236,13 @@ class FlashcardService {
         return response.data;
     }
 
-    public async toggleStar(topicId: string | number, flashcardId: string | number): Promise<{ flashcardId: number; isStar: boolean }> {
+    public async toggleStar(
+        topicId: string | number,
+        flashcardId: string | number,
+    ): Promise<{ flashcardId: number; isStar: boolean }> {
         const response = await patchRequest<unknown, { flashcardId: number; isStar: boolean }>(
             `/topics/${topicId}/flashcards/${flashcardId}/toggle-star`,
-            {}
+            {},
         );
         if (response.status !== 'success') {
             throw new Error(response.message);
@@ -274,6 +279,20 @@ class FlashcardService {
         }
 
         return result;
+    }
+
+    public async createMultiNodeFlashcards({ topicId, flashcards }: IMultiNodeFlashcardsCreatePayload) {
+        if (flashcards.length === 0) {
+            return [];
+        }
+        const response = await postRequest<{ flashcards: IMultiNodeFlashcardInput[] }, IFlashcard[]>(
+            `/topics/${topicId}/flashcards/multi-node/create`,
+            { flashcards },
+        );
+        if (response.status !== 'created') {
+            throw new Error(response.message);
+        }
+        return response.data;
     }
 }
 

@@ -10,6 +10,8 @@ import { Loader2 } from 'lucide-react';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
 import { TypeMethodLearning } from '@/utils/constants/method';
 import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
+import { GetPreparedData, NodesData } from '../../types/generate.type';
+import toastHelper from '@/utils/toast.helper';
 
 /**
  * Props for the reusable Generate<TRes> component.
@@ -21,7 +23,7 @@ interface IProps<TRes> {
     /** Import method used by the generator. Defaults to 'text'. */
     method?: ImportMethod;
     /** Required type describing what to generate (domain-specific). */
-    type: TypeMethodLearning;
+    type: TypeMethodLearning | 'flashcard_multi_nodes';
     /** Optional custom UI when "generating" (after request sent). Overrides the default spinner. */
     generateNode?: ReactNode;
     /** Optional custom UI while "registering" (pre-flight/queueing). Overrides the default spinner. */
@@ -42,6 +44,8 @@ interface IProps<TRes> {
     /** Always called after attempt finishes (success or failure). Useful for cleanup. */
     onFinally?: () => void;
     customContent?: string;
+    customOptions?: NodesData;
+    getPreparedData?: GetPreparedData;
 }
 
 const DEFAULT_METHOD = 'text';
@@ -58,9 +62,10 @@ function GenerateContent<TRes>({
     onFallBack,
     onFinally,
     customContent,
+    customOptions,
+    getPreparedData,
 }: IProps<TRes>) {
     const { contentTextOrigin } = useTopicWorkspace();
-    const generatingContent = customContent && customContent.length > 0 ? customContent : contentTextOrigin.current;
     const { options } = useGenerateContext();
 
     const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
@@ -72,6 +77,15 @@ function GenerateContent<TRes>({
     const handleStartGenerate = async () => {
         try {
             onHandleBeforeGenerate?.();
+            let generatingContent = contentTextOrigin.current;
+            let generatingOptions = customOptions ? customOptions : options;
+            if (getPreparedData) {
+                const { customContent: preparedContent, customOptions: preparedOptions } = await getPreparedData();
+                if (preparedContent) generatingContent = preparedContent;
+                if (preparedOptions) generatingOptions = preparedOptions;
+            } else if (customContent && typeof customContent === 'string') {
+                generatingContent = customContent;
+            }
 
             if (isNilOrEmpty(generatingContent)) {
                 toast({
@@ -84,9 +98,10 @@ function GenerateContent<TRes>({
                 content: generatingContent,
                 method,
                 type,
-                options,
+                options: generatingOptions,
             });
         } catch (error) {
+            toastHelper.showErrorMessage(error);
             onFallBack?.(error);
         } finally {
             onFinally?.();
