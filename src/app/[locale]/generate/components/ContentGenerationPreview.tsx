@@ -10,6 +10,8 @@ import { CreateTopicModal } from '../../topics/components/modals/CreateTopicModa
 import { ICreateTopicPayload } from '@/services/topic/topic.service';
 import { ICreateClassFeedBody } from '@/services/class-based-learning/classFeed.service';
 import CreateFeedModal, { IDefaultFeed } from '../../teacher/feeds/components/modals/CreateFeedModal';
+import { useCardImportSelector } from '../hooks/useReduxStore';
+import { safeDestructure } from '@/utils';
 
 export type ContentType = 'flashcard' | 'quiz' | 'mindmap';
 
@@ -53,7 +55,7 @@ interface GenerateContentForNodeProps extends BaseContentGenerationProps {
 
 const ContentGenerationPreview: React.FC<ContentGenerationPreviewProps> = (props) => {
     const { shouldCreateTopic, sseData, dataGenerated, setDataGenerated, onSave } = props;
-
+    const { isUploading } = safeDestructure(useCardImportSelector((state) => state.importDialog));
     // Determine content type based on sseData or other criteria
     const getContentType = (): ContentType | null => {
         return detectContentType(sseData);
@@ -82,6 +84,7 @@ const ContentGenerationPreview: React.FC<ContentGenerationPreviewProps> = (props
                         isOpen={props.isTopicModalOpen}
                         setIsOpen={props.setIsTopicModalOpen}
                         onSubmit={onSave}
+                        loading={isUploading}
                     />
                     {props.shouldCreateFeed === true &&
                     props.isFeedModalOpen &&

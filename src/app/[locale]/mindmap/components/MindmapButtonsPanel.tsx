@@ -10,7 +10,7 @@ import VerticalLayoutButton from '@/components/mindmap/button/VerticalLayoutButt
 import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton';
 import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
 import { useMindMapContext } from '../context/MindMapContext';
-import { Expand, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 // import ImportMindmapButton from './buttons/ImportMindmapButton';
 import ImportButton from './buttons/ImportButton';
@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { UserRoleEnum } from '@/utils/constants/roles';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import SelectMultipleButton from '@/components/mindmap/button/SelectMultipleButton';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
@@ -66,6 +67,7 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                             <TooltipContent side="bottom">{isSaving ? 'Saving...' : 'Save mindmap'}</TooltipContent>
                         </Tooltip>
                         <EditMindmapButton isPanelExpanded={isPanelExpanded} />
+                        <SelectMultipleButton />
                     </>
                 ) : (
                     ''

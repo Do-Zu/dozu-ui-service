@@ -5,7 +5,7 @@ import {
   ICreateClassQuizBody,
   IUpsertDraftBody, IUpsertDraftResp,
   IUpdateSettingsBody, IScheduleBody, IPublishResp,
-  IClassQuizListItem, ClassQuizStatus,
+  IClassQuizListItem, ClassQuizStatus, ITeacherClassQuizDetail
 } from '../types/classQuiz.type';
 
 const BASE = '/teacher/class-quiz';
@@ -88,7 +88,7 @@ async listClassQuizzes(classId: number, status?: ClassQuizStatus) {
 
   /** GET /teacher/class-quiz/class-quizzes/:classQuizId */
   getClassQuiz(classQuizId: number) {
-    return getRequest<unknown, { classQuizId: number; title: string; content: string }>(`${BASE}/class-quizzes/${classQuizId}`)
+    return getRequest<unknown, ITeacherClassQuizDetail>(`${BASE}/class-quizzes/${classQuizId}`)
       .then(r => {
         if (r.status !== 'success') throw new Error(r.message);
         return r.data;

@@ -245,8 +245,18 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
         if (!topics) {
             return;
         }
-        const topicsCopied = [...topics];
-        const topicsFiltered = topicsCopied.sort((a, b) => {
+        
+        // Filter by search query
+        let topicsFiltered = [...topics];
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase().trim();
+            topicsFiltered = topicsFiltered.filter(topic => 
+                topic.name.toLowerCase().includes(query)
+            );
+        }
+        
+        // Sort filtered topics
+        topicsFiltered.sort((a, b) => {
             if (sortBy === 'title-asc') {
                 return a.name.localeCompare(b.name, 'vi');
             } else if (sortBy === 'title-desc') {
@@ -263,8 +273,9 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
                 return 0;
             }
         });
+        
         setTopicsFiltered(topicsFiltered);
-    }, [topics, sortBy]);
+    }, [topics, sortBy, searchQuery]);
 
     function handleGenerateClick() {
         router.push(ROUTES.TEACHER.CLASS_BASED_ID_GENERATE(classId));
@@ -319,12 +330,14 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
     // UI Section
 
     const mainActionButtons = (
-        <div className="flex flex-col gap-4">
-            <Button className="bg-background text-foreground" onClick={handleManageStudentsClick}>
-                <Users className="mr-2 h-4 w-4" />
-                <span>{tClass('manageStudents')}</span>
-            </Button>
-        </div>
+        <Button 
+            variant="outline" 
+            className="border-border bg-background hover:bg-muted shadow-sm font-medium" 
+            onClick={handleManageStudentsClick}
+        >
+            <Users className="mr-2 h-4 w-4" />
+            <span>{tClass('manageStudents')}</span>
+        </Button>
     );
 
     const renderFeedCard = (feedGroup: IFeedGroup) => {
@@ -348,7 +361,10 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
             {feeds ? (
                 <div className="mt-5 flex flex-col gap-4">
                     <div className="flex flex-col md:flex-row justify-between items-start">
-                        <Button className="bg-background text-foreground" onClick={() => handleCreateFeedModalOpen()}>
+                        <Button 
+                            className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg shadow-blue-500/20 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400 transition" 
+                            onClick={() => handleCreateFeedModalOpen()}
+                        >
                             <BellRing className="mr-2 h-4 w-4" />
                             Post an Announcement
                         </Button>
@@ -415,11 +431,17 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
     const topicContent = (
         <div className="w-full mx-auto mt-5">
             <div className="mb-4 flex flex-row justify-start items-start gap-4">
-                <Button className="bg-background text-foreground" onClick={handleCreateTopicModalOpen}>
+                <Button 
+                    className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-lg shadow-green-500/20 hover:from-green-400 hover:via-emerald-400 hover:to-teal-400 transition" 
+                    onClick={handleCreateTopicModalOpen}
+                >
                     <Plus className="mr-2 h-4 w-4" />
                     {t('createNewContent')}
                 </Button>
-                <Button className="bg-background text-foreground" onClick={handleGenerateClick}>
+                <Button 
+                    className="relative overflow-hidden rounded-full px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-500 text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-400 hover:via-sky-400 hover:to-cyan-400 transition" 
+                    onClick={handleGenerateClick}
+                >
                     <Sparkles className="mr-2 h-4 w-4" />
                     {tClass('generateContent')}
                 </Button>
@@ -427,7 +449,7 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div className="relative w-full md:w-[300px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
                         placeholder={t('searchPlaceholder')}
                         value={searchQuery}
@@ -438,8 +460,8 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
 
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="flex items-center gap-2">
-                        <Filter className="text-gray-500 h-4 w-4" />
-                        <span className="text-sm text-gray-600">{t('sortBy')}</span>
+                        <Filter className="text-muted-foreground h-4 w-4" />
+                        <span className="text-sm text-muted-foreground">{t('sortBy')}</span>
                     </div>
                     <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
                         <SelectTrigger className="w-[180px]">

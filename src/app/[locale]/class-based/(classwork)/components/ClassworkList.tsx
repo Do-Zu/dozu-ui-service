@@ -38,6 +38,8 @@ import { IClassQuizListItem } from '../../(class-quiz)/types/classQuiz.type';
 import ClassQuizItem from '../../(class-quiz)/components/ClassQuizItem';
 import classQuizTeacherService from '../../(class-quiz)/services/classQuizTeacher.service';
 import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
+import { IMyAttemptRow } from '../../(class-quiz)/types/classQuiz.type';
+import classQuizStudentService from '../../(class-quiz)/services/classQuizStudent.service';
 
 interface AssignmentItemProps {
     role: UserRole;
@@ -285,6 +287,8 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
     const [creatingQuiz, setCreatingQuiz] = useState(false);
     const [classworkByTopic, setClassworkByTopic] = useState<Map<number, IClasswork[]> | null>(null);
     const [selectedTopic, setSelectedTopic] = useState<string>(ALL_TOPICS);
+    const [attemptMap, setAttemptMap] = useState<Map<number, IMyAttemptRow>>(new Map());
+
     const selectedClasswork = classworkUtils.getSelectedClasswork({ classworkByTopic, topicId: selectedTopic });
 
     // delete assignment
@@ -348,17 +352,26 @@ function ClassworkList({ role, myClass, topics: topicsData, classwork, setClassw
         setClassworkByTopic(result);
     }, [classwork, topics]);
 
+    useEffect(() => {
+        if (role !== USER_ROLES.USER) return;
+
+        classQuizStudentService.myAttempts(myClass.classId).then((rows) => {
+            const map = new Map<number, IMyAttemptRow>();
+            rows.forEach((r) => map.set(r.classQuizId, r));
+            setAttemptMap(map);
+        });
+    }, [role, myClass.classId]);
+
     function handleTopicSelect(value: string) {
         setSelectedTopic(value);
     }
 
-function resolveTopicId(): number | null {
-  if (selectedTopic === ALL_TOPICS) return null;
-  if (selectedTopic === NO_TOPIC.topicId?.toString?.()) return null;
-  const n = Number(selectedTopic);
-  return Number.isFinite(n) ? n : null;
-}
-
+    function resolveTopicId(): number | null {
+        if (selectedTopic === ALL_TOPICS) return null;
+        if (selectedTopic === NO_TOPIC.topicId?.toString?.()) return null;
+        const n = Number(selectedTopic);
+        return Number.isFinite(n) ? n : null;
+    }
 
     async function handleSelect(type: IClassworkType) {
         switch (type) {
@@ -369,7 +382,7 @@ function resolveTopicId(): number | null {
                 // ...routing to your page
                 if (creatingQuiz) return;
                 if (!isLoggedIn || !user?.userId) {
-                    toastHelper.showErrorMessage('Bạn cần đăng nhập để tạo quiz');
+                    toastHelper.showErrorMessage('You need to log in to create a quiz');
                     return;
                 }
                 try {
@@ -523,6 +536,7 @@ function resolveTopicId(): number | null {
                                             role={role}
                                             quiz={quiz}
                                             classIdForRoute={myClass.classId}
+                                            attempt={attemptMap.get(quiz.classQuizId)}
                                         />
                                     );
                                 }
@@ -579,6 +593,7 @@ function resolveTopicId(): number | null {
                                                                 role={role}
                                                                 quiz={quiz}
                                                                 classIdForRoute={myClass.classId}
+                                                                attempt={attemptMap.get(quiz.classQuizId)}
                                                             />
                                                         );
                                                     }

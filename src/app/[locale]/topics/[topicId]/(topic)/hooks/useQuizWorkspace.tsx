@@ -76,6 +76,9 @@ export interface QuizWorkspaceState {
 
     generatedQuestionsForEdit: IQuestion[] | null;
     setGeneratedQuestionsForEdit: Dispatch<SetStateAction<IQuestion[] | null>>;
+
+    hasAnyQuestions: boolean | null;
+    setHasAnyQuestions: Dispatch<SetStateAction<boolean | null>>;
 }
 
 export default function useQuizWorkspaceState(): QuizWorkspaceState {
@@ -106,6 +109,8 @@ export default function useQuizWorkspaceState(): QuizWorkspaceState {
     const [doingMode, setDoingMode] = useState<boolean>(false);
 
     const [generatedQuestionsForEdit, setGeneratedQuestionsForEdit] = useState<IQuestion[] | null>(null);
+
+    const [hasAnyQuestions, setHasAnyQuestions] = useState<boolean | null>(null);
 
     return {
         quizMode,
@@ -144,5 +149,7 @@ export default function useQuizWorkspaceState(): QuizWorkspaceState {
         setDoingMode,
         generatedQuestionsForEdit,
         setGeneratedQuestionsForEdit,
+        hasAnyQuestions,
+        setHasAnyQuestions,
     };
 }

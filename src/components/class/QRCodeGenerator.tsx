@@ -120,7 +120,7 @@ export function QRCodeGenerator({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* QR Code Display */}
-        <div className="flex justify-center p-4 bg-white dark:bg-gray-100 rounded-lg border">
+        <div className="flex justify-center p-4 bg-muted rounded-lg border">
           <div>
             <QRCodeSVG
               ref={svgRef}
@@ -172,7 +172,7 @@ export function QRCodeGenerator({
         {/* Link Display */}
         <div className="space-y-2">
           <Label>Invite Link:</Label>
-          <div className="p-2 bg-gray-50 rounded border text-sm font-mono break-all">
+          <div className="p-2 bg-muted rounded border text-sm font-mono break-all">
             {inviteLink}
           </div>
         </div>

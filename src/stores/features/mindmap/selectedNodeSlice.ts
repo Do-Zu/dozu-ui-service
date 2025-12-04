@@ -4,11 +4,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface SelectedNodeState {
     isSheetOpen: boolean;
     selectedNodeData: CustomNodeData | undefined;
+    selectedNodeIds: string[];
+    isMultiSelectMode: boolean;
 }
 
 const initialState: SelectedNodeState = {
     isSheetOpen: false,
     selectedNodeData: undefined,
+    selectedNodeIds: [],
+    isMultiSelectMode: false,
 };
 
 export const selectedNodeSlice = createSlice({
@@ -27,9 +31,36 @@ export const selectedNodeSlice = createSlice({
         setSelectedNodeData: (state, action: PayloadAction<CustomNodeData>) => {
             state.selectedNodeData = action.payload;
         },
+        toggleNodeSelection: (state, action: PayloadAction<string>) => {
+            const nodeId = action.payload;
+            const index = state.selectedNodeIds.indexOf(nodeId);
+
+            if (index > -1) {
+                // state.selectedNodeIds = state.selectedNodeIds.filter((id) => id !== nodeId);
+            } else {
+                state.selectedNodeIds = [...state.selectedNodeIds, nodeId];
+            }
+        },
+        clearNodeSelection: (state) => {
+            state.selectedNodeIds = [];
+        },
+        setMultiSelectMode: (state, action: PayloadAction<boolean>) => {
+            state.isMultiSelectMode = action.payload;
+            if (!action.payload) {
+                state.selectedNodeIds = [];
+            }
+        },
     },
 });
 
-export const { openSheet, closeSheet, setIsSheetOpen, setSelectedNodeData } = selectedNodeSlice.actions;
+export const {
+    openSheet,
+    closeSheet,
+    setIsSheetOpen,
+    setSelectedNodeData,
+    toggleNodeSelection,
+    clearNodeSelection,
+    setMultiSelectMode,
+} = selectedNodeSlice.actions;
 
 export default selectedNodeSlice.reducer;
