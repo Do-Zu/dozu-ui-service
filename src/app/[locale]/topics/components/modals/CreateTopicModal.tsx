@@ -1,3 +1,4 @@
+import LoadingPage from '@/app/loading';
 import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,6 +67,8 @@ export function CreateTopicModal({ isOpen, setIsOpen, onSubmit, loading }: Props
             title={tCommon('titles.createNew', { name: tTopic('topic') })}
             body={
                 <div className="flex flex-col gap-4">
+                    {loading && <LoadingPage isOverlay={true} size={100} />}
+
                     <div className="flex flex-col gap-2">
                         <div className="text-primary text-base font-normal">{tCommon('labels.name')}</div>
                         <Input value={name} onChange={handleNameChange} />

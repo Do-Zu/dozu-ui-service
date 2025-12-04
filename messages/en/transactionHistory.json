@@ -1,0 +1,26 @@
+{
+  "transactionHistory": {
+    "title": "Transaction History",
+    "loading": "Loading...",
+    "error": "Error",
+    "noTransactions": "You have no transactions yet",
+    "table": {
+      "transactionCode": "Transaction Code",
+      "description": "Description",
+      "amount": "Amount",
+      "status": "Status",
+      "transactionDate": "Transaction Date",
+      "gateway": "Payment Gateway"
+    },
+    "status": {
+      "success": "Success",
+      "pending": "Pending",
+      "processing": "Processing",
+      "failed": "Failed",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
+    "notAvailable": "N/A"
+  }
+}
+

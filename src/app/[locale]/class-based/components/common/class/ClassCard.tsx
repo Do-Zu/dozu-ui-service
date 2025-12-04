@@ -13,6 +13,7 @@ import { MoreVertical } from 'lucide-react';
 import Image from 'next/image';
 import { formatDate } from '@/utils';
 import roleHelper from '@/utils/role.helper';
+import { BackgroundGradientCard } from '@/components/common/BackgroundGradientCard';
 
 interface BaseProps {
     myClass: IClass;
@@ -36,60 +37,69 @@ const ClassCard: React.FC<ClassCardProps> = ({ role, myClass, handleNameClick, m
     const { enrolledAt } = myClass;
 
     return (
-        <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:cursor-pointer bg-gray-50 dark:bg-gray-600">
-            <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                    <CardTitle className="w-full flex flex-row gap-4 text-lg font-medium truncate">
-                        <ShowIf when={roleHelper.isStudent(role)}>
-                            <Avatar>
-                                <AvatarImage src={teacherImageUrl} alt="Avatar" />
-                            </Avatar>
-                        </ShowIf>
-                        <div className="flex flex-row gap-2 items-center">
+        <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-primary/50 cursor-pointer bg-card border border-border shadow-md rounded-xl">
+            <BackgroundGradientCard />
+            <div className="relative z-10">
+                <CardHeader className="pb-2 px-5 pt-5">
+                    <div className="flex justify-between items-start gap-3">
+                        <CardTitle className="flex-1 flex flex-row gap-3 text-base font-semibold truncate text-foreground">
+                            <ShowIf when={roleHelper.isStudent(role)}>
+                                <Avatar className="h-8 w-8 flex-shrink-0">
+                                    <AvatarImage src={teacherImageUrl} alt="Avatar" />
+                                </Avatar>
+                            </ShowIf>
                             <div
-                                className="hover:underline hover:text-blue-400 transition"
+                                className="group relative cursor-pointer truncate font-semibold transition-all duration-300"
                                 onClick={() => handleNameClick({ classId })}
                             >
-                                {name}
+                                <span className="opacity-100 group-hover:opacity-0 transition-opacity duration-300">
+                                    {name}
+                                </span>
+                                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-primary via-primary to-primary/95 bg-clip-text text-transparent truncate transition-opacity duration-300">
+                                    {name}
+                                </span>
                             </div>
-                        </div>
-                    </CardTitle>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:pointer-events-auto">
-                                <MoreVertical className="h-4 w-4 text-gray-500" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        {menuContent(myClass)}
-                    </DropdownMenu>
-                </div>
-            </CardHeader>
-            <CardContent>
+                        </CardTitle>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 hover:bg-muted rounded-lg flex-shrink-0"
+                                >
+                                    <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            {menuContent(myClass)}
+                        </DropdownMenu>
+                    </div>
+                </CardHeader>
+            <CardContent className="px-5 pb-5">
                 <div
-                    className={`relative h-44 rounded-md mb-3 flex items-center justify-center ${
-                        !imageUrl ? 'bg-gray-200 dark:bg-gray-400' : ''
+                    className={`relative h-44 rounded-xl mb-4 flex items-center justify-center overflow-hidden ${
+                        !imageUrl ? 'bg-muted' : ''
                     }`}
                 >
                     {imageUrl ? (
-                        <Image fill className="object-contain" alt="Item Image" src={imageUrl} />
+                        <Image fill className="object-cover" alt="Item Image" src={imageUrl} />
                     ) : (
-                        <div className="text-gray-500 dark:text-slate-500 text-lg">Preview</div>
+                        <div className="text-muted-foreground text-sm font-medium">Preview</div>
                     )}
                 </div>
-                <div className="flex flex-col text-xs text-foreground justify-between">
+                <div className="flex flex-col text-xs text-muted-foreground">
                     <div className="flex flex-row justify-between items-center">
                         <div>
                             {roleHelper.isTeacher(role) ? (
-                                <>
-                                    Created At: <span className="font-bold">{formatDate(createdAt)}</span>
-                                </>
+                                <span className="text-xs">
+                                    Created <span className="font-medium text-foreground">{formatDate(createdAt)}</span>
+                                </span>
                             ) : (
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex flex-row gap-2">
-                                        Your teacher: <span className="font-bold">{teacherName}</span>
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="text-xs">
+                                        Teacher: <span className="font-medium text-foreground">{teacherName}</span>
                                     </div>
-                                    <div className="flex flex-row gap-2">
-                                        Enrolled At: <span className="font-bold">{formatDate(enrolledAt!)}</span>
+                                    <div className="text-xs">
+                                        Enrolled <span className="font-medium text-foreground">{formatDate(enrolledAt!)}</span>
                                     </div>
                                 </div>
                             )}
@@ -97,6 +107,7 @@ const ClassCard: React.FC<ClassCardProps> = ({ role, myClass, handleNameClick, m
                     </div>
                 </div>
             </CardContent>
+            </div>
         </Card>
     );
 }

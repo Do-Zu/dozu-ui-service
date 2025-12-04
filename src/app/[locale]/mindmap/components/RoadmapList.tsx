@@ -13,10 +13,8 @@ interface RoadmapListProps {
     allEdges?: AppEdge[];
     getImmediateChildNodes?: (parentNodeId: string) => AppNode[];
     normalizeRoadmapOrder?: (nodes: AppNode[]) => AppNode[];
-    role?:UserRoleEnum.USER|UserRoleEnum.TEACHER;
+    role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
-
-
 
 export default function RoadmapList({
     initialItems,
@@ -25,7 +23,7 @@ export default function RoadmapList({
     allEdges,
     getImmediateChildNodes,
     normalizeRoadmapOrder,
-    role
+    role,
 }: RoadmapListProps) {
     const [items, setItems] = useState<AppNode[]>(initialItems);
     const [currentNode, setCurrentNode] = useState<AppNode | null>(null); // Track the node being drilled into
@@ -155,7 +153,9 @@ export default function RoadmapList({
                         <ChevronLeft className="h-4 w-4" />
                         Back
                     </Button>
-                    <span className="text-sm text-muted-foreground truncate">{currentNode?.data.label}</span>
+                    <span className="text-sm text-muted-foreground min-w-0 flex-1 whitespace-normal break-words">
+                        {currentNode?.data.label}
+                    </span>{' '}
                 </div>
             )}
 

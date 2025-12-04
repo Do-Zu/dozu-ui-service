@@ -113,7 +113,7 @@ export const ROUTES = Object.freeze({
 
         CLASS_TOPIC_WORKSPACE: ({ classId, topicId }: { classId: number; topicId: number }) =>
             `/teacher/class-based/${classId}/topics/${topicId}`,
-        CLASS_BASED_ID_CLASS_QUIZ_LIST: (classId: number) => `/teacher/class-based/${classId}/class-quiz`,
+        CLASS_BASED_ID_CLASS_QUIZ_LIST: (classId: number) => `/teacher/class-based/${classId}`,
         CLASS_BASED_ID_CLASS_QUIZ_EDIT: (classId: number, classQuizId: number) =>
             `/teacher/class-based/${classId}/class-quiz/${classQuizId}/edit`,
         CLASS_BASED_ID_CLASS_QUIZ_ACTIVITY: (classId: number, classQuizId: number) =>

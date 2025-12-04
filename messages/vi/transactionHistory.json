@@ -1,0 +1,26 @@
+{ 
+  "transactionHistory": {
+    "title": "Lịch sử giao dịch",
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "noTransactions": "Bạn chưa có giao dịch nào",
+    "table": {
+      "transactionCode": "Mã giao dịch",
+      "description": "Mô tả",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "transactionDate": "Ngày giao dịch",
+      "gateway": "Cổng thanh toán"
+    },
+    "status": {
+      "success": "Thành công",
+      "pending": "Đang chờ",
+      "processing": "Đang xử lý",
+      "failed": "Thất bại",
+      "expired": "Hết hạn",
+      "cancelled": "Đã hủy"
+    },
+    "notAvailable": "N/A"
+  }
+}
+
