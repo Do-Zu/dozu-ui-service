@@ -9,6 +9,7 @@ import { Fragment, Suspense } from 'react';
 import { ShowIf } from '../ui/ShowIf';
 import { LearningModeSelect } from './LearningModeSelect';
 import Pomodoro from '../pomodoro/Pomodoro';
+import Image from 'next/image';
 
 function TokenHandler() {
     // const dispatch = useAppDispatch();
@@ -29,7 +30,7 @@ export default function Navbar() {
     const { isAuthenticated, currentPlanUser } = useAuth();
     const { isStudent } = useRoleChecker();
     const { isDisplay: isDisplayPomodoro } = useSelector((state: RootState) => state.pomodoro);
-    
+
     const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
 
     // useEffect(() => {
@@ -66,6 +67,12 @@ export default function Navbar() {
         <Fragment>
             <div className="mx-auto flex px-4 py-2 justify-between items-center h-full border-b border-transparent bg-gradient-to-r from-background/70 via-background/40 to-background/70 dark:from-slate-950/60 dark:via-slate-900/40 dark:to-slate-950/60 backdrop-blur-md supports-[backdrop-filter]:bg-background/40">
                 <div className="flex items-center gap-3">
+                    <Image
+                        src="https://res.cloudinary.com/dsvllb1am/image/upload/v1764839005/icon_a1vkdp.png"
+                        alt="logo"
+                        width={40}
+                        height={40}
+                    />
                     <Link
                         href="/"
                         className="text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 dark:from-indigo-300 dark:via-sky-300 dark:to-cyan-300 bg-clip-text text-transparent"
@@ -81,7 +88,7 @@ export default function Navbar() {
                         <LearningModeSelect />
                     </ShowIf>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                     {isDisplayPomodoro && <Pomodoro position="top-center" positionY={-6} positionX={-30} />}
                 </div>
