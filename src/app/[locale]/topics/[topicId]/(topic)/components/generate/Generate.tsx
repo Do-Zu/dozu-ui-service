@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
 import { TypeMethodLearning } from '@/utils/constants/method';
 import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
-import { GetPreparedData, NodesData } from '../../types/generate.type';
+import { GetPreparedData, IGenerateType, NodesData } from '../../types/generate.type';
 import toastHelper from '@/utils/toast.helper';
 
 /**
@@ -23,7 +23,7 @@ interface IProps<TRes> {
     /** Import method used by the generator. Defaults to 'text'. */
     method?: ImportMethod;
     /** Required type describing what to generate (domain-specific). */
-    type: TypeMethodLearning | 'flashcard_multi_nodes';
+    type: IGenerateType;
     /** Optional custom UI when "generating" (after request sent). Overrides the default spinner. */
     generateNode?: ReactNode;
     /** Optional custom UI while "registering" (pre-flight/queueing). Overrides the default spinner. */
