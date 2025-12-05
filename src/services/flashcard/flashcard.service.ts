@@ -1,27 +1,29 @@
-import { getRequest, patchRequest, postRequest } from '@/api/api';
+import { deleteRequest, getRequest, patchRequest, postRequest } from '@/api/api';
 import {
     IFlashcard,
-    IImageSaveInput,
     IFlashcardsBatchInput,
     IFlashcardsForNodeBatchInput,
-    IFlashcardsWithTopicName,
     IFlashcardBatchResult,
     IDueAnkiCard,
     IAnkiCardReviewed,
-    IAnkiResult,
     IFlashcardLearningState,
     INextReviewDataByRating,
     IAnkiCard,
     IUnspashImage,
-    IMultiNodeFlashcardsCreatePayload,
-    IMultiNodeFlashcardInput,
+    ICreateFlashcardsForTopicPayload,
+    IUpdateFlashcardsInTopicPayload,
+    IDeleteFlashcardsInTopicPayload,
+    InsertFlashcardsBody,
+    IUpdateFlashcardsBody,
+    IBatchFlashcardsInTopicPayload,
+    IBatchFlashcardsInTopicResult,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
-import { flashcardRoutes } from '@/utils/constants/api.routes';
 import { activityTrackingService } from '@/services/gamification/activityTracking.service';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
 import AnkiService from '../anki/anki.service';
+import { ApiResponse } from '@/api/type';
 
 export interface IFlashcardReviewPayload {
     topicId: string | number;
@@ -37,20 +39,7 @@ export interface IFlashcardReviewByAnkiPayload {
 
 class FlashcardService {
     public async getFlashcardsForTopic(topicId: string | number) {
-        const response = await getRequest<unknown, IFlashcard[]>(
-            flashcardRoutes(topicId).GET_FLASHCARDS_WITHOUT_TOPIC_INFO,
-        );
-        if (response.status !== 'success') {
-            throw new Error(response.message);
-        }
-        return response.data;
-    }
-
-    public async getFlashcardsWithTopicInfo(topicId: string | number) {
-        const response = await getRequest<unknown, IFlashcardsWithTopicName>(
-            flashcardRoutes(topicId).GET_FLASHCARDS_WITH_TOPIC_INFO,
-        );
-
+        const response = await getRequest<unknown, IFlashcard[]>(`/topics/${topicId}/flashcards?includeTopic=false`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -58,7 +47,7 @@ class FlashcardService {
     }
 
     public async getDueAnkiCardsForTopic(topicId: string | number) {
-        const response = await getRequest<unknown, IDueAnkiCard[]>(flashcardRoutes(topicId).GET_DUE_FLASHCARDS);
+        const response = await getRequest<unknown, IDueAnkiCard[]>(`/topics/${topicId}/flashcards/v2/learning`);
         if (response.status !== 'success') {
             throw new Error(response.message);
         }
@@ -73,7 +62,7 @@ class FlashcardService {
         flashcards: IFlashcardsBatchInput;
     }): Promise<IFlashcardBatchResult> {
         const response = await postRequest<IFlashcardsBatchInput, IFlashcardBatchResult>(
-            flashcardRoutes(topicId).BATCH_FLASHCARDS,
+            `/topics/${topicId}/flashcards/batch/changes`,
             flashcards,
         );
         if (response.status != 'created') {
@@ -92,7 +81,7 @@ class FlashcardService {
         flashcards: IFlashcardsBatchInput;
     }) {
         const response = await postRequest<IFlashcardsForNodeBatchInput, {}>(
-            flashcardRoutes(topicId).BATCH_FLASHCARDS_FOR_NODE,
+            `/topics/${topicId}/flashcards/batch/node`,
             {
                 nodeId,
                 flashcards,
@@ -101,26 +90,6 @@ class FlashcardService {
         if (response.status != 'created') {
             throw new Error(response.message);
         }
-        return response.data;
-    }
-
-    public async reviewFlashcardWithQuality({ topicId, flashcardId, qualityResponse }: IFlashcardReviewPayload) {
-        const response = await patchRequest<{ qualityResponse: IQualityResponse }, {}>(
-            flashcardRoutes(topicId).REVIEW_FLASHCARD_WITH_QUALITY({ flashcardId }),
-            { qualityResponse },
-        );
-        if (response.status !== 'success') {
-            throw new Error(response.message);
-        }
-
-        // Track flashcard review activity for streak
-        const score = this.calculateFlashcardScore(qualityResponse);
-        await activityTrackingService.trackFlashcardReview(
-            Number(flashcardId),
-            score,
-            0, // Duration - you might want to track this in the future
-        );
-
         return response.data;
     }
 
@@ -136,7 +105,7 @@ class FlashcardService {
 
     public async reviewFlashcardByAnki({ topicId, flashcardId, rating }: IFlashcardReviewByAnkiPayload) {
         const response = await patchRequest<{ rating: IAnkiRating }, IAnkiCardReviewed | null>(
-            flashcardRoutes(topicId).REVIEW_FLASHCARD_WITH_QUALITY({ flashcardId }),
+            `/topics/${topicId}/flashcards/${flashcardId}/review`,
             { rating },
         );
         if (response.status !== 'success') {
@@ -159,29 +128,6 @@ class FlashcardService {
     }
 
     /**
-     * Convert quality response to score (0-100)
-     */
-    private calculateFlashcardScore(qualityResponse: IQualityResponse): number {
-        // Quality response mapping to score:
-        // 0: Complete blackout -> 0
-        // 1: Incorrect; easy interval -> 20
-        // 2: Incorrect; normal interval -> 40
-        // 3: Correct; difficult -> 60
-        // 4: Correct; normal -> 80
-        // 5: Correct; easy -> 100
-        const scoreMap = {
-            0: 0, // Complete blackout
-            1: 20, // Incorrect; easy interval
-            2: 40, // Incorrect; normal interval
-            3: 60, // Correct; difficult
-            4: 80, // Correct; normal
-            5: 100, // Correct; easy
-        };
-
-        return scoreMap[qualityResponse as keyof typeof scoreMap] || 0;
-    }
-
-    /**
      * Convert Anki rating to score (0-100)
      */
     private calculateAnkiScore(rating: IAnkiRating): number {
@@ -198,42 +144,6 @@ class FlashcardService {
         };
 
         return scoreMap[rating as keyof typeof scoreMap] || 0;
-    }
-
-    public async batchFlashcardsForTopicState({
-        topicId,
-        flashcards,
-    }: {
-        topicId: number;
-        flashcards: IFlashcardsBatchInput;
-    }): Promise<{ flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }> {
-        const response = await postRequest<
-            IFlashcardsBatchInput,
-            { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
-        >(`/topics/${topicId}/flashcards/batch/state`, flashcards);
-        if (response.status != 'success') {
-            throw new Error(response.message);
-        }
-        return response.data;
-    }
-
-    public async batchFlashcardsForNodeState({
-        topicId,
-        nodeId,
-        flashcards,
-    }: {
-        topicId: number;
-        nodeId: string;
-        flashcards: IFlashcardsBatchInput;
-    }): Promise<{ flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }> {
-        const response = await postRequest<
-            IFlashcardsForNodeBatchInput,
-            { flashcards: IFlashcard[]; dueAnkiCards: IDueAnkiCard[] }
-        >(`/topics/${topicId}/flashcards/batch/node/state`, { nodeId, flashcards });
-        if (response.status != 'success') {
-            throw new Error(response.message);
-        }
-        return response.data;
     }
 
     public async toggleStar(
@@ -281,18 +191,61 @@ class FlashcardService {
         return result;
     }
 
-    public async createMultiNodeFlashcards({ topicId, flashcards }: IMultiNodeFlashcardsCreatePayload) {
+    public async createFlashcardsForTopic({ topicId, flashcards }: ICreateFlashcardsForTopicPayload) {
         if (flashcards.length === 0) {
             return [];
         }
-        const response = await postRequest<{ flashcards: IMultiNodeFlashcardInput[] }, IFlashcard[]>(
-            `/topics/${topicId}/flashcards/multi-node/create`,
+        const response = await postRequest<{ flashcards: InsertFlashcardsBody }, IFlashcard[]>(
+            `/topics/${topicId}/flashcards/v2`,
             { flashcards },
         );
         if (response.status !== 'created') {
             throw new Error(response.message);
         }
         return response.data;
+    }
+
+    public async updateFlashcardsInTopic({ topicId, flashcards }: IUpdateFlashcardsInTopicPayload) {
+        if (flashcards.length === 0) {
+            return [];
+        }
+        const response = await patchRequest<{ flashcards: IUpdateFlashcardsBody }, IFlashcard[]>(
+            `/topics/${topicId}/flashcards/v2`,
+            { flashcards },
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    public async deleteFlashcardsInTopic({ topicId, flashcards }: IDeleteFlashcardsInTopicPayload) {
+        if (flashcards.length === 0) {
+            return [];
+        }
+        const response = await deleteRequest<{ flashcards: number[] }, ApiResponse<number[]>>(
+            `/topics/${topicId}/flashcards/v2`,
+            { flashcards },
+        );
+        if (response.status !== 'success') {
+            throw new Error(response.message);
+        }
+        return response.data;
+    }
+
+    // new version of batching flashcards in topic function
+    public async batchFlashcardsInTopic({ topicId, data }: IBatchFlashcardsInTopicPayload) {
+        const result = await Promise.all([
+            this.createFlashcardsForTopic({ topicId, flashcards: data.createInputs }),
+            this.updateFlashcardsInTopic({ topicId, flashcards: data.updateInputs }),
+            this.deleteFlashcardsInTopic({ topicId, flashcards: data.deleteIds }),
+        ]);
+
+        return {
+            createdFlashcards: result[0],
+            updatedFlashcards: result[1],
+            deletedFlashcards: result[2],
+        } as IBatchFlashcardsInTopicResult;
     }
 }
 

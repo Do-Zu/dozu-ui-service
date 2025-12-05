@@ -93,67 +93,6 @@ class FlashcardUtils {
         return initialFlashcards;
     }
 
-    public prepareFlashcardsForSubmit(flashcards: IEditingFlashcard[]): IFlashcardsBatchInput | null {
-        if (!flashcards) return null;
-
-        let flashcardsFormatted = flashcards.map((flashcard) => {
-            return {
-                ...flashcard,
-                front: flashcard.front.trim(),
-                back: flashcard.back.trim(),
-            };
-        });
-
-        let flashcardsAdded: IFlashcardCreateInput[];
-        let flashcardsUpdated: IFlashcardUpdateInput[];
-        let flashcardsDeleted: number[];
-
-        let flashcardsFilter;
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return !flashcard.serverInfo && (flashcard.front !== '' || flashcard.back !== '');
-        });
-        flashcardsAdded = flashcardsFilter.map((flashcard) => ({
-            front: flashcard.front,
-            back: flashcard.back,
-            image: flashcard.image ? flashcard.image : undefined,
-        }));
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return (
-                flashcard.serverInfo &&
-                flashcard.serverInfo.isUpdated &&
-                !flashcard.serverInfo.isDeleted &&
-                (flashcard.front !== '' || flashcard.back !== '')
-            );
-        });
-        flashcardsUpdated = flashcardsFilter.map((flashcard) => ({
-            flashcardId: flashcard.serverInfo!.flashcardId,
-            front: flashcard.front,
-            back: flashcard.back,
-            image: flashcard.image ? flashcard.image : undefined,
-        }));
-
-        flashcardsFilter = flashcardsFormatted.filter((flashcard) => {
-            return (
-                flashcard.serverInfo &&
-                (flashcard.serverInfo.isDeleted ||
-                    (flashcard.serverInfo.isUpdated && flashcard.front === '' && flashcard.back === ''))
-            );
-        });
-        flashcardsDeleted = flashcardsFilter.map((flashcard) => flashcard.serverInfo!.flashcardId);
-
-        if (
-            (!flashcardsAdded || flashcardsAdded.length === 0) &&
-            (!flashcardsUpdated || flashcardsUpdated.length === 0) &&
-            (!flashcardsDeleted || flashcardsDeleted.length === 0)
-        )
-            return null;
-
-        let dataSubmitted: IFlashcardsBatchInput = { flashcardsAdded, flashcardsUpdated, flashcardsDeleted };
-        return dataSubmitted;
-    }
-
     public convertToEditingFlashcards(flashcards: IFlashcard[]): IEditingFlashcard[] {
         const initialFlashcards: IEditingFlashcard[] = flashcards.map((flashcard, index) => {
             return {

@@ -1,14 +1,14 @@
 import { useTranslations } from 'next-intl';
 import React from 'react';
-import FlashcardsEdit, { IEditingFlashcard, ILocalFlashcard } from '../edit/FlashcardsEdit';
-import { useRequireFlashcards, useRequireLearningFlashcards } from '../../../context/useRequireFlashcardContent';
+import FlashcardsEdit, { IEditingFlashcard } from '../edit/FlashcardsEdit';
+import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
 import toastHelper from '@/utils/toast.helper';
-import flashcardUtils, { initialFlashcardsCount } from '../../../utils/flashcard.utils';
 import EmptyNodeFlashcards from './EmptyNodeFlashcards';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import useBatchFlashcardsForNode from '../../../hooks/flashcard/useBatchFlashcardsForNode';
 import Generate from '../../generate/Generate';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
+import flashcardEditUtils from '../../../utils/flashcard/flashcardEdit.utils';
 
 interface Props {
     nodeId: string;
@@ -20,27 +20,24 @@ export default function NodeFlashcardsEdit({ nodeId, onClose }: Props) {
     const tFlashcardEdit = useTranslations('flashcard.edit');
 
     const { topicId } = useTopicWorkspace();
-    const { flashcards, setFlashcards } = useRequireFlashcards();
-    const { setLearningFlashcards } = useRequireLearningFlashcards();
+    const { flashcards } = useRequireFlashcards();
     const nodeFlashcards = flashcards.filter((item) => item.nodeId === nodeId);
-    const { generatingFlashcards, setGeneratingFlashcards } = useTopicWorkspace();
+    const { generatingFlashcards, setGeneratingFlashcards, onBatchFlashcardsSuccess } = useTopicWorkspace();
 
     const { loading, execute } = useBatchFlashcardsForNode(nodeId, {
         onSuccess(data) {
-            setFlashcards(data.flashcards);
-            setLearningFlashcards(data.dueAnkiCards);
-            setGeneratingFlashcards(null);
+            onBatchFlashcardsSuccess(data);
             toastHelper.showSuccessMessage(tCommon('messages.updateSuccess', { name: 'Flashcards' }));
         },
     });
 
     async function handleSaveClick(nodeEditingFlashcards: IEditingFlashcard[]) {
-        const flashcardsSubmitted = flashcardUtils.prepareFlashcardsForSubmit(nodeEditingFlashcards);
-        if (!flashcardsSubmitted) {
+        const data = flashcardEditUtils.prepareFlashcardsForSubmit(nodeEditingFlashcards);
+        if (!data) {
             toastHelper.showSuccessMessage(tFlashcardEdit('messages.noFlashcardChanges'));
             return;
         }
-        await execute({ topicId, flashcards: flashcardsSubmitted });
+        await execute({ topicId, data });
     }
 
     return (

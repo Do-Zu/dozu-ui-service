@@ -6,15 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { flashcardItemGap, flashcardItemHeight, IEditingFlashcard } from '../edit/FlashcardsEdit';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
-import flashcardUtils from '../../../utils/flashcard.utils';
 import { useTranslations } from 'next-intl';
 import { Separator } from '@/components/ui/separator';
 import usePost from '@/hooks/usePost';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import toastHelper from '@/utils/toast.helper';
 import {
-    IMultiNodeFlashcardInput,
-    IMultiNodeFlashcardsCreatePayload,
+    ICreateFlashcardsForTopicPayload,
+    IFlashcard,
+    InsertFlashcardsBody,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 
@@ -32,7 +32,7 @@ interface Props {
 // !todo: handle set generatedNodeFlashcards to null if success
 export default function MultiNodeFlashcardsPreview({ generatedNodeFlashcards, onClose }: Props) {
     const tFlashcardCommon = useTranslations('flashcard.common');
-    const { topicId } = useTopicWorkspace();
+    const { topicId, onCreateFlashcardsSuccess } = useTopicWorkspace();
     const { nodes } = useMindMapContext();
     const [editingFlashcards, setEditingFlashcards] = useState<MultiNodeEditingFlashcard[]>([]);
 
@@ -54,14 +54,19 @@ export default function MultiNodeFlashcardsPreview({ generatedNodeFlashcards, on
         setEditingFlashcards(result);
     }, [generatedNodeFlashcards]);
 
-    const { loading, execute } = usePost(flashcardService.createMultiNodeFlashcards, 'POST', {
-        onError(error) {
-            toastHelper.showErrorMessage(error);
+    const { loading, execute } = usePost<ICreateFlashcardsForTopicPayload, IFlashcard[]>(
+        flashcardService.createFlashcardsForTopic,
+        'POST',
+        {
+            onError(error) {
+                toastHelper.showErrorMessage(error);
+            },
+            onSuccess(data) {
+                toastHelper.showSuccessMessage('Create flashcards successfully.');
+                onCreateFlashcardsSuccess(data);
+            },
         },
-        onSuccess(data) {
-            toastHelper.showSuccessMessage('Create flashcards successfully.');
-        },
-    });
+    );
 
     function getNodeLabel(nodeId: string): string {
         const node = nodes.find((node) => node.data.nodeId === nodeId);
@@ -69,7 +74,7 @@ export default function MultiNodeFlashcardsPreview({ generatedNodeFlashcards, on
     }
 
     async function onSaveClick() {
-        const flashcardsInput: IMultiNodeFlashcardInput[] = [];
+        const flashcardsInput: InsertFlashcardsBody = [];
         for (const nodeGroup of editingFlashcards) {
             const flashcardSet = nodeGroup.editingFlashcards.map((item) => {
                 return { nodeId: nodeGroup.nodeId, front: item.front, back: item.back };
@@ -78,7 +83,7 @@ export default function MultiNodeFlashcardsPreview({ generatedNodeFlashcards, on
         }
         await execute({ topicId, flashcards: flashcardsInput });
     }
-    
+
     function handleFlashcardDeleteClick(nodeId: string, flashcardId: number) {
         setEditingFlashcards((prev) => {
             return prev.map((item) => {
