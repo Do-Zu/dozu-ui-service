@@ -38,36 +38,36 @@ const navItems = [
         icon: Wallet,
         href: '/admin/payments',
     },
-    {
-        label: 'Subscription Plans',
-        icon: CreditCard,
-        href: '/admin/plans',
-    },
-    {
-        label: 'Features',
-        icon: Star,
-        href: '/admin/features',
-    },
-    {
-        label: 'LLM Models',
-        icon: Brain,
-        href: '/admin/llm-models'
-    },
-    {
-        label: 'LLM Providers',
-        icon: Server,
-        href: '/admin/llm-providers'
-    },
-    {
-        label: 'LLM API Keys',
-        icon: Key,
-        href: '/admin/llm-api-keys'
-    },
-    {
-        label: 'LLM API Key-Models',
-        icon: LinkIcon,
-        href: '/admin/llm-api-key-models'
-    },
+    // {
+    //     label: 'Subscription Plans',
+    //     icon: CreditCard,
+    //     href: '/admin/plans',
+    // },
+    // {
+    //     label: 'Features',
+    //     icon: Star,
+    //     href: '/admin/features',
+    // },
+    // {
+    //     label: 'LLM Models',
+    //     icon: Brain,
+    //     href: '/admin/llm-models'
+    // },
+    // {
+    //     label: 'LLM Providers',
+    //     icon: Server,
+    //     href: '/admin/llm-providers'
+    // },
+    // {
+    //     label: 'LLM API Keys',
+    //     icon: Key,
+    //     href: '/admin/llm-api-keys'
+    // },
+    // {
+    //     label: 'LLM API Key-Models',
+    //     icon: LinkIcon,
+    //     href: '/admin/llm-api-key-models'
+    // },
     {
         label: 'Stats',
         icon: BarChart3,
