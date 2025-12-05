@@ -11,6 +11,7 @@ import { storeSessionData } from '@/utils/storage';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { NotificationSettings } from '@/types/profile';
 import { ProfileService } from '@/services/profile/profileService';
+import { isEmpty } from '@/utils';
 
 interface AuthContextType {
     user: User | null | undefined;
@@ -40,11 +41,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null);
     const [notificationSettings, setNotificationSettings] = useState<NotificationSettings | null>(null);
-    const isAuthenticatedRef = useRef(isAuthenticated);
-
-    useEffect(() => {
-        isAuthenticatedRef.current = isAuthenticated;
-    }, [isAuthenticated]);
 
     // Load notification settings
     const loadNotificationSettings = useCallback(async () => {
@@ -55,9 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         try {
             const profile = await ProfileService.getProfile();
-            if (!isAuthenticatedRef.current) {
-                return;
-            }
+
             if (profile.notificationSettings) {
                 setNotificationSettings(profile.notificationSettings);
             } else {
@@ -72,9 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         } catch (error) {
             console.error('Failed to load notification settings:', error);
-            if (!isAuthenticatedRef.current) {
-                return;
-            }
+
             // Use default settings on error
             setNotificationSettings({
                 dailyReminders: true,
@@ -96,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [isAuthenticated, loadNotificationSettings]);
 
     // Initialize WebSocket connection for notifications
-    // Memoize callback to prevent unnecessary reconnections
+    // Memoize callback to prevent unnecessary re-connections
     const handleNotification = useCallback((data: any) => {
         // Additional notification handling can be added here
         console.log('Notification received in AuthContext:', data);
@@ -112,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
 
-            if (!isLoggedIn) {
+            if (!isAuthenticated) {
                 clearAuthData();
                 setCurrentPlanUser(null);
                 return;
@@ -126,12 +118,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [isAuthenticated]);
 
     const getUserCurrentPlan = useCallback(async () => {
         const { data } = await getCurrentPlanSubscription();
 
-        if (!isAuthenticatedRef.current) {
+        if (!isAuthenticated) {
             return;
         }
 
@@ -144,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const { data: features } = await getAllFeatureBelongPlan(plan.planId);
 
-        if (!features || features.length === 0) {
+        if (isEmpty(features)) {
             setCurrentPlanUser(null);
             return;
         }
@@ -206,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             refreshUserPlan: getUserCurrentPlan,
             refreshNotificationSettings: loadNotificationSettings,
         };
-    }, [user, isLoading, hasRole, hasPermission, updateUser, markOnboardingComplete, getUserCurrentPlan, currentPlanUser, notificationSettings, loadNotificationSettings]);
+    }, [user, isLoading, currentPlanUser, notificationSettings, clearAuthData]);
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }

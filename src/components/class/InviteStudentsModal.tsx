@@ -23,12 +23,15 @@ import {
   Check, 
   X, 
   Send,
-  Shield
+  Shield,
+  Upload,
+  FileText
 } from 'lucide-react';
 import { useClassInvite } from '@/hooks/useClassInvite';
 import { QRCodeGenerator } from './QRCodeGenerator';
 import { PendingInvitesList } from './PendingInvitesList';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface InviteStudentsModalProps {
   open: boolean;
@@ -51,6 +54,7 @@ export function InviteStudentsModal({
   const [emailInput, setEmailInput] = useState('');
   const [emails, setEmails] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [isImportingFile, setIsImportingFile] = useState(false);
   
   const createInviteLinkFromCode = (code: string) => {
     const baseUrl = window.location.origin;
@@ -62,6 +66,7 @@ export function InviteStudentsModal({
   const existingInviteLink = invitationCode ? createInviteLinkFromCode(invitationCode) : null;
   
   const { toast } = useToast();
+  const t = useTranslations('class.inviteStudents');
   const {
     inviteLink,
     pendingInvites,
@@ -72,33 +77,51 @@ export function InviteStudentsModal({
     sendEmailInvites,
     cancelInvite,
     resendInvite,
-    refreshData,
     clearError,
   } = useClassInvite(classId);
 
 
 
+  const checkEmailExists = (email: string): boolean => {
+    const emailLower = email.toLowerCase().trim();
+    return existingStudents.some(student => {
+      const studentEmail = student.username.toLowerCase().trim();
+      return studentEmail === emailLower;
+    });
+  };
+
   const handleEmailAdd = () => {
     const email = emailInput.trim();
-    if (email && !emails.includes(email) && isValidEmail(email)) {
-      // Check if email is already in the class
-      const isAlreadyInClass = existingStudents.some(student => 
-        student.username.toLowerCase().includes(email.toLowerCase()) ||
-        student.fullName?.toLowerCase().includes(email.toLowerCase())
-      );
-      
-      if (isAlreadyInClass) {
-        toast({
-          title: "Warning",
-          description: `Email ${email} is already in the class`,
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      setEmails([...emails, email]);
-      setEmailInput('');
+    if (!email) return;
+    
+    if (!isValidEmail(email)) {
+      toast({
+        title: t('toast.error.invalidEmail'),
+        variant: "destructive",
+      });
+      return;
     }
+
+    if (emails.includes(email.toLowerCase())) {
+      toast({
+        title: t('toast.warning.emailInList', { email }),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if email is already in the class
+    if (checkEmailExists(email)) {
+      toast({
+        title: t('toast.emailExists.title'),
+        description: t('toast.emailExists.single', { email }),
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setEmails([...emails, email.toLowerCase()]);
+    setEmailInput('');
   };
 
   const handleEmailRemove = (emailToRemove: string) => {
@@ -120,50 +143,271 @@ export function InviteStudentsModal({
       .filter(email => email && isValidEmail(email));
     
     if (pastedEmails.length > 0) {
-      // Filter out emails that are already in the class
-      const validEmails = pastedEmails.filter(email => {
-        const isAlreadyInClass = existingStudents.some(student => 
-          student.username.toLowerCase().includes(email.toLowerCase()) ||
-          student.fullName?.toLowerCase().includes(email.toLowerCase())
-        );
-        return !isAlreadyInClass;
+      processEmails(pastedEmails);
+      e.preventDefault();
+    }
+  };
+
+  const processEmails = (newEmails: string[]) => {
+    const emailLower = newEmails.map(email => email.toLowerCase().trim());
+    
+    // Filter out emails that are already in the class
+    const alreadyInClassEmails = emailLower.filter(email => checkEmailExists(email));
+    const validEmails = emailLower.filter(email => !checkEmailExists(email));
+    
+    // Filter out duplicates from existing emails list
+    const uniqueValidEmails = validEmails.filter(email => !emails.includes(email));
+    const alreadyInListEmails = validEmails.filter(email => emails.includes(email));
+    
+    // Show toast for emails already in class
+    if (alreadyInClassEmails.length > 0) {
+      toast({
+        title: t('toast.emailExists.title'),
+        description: t('toast.emailExists.multipleWithDetails', { 
+          count: alreadyInClassEmails.length, 
+          emails: alreadyInClassEmails.join(', ') 
+        }),
+        variant: "destructive",
       });
-      
-      const alreadyInClassEmails = pastedEmails.filter(email => {
-        const isAlreadyInClass = existingStudents.some(student => 
-          student.username.toLowerCase().includes(email.toLowerCase()) ||
-          student.fullName?.toLowerCase().includes(email.toLowerCase())
-        );
-        return isAlreadyInClass;
+    }
+    
+    // Show toast for emails already in invitation list
+    if (alreadyInListEmails.length > 0 && alreadyInListEmails.length < emailLower.length) {
+      toast({
+        title: t('toast.warning.emailsInList', { 
+          count: alreadyInListEmails.length, 
+          emails: alreadyInListEmails.join(', ') 
+        }),
+        variant: "default",
       });
-      
-      if (alreadyInClassEmails.length > 0) {
+    }
+    
+    // Add valid emails to the list
+    if (uniqueValidEmails.length > 0) {
+      setEmails([...emails, ...uniqueValidEmails]);
+      toast({
+        title: t('toast.success.emailsAdded', { count: uniqueValidEmails.length }),
+        variant: "default",
+      });
+    } else if (alreadyInClassEmails.length > 0 || alreadyInListEmails.length > 0) {
+      // Only show this if no new emails were added
+      if (alreadyInClassEmails.length === emailLower.length) {
+        // All emails are already in class
         toast({
-          title: "Warning",
-          description: `${alreadyInClassEmails.length} email(s) are already in the class: ${alreadyInClassEmails.join(', ')}`,
-          variant: "destructive",
+          title: t('toast.info.allEmailsExist'),
+          variant: "default",
+        });
+      } else if (alreadyInListEmails.length === validEmails.length) {
+        // All valid emails are already in the list
+        toast({
+          title: t('toast.info.allEmailsInList'),
+          variant: "default",
         });
       }
+    }
+  };
+
+  const parseFileContent = async (file: File): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
       
-      setEmails([...emails, ...validEmails.filter(email => !emails.includes(email))]);
-      e.preventDefault();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          if (!content) {
+            reject(new Error('File is empty'));
+            return;
+          }
+          
+          // Parse CSV or TXT file
+          // Support multiple formats: CSV with headers, plain text with one email per line, comma/semicolon separated
+          const lines = content.split(/\r?\n/);
+          const extractedEmails: string[] = [];
+          
+          lines.forEach((line, index) => {
+            // Skip empty lines
+            if (!line.trim()) return;
+            
+            // Skip CSV header if it looks like a header (contains "email" or "Email")
+            if (index === 0 && line.toLowerCase().includes('email')) {
+              return;
+            }
+            
+            // Split by comma, semicolon, or tab
+            const lineEmails = line.split(/[,;\t]/).map(email => email.trim());
+            
+            lineEmails.forEach(email => {
+              if (email && isValidEmail(email)) {
+                extractedEmails.push(email.toLowerCase());
+              }
+            });
+          });
+          
+          // Remove duplicates
+          const uniqueEmails = Array.from(new Set(extractedEmails));
+          resolve(uniqueEmails);
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error('Failed to parse file'));
+        }
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+      
+      reader.readAsText(file);
+    });
+  };
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    const validExtensions = ['.csv', '.txt'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    
+    if (!validExtensions.includes(fileExtension)) {
+      toast({
+        title: t('toast.error.invalidFileType'),
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        title: t('toast.error.fileTooLarge'),
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    setIsImportingFile(true);
+    
+    try {
+      const extractedEmails = await parseFileContent(file);
+      
+      if (extractedEmails.length === 0) {
+        toast({
+          title: t('toast.error.emptyFile'),
+          variant: "destructive",
+        });
+      } else {
+        processEmails(extractedEmails);
+      }
+    } catch (error) {
+      toast({
+        title: t('toast.error.importFailed'),
+        description: error instanceof Error ? error.message : '',
+        variant: "destructive",
+      });
+    } finally {
+      setIsImportingFile(false);
+      e.target.value = '';
     }
   };
 
   const handleSendEmails = async () => {
     if (emails.length === 0) return;
 
-    try {
-      await sendEmailInvites(emails, { expiresInDays: 7, useLimit: 10 });
-      setEmails([]);
+    // Final check: filter out any emails that might have been added to the class since the list was created
+    const emailsToSend = emails.filter(email => !checkEmailExists(email));
+    const emailsAlreadyInClass = emails.filter(email => checkEmailExists(email));
+
+    if (emailsAlreadyInClass.length > 0) {
       toast({
-        title: "Success",
-        description: `Invitations sent to ${emails.length} email(s)`,
+        title: t('toast.emailExists.title'),
+        description: t('toast.emailExists.willNotSend', { 
+          count: emailsAlreadyInClass.length, 
+          emails: emailsAlreadyInClass.join(', ') 
+        }),
+        variant: "destructive",
       });
+    }
+
+    if (emailsToSend.length === 0) {
+      toast({
+        title: t('toast.warning.noEmailsToSend'),
+        variant: "destructive",
+      });
+      setEmails([]);
+      return;
+    }
+
+    try {
+      const result = await sendEmailInvites(emailsToSend, { expiresInDays: 7, useLimit: 10 });
+      
+      // Handle response from API - check for failed emails
+      if (result && result.results) {
+        const failedEmails = result.results.filter(r => !r.success);
+        const successfulEmails = result.results.filter(r => r.success);
+        
+        // Show toast for failed emails (e.g., already in class)
+        if (failedEmails.length > 0) {
+          const alreadyInClassEmails = failedEmails.filter(r => {
+            const msg = r.message.toLowerCase();
+            return msg.includes('already in') || 
+                   msg.includes('already exists') ||
+                   msg.includes('already in this class') ||
+                   msg.includes('user is already');
+          });
+          
+          if (alreadyInClassEmails.length > 0) {
+            toast({
+              title: t('toast.emailExists.title'),
+              description: t('toast.emailExists.apiResponse', { 
+                count: alreadyInClassEmails.length
+              }),
+              variant: "destructive",
+            });
+          }
+          
+          // Show other failures
+          const otherFailures = failedEmails.filter(r => {
+            const msg = r.message.toLowerCase();
+            return !msg.includes('already in') && 
+                   !msg.includes('already exists') &&
+                   !msg.includes('already in this class') &&
+                   !msg.includes('user is already');
+          });
+          
+          if (otherFailures.length > 0) {
+            const details = otherFailures.map(r => `${r.email} (${r.message})`).join(', ');
+            toast({
+              title: t('toast.sendError.title'),
+              description: t('toast.sendError.description', { 
+                count: otherFailures.length, 
+                details 
+              }),
+              variant: "destructive",
+            });
+          }
+        }
+        
+        // Show success toast
+        if (successfulEmails.length > 0) {
+          toast({
+            title: t('toast.success.invitationsSentSuccess', { count: successfulEmails.length }),
+            variant: "default",
+          });
+        }
+      } else {
+        // Fallback if result structure is different
+        toast({
+          title: t('toast.success.invitationsSent', { count: emailsToSend.length }),
+          variant: "default",
+        });
+      }
+      
+      setEmails([]);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to send email invitations",
+        title: t('toast.error.sendFailed'),
         variant: "destructive",
       });
     }
@@ -178,14 +422,13 @@ export function InviteStudentsModal({
       await navigator.clipboard.writeText(linkToCopy);
       setCopied(true);
       toast({
-        title: "Copied!",
-        description: "Invite link copied to clipboard",
+        title: t('toast.success.copied'),
+        description: t('toast.success.copiedDescription'),
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to copy link",
+        title: t('toast.error.copyFailed'),
         variant: "destructive",
       });
     }
@@ -211,7 +454,7 @@ export function InviteStudentsModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
-            Invite Students
+            {t('title')}
           </DialogTitle>
         </DialogHeader>
 
@@ -219,11 +462,11 @@ export function InviteStudentsModal({
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="link" className="flex items-center gap-2">
               <Link className="w-4 h-4" />
-              Invite Link
+              {t('inviteLink')}
             </TabsTrigger>
             <TabsTrigger value="email" className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
-              Email Invite
+              {t('emailInvite')}
             </TabsTrigger>
           </TabsList>
 
@@ -246,7 +489,7 @@ export function InviteStudentsModal({
                   <div className="text-sm text-muted-foreground text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Shield className="w-3 h-3" />
-                      Using invitation code: {invitationCode}
+                      {invitationCode && t('usingInvitationCode', { code: invitationCode })}
                     </div>
                   </div>
                 </div>
@@ -258,28 +501,60 @@ export function InviteStudentsModal({
           <TabsContent value="email" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Send Email Invitations</CardTitle>
+                <CardTitle>{t('sendEmailInvitations')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="email-input">Email Addresses</Label>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label htmlFor="email-input">{t('emailAddresses')}</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        id="file-import"
+                        accept=".csv,.txt"
+                        className="hidden"
+                        onChange={handleFileImport}
+                        disabled={isImportingFile}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById('file-import')?.click()}
+                        disabled={isImportingFile}
+                        className="flex items-center gap-2"
+                      >
+                        {isImportingFile ? (
+                          <>
+                            <FileText className="w-4 h-4 animate-spin" />
+                            {t('importing')}
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            {t('importFromFile')}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                   <Input
                     id="email-input"
-                    placeholder="Enter email addresses (comma separated or press Enter)"
+                    placeholder={t('emailInputPlaceholder')}
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     onKeyPress={handleEmailKeyPress}
                     onPaste={handleBulkEmailPaste}
                   />
                   <p className="text-sm text-muted-foreground mt-1">
-                    You can paste multiple emails separated by commas, semicolons, or new lines
+                    {t('emailInputHint')}
                   </p>
                 </div>
 
                 {/* Email Chips */}
                 {emails.length > 0 && (
                   <div>
-                    <Label>Selected Emails ({emails.length})</Label>
+                    <Label>{t('selectedEmails')} ({emails.length})</Label>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {emails.map((email, index) => (
                         <Badge key={index} variant="secondary" className="flex items-center gap-1">
@@ -300,7 +575,7 @@ export function InviteStudentsModal({
                   className="w-full"
                 >
                   <Send className={`w-4 h-4 mr-2 ${loading.sendEmails ? 'animate-spin' : ''}`} />
-                  Send Invitations ({emails.length})
+                  {t('sendInvitations')} ({emails.length})
                 </Button>
               </CardContent>
             </Card>
@@ -331,4 +606,5 @@ export function InviteStudentsModal({
     </Dialog>
   );
 }
+
 

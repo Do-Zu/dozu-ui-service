@@ -2,6 +2,7 @@ import {
   InviteLink, 
   PendingInvite, 
   InviteEmailResult, 
+  InviteEmailBatchResult,
   UserSearchResult, 
   InviteLinkOptions, 
   EmailInviteOptions 
@@ -64,10 +65,10 @@ class ClassInviteService {
     classId: number, 
     emails: string[], 
     options: EmailInviteOptions = {}
-  ): Promise<InviteEmailResult[]> {
+  ): Promise<InviteEmailBatchResult> {
     const { expiresInDays = 7, useLimit = 1, customMessage } = options;
     
-    const response = await postRequest<{ emails: string[]; expiresInDays: number; useLimit: number; customMessage?: string }, InviteEmailResult[]>(
+    const response = await postRequest<{ emails: string[]; expiresInDays: number; useLimit: number; customMessage?: string }, InviteEmailBatchResult>(
       `/classes/teacher/${classId}/invites/email`,
       {
         emails,
@@ -102,19 +103,6 @@ class ClassInviteService {
     return response.data;
   }
 
-  /**
-   * Get pending invitations for a class
-   */
-  async getPendingInvites(classId: number): Promise<PendingInvite[]> {
-    const response = await getRequest<void, PendingInvite[]>(
-      `/classes/teacher/${classId}/invites`
-    );
-    
-    if (response.status !== 'success') {
-      throw new Error(response.message);
-    }
-    return response.data;
-  }
 
   /**
    * Cancel a pending invitation
@@ -143,24 +131,6 @@ class ClassInviteService {
     }
   }
 
-  /**
-   * Get current invite link for a class (if exists)
-   */
-  async getCurrentInviteLink(classId: number): Promise<InviteLink | null> {
-    try {
-      const response = await getRequest<void, InviteLink>(
-        `/classes/teacher/${classId}/invites/current`
-      );
-      
-      if (response.status !== 'success') {
-        return null;
-      }
-      return response.data;
-    } catch (error) {
-      // If no current link exists, return null
-      return null;
-    }
-  }
 }
 
 export const classInviteService = new ClassInviteService();
