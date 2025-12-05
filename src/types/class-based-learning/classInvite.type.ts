@@ -21,6 +21,12 @@ export interface InviteEmailResult {
   message: string;
 }
 
+export interface InviteEmailBatchResult {
+  totalSent: number;
+  totalFailed: number;
+  results: InviteEmailResult[];
+}
+
 export interface UserSearchResult {
   userId: number;
   fullName: string;

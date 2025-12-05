@@ -42,6 +42,59 @@
             "lastEditedAt": "Lần cuối chỉnh sửa",
             "title": "{contentType} đã sẵn sàng",
             "content": "{contentType} đã được tạo và thêm vào trong chủ đề {topicName}."
+        },
+        "inviteStudents": {
+            "title": "Mời học sinh",
+            "inviteLink": "Link mời",
+            "emailInvite": "Mời qua email",
+            "sendEmailInvitations": "Gửi lời mời qua email",
+            "emailAddresses": "Địa chỉ email",
+            "emailInputPlaceholder": "Nhập địa chỉ email (phân cách bằng dấu phẩy hoặc nhấn Enter)",
+            "emailInputHint": "Bạn có thể dán nhiều email phân cách bằng dấu phẩy, chấm phẩy hoặc xuống dòng. Hoặc import từ file CSV/TXT.",
+            "selectedEmails": "Email đã chọn",
+            "importFromFile": "Import từ file",
+            "importing": "Đang import...",
+            "sendInvitations": "Gửi lời mời",
+            "usingInvitationCode": "Đang sử dụng mã mời: {code}",
+            "toast": {
+                "error": {
+                    "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ",
+                    "invalidFileType": "Vui lòng tải lên file CSV hoặc TXT",
+                    "fileTooLarge": "Kích thước file phải nhỏ hơn 5MB",
+                    "emptyFile": "Không tìm thấy email hợp lệ trong file",
+                    "importFailed": "Không thể import email từ file",
+                    "sendFailed": "Không thể gửi lời mời email",
+                    "copyFailed": "Không thể sao chép link"
+                },
+                "warning": {
+                    "emailInList": "Email {email} đã có trong danh sách mời",
+                    "emailsInList": "{count} email(s) đã có trong danh sách mời: {emails}",
+                    "noEmailsToSend": "Không có email nào để gửi. Tất cả email đã tồn tại trong danh sách học sinh."
+                },
+                "info": {
+                    "allEmailsExist": "Tất cả email đã tồn tại trong danh sách học sinh",
+                    "allEmailsInList": "Tất cả email đã có trong danh sách mời"
+                },
+                "success": {
+                    "copied": "Đã sao chép!",
+                    "copiedDescription": "Đã sao chép link mời vào clipboard",
+                    "emailsAdded": "Đã thêm {count} email(s) vào danh sách mời",
+                    "invitationsSent": "Đã gửi lời mời đến {count} email(s)",
+                    "invitationsSentSuccess": "Đã gửi lời mời đến {count} email(s) thành công"
+                },
+                "emailExists": {
+                    "title": "Email đã tồn tại",
+                    "single": "Email {email} đã tồn tại trong danh sách học sinh",
+                    "multiple": "{count} email(s) đã tồn tại trong danh sách học sinh",
+                    "multipleWithDetails": "{count} email(s) đã tồn tại trong danh sách học sinh: {emails}",
+                    "willNotSend": "{count} email(s) đã tồn tại trong danh sách học sinh và sẽ không được gửi: {emails}",
+                    "apiResponse": "{count} email(s) đã tồn tại trong danh sách học sinh"
+                },
+                "sendError": {
+                    "title": "Lỗi gửi email",
+                    "description": "{count} email(s) không thể gửi: {details}"
+                }
+            }
         }
     }
 }

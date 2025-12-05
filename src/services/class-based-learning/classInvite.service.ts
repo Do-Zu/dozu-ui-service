@@ -2,6 +2,7 @@ import {
   InviteLink, 
   PendingInvite, 
   InviteEmailResult, 
+  InviteEmailBatchResult,
   UserSearchResult, 
   InviteLinkOptions, 
   EmailInviteOptions 
@@ -64,10 +65,10 @@ class ClassInviteService {
     classId: number, 
     emails: string[], 
     options: EmailInviteOptions = {}
-  ): Promise<InviteEmailResult[]> {
+  ): Promise<InviteEmailBatchResult> {
     const { expiresInDays = 7, useLimit = 1, customMessage } = options;
     
-    const response = await postRequest<{ emails: string[]; expiresInDays: number; useLimit: number; customMessage?: string }, InviteEmailResult[]>(
+    const response = await postRequest<{ emails: string[]; expiresInDays: number; useLimit: number; customMessage?: string }, InviteEmailBatchResult>(
       `/classes/teacher/${classId}/invites/email`,
       {
         emails,

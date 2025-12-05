@@ -42,6 +42,59 @@
             "lastEditedAt": "Last edited at",
             "title": "{contentType} is now available",
             "content": "The {contentType} has been generated and is now available in the topic {topicName}."
+        },
+        "inviteStudents": {
+            "title": "Invite Students",
+            "inviteLink": "Invite Link",
+            "emailInvite": "Email Invite",
+            "sendEmailInvitations": "Send Email Invitations",
+            "emailAddresses": "Email Addresses",
+            "emailInputPlaceholder": "Enter email addresses (comma separated or press Enter)",
+            "emailInputHint": "You can paste multiple emails separated by commas, semicolons, or new lines. Or import from CSV/TXT file.",
+            "selectedEmails": "Selected Emails",
+            "importFromFile": "Import from File",
+            "importing": "Importing...",
+            "sendInvitations": "Send Invitations",
+            "usingInvitationCode": "Using invitation code: {code}",
+            "toast": {
+                "error": {
+                    "invalidEmail": "Please enter a valid email address",
+                    "invalidFileType": "Please upload a CSV or TXT file",
+                    "fileTooLarge": "File size must be less than 5MB",
+                    "emptyFile": "No valid emails found in the file",
+                    "importFailed": "Failed to import emails from file",
+                    "sendFailed": "Failed to send email invitations",
+                    "copyFailed": "Failed to copy link"
+                },
+                "warning": {
+                    "emailInList": "Email {email} is already in the invitation list",
+                    "emailsInList": "{count} email(s) đã có trong danh sách mời: {emails}",
+                    "noEmailsToSend": "No emails to send. All emails already exist in the student list."
+                },
+                "info": {
+                    "allEmailsExist": "All emails already exist in the student list",
+                    "allEmailsInList": "All emails are already in the invitation list"
+                },
+                "success": {
+                    "copied": "Copied!",
+                    "copiedDescription": "Invite link copied to clipboard",
+                    "emailsAdded": "Added {count} email(s) to invitation list",
+                    "invitationsSent": "Invitations sent to {count} email(s)",
+                    "invitationsSentSuccess": "Successfully sent invitations to {count} email(s)"
+                },
+                "emailExists": {
+                    "title": "Email Already Exists",
+                    "single": "Email {email} already exists in the student list",
+                    "multiple": "{count} email(s) already exist in the student list",
+                    "multipleWithDetails": "{count} email(s) already exist in the student list: {emails}",
+                    "willNotSend": "{count} email(s) already exist in the student list and will not be sent: {emails}",
+                    "apiResponse": "{count} email(s) already exist in the student list"
+                },
+                "sendError": {
+                    "title": "Send Email Error",
+                    "description": "{count} email(s) could not be sent: {details}"
+                }
+            }
         }
     }
 }
