@@ -77,7 +77,6 @@ export function InviteStudentsModal({
     sendEmailInvites,
     cancelInvite,
     resendInvite,
-    refreshData,
     clearError,
   } = useClassInvite(classId);
 
