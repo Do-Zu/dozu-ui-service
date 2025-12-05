@@ -32,7 +32,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const [label, setLabel] = useState(data.label);
     const [isHovered, setIsHovered] = useState(false);
     const [isClickedOn, setIsClickedOn] = useState(false);
-    const isInMultiSelect = useAppSelector((state) => state.selectedNodeSlice.selectedNodeIds.includes(data.nodeId));
+    const isInMultiSelect = useAppSelector(
+        (state) => state.selectedNodeSlice.selectedNodeIds.find((id) => id === data.nodeId) !== undefined,
+    );
     const isActive = isClickedOn || isHovered || isInMultiSelect;
     const [isExpanded, setIsExpanded] = useState(false);
     const { screenToFlowPosition, fitView, getNodes, setNodes, setEdges, setViewport } = useReactFlow();
@@ -93,8 +95,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         dispatch(setSelectedNodeData(data));
         if (isMultiSelectMode) {
             dispatch(toggleNodeSelection(data.nodeId));
+        } else {
+            setIsClickedOn(true);
         }
-        setIsClickedOn(true);
         // dispatch(openSheet());
     };
 
@@ -143,7 +146,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             whileHover="hover"
             whileTap="tap"
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            onMouseEnter={() => setIsHovered(true)}
+            onMouseEnter={() => {
+                if (!isMultiSelectMode) {
+                    setIsHovered(true);
+                }
+            }}
             onMouseLeave={() => setIsHovered(false)}
             ref={wrapperRef}
             onClick={handleClickNode}

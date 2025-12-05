@@ -63,7 +63,6 @@ interface Props {
     onLearnNodeFlashcardsClick?: () => void;
     onEditNodeFlashcardsClick?: () => void;
     setIsNodeFlashcardsEditOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-    onGenerateMultiNodeFlashcardsSuccess?: (data: IGenerateNodeFlashcardsItem[]) => void;
     mode?: ILearningMode;
     role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
@@ -74,7 +73,6 @@ const NodeSheet = ({
     onLearnNodeFlashcardsClick,
     onEditNodeFlashcardsClick,
     setIsNodeFlashcardsEditOpen,
-    onGenerateMultiNodeFlashcardsSuccess,
     mode,
     role = UserRoleEnum.TEACHER,
 }: Props) => {
@@ -117,70 +115,6 @@ const NodeSheet = ({
         const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
         return { customContent: text };
     }, [pageStartIndex, pageEndIndex, extractTextByRange]);
-
-    // todo: use useCallback with dependency selectedNodesData
-    async function getPreparedData(): Promise<PreparedData> {
-        const nodeIds = [
-            // 'bd91554b-68b0-4eaf-95b2-c4b3ba66f779', // Why React
-            // 'bd91554b-68b0-4eaf-95b2-c4b3ba66f779',
-            // '8c919bcb-0902-4a44-8afc-b80e1b0f08f0', // Install
-            // 'a9e78f4d-9585-4379-ac7b-5bba603df4c6', // React Components
-            '3ee84c9b-d493-491f-9f78-aa615e96ce49', // Phantom Vibration Syndrome and Disconnection Anxiety
-            'f0bd220d-f684-474f-b558-75e78f86eccf', // Correlation Between Social Media Use and Mental Health Issues
-            '4950a958-f0be-40b3-9419-6130e249b40b', // Highlight Reel: Comparing Behind-the-Scenes to Others' Highlights
-        ];
-        // todo: handle appropriate page index
-        const nodesData: NodesData = [];
-        let validNodesData: boolean = true;
-        let message: string = '';
-        let smallestPageStartIndex: number = 10000,
-            largestPageEndIndex: number = 0;
-        for (const id of nodeIds) {
-            const nodeFound = nodes.find((item) => item.data.nodeId === id);
-            if (!nodeFound) {
-                validNodesData = false;
-                message = 'Node not found, please try again.';
-                break;
-            }
-            const { pageStartIndex, pageEndIndex } = nodeFound.data;
-            if (!pageStartIndex || !pageEndIndex) {
-                validNodesData = false;
-                message = 'No text found in the specified page range.';
-                break;
-            }
-            smallestPageStartIndex = Math.min(smallestPageStartIndex, pageStartIndex);
-            largestPageEndIndex = Math.max(largestPageEndIndex, pageEndIndex);
-        }
-
-        if (!validNodesData) {
-            throw new Error(message);
-        }
-
-        const pagesContent: { page: number; content: string }[] = [];
-        for (let page = smallestPageStartIndex; page <= largestPageEndIndex; ++page) {
-            const { text } = await extractTextByRange(page, page);
-            pagesContent.push({ page, content: text });
-        }
-        const fullPageContent = pagesContent.map((p) => p.content).join('');
-
-        for (const id of nodeIds) {
-            const nodeFound = nodes.find((item) => item.data.nodeId === id) as AppNode;
-            const { nodeId, label, description } = nodeFound.data;
-            const { pageStartIndex, pageEndIndex } = nodeFound.data as { pageStartIndex: number; pageEndIndex: number };
-            const startSection = pagesContent.find((item) => item.page === pageStartIndex)?.content.slice(0, 50);
-            const endPageContent = pagesContent.find((item) => item.page === pageEndIndex)?.content;
-            const endSection = endPageContent?.slice(endPageContent.length - 50, endPageContent.length);
-            nodesData.push({
-                nodeId,
-                label,
-                description,
-                startSection: startSection ?? '',
-                endSection: endSection || '',
-            });
-        }
-
-        return { customContent: fullPageContent, customOptions: nodesData };
-    }
 
     const dispatch = useDispatch();
 
@@ -386,11 +320,6 @@ const NodeSheet = ({
                     <div className="border-t pt-4 space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
                         <div className="grid grid-cols-1 gap-2">
-                            <Generate
-                                type="flashcard_multi_nodes"
-                                getPreparedData={getPreparedData}
-                                onSuccess={onGenerateMultiNodeFlashcardsSuccess}
-                            />
                             {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                                 <>
                                     <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">

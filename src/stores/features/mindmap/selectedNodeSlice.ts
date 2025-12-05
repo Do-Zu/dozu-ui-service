@@ -36,7 +36,7 @@ export const selectedNodeSlice = createSlice({
             const index = state.selectedNodeIds.indexOf(nodeId);
 
             if (index > -1) {
-                // state.selectedNodeIds = state.selectedNodeIds.filter((id) => id !== nodeId);
+                state.selectedNodeIds = state.selectedNodeIds.filter((id) => id !== nodeId);
             } else {
                 state.selectedNodeIds = [...state.selectedNodeIds, nodeId];
             }

@@ -4,7 +4,7 @@ import MindmapButtonsPanel from '@/app/[locale]/mindmap/components/MindmapButton
 import NodeSheet from '@/app/[locale]/mindmap/components/NodeSheet';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import Spinner from '@/components/ui/spinner';
-import { ColorMode, ReactFlow, Controls, Background, BackgroundVariant } from '@xyflow/react';
+import { ColorMode, ReactFlow, Controls, Background, BackgroundVariant, Panel } from '@xyflow/react';
 // import { Background, BackgroundVariant, ColorMode, Controls, Panel, ReactFlow, useReactFlow } from '@xyflow/react';
 import { useTheme } from 'next-themes';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -30,6 +30,7 @@ import { UserRoleEnum } from '@/utils/constants/roles';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { IGenerateNodeFlashcardsItem } from '../../types/generate.type';
 import MultiNodeFlashcardsPreview from '../flashcard/node/MultiNodeFlashcardsPreview';
+import MultiNodeGeneratePanel from '../flashcard/node/MultiNodeGeneratePanel';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -47,6 +48,8 @@ interface TeacherProps {
 }
 
 type Props = { mode: ILearningMode } & (StudentProps | TeacherProps);
+
+type FlashcardsViewMode = 'none' | 'browse' | 'edit' | 'link' | 'learning' | 'multiNodePreview';
 
 const MindmapContent = ({ mode, role }: Props) => {
     const {
@@ -75,106 +78,62 @@ const MindmapContent = ({ mode, role }: Props) => {
     // node flashcards section
     const dispatch = useDispatch();
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
-    const [isNodeFlashcardsBrowseOpen, setIsNodeFlashcardsBrowseOpen] = useState<boolean>(false);
-    const [isNodeFlashcardsEditOpen, setIsNodeFlashcardsEditOpen] = useState<boolean>(false);
-    const [isNodeFlashcardsLinkerOpen, setIsNodeFlashcardsLinkerOpen] = useState<boolean>(false);
-    const [isNodeFlashcardsLearningOpen, setIsNodeFlashcardsLearningOpen] = useState<boolean>(false);
+    const selectedNodeIds = useAppSelector((state) => state.selectedNodeSlice.selectedNodeIds);
+
+    const [flashcardsViewMode, setFlashcardsViewMode] = useState<FlashcardsViewMode>('none');
 
     const [generatedNodeFlashcards, setGeneratedNodeFlashcards] = useState<IGenerateNodeFlashcardsItem[]>([]);
-    const [isMultiNodeFlashcardsPreviewOpen, setIsMultiNodeFlashcardsPreviewOpen] = useState<boolean>(false);
 
-    const isNodeFlashcardsPanelOpen =
-        isNodeFlashcardsBrowseOpen ||
-        isNodeFlashcardsEditOpen ||
-        isNodeFlashcardsLinkerOpen ||
-        isNodeFlashcardsLearningOpen ||
-        isMultiNodeFlashcardsPreviewOpen;
-
-    function closeAllNodeFlashcardsPanels() {
-        setIsNodeFlashcardsBrowseOpen(false);
-        setIsNodeFlashcardsEditOpen(false);
-        setIsNodeFlashcardsLinkerOpen(false);
-        setIsNodeFlashcardsLearningOpen(false);
-    }
+    const isNodeFlashcardsPanelOpen = flashcardsViewMode !== 'none';
 
     function onViewNodeFlashcardsClick() {
         dispatch(closeSheet());
-        closeAllNodeFlashcardsPanels();
-        setIsNodeFlashcardsBrowseOpen(true);
+        setFlashcardsViewMode('browse');
     }
 
     function onEditNodeFlashcardsClick() {
         dispatch(closeSheet());
-        closeAllNodeFlashcardsPanels();
-        setIsNodeFlashcardsEditOpen(true);
+        setFlashcardsViewMode('edit');
     }
 
     function onLinkNodeFlashcardsClick() {
         dispatch(closeSheet());
-        closeAllNodeFlashcardsPanels();
-        setIsNodeFlashcardsLinkerOpen(true);
+        setFlashcardsViewMode('link');
     }
 
     function onLearnNodeFlashcardsClick() {
         dispatch(closeSheet());
-        closeAllNodeFlashcardsPanels();
-        setIsNodeFlashcardsLearningOpen(true);
+        setFlashcardsViewMode('learning');
     }
 
-    function handleNodeFlashcardsBrowseClose() {
-        setIsNodeFlashcardsBrowseOpen(false);
-        dispatch(openSheet());
-    }
-
-    function handleNodeFlashcardsLinkerClose() {
-        setIsNodeFlashcardsLinkerOpen(false);
-        dispatch(openSheet());
-    }
-
-    function handleNodeFlashcardsLearningClose() {
-        setIsNodeFlashcardsLearningOpen(false);
-        dispatch(openSheet());
-    }
-
-    function handleNodeFlashcardsEditClose() {
-        setIsNodeFlashcardsEditOpen(false);
-        dispatch(openSheet());
+    function onViewFlashcardsClose() {
+        setFlashcardsViewMode('none');
     }
 
     function onGenerateMultiNodeFlashcardsSuccess(data: IGenerateNodeFlashcardsItem[]) {
         dispatch(closeSheet());
-        closeAllNodeFlashcardsPanels();
         setGeneratedNodeFlashcards(data);
-        setIsMultiNodeFlashcardsPreviewOpen(true);
+        setFlashcardsViewMode('multiNodePreview');
     }
 
     const showNodeFlashcardsPanel = useCallback(() => {
         if (!selectedNodeData) return null;
-        if (isNodeFlashcardsBrowseOpen) {
-            return <NodeFlashcardsBrowse nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsBrowseClose} />;
+        if (flashcardsViewMode === 'browse') {
+            return <NodeFlashcardsBrowse nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
         }
-        if (isNodeFlashcardsEditOpen) {
-            return <NodeFlashcardsEdit nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsEditClose} />;
+        if (flashcardsViewMode === 'edit') {
+            return <NodeFlashcardsEdit nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
         }
-        if (isNodeFlashcardsLinkerOpen) {
-            return <NodeFlashcardsLinker nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsLinkerClose} />;
+        if (flashcardsViewMode === 'link') {
+            return <NodeFlashcardsLinker nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
         }
-        if (isNodeFlashcardsLearningOpen) {
-            return (
-                <NodeFlashcardsLearning nodeId={selectedNodeData.nodeId} onClose={handleNodeFlashcardsLearningClose} />
-            );
+        if (flashcardsViewMode === 'learning') {
+            return <NodeFlashcardsLearning nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
         }
-        if (isMultiNodeFlashcardsPreviewOpen) {
+        if (flashcardsViewMode === 'multiNodePreview') {
             return <MultiNodeFlashcardsPreview generatedNodeFlashcards={generatedNodeFlashcards} />;
         }
-    }, [
-        selectedNodeData?.nodeId,
-        isNodeFlashcardsBrowseOpen,
-        isNodeFlashcardsEditOpen,
-        isNodeFlashcardsLinkerOpen,
-        isNodeFlashcardsLearningOpen,
-        isMultiNodeFlashcardsPreviewOpen,
-    ]);
+    }, [selectedNodeData?.nodeId, flashcardsViewMode]);
 
     useEffect(() => {
         if (hasInitialized && !hasShownModal && nodes.length === 1) {
@@ -261,14 +220,18 @@ const MindmapContent = ({ mode, role }: Props) => {
                         className={showGenerateModal ? 'blur-sm' : ''}
                     >
                         <MindmapButtonsPanel mode={mode} role={role} />
+                        <MultiNodeGeneratePanel
+                            nodes={nodes}
+                            nodeIds={selectedNodeIds}
+                            onSuccess={onGenerateMultiNodeFlashcardsSuccess}
+                        />
 
                         <NodeSheet
                             onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
                             onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
                             onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
                             onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
-                            setIsNodeFlashcardsEditOpen={setIsNodeFlashcardsEditOpen}
-                            onGenerateMultiNodeFlashcardsSuccess={onGenerateMultiNodeFlashcardsSuccess}
+                            setIsNodeFlashcardsEditOpen={() => setFlashcardsViewMode('edit')}
                             mode={mode}
                             role={role}
                         />
