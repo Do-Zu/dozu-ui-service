@@ -91,13 +91,6 @@ class TopicService {
         }
         return response.data;
     }
-
-    // not yet available to use
-    // start learning flashcards of a specific topic, purpose: init default sm-2 tracking records
-    public async startLearningFlashcards(topicId: number): Promise<ApiResponse<{}>> {
-        const data = await postRequest<{}, {}>(`/topics/${topicId}/flashcards/start-learning`, {});
-        return data;
-    }
 }
 
 export default new TopicService();
