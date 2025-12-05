@@ -22,41 +22,6 @@ export function useClassInvite(classId: number) {
     error: null,
   });
 
-  // Load initial data
-  useEffect(() => {
-    if (classId) {
-      loadInitialData();
-    }
-  }, [classId]);
-
-  const loadInitialData = async () => {
-    try {
-      setState(prev => ({
-        ...prev,
-        loading: { ...prev.loading, getPendingInvites: true },
-        error: null,
-      }));
-
-      const [inviteLink, pendingInvites] = await Promise.all([
-        classInviteService.getCurrentInviteLink(classId),
-        classInviteService.getPendingInvites(classId),
-      ]);
-
-      setState(prev => ({
-        ...prev,
-        inviteLink,
-        pendingInvites,
-        loading: { ...prev.loading, getPendingInvites: false },
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Failed to load data',
-        loading: { ...prev.loading, getPendingInvites: false },
-      }));
-    }
-  };
-
   const generateInviteLink = useCallback(async (options: InviteLinkOptions = {}) => {
     try {
       setState(prev => ({
@@ -124,12 +89,8 @@ export function useClassInvite(classId: number) {
 
       const results = await classInviteService.inviteByEmail(classId, emails, options);
       
-      // Refresh pending invites after sending
-      const pendingInvites = await classInviteService.getPendingInvites(classId);
-      
       setState(prev => ({
         ...prev,
-        pendingInvites,
         loading: { ...prev.loading, sendEmails: false },
       }));
 
@@ -213,13 +174,6 @@ export function useClassInvite(classId: number) {
   const cancelInvite = useCallback(async (inviteId: number) => {
     try {
       await classInviteService.cancelInvite(classId, inviteId);
-      
-      // Refresh pending invites
-      const pendingInvites = await classInviteService.getPendingInvites(classId);
-      setState(prev => ({
-        ...prev,
-        pendingInvites,
-      }));
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -232,13 +186,6 @@ export function useClassInvite(classId: number) {
   const resendInvite = useCallback(async (inviteId: number) => {
     try {
       await classInviteService.resendInvite(classId, inviteId);
-      
-      // Refresh pending invites
-      const pendingInvites = await classInviteService.getPendingInvites(classId);
-      setState(prev => ({
-        ...prev,
-        pendingInvites,
-      }));
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -247,10 +194,6 @@ export function useClassInvite(classId: number) {
       throw error;
     }
   }, [classId]);
-
-  const refreshData = useCallback(() => {
-    loadInitialData();
-  }, [loadInitialData]);
 
   const clearError = useCallback(() => {
     setState(prev => ({
@@ -271,7 +214,6 @@ export function useClassInvite(classId: number) {
     sendSelectedUserInvites,
     cancelInvite,
     resendInvite,
-    refreshData,
     clearError,
   };
 }
