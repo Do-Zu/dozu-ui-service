@@ -13,9 +13,11 @@ import flashcardEditUtils from '../../../utils/flashcard/flashcardEdit.utils';
 interface Props {
     nodeId: string;
     onClose: () => void;
+    isFullscreen: boolean;
+    onPanelToggle: () => void;
 }
 
-export default function NodeFlashcardsEdit({ nodeId, onClose }: Props) {
+export default function NodeFlashcardsEdit({ nodeId, onClose, isFullscreen, onPanelToggle }: Props) {
     const tCommon = useTranslations('common');
     const tFlashcardEdit = useTranslations('flashcard.edit');
 
@@ -56,6 +58,8 @@ export default function NodeFlashcardsEdit({ nodeId, onClose }: Props) {
             isSaving={loading}
             onSaveClick={handleSaveClick}
             onClose={onClose}
+            isPanelFullscreen={isFullscreen}
+            onPanelToggle={onPanelToggle}
         />
     );
 }

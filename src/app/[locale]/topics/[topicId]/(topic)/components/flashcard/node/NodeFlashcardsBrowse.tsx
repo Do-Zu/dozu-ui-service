@@ -5,9 +5,11 @@ import EmptyNodeFlashcards from './EmptyNodeFlashcards';
 interface Props {
     nodeId: string;
     onClose: () => void;
+    isFullscreen: boolean;
+    onPanelToggle: () => void;
 }
 
-export default function NodeFlashcardsBrowse({ nodeId, onClose }: Props) {
+export default function NodeFlashcardsBrowse({ nodeId, onClose, isFullscreen, onPanelToggle }: Props) {
     const { flashcards } = useRequireFlashcards();
     const nodeFlashcards = flashcards.filter((item) => item.nodeId === nodeId);
 
@@ -19,6 +21,8 @@ export default function NodeFlashcardsBrowse({ nodeId, onClose }: Props) {
             onClose={onClose}
             enableFavouriteFlashcards={false}
             enableSidebar={false}
+            isPanelFullscreen={isFullscreen}
+            onPanelToggle={onPanelToggle}
         />
     );
 }

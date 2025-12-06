@@ -80,6 +80,7 @@ const MindmapContent = ({ mode, role }: Props) => {
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
     const selectedNodeIds = useAppSelector((state) => state.selectedNodeSlice.selectedNodeIds);
 
+    const [isFlashcardsPanelFullscreen, setIsFlashcardsPanelFullscreen] = useState<boolean>(false);
     const [flashcardsViewMode, setFlashcardsViewMode] = useState<FlashcardsViewMode>('none');
 
     const [generatedNodeFlashcards, setGeneratedNodeFlashcards] = useState<IGenerateNodeFlashcardsItem[]>([]);
@@ -108,6 +109,7 @@ const MindmapContent = ({ mode, role }: Props) => {
 
     function onViewFlashcardsClose() {
         setFlashcardsViewMode('none');
+        setIsFlashcardsPanelFullscreen(false);
     }
 
     function onGenerateMultiNodeFlashcardsSuccess(data: IGenerateNodeFlashcardsItem[]) {
@@ -116,25 +118,59 @@ const MindmapContent = ({ mode, role }: Props) => {
         setFlashcardsViewMode('multiNodePreview');
     }
 
+    function onFlashcardsPanelToggle() {
+        setIsFlashcardsPanelFullscreen((prev) => !prev);
+    }
+
     const showNodeFlashcardsPanel = useCallback(() => {
         if (!selectedNodeData) return null;
         if (flashcardsViewMode === 'browse') {
-            return <NodeFlashcardsBrowse nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
+            return (
+                <NodeFlashcardsBrowse
+                    nodeId={selectedNodeData.nodeId}
+                    onClose={onViewFlashcardsClose}
+                    isFullscreen={isFlashcardsPanelFullscreen}
+                    onPanelToggle={onFlashcardsPanelToggle}
+                />
+            );
         }
         if (flashcardsViewMode === 'edit') {
-            return <NodeFlashcardsEdit nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
+            return (
+                <NodeFlashcardsEdit
+                    nodeId={selectedNodeData.nodeId}
+                    onClose={onViewFlashcardsClose}
+                    isFullscreen={isFlashcardsPanelFullscreen}
+                    onPanelToggle={onFlashcardsPanelToggle}
+                />
+            );
         }
         if (flashcardsViewMode === 'link') {
-            return <NodeFlashcardsLinker nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
+            return (
+                <NodeFlashcardsLinker
+                    nodeId={selectedNodeData.nodeId}
+                    onClose={onViewFlashcardsClose}
+                    isFullscreen={isFlashcardsPanelFullscreen}
+                    onPanelToggle={onFlashcardsPanelToggle}
+                />
+            );
         }
         if (flashcardsViewMode === 'learning') {
-            return <NodeFlashcardsLearning nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
+            return (
+                <NodeFlashcardsLearning
+                    nodeId={selectedNodeData.nodeId}
+                    onClose={onViewFlashcardsClose}
+                    isFullscreen={isFlashcardsPanelFullscreen}
+                    onPanelToggle={onFlashcardsPanelToggle}
+                />
+            );
         }
         if (flashcardsViewMode === 'multiNodePreview') {
             return (
                 <MultiNodeFlashcardsPreview
                     generatedNodeFlashcards={generatedNodeFlashcards}
                     onClose={onViewFlashcardsClose}
+                    isFullscreen={isFlashcardsPanelFullscreen}
+                    onPanelToggle={onFlashcardsPanelToggle}
                 />
             );
         }
@@ -211,7 +247,7 @@ const MindmapContent = ({ mode, role }: Props) => {
     return (
         <div className="relative w-full h-full">
             <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={50} minSize={35}>
+                <ResizablePanel defaultSize={50} minSize={35} className={isFlashcardsPanelFullscreen ? 'hidden' : ''}>
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
@@ -282,7 +318,10 @@ const MindmapContent = ({ mode, role }: Props) => {
                         </div>
                     )}
                 </ResizablePanel>
-                <ResizableHandle withHandle className={!isNodeFlashcardsPanelOpen ? 'hidden' : ''} />
+                <ResizableHandle
+                    withHandle
+                    className={!isNodeFlashcardsPanelOpen || isFlashcardsPanelFullscreen ? 'hidden' : ''}
+                />
                 <ResizablePanel className={!isNodeFlashcardsPanelOpen ? 'hidden' : ''} defaultSize={50} minSize={35}>
                     <div className="h-full overflow-y-auto">{showNodeFlashcardsPanel()}</div>
                 </ResizablePanel>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { IGenerateNodeFlashcardsItem } from '../../../types/generate.type';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Save, Trash2, Undo2, X } from 'lucide-react';
+import { RefreshCw, Save, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { flashcardItemGap, flashcardItemHeight, IEditingFlashcard } from '../edit/FlashcardsEdit';
@@ -17,6 +17,7 @@ import {
     InsertFlashcardsBody,
 } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import FlashcardsPanelControls from './FlashcardsPanelControls';
 
 interface MultiNodeEditingFlashcard {
     nodeId: string;
@@ -26,11 +27,18 @@ interface MultiNodeEditingFlashcard {
 interface Props {
     generatedNodeFlashcards: IGenerateNodeFlashcardsItem[];
     onClose?: () => void;
+    isFullscreen: boolean;
+    onPanelToggle: () => void;
 }
 
 // handle logic view & edit & save flashcards of multiple nodes here
 // !todo: handle set generatedNodeFlashcards to null if success
-export default function MultiNodeFlashcardsPreview({ generatedNodeFlashcards, onClose }: Props) {
+export default function MultiNodeFlashcardsPreview({
+    generatedNodeFlashcards,
+    onClose,
+    isFullscreen,
+    onPanelToggle,
+}: Props) {
     const tFlashcardCommon = useTranslations('flashcard.common');
     const { topicId, onCreateFlashcardsSuccess } = useTopicWorkspace();
     const { nodes } = useMindMapContext();
@@ -139,16 +147,11 @@ export default function MultiNodeFlashcardsPreview({ generatedNodeFlashcards, on
                                 )}
                             </Button>
 
-                            {onClose ? (
-                                <Button
-                                    className="text-muted-foreground hover:text-primary"
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={onClose}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            ) : null}
+                            <FlashcardsPanelControls
+                                onClose={onClose}
+                                isFullscreen={isFullscreen}
+                                onPanelToggle={onPanelToggle}
+                            />
                         </div>
                     </div>
                 </div>
