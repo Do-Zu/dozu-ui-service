@@ -154,31 +154,6 @@ export default function StudentClassDashboard() {
         setTopicsFiltered(topicsFiltered);
     }, [topics, sortBy]);
 
-    function handleOnSelectBrowse(topicId: number) {
-        router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
-    }
-
-    async function handleOnSelectLearning(topic: ITopic) {
-        const { topicId, hasProgress } = topic;
-        if (hasProgress != undefined && !hasProgress) {
-            await topicService.startLearningFlashcards(topicId);
-        }
-        router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
-    }
-
-    function handleOnClickViewMindmap(topicId: number) {
-        //Q&A: Find suit logic for check class-based mode and check class ID pass
-        if (Number.isFinite(classId)) {
-            router.push(ROUTES.CLASS_MINDMAP_VIEW(classId, topicId));
-        } else {
-            router.push(ROUTES.MINDMAP_VIEW(topicId));
-        }
-    }
-
-    function handleOnClickStartQuiz(topicId: number) {
-        router.push(ROUTES.QUIZ_START(topicId));
-    }
-
     function handleTopicNameClick({ topicId }: ITopic) {
         router.push(ROUTES.CLASS_TOPIC_WORKSPACE({ classId, topicId }));
     }

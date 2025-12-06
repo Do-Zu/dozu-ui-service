@@ -285,34 +285,6 @@ export default function TeacherClassDashboard({ classId, defaultTab }: Props) {
         router.push(ROUTES.TEACHER.CLASS_BASED_ID_STUDENTS(classId));
     }
 
-    function handleOnSelectEditFlashcard(topicId: number) {
-        router.push(ROUTES.FLASHCARDS_EDIT(topicId));
-    }
-
-    function handleOnSelectBrowse(topicId: number) {
-        router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
-    }
-
-    async function handleOnSelectLearning(topic: ITopic) {
-        const { topicId, hasProgress } = topic;
-        if (hasProgress != undefined && !hasProgress) {
-            await topicService.startLearningFlashcards(topicId);
-        }
-        router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
-    }
-
-    function handleOnClickEditMindmap(topicId: number) {
-        router.push(ROUTES.TEACHER.CLASS_BASED_ID_MINDMAP_EDIT(classId, topicId));
-    }
-
-    function handleOnClickStartQuiz(topicId: number) {
-        router.push(ROUTES.QUIZ_START(topicId));
-    }
-
-    function handleOnClickEditQuestion(topicId: number) {
-        router.push(ROUTES.QUIZ_EDIT(topicId));
-    }
-
     function handleTopicNameClick({ topicId }: ITopic) {
         router.push(ROUTES.TEACHER.CLASS_TOPIC_WORKSPACE({ classId, topicId }));
     }

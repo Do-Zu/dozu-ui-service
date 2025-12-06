@@ -37,6 +37,7 @@ import EditImageModal from '../flashcard-image/EditImageModal';
 import FlashcardDetailsModal from '../FlashcardDetailsModal';
 import flashcardEditUtils from '../../../utils/flashcard/flashcardEdit.utils';
 import { isListEmpty } from '@/utils';
+import FlashcardsPanelControls from '../node/FlashcardsPanelControls';
 
 export interface ILocalFlashcard {
     id: number;
@@ -58,8 +59,8 @@ export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
-const flashcardItemHeight = 300;
-const flashcardItemGap = 20;
+export const flashcardItemHeight = 300;
+export const flashcardItemGap = 20;
 
 interface Props {
     flashcards: IFlashcard[]; // flashcards of node or topic
@@ -69,6 +70,8 @@ interface Props {
     emptyComponent?: React.ReactNode;
     generateComponent?: React.ReactNode;
     onClose?: () => void;
+    isPanelFullscreen?: boolean;
+    onPanelToggle?: () => void;
 }
 
 export default function FlashcardsEdit({
@@ -79,6 +82,8 @@ export default function FlashcardsEdit({
     emptyComponent,
     generateComponent,
     onClose,
+    isPanelFullscreen,
+    onPanelToggle,
 }: Props) {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
@@ -355,16 +360,11 @@ export default function FlashcardsEdit({
                                 )}
                             </Button>
 
-                            {onClose ? (
-                                <Button
-                                    className="text-muted-foreground hover:text-primary"
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={onClose}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            ) : null}
+                            <FlashcardsPanelControls
+                                onClose={onClose}
+                                isFullscreen={isPanelFullscreen}
+                                onPanelToggle={onPanelToggle}
+                            />
                         </div>
                     </div>
                 </div>

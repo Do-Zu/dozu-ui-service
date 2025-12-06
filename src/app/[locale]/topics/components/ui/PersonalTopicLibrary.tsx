@@ -162,34 +162,6 @@ export default function PersonalTopicLibrary() {
         setTopicsFiltered(sorted);
     }, [topics, sortBy, searchQuery]);
 
-    function handleOnSelectEditFlashcard(topicId: number) {
-        router.push(ROUTES.FLASHCARDS_EDIT(topicId));
-    }
-
-    function handleOnSelectBrowse(topicId: number) {
-        router.push(ROUTES.FLASHCARDS_BROWSE(topicId));
-    }
-
-    function handleOnSelectLearning(topicId: number) {
-        router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
-    }
-
-    function handleOnSelectSettings(topicId: number) {
-        router.push(ROUTES.ANKI_SETTINGS(topicId));
-    }
-
-    function handleOnClickMindmap(topicId: number) {
-        router.push(ROUTES.MINDMAP_EDIT(topicId));
-    }
-
-    function handleOnClickStartQuiz(topicId: number) {
-        router.push(ROUTES.QUIZ_START(topicId));
-    }
-
-    function handleOnClickEditQuestion(topicId: number) {
-        router.push(ROUTES.QUIZ_EDIT(topicId));
-    }
-
     function handleTopicNameClick({ topicId }: ITopic) {
         router.push(ROUTES.TOPIC_WORKSPACE({ topicId }));
     }
@@ -231,10 +203,6 @@ export default function PersonalTopicLibrary() {
         const totalFlashcards = topic.flashcardCounts?.total || 0;
         const learningFlashcards = topic.flashcardCounts?.learning || 0;
         const dueTodayFlashcards = topic.flashcardCounts?.review || 0;
-
-        function handleOnSelectLearning() {
-            router.push(ROUTES.FLASHCARDS_LEARNING(topicId));
-        }
 
         //TODO: note for update logic calculate remain flashcard remain and get progress
 
@@ -278,7 +246,7 @@ export default function PersonalTopicLibrary() {
             return <div></div>;
         }
         return (
-            <div className="relative z-10 px-4 md:px-6 pb-8 pt-4">
+            <div className="relative z-10 px-4 md:px-6 pb-8 pt-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {topicsFiltered?.map((topic) => (
                         <TopicCard
@@ -296,16 +264,12 @@ export default function PersonalTopicLibrary() {
 
     const metricContent: ReactElement = (
         <div className="relative z-10 px-6 pt-6 md:px-8">
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Metric label="Topics" value={metrics.topics} />
-                <Metric label="Flashcards" value={metrics.totalFlashcards} />
-            </div>
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Metric label="New" value={metrics.fresh} />
                 <Metric label="Learning" value={metrics.learning} />
                 <Metric label="Due Today" value={metrics.due} />
             </div>
-            <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="relative w-full md:max-w-sm group">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-slate-700 dark:text-slate-500 dark:group-focus-within:text-slate-300 transition-colors" />
                     <Input
@@ -385,7 +349,7 @@ export default function PersonalTopicLibrary() {
     const mainActionButtons = (
         <Button
             onClick={handleOpenCreateModal}
-            className="relative rounded-full px-5 h-10 text-sm font-medium bg-gradient-to-bl"
+            className="relative rounded-3xl px-5 h-10 text-sm font-medium"
         >
             <Plus className="mr-2 h-4 w-4" /> {t('createNewContent')}
         </Button>

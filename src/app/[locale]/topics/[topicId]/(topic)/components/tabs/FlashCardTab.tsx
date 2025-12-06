@@ -1,13 +1,9 @@
-import { useEffect } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
-import useFetch from '@/hooks/useFetch';
 import LoadingPage from '@/app/loading';
-import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import DataStatus from '@/components/errors/DataStatus';
 import { isEmpty, isNil } from '@/utils';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
-import { METHOD_LEARNING } from '@/utils/constants/method';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
@@ -22,39 +18,12 @@ export default function FlashCardTab() {
         return UserRoleEnum.ADMIN;
     };
 
-    const {
-        tab,
-        topicId,
-        flashcards,
-        learningFlashcards,
-        setTopic,
-        setFlashcards,
-        setLearningFlashcards,
-        ankiSettings,
-        setAnkiSettings,
-    } = useTopicWorkspace();
+    const { flashcards, learningFlashcards, ankiSettings, isFlashcardTabLoading, flashcardTabError } =
+        useTopicWorkspace();
 
-    const {
-        data: flashcardContent,
-        loading: flashcardContentLoading,
-        error: flashcardContentError,
-    } = useFetch<IFlashcardContent>(() => flashcardContentService.getFlashcardContent({ topicId }), {
-        shouldRun:
-            (isNil(flashcards) || isNil(learningFlashcards) || isNil(ankiSettings)) &&
-            tab === METHOD_LEARNING.FLASHCARD,
-    });
+    if (isFlashcardTabLoading) return <LoadingPage />;
 
-    useEffect(() => {
-        if (flashcardContent) {
-            setFlashcards(flashcardContent.flashcards);
-            setLearningFlashcards(flashcardContent.learningFlashcards);
-            setAnkiSettings(flashcardContent.ankiSettings);
-        }
-    }, [flashcardContent]);
-
-    if (flashcardContentLoading) return <LoadingPage />;
-
-    if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
+    if (flashcardTabError) return <DataStatus variant="error" title={flashcardTabError} />;
 
     if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 

@@ -9,9 +9,10 @@ import flashcardHelper from '@/utils/flashcard/flashcard.helper';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Eye, X } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
+import FlashcardsPanelControls from '../node/FlashcardsPanelControls';
 
 interface Props {
     flashcard: IDueAnkiCard;
@@ -23,6 +24,8 @@ interface Props {
     handleRatingClick: (rating: IAnkiRating) => void;
     flashcardStatusCounts: IAnkiCardStatusCounts;
     onClose?: () => void;
+    isPanelFullscreen?: boolean;
+    onPanelToggle?: () => void;
 }
 
 export default function LearningCard({
@@ -35,6 +38,8 @@ export default function LearningCard({
     handleRatingClick,
     flashcardStatusCounts,
     onClose,
+    isPanelFullscreen,
+    onPanelToggle,
 }: Props) {
     const tFlashcard = useTranslations('flashcard.learning');
 
@@ -74,9 +79,11 @@ export default function LearningCard({
                 <div className="relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg">
                     {onClose ? (
                         <div className="w-full flex justify-end px-4 mt-5">
-                            <Button className="hover:bg-background" size="icon" variant="ghost" onClick={onClose}>
-                                <X className="h-4 w-4" />
-                            </Button>
+                            <FlashcardsPanelControls
+                                onClose={onClose}
+                                isFullscreen={isPanelFullscreen}
+                                onPanelToggle={onPanelToggle}
+                            />
                         </div>
                     ) : null}
                     <Flashcard

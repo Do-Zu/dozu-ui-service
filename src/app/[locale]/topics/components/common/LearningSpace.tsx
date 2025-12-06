@@ -2,7 +2,7 @@ import { ClassDashboardTab, classDashboardTabs } from '@/app/[locale]/class-base
 import classUtils from '@/app/[locale]/class-based/[id]/utils/class.utils';
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CircleUserRound, School } from 'lucide-react';
+import { CircleUserRound, Library, School } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
@@ -35,7 +35,7 @@ export default function LearningSpace(props: Props) {
     );
 
     return (
-        <div className="relative w-full max-w-6xl mx-auto mb-16 px-4 md:px-8">
+        <div className="relative w-full max-w-7xl mx-auto mb-16 px-4 md:px-8">
             <div className="pointer-events-none absolute -inset-x-10 -top-6 h-40 bg-gradient-to-r from-indigo-300/20 via-sky-300/20 to-cyan-300/20 dark:from-indigo-500/10 dark:via-sky-500/10 dark:to-cyan-500/10 blur-2xl" />
             <div className="relative rounded-2xl p-5 border border-slate-200/60 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/60 to-white/80 dark:from-slate-800/70 dark:via-slate-900/40 dark:to-slate-800/70 backdrop-blur-md shadow-[0_12px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_8px_40px_-10px_rgba(0,0,0,0.6)] overflow-hidden">
                 <div className="relative z-10 px-6 pt-6 md:px-8">
@@ -69,16 +69,13 @@ export default function LearningSpace(props: Props) {
                             ) : (
                                 <>
                                     <div className="flex flex-row gap-3 items-center text-xl md:text-2xl font-semibold tracking-tight">
-                                        <CircleUserRound
+                                        <Library
                                             className="text-slate-700 dark:text-sky-200 flex-shrink-0"
                                             size={28}
                                         />
                                         <h2 className="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-indigo-200 dark:via-sky-200 dark:to-cyan-200 bg-clip-text text-transparent">
                                             {t('title')}
                                         </h2>
-                                    </div>
-                                    <div className="pl-10 mt-1 text-sm text-slate-600 dark:text-slate-400">
-                                        Your topics and personal contents live here
                                     </div>
                                 </>
                             )}

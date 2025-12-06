@@ -1,4 +1,9 @@
-import { IAnkiCardReviewed, IDueAnkiCard, IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
+import {
+    IAnkiCardReviewed,
+    IBatchFlashcardsInTopicResult,
+    IDueAnkiCard,
+    IFlashcard,
+} from '@/app/[locale]/flashcards/types/flashcard.type';
 import { ITopic } from '../../../types/topic.type';
 import React, {
     createContext,
@@ -73,6 +78,14 @@ interface ContextType {
 
     selectingContentText: string;
     setSelectingContentText: Dispatch<SetStateAction<string>>;
+
+    isFlashcardTabLoading: boolean;
+    flashcardTabError: string | null;
+    refetchFlashcards: () => Promise<void>;
+    refetchLearningFlashcards: () => Promise<void>;
+    refetchAnkiSetting: () => Promise<void>;
+    onBatchFlashcardsSuccess: (data: IBatchFlashcardsInTopicResult) => void;
+    onCreateFlashcardsSuccess: (data: IFlashcard[]) => void;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -119,7 +132,14 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         setGeneratingFlashcards,
         flashcardTab,
         setFlashcardTab,
-    } = useFlashCardWorkSpace();
+        isFlashcardTabLoading,
+        flashcardTabError,
+        refetchFlashcards,
+        refetchLearningFlashcards,
+        refetchAnkiSetting,
+        onBatchFlashcardsSuccess,
+        onCreateFlashcardsSuccess
+    } = useFlashCardWorkSpace({ topicId: topicIdRef.current, currentTab: tab });
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
 
@@ -165,6 +185,13 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setNote,
             selectingContentText,
             setSelectingContentText,
+            isFlashcardTabLoading,
+            flashcardTabError,
+            refetchFlashcards,
+            refetchLearningFlashcards,
+            refetchAnkiSetting,
+            onBatchFlashcardsSuccess,
+            onCreateFlashcardsSuccess
         }),
         [
             tab,
@@ -184,6 +211,13 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             resetGame,
             note,
             selectingContentText,
+            isFlashcardTabLoading,
+            flashcardTabError,
+            refetchFlashcards,
+            refetchLearningFlashcards,
+            refetchAnkiSetting,
+            onBatchFlashcardsSuccess,
+            onCreateFlashcardsSuccess
         ],
     );
 

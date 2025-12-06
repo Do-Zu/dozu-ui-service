@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export interface IGenerateOptions {
+export interface ICommonGenerateOptions {
     numberOfItem: number;
     difficulty: string;
     focus: string;
@@ -8,9 +8,9 @@ export interface IGenerateOptions {
 }
 
 interface IGenerateContext {
-    options: IGenerateOptions;
-    setOptions: (options: IGenerateOptions) => void;
-    updateOption: <K extends keyof IGenerateOptions>(key: K, value: IGenerateOptions[K]) => void;
+    options: ICommonGenerateOptions;
+    setOptions: (options: ICommonGenerateOptions) => void;
+    updateOption: <K extends keyof ICommonGenerateOptions>(key: K, value: ICommonGenerateOptions[K]) => void;
 }
 
 const GenerateContext = createContext<IGenerateContext | undefined>(undefined);
@@ -20,14 +20,14 @@ export const GenerateProvider = ({ children }: { children: ReactNode }) => {
     const DEFAULT_DIFFICULT = 'Medium';
     const DEFAULT_NUMBER_OF_ITEM = 20;
 
-    const [options, setOptions] = useState<IGenerateOptions>({
+    const [options, setOptions] = useState<ICommonGenerateOptions>({
         numberOfItem: DEFAULT_NUMBER_OF_ITEM,
         difficulty: DEFAULT_DIFFICULT,
         focus: '',
         listType: DEFAULT_LIST_TYPE,
     });
 
-    const updateOption = <K extends keyof IGenerateOptions>(key: K, value: IGenerateOptions[K]) => {
+    const updateOption = <K extends keyof ICommonGenerateOptions>(key: K, value: ICommonGenerateOptions[K]) => {
         setOptions((prev) => ({ ...prev, [key]: value }));
     };
 
