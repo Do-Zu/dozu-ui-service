@@ -9,9 +9,10 @@ import { useDispatch } from 'react-redux';
 
 interface EditMindmapButtonProps {
     isPanelExpanded: boolean;
+    disabled: boolean;
 }
 
-const EditMindmapButton = ({ isPanelExpanded }: EditMindmapButtonProps) => {
+const EditMindmapButton = ({ isPanelExpanded, disabled }: EditMindmapButtonProps) => {
     const dispatch = useDispatch();
     const { getNodes } = useReactFlow();
     const onClick = () => {
@@ -23,7 +24,7 @@ const EditMindmapButton = ({ isPanelExpanded }: EditMindmapButtonProps) => {
     return (
         <Tooltip>
             <TooltipTrigger asChild>
-                <Button size="icon-sm" variant={isEditingMindmap ? 'default' : 'outline'} onClick={onClick}>
+                <Button disabled={disabled} size="icon-sm" variant={isEditingMindmap ? 'default' : 'outline'} onClick={onClick}>
                     <Pencil />
                 </Button>
             </TooltipTrigger>

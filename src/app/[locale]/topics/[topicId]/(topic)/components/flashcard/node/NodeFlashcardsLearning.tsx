@@ -15,9 +15,11 @@ import DataStatus from '@/components/errors/DataStatus';
 interface Props {
     nodeId: string;
     onClose: () => void;
+    isFullscreen: boolean;
+    onPanelToggle: () => void;
 }
 
-export default function NodeFlashcardsLearning({ nodeId, onClose }: Props) {
+export default function NodeFlashcardsLearning({ nodeId, onClose, isFullscreen, onPanelToggle }: Props) {
     const { topicId, onReviewCard } = useTopicWorkspace();
     const { learningFlashcards } = useRequireLearningFlashcards();
     const nodeLearningFlashcards = learningFlashcards.filter((card) => card.nodeId === nodeId);
@@ -92,6 +94,8 @@ export default function NodeFlashcardsLearning({ nodeId, onClose }: Props) {
                 handleRatingClick={handleReviewFlashcardClick}
                 flashcardStatusCounts={flashcardStatusCounts}
                 onClose={onClose}
+                isPanelFullscreen={isFullscreen}
+                onPanelToggle={onPanelToggle}
             />
         </div>
     );

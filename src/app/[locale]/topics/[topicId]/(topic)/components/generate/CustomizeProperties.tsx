@@ -4,16 +4,16 @@ import { CheckSquare, Eye, FileText, Settings2Icon, Star, Type, X } from 'lucide
 import { cn } from '@/lib/utils';
 import { Button } from '../../../../../../../components/ui/button';
 import { Textarea } from '../../../../../../../components/ui/textarea';
-import { TypeMethodLearning } from '@/utils/constants/method';
 import { useGenerateContext } from '../../context/GenerateContext';
 import { isEmpty, toNumber } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
+import { IGenerateType } from '../../types/generate.type';
 
 interface IProps {
     className?: string;
     description?: string;
-    method: TypeMethodLearning;
+    method: IGenerateType;
     onGenerate: () => void;
 }
 

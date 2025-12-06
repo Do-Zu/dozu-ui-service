@@ -20,6 +20,7 @@ import { UserRoleEnum } from '@/utils/constants/roles';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import SelectMultipleButton from '@/components/mindmap/button/SelectMultipleButton';
+import { useAppSelector } from '@/stores/hooks';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
@@ -35,6 +36,8 @@ type Props = { mode?: ILearningMode } & (StudentProps | TeacherProps);
 
 const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+
+    const isMultiSelectMode = useAppSelector((state) => state.selectedNodeSlice.isMultiSelectMode);
 
     const {
         topicId,
@@ -66,7 +69,7 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                             </TooltipTrigger>
                             <TooltipContent side="bottom">{isSaving ? 'Saving...' : 'Save mindmap'}</TooltipContent>
                         </Tooltip>
-                        <EditMindmapButton isPanelExpanded={isPanelExpanded} />
+                        <EditMindmapButton disabled={isMultiSelectMode} isPanelExpanded={isPanelExpanded} />
                         <SelectMultipleButton />
                     </>
                 ) : (

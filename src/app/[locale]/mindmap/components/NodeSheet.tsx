@@ -23,7 +23,7 @@ import {
     Trash,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { compressContent } from '../../generate/helper/compress';
 import { useMindMapContext } from '../context/MindMapContext';
@@ -40,6 +40,12 @@ import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicW
 import { IResponseFlashCardGenerate } from '../../topics/[topicId]/(topic)/hooks/useFlashCardWorkSpace';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import {
+    GetPreparedData,
+    IGenerateNodeFlashcardsItem,
+    NodesData,
+    PreparedData,
+} from '../../topics/[topicId]/(topic)/types/generate.type';
 
 enum FlashcardActionEnum {
     BROWSE = 'browse',
@@ -84,7 +90,6 @@ const NodeSheet = ({
     const [newDescription, setNewDescription] = useState(selectedNodeData?.description || '');
     const [pageStartIndex, setPageStartIndex] = useState(selectedNodeData?.pageStartIndex);
     const [pageEndIndex, setPageEndIndex] = useState(selectedNodeData?.pageEndIndex);
-    const [generatedContent, setGeneratedContent] = useState<string>('');
 
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -102,30 +107,13 @@ const NodeSheet = ({
         setPageEndIndex(selectedNodeData?.pageEndIndex);
     }, [selectedNodeData]);
 
-    useEffect(() => {
+    const getGeneratedContent: GetPreparedData = useCallback(async () => {
         if (!pageStartIndex || !pageEndIndex) {
-            setGeneratedContent('');
-            return;
+            throw new Error('No text found in the specified page range.');
         }
 
-        let isMounted = true;
-
-        const getGeneratedContent = async () => {
-            const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
-
-            if (!text) {
-                toast({ description: 'No text found in the specified page range.' });
-                return;
-            }
-
-            if (isMounted) setGeneratedContent(text);
-        };
-
-        getGeneratedContent();
-
-        return () => {
-            isMounted = false;
-        };
+        const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
+        return { customContent: text };
     }, [pageStartIndex, pageEndIndex, extractTextByRange]);
 
     const dispatch = useDispatch();
@@ -232,25 +220,6 @@ const NodeSheet = ({
             return;
         }
         router.push(`/mindmap/add-flashcard?topicId=${selectedNodeData.topicId}&nodeId=${selectedNodeData.nodeId}`);
-    };
-
-    const handleGenerateFlashcards = async () => {
-        if (!pageStartIndex || !pageEndIndex) return;
-
-        const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
-
-        if (!text) {
-            toast({ description: 'No text found in the specified page range.' });
-            return;
-        }
-
-        const compressedContent = compressContent(text);
-
-        await executeGenerate({
-            content: compressedContent,
-            method: 'file',
-            type: 'flashcards',
-        });
     };
 
     const handleViewFlashcards = () => {
@@ -382,7 +351,7 @@ const NodeSheet = ({
                                         {availableFlashcardActions.includes(FlashcardActionEnum.GENERATE) ? (
                                             <Generate
                                                 type={METHOD_LEARNING.FLASHCARD}
-                                                customContent={generatedContent}
+                                                getPreparedData={getGeneratedContent}
                                                 onSuccess={onGenerateFlashcardsSuccess}
                                             />
                                         ) : null}

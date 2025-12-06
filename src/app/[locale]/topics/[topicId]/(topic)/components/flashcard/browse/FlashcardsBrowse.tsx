@@ -3,7 +3,7 @@
 import type { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, PanelLeft, PanelRight, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/utils/constants/routes';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,7 @@ import ViewModeToggle from './ViewModeToggle';
 import { isListEmpty } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import FlashcardsPanelControls from '../node/FlashcardsPanelControls';
 
 const initialAutoPlaySpeed = 3;
 
@@ -32,6 +33,8 @@ interface Props {
     enableSidebar?: boolean;
     emptyComponent?: React.ReactNode;
     onClose?: () => void;
+    isPanelFullscreen?: boolean;
+    onPanelToggle?: () => void;
 }
 
 export default function FlashcardsBrowse({
@@ -41,6 +44,8 @@ export default function FlashcardsBrowse({
     onClose,
     enableFavouriteFlashcards = true,
     enableSidebar = true,
+    isPanelFullscreen,
+    onPanelToggle,
 }: Props) {
     const { topic } = useRequireTopic();
     const { topicId } = topic;
@@ -268,9 +273,11 @@ export default function FlashcardsBrowse({
                         )}
                     >
                         <div className="w-full flex justify-end px-4">
-                            <Button className="hover:bg-background" size="icon" variant="ghost" onClick={onClose}>
-                                <X className="h-4 w-4" />
-                            </Button>
+                            <FlashcardsPanelControls
+                                onClose={onClose}
+                                isFullscreen={isPanelFullscreen}
+                                onPanelToggle={onPanelToggle}
+                            />
                         </div>
                         <Flashcard
                             front={currentFlashcard.front}
