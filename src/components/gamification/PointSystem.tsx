@@ -10,12 +10,13 @@ import { Button } from '@/components/ui/button';
 
 interface PointSystemProps {
     userId?: number;
+    classId?: number;
     showHistory?: boolean;
     compact?: boolean;
 }
 
 
-export function PointSystem({ userId, showHistory = false, compact = false }: PointSystemProps) {
+export function PointSystem({ userId, classId, showHistory = false, compact = false }: PointSystemProps) {
     const [pointsData, setPointsData] = useState<PointsData | null>(null);
     const [userRank, setUserRank] = useState<{ rank: number; totalUsers: number } | null>(null);
     const [loading, setLoading] = useState(true);
@@ -35,10 +36,14 @@ export function PointSystem({ userId, showHistory = false, compact = false }: Po
         try {
             setLoading(true);
             setError(null); // Clear any previous errors
-            const [points, rank] = await Promise.all([
-                gamificationService.getUserPoints(),
-                userId ? leaderboardService.getUserRank(userId) : null
-            ]);
+            
+            // Only fetch points if classId is provided (points are class-specific)
+            const points = classId 
+                ? await gamificationService.getUserPoints(classId)
+                : await gamificationService.getUserPoints(); // Will return default data
+            
+            const rank = userId ? await leaderboardService.getUserRank(userId) : null;
+            
             setPointsData(points);
             setUserRank(rank);
         } catch (error) {
@@ -47,7 +52,7 @@ export function PointSystem({ userId, showHistory = false, compact = false }: Po
         } finally {
             setLoading(false);
         }
-    }, [userId]);
+    }, [userId, classId]);
 
     useEffect(() => {
         fetchPointsData();

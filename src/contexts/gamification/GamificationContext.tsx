@@ -9,6 +9,8 @@ import {
     StreakUpdateResult 
 } from '@/types/streaks/gamification.type';
 import { classStreakService, ClassStreakData } from '@/services/class-based-learning/classStreak.service';
+import { getRequest } from '@/api/api';
+import { API_GAMIFICATION_ROUTES } from '@/utils/constants/api.routes';
 
 interface GamificationContextType {
     // Streak data
@@ -23,16 +25,16 @@ interface GamificationContextType {
     pointsError: string | null;
     
     // Actions
-    updateStreak: () => Promise<StreakUpdateResult | null>;
-    refreshStreakData: () => Promise<void>;
-    refreshPointsData: () => Promise<void>;
-    buyStreakFreeze: (cost?: number) => Promise<boolean>;
-    getStudentGamificationStats: (userId: number) => Promise<GamificationStats | null>;
+    updateStreak: (classId: number) => Promise<StreakUpdateResult | null>;
+    refreshStreakData: (classId?: number) => Promise<void>;
+    refreshPointsData: (classId?: number) => Promise<void>;
+    buyStreakFreeze: (classId: number, cost?: number) => Promise<boolean>;
+    getStudentGamificationStats: (userId: number, classId: number) => Promise<GamificationStats | null>;
     
     // Batch operations for teachers
     getStudentStreaks: (userIds: number[]) => Promise<Map<number, GamificationStats>>;
     getClassStudentStreaks: (classId: number, userIds: number[]) => Promise<Map<number, GamificationStats>>;
-    buyStreakFreezeForStudent: (studentId: number, cost?: number) => Promise<boolean>;
+    buyStreakFreezeForStudent: (studentId: number, classId: number, cost?: number) => Promise<boolean>;
 }
 
 interface GamificationProviderProps {
@@ -69,14 +71,35 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
         }
     }, [autoLoad]);
 
-    // Refresh streak data
-    const refreshStreakData = async () => {
+    // Refresh streak data (requires classId for class-based learning)
+    const refreshStreakData = async (classId?: number) => {
         try {
             setIsLoadingStreak(true);
             setStreakError(null);
             
-            const data = await gamificationService.getUserStreak();
-            setStreakData(data);
+            if (!classId) {
+                // Streak is only available for class-based learning
+                setStreakData(null);
+                return;
+            }
+            
+            // Get userId from localStorage
+            const userString = localStorage.getItem('user');
+            if (userString) {
+                const userObject = JSON.parse(userString);
+                const userId = userObject?.userId || userObject?.id;
+                
+                if (userId) {
+                    const data = await classStreakService.getStudentClassStreak(userId, classId);
+                    setStreakData({
+                        currentStreak: data.currentStreak,
+                        longestStreak: data.longestStreak,
+                        lastStudyDate: data.lastStudyDate,
+                        streakFreezeActive: data.streakFreezeActive,
+                        streakFreezeCount: data.streakFreezeCount,
+                    });
+                }
+            }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to load streak data';
             setStreakError(errorMessage);
@@ -86,13 +109,19 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
         }
     };
 
-    // Refresh points data
-    const refreshPointsData = async () => {
+    // Refresh points data (requires classId for class-based learning)
+    const refreshPointsData = async (classId?: number) => {
         try {
             setIsLoadingPoints(true);
             setPointsError(null);
             
-            const data = await gamificationService.getUserPoints();
+            if (!classId) {
+                // Points are only available for class-based learning
+                setPointsData(null);
+                return;
+            }
+            
+            const data = await gamificationService.getUserPoints(classId);
             setPointsData(data);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to load points data';
@@ -103,18 +132,25 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
         }
     };
 
-    // Update streak
-    const updateStreak = async (): Promise<StreakUpdateResult | null> => {
+    // Update streak (requires classId for class-based learning)
+    const updateStreak = async (classId: number): Promise<StreakUpdateResult | null> => {
         try {
             setIsLoadingStreak(true);
             setStreakError(null);
 
-            // Check if already updated today
-            if (hasUpdatedStreakToday) {
+            if (!classId || typeof classId !== 'number') {
+                throw new Error('classId is required and must be a number');
+            }
+
+            // Check if already updated today (use classId in localStorage key to track per class)
+            const lastUpdateKey = `lastStreakUpdate_${classId}`;
+            const lastUpdate = localStorage.getItem(lastUpdateKey);
+            const today = new Date().toDateString();
+            if (lastUpdate === today) {
                 return null;
             }
 
-            const result = await gamificationService.updateStreak();
+            const result = await gamificationService.updateStreak(classId);
             if (result) {
                 // Update local streak data
                 setStreakData(prev => prev ? {
@@ -123,20 +159,22 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
                     lastStudyDate: new Date()
                 } : null);
 
-                // Mark as updated today
+                // Mark as updated today for this class
                 setHasUpdatedStreakToday(true);
-                localStorage.setItem('lastStreakUpdate', new Date().toDateString());
+                localStorage.setItem(lastUpdateKey, today);
 
                 // Refresh points as they might have changed
-                refreshPointsData();
+                refreshPointsData(classId);
 
                 // Dispatch event for other components
                 window.dispatchEvent(new CustomEvent('streakUpdated', {
                     detail: {
+                        userId: undefined, // Will be set by component if needed
                         currentStreak: result.currentStreak,
                         pointsEarned: result.pointsEarned,
                         message: result.message,
-                        isNewStreak: result.isNewStreak
+                        isNewStreak: result.isNewStreak,
+                        classId,
                     }
                 }));
             }
@@ -151,17 +189,21 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
         }
     };
 
-    // Buy streak freeze
-    const buyStreakFreeze = async (cost: number = 100): Promise<boolean> => {
+    // Buy streak freeze (requires classId for class-based learning)
+    const buyStreakFreeze = async (classId: number, cost: number = 100): Promise<boolean> => {
         try {
             setIsLoadingPoints(true);
             setPointsError(null);
 
-            const success = await gamificationService.buyStreakFreeze(cost);
+            if (!classId || typeof classId !== 'number') {
+                throw new Error('classId is required and must be a number');
+            }
+
+            const success = await gamificationService.buyStreakFreeze(classId, cost);
             if (success) {
                 // Refresh both streak and points data
-                await refreshStreakData();
-                await refreshPointsData();
+                await refreshStreakData(classId);
+                await refreshPointsData(classId);
             }
             return success;
         } catch (error) {
@@ -174,9 +216,9 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
     };
 
     // Get student gamification stats (for teachers)
-    const getStudentGamificationStats = async (userId: number): Promise<GamificationStats | null> => {
+    const getStudentGamificationStats = async (userId: number, classId: number): Promise<GamificationStats | null> => {
         try {
-            return await gamificationService.getUserGamificationStats(userId);
+            return await gamificationService.getUserGamificationStats(userId, classId);
         } catch (error) {
             console.error(`Error fetching stats for user ${userId}:`, error);
             return null;
@@ -193,33 +235,52 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
         }
     };
 
-    // Get streaks for all students in a class (batch API - more efficient)
+    // Get streaks and points for all students in a class (batch API - more efficient)
     const getClassStudentStreaks = async (classId: number, userIds: number[]): Promise<Map<number, GamificationStats>> => {
         try {
-            // Get class-specific streaks for all students
-            const classStreaks = await classStreakService.getClassStudentStreaks(classId, userIds);
+            // classStreakService.getClassStudentStreaks now uses teacher endpoint which returns both streak and points
+            // So we only need to call it once and extract the data
+            // Fetch gamification stats (includes both streak and points) for all students in parallel
+            const statsPromises = userIds.map(async (userId) => {
+                try {
+                    const response = await getRequest(
+                        `${API_GAMIFICATION_ROUTES.GET_USER_GAMIFICATION_STATS({ userId })}?classId=${classId}`
+                    ) as any;
+                    
+                    if (response.status === 'success' && response.data?.gamificationStats) {
+                        return { userId, stats: response.data.gamificationStats };
+                    }
+                    return { userId, stats: null };
+                } catch (error) {
+                    console.error(`Failed to fetch stats for user ${userId}:`, error);
+                    return { userId, stats: null };
+                }
+            });
             
-            // Convert ClassStreakData to GamificationStats format
+            const statsResults = await Promise.allSettled(statsPromises);
             const results = new Map<number, GamificationStats>();
             
-            classStreaks.forEach((classStreakData, userId) => {
-                results.set(userId, {
-                    totalPoints: 0, // Will be filled by points data
-                    currentStreak: classStreakData.currentStreak,
-                    longestStreak: classStreakData.longestStreak,
-                    level: 1, // Default level
-                    experiencePoints: 0,
-                    nextLevelExperience: 200,
-                    achievements: [],
-                    weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
-                    totalLessonsCompleted: 0,
-                    totalQuizzesCompleted: 0,
-                    totalFlashcardsCompleted: 0,
-                    averageScore: 0,
-                    streakFreezeActive: classStreakData.streakFreezeActive,
-                    streakFreezeCount: classStreakData.streakFreezeCount,
-                    lastStudyDate: classStreakData.lastStudyDate,
-                });
+            statsResults.forEach((result) => {
+                if (result.status === 'fulfilled' && result.value.stats) {
+                    const stats = result.value.stats;
+                    results.set(result.value.userId, {
+                        totalPoints: stats.totalPoints || 0,
+                        currentStreak: stats.currentStreak || 0,
+                        longestStreak: stats.longestStreak || 0,
+                        level: stats.level || Math.floor((stats.totalPoints || 0) / 200) + 1 || 1,
+                        experiencePoints: stats.experiencePoints || 0,
+                        nextLevelExperience: stats.nextLevelExperience || 200,
+                        achievements: stats.achievements || [],
+                        weeklyActivity: stats.weeklyActivity || [0, 0, 0, 0, 0, 0, 0],
+                        totalLessonsCompleted: stats.totalLessonsCompleted || 0,
+                        totalQuizzesCompleted: stats.totalQuizzesCompleted || 0,
+                        totalFlashcardsCompleted: stats.totalFlashcardsCompleted || 0,
+                        averageScore: stats.averageScore || 0,
+                        streakFreezeActive: stats.streakFreezeActive || false,
+                        streakFreezeCount: stats.streakFreezeCount || 0,
+                        lastStudyDate: stats.lastStudyDate ? new Date(stats.lastStudyDate) : null,
+                    });
+                }
             });
             
             return results;
@@ -230,11 +291,15 @@ export function GamificationProvider({ children, autoLoad = true }: Gamification
     };
 
     // Buy streak freeze for a specific student (for teachers)
-    const buyStreakFreezeForStudent = async (studentId: number, cost: number = 100): Promise<boolean> => {
+    const buyStreakFreezeForStudent = async (studentId: number, classId: number, cost: number = 100): Promise<boolean> => {
         try {
+            if (!classId || typeof classId !== 'number') {
+                throw new Error('classId is required and must be a number');
+            }
             // For now, use the regular buyStreakFreeze method
-            console.warn('buyStreakFreezeForStudent not implemented, using regular buyStreakFreeze');
-            return await gamificationService.buyStreakFreeze(cost);
+            // TODO: Implement teacher-specific endpoint for buying streak freeze for students
+            console.warn('buyStreakFreezeForStudent not fully implemented, using regular buyStreakFreeze');
+            return await gamificationService.buyStreakFreeze(classId, cost);
         } catch (error) {
             console.error('Error buying streak freeze for student:', error);
             throw error;
@@ -297,9 +362,14 @@ export function useStreakTracking() {
         hasUpdatedStreakToday,
         updateStreak,
         getCurrentStreak: refreshStreakData,
-        forceUpdateStreak: async () => {
-            localStorage.removeItem('lastStreakUpdate');
-            return updateStreak();
+        forceUpdateStreak: async (classId: number) => {
+            if (!classId) {
+                throw new Error('classId is required');
+            }
+            // Clear last update for this class
+            const lastUpdateKey = `lastStreakUpdate_${classId}`;
+            localStorage.removeItem(lastUpdateKey);
+            return updateStreak(classId);
         },
         resetStreakState: () => {
             localStorage.removeItem('lastStreakUpdate');

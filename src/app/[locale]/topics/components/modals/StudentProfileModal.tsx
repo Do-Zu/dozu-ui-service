@@ -54,6 +54,8 @@ export default function StudentProfileModal({
     const t = useTranslations('common');
     const { getUserLearningStreak } = useLearningStreak();
     const { getUserLearningStats } = useLearningStats();
+    // Note: useGamification hook doesn't support classId yet
+    // For now, we'll fetch data directly if classId is available
     const { 
         buyStreakFreeze, 
         refreshData,
@@ -62,49 +64,73 @@ export default function StudentProfileModal({
         loading: gamificationLoading,
         error: gamificationError
     } = useGamification();
+    
+    // Fetch class-specific gamification stats if classId is provided
+    const {
+        data: classGamificationStats,
+        loading: classGamificationLoading,
+        error: classGamificationError,
+        refetch: refetchClassGamificationStats,
+    } = useFetch<GamificationStats>(async () => {
+        if (!user || !classId) return null;
+        
+        try {
+            const stats = await gamificationService.getUserGamificationStats(Number(user.userId), classId);
+            return stats;
+        } catch (error) {
+            console.error('Error fetching class gamification stats:', error);
+            return null;
+        }
+    }, { shouldRun: !!user && !!classId });
 
-    // Create gamification stats from useGamification hook data
-    const gamificationStats = pointsData && streakData ? {
-        totalPoints: pointsData.totalPoints,
-        currentStreak: streakData.currentStreak,
-        longestStreak: streakData.longestStreak,
-        level: Math.max(1, Math.floor(pointsData.totalPoints / 200) + 1), // Calculate level from points
-        experiencePoints: pointsData.totalPoints % 200, // Calculate XP within current level
-        nextLevelExperience: 200, // Fixed XP needed per level
-        streakFreezeCount: streakData.streakFreezeCount,
-        streakFreezeActive: streakData.streakFreezeActive,
-        totalLessonsCompleted: 0, // Will be filled by learning stats
-        totalQuizzesCompleted: 0, // Will be filled by learning stats
-        totalFlashcardsCompleted: 0, // Will be filled by learning stats
-        averageScore: 0, // Will be filled by learning stats
-        achievements: [] // Empty for now
-    } : null;
+    // Use class-specific stats if classId is provided, otherwise fallback to useGamification hook data
+    // Note: If classId exists, we should only use class-specific data, not global data
+    const gamificationStats: GamificationStats | null = classId 
+        ? classGamificationStats 
+        : (pointsData && streakData ? {
+            totalPoints: pointsData.totalPoints,
+            currentStreak: streakData.currentStreak,
+            longestStreak: streakData.longestStreak,
+            level: Math.max(1, Math.floor(pointsData.totalPoints / 200) + 1), // Calculate level from points
+            experiencePoints: pointsData.totalPoints % 200, // Calculate XP within current level
+            nextLevelExperience: 200, // Fixed XP needed per level
+            streakFreezeCount: streakData.streakFreezeCount,
+            streakFreezeActive: streakData.streakFreezeActive,
+            totalLessonsCompleted: 0, // Will be filled by learning stats
+            totalQuizzesCompleted: 0, // Will be filled by learning stats
+            totalFlashcardsCompleted: 0, // Will be filled by learning stats
+            averageScore: 0, // Will be filled by learning stats
+            achievements: [], // Empty for now
+            weeklyActivity: [0, 0, 0, 0, 0, 0, 0]
+        } : null);
 
-    // Use gamification loading and error from useGamification hook
+    // Combine loading states - if classId exists, only use class-specific loading
+    const isLoadingGamification = classId ? classGamificationLoading : (gamificationLoading || classGamificationLoading);
+    const hasGamificationError = classId ? classGamificationError : (gamificationError || classGamificationError);
 
-    // Fetch learning streak based on progress data
+    // Fetch learning streak based on progress data (only if no classId, as class-specific stats already include this)
     const {
         data: learningStreakData,
         loading: learningStreakLoading,
         error: learningStreakError,
     } = useFetch<LearningStreakData>(() => {
-        if (!user) {
+        if (!user || classId) { // Skip if classId exists, use class-specific stats instead
             return Promise.resolve(null);
         }
         return getUserLearningStreak(user.userId.toString());
-    });
+    }, { shouldRun: !!user && !classId });
 
-    // Fetch learning statistics from progress data
+    // Fetch learning statistics from progress data (only if no classId, as class-specific stats already include this)
     const {
         data: learningStats,
         loading: learningStatsLoading,
         error: learningStatsError,
     } = useFetch<LearningStats>(() => {
-        if (!user) {
+        if (!user || classId) { // Skip if classId exists, use class-specific stats instead
             return Promise.resolve(null);
         }
         return getUserLearningStats(user.userId.toString());
-    });
+    }, { shouldRun: !!user && !classId });
 
     // const {
     //     data: lessonStats,
@@ -121,23 +147,34 @@ export default function StudentProfileModal({
     // });
 
     // Create enhanced gamification stats with real learning data
+    // If classId exists, use class-specific stats directly (they already include learning stats)
+    // Otherwise, merge with global learning stats
     const enhancedGamificationStats = gamificationStats ? {
         ...gamificationStats,
-        // Use learning stats for real data, fallback to zero when data is unavailable
-        totalLessonsCompleted: learningStats?.totalLessonsCompleted || 0,
-        totalQuizzesCompleted: learningStats?.totalQuizzesCompleted || 0,
-        totalFlashcardsCompleted: learningStats?.totalFlashcardsCompleted || 0,
-        averageScore: learningStats?.averageScore || 0,
+        // If classId exists, stats already include learning data from API
+        // Otherwise, use learning stats for real data, fallback to zero when data is unavailable
+        totalLessonsCompleted: classId 
+            ? (gamificationStats.totalLessonsCompleted ?? 0)
+            : (learningStats?.totalLessonsCompleted || gamificationStats.totalLessonsCompleted || 0),
+        totalQuizzesCompleted: classId
+            ? (gamificationStats.totalQuizzesCompleted ?? 0)
+            : (learningStats?.totalQuizzesCompleted || gamificationStats.totalQuizzesCompleted || 0),
+        totalFlashcardsCompleted: classId
+            ? (gamificationStats.totalFlashcardsCompleted ?? 0)
+            : (learningStats?.totalFlashcardsCompleted || gamificationStats.totalFlashcardsCompleted || 0),
+        averageScore: classId
+            ? (gamificationStats.averageScore ?? 0)
+            : (learningStats?.averageScore || gamificationStats.averageScore || 0),
     } : null;
 
     // Check if we have any errors
-    const hasErrors = gamificationError || learningStreakError || learningStatsError;
+    const hasErrors = hasGamificationError || learningStreakError || learningStatsError;
     const errorMessages = [];
-    if (gamificationError) errorMessages.push('Failed to load gamification data');
+    if (hasGamificationError) errorMessages.push('Failed to load gamification data');
     if (learningStreakError) errorMessages.push('Failed to load streak data');
     if (learningStatsError) errorMessages.push('Failed to load learning statistics');
 
-    const isLoading = gamificationLoading || learningStreakLoading || learningStatsLoading;
+    const isLoading = isLoadingGamification || learningStreakLoading || learningStatsLoading;
 
     if (!user) {
         return null;
@@ -165,13 +202,27 @@ export default function StudentProfileModal({
 
     const handleBuyStreakFreeze = async () => {
         try {
-            await buyStreakFreeze(100); // 100 points for 1 streak freeze
-            toast({
-                title: "Success!",
-                description: "You've successfully purchased a streak freeze!",
-            });
-            // Refresh data to show updated points and freeze count
-            await refreshData();
+            if (!classId) {
+                throw new Error('classId is required to buy streak freeze');
+            }
+            // Use gamificationService directly with classId
+            const success = await gamificationService.buyStreakFreeze(classId, 100);
+            if (success) {
+                toast({
+                    title: "Success!",
+                    description: "You've successfully purchased a streak freeze!",
+                });
+                // Refresh class-specific data to show updated points and freeze count
+                if (refetchClassGamificationStats) {
+                    await refetchClassGamificationStats();
+                }
+                // Also refresh global data if no classId
+                if (!classId) {
+                    await refreshData();
+                }
+            } else {
+                throw new Error('Failed to purchase streak freeze');
+            }
         } catch (error) {
             console.error('Error buying streak freeze:', error);
             toast({
@@ -232,11 +283,14 @@ export default function StudentProfileModal({
                             <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 px-3 py-1 rounded-full">
                                 <Flame className="w-4 h-4" />
                                 <span className="font-semibold">
-                                    {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
+                                    {enhancedGamificationStats?.currentStreak || (classId ? 0 : (learningStreakData?.currentStreak || 0))}
                                 </span>
                             </div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {learningStreakData?.streakActive ? 'Active Streak' : 'Day Streak'}
+                                {classId 
+                                    ? (enhancedGamificationStats?.currentStreak ? 'Active Streak' : 'Day Streak')
+                                    : (learningStreakData?.streakActive ? 'Active Streak' : 'Day Streak')
+                                }
                             </p>
                         </div>
                     </div>
@@ -303,10 +357,10 @@ export default function StudentProfileModal({
                                                 <div>
                                                     <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Streak</p>
                                                     <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                        {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
+                                                        {enhancedGamificationStats?.currentStreak || (classId ? 0 : (learningStreakData?.currentStreak || 0))}
                                                     </p>
                                                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                        Best: {enhancedGamificationStats?.longestStreak || learningStreakData?.longestStreak || 0}
+                                                        Best: {enhancedGamificationStats?.longestStreak || (classId ? 0 : (learningStreakData?.longestStreak || 0))}
                                                     </p>
                                                 </div>
                                                 <Flame className="h-6 w-6 text-orange-500 dark:text-orange-400" />
@@ -345,7 +399,7 @@ export default function StudentProfileModal({
                                                 <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                             </div>
                                             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                                {learningStats?.totalLessonsCompleted || 0}
+                                                {enhancedGamificationStats?.totalLessonsCompleted ?? (learningStats?.totalLessonsCompleted || 0)}
                                             </div>
                                             <div className="text-xs text-gray-600 dark:text-gray-400">Lessons</div>
                                         </div>
@@ -355,7 +409,7 @@ export default function StudentProfileModal({
                                                 <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
                                             </div>
                                             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                                {learningStats?.totalQuizzesCompleted || 0}
+                                                {enhancedGamificationStats?.totalQuizzesCompleted ?? (learningStats?.totalQuizzesCompleted || 0)}
                                             </div>
                                             <div className="text-xs text-gray-600 dark:text-gray-400">Quizzes</div>
                                         </div>
@@ -365,7 +419,7 @@ export default function StudentProfileModal({
                                                 <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                                             </div>
                                             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                                {learningStats?.totalFlashcardsCompleted || 0}
+                                                {enhancedGamificationStats?.totalFlashcardsCompleted ?? (learningStats?.totalFlashcardsCompleted || 0)}
                                             </div>
                                             <div className="text-xs text-gray-600 dark:text-gray-400">Flashcards</div>
                                         </div>
@@ -375,7 +429,7 @@ export default function StudentProfileModal({
                                                 <Trophy className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                                             </div>
                                             <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                                {(learningStats?.averageScore || 0).toFixed(1)}%
+                                                {(enhancedGamificationStats?.averageScore ?? (learningStats?.averageScore || 0)).toFixed(1)}%
                                             </div>
                                             <div className="text-xs text-gray-600 dark:text-gray-400">Avg Score</div>
                                         </div>
@@ -399,11 +453,14 @@ export default function StudentProfileModal({
                                                 <Flame className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                                             </div>
                                             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                {enhancedGamificationStats?.currentStreak || learningStreakData?.currentStreak || 0}
+                                                {enhancedGamificationStats?.currentStreak || (classId ? 0 : (learningStreakData?.currentStreak || 0))}
                                             </div>
                                             <div className="text-sm text-gray-600 dark:text-gray-400">Current Streak</div>
                                             <div className="mt-2">
-                                                {learningStreakData?.streakActive ? (
+                                                {(classId 
+                                                    ? (enhancedGamificationStats?.currentStreak ? true : false)
+                                                    : (learningStreakData?.streakActive || false)
+                                                ) ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                                                         Active
                                                     </span>

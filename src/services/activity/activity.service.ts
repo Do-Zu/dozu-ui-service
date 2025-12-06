@@ -1,4 +1,5 @@
 import { IActivity } from '@/types/activity';
+import quizClassService from '@/services/class-based-learning/quizClass.service';
 
 export interface CreateActivityPayload {
   title: string;
@@ -219,9 +220,6 @@ class ActivityService {
     message?: string;
   }> {
     try {
-      // Import quiz class service dynamically to avoid circular dependencies
-      const quizClassService = (await import('@/services/class-based-learning/quizClass.service')).default;
-      
       // Convert activityId to number (assuming it's a classQuizId)
       const classQuizId = parseInt(activityId);
       if (isNaN(classQuizId)) {
