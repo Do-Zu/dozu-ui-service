@@ -68,6 +68,7 @@ const FileTab: React.FC = () => {
                 return;
             }
 
+            //Convert all file type into PDF format
             if (!compareIgnoreCapitalization(getFileExtension(file), FILE_TYPES_NOT_CONVERT)) {
                 const arrayBuffer = await upload(file);
 
