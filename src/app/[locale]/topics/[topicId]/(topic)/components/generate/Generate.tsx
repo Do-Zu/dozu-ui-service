@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import useGenerate from '@/hooks/generate/useGenerate';
+import useGenerate, { IGenerateOptions } from '@/hooks/generate/useGenerate';
 import { ReactNode, useMemo } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
 import { TypeMethodLearning } from '@/utils/constants/method';
 import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
-import { GetPreparedData, IGenerateType, NodesData } from '../../types/generate.type';
+import { GetPreparedData, ICustomOptions, IGenerateType } from '../../types/generate.type';
 import toastHelper from '@/utils/toast.helper';
 
 /**
@@ -44,7 +44,7 @@ interface IProps<TRes> {
     /** Always called after attempt finishes (success or failure). Useful for cleanup. */
     onFinally?: () => void;
     customContent?: string;
-    customOptions?: NodesData;
+    customOptions?: ICustomOptions;
     getPreparedData?: GetPreparedData;
 }
 
@@ -78,13 +78,21 @@ function GenerateContent<TRes>({
         try {
             onHandleBeforeGenerate?.();
             let generatingContent = contentTextOrigin.current;
-            let generatingOptions = customOptions ? customOptions : options;
+            let generatingOptions: IGenerateOptions = {
+                commonGenerateOptions: options,
+            };
             if (getPreparedData) {
                 const { customContent: preparedContent, customOptions: preparedOptions } = await getPreparedData();
                 if (preparedContent) generatingContent = preparedContent;
-                if (preparedOptions) generatingOptions = preparedOptions;
+                if (preparedOptions)
+                    generatingOptions = {
+                        ...generatingOptions,
+                        ...preparedOptions,
+                    };
             } else if (customContent && typeof customContent === 'string') {
                 generatingContent = customContent;
+            } else if (customOptions) {
+                generatingOptions = { ...generatingOptions, ...customOptions };
             }
 
             if (isNilOrEmpty(generatingContent)) {

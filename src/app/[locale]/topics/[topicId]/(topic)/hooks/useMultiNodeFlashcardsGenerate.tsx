@@ -69,7 +69,7 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
             });
         }
 
-        return { customContent: fullPageContent, customOptions: nodesData };
+        return { customContent: fullPageContent, customOptions: { nodesData } };
     }
 
     function onHandleBeforeGenerate() {

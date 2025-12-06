@@ -6,13 +6,19 @@ import { ApiResponsePubGenContent, ISseData } from '@/app/[locale]/generate';
 import { BASE_URL_STREAM_GENERATE, URL_API_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { compressContent } from '@/app/[locale]/generate/helper/compress';
 import { toast } from '../use-toast';
-import { LearningGenerationOptions, NodesData } from '@/app/[locale]/topics/[topicId]/(topic)/types/generate.type';
+import { NodesData } from '@/app/[locale]/topics/[topicId]/(topic)/types/generate.type';
+import { ICommonGenerateOptions } from '@/app/[locale]/topics/[topicId]/(topic)/context/GenerateContext';
+
+export interface IGenerateOptions {
+    commonGenerateOptions?: ICommonGenerateOptions;
+    nodesData?: NodesData;
+}
 
 export interface IGenerateRequest {
     content: string;
     method: string;
     type: string;
-    options?: LearningGenerationOptions | NodesData;
+    options?: IGenerateOptions;
 }
 
 export interface UsePostOptions<TReq, TRes> {
