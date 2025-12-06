@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
 import { TypeMethodLearning } from '@/utils/constants/method';
 import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
-import { GetPreparedData, ICustomOptions, IGenerateType } from '../../types/generate.type';
+import { GetPreparedData, ICustomOptions, IGenerateType, MultiNodeGenerateEnum } from '../../types/generate.type';
 import toastHelper from '@/utils/toast.helper';
 
 /**
@@ -159,7 +159,7 @@ function GenerateContent<TRes>({
     );
 
     const renderCustomize = () => {
-        if (type === 'flashcard' || type === 'quiz')
+        if (type === 'flashcard' || type === 'quiz' || type === MultiNodeGenerateEnum.MULTI_NODE_FLASHCARD)
             return <CustomizeProperties className="mx-3" method={type} onGenerate={handleStartGenerate} />;
 
         return <></>;

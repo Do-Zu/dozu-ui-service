@@ -131,7 +131,12 @@ const MindmapContent = ({ mode, role }: Props) => {
             return <NodeFlashcardsLearning nodeId={selectedNodeData.nodeId} onClose={onViewFlashcardsClose} />;
         }
         if (flashcardsViewMode === 'multiNodePreview') {
-            return <MultiNodeFlashcardsPreview generatedNodeFlashcards={generatedNodeFlashcards} />;
+            return (
+                <MultiNodeFlashcardsPreview
+                    generatedNodeFlashcards={generatedNodeFlashcards}
+                    onClose={onViewFlashcardsClose}
+                />
+            );
         }
     }, [selectedNodeData?.nodeId, flashcardsViewMode]);
 

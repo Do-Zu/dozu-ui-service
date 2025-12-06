@@ -64,6 +64,7 @@ export default function MultiNodeFlashcardsPreview({ generatedNodeFlashcards, on
             onSuccess(data) {
                 toastHelper.showSuccessMessage('Create flashcards successfully.');
                 onCreateFlashcardsSuccess(data);
+                onClose?.();
             },
         },
     );
