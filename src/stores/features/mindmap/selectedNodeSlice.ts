@@ -50,6 +50,9 @@ export const selectedNodeSlice = createSlice({
                 state.selectedNodeIds = [];
             }
         },
+        turnOffMultiSelectMode: (state) => {
+            state.isMultiSelectMode = false;
+        },
     },
 });
 
@@ -61,6 +64,7 @@ export const {
     toggleNodeSelection,
     clearNodeSelection,
     setMultiSelectMode,
+    turnOffMultiSelectMode,
 } = selectedNodeSlice.actions;
 
 export default selectedNodeSlice.reducer;
