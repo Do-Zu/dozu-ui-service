@@ -117,8 +117,10 @@ const NodeSheet = ({
 
     useEffect(() => {
         // pdf logic
-        const pageStartIndex = EnumLearningMaterial.file ? selectedNodeData?.pageStartIndex : undefined;
-        const pageEndIndex = EnumLearningMaterial.file ? selectedNodeData?.pageEndIndex : undefined;
+        const pageStartIndex =
+            learningMaterial?.type === EnumLearningMaterial.file ? selectedNodeData?.pageStartIndex : undefined;
+        const pageEndIndex =
+            learningMaterial?.type === EnumLearningMaterial.file ? selectedNodeData?.pageEndIndex : undefined;
         setPageStartIndex(pageStartIndex);
         setPageEndIndex(pageEndIndex);
 
@@ -130,7 +132,7 @@ const NodeSheet = ({
 
         setStartSegment(startSegment);
         setEndSegment(endSegment);
-    }, [selectedNodeData]);
+    }, [selectedNodeData, learningMaterial?.type]);
 
     const getGeneratedContent: GetPreparedData = useCallback(async () => {
         if (!pageStartIndex || !pageEndIndex) {

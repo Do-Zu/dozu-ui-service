@@ -38,7 +38,7 @@ function PdfReferenceItem({ id, label, isEditing, pageIndex, onPageIndexChange, 
                     <Tooltip delayDuration={200}>
                         <TooltipTrigger asChild>
                             <Button variant="outline" onClick={() => onPageClick(pageIndex)}>
-                                {!pageIndex ? 'No page index yet' : pageIndex}
+                                {pageIndex === undefined ? 'No page index yet' : pageIndex}
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-sm">

@@ -33,7 +33,7 @@ function YoutubeReferenceItem({
             </div>
 
             {isEditing ? (
-                <Select value={segment ? String(segment) : undefined} onValueChange={onSegmentChange}>
+                <Select value={segment !== undefined ? String(segment) : undefined} onValueChange={onSegmentChange}>
                     <SelectTrigger
                         className={`h-9 text-sm transition-all ${!isEditing ? 'cursor-pointer border-primary/50 bg-muted/60 hover:bg-muted' : ''}`}
                     >
@@ -55,7 +55,7 @@ function YoutubeReferenceItem({
                     <Tooltip delayDuration={200}>
                         <TooltipTrigger asChild>
                             <Button variant="outline" onClick={() => onSegmentClick(segment)}>
-                                {!segment ? 'No segment yet' : `[${transcriptUtils.formatTime(segment)}s]`}
+                                {segment === undefined ? 'No segment yet' : `[${transcriptUtils.formatTime(segment)}s]`}
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs text-sm">
