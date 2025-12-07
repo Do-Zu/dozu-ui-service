@@ -29,19 +29,14 @@ const FileTab: React.FC = () => {
     const { files } = useCardImportSelector((state) => state.importDialog);
     const { loading: isLoadingExtractFile, error: errorExtractFile } = useReaderFile();
 
-    const {
-        data: fileResponse,
-        upload,
-        loading: isConverting,
-        error: errorConverting,
-    } = useUploadConvertFile({
+    const { upload, loading: isConverting } = useUploadConvertFile({
         url: '/convert/file',
     });
 
     const handleFileUpload = async (file: File) => {
         try {
             dispatch(setFiles([file]));
-        } catch (error) {
+        } catch {
             toast({
                 description: t('toasts.uploadFailed'),
                 variant: 'destructive',

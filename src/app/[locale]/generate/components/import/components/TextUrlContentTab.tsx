@@ -40,7 +40,7 @@ const TabContent: React.FC = () => {
     } = useCardImportSelector((state) => state.contentExtraction);
 
     const { step } = useCardImportSelector((state) => state.importDialog);
-    const { loading: isExtractContent, error: errorReadFile } = useReaderFile();
+    const { loading: isExtractContent } = useReaderFile();
     const { convertUrlToPdf, isConverting } = useUrlToPdfConverter();
 
     // State to control view switching
@@ -75,15 +75,7 @@ const TabContent: React.FC = () => {
     };
 
     const handleFileUpload = useCallback((file: File) => {
-        try {
-            dispatch(setFiles([file]));
-        } catch (error) {
-            toast({
-                description: t('toasts.uploadFailed'),
-                variant: 'destructive',
-            });
-            dispatch(setFiles([]));
-        }
+        dispatch(setFiles([file]));
     }, []);
 
     const handleExtractUrlContent = useCallback(

@@ -1,5 +1,4 @@
 import Axios from '@/api/axios';
-import axios from 'axios';
 import { useCallback, useState } from 'react';
 
 interface UseFileUploadOptions {
