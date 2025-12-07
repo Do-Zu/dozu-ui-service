@@ -91,7 +91,7 @@ const TabContent: React.FC = () => {
                 },
                 onError: () => {
                     toast({
-                        title: 'Failed to extract content from URL',
+                        title: t('toasts.extractionError'),
                     });
                 },
             });

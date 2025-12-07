@@ -69,7 +69,7 @@ const FileTab: React.FC = () => {
 
                 if (!arrayBuffer) {
                     toast({
-                        description: 'Convert Failed',
+                        description: t('toasts.convertFailed'),
                     });
                     return;
                 }

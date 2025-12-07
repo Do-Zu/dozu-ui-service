@@ -35,7 +35,8 @@
                 }
             },
             "toasts": {
-                "uploadFailed": "Tải nội dung lên thất bại. Vui lòng thử lại."
+                "uploadFailed": "Tải nội dung lên thất bại. Vui lòng thử lại.",
+                "convertFailed": "Chuyển định dạng không thành công"
             },
             "validations": {
                 "fileRejected": "Tệp bị từ chối. Chỉ cho phép các tệp {types} dung lượng tối đa {size}MB."

@@ -35,7 +35,8 @@
                 }
             },
             "toasts": {
-                "uploadFailed": "Failed to upload content. Please try again."
+                "uploadFailed": "Failed to upload content. Please try again.",
+                "convertFailed": "Convert format failed"
             },
             "validations": {
                 "fileRejected": "File rejected. Only {types} files up to {size}MB are allowed."

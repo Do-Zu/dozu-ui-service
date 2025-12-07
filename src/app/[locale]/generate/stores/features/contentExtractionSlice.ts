@@ -115,7 +115,7 @@ export const extractWebsiteContent = createAsyncThunk(
 
             const response = await axios.post(BASE_API_EXTRACT_WEBSITE, { url: validUrl });
 
-            const { html } = safeDestructure(response.data);
+            const { html } = safeDestructure(response.data, { html: '' });
 
             return html;
         } catch {

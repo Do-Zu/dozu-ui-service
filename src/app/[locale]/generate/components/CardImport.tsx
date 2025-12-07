@@ -23,6 +23,7 @@ import { URL_API_GENERATE } from '../utils/constant';
 import { ClassPropsInGenerate } from './GeneratePage';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { EXTRACTION_TAB, IMPORT_METHOD, RESOURCE_CONTENT_TYPE } from '../constants/resource';
+import { isEmpty } from '@/utils';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
@@ -136,12 +137,15 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
     const isStepValid = () => {
         if (step !== 1) return true;
 
-        if (importMethod === IMPORT_METHOD.FILE) return files.length > 0;
+        if (importMethod === IMPORT_METHOD.FILE) return files.length > 0 && !isEmpty(textContent);
 
-        if (importMethod === IMPORT_METHOD.TEXT) {
-            if (activeTab === EXTRACTION_TAB.URL) return extractedContent.trim().length > 0;
-            if (activeTab === EXTRACTION_TAB.TEXT) return textContent.trim().length > 0;
+        if (importMethod === IMPORT_METHOD.TEXT && activeTab === EXTRACTION_TAB.URL) {
+            if (contentType === RESOURCE_CONTENT_TYPE.YOUTUBE) return extractedContent?.trim().length > 0;
+            else if (contentType === RESOURCE_CONTENT_TYPE.WEBSITE) return textContent?.trim().length > 0;
         }
+
+        if (importMethod === IMPORT_METHOD.TEXT && activeTab === EXTRACTION_TAB.TEXT)
+            return textContent.trim().length > 0;
 
         return false;
     };
