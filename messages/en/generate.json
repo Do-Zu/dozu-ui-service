@@ -32,6 +32,10 @@
                 "processing": {
                     "title": "Processing your content...",
                     "description": "Please wait while we extract the content"
+                },
+                "converting": {
+                    "title": "Converting",
+                    "description": "Please wait while we converting the format"
                 }
             },
             "toasts": {

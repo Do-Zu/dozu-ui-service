@@ -166,7 +166,7 @@ const FileTab: React.FC = () => {
 
             {(isLoadingExtractFile || isConverting) && (
                 <LoadingOverlay
-                    title={isLoadingExtractFile ? t('loading.processing.title') : 'Converting'}
+                    title={isLoadingExtractFile ? t('loading.processing.title') : t('loading.converting.title')}
                     description={t('loading.processing.description')}
                 />
             )}
