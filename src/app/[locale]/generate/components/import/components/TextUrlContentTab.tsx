@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,10 +17,13 @@ import {
     resetExtractionState,
     extractYouTubeVideoId,
     extractYouTubeTranscript,
-    extractWebsiteContent,
+    setContentType,
 } from '@/app/[locale]/generate/stores/features/contentExtractionSlice';
-import { setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
-import { ExtractionTab } from '../../../constants/resource';
+import { setFiles, setStep } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import { ExtractionTab, RESOURCE_CONTENT_TYPE } from '../../../constants/resource';
+import { isNilOrEmpty } from '@/utils';
+import useReaderFile from '../../../hooks/useReaderFile';
+import useUrlToPdfConverter from '../../../hooks/useUrlToPdfConverter';
 
 const TabContent: React.FC = () => {
     const dispatch = useCardImportDispatch();
@@ -37,6 +40,8 @@ const TabContent: React.FC = () => {
     } = useCardImportSelector((state) => state.contentExtraction);
 
     const { step } = useCardImportSelector((state) => state.importDialog);
+    const { loading: isExtractContent, error: errorReadFile } = useReaderFile();
+    const { convertUrlToPdf, isConverting } = useUrlToPdfConverter();
 
     // State to control view switching
     const [showDetailView, setShowDetailView] = useState(false);
@@ -58,7 +63,7 @@ const TabContent: React.FC = () => {
                     dispatch(extractYouTubeTranscript(videoId));
                 }
             } else {
-                dispatch(extractWebsiteContent(inputUrl));
+                handleExtractUrlContent(inputUrl);
             }
         } catch (err) {
             //console.error('Error during extraction:', err);
@@ -69,7 +74,40 @@ const TabContent: React.FC = () => {
         dispatch(setTextContent(e.target.value));
     };
 
-    const handleUrlOnPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const handleFileUpload = useCallback((file: File) => {
+        try {
+            dispatch(setFiles([file]));
+        } catch (error) {
+            toast({
+                description: t('toasts.uploadFailed'),
+                variant: 'destructive',
+            });
+            dispatch(setFiles([]));
+        }
+    }, []);
+
+    const handleExtractUrlContent = useCallback(
+        async (pastedUrl: string) => {
+            if (isNilOrEmpty(pastedUrl)) {
+                return;
+            }
+
+            await convertUrlToPdf(pastedUrl, {
+                onSuccess: (pdfFile) => {
+                    dispatch(setContentType(RESOURCE_CONTENT_TYPE.WEBSITE));
+                    handleFileUpload(pdfFile);
+                },
+                onError: () => {
+                    toast({
+                        title: 'Failed to extract content from URL',
+                    });
+                },
+            });
+        },
+        [convertUrlToPdf, dispatch, handleFileUpload],
+    );
+
+    const handleUrlOnPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
         dispatch(resetExtractionState());
         e.preventDefault();
         const pastedUrl = e.clipboardData.getData('text').trim();
@@ -90,7 +128,7 @@ const TabContent: React.FC = () => {
                 dispatch(extractYouTubeTranscript(videoId));
             }
         } else {
-            dispatch(extractWebsiteContent(pastedUrl));
+            handleExtractUrlContent(pastedUrl);
         }
     };
 
@@ -116,11 +154,16 @@ const TabContent: React.FC = () => {
         if (step === 1) dispatch(setStep(2));
     };
 
+    const isProcessingExtract = useMemo(
+        () => isLoading || isExtractContent || isConverting,
+        [isLoading, isExtractContent, isConverting],
+    );
+
     useEffect(() => {
-        if (extractedContent && !isLoading && !extractionError) {
+        if (extractedContent && !isProcessingExtract) {
             onCompleteProcess();
         }
-    }, [isLoading, extractionError]);
+    }, [isProcessingExtract, extractedContent]);
 
     return (
         <Tabs value={activeTab} onValueChange={(value) => dispatch(setActiveTab(value as ExtractionTab))}>
@@ -146,14 +189,14 @@ const TabContent: React.FC = () => {
                                 onChange={handleChangeInputUrl}
                                 className="flex-1"
                                 onPaste={handleUrlOnPaste}
-                                disabled={isLoading}
+                                disabled={isProcessingExtract}
                             />
                             <Button
                                 onClick={handleExtractContent}
-                                disabled={isLoading || !inputUrl.trim()}
+                                disabled={isProcessingExtract || !inputUrl.trim()}
                                 className="flex items-center gap-2"
                             >
-                                {isLoading ? (
+                                {isProcessingExtract ? (
                                     <>
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         {t('buttons.extracting')}
@@ -167,17 +210,17 @@ const TabContent: React.FC = () => {
                             </Button>
                         </div>
 
-                        {videoInfo && contentType === 'youtube' && (
+                        {videoInfo && contentType === RESOURCE_CONTENT_TYPE.YOUTUBE && (
                             <div className="flex gap-4 p-4 bg-muted rounded-lg">
-                                {videoInfo.thumbnailUrl && (
+                                {videoInfo?.thumbnailUrl && (
                                     <img
                                         src={videoInfo.thumbnailUrl}
-                                        alt={videoInfo.title}
+                                        alt={videoInfo?.title}
                                         className="w-32 h-auto rounded object-cover"
                                     />
                                 )}
                                 <div>
-                                    <h3 className="font-medium text-lg">{videoInfo.title}</h3>
+                                    <h3 className="font-medium text-lg">{videoInfo?.title}</h3>
                                     <p className="text-sm text-muted-foreground">{t('messages.ytExtracted')}</p>
                                 </div>
                             </div>
@@ -187,7 +230,7 @@ const TabContent: React.FC = () => {
                             <div className="mt-6">
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-lg font-medium">
-                                        {contentType === 'youtube'
+                                        {contentType === RESOURCE_CONTENT_TYPE.YOUTUBE
                                             ? t('headings.youtubeTranscript')
                                             : t('headings.extractedContent')}
                                     </h3>

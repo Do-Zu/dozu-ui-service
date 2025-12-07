@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import mammoth from 'mammoth';
 import {
-    PDFDocumentProxy,
     TextItem,
     TextContent,
     DocumentInitParameters,
@@ -181,7 +180,7 @@ const useReaderFile = () => {
                     setNumPages(pdf.numPages);
                 }
 
-                let fullText = ` ----------------------------------------- Total Pages:  ${pdf.numPages} ----------------------------------------- \n\n`;
+                let fullText = ` --- Total Pages:  ${pdf.numPages} --- \n\n`;
 
                 // Loop through each page
                 for (let i = 1; i <= pdf.numPages; i++) {
@@ -194,7 +193,7 @@ const useReaderFile = () => {
                         fullText += item.str + ' ';
                     });
 
-                    fullText += `\n\n ---------------------------------------- Page ${i} ------------------------------------------ \n\n`;
+                    fullText += `\n\n --- Page ${i} --- \n\n`;
                 }
 
                 setText(fullText.trim());
@@ -221,8 +220,6 @@ const useReaderFile = () => {
 
         if (files?.[0]) {
             const file = files[0];
-
-            console.log('Type file', file.type);
 
             if (file.type === 'application/pdf') {
                 handleExtractPdfToText();
