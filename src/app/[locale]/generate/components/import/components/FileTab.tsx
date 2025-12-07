@@ -6,11 +6,22 @@ import { useTranslations } from 'next-intl';
 import { Upload } from 'lucide-react';
 import { setFiles } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import { toast } from '@/hooks/use-toast';
-import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_MB, validateFileSize, validateFileType } from '../../../helper/validate';
+import {
+    ALLOWED_FILE_TYPES,
+    FILE_FORMAT,
+    FILE_TYPES_NOT_CONVERT,
+    getFileExtension,
+    MAX_FILE_SIZE_MB,
+    validateFileSize,
+    validateFileType,
+} from '../../../helper/validate';
 import useReaderFile from '../../../hooks/useReaderFile';
 import { useCardImportSelector, useCardImportDispatch } from '../../../hooks/useReduxStore';
 import FileUploadArea from './FileUploadArea';
 import LoadingOverlay from './LoadingOverlay';
+import { useUploadConvertFile } from '../../../hooks/useUploadConvertFileFormat';
+import { compareIgnoreCapitalization } from '@/utils';
+import { blobToFile } from '../../../utils/helper';
 
 const FileTab: React.FC = () => {
     const dispatch = useCardImportDispatch();
@@ -18,10 +29,14 @@ const FileTab: React.FC = () => {
     const { files } = useCardImportSelector((state) => state.importDialog);
     const { loading: isLoadingExtractFile, error: errorExtractFile } = useReaderFile();
 
+    const { upload, loading: isConverting } = useUploadConvertFile({
+        url: '/convert/file',
+    });
+
     const handleFileUpload = async (file: File) => {
         try {
             dispatch(setFiles([file]));
-        } catch (error) {
+        } catch {
             toast({
                 description: t('toasts.uploadFailed'),
                 variant: 'destructive',
@@ -33,7 +48,7 @@ const FileTab: React.FC = () => {
     const processFiles = useCallback(
         async (fileList: File[]) => {
             // Only process the first file if multiple files are somehow provided
-            const file = fileList[0];
+            let file = fileList[0];
 
             // Validate file type and size
             if (!validateFileType(file) || !validateFileSize(file)) {
@@ -46,6 +61,22 @@ const FileTab: React.FC = () => {
                 });
                 dispatch(setFiles([]));
                 return;
+            }
+
+            //Convert all file type into PDF format
+            if (!compareIgnoreCapitalization(getFileExtension(file), FILE_TYPES_NOT_CONVERT)) {
+                const arrayBuffer = await upload(file);
+
+                if (!arrayBuffer) {
+                    toast({
+                        description: t('toasts.convertFailed'),
+                    });
+                    return;
+                }
+
+                const blob = new Blob([arrayBuffer], { type: FILE_FORMAT });
+
+                file = blobToFile(blob, file.name);
             }
 
             await handleFileUpload(file);
@@ -133,14 +164,14 @@ const FileTab: React.FC = () => {
                 <p className="text-xs">{t('ui.dragDrop.supported')}</p>
             </div>
 
-            {isLoadingExtractFile && (
+            {(isLoadingExtractFile || isConverting) && (
                 <LoadingOverlay
-                    title={t('loading.processing.title')}
+                    title={isLoadingExtractFile ? t('loading.processing.title') : t('loading.converting.title')}
                     description={t('loading.processing.description')}
                 />
             )}
 
-            {!isLoadingExtractFile && (
+            {!isLoadingExtractFile && !isConverting && (
                 <FileUploadArea
                     files={files}
                     handleDrop={handleDrop}

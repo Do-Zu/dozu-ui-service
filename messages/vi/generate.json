@@ -26,16 +26,21 @@
             },
             "loading": {
                 "uploading": {
-                    "title": "Đang tải nội dung của bạn...",
-                    "description": "Vui lòng chờ trong khi chúng tôi tải nội dung lên"
+                    "title": "Đang tải...",
+                    "description": "Vui lòng chờ "
                 },
                 "processing": {
-                    "title": "Đang xử lý nội dung của bạn...",
-                    "description": "Vui lòng chờ trong khi chúng tôi trích xuất nội dung"
+                    "title": "Đang xử lý...",
+                    "description": "Vui lòng chờ"
+                },
+                "converting": {
+                    "title": "Đang format...",
+                    "description": "Vui lòng chờ"
                 }
             },
             "toasts": {
-                "uploadFailed": "Tải nội dung lên thất bại. Vui lòng thử lại."
+                "uploadFailed": "Tải nội dung lên thất bại. Vui lòng thử lại.",
+                "convertFailed": "Chuyển định dạng không thành công"
             },
             "validations": {
                 "fileRejected": "Tệp bị từ chối. Chỉ cho phép các tệp {types} dung lượng tối đa {size}MB."

@@ -15,7 +15,6 @@ import Import from './import/Import';
 import ContentGenerationPreview from './ContentGenerationPreview';
 import GeneratingSkeleton from '@/components/generative/GeneratingSkeleton';
 import LoadingPage from '@/app/loading';
-import LoadingOverlay from './import/components/LoadingOverlay';
 import { compressContent } from '../helper/compress';
 import { useContentGeneration } from '../hooks/useContentGeneration';
 import { useCardImportDispatch, useCardImportSelector } from '../hooks/useReduxStore';
@@ -23,6 +22,8 @@ import { ApiResponsePubGenContent, ISseData } from '../types';
 import { URL_API_GENERATE } from '../utils/constant';
 import { ClassPropsInGenerate } from './GeneratePage';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { EXTRACTION_TAB, IMPORT_METHOD, RESOURCE_CONTENT_TYPE } from '../constants/resource';
+import { isEmpty } from '@/utils';
 
 interface CardImportProps {
     onOpenChange?: (open: boolean) => void;
@@ -33,9 +34,11 @@ interface CardImportProps {
 const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classProps }) => {
     const dispatch = useCardImportDispatch();
     const t = useTranslations('generate.cardImport');
-    const tFileTab = useTranslations('generate.fileTab');
+    const tTextUrlTab = useTranslations('generate.textUrlTab');
 
-    const { textContent, extractedContent, activeTab } = useCardImportSelector((state) => state.contentExtraction);
+    const { textContent, extractedContent, activeTab, contentType } = useCardImportSelector(
+        (state) => state.contentExtraction,
+    );
     const { step, importMethod, files, selectedMethod, isProcessing } = useCardImportSelector(
         (state) => state.importDialog,
     );
@@ -73,13 +76,26 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
         let content = '';
 
         // TEMPORARY: for send text content
-        if (importMethod === 'file') {
+        if (importMethod === IMPORT_METHOD.FILE) {
             content = textContent;
-        } else if (importMethod === 'media') {
+        } else if (importMethod === IMPORT_METHOD.TEXT) {
+            if (activeTab === EXTRACTION_TAB.URL) {
+                if (contentType === RESOURCE_CONTENT_TYPE.YOUTUBE) {
+                    content = extractedContent;
+                } else if (
+                    contentType === RESOURCE_CONTENT_TYPE.WEBSITE ||
+                    contentType === RESOURCE_CONTENT_TYPE.TEXT
+                ) {
+                    content = textContent;
+                } else {
+                    toast({
+                        title: tTextUrlTab('toasts.extractionError'),
+                    });
+                }
+            }
+            if (activeTab === EXTRACTION_TAB.TEXT) content = textContent;
+        } else if (importMethod === IMPORT_METHOD.MEDIA) {
             //TODO: for send video or radio or video content
-        } else if (importMethod === 'text') {
-            if (activeTab === 'url') content = extractedContent;
-            if (activeTab === 'text') content = textContent;
         }
 
         const compressedContent = compressContent(content);
@@ -119,28 +135,20 @@ const CardImport: React.FC<CardImportProps> = ({ onComplete = () => {}, classPro
     };
 
     const isStepValid = () => {
-        if (step === 1) {
-            if (importMethod === 'file') return files.length > 0;
-            if (importMethod === 'text') {
-                if (activeTab === 'url') return extractedContent.trim().length > 0;
-                if (activeTab === 'text') return textContent.trim().length > 0;
-            }
-            return false;
-        }
-        return true;
-    };
+        if (step !== 1) return true;
 
-    // // Handle confirmation to leave
-    // const handleConfirmLeave = useCallback(() => {
-    //   setPreventNavigation(false);
-    //   setShowNavigationAlert(false);
-    //   setTimeout(() => {
-    //     window.history.back();
-    //   }, 0);
-    // }, [router]);    // // Handle cancellation of leaving
-    // const handleCancelLeave = useCallback(() => {
-    //   setShowNavigationAlert(false);
-    // }, []);
+        if (importMethod === IMPORT_METHOD.FILE) return files.length > 0 && !isEmpty(textContent);
+
+        if (importMethod === IMPORT_METHOD.TEXT && activeTab === EXTRACTION_TAB.URL) {
+            if (contentType === RESOURCE_CONTENT_TYPE.YOUTUBE) return extractedContent?.trim().length > 0;
+            else if (contentType === RESOURCE_CONTENT_TYPE.WEBSITE) return textContent?.trim().length > 0;
+        }
+
+        if (importMethod === IMPORT_METHOD.TEXT && activeTab === EXTRACTION_TAB.TEXT)
+            return textContent.trim().length > 0;
+
+        return false;
+    };
 
     const renderStepContent = () => {
         switch (step) {

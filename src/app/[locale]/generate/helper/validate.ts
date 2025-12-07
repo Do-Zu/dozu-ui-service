@@ -7,6 +7,9 @@ const ALLOWED_AUDIO_TYPES = ['.mp3', '.wav', '.m4a'];
 const ALLOWED_VIDEO_TYPES = ['.mp4', '.mov', '.avi'];
 const MAX_CONTENT_SIZE_KB = 256;
 
+const FILE_TYPES_NOT_CONVERT = '.pdf';
+const FILE_FORMAT = 'application/pdf';
+
 const validateFileSize = (
     file: File,
     isMedia = false,
@@ -18,8 +21,12 @@ const validateFileSize = (
     return fileSizeMB <= maxSizeMB;
 };
 
+const getFileExtension = (file: File): string => {
+    return file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+};
+
 const validateFileType = (file: File): boolean => {
-    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    const fileExtension = getFileExtension(file);
     return ALLOWED_FILE_TYPES.includes(fileExtension);
 };
 
@@ -39,6 +46,8 @@ export {
     ALLOWED_AUDIO_TYPES,
     ALLOWED_FILE_TYPES,
     ALLOWED_VIDEO_TYPES,
+    FILE_TYPES_NOT_CONVERT,
+    FILE_FORMAT,
     MAX_FILE_SIZE_MB,
     MAX_MEDIA_SIZE_MB,
     MAX_TEXT_LENGTH,
@@ -47,4 +56,5 @@ export {
     validateFileType,
     validateMediaType,
     validateTextLength,
+    getFileExtension,
 };
