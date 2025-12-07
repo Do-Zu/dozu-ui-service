@@ -19,6 +19,14 @@ interface UploadResult<T = ArrayBuffer> extends UploadState<T> {
     reset: () => void;
 }
 
+function updateState<T>(
+    setState: React.Dispatch<React.SetStateAction<UploadState<T>>>,
+    data: T | null,
+    error: unknown = null,
+) {
+    setState({ data, loading: false, error });
+}
+
 /**
  * Hook for uploading a file as FormData and receiving an arraybuffer response.
  *
@@ -32,6 +40,13 @@ export function useFileUpload<T = ArrayBuffer>(options: UseFileUploadOptions): U
         error: null,
     });
 
+    function appendFields(formData: FormData, fields?: Record<string, string | Blob>) {
+        if (!fields) return;
+        Object.entries(fields).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
+    }
+
     const upload = useCallback(
         async (file: File | Blob, extraFields?: Record<string, string | Blob>): Promise<T | null> => {
             setState((prev) => ({ ...prev, loading: true, error: null }));
@@ -42,18 +57,9 @@ export function useFileUpload<T = ArrayBuffer>(options: UseFileUploadOptions): U
                 formData.append('file', file);
 
                 // Add default / configured extra fields
-                if (additionalFields) {
-                    Object.entries(additionalFields).forEach(([key, value]) => {
-                        formData.append(key, value);
-                    });
-                }
-
+                appendFields(formData, additionalFields);
                 // Add call-time extra fields
-                if (extraFields) {
-                    Object.entries(extraFields).forEach(([key, value]) => {
-                        formData.append(key, value);
-                    });
-                }
+                appendFields(formData, extraFields);
 
                 const response = await Axios.request<T>({
                     url,
@@ -68,10 +74,11 @@ export function useFileUpload<T = ArrayBuffer>(options: UseFileUploadOptions): U
                 });
 
                 const data = response.data;
-                setState({ data, loading: false, error: null });
+
+                updateState(setState, response.data);
                 return data;
             } catch (error) {
-                setState({ data: null, loading: false, error });
+                updateState(setState, null, error);
                 return null;
             }
         },

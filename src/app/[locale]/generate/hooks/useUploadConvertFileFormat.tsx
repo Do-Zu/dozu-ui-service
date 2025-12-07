@@ -19,6 +19,13 @@ interface UploadResult<T = ArrayBuffer> extends UploadState<T> {
     reset: () => void;
 }
 
+function appendFields(formData: FormData, fields?: Record<string, string | Blob>) {
+    if (!fields) return;
+    Object.entries(fields).forEach(([key, value]) => {
+        formData.append(key, value);
+    });
+}
+
 /**
  * Hook for uploading a file as FormData and receiving an arraybuffer response.
  * Uses the shared Axios instance (with interceptors, auth, etc.).
@@ -42,18 +49,10 @@ export function useUploadConvertFile<T = ArrayBuffer>(options: UseFileUploadOpti
                 formData.append('file', file);
 
                 // Add default / configured extra fields
-                if (additionalFields) {
-                    Object.entries(additionalFields).forEach(([key, value]) => {
-                        formData.append(key, value);
-                    });
-                }
+                appendFields(formData, additionalFields);
 
                 // Add call-time extra fields
-                if (extraFields) {
-                    Object.entries(extraFields).forEach(([key, value]) => {
-                        formData.append(key, value);
-                    });
-                }
+                appendFields(formData, extraFields);
 
                 const response = await Axios.request<T>({
                     url,
