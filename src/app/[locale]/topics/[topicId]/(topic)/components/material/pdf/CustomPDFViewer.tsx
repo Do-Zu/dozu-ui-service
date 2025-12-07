@@ -159,6 +159,13 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         return () => observer.disconnect();
     }, []);
 
+    // if user clicks page to view content in node (mindmap), then set visible pages so user can view content
+    useEffect(() => {
+        if (pageNumber > visiblePages) {
+            setVisiblePages(pageNumber + 1);
+        }
+    }, [pageNumber]);
+
     async function onDocumentLoadSuccess(pdfObject: PDFDocumentProxy) {
         const { numPages } = pdfObject;
         setNumPages(numPages);
