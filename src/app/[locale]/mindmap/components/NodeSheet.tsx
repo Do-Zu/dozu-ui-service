@@ -42,14 +42,10 @@ import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicW
 import { IResponseFlashCardGenerate } from '../../topics/[topicId]/(topic)/hooks/useFlashCardWorkSpace';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
-import {
-    GetPreparedData,
-    IGenerateNodeFlashcardsItem,
-    NodesData,
-    PreparedData,
-} from '../../topics/[topicId]/(topic)/types/generate.type';
+import { IStartGenerateFn } from '../../topics/[topicId]/(topic)/types/generate.type';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ReferenceEdit from '../../topics/[topicId]/(topic)/components/flashcard/node/reference/ReferenceEdit';
+import DefaultGenerateButton from '../../topics/[topicId]/(topic)/components/generate/DefaultGenerateButton';
 
 enum FlashcardActionEnum {
     BROWSE = 'browse',
@@ -134,13 +130,13 @@ const NodeSheet = ({
         setEndSegment(endSegment);
     }, [selectedNodeData, learningMaterial?.type]);
 
-    const getGeneratedContent: GetPreparedData = useCallback(async () => {
+    const prepareGeneratedContent = useCallback(async () => {
         if (!pageStartIndex || !pageEndIndex) {
             throw new Error('No text found in the specified page range.');
         }
 
         const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
-        return { customContent: text };
+        return text;
     }, [pageStartIndex, pageEndIndex, extractTextByRange]);
 
     const dispatch = useDispatch();
@@ -321,6 +317,11 @@ const NodeSheet = ({
         seekTo(segment);
     }
 
+    async function onGenerateClick(startGenerate: IStartGenerateFn) {
+        const content = await prepareGeneratedContent();
+        startGenerate(content);
+    }
+
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
             <SheetContent className="w-[400px] sm:w-[540px] flex flex-col space-y-4 [&>button]:hidden">
@@ -469,8 +470,12 @@ const NodeSheet = ({
                                         {availableFlashcardActions.includes(FlashcardActionEnum.GENERATE) ? (
                                             <Generate
                                                 type={METHOD_LEARNING.FLASHCARD}
-                                                getPreparedData={getGeneratedContent}
                                                 onSuccess={onGenerateFlashcardsSuccess}
+                                                trigger={(startGenerate) => (
+                                                    <DefaultGenerateButton
+                                                        onClick={() => onGenerateClick(startGenerate)}
+                                                    />
+                                                )}
                                             />
                                         ) : null}
                                         {availableFlashcardActions.includes(FlashcardActionEnum.BROWSE) ? (

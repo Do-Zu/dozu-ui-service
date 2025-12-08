@@ -1,5 +1,5 @@
 import { AppNode } from '@/types/mindmap/mindmap.type';
-import { NodesData, PreparedData } from '../types/generate.type';
+import { NodesData } from '../types/generate.type';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import toastHelper from '@/utils/toast.helper';
 
@@ -43,7 +43,7 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
     }
 
     // todo: use useCallback with dependency selectedNodesData
-    async function getPreparedData(): Promise<PreparedData> {
+    async function prepareGeneratedData() {
         const { nodesData, smallestPageStartIndex, largestPageEndIndex } = validateNodeIds();
 
         const pagesContent: { page: number; content: string }[] = [];
@@ -82,5 +82,10 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
         toastHelper.showErrorMessage(error);
     }
 
-    return { getPreparedData, onHandleBeforeGenerate, onFallBack, isVisible: nodeIds.length > 0 };
+    return {
+        prepareGeneratedData,
+        onHandleBeforeGenerate,
+        onFallBack,
+        isVisible: nodeIds.length > 0,
+    };
 }

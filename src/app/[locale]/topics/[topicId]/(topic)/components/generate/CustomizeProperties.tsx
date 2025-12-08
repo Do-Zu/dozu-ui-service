@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Modal } from '../../../../../../../components/modal/Modal';
 import { CheckSquare, Eye, FileText, Settings2Icon, Star, Type, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,16 +8,17 @@ import { useGenerateContext } from '../../context/GenerateContext';
 import { isEmpty, toNumber } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
-import { IGenerateType } from '../../types/generate.type';
+import { ICustomOptions, IGenerateType, IStartGenerateFn } from '../../types/generate.type';
 
 interface IProps {
     className?: string;
     description?: string;
     method: IGenerateType;
-    onGenerate: () => void;
+    onGenerate: (content?: string, customOptions?: ICustomOptions) => void;
+    generateTrigger?: (startGenerate: IStartGenerateFn) => ReactNode;
 }
 
-export const CustomizeProperties = ({ className, description, method, onGenerate }: IProps) => {
+export const CustomizeProperties = ({ className, description, method, onGenerate, generateTrigger }: IProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const { options, updateOption } = useGenerateContext();
     const { listType, difficulty, numberOfItem, focus } = options;
@@ -175,15 +176,23 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
         </Button>
     );
 
-    const footer = (
+    const startGenerate: IStartGenerateFn = (content, customOptions) => {
+        onGenerate(content, customOptions);
+    };
+
+    const footerTrigger = generateTrigger ? (
+        generateTrigger(startGenerate)
+    ) : (
         <Button
-            onClick={onGenerate}
+            onClick={() => startGenerate()}
             disabled={isEmpty(listType)}
             className="px-4 py-2 rounded-md hover:bg-opacity-60 transition-colors font-medium text-sm"
         >
             {t('buttons.generate')}
         </Button>
     );
+
+    const footer = <>{footerTrigger}</>;
 
     return (
         <Modal
