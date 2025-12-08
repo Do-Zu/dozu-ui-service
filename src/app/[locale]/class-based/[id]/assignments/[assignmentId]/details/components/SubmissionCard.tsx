@@ -13,6 +13,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, X, FileText, Users, Link2, Upload } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useSubmissionComments, useCreateSubmissionComment, useUpdateComment, useDeleteComment } from '@/services/class-based-learning/comment';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import toastHelper from '@/utils/toast.helper';
+import CommentList from '@/components/comments/CommentList';
 
 interface Props {
     submission: IAssignmentSubmission;
@@ -91,17 +95,122 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
     );
 }
 
-export function PrivateCommentsCard() {
+interface PrivateCommentsCardProps {
+    assignmentId: number;
+    submissionId: number | null;
+}
+
+export function PrivateCommentsCard({ assignmentId, submissionId }: PrivateCommentsCardProps) {
+    const { user } = useAuth();
+    const [commentContent, setCommentContent] = useState('');
+    const [page, setPage] = useState(1);
+    const limit = 20;
+
+    const { comments, loading, error, refetch } = useSubmissionComments(
+        assignmentId,
+        submissionId || undefined,
+        page,
+        limit
+    );
+    const { createComment, loading: creating } = useCreateSubmissionComment(assignmentId, submissionId || undefined);
+    const { updateComment, loading: updating } = useUpdateComment();
+    const { deleteComment, loading: deleting } = useDeleteComment();
+
+    const canComment = submissionId !== null;
+
+    const handleCreateComment = async () => {
+        if (!commentContent.trim() || !submissionId || creating) return;
+
+        try {
+            await createComment({ content: commentContent.trim() });
+            toastHelper.showSuccessMessage('Đã thêm nhận xét thành công');
+            setCommentContent('');
+            refetch();
+        } catch (error) {
+            toastHelper.showErrorMessage('Không thể thêm nhận xét. Vui lòng thử lại.');
+        }
+    };
+
+    const handleReply = async (commentId: number, content: string) => {
+        if (!submissionId || creating) return;
+
+        try {
+            await createComment({ content, parentCommentId: commentId });
+            toastHelper.showSuccessMessage('Đã thêm phản hồi thành công');
+            refetch();
+        } catch (error) {
+            toastHelper.showErrorMessage('Không thể thêm phản hồi. Vui lòng thử lại.');
+        }
+    };
+
+    const handleUpdateComment = async (commentId: number, content: string) => {
+        try {
+            await updateComment(commentId, { content });
+            toastHelper.showSuccessMessage('Đã cập nhật nhận xét thành công');
+            refetch();
+        } catch (error) {
+            toastHelper.showErrorMessage('Không thể cập nhật nhận xét. Vui lòng thử lại.');
+        }
+    };
+
+    const handleDeleteComment = async (commentId: number) => {
+        if (!confirm('Bạn có chắc chắn muốn xóa nhận xét này?')) {
+            return;
+        }
+
+        try {
+            await deleteComment(commentId);
+            toastHelper.showSuccessMessage('Đã xóa nhận xét thành công');
+            refetch();
+        } catch (error) {
+            toastHelper.showErrorMessage('Không thể xóa nhận xét. Vui lòng thử lại.');
+        }
+    };
+
+    if (!submissionId) {
+        return null;
+    }
+
     return (
         <Card>
             <CardHeader className="pb-2">
                 <CardTitle className="text-lg font-medium">Nhận xét riêng tư</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-                <Textarea placeholder="Thêm nhận xét riêng tư..." className="min-h-[80px]" />
-                <Button variant="ghost" size="sm" disabled>
-                    Đăng
+                <Textarea
+                    placeholder="Thêm nhận xét riêng tư..."
+                    className="min-h-[80px]"
+                    value={commentContent}
+                    onChange={(e) => setCommentContent(e.target.value)}
+                    disabled={!canComment || creating}
+                />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCreateComment}
+                    disabled={!canComment || !commentContent.trim() || creating}
+                >
+                    {creating ? 'Đang gửi...' : 'Đăng'}
                 </Button>
+
+                {error && (
+                    <div className="text-sm text-red-600 dark:text-red-400 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                        {error}
+                    </div>
+                )}
+
+                {comments.length > 0 && (
+                    <div className="border-t pt-3 mt-3">
+                        <CommentList
+                            comments={comments}
+                            loading={loading}
+                            onUpdate={handleUpdateComment}
+                            onDelete={handleDeleteComment}
+                            onReply={handleReply}
+                            currentUserId={user?.userId ? Number(user.userId) : undefined}
+                        />
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
