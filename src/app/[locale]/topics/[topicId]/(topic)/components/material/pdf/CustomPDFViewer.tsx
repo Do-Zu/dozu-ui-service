@@ -200,7 +200,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         if (visiblePages - newPageNumber <= pagesGap) {
             setVisiblePages((prev) => prev + pagesPerDownload);
         }
-        if (newPageNumber !== pageNumber) setPageNumber(newPageNumber);
+        if (!isNaN(newPageNumber) && newPageNumber !== pageNumber) setPageNumber(newPageNumber);
     }
 
     useEffect(() => {
