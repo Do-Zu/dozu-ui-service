@@ -29,7 +29,7 @@
         },
         "contentLibrary": {
             "title": "Content Library",
-            "createNewContent": "Create New Content",
+            "createNewContent": "Create",
             "searchPlaceholder": "Search content...",
             "sortBy": "Sort by:",
             "sortOptions": {

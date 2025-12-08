@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ITopic } from '../../types/topic.type';
-import { BackgroundGradientCard } from '@/components/common/BackgroundGradientCard';
 
 interface Props {
     topic: ITopic;
@@ -19,71 +18,64 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
 
     return (
         <Card
-            className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-primary/50 cursor-pointer bg-card border border-border shadow-md rounded-xl"
+            className="group relative flex flex-col h-full border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:border-zinc-400 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 cursor-pointer overflow-hidden rounded-xl hover:-translate-y-1"
             onClick={() => handleNameClick(topic)}
         >
-            <BackgroundGradientCard />
-
-            <div className="relative z-10">
-                <CardHeader className="pb-2 px-5 pt-5">
-                    <div className="flex justify-between items-start gap-3">
-                        <div className="flex-1 min-w-0">
-                            <CardTitle className="text-base font-semibold truncate text-foreground">
-                                <div className="group/title relative cursor-pointer truncate font-semibold transition-all duration-300 inline-block w-full">
-                                    <span className="opacity-100 group-hover/title:opacity-0 transition-opacity duration-300">
-                                        {name}
-                                    </span>
-                                    <span className="absolute inset-0 opacity-0 group-hover/title:opacity-100 bg-gradient-to-r from-primary via-primary to-primary/95 bg-clip-text text-transparent truncate transition-opacity duration-300">
-                                        {name}
-                                    </span>
-                                </div>
-                            </CardTitle>
-
-                            {description && (
-                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 font-normal">
-                                    {description}
-                                </p>
-                            )}
+            <div className="relative aspect-[3/2] w-full overflow-hidden bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">
+                {imageUrl ? (
+                    <Image
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        alt={name}
+                        src={imageUrl}
+                    />
+                ) : (
+                    <div className="flex h-full items-center justify-center">
+                        <div
+                            className="h-12 w-12 rounded-full flex items-center justify-center 
+                                bg-zinc-200 dark:bg-zinc-800 
+                                dark:border dark:border-zinc-700
+                                border border-zinc-300/80"
+                        >
+                            <Package className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
                         </div>
-
-                        {menuContent(topic) ? (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 hover:bg-muted rounded-lg flex-shrink-0 -mr-2"
-                                    >
-                                        <MoreVertical className="h-4 w-4 text-muted-foreground" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                {menuContent(topic)}
-                            </DropdownMenu>
-                        ) : null}
                     </div>
-                </CardHeader>
+                )}
 
-                <CardContent className="px-5 pb-5">
-                    <div
-                        className={`relative h-40 w-full rounded-xl mb-4 flex items-center justify-center overflow-hidden border border-border/50 ${
-                            !imageUrl ? 'bg-muted/50' : ''
-                        }`}
-                    >
-                        {imageUrl ? (
-                            <Image
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                alt={name}
-                                src={imageUrl}
-                            />
-                        ) : (
-                            <div className="text-muted-foreground text-xs font-medium">• No Preview •</div>
-                        )}
-                    </div>
-
-                    <div className="flex flex-col text-xs text-muted-foreground">{footer(topic)}</div>
-                </CardContent>
+                <div
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    {menuContent(topic) ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-full bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white text-zinc-900 dark:bg-zinc-800/90 dark:hover:bg-zinc-700 dark:text-zinc-100"
+                                >
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            {menuContent(topic)}
+                        </DropdownMenu>
+                    ) : null}
+                </div>
             </div>
+
+            <CardHeader className="flex-none px-5 pt-5 pb-0">
+                <CardTitle className="text-lg font-bold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50">
+                    <span className="line-clamp-1">{name}</span>
+                </CardTitle>
+                {description && (
+                    <p className="mt-2 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400 font-normal">
+                        {description}
+                    </p>
+                )}
+            </CardHeader>
+
+            <CardContent className="flex-grow flex flex-col justify-end px-5 pb-5 pt-4">{footer(topic)}</CardContent>
         </Card>
     );
 }
