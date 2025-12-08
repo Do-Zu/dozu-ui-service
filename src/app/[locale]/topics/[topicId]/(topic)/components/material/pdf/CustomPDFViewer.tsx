@@ -208,7 +208,8 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         if (selectedScaleOption === 'fit') {
             if (documentSize && pdfSize) {
                 timeout = setTimeout(() => {
-                    setDocumentScale(documentSize.width / pdfSize.width);
+                    const scale = pdfSize.width === 0 ? 1 : documentSize.width / pdfSize.width;
+                    setDocumentScale(scale);
                 }, 100);
             }
         } else {
@@ -226,7 +227,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         const scrollTop = documentRef.current.scrollTop;
         const currentPageNumber = Math.floor(scrollTop / pdfHeightByScale) + 1;
 
-        if (currentPageNumber === pageNumber) {
+        if (isNaN(currentPageNumber) || currentPageNumber === pageNumber) {
             return;
         }
 
