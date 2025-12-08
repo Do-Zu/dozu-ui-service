@@ -23,6 +23,7 @@ import {
     Trash,
     X,
     HelpCircle,
+    Save,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -337,7 +338,7 @@ const NodeSheet = ({
 
                         <div className="flex items-center flex-shrink-0">
                             <Button size="icon" variant="ghost" onClick={handleEditTitle}>
-                                <SquarePen className="h-4 w-4" />
+                                {isEditing ? <Save className="h-4 w-4" /> : <SquarePen className="h-4 w-4" />}
                             </Button>
 
                             <Button
