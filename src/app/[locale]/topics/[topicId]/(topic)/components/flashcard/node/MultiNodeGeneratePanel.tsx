@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Layers } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import DefaultGenerateButton from '../../generate/DefaultGenerateButton';
+import toastHelper from '@/utils/toast.helper';
 
 interface Props {
     nodes: AppNode[];
@@ -25,8 +26,12 @@ export default function MultiNodeGeneratePanel({ nodes, nodeIds, onSuccess }: Pr
     }
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
-        const { customContent, customOptions } = await prepareGeneratedData();
-        startGenerate(customContent, customOptions);
+        try {
+            const { content, customOptions } = await prepareGeneratedData();
+            startGenerate(content, customOptions);
+        } catch (err) {
+            toastHelper.showErrorMessage(err);
+        }
     }
 
     function getGenerateTrigger(startGenerate: IStartGenerateFn) {

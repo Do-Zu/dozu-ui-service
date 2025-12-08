@@ -2,6 +2,8 @@ import { AppNode } from '@/types/mindmap/mindmap.type';
 import { NodesData } from '../types/generate.type';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import toastHelper from '@/utils/toast.helper';
+import { EnumLearningMaterial } from '../types';
+import { useTopicWorkspace } from '../context/TopicWorkspaceContext';
 
 interface Props {
     nodes: AppNode[];
@@ -9,11 +11,11 @@ interface Props {
 }
 
 export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props) {
+    const { learningMaterial } = useTopicWorkspace();
     const { extractTextByRange } = useMindMapContext();
 
-    function validateNodeIds() {
+    function validateNodeIdsForPdf() {
         // todo: handle appropriate page index
-        const nodesData: NodesData = [];
         let validNodesData: boolean = true;
         let message: string = '';
         let smallestPageStartIndex: number = 10000,
@@ -28,7 +30,8 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
             const { pageStartIndex, pageEndIndex } = nodeFound.data;
             if (!pageStartIndex || !pageEndIndex) {
                 validNodesData = false;
-                message = 'No text found in the specified page range.';
+                message =
+                    'Page index is not available yet. Please edit page indexes of your selected nodes to generate content.';
                 break;
             }
             smallestPageStartIndex = Math.min(smallestPageStartIndex, pageStartIndex);
@@ -39,12 +42,16 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
             throw new Error(message);
         }
 
-        return { nodesData, smallestPageStartIndex, largestPageEndIndex };
+        return { smallestPageStartIndex, largestPageEndIndex };
     }
 
     // todo: use useCallback with dependency selectedNodesData
-    async function prepareGeneratedData() {
-        const { nodesData, smallestPageStartIndex, largestPageEndIndex } = validateNodeIds();
+    async function prepareGeneratedDataForPdf() {
+        if (learningMaterial?.type !== EnumLearningMaterial.file) {
+            throw new Error('Pdf type is required');
+        }
+        const { smallestPageStartIndex, largestPageEndIndex } = validateNodeIdsForPdf();
+        const nodesData: NodesData = [];
 
         const pagesContent: { page: number; content: string }[] = [];
         for (let page = smallestPageStartIndex; page <= largestPageEndIndex; ++page) {
@@ -69,7 +76,91 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
             });
         }
 
-        return { customContent: fullPageContent, customOptions: { nodesData } };
+        return { content: fullPageContent, customOptions: { nodesData } };
+    }
+
+    function validateNodeIdsForYoutube() {
+        let validNodesData: boolean = true;
+        let message: string = '';
+        let smallestStartSegment: number = 1000000,
+            largestStartSegment: number = 0;
+
+        for (const id of nodeIds) {
+            const nodeFound = nodes.find((item) => item.data.nodeId === id);
+            if (!nodeFound) {
+                validNodesData = false;
+                message = 'Node not found, please try again.';
+                break;
+            }
+            const { startSegment, endSegment } = nodeFound.data;
+            if (!startSegment || !endSegment) {
+                validNodesData = false;
+                message =
+                    'Start or end segment is not available yet. Please edit segments of your selected nodes to generate content.';
+                break;
+            }
+            smallestStartSegment = Math.min(smallestStartSegment, startSegment);
+            largestStartSegment = Math.max(largestStartSegment, endSegment);
+        }
+
+        if (!validNodesData) {
+            throw new Error(message);
+        }
+
+        return { smallestStartSegment, largestStartSegment };
+    }
+
+    function prepareGeneratedDataForYoutube() {
+        if (learningMaterial?.type !== EnumLearningMaterial.youtube || typeof learningMaterial.content === 'string') {
+            throw new Error('Youtube type is required');
+        }
+        const { smallestStartSegment, largestStartSegment } = validateNodeIdsForYoutube();
+        const nodesData: NodesData = [];
+
+        let content: string = '';
+        for (let segment = smallestStartSegment; segment < largestStartSegment; ) {
+            const segmentFound = learningMaterial.content.find((item) => item.startTime === segment);
+            const text = segmentFound?.text;
+            const segmentIndex = segmentFound ? learningMaterial.content.indexOf(segmentFound) : -1;
+
+            if (!text || segmentIndex === -1) throw new Error('Text not found in choosen segments.');
+
+            const nextSegmentIndex = segmentIndex + 1;
+            segment = learningMaterial.content[nextSegmentIndex].startTime;
+            content += text;
+        }
+
+        for (const id of nodeIds) {
+            const nodeFound = nodes.find((item) => item.data.nodeId === id) as AppNode;
+            const { nodeId, label, description } = nodeFound.data;
+            const { startSegment, endSegment } = nodeFound.data as { startSegment: number; endSegment: number };
+            const startSection = learningMaterial.content.find((item) => item.startTime === startSegment)?.text;
+            const endSection = learningMaterial.content.find((item) => item.startTime === endSegment)?.text;
+
+            if (!startSection || !endSection) {
+                throw new Error('Start or end section is required.');
+            }
+
+            nodesData.push({
+                nodeId,
+                label,
+                description,
+                startSection,
+                endSection,
+            });
+        }
+
+        return { content, customOptions: { nodesData } };
+    }
+
+    function prepareGeneratedData() {
+        if (learningMaterial?.type === EnumLearningMaterial.file) {
+            return prepareGeneratedDataForPdf();
+        } else if (learningMaterial?.type === EnumLearningMaterial.youtube) {
+            return prepareGeneratedDataForYoutube();
+        } else {
+            throw new Error('Pdf or youtube type is required.');
+        }
     }
 
     function onHandleBeforeGenerate() {
