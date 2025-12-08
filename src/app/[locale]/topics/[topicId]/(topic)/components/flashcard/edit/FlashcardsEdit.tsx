@@ -72,6 +72,7 @@ interface Props {
     onClose?: () => void;
     isPanelFullscreen?: boolean;
     onPanelToggle?: () => void;
+    label?: string;
 }
 
 export default function FlashcardsEdit({
@@ -84,6 +85,7 @@ export default function FlashcardsEdit({
     onClose,
     isPanelFullscreen,
     onPanelToggle,
+    label,
 }: Props) {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
@@ -328,7 +330,7 @@ export default function FlashcardsEdit({
     return (
         <div className="h-full flex flex-col">
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
-                <div className="flex justify-end items-center px-[4rem] py-4">
+                <div className="flex justify-end items-center px-[4rem] pt-4">
                     <div className="flex w-full items-center justify-between">
                         {generateComponent ? (
                             <div className="flex flex-row items-center gap-4">{generateComponent}</div>
@@ -368,6 +370,16 @@ export default function FlashcardsEdit({
                         </div>
                     </div>
                 </div>
+
+                {label ? (
+                    <div className="flex justify-center w-full px-[4rem] pb-4">
+                        <div className="w-full max-w-xl text-center">
+                            <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                {label}
+                            </span>
+                        </div>
+                    </div>
+                ) : null}
             </div>
 
             <div className="h-full overflow-y-auto pb-8" ref={ref}>

@@ -35,6 +35,7 @@ interface Props {
     onClose?: () => void;
     isPanelFullscreen?: boolean;
     onPanelToggle?: () => void;
+    label?: string;
 }
 
 export default function FlashcardsBrowse({
@@ -46,6 +47,7 @@ export default function FlashcardsBrowse({
     enableSidebar = true,
     isPanelFullscreen,
     onPanelToggle,
+    label,
 }: Props) {
     const { topic } = useRequireTopic();
     const { topicId } = topic;
@@ -279,6 +281,13 @@ export default function FlashcardsBrowse({
                                 onPanelToggle={onPanelToggle}
                             />
                         </div>
+                        {label ? (
+                            <div className="w-full max-w-xl text-center mb-4 mt-[-1rem]">
+                                <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                    {label}
+                                </span>
+                            </div>
+                        ) : null}
                         <Flashcard
                             front={currentFlashcard.front}
                             back={currentFlashcard.back}
