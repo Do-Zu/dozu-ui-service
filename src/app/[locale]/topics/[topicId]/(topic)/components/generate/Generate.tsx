@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import useGenerate, { IGenerateOptions } from '@/hooks/generate/useGenerate';
+import useGenerate, { IGenerateOptions, ValidateGeneratedDataFn } from '@/hooks/generate/useGenerate';
 import { ReactNode, useMemo } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
 import { TypeMethodLearning } from '@/utils/constants/method';
 import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
-import { GetPreparedData, ICustomOptions, IGenerateType, MultiNodeGenerateEnum } from '../../types/generate.type';
+import { ICustomOptions, IGenerateType, IStartGenerateFn, MultiNodeGenerateEnum } from '../../types/generate.type';
 import toastHelper from '@/utils/toast.helper';
 
 /**
@@ -19,7 +19,8 @@ import toastHelper from '@/utils/toast.helper';
  */
 interface IProps<TRes> {
     /** Optional custom trigger element (e.g., a Button). If omitted, a default "Generate" button is used. */
-    trigger?: ReactNode;
+    trigger?: (startGenerate: IStartGenerateFn) => ReactNode;
+    customGenerateTrigger?: (startGenerate: IStartGenerateFn) => ReactNode;
     /** Import method used by the generator. Defaults to 'text'. */
     method?: ImportMethod;
     /** Required type describing what to generate (domain-specific). */
@@ -35,17 +36,16 @@ interface IProps<TRes> {
     titleTrigger?: string;
     /** Callback executed right before validations and generating start (e.g., persist form state). */
     onHandleBeforeGenerate?: () => void;
+    /** Callback executed after receiving generated data, used to validate generated data (using Zod and throw error) */
+    validateGeneratedData?: ValidateGeneratedDataFn<TRes>;
     /** Called when generation succeeds. Receives the typed payload TRes. */
     onSuccess?: (data: TRes) => void;
     /** Called when the underlying request fails (from useGenerate). */
-    onError?: () => void;
+    onError?: (error: unknown) => void;
     /** Called for unexpected errors thrown in the flow (e.g., pre-call or parsing). */
     onFallBack?: (error: unknown) => void;
     /** Always called after attempt finishes (success or failure). Useful for cleanup. */
     onFinally?: () => void;
-    customContent?: string;
-    customOptions?: ICustomOptions;
-    getPreparedData?: GetPreparedData;
 }
 
 const DEFAULT_METHOD = 'text';
@@ -54,16 +54,15 @@ function GenerateContent<TRes>({
     method = DEFAULT_METHOD,
     type,
     trigger,
+    customGenerateTrigger,
     generateNode,
     registerNode,
     onHandleBeforeGenerate,
+    validateGeneratedData,
     onSuccess,
     onError,
     onFallBack,
     onFinally,
-    customContent,
-    customOptions,
-    getPreparedData,
 }: IProps<TRes>) {
     const { contentTextOrigin } = useTopicWorkspace();
     const { options } = useGenerateContext();
@@ -71,45 +70,33 @@ function GenerateContent<TRes>({
     const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
         onSuccess,
         onError,
+        validateGeneratedData,
     });
 
     // Entry point: validates input and kicks off the generate call.
-    const handleStartGenerate = async () => {
+    const handleStartGenerate = async (content: string = contentTextOrigin.current, customOptions?: ICustomOptions) => {
         try {
             onHandleBeforeGenerate?.();
-            let generatingContent = contentTextOrigin.current;
-            let generatingOptions: IGenerateOptions = {
-                commonGenerateOptions: options,
-            };
-            if (getPreparedData) {
-                const { customContent: preparedContent, customOptions: preparedOptions } = await getPreparedData();
-                if (preparedContent) generatingContent = preparedContent;
-                if (preparedOptions)
-                    generatingOptions = {
-                        ...generatingOptions,
-                        ...preparedOptions,
-                    };
-            } else if (customContent && typeof customContent === 'string') {
-                generatingContent = customContent;
-            } else if (customOptions) {
-                generatingOptions = { ...generatingOptions, ...customOptions };
-            }
 
-            if (isNilOrEmpty(generatingContent)) {
+            if (isNilOrEmpty(content)) {
                 toast({
-                    description: 'No content prepare',
+                    description: 'No content prepared',
                 });
                 return;
             }
 
+            const mergedOptions: IGenerateOptions = {
+                commonGenerateOptions: options,
+                ...customOptions,
+            };
+
             await execute({
-                content: generatingContent,
+                content,
                 method,
                 type,
-                options: generatingOptions,
+                options: mergedOptions,
             });
         } catch (error) {
-            toastHelper.showErrorMessage(error);
             onFallBack?.(error);
         } finally {
             onFinally?.();
@@ -153,14 +140,21 @@ function GenerateContent<TRes>({
     // Idle state: show custom trigger if provided; otherwise, a centered default button.
     // To customize label/appearance, pass a "trigger" node.
     const defaultTrigger = (
-        <Button onClick={handleStartGenerate} className="rounded-2xl">
+        <Button onClick={() => handleStartGenerate()} className="rounded-2xl">
             Generate
         </Button>
     );
 
     const renderCustomize = () => {
         if (type === 'flashcard' || type === 'quiz' || type === MultiNodeGenerateEnum.MULTI_NODE_FLASHCARD)
-            return <CustomizeProperties className="mx-3" method={type} onGenerate={handleStartGenerate} />;
+            return (
+                <CustomizeProperties
+                    className="mx-3"
+                    method={type}
+                    generateTrigger={customGenerateTrigger ?? trigger}
+                    onGenerate={(content, options) => handleStartGenerate(content, options)}
+                />
+            );
 
         return <></>;
     };
@@ -168,11 +162,7 @@ function GenerateContent<TRes>({
     return (
         <div className="flex items-center justify-center">
             {renderCustomize()}
-            {trigger ? (
-                <div onClick={handleStartGenerate}>{trigger}</div>
-            ) : (
-                <div className="py-4">{defaultTrigger}</div>
-            )}
+            {trigger ? trigger(handleStartGenerate) : <div className="py-4">{defaultTrigger}</div>}
         </div>
     );
 }

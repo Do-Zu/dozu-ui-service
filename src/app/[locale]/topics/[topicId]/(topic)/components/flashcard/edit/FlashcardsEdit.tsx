@@ -245,7 +245,7 @@ export default function FlashcardsEdit({
         setIsAddImageModalOpen(false);
     }
 
-    function onUploadImageSuccess({ flashcard, imageUrl }: { flashcard: ILocalFlashcard; imageUrl: string }) {
+    function handleUploadImageSuccess({ flashcard, imageUrl }: { flashcard: ILocalFlashcard; imageUrl: string }) {
         setEditingFlashcards((prev) => {
             return prev.map((editingFlashcard) => {
                 return editingFlashcard.id === flashcard.id
@@ -519,7 +519,7 @@ export default function FlashcardsEdit({
                     setIsOpen={setIsAddImageModalOpen}
                     flashcard={selectingFlashcard}
                     onSaveImageClick={handleSaveImageClick}
-                    onUploadImageSuccess={onUploadImageSuccess}
+                    onUploadImageSuccess={handleUploadImageSuccess}
                 />
             ) : null}
 

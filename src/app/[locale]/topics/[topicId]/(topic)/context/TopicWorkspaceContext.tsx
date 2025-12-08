@@ -86,6 +86,9 @@ interface ContextType {
     refetchAnkiSetting: () => Promise<void>;
     onBatchFlashcardsSuccess: (data: IBatchFlashcardsInTopicResult) => void;
     onCreateFlashcardsSuccess: (data: IFlashcard[]) => void;
+
+    isLearningContentFullscreen: boolean;
+    setIsLearningContentFullscreen: Dispatch<SetStateAction<boolean>>;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -117,6 +120,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const contentTextOrigin = useRef<string>('');
     const [selectingContentText, setSelectingContentText] = useState<string>('');
 
+    const [isLearningContentFullscreen, setIsLearningContentFullscreen] = useState<boolean>(false);
     const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
     const { player, setPlayer, seekTo } = useYoutubePlayer();
 
@@ -138,7 +142,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         refetchLearningFlashcards,
         refetchAnkiSetting,
         onBatchFlashcardsSuccess,
-        onCreateFlashcardsSuccess
+        onCreateFlashcardsSuccess,
     } = useFlashCardWorkSpace({ topicId: topicIdRef.current, currentTab: tab });
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
@@ -191,7 +195,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             refetchLearningFlashcards,
             refetchAnkiSetting,
             onBatchFlashcardsSuccess,
-            onCreateFlashcardsSuccess
+            onCreateFlashcardsSuccess,
+            isLearningContentFullscreen,
+            setIsLearningContentFullscreen,
         }),
         [
             tab,
@@ -217,7 +223,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             refetchLearningFlashcards,
             refetchAnkiSetting,
             onBatchFlashcardsSuccess,
-            onCreateFlashcardsSuccess
+            onCreateFlashcardsSuccess,
+            isLearningContentFullscreen,
         ],
     );
 

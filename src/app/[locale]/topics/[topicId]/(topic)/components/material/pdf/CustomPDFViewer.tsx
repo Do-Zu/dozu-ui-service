@@ -128,6 +128,9 @@ interface Props {
     fileName: string;
 }
 
+const pagesPerDownload = 5;
+const pagesGap = 2;
+
 const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName }, ref) => {
     const { pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
 
@@ -139,6 +142,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
     const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>();
     const [rotate, setRotate] = useState<number>(0);
     const [selectedScaleOption, setSelectedScaleOption] = useState<string>('fit');
+    const [visiblePages, setVisiblePages] = useState<number>(pagesPerDownload);
 
     // need to be verified
     useEffect(() => {
@@ -155,12 +159,12 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         return () => observer.disconnect();
     }, []);
 
-    // need to be used with debounce
+    // if user clicks page to view content in node (mindmap), then set visible pages so user can view content
     useEffect(() => {
-        if (documentSize && pdfSize) {
-            setDocumentScale(documentSize.width / pdfSize.width);
+        if (pageNumber > visiblePages) {
+            setVisiblePages(pageNumber + 1);
         }
-    }, [documentSize?.width, documentSize?.height, pdfSize?.width, pdfSize?.height]);
+    }, [pageNumber]);
 
     async function onDocumentLoadSuccess(pdfObject: PDFDocumentProxy) {
         const { numPages } = pdfObject;
@@ -193,18 +197,28 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         const pdfHeightByScale = pdfSize.height * documentScale;
         const scrollTop = documentRef.current.scrollTop;
         const newPageNumber = Math.floor(scrollTop / pdfHeightByScale) + 1;
+        if (visiblePages - newPageNumber <= pagesGap) {
+            setVisiblePages((prev) => prev + pagesPerDownload);
+        }
         if (newPageNumber !== pageNumber) setPageNumber(newPageNumber);
     }
 
     useEffect(() => {
+        let timeout: NodeJS.Timeout;
         if (selectedScaleOption === 'fit') {
             if (documentSize && pdfSize) {
-                setDocumentScale(documentSize.width / pdfSize.width);
+                timeout = setTimeout(() => {
+                    const scale = pdfSize.width === 0 ? 1 : documentSize.width / pdfSize.width;
+                    setDocumentScale(scale);
+                }, 100);
             }
         } else {
             const numericScale = Number(selectedScaleOption);
             setDocumentScale(isNaN(numericScale) ? 1 : numericScale);
         }
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [selectedScaleOption, documentSize?.width, documentSize?.height, pdfSize?.width, pdfSize?.height]);
 
     useEffect(() => {
@@ -213,7 +227,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         const scrollTop = documentRef.current.scrollTop;
         const currentPageNumber = Math.floor(scrollTop / pdfHeightByScale) + 1;
 
-        if (currentPageNumber === pageNumber) {
+        if (isNaN(currentPageNumber) || currentPageNumber === pageNumber) {
             return;
         }
 
@@ -229,7 +243,6 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         return (
             <div className="flex items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Loading page...</span>
             </div>
         );
     }
@@ -257,7 +270,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
                     onScroll={handleDocumentScroll}
                     className="h-full overflow-y-auto"
                 >
-                    {Array.from({ length: numPages || 0 }, (_, index) => {
+                    {Array.from({ length: Math.min(numPages || 0, visiblePages) }, (_, index) => {
                         const pageNumber = index + 1;
                         return (
                             <Page
