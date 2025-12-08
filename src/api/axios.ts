@@ -107,11 +107,14 @@ const responseInterceptor = Axios.interceptors.response.use(
                 try {
                     const response = await RefreshTokenAxiosClient.post('/auth/refresh-token');
 
-                    window.localStorage.setItem(
-                        'user',
-                        JSON.stringify({ ...response.data.data.user, accessToken: response.data.data.accessToken }),
-                    );
-                    window.localStorage.setItem('isLoggedIn', 'true');
+                    if (response?.data?.data?.user && response?.data?.data?.accessToken) {
+                        window.localStorage.setItem(
+                            'user',
+                            JSON.stringify({ ...response.data.data.user, accessToken: response.data.data.accessToken }),
+                        );
+
+                        window.localStorage.setItem('isLoggedIn', 'true');
+                    }
 
                     // Axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
                     return Axios(originalRequest); // Retry the original request with the new access token.
@@ -121,7 +124,6 @@ const responseInterceptor = Axios.interceptors.response.use(
                     try {
                         window.localStorage.removeItem('user');
                         window.localStorage.removeItem('isLoggedIn');
-
                         window.location.href = ROUTES.LOGIN;
                     } catch (localStorageError) {
                         console.error(localStorageError);
