@@ -154,7 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (isAuthenticated && isEmpty(currentPlanUser)) {
             getUserCurrentPlan();
         }
-    }, [isAuthenticated, currentPlanUser]);
+    }, [isAuthenticated]);
 
     const hasRole = useCallback(
         (role: string): boolean => {
