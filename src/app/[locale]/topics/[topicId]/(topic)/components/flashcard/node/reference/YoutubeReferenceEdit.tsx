@@ -34,9 +34,7 @@ function YoutubeReferenceItem({
 
             {isEditing ? (
                 <Select value={segment !== undefined ? String(segment) : undefined} onValueChange={onSegmentChange}>
-                    <SelectTrigger
-                        className={`h-9 text-sm transition-all ${!isEditing ? 'cursor-pointer border-primary/50 bg-muted/60 hover:bg-muted' : ''}`}
-                    >
+                    <SelectTrigger className="h-9 text-sm transition-all">
                         <SelectValue placeholder="Select" />
                     </SelectTrigger>
 

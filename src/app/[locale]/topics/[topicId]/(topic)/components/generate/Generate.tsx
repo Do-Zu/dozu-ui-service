@@ -80,7 +80,7 @@ function GenerateContent<TRes>({
 
             if (isNilOrEmpty(content)) {
                 toast({
-                    description: 'No content prepare',
+                    description: 'No content prepared',
                 });
                 return;
             }

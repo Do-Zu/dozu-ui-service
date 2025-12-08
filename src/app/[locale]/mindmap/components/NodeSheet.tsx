@@ -47,6 +47,7 @@ import { IStartGenerateFn } from '../../topics/[topicId]/(topic)/types/generate.
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ReferenceEdit from '../../topics/[topicId]/(topic)/components/flashcard/node/reference/ReferenceEdit';
 import DefaultGenerateButton from '../../topics/[topicId]/(topic)/components/generate/DefaultGenerateButton';
+import toastHelper from '@/utils/toast.helper';
 
 enum FlashcardActionEnum {
     BROWSE = 'browse',
@@ -91,7 +92,7 @@ const NodeSheet = ({
     const [newDescription, setNewDescription] = useState(selectedNodeData?.description || '');
 
     // learning material section, handling pdf & youtube input set
-    const { learningMaterial, setLearningMaterial } = useTopicWorkspace();
+    const { learningMaterial } = useTopicWorkspace();
 
     // pdf material states
     const [pageStartIndex, setPageStartIndex] = useState<number | undefined>();
@@ -132,7 +133,7 @@ const NodeSheet = ({
     }, [selectedNodeData, learningMaterial?.type]);
 
     const prepareGeneratedContent = useCallback(async () => {
-        if (!pageStartIndex || !pageEndIndex) {
+        if (pageStartIndex === undefined || pageEndIndex === undefined) {
             throw new Error('No text found in the specified page range.');
         }
 
@@ -305,7 +306,7 @@ const NodeSheet = ({
     }
 
     function handlePageClick(page: number | undefined) {
-        if (!page) return;
+        if (page === undefined) return;
         setIsLearningContentFullscreen(false);
         requestAnimationFrame(() => {
             setPageNumber(page);
@@ -313,14 +314,18 @@ const NodeSheet = ({
     }
 
     function handleSegmentClick(segment: number | undefined) {
-        if (!segment) return;
+        if (segment === undefined) return;
         setIsLearningContentFullscreen(false);
         seekTo(segment);
     }
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
-        const content = await prepareGeneratedContent();
-        startGenerate(content);
+        try {
+            const content = await prepareGeneratedContent();
+            startGenerate(content);
+        } catch (err) {
+            toastHelper.showErrorMessage(err);
+        }
     }
 
     return (

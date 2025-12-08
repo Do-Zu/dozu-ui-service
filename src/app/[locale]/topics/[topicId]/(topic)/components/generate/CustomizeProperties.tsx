@@ -9,6 +9,7 @@ import { isEmpty, toNumber } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
 import { ICustomOptions, IGenerateType, IStartGenerateFn } from '../../types/generate.type';
+import toastHelper from '@/utils/toast.helper';
 
 interface IProps {
     className?: string;
@@ -177,6 +178,10 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
     );
 
     const startGenerate: IStartGenerateFn = (content, customOptions) => {
+        if (isEmpty(listType)) {
+            toastHelper.showSuccessMessage('Select at least one type to generate content.');
+            return;
+        }
         onGenerate(content, customOptions);
     };
 
