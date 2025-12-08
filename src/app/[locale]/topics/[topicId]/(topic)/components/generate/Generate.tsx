@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import useGenerate, { IGenerateOptions } from '@/hooks/generate/useGenerate';
+import useGenerate, { IGenerateOptions, ValidateGeneratedDataFn } from '@/hooks/generate/useGenerate';
 import { ReactNode, useMemo } from 'react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
@@ -36,10 +36,12 @@ interface IProps<TRes> {
     titleTrigger?: string;
     /** Callback executed right before validations and generating start (e.g., persist form state). */
     onHandleBeforeGenerate?: () => void;
+    /** Callback executed after receiving generated data, used to validate generated data (using Zod and throw error) */
+    validateGeneratedData?: ValidateGeneratedDataFn<TRes>;
     /** Called when generation succeeds. Receives the typed payload TRes. */
     onSuccess?: (data: TRes) => void;
     /** Called when the underlying request fails (from useGenerate). */
-    onError?: () => void;
+    onError?: (error: unknown) => void;
     /** Called for unexpected errors thrown in the flow (e.g., pre-call or parsing). */
     onFallBack?: (error: unknown) => void;
     /** Always called after attempt finishes (success or failure). Useful for cleanup. */
@@ -56,6 +58,7 @@ function GenerateContent<TRes>({
     generateNode,
     registerNode,
     onHandleBeforeGenerate,
+    validateGeneratedData,
     onSuccess,
     onError,
     onFallBack,
@@ -67,6 +70,7 @@ function GenerateContent<TRes>({
     const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
         onSuccess,
         onError,
+        validateGeneratedData,
     });
 
     // Entry point: validates input and kicks off the generate call.
@@ -93,7 +97,6 @@ function GenerateContent<TRes>({
                 options: mergedOptions,
             });
         } catch (error) {
-            toastHelper.showErrorMessage(error);
             onFallBack?.(error);
         } finally {
             onFinally?.();

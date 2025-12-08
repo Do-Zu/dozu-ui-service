@@ -169,14 +169,14 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
         }
     }
 
-    function onFallBack(error: unknown) {
+    function onError(error: unknown) {
         toastHelper.showErrorMessage(error);
     }
 
     return {
         prepareGeneratedData,
         onHandleBeforeGenerate,
-        onFallBack,
+        onError,
         isVisible: nodeIds.length > 0,
     };
 }

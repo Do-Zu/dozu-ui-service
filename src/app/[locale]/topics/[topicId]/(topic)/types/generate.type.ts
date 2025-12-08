@@ -13,7 +13,7 @@ export type NodesData = (Pick<CustomNodeData, 'nodeId' | 'label' | 'description'
 
 export interface IGenerateNodeFlashcardsItem {
     nodeId: string;
-    flashcards: Pick<IResponseFlashCardGenerate, 'q' | 'a'>[];
+    flashcards: IResponseFlashCardGenerate[];
 }
 export enum MultiNodeGenerateEnum {
     MULTI_NODE_FLASHCARD = 'multi_node_flashcard',

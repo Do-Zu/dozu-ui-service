@@ -8,6 +8,7 @@ import { Layers } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import DefaultGenerateButton from '../../generate/DefaultGenerateButton';
 import toastHelper from '@/utils/toast.helper';
+import nodeFlashcardsGenerateUtils from '../../../utils/flashcard/nodeFlashcardsGenerate.utils';
 
 interface Props {
     nodes: AppNode[];
@@ -16,7 +17,7 @@ interface Props {
 }
 
 export default function MultiNodeGeneratePanel({ nodes, nodeIds, onSuccess }: Props) {
-    const { isVisible, prepareGeneratedData, onHandleBeforeGenerate, onFallBack } = useMultiNodeFlashcardsGenerate({
+    const { isVisible, prepareGeneratedData, onHandleBeforeGenerate, onError } = useMultiNodeFlashcardsGenerate({
         nodes,
         nodeIds,
     });
@@ -55,7 +56,7 @@ export default function MultiNodeGeneratePanel({ nodes, nodeIds, onSuccess }: Pr
     return (
         <Panel position="bottom-left">
             <div className="flex flex-row gap-2">
-                <Generate
+                <Generate<IGenerateNodeFlashcardsItem[]>
                     trigger={getGenerateTrigger}
                     customGenerateTrigger={(startGenerate) => (
                         <DefaultGenerateButton onClick={() => onGenerateClick(startGenerate)} />
@@ -63,7 +64,11 @@ export default function MultiNodeGeneratePanel({ nodes, nodeIds, onSuccess }: Pr
                     type={MultiNodeGenerateEnum.MULTI_NODE_FLASHCARD}
                     onSuccess={onSuccess}
                     onHandleBeforeGenerate={onHandleBeforeGenerate}
-                    onFallBack={onFallBack}
+                    onError={onError}
+                    onFallBack={onError}
+                    validateGeneratedData={(data) =>
+                        nodeFlashcardsGenerateUtils.validateMultiNodeGeneratedFlashcards(data)
+                    }
                 />
             </div>
         </Panel>
