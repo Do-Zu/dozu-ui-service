@@ -26,7 +26,7 @@ export interface Plan {
     name: string;
     description: string;
     planType: string;
-    billingInterval: 'monthly' | 'yearly';
+    billingInterval: string;
     price: string;
     currency: string;
     isActive: boolean;
