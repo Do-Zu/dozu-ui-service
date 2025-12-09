@@ -6,7 +6,7 @@ import { getRequest } from '@/api/api';
 // Async thunk to fetch subscription plans
 export const fetchPlans = createAsyncThunk('subscription/fetchPlans', async (_, { rejectWithValue }) => {
     try {
-        const response = await getRequest<unknown, Plan[]>('/subscription/plans');
+        const response = await getRequest<unknown, Plan[]>('/subscription/upgrade/available-plan');
         return response.data;
     } catch (error: any) {
         // Handle API error response
@@ -18,18 +18,9 @@ export const fetchPlans = createAsyncThunk('subscription/fetchPlans', async (_, 
 });
 
 interface SubscriptionState {
-    // Modal state
     isModalOpen: boolean;
-    selectedPlan: number | null;
-
-    // Plans data
+    selectedPlan: Plan | null;
     plans: Plan[];
-    proPlans: Plan[];
-    monthlyPlan: Plan | null;
-    yearlyPlan: Plan | null;
-    freePlan: Plan | null;
-
-    // Loading and error states
     loading: boolean;
     error: string | null;
 }
@@ -38,10 +29,6 @@ const initialState: SubscriptionState = {
     isModalOpen: false,
     selectedPlan: null,
     plans: [],
-    proPlans: [],
-    monthlyPlan: null,
-    yearlyPlan: null,
-    freePlan: null,
     loading: false,
     error: null,
 };
@@ -56,7 +43,7 @@ const subscriptionSlice = createSlice({
         closeModal: (state) => {
             state.isModalOpen = false;
         },
-        setSelectedPlan: (state, action: PayloadAction<number | null>) => {
+        setSelectedPlan: (state, action: PayloadAction<Plan | null>) => {
             state.selectedPlan = action.payload;
         },
         clearError: (state) => {
@@ -72,21 +59,6 @@ const subscriptionSlice = createSlice({
             .addCase(fetchPlans.fulfilled, (state, action) => {
                 state.loading = false;
                 state.plans = action.payload;
-
-                // Filter and set plan types
-                state.proPlans = action.payload.filter((plan) => plan.planType === 'pro');
-                state.monthlyPlan = state.proPlans.find((plan) => plan.billingInterval === 'monthly') || null;
-                state.yearlyPlan = state.proPlans.find((plan) => plan.billingInterval === 'yearly') || null;
-                state.freePlan = action.payload.find((plan) => plan.planType === 'free') || null;
-
-                // Set default selected plan to yearly if available, otherwise monthly
-                if (state.selectedPlan === null) {
-                    if (state.yearlyPlan) {
-                        state.selectedPlan = state.yearlyPlan?.planId;
-                    } else if (state.monthlyPlan) {
-                        state.selectedPlan = state.monthlyPlan?.planId;
-                    }
-                }
             })
             .addCase(fetchPlans.rejected, (state, action) => {
                 state.loading = false;

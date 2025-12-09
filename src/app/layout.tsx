@@ -75,10 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <StoreProvider>
                     <ThemeProvider>
                         <ReactFlowProvider>
-                            <AuthProvider>
-                                {children}
-                                <UpgradePlanModal />
-                            </AuthProvider>
+                            <AuthProvider>{children}</AuthProvider>
                         </ReactFlowProvider>
                     </ThemeProvider>
                     <Toaster />
