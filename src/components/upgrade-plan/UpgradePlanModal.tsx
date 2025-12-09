@@ -1,13 +1,13 @@
 'use client';
 
+import { useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useUpgradePlanModal } from '@/stores/features/subscription/useUpgradePlanModal';
-import { cn } from '@/lib/utils';
 import { Check, X } from 'lucide-react';
-import { isEmpty } from '@/utils';
 import DataStatus from '../errors/DataStatus';
-import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { isEmpty, toNumber } from '@/utils';
 
 export interface PlanFeature {
     planId: number;
@@ -49,7 +49,7 @@ export default function UpgradePlanModal() {
         setSelectedPlan,
     } = useUpgradePlanModal();
 
-    const getDefaultPlanSelect = () => {
+    const getDefaultPlanSelect = useCallback(() => {
         if (isEmpty(plans)) {
             return;
         }
@@ -58,18 +58,18 @@ export default function UpgradePlanModal() {
             if (currentPlan.tier < minPlan.tier) {
                 return currentPlan;
             } else if (currentPlan.tier === minPlan.tier) {
-                return currentPlan.price < minPlan.price ? currentPlan : minPlan;
+                return toNumber(currentPlan.price) < toNumber(minPlan.price) ? currentPlan : minPlan;
             } else {
                 return minPlan;
             }
         });
 
         setSelectedPlan(defaultSelectedPlan);
-    };
+    }, [plans]);
 
     useEffect(() => {
         getDefaultPlanSelect();
-    }, [plans]);
+    }, [getDefaultPlanSelect]);
 
     const classNameContainerWrap =
         'sm:max-w-[480px] w-[calc(100vw-2rem)] max-h-[90vh] overflow-hidden rounded-lg z-[1005] flex flex-col';
@@ -93,6 +93,7 @@ export default function UpgradePlanModal() {
                 <DialogContent className={classNameContainerWrap}>
                     <DataStatus
                         variant="error"
+                        title={'No upgrade plans available'}
                         action={{
                             label: 'Close',
                             onClick: () => onClose(),

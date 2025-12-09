@@ -7,7 +7,6 @@ import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { ThemeProvider } from '@/lib/providers/theme';
 import { ReactFlowProvider } from '@xyflow/react';
 import { Toaster } from '@/components/ui/toaster';
-import UpgradePlanModal from '@/components/upgrade-plan/UpgradePlanModal';
 import '../styles/globals.css';
 
 const inter = Inter({
