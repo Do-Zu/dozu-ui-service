@@ -5,63 +5,18 @@ import { RootState } from '@/stores/store';
 import { useSelector } from 'react-redux';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
-import { Fragment, Suspense } from 'react';
+import { Fragment } from 'react';
 import { ShowIf } from '../ui/ShowIf';
 import { LearningModeSelect } from './LearningModeSelect';
 import Pomodoro from '../pomodoro/Pomodoro';
 import Image from 'next/image';
 
-function TokenHandler() {
-    // const dispatch = useAppDispatch();
-    // const searchParams = useSearchParams();
-
-    // const token = searchParams?.get('token');
-
-    // useEffect(() => {
-    //   if (token) {
-    //     dispatch(updateAccessToken(token));
-    //   }
-    // }, [token, dispatch]);
-
-    return null;
-}
-
 export default function Navbar() {
-    const { isAuthenticated, currentPlanUser } = useAuth();
+    const { currentPlanUser } = useAuth();
     const { isStudent } = useRoleChecker();
     const { isDisplay: isDisplayPomodoro } = useSelector((state: RootState) => state.pomodoro);
 
     const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
-
-    // useEffect(() => {
-    //     const refreshToken = async () => {
-    //         try {
-    //             const result = await Axios.post(
-    //                 '/auth/refresh-token',
-    //                 {},
-    //                 {
-    //                     withCredentials: true,
-    //                 },
-    //             );
-    //             // Handle success (e.g., store new token)
-    //             const decoded: any = jwtDecode(result.data.data.accessToken);
-    //             const userId = decoded.user.userId;
-    //             const username = decoded.user.username;
-
-    //             dispatch(
-    //                 setCredentials({
-    //                     accessToken: result.data.data.accessToken,
-    //                     userId,
-    //                     username,
-    //                 }),
-    //             );
-    //         } catch (error) {
-    //             console.error('Failed to refresh token', error);
-    //             // Optional: redirect to login
-    //         }
-    //     };
-    //     refreshToken();
-    // }, []);
 
     return (
         <Fragment>
@@ -93,10 +48,6 @@ export default function Navbar() {
                     {isDisplayPomodoro && <Pomodoro position="top-center" positionY={-6} positionX={-30} />}
                 </div>
             </div>
-
-            <Suspense fallback={null}>
-                <TokenHandler />
-            </Suspense>
         </Fragment>
     );
 }
