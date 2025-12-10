@@ -28,14 +28,11 @@ export default function Navbar() {
                         width={40}
                         height={40}
                     />
-                    <Link
-                        href="/"
-                        className="text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 dark:from-indigo-300 dark:via-sky-300 dark:to-cyan-300 bg-clip-text text-transparent"
-                    >
+                    <Link href="/" className="text-lg font-bold ">
                         Dozu
                     </Link>
                     {isPro && (
-                        <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-md shadow-md">
+                        <span className="px-2 py-1 text-xs font-bold bg-[#1d2721] text-[#3cb371] border border-[#3cb37199] rounded-3xl shadow-md">
                             PRO
                         </span>
                     )}
