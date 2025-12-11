@@ -183,10 +183,10 @@ export default function CommentInput({ onSubmit, loading = false, placeholder }:
     };
 
     return (
-        <div className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex items-start gap-3 p-4 bg-background rounded-lg border border-border">
             <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src={user?.avatarUrl || undefined} alt={user?.username || 'User'} />
-                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs">
+                <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                     {getInitials(user?.fullName || null, user?.username || '')}
                 </AvatarFallback>
             </Avatar>
@@ -199,7 +199,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder }:
                         onChange={handleInput}
                         onKeyDown={handleKeyDown}
                         placeholder={defaultPlaceholder}
-                        className="w-full min-h-[60px] max-h-[200px] px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        className="w-full min-h-[60px] max-h-[200px] px-3 py-2 border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground placeholder:text-muted-foreground"
                         rows={2}
                         disabled={loading}
                     />
@@ -263,7 +263,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder }:
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary"
                         onClick={handleSubmit}
                         disabled={!content.trim() || loading}
                     >

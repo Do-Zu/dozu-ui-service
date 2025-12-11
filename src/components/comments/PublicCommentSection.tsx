@@ -104,7 +104,7 @@ function PublicCommentSection({
                 <CommentInputComponent onSubmit={handleCreateComment} loading={creating} />
                 <Separator />
                 {error && (
-                    <div className="text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <div className="text-sm text-destructive p-3 bg-destructive/10 rounded-lg">
                         {error}
                     </div>
                 )}

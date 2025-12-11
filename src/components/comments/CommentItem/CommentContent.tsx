@@ -102,7 +102,7 @@ export default function CommentContent({
     return (
         <div className="mb-2">
             <div
-                className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words prose prose-sm max-w-none dark:prose-invert"
+                className="text-sm text-foreground whitespace-pre-wrap break-words prose prose-sm max-w-none dark:prose-invert"
                 style={{ 
                     resize: 'none',
                     overflow: 'visible',
@@ -115,7 +115,7 @@ export default function CommentContent({
                 }}
             />
             {isEdited && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 italic">
+                <p className="text-xs text-muted-foreground mt-1 italic">
                     {t('card.edited')}
                 </p>
             )}

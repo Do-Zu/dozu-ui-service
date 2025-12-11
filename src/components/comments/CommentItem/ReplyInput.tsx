@@ -40,7 +40,7 @@ export default function ReplyInput({ onReply, onCancel }: ReplyInputProps) {
             <div className="flex items-start gap-2">
                 <Avatar className="h-6 w-6 flex-shrink-0">
                     <AvatarImage src={user?.avatarUrl || undefined} alt={user?.username || 'User'} />
-                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-[10px]">
+                    <AvatarFallback className="bg-muted text-muted-foreground text-[10px]">
                         {getInitials(user?.fullName || null, user?.username || '')}
                     </AvatarFallback>
                 </Avatar>

@@ -139,13 +139,13 @@ export default function PrivateCommentSection({
                 )}
 
                 {error && (
-                    <div className="text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <div className="text-sm text-destructive p-3 bg-destructive/10 rounded-lg border border-destructive/20">
                         {error}
                     </div>
                 )}
 
                 {(showCommentsOnlyWhenHasData ? comments.length > 0 : true) && (
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                    <div className="border-t border-border pt-4 mt-4">
                         <CommentList
                             comments={comments}
                             loading={loading}

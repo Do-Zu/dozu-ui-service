@@ -87,10 +87,10 @@ export default function CommentItem({
 
     return (
         <div className={level > 0 ? 'relative pl-8 mt-2' : ''}>
-            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors relative z-10 bg-white dark:bg-gray-900">
+            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors relative z-10 bg-background border border-border">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                     <AvatarImage src={sender?.avatarUrl || undefined} alt={sender?.username || 'User'} />
-                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs">
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                         {getInitials(sender?.fullName || null, sender?.username || '')}
                     </AvatarFallback>
                 </Avatar>
@@ -98,15 +98,15 @@ export default function CommentItem({
                 <div className="flex-1 min-w-0">
                     {/* Header: Name, badge, timestamp */}
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                        <span className="font-medium text-sm text-foreground">
                             {sender?.fullName || sender?.username || t('labels.user')}
                         </span>
                         {isOwner && (
-                            <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                            <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
                                 {t('labels.you')}
                             </span>
                         )}
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-muted-foreground">
                             {formatRelativeTime(comment.createdAt, locale)}
                         </span>
                     </div>

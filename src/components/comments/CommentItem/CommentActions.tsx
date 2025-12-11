@@ -29,7 +29,7 @@ export default function CommentActions({
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-xs text-gray-600 dark:text-gray-400"
+                    className="h-7 text-xs text-muted-foreground"
                     onClick={onReply}
                 >
                     <Reply className="h-3 w-3 mr-1" />
@@ -39,7 +39,7 @@ export default function CommentActions({
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                    className="h-6 w-6 text-muted-foreground hover:text-foreground"
                     onClick={onEdit}
                     title={t('actions.edit')}
                 >
@@ -50,7 +50,7 @@ export default function CommentActions({
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                    className="h-6 w-6 text-destructive hover:text-destructive/90"
                     onClick={onDelete}
                     title={t('actions.delete')}
                 >
