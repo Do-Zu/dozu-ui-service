@@ -1,6 +1,6 @@
 import React, { forwardRef, memo } from 'react';
-import { ITranscriptSegment } from '../../../types';
-import transcriptUtils from '../../../utils/transcript.utils';
+import { ITranscriptSegment } from '../../../../types';
+import transcriptUtils from '../../../../utils/transcript.utils';
 
 interface Props {
     transcript: ITranscriptSegment[];

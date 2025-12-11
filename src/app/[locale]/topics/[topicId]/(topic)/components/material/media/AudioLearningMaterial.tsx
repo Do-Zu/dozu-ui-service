@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import SelectMenu from '../SelectMenu';
-import TranscriptViewer from '../youtube/TranscriptViewer';
+import TranscriptViewer from '../common/transcript/TranscriptViewer';
 import { EnumLearningMaterial, ITranscriptSegment } from '../../../types';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import transcriptUtils from '../../../utils/transcript.utils';

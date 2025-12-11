@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import TranscriptViewer from './TranscriptViewer';
+import TranscriptViewer from '../common/transcript/TranscriptViewer';
 import { YouTubePlayer, YouTubeProps } from 'react-youtube';
 import YoutubePlayer from './YoutubePlayer';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
