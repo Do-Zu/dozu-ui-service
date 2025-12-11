@@ -2,8 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal } from '@/components/modal/Modal';
-import { Button } from '@/components/ui/button';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, Loader2 } from 'lucide-react';
 import { useActionStore } from './context/ActionContext';
 import {
     ALLOWED_FILE_TYPES,
@@ -17,14 +16,13 @@ import {
 import { useUploadConvertFile } from './hooks/useUploadConvertFileFormat';
 import { useTranslations } from 'next-intl';
 import { compareIgnoreCapitalization } from '@/utils';
-import { blobToFile } from './helper/helper';
+import { blobToFile, getFileNameWithoutExtension } from './helper/helper';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
 import uploadService from '@/services/upload';
 import topicService from '@/services/topic/topic.service';
 import { resourceService } from './services/contentCreation.service';
 import { RESOURCE_CONTENT_TYPE } from './constants/resource';
-import { toast } from '@/hooks/use-toast';
-import FileUploadArea from './components/FileUploadArea';
+import { toast } from 'sonner';
 
 export const UploadModal: React.FC = () => {
     const t = useTranslations('generate.fileTab');
@@ -38,18 +36,57 @@ export const UploadModal: React.FC = () => {
     } = useActionStore((state) => state);
 
     const [isDragging, setIsDragging] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<number>(0);
+    const [currentStep, setCurrentStep] = useState<string>('');
 
     const { upload, loading: isConverting } = useUploadConvertFile({
         url: '/convert/file',
     });
 
     const handleProcessingContent = async (file: File) => {
+        let uploadToastId: string | number | undefined;
+        let topicToastId: string | number | undefined;
+        let resourceToastId: string | number | undefined;
+
         try {
             setIsProcessing(true);
 
-            const fileName = file.name;
+            const fileName = getFileNameWithoutExtension(file.name);
 
-            const fileUploadResult = await uploadService.uploadFile(file);
+            //Upload file with progress
+            setCurrentStep('Uploading file...');
+
+            uploadToastId = toast(
+                <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Uploading {fileName}... 0%</span>
+                </div>,
+                { duration: Infinity },
+            );
+
+            const fileUploadResult = await uploadService.uploadFile(file, (progress) => {
+                setUploadProgress(progress.progress);
+                toast(
+                    <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>
+                            Uploading {fileName}... {progress.progress}%
+                        </span>
+                    </div>,
+                    { id: uploadToastId, duration: Infinity },
+                );
+            });
+
+            // Create topic
+            setCurrentStep('Creating topic...');
+
+            topicToastId = toast(
+                <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Creating topic workspace...</span>
+                </div>,
+                { duration: Infinity },
+            );
 
             const topic = await topicService.createTopic({
                 name: fileName,
@@ -58,17 +95,72 @@ export const UploadModal: React.FC = () => {
 
             const { topicId } = topic;
 
+            // Update topic creation success
+            toast(
+                <div className="flex items-center gap-2">
+                    <span>Topic workspace created!</span>
+                </div>,
+                { id: topicToastId, duration: 2000 },
+            );
+
+            // Insert content to topic
+            setCurrentStep('Processing content...');
+
+            resourceToastId = toast(
+                <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Adding content to workspace...</span>
+                </div>,
+                { duration: Infinity },
+            );
+
             await resourceService.insertContentTopic({
                 contentType: RESOURCE_CONTENT_TYPE.FILE,
                 payload: fileUploadResult,
                 topicId,
             });
 
+            // Final success message
+            setTimeout(() => {
+                toast(
+                    <div className="flex items-center gap-2">
+                        <span>Ready! Redirecting to workspace...</span>
+                    </div>,
+                    { duration: 2000 },
+                );
+            }, 1000);
+
             redirectTopicWorkspace(topicId);
         } catch (error) {
+            if (uploadToastId) {
+                toast(
+                    <div className="flex items-center gap-2">
+                        <span className="text-red-600">✗</span>
+                        <span>Upload failed</span>
+                    </div>,
+                    { id: uploadToastId, duration: 3000 },
+                );
+            }
+            if (topicToastId) {
+                toast.dismiss(topicToastId);
+            }
+            if (resourceToastId) {
+                toast.dismiss(resourceToastId);
+            }
+
+            toast(
+                <div className="flex items-center gap-2">
+                    <span className="text-red-600">✗</span>
+                    <span>Processing failed. Please try again.</span>
+                </div>,
+                { duration: 4000 },
+            );
             throw error;
         } finally {
             setIsProcessing(false);
+            setIsOpen(false);
+            setUploadProgress(0);
+            setCurrentStep('');
         }
     };
 
@@ -77,13 +169,12 @@ export const UploadModal: React.FC = () => {
         let file = fileList[0];
 
         if (!validateFileType(file) || !validateFileSize(file)) {
-            toast({
-                description: t('validations.fileRejected', {
+            toast(
+                t('validations.fileRejected', {
                     types: ALLOWED_FILE_TYPES.join(', '),
                     size: MAX_FILE_SIZE_MB,
                 }),
-                variant: 'destructive',
-            });
+            );
 
             return;
         }
@@ -93,9 +184,7 @@ export const UploadModal: React.FC = () => {
             const arrayBuffer = await upload(file);
 
             if (!arrayBuffer) {
-                toast({
-                    description: t('toasts.convertFailed'),
-                });
+                toast(t('toasts.convertFailed'));
                 return;
             }
 
@@ -147,9 +236,7 @@ export const UploadModal: React.FC = () => {
 
     useEffect(() => {
         if (isConverting) {
-            toast({
-                description: 'Converting...',
-            });
+            toast('Converting...');
         }
     }, [isConverting]);
 
