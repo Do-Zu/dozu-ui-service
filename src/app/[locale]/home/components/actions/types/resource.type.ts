@@ -65,6 +65,12 @@ export type ResourceMetadataMap = {
     [RESOURCE_CONTENT_TYPE.TEXT]: TextResourceMetadata;
 };
 
+export type IPayloadMetaDataResource =
+    | UploadFileResponse
+    | YoutubeResourceMetadata
+    | WebsiteResourceMetadata
+    | TextResourceMetadata;
+
 export type InsertContentTopicParams =
     | {
           topicId: string | number;

@@ -1,12 +1,78 @@
+import axios from 'axios';
 import { postRequest } from '@/api/api';
-import { InsertContentTopicParams, NonNullableInsertParams, ResourceMetadataMap } from '../types/resource.type';
+import {
+    InsertContentTopicParams,
+    IPayloadMetaDataResource,
+    NonNullableInsertParams,
+    ResourceMetadataMap,
+    YoutubeResourcePayload,
+} from '../types/resource.type';
 import { ResourceContentType, RESOURCE_CONTENT_TYPE } from '../constants/resource';
+import { extractYouTubeVideoId } from '../helper/helper';
+import { countWords } from '@/utils';
+import topicService from '@/services/topic/topic.service';
 
 /**
  * Service class to handle content creation operations
  */
 class ContentCreationService {
     private readonly INPUT_SET_RESOURCES_ENDPOINT = '/input-set/resources';
+    private readonly BASE_API_YOUTUBE = '/api/youtube/transcript?videoId=';
+    private readonly BASE_API_EXTRACT_WEBSITE = '/api/website-content';
+
+    public handleGetInfoVideo = async ({ pastedUrl }: { pastedUrl: string }): Promise<YoutubeResourcePayload> => {
+        const videoId = extractYouTubeVideoId(pastedUrl?.trim());
+
+        const { data } = await axios.get(`${this.BASE_API_YOUTUBE}${videoId}`);
+
+        const { transcript, metadata: rawMetadata } = data;
+
+        const metadata = rawMetadata ?? {};
+
+        const youtubePayload: YoutubeResourcePayload = {
+            url: pastedUrl,
+            videoInfo: {
+                ...metadata,
+                videoId,
+            },
+            lengthContent: transcript.length,
+            content: transcript || null,
+            wordCount: countWords(transcript),
+        };
+
+        return youtubePayload;
+    };
+
+    public createTopicContent = async ({
+        name,
+        description = '',
+        contentType,
+        payloadMetaData,
+    }: {
+        name: string;
+        description: string;
+        contentType: ResourceContentType;
+        payloadMetaData: IPayloadMetaDataResource;
+    }) => {
+        try {
+            const { topicId } = await topicService.createTopic({
+                name,
+                description,
+            });
+
+            const payload = {
+                topicId,
+                contentType,
+                payload: payloadMetaData,
+            } as InsertContentTopicParams;
+
+            await this.insertContentTopic(payload);
+
+            return { topicId };
+        } catch (error) {
+            throw error;
+        }
+    };
 
     /**
      * Insert the original imported resource into the topic, based on how the user imported it.

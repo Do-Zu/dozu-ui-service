@@ -1,3 +1,5 @@
+import { isEmpty } from '@/utils';
+
 export const blobToFile = (blob: Blob, fileName: string, lastModified = Date.now()): File => {
     return new File([blob], fileName, {
         type: blob.type || 'application/octet-stream',
@@ -28,4 +30,17 @@ export const extractYouTubeVideoId = (url: string): string | null => {
     }
 
     return null;
+};
+
+export const isYouTubeUrl = (url: string): boolean => {
+    return !isEmpty(extractYouTubeVideoId(url));
+};
+
+export const validateUrl = (pastedUrl: string): boolean => {
+    const urlPattern =
+        /^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6})\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+
+    if (isEmpty(pastedUrl)) return false;
+
+    return urlPattern.test(pastedUrl);
 };
