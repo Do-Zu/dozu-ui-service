@@ -30,10 +30,15 @@ class GamificationService {
         }
     }
 
-    async updateStreak(): Promise<StreakUpdateResult | null> {
+    async updateStreak(classId: number): Promise<StreakUpdateResult | null> {
         try {
-            // Send real activity data instead of random
+            if (!classId || typeof classId !== 'number') {
+                throw new Error('classId is required and must be a number');
+            }
+
+            // Send classId in request body as required by backend
             const response = await postRequest(API_GAMIFICATION_ROUTES.UPDATE_STREAK, {
+                classId,
                 activityType: 'learning_session',
                 timestamp: Date.now(),
                 route: window.location.pathname,
@@ -55,9 +60,14 @@ class GamificationService {
         }
     }
 
-    async buyStreakFreeze(cost: number = 100): Promise<boolean> {
+    async buyStreakFreeze(classId: number, cost: number = 100): Promise<boolean> {
         try {
+            if (!classId || typeof classId !== 'number') {
+                throw new Error('classId is required and must be a number');
+            }
+
             const response = await postRequest(API_GAMIFICATION_ROUTES.BUY_STREAK_FREEZE, {
+                classId,
                 cost,
             }) as ApiResponse;
 
@@ -85,9 +95,13 @@ class GamificationService {
     }
 
     // Points-related methods
-    async getUserPoints(): Promise<PointsData | null> {
+    async getUserPoints(classId: number): Promise<PointsData | null> {
         try {
-            const response = await getRequest(API_GAMIFICATION_ROUTES.GET_USER_POINTS) as ApiResponse<PointsData>;
+            if (!classId || typeof classId !== 'number') {
+                throw new Error('classId is required and must be a number');
+            }
+
+            const response = await getRequest(`${API_GAMIFICATION_ROUTES.GET_USER_POINTS}?classId=${classId}`) as ApiResponse<PointsData>;
             if (response.status === 'success' && response.data) {
                 return response.data;
             }
@@ -105,9 +119,13 @@ class GamificationService {
         }
     }
 
-    async getUserGamificationStats(userId: number): Promise<GamificationStats | null> {
+    async getUserGamificationStats(userId: number, classId: number): Promise<GamificationStats | null> {
         try {
-            const response = await getRequest(API_GAMIFICATION_ROUTES.GET_USER_GAMIFICATION_STATS({ userId })) as ApiResponse<{ gamificationStats: GamificationStats }>;
+            if (!classId || typeof classId !== 'number') {
+                throw new Error('classId is required and must be a number');
+            }
+
+            const response = await getRequest(`${API_GAMIFICATION_ROUTES.GET_USER_GAMIFICATION_STATS({ userId })}?classId=${classId}`) as ApiResponse<{ gamificationStats: GamificationStats }>;
             if (response.status === 'success' && response.data?.gamificationStats) {
                 return response.data.gamificationStats;
             }
@@ -146,33 +164,11 @@ class GamificationService {
     }
 
     // Batch methods for efficiency
+    // Note: This method is deprecated because streak/points are now class-specific
+    // Use getClassStudentStreaks from GamificationContext instead
     async getStudentStreaks(userIds: number[]): Promise<Map<number, GamificationStats>> {
-        const results = new Map<number, GamificationStats>();
-        
-        try {
-            // Use Promise.allSettled to handle partial failures
-            const promises = userIds.map(async (userId) => {
-                try {
-                    const stats = await this.getUserGamificationStats(userId);
-                    return { userId, stats };
-                } catch (error) {
-                    console.error(`Failed to fetch stats for user ${userId}:`, error);
-                    return { userId, stats: null };
-                }
-            });
-
-            const responses = await Promise.allSettled(promises);
-            
-            responses.forEach((response) => {
-                if (response.status === 'fulfilled' && response.value.stats) {
-                    results.set(response.value.userId, response.value.stats);
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching student streaks:', error);
-        }
-
-        return results;
+        console.warn('getStudentStreaks is deprecated. Use getClassStudentStreaks with classId instead.');
+        return new Map();
     }
 
     // Helper method to generate session ID

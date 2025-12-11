@@ -26,6 +26,7 @@ interface Props {
     onClose?: () => void;
     isPanelFullscreen?: boolean;
     onPanelToggle?: () => void;
+    label?: string;
 }
 
 export default function LearningCard({
@@ -40,6 +41,7 @@ export default function LearningCard({
     onClose,
     isPanelFullscreen,
     onPanelToggle,
+    label,
 }: Props) {
     const tFlashcard = useTranslations('flashcard.learning');
 
@@ -77,13 +79,18 @@ export default function LearningCard({
         <div className="flex bg-gray-background w-full h-full">
             <div className="relative flex-1 p-5 overflow-hidden">
                 <div className="relative bg-gray-100 dark:bg-gray-850 flex flex-col h-full items-center justify-center rounded-lg">
-                    {onClose ? (
-                        <div className="w-full flex justify-end px-4 mt-5">
-                            <FlashcardsPanelControls
-                                onClose={onClose}
-                                isFullscreen={isPanelFullscreen}
-                                onPanelToggle={onPanelToggle}
-                            />
+                    <div className="w-full flex justify-end px-4 mt-5">
+                        <FlashcardsPanelControls
+                            onClose={onClose}
+                            isFullscreen={isPanelFullscreen}
+                            onPanelToggle={onPanelToggle}
+                        />
+                    </div>
+                    {label ? (
+                        <div className="w-full max-w-xl text-center mb-4 mt-[-1rem]">
+                            <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                {label}
+                            </span>
                         </div>
                     ) : null}
                     <Flashcard

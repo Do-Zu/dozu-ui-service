@@ -31,15 +31,18 @@ export function GamificationDashboard({
 
     useEffect(() => {
         fetchPersonalStats();
-    }, [userId]);
+    }, [userId, classId]);
 
     const fetchPersonalStats = async () => {
-        if (!userId) return;
+        if (!userId || !classId) {
+            setLoading(false);
+            return;
+        }
         
         try {
             setError(null);
             setLoading(true);
-            const stats = await gamificationService.getUserGamificationStats(userId);
+            const stats = await gamificationService.getUserGamificationStats(userId, classId);
             setPersonalStats(stats);
         } catch (error) {
             console.error('Error fetching personal stats:', error);
@@ -110,8 +113,8 @@ export function GamificationDashboard({
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {showPersonalStats && personalStats && (
                             <>
-                                <StreakDisplay userId={userId} compact={false} />
-                                <PointSystem userId={userId} compact={false} />
+                                <StreakDisplay userId={userId} classId={classId} compact={false} />
+                                <PointSystem userId={userId} classId={classId} compact={false} />
                                 
                                 <Card>
                                     <CardHeader>
@@ -153,8 +156,8 @@ export function GamificationDashboard({
                 <TabsContent value="personal" className="space-y-4">
                     {showPersonalStats ? (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <StreakDisplay userId={userId} showFreezeOption={true} />
-                            <PointSystem userId={userId} showHistory={true} />
+                            <StreakDisplay userId={userId} classId={classId} showFreezeOption={true} />
+                            <PointSystem userId={userId} classId={classId} showHistory={true} />
                         </div>
                     ) : (
                         <Card>

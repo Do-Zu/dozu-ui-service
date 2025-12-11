@@ -9,6 +9,7 @@ import useBatchFlashcardsForNode from '../../../hooks/flashcard/useBatchFlashcar
 import Generate from '../../generate/Generate';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
 import flashcardEditUtils from '../../../utils/flashcard/flashcardEdit.utils';
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 
 interface Props {
     nodeId: string;
@@ -25,6 +26,9 @@ export default function NodeFlashcardsEdit({ nodeId, onClose, isFullscreen, onPa
     const { flashcards } = useRequireFlashcards();
     const nodeFlashcards = flashcards.filter((item) => item.nodeId === nodeId);
     const { generatingFlashcards, setGeneratingFlashcards, onBatchFlashcardsSuccess } = useTopicWorkspace();
+
+    const { nodes } = useMindMapContext();
+    const nodeLabel = nodes.find((item) => item.data.nodeId === nodeId)?.data.label || 'Your selected node';
 
     const { loading, execute } = useBatchFlashcardsForNode(nodeId, {
         onSuccess(data) {
@@ -60,6 +64,7 @@ export default function NodeFlashcardsEdit({ nodeId, onClose, isFullscreen, onPa
             onClose={onClose}
             isPanelFullscreen={isFullscreen}
             onPanelToggle={onPanelToggle}
+            label={nodeLabel}
         />
     );
 }
