@@ -91,7 +91,7 @@ export const UploadModal: React.FC = () => {
 
             const { topicId } = topic;
 
-            const uploadToastId = toastManager.showProgress(`Uploading ${fileName}... 0%`);
+            const uploadToastId = toastManager.showProgress(`Starting Upload ${truncate(fileName, 50)}...`);
 
             const fileUploadResult = await uploadService.uploadFile(file, ({ progress }) => {
                 toastManager.updateProgress(uploadToastId, `Uploading ${truncate(fileName, 50)}... ${progress}%`);
