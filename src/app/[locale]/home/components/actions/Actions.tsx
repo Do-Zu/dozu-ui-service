@@ -8,7 +8,7 @@ import { UploadModal } from './UploadModal';
 import { PasteLinkModal } from './PasteLinkModal';
 import { RecordModal } from './RecordModal';
 import { ActionProvider, useActionStore } from './context/ActionContext';
-import { IMPORT_METHOD } from '@/app/[locale]/generate/constants/resource';
+import { IMPORT_METHOD, TypeImportMethod } from './constants/resource';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
 
 function ActionsContent() {
@@ -17,7 +17,14 @@ function ActionsContent() {
     const setShowRecord = useActionStore((state) => state.setShowRecord);
     const isProcessing = useActionStore((state) => state.isProcessing);
 
-    const actions = [
+    const actions: {
+        title: string;
+        description: string;
+        icon: typeof Upload;
+        onClick: () => void;
+        delay: number;
+        type: TypeImportMethod;
+    }[] = [
         {
             title: 'Upload',
             description: 'PDF, Doc, Txt',
@@ -61,7 +68,7 @@ function ActionsContent() {
                             className="relative"
                         >
                             <Card
-                                className={`max-w-[250px] border-0.5 dark:border-2 dark:border-slate-900/50 px-2 py-6 rounded-[3em] cursor-pointer shadow-md dark:hover:shadow-md transition-all hover:border-primary/10 group h-full flex flex-col items-center justify-center text-center gap-4 bg-card/50 backdrop-blur-lg ${
+                                className={`max-w-[250px] border-0.5 dark:border-2 dark:border-slate-900/50 px-2 py-6 rounded-[3em] cursor-pointer shadow-md dark:hover:shadow-md transition-all hover:border-primary/10 group h-full flex flex-col items-center justify-center text-center gap-4 bg-card/50 backdrop-blur-lg overflow-hidden ${
                                     isDisabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
                                 }`}
                                 onClick={isDisabled ? undefined : action.onClick}
@@ -73,8 +80,9 @@ function ActionsContent() {
                                     <h3 className="font-semibold text-sm">{action.title}</h3>
                                     <p className="text-xs text-muted-foreground">{action.description}</p>
                                 </div>
+
+                                {isCardProcessing && <LoadingOverlay />}
                             </Card>
-                            {isCardProcessing && <LoadingOverlay />}
                         </motion.div>
                     );
                 })}

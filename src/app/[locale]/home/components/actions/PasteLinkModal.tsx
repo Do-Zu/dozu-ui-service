@@ -39,6 +39,7 @@ export const PasteLinkModal: React.FC = () => {
         setShowLink: setIsOpen,
         redirectTopicWorkspace,
         setProcessingType,
+        isProcessing,
     } = useActionStore((state) => state);
     const [inputUrl, setInputUrl] = useState<string>('');
     const uploadToastIdRef = React.useRef<string | number | undefined>();
@@ -52,6 +53,8 @@ export const PasteLinkModal: React.FC = () => {
         shouldRun: false,
         onSuccess: () => {
             toast.dismiss();
+        },
+        onError: () => {
             setProcessingType(null);
         },
     });
@@ -161,6 +164,8 @@ export const PasteLinkModal: React.FC = () => {
             toast.error(message, {
                 duration: 2000,
             });
+
+            setProcessingType(null);
         } finally {
             toast.dismiss(toastId);
         }
@@ -222,13 +227,16 @@ export const PasteLinkModal: React.FC = () => {
             redirectTopicWorkspace(topicId);
         }
 
-        toast.dismiss(uploadToastIdRef.current);
+        setProcessingType(null);
 
+        toast.dismiss(uploadToastIdRef.current);
         uploadToastIdRef.current = undefined;
-    }, [isUploadResource, errorUploadResource]);
+    }, [isUploadResource, errorUploadResource, resourceResponse]);
 
     useEffect(() => {
-        if (!video || isFetchingVideoInfo || errorFetchingVideo) return;
+        if (!video || isFetchingVideoInfo || errorFetchingVideo) {
+            return;
+        }
 
         const { title } = safeDestructure(video?.videoInfo, {});
 
@@ -238,7 +246,7 @@ export const PasteLinkModal: React.FC = () => {
             contentType: RESOURCE_CONTENT_TYPE.YOUTUBE as ResourceContentType,
             payloadMetaData: video,
         });
-    }, [video, isFetchingVideoInfo]);
+    }, [video, isFetchingVideoInfo, errorFetchingVideo]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -253,7 +261,7 @@ export const PasteLinkModal: React.FC = () => {
             className="max-w-[400px]"
             body={
                 <div className="flex flex-col gap-6 ">
-                    {(isFetchingVideoInfo || isUploadResource) && <LoadingOverlay />}
+                    {isProcessing() && <LoadingOverlay />}
 
                     <div className="space-y-3">
                         <div className="flex items-center gap-2 text-sm font-medium">

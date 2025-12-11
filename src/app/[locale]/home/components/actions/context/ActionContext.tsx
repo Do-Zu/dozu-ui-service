@@ -20,8 +20,8 @@ interface ActionState {
     redirectTopicWorkspace: (topicId: number) => void;
 }
 
-const createActionStore = (router: ReturnType<typeof useRouter>) =>
-    createStore<ActionState>((set, get) => ({
+const createActionStore = (router: ReturnType<typeof useRouter>) => {
+    return createStore<ActionState>((set, get) => ({
         showUpload: false,
         showLink: false,
         showRecord: false,
@@ -47,6 +47,7 @@ const createActionStore = (router: ReturnType<typeof useRouter>) =>
             );
         },
     }));
+};
 
 type ActionStore = ReturnType<typeof createActionStore>;
 
