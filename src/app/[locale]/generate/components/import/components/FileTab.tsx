@@ -4,7 +4,7 @@ import React, { memo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { Upload } from 'lucide-react';
-import { setFiles } from '@/app/[locale]/generate/stores/features/importDialogSlice';
+import { resetImportDialog, setFiles } from '@/app/[locale]/generate/stores/features/importDialogSlice';
 import { toast } from '@/hooks/use-toast';
 import {
     ALLOWED_FILE_TYPES,
@@ -68,6 +68,7 @@ const FileTab: React.FC = () => {
                 const arrayBuffer = await upload(file);
 
                 if (!arrayBuffer) {
+                    dispatch(resetImportDialog());
                     toast({
                         description: t('toasts.convertFailed'),
                     });
