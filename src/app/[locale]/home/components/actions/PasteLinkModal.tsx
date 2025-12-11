@@ -6,13 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Link as LinkIcon, FileText } from 'lucide-react';
+import { useActionStore } from './context/ActionContext';
 
-interface PasteLinkModalProps {
-    isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
-}
-
-export const PasteLinkModal: React.FC<PasteLinkModalProps> = ({ isOpen, setIsOpen }) => {
+export const PasteLinkModal: React.FC = () => {
+    const isOpen = useActionStore((state) => state.showLink);
+    const setIsOpen = useActionStore((state) => state.setShowLink);
     return (
         <Modal
             isOpen={isOpen}

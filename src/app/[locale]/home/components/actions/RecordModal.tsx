@@ -3,13 +3,11 @@
 import React from 'react';
 import { Modal } from '@/components/modal/Modal';
 import { Mic, Monitor } from 'lucide-react';
+import { useActionStore } from './context/ActionContext';
 
-interface RecordModalProps {
-    isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
-}
-
-export const RecordModal: React.FC<RecordModalProps> = ({ isOpen, setIsOpen }) => {
+export const RecordModal: React.FC = () => {
+    const isOpen = useActionStore((state) => state.showRecord);
+    const setIsOpen = useActionStore((state) => state.setShowRecord);
     return (
         <Modal
             isOpen={isOpen}

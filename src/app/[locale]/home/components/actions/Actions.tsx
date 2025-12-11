@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Upload, Link, Mic } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UploadModal } from './UploadModal';
 import { PasteLinkModal } from './PasteLinkModal';
 import { RecordModal } from './RecordModal';
+import { ActionProvider, useActionStore } from './context/ActionContext';
 
-export default function Actions() {
-    const [showUpload, setShowUpload] = useState(false);
-    const [showLink, setShowLink] = useState(false);
-    const [showRecord, setShowRecord] = useState(false);
+function ActionsContent() {
+    const setShowUpload = useActionStore((state) => state.setShowUpload);
+    const setShowLink = useActionStore((state) => state.setShowLink);
+    const setShowRecord = useActionStore((state) => state.setShowRecord);
 
     const actions = [
         {
@@ -48,10 +49,10 @@ export default function Actions() {
                         transition={{ duration: 0.5, delay: action.delay }}
                     >
                         <Card
-                            className="max-w-[250px] border-2 border-slate-900/50 px-2 py-6 rounded-[3em] cursor-pointer hover:shadow-md transition-all hover:border-primary/10 group h-full flex flex-col items-center justify-center text-center gap-4 bg-card/50 backdrop-blur-lg"
+                            className="max-w-[250px] border-0.5 dark:border-2 dark:border-slate-900/50 px-2 py-6 rounded-[3em] cursor-pointer shadow-md  dark:hover:shadow-md transition-all hover:border-primary/10 group h-full flex flex-col items-center justify-center text-center gap-4 bg-card/50 backdrop-blur-lg"
                             onClick={action.onClick}
                         >
-                            <div className="p-4 rounded-full bg-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                            <div className="p-4 rounded-full bg-primary/10 group-hover:bg-primary/20  group-hover:text-primary transition-colors">
                                 <action.icon className="w-4 h-4 " />
                             </div>
                             <div className="space-y-1">
@@ -63,9 +64,17 @@ export default function Actions() {
                 ))}
             </div>
 
-            <UploadModal isOpen={showUpload} setIsOpen={setShowUpload} />
-            <PasteLinkModal isOpen={showLink} setIsOpen={setShowLink} />
-            <RecordModal isOpen={showRecord} setIsOpen={setShowRecord} />
+            <UploadModal />
+            <PasteLinkModal />
+            <RecordModal />
         </div>
+    );
+}
+
+export default function Actions() {
+    return (
+        <ActionProvider>
+            <ActionsContent />
+        </ActionProvider>
     );
 }
