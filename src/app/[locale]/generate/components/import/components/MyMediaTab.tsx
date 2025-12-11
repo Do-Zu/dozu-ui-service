@@ -19,6 +19,9 @@ import { isNilOrEmpty } from '@/utils';
 import { ContentCreationService, MediaResourceMetadata } from '../../../services/contentCreation.service';
 import { RESOURCE_CONTENT_TYPE } from '../../../constants/resource';
 import audioTranscriptionService from '@/app/[locale]/topics/[topicId]/(topic)/service/audioTranscription.service';
+import usePost from '@/hooks/usePost';
+import toastHelper from '@/utils/toast.helper';
+import { ICreateTopicResponse } from '@/app/[locale]/topics/types/topic.type';
 
 const MediaTab: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File>();
@@ -87,39 +90,51 @@ const MediaTab: React.FC = () => {
         audioInputRef.current?.click();
     }
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { loading: isLoading, execute } = usePost<File, ICreateTopicResponse>(
+        async (audioFile: File) => {
+            // step 1: create new topic using name from selected file
+            const topic = await topicService.createTopic({ name: audioFile.name ?? '', description: '' });
+
+            // step 2: upload file
+            const fileInfo = await uploadService.uploadFile(audioFile);
+            if (isNilOrEmpty(fileInfo)) {
+                throw new Error('File upload failed');
+            }
+
+            // step 3: get audio transcript segments
+            const transcriptSegments = await audioTranscriptionService.getTranscripSegmentsFromAudio({
+                audioFile,
+            });
+
+            // step 4: insert input set
+            const payload: MediaResourceMetadata = { ...fileInfo, content: transcriptSegments };
+
+            await ContentCreationService.insertContentTopic({
+                topicId: topic.topicId,
+                contentType: RESOURCE_CONTENT_TYPE.MEDIA,
+                payload,
+            });
+
+            return topic;
+        },
+        'POST',
+        {
+            onError(error) {
+                console.error(error);
+                toastHelper.showErrorMessage('Failed to process your media file. Please try again.');
+            },
+            onSuccess(data) {
+                toastHelper.showSuccessMessage('Upload and process successfully. Redirecting to your topic page..');
+
+                // step 5: navigate to topic page
+                navigateToTopicPage({ topicId: data.topicId });
+            },
+        },
+    );
 
     async function handleSubmitClick() {
         if (!selectedFile) return;
-        setIsLoading(true);
-
-        // step 1: create new topic using name from selected file
-        const topic = await topicService.createTopic({ name: selectedFile.name ?? '', description: '' });
-
-        // step 2: upload file
-        const fileInfo = await uploadService.uploadFile(selectedFile);
-        if (isNilOrEmpty(fileInfo)) {
-            throw new Error('File upload failed');
-        }
-
-        // step 3: get audio transcript segments
-        const transcriptSegments = await audioTranscriptionService.getTranscripSegmentsFromAudio({
-            audioFile: selectedFile,
-        });
-
-        // step 4: insert input set
-        const payload: MediaResourceMetadata = { ...fileInfo, content: transcriptSegments };
-
-        await ContentCreationService.insertContentTopic({
-            topicId: topic.topicId,
-            contentType: RESOURCE_CONTENT_TYPE.MEDIA,
-            payload,
-        });
-
-        // step 5: navigate to topic page
-        navigateToTopicPage({ topicId: topic.topicId });
-
-        setIsLoading(false);
+        await execute(selectedFile);
     }
 
     // const selectedFile = files[0];
