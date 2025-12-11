@@ -1,9 +1,13 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Modal } from '@/components/modal/Modal';
-import { UploadCloud, Loader } from 'lucide-react';
 import { useActionStore } from './context/ActionContext';
+import { useTranslations } from 'next-intl';
+import uploadService from '@/services/upload';
+import topicService from '@/services/topic/topic.service';
+import { resourceService } from './services/contentCreation.service';
+import { Modal } from '@/components/modal/Modal';
+
 import {
     ALLOWED_FILE_TYPES,
     FILE_FORMAT,
@@ -13,16 +17,15 @@ import {
     validateFileSize,
     validateFileType,
 } from './constants/validate';
+
 import { useUploadConvertFile } from './hooks/useUploadConvertFileFormat';
-import { useTranslations } from 'next-intl';
 import { compareIgnoreCapitalization, truncate } from '@/utils';
 import { blobToFile, getFileNameWithoutExtension } from './helper/helper';
-import LoadingOverlay from '@/components/loading/LoadingOverLay';
-import uploadService from '@/services/upload';
-import topicService from '@/services/topic/topic.service';
-import { resourceService } from './services/contentCreation.service';
 import { RESOURCE_CONTENT_TYPE } from './constants/resource';
+import { UploadCloud, Loader } from 'lucide-react';
 import { toast } from 'sonner';
+
+import LoadingOverlay from '@/components/loading/LoadingOverLay';
 
 export const UploadModal: React.FC = () => {
     const t = useTranslations('generate.fileTab');
