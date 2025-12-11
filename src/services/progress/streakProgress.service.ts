@@ -11,6 +11,7 @@ export interface StreakProgressData {
     completionPercentage?: number;
     score?: number;
     timeSpent?: number;
+    classId?: number; // Optional classId for class-based learning streaks
     metadata?: {
         attempts?: number;
         lastPosition?: number;
@@ -37,8 +38,8 @@ class StreakProgressService {
             
             let streakResult = false;
             if (shouldUpdateStreak) {
-                // 3. Update streak if activity qualifies
-                streakResult = await this.updateStreak(data.userId);
+                // 3. Update streak if activity qualifies and classId is provided
+                streakResult = await this.updateStreak(data.userId, data.classId);
             }
             
             return {
@@ -124,13 +125,21 @@ class StreakProgressService {
 
     /**
      * Update user's streak
+     * Note: Requires classId for class-based learning streaks
+     * If classId is not provided, streak update will be skipped
      */
-    private async updateStreak(userId: string): Promise<boolean> {
+    private async updateStreak(userId: string, classId?: number): Promise<boolean> {
         try {
+            // Only update streak if classId is provided (streaks are class-specific)
+            if (!classId) {
+                console.warn('updateStreak: classId is required but not provided. Skipping streak update.');
+                return false;
+            }
             // Call gamification service to update streak
-            await gamificationService.updateStreak();
+            await gamificationService.updateStreak(classId);
             return true;
         } catch (error) {
+            console.error('Error updating streak:', error);
             return false;
         }
     }

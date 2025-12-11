@@ -10,11 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 
 interface StreakDisplayProps {
     userId?: number;
+    classId?: number;
     showFreezeOption?: boolean;
     compact?: boolean;
 }
 
-export function StreakDisplay({ userId, showFreezeOption = true, compact = false }: StreakDisplayProps) {
+export function StreakDisplay({ userId, classId, showFreezeOption = true, compact = false }: StreakDisplayProps) {
     const [streakData, setStreakData] = useState<StreakData | null>(null);
     const [loading, setLoading] = useState(true);
     const [freezing, setFreezing] = useState(false);
@@ -22,7 +23,7 @@ export function StreakDisplay({ userId, showFreezeOption = true, compact = false
 
     useEffect(() => {
         fetchStreakData();
-    }, [userId]);
+    }, [userId, classId]);
 
     const fetchStreakData = async () => {
         // Guard against null/undefined userId
@@ -35,9 +36,9 @@ export function StreakDisplay({ userId, showFreezeOption = true, compact = false
             setLoading(true);
             let data;
             
-            if (userId) {
-                // Get streak data for specific user
-                const stats = await gamificationService.getUserGamificationStats(userId);
+            if (userId && classId) {
+                // Get streak data for specific user in a class
+                const stats = await gamificationService.getUserGamificationStats(userId, classId);
                 if (stats) {
                     data = {
                         currentStreak: stats.currentStreak,
@@ -47,8 +48,27 @@ export function StreakDisplay({ userId, showFreezeOption = true, compact = false
                         streakFreezeCount: stats.streakFreezeCount || 0
                     };
                 }
+            } else if (userId) {
+                // If userId provided but no classId, try to get stats (will fail if classId required)
+                // This is for backward compatibility
+                try {
+                    const stats = await gamificationService.getUserGamificationStats(userId, 0);
+                    if (stats) {
+                        data = {
+                            currentStreak: stats.currentStreak,
+                            longestStreak: stats.longestStreak,
+                            lastStudyDate: stats.lastStudyDate ?? null,
+                            streakFreezeActive: stats.streakFreezeActive || false,
+                            streakFreezeCount: stats.streakFreezeCount || 0
+                        };
+                    }
+                } catch (error) {
+                    console.warn('getUserGamificationStats requires classId. Please provide classId prop.');
+                }
             } else {
                 // Get streak data for current authenticated user
+                // Note: getUserStreak() is deprecated and returns default data
+                // For class-based learning, use classStreakService.getStudentClassStreak(userId, classId) instead
                 data = await gamificationService.getUserStreak();
             }
             
@@ -66,9 +86,18 @@ export function StreakDisplay({ userId, showFreezeOption = true, compact = false
     };
 
     const handleBuyStreakFreeze = async () => {
+        if (!classId) {
+            toast({
+                title: "Error",
+                description: "classId is required to buy streak freeze",
+                variant: "destructive",
+            });
+            return;
+        }
+
         try {
             setFreezing(true);
-            const success = await gamificationService.buyStreakFreeze(100);
+            const success = await gamificationService.buyStreakFreeze(classId, 100);
             if (success) {
                 toast({
                     title: "Streak Freeze Activated!",
