@@ -16,7 +16,7 @@ export default function Actions() {
     const actions = [
         {
             title: 'Upload',
-            description: 'File, audio, video',
+            description: 'PDF, Doc, Txt',
             icon: Upload,
             onClick: () => setShowUpload(true),
             delay: 0.1,

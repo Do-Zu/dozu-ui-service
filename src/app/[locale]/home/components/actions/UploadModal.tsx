@@ -45,7 +45,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, setIsOpen }) =
                         <UploadCloud className="w-8 h-8 text-muted-foreground" />
                     </div>
                     <p className="text-sm font-medium text-center mb-1">Click to upload or drag and drop</p>
-                    <p className="text-xs text-muted-foreground text-center mb-4">Audio, Video, PDF, Doc</p>
+                    <p className="text-xs text-muted-foreground text-center mb-4">PDF, Doc, Txt</p>
                     <Button variant="outline" size="sm">
                         Select File
                     </Button>
