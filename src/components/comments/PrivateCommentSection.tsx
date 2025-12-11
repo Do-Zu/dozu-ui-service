@@ -98,42 +98,46 @@ export default function PrivateCommentSection({
 
     return (
         <Card>
-            <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">{title}</CardTitle>
+            <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold">{title}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-                <Textarea
-                    placeholder={placeholder}
-                    className="min-h-[80px]"
-                    value={commentContent}
-                    onChange={(e) => setCommentContent(e.target.value)}
-                    disabled={!canComment || creating}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                            e.preventDefault();
-                            handleCreateComment();
-                        }
-                    }}
-                />
-                <div className="flex justify-end">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleCreateComment}
-                        disabled={!canComment || !commentContent.trim() || creating}
-                    >
-                        {creating ? creatingText : submitButtonText}
-                    </Button>
-                </div>
+            <CardContent className="space-y-4">
+                {canComment && (
+                    <div className="space-y-2">
+                        <Textarea
+                            placeholder={placeholder}
+                            className="min-h-[80px] resize-y"
+                            value={commentContent}
+                            onChange={(e) => setCommentContent(e.target.value)}
+                            disabled={creating}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                                    e.preventDefault();
+                                    handleCreateComment();
+                                }
+                            }}
+                        />
+                        <div className="flex justify-end">
+                            <Button
+                                variant="default"
+                                size="sm"
+                                onClick={handleCreateComment}
+                                disabled={!commentContent.trim() || creating}
+                            >
+                                {creating ? creatingText : submitButtonText}
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 {error && (
-                    <div className="text-sm text-red-600 dark:text-red-400 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <div className="text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                         {error}
                     </div>
                 )}
 
                 {(showCommentsOnlyWhenHasData ? comments.length > 0 : true) && (
-                    <div className="border-t pt-3 mt-3">
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                         <CommentList
                             comments={comments}
                             loading={loading}

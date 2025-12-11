@@ -51,10 +51,10 @@ export default function CommentList({
     // Render comments
     return (
         <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {comments.map((comment) => (
                     <CommentItem
-                        key={comment.commentId}
+                        key={`comment-${comment.commentId}-${comment.updatedAt || comment.createdAt}`}
                         comment={comment}
                         currentUserId={currentUserId}
                         onUpdate={onUpdate}

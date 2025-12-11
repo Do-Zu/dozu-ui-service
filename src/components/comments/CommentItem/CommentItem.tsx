@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { IPublicComment } from '@/services/class-based-learning/comment';
-import ConnectorLines from './ConnectorLines';
 import CommentContent from './CommentContent';
 import CommentActions from './CommentActions';
 import ReplyInput from './ReplyInput';
@@ -29,6 +28,12 @@ export default function CommentItem({
     const [isEditing, setIsEditing] = useState(false);
     const [showReplyInput, setShowReplyInput] = useState(false);
     const [updating, setUpdating] = useState(false);
+
+    // Reset editing state when comment changes to prevent stale state
+    useEffect(() => {
+        setIsEditing(false);
+        setShowReplyInput(false);
+    }, [comment.commentId]);
 
     const sender = comment.sender;
     const isOwner = currentUserId === comment.senderId;
@@ -78,11 +83,8 @@ export default function CommentItem({
     };
 
     return (
-        <div className={level > 0 ? 'relative pl-8 mt-3' : ''}>
-            {/* Beautiful curved connector lines */}
-            <ConnectorLines level={level} />
-
-            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors relative z-10">
+        <div className={level > 0 ? 'relative pl-8 mt-2' : ''}>
+            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors relative z-10 bg-white dark:bg-gray-900">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                     <AvatarImage src={sender?.avatarUrl || undefined} alt={sender?.username || 'User'} />
                     <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs">
@@ -138,10 +140,10 @@ export default function CommentItem({
 
             {/* Render replies recursively - infinite tree support */}
             {hasReplies && (
-                <div className="mt-2 ml-8 relative">
+                <div className="mt-2 ml-8 relative space-y-2">
                     {replies.map((reply) => (
                         <CommentItem
-                            key={reply.commentId}
+                            key={`reply-${reply.commentId}-${reply.updatedAt || reply.createdAt}`}
                             comment={reply}
                             currentUserId={currentUserId}
                             onUpdate={onUpdate}

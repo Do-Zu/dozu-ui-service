@@ -98,9 +98,16 @@ export default function CommentContent({
     const isEdited = updatedAt && updatedAt !== createdAt;
 
     return (
-        <>
+        <div className="mb-2">
             <div
                 className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words prose prose-sm max-w-none dark:prose-invert"
+                style={{ 
+                    resize: 'none',
+                    overflow: 'visible',
+                    display: 'block',
+                    minHeight: 'auto',
+                    height: 'auto'
+                }}
                 dangerouslySetInnerHTML={{
                     __html: renderMarkdown(content),
                 }}
@@ -110,6 +117,6 @@ export default function CommentContent({
                     (Đã chỉnh sửa)
                 </p>
             )}
-        </>
+        </div>
     );
 }
