@@ -19,7 +19,7 @@ export interface UsePostOptions<TReq, TRes> {
     requestOptions?: Omit<FetchOptions, 'params' | 'body'>;
     onMessageError?: () => void;
     onMessageSuccess?: () => void;
-    onSuccess?: (data: TRes) => void;
+    onSuccess?: (data: TRes) => void | Promise<void>;
     onError?: (error: unknown) => void;
 }
 
@@ -170,7 +170,7 @@ function usePost<TReq = unknown, TRes = unknown>(
                 const validatedResponse = validateResponse(responseData);
 
                 // if onSuccess is passed, execute onSuccess with validatedResponse
-                onSuccess?.(validatedResponse);
+                await onSuccess?.(validatedResponse);
                 return validatedResponse;
             } catch (error) {
                 const message = errorHelper.getErrorMessage(error);

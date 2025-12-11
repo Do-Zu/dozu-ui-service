@@ -11,6 +11,7 @@ import { RESOURCE_CONTENT_TYPE, ResourceContentType } from '../constants/resourc
 import { VideoInfo } from '../stores/features/contentExtractionSlice';
 import { UploadFileResponse } from '@/components/generative/types';
 import { toNumber } from '@/utils';
+import { ITranscriptSegment } from '../../topics/[topicId]/(topic)/types';
 
 export interface CreateContentParams {
     topic: ICreateTopicPayload;
@@ -50,11 +51,14 @@ type TextResourceMetadata = {
     content: string;
 };
 
+export type MediaResourceMetadata = UploadFileResponse & { content: ITranscriptSegment[] };
+
 type ResourceMetadataMap = {
     [RESOURCE_CONTENT_TYPE.FILE]: UploadFileResponse;
     [RESOURCE_CONTENT_TYPE.YOUTUBE]: YoutubeResourceMetadata;
     [RESOURCE_CONTENT_TYPE.WEBSITE]: WebsiteResourceMetadata;
     [RESOURCE_CONTENT_TYPE.TEXT]: TextResourceMetadata;
+    [RESOURCE_CONTENT_TYPE.MEDIA]: MediaResourceMetadata;
 };
 
 type InsertContentTopicParams =
@@ -82,6 +86,11 @@ type InsertContentTopicParams =
           topicId: string | number;
           contentType: null;
           payload: undefined;
+      }
+    | {
+          topicId: string | number;
+          contentType: typeof RESOURCE_CONTENT_TYPE.MEDIA;
+          payload: MediaResourceMetadata;
       };
 
 type NonNullableInsertParams = Exclude<InsertContentTopicParams, { contentType: null }>;
@@ -253,6 +262,11 @@ export class ContentCreationService {
                 }
 
                 return { content };
+            }
+            case RESOURCE_CONTENT_TYPE.MEDIA: {
+                return {
+                    ...params.payload,
+                };
             }
             default:
                 return null;
