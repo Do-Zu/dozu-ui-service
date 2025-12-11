@@ -6,12 +6,14 @@ import attachmentUtils from '../../../utils/attachment.utils';
 import Axios from '@/api/axios';
 import { toast } from '@/hooks/use-toast';
 import AttachmentItemWithDownload from '../AttachmentItemWithDownload';
+import AttachmentItemWithUrl from '../AttachmentItemWithUrl';
 
 interface Props {
     attachments?: IAttachment[];
+    urls?: string[];
 }
 
-export default function AttachmentsSection({ attachments }: Props) {
+export default function AttachmentsViewSection({ attachments, urls }: Props) {
     const handleDownload = async (file: IAttachment) => {
         if (!file.fileUrl) {
             toast({
@@ -45,6 +47,7 @@ export default function AttachmentsSection({ attachments }: Props) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {attachments?.map((file) => <AttachmentItemWithDownload attachment={file} />)}
+            {urls?.map((url) => <AttachmentItemWithUrl url={url} />)}
         </div>
     );
 }

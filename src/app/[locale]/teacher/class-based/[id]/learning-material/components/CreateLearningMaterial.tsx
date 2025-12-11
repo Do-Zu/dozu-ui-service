@@ -35,6 +35,8 @@ import FileItem from '@/app/[locale]/class-based/(classwork)/components/common/F
 import { AssignmentStatusEnum } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
 import { ROUTES } from '@/utils/constants/routes';
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
+import UrlAttachmentModal from '@/app/[locale]/class-based/(classwork)/components/common/UrlAttachmentModal';
+import { url } from 'inspector';
 
 interface Props {
     myClass: IClass;
@@ -52,13 +54,14 @@ interface ICreateLearningMaterialBody {
     content: string;
     topicId?: string;
     inputResources?: IInputResource[];
+    urls?: string[];
 }
 
 const DEFAULT_TOTAL_GRADE = 100;
 const DEFAULT_ASSIGNMENT_STATUS = AssignmentStatusEnum.PUBLISHED;
 
 // create another component for implementing your feature
-export function EditLearningMaterial({ myClass, topics }: Props) {
+export function CreateLearningMaterial({ myClass, topics }: Props) {
     const t = useTranslations('EditLearningMaterial');
     const router = useRouter();
 
@@ -79,10 +82,14 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
         }
     }
 
+    //URL attachments
+    const [urls, setUrls] = useState<string[]>([]);
+
+    //modal open
+    const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
+
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
-    const [grade, setGrade] = useState<number>(DEFAULT_TOTAL_GRADE);
-    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
 
     function handleCloseClick() {
         router.back();
@@ -129,29 +136,14 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
         if (uploadedFileResult) {
             requestBody.inputResources = uploadedFileResult;
         }
+        if (urls) {
+            requestBody.urls = urls;
+        }
         const result = await sendCreateLearningMaterialRequest(requestBody);
-        console.log(result);
     };
 
     const isLoading = isPosting || isUploading;
     const isSumbmitDisabled = isLoading || !title;
-
-    // function formatSelectedStatus(status: InsertAssignmentStatus) {
-    //     switch (status) {
-    //         case 'draft': {
-    //             return 'Lưu bản nháp';
-    //         }
-    //         case 'scheduled': {
-    //             return 'Lên lịch';
-    //         }
-    //         case 'published': {
-    //             return 'Giao bài ngay';
-    //         }
-    //         default: {
-    //             return 'Giá trị không hợp lệ';
-    //         }
-    //     }
-    // }
 
     function handleSubmit() {}
 
@@ -171,25 +163,6 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
                         {' '}
                         {t('submitButtonLabel')}
                     </Button>
-
-                    {/* <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <ChevronDown className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" defaultValue={DEFAULT_ASSIGNMENT_STATUS}>
-                            <DropdownMenuItem onSelect={() => setSelectedStatus('published')}>
-                                Giao bài ngay
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => setSelectedStatus('scheduled')}>
-                                Lên lịch
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => setSelectedStatus('draft')}>
-                                Lưu bản nháp
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu> */}
                 </div>
             </div>
 
@@ -202,9 +175,23 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
                         setContent={setContent}
                         files={files}
                         setFiles={setFiles}
+                        urls={urls}
+                        setUrls={setUrls}
                     />
-
-                    <AttachmentsSection files={files} setFiles={setFiles} />
+                    <AttachmentsSection
+                        files={files}
+                        setFiles={setFiles}
+                        urls={urls}
+                        setUrls={setUrls}
+                        openUrlModal={() => setIsUrlModalOpen(true)}
+                    />
+                    <UrlAttachmentModal
+                        open={isUrlModalOpen}
+                        onClose={() => setIsUrlModalOpen(false)}
+                        onSubmit={(link) => {
+                            setUrls((prev) => [...prev, link]);
+                        }}
+                    />
                 </div>
 
                 <div className="space-y-8">
@@ -215,10 +202,6 @@ export function EditLearningMaterial({ myClass, topics }: Props) {
                         withDeadline={false}
                         selectedTopic={selectedTopic}
                         setSelectedTopic={setSelectedTopic}
-                        // grade={grade}
-                        // setGrade={setGrade}
-                        // dueDate={dueDate}
-                        // setDueDate={setDueDate}
                     />
                 </div>
             </div>

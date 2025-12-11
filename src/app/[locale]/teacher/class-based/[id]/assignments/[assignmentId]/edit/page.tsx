@@ -85,7 +85,15 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
     // upload files
     const { isLoading: isUploading, execute: uploadFiles } = useUploadAttachmentFiles();
 
-    async function onSubmit({ assignment, files }: { assignment: IUpdateAssignmentBody; files: File[] }) {
+    async function onSubmit({
+        assignment,
+        files,
+        urls,
+    }: {
+        assignment: IUpdateAssignmentBody;
+        files: File[];
+        urls: string[];
+    }) {
         let uploadedFileResult: IInputResource[] | undefined = undefined;
         if (files.length > 0) {
             const result = await uploadFiles(files);
@@ -97,7 +105,13 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                 },
             }));
         }
-        const data: IUpdateAssignmentBody = { ...assignment, inputResources: uploadedFileResult };
+        console.log('submit urls of original', assignment.urls);
+        console.log('submit urls new', urls);
+        const data: IUpdateAssignmentBody = {
+            ...assignment,
+            inputResources: uploadedFileResult,
+            urls: [...(assignment.urls ?? []), ...urls],
+        };
         await updateAssignmentAsync({ classId, assignmentId, assignment: data });
     }
 
@@ -124,6 +138,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
             topics={topics}
             assignment={assignment}
             attachments={attachments}
+            urlAttachments={assignment.urls || []}
             onSubmit={onSubmit}
             loading={updateLoading}
         />

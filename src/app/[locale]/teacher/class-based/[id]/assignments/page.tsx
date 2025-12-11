@@ -90,6 +90,7 @@ function ValidPage({ classId }: { classId: number }) {
                 },
             }));
         }
+        console.log('assignments submissions', assignment);
         const data: InsertAssignmentBody = { ...assignment, inputResources: uploadedFileResult };
         await createAssignmentAsync({ classId, assignment: data });
     }
