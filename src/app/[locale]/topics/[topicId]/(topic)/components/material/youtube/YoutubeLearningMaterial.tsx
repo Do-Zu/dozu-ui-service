@@ -48,7 +48,7 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
                 <p>{content}</p>
             ) : (
                 <Fragment>
-                    <SelectMenu refNode={ref} type="youtube" />
+                    <SelectMenu refNode={ref} />
                     <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} ref={ref} />
                 </Fragment>
             )}

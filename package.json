@@ -111,6 +111,7 @@
         "react-chartjs-2": "5.3.0",
         "react-day-picker": "8.10.1",
         "react-dom": "18.3.1",
+        "react-h5-audio-player": "3.10.1",
         "react-hotkeys-hook": "5.1.0",
         "react-pdf": "9.2.1",
         "react-qr-code": "2.0.18",

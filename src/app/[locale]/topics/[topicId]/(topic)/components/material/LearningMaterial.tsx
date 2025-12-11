@@ -13,6 +13,7 @@ import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import AudioLearningMaterial from './media/AudioLearningMaterial';
 
 export default function LearningMaterial() {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
@@ -21,7 +22,7 @@ export default function LearningMaterial() {
     const { topicId, setLearningMaterial } = useTopicWorkspace();
     const [isNotFound, setIsNotFound] = useState<boolean>(false);
 
-    const { data, loading, error } = useFetch<ILearningMaterial>(
+    const { data, loading, error } = useFetch<ILearningMaterial | null>(
         () => learningMaterialService.getLearningMaterial({ topicId }),
         {
             onError(...args) {
@@ -71,5 +72,9 @@ export default function LearningMaterial() {
             return <PDFLearningMaterial data={data} />;
         case 'youtube':
             return <YoutubeLearningMaterial videoId={data.videoId} content={data.content} />;
+        case 'media':
+            return <AudioLearningMaterial data={data} />;
+        default:
+            return <DataStatus variant="empty" title="This type of document is not supported yet." />;
     }
 }
