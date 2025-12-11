@@ -69,13 +69,6 @@ const PaymentPage = () => {
         }
     }, [code, paymentId, status, orderCode, isCanceled, planId]);
 
-    // Initialize payment for new plan selection
-    // useEffect(() => {
-    //     if (planId && !isRedirectFromPayment && !paymentData) {
-    //         initializePayment(planId);
-    //     }
-    // }, [planId, isRedirectFromPayment, paymentData, initializePayment]);
-
     const handleBackToPlans = () => {
         router.push(ROUTES.HOME);
     };

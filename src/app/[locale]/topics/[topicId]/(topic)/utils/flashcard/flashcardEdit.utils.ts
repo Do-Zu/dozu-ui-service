@@ -14,7 +14,11 @@ class FlashcardEditUtils {
         );
 
         if (!originalFlashcard) return false;
-        return flashcard.front !== originalFlashcard.front || flashcard.back !== originalFlashcard.back;
+        return (
+            flashcard.front !== originalFlashcard.front ||
+            flashcard.back !== originalFlashcard.back ||
+            flashcard.image !== undefined
+        );
     }
 
     public isFlashcardNew(flashcard: IEditingFlashcard) {
