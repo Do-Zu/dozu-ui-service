@@ -6,6 +6,7 @@ import { getMessages } from '@/i18n/messages';
 import { routing } from '@/i18n/routing';
 import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
+import UpgradePlanModal from '@/components/upgrade-plan/UpgradePlanModal';
 
 export default async function LocaleLayout({
     children,
@@ -24,7 +25,10 @@ export default async function LocaleLayout({
     return (
         <Providers locale={locale} messages={messages}>
             <LocaleFontProvider>
-                <DefaultLayout>{children}</DefaultLayout>
+                <DefaultLayout>
+                    {children}
+                    <UpgradePlanModal />
+                </DefaultLayout>
             </LocaleFontProvider>
         </Providers>
     );

@@ -6,13 +6,6 @@ export interface ICustomOptions {
     nodesData?: NodesData;
 }
 
-export type PreparedData = {
-    customContent?: string;
-    customOptions?: ICustomOptions;
-};
-
-export type GetPreparedData = () => PreparedData | Promise<PreparedData>;
-
 export type NodesData = (Pick<CustomNodeData, 'nodeId' | 'label' | 'description'> & {
     startSection: string;
     endSection: string;
@@ -20,7 +13,7 @@ export type NodesData = (Pick<CustomNodeData, 'nodeId' | 'label' | 'description'
 
 export interface IGenerateNodeFlashcardsItem {
     nodeId: string;
-    flashcards: Pick<IResponseFlashCardGenerate, 'q' | 'a'>[];
+    flashcards: IResponseFlashCardGenerate[];
 }
 export enum MultiNodeGenerateEnum {
     MULTI_NODE_FLASHCARD = 'multi_node_flashcard',
@@ -30,3 +23,5 @@ export type IMultiNodeGenerateType = 'multi_node_flashcard';
 export type IGenerateType =
     | Extract<TypeMethodLearning, 'flashcard' | 'quiz' | 'mindmap' | 'short_summary'>
     | IMultiNodeGenerateType;
+
+export type IStartGenerateFn = (content?: string, options?: ICustomOptions) => void;

@@ -49,6 +49,8 @@ interface IChangeNodeLabelParams {
     setNodes: React.Dispatch<React.SetStateAction<AppNode[]>>;
     pageStartIndex: number;
     pageEndIndex: number;
+    startSegment?: number | undefined;
+    endSegment?: number | undefined;
 }
 export const changeNodeLabel = ({
     nodes,
@@ -58,6 +60,8 @@ export const changeNodeLabel = ({
     setNodes,
     pageStartIndex,
     pageEndIndex,
+    startSegment,
+    endSegment,
 }: IChangeNodeLabelParams) => {
     const updatedNodes = nodes.map((node) => {
         if (node.data.nodeId === nodeId) {
@@ -70,6 +74,8 @@ export const changeNodeLabel = ({
                     description: newDescription,
                     pageStartIndex: pageStartIndex,
                     pageEndIndex: pageEndIndex,
+                    startSegment,
+                    endSegment,
                 },
             };
         } else {
@@ -94,8 +100,6 @@ export const addChildNode = ({
     setEdges,
     currentNodeId,
 }: IAddChildNodeParams) => {
-
-
     const parent = nodes.find((node) => node.data.nodeId === currentNodeId);
     if (!parent) return;
 
@@ -103,7 +107,6 @@ export const addChildNode = ({
     let newPos = { x: parent.position.x, y: parent.position.y };
 
     newPos.y += distance;
- 
 
     const id = uuidv4();
     const newNode: AppNode = {

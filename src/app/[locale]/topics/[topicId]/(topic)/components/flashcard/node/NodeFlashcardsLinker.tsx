@@ -38,6 +38,7 @@ export default function NodeFlashcardsLinker({ nodeId, onClose, isFullscreen, on
     const [linkedFlashcards, setLinkedFlashcards] = useState<ILinkedFlashcard[]>([]);
     const [linkingFlashcards, setLinkingFlashcards] = useState<number[]>([]);
     const { nodes } = useMindMapContext();
+    const nodeLabel = nodes.find((item) => item.data.nodeId === nodeId)?.data.label || 'Your selected node';
 
     useEffect(() => {
         const linkedFlashcards: ILinkedFlashcard[] = flashcards
@@ -148,6 +149,16 @@ export default function NodeFlashcardsLinker({ nodeId, onClose, isFullscreen, on
                         />
                     </div>
                 </div>
+
+                {nodeLabel ? (
+                    <div className="flex justify-center w-full px-[4rem] pb-4">
+                        <div className="w-full max-w-xl text-center">
+                            <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                {nodeLabel}
+                            </span>
+                        </div>
+                    </div>
+                ) : null}
             </div>
 
             <ScrollArea>

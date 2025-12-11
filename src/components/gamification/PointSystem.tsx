@@ -38,9 +38,31 @@ export function PointSystem({ userId, classId, showHistory = false, compact = fa
             setError(null); // Clear any previous errors
             
             // Only fetch points if classId is provided (points are class-specific)
-            const points = classId 
-                ? await gamificationService.getUserPoints(classId)
-                : await gamificationService.getUserPoints(); // Will return default data
+            let points: PointsData;
+            if (classId) {
+                const fetchedPoints = await gamificationService.getUserPoints(classId);
+                if (fetchedPoints) {
+                    points = fetchedPoints;
+                } else {
+                    // Fallback to default data if API returns null
+                    points = {
+                        totalPoints: 0,
+                        availablePoints: 0,
+                        level: 1,
+                        experiencePoints: 0,
+                        nextLevelExperience: 200
+                    };
+                }
+            } else {
+                // Return default data when classId is not provided
+                points = {
+                    totalPoints: 0,
+                    availablePoints: 0,
+                    level: 1,
+                    experiencePoints: 0,
+                    nextLevelExperience: 200
+                };
+            }
             
             const rank = userId ? await leaderboardService.getUserRank(userId) : null;
             

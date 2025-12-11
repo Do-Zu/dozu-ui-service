@@ -17,8 +17,14 @@ export type CustomNodeData = {
     isRoot?: boolean;
     topicId?: string; // Add topicId here if it's part of your data
     forceToolbarVisible?: boolean;
+    // pdf fields
     pageStartIndex?: number;
     pageEndIndex?: number;
+
+    // youtube fields
+    startSegment?: number;
+    endSegment?: number;
+
     statistics?: NodeStat;
     color?: string;
     roadmapOrder?: number;

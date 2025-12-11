@@ -32,8 +32,9 @@ class ActivityTrackingService {
 
     /**
      * Track a learning activity and potentially update streak
+     * Note: Streak update requires classId (class-based learning only)
      */
-    async trackActivity(activity: LearningActivity): Promise<void> {
+    async trackActivity(activity: LearningActivity, classId?: number): Promise<void> {
         try {
             const today = this.getDateString(new Date());
             const activityKey = `${today}-${activity.type}`;
@@ -49,10 +50,12 @@ class ActivityTrackingService {
             this.dailyActivities.add(activityKey);
             this.saveDailyActivities();
 
-            // Update streak if this is the first meaningful activity today
-            if (this.isFirstMeaningfulActivityToday(today)) {
+            // Update streak if this is the first meaningful activity today and classId is provided
+            if (this.isFirstMeaningfulActivityToday(today) && classId) {
                 console.log('🔥 First learning activity today - updating streak!');
-                await gamificationService.updateStreak();
+                await gamificationService.updateStreak(classId);
+            } else if (this.isFirstMeaningfulActivityToday(today) && !classId) {
+                console.warn('⚠️ Cannot update streak: classId is required but not provided');
             }
 
             console.log(`📚 Activity tracked: ${activity.type}`, activity.metadata);
@@ -80,7 +83,7 @@ class ActivityTrackingService {
     /**
      * Track flashcard review completion
      */
-    async trackFlashcardReview(flashcardId: number, score: number, duration: number): Promise<void> {
+    async trackFlashcardReview(flashcardId: number, score: number, duration: number, classId?: number): Promise<void> {
         await this.trackActivity({
             type: ActivityType.FLASHCARD_REVIEW,
             timestamp: Date.now(),
@@ -90,13 +93,13 @@ class ActivityTrackingService {
                 duration,
                 pointsEarned: this.calculateFlashcardPoints(score)
             }
-        });
+        }, classId);
     }
 
     /**
      * Track quiz completion
      */
-    async trackQuizCompletion(quizId: number, score: number, duration: number): Promise<void> {
+    async trackQuizCompletion(quizId: number, score: number, duration: number, classId?: number): Promise<void> {
         await this.trackActivity({
             type: ActivityType.QUIZ_COMPLETION,
             timestamp: Date.now(),
@@ -106,13 +109,13 @@ class ActivityTrackingService {
                 duration,
                 pointsEarned: this.calculateQuizPoints(score)
             }
-        });
+        }, classId);
     }
 
     /**
      * Track mindmap interaction
      */
-    async trackMindmapInteraction(topicId: number, duration: number): Promise<void> {
+    async trackMindmapInteraction(topicId: number, duration: number, classId?: number): Promise<void> {
         await this.trackActivity({
             type: ActivityType.MINDMAP_INTERACTION,
             timestamp: Date.now(),
@@ -121,13 +124,13 @@ class ActivityTrackingService {
                 duration,
                 pointsEarned: this.calculateMindmapPoints(duration)
             }
-        });
+        }, classId);
     }
 
     /**
      * Track lesson completion
      */
-    async trackLessonCompletion(topicId: number, score: number, duration: number): Promise<void> {
+    async trackLessonCompletion(topicId: number, score: number, duration: number, classId?: number): Promise<void> {
         await this.trackActivity({
             type: ActivityType.LESSON_COMPLETION,
             timestamp: Date.now(),
@@ -137,13 +140,13 @@ class ActivityTrackingService {
                 duration,
                 pointsEarned: this.calculateLessonPoints(score)
             }
-        });
+        }, classId);
     }
 
     /**
      * Track study session
      */
-    async trackStudySession(params: StudySessionParams): Promise<StudySessionResult> {
+    async trackStudySession(params: StudySessionParams, classId?: number): Promise<StudySessionResult> {
             this.validateStudySessionParams(params);
 
             // Calculate points based on duration and quality
@@ -159,21 +162,25 @@ class ActivityTrackingService {
                     pointsEarned,
                     ...params.metadata
                 }
-            });
+            }, classId);
 
             return {
                 success: true,
                 pointsEarned,
-                streakUpdated: true, // Study sessions always update streak
+                streakUpdated: !!classId, // Only update streak if classId is provided
                 message: `Study session tracked! Earned ${pointsEarned} points.`
             };
     }
 
     /**
      * Manual streak update (for testing)
+     * Note: Requires classId for class-based learning streaks
      */
-    async manualStreakUpdate(): Promise<void> {
-        await gamificationService.updateStreak();
+    async manualStreakUpdate(classId: number): Promise<void> {
+        if (!classId) {
+            throw new Error('classId is required to update streak');
+        }
+        await gamificationService.updateStreak(classId);
     }
 
     // Private helper methods
