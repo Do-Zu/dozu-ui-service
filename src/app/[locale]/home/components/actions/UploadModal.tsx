@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal } from '@/components/modal/Modal';
-import { UploadCloud, Loader2 } from 'lucide-react';
+import { UploadCloud, Loader } from 'lucide-react';
 import { useActionStore } from './context/ActionContext';
 import {
     ALLOWED_FILE_TYPES,
@@ -15,7 +15,7 @@ import {
 } from './constants/validate';
 import { useUploadConvertFile } from './hooks/useUploadConvertFileFormat';
 import { useTranslations } from 'next-intl';
-import { compareIgnoreCapitalization } from '@/utils';
+import { compareIgnoreCapitalization, truncate } from '@/utils';
 import { blobToFile, getFileNameWithoutExtension } from './helper/helper';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
 import uploadService from '@/services/upload';
@@ -36,57 +36,53 @@ export const UploadModal: React.FC = () => {
     } = useActionStore((state) => state);
 
     const [isDragging, setIsDragging] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState<number>(0);
-    const [currentStep, setCurrentStep] = useState<string>('');
 
     const { upload, loading: isConverting } = useUploadConvertFile({
         url: '/convert/file',
     });
 
-    const handleProcessingContent = async (file: File) => {
-        let uploadToastId: string | number | undefined;
-        let topicToastId: string | number | undefined;
-        let resourceToastId: string | number | undefined;
+    const toastManager = useMemo(
+        () => ({
+            ids: [] as (string | number)[],
 
+            renderProgress: (message: string, isProcessing = false) => (
+                <div className="flex items-center gap-2">
+                    {isProcessing && <Loader className="h-4 w-4 animate-spin" />}
+                    <span>{message}</span>
+                </div>
+            ),
+
+            showProgress: (message: string) => {
+                const id = toast(toastManager.renderProgress(message, true), { duration: Infinity });
+                toastManager.ids.push(id);
+                return id;
+            },
+
+            updateProgress: (id: string | number, message: string) => {
+                toast(toastManager.renderProgress(message), { id, duration: Infinity });
+            },
+
+            dismissAll: () => {
+                toastManager.ids.forEach((id) => toast.dismiss(id));
+            },
+
+            showSuccess: (message: string) => {
+                toast.info(toastManager.renderProgress(message), { duration: 2000 });
+            },
+
+            showError: (message: string) => {
+                toast.error(toastManager.renderProgress(message), { duration: 4000 });
+            },
+        }),
+        [],
+    );
+
+    const handleProcessingContent = async (file: File) => {
         try {
             setIsProcessing(true);
-
             const fileName = getFileNameWithoutExtension(file.name);
 
-            //Upload file with progress
-            setCurrentStep('Uploading file...');
-
-            uploadToastId = toast(
-                <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Uploading {fileName}... 0%</span>
-                </div>,
-                { duration: Infinity },
-            );
-
-            const fileUploadResult = await uploadService.uploadFile(file, (progress) => {
-                setUploadProgress(progress.progress);
-                toast(
-                    <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>
-                            Uploading {fileName}... {progress.progress}%
-                        </span>
-                    </div>,
-                    { id: uploadToastId, duration: Infinity },
-                );
-            });
-
-            // Create topic
-            setCurrentStep('Creating topic...');
-
-            topicToastId = toast(
-                <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Creating topic workspace...</span>
-                </div>,
-                { duration: Infinity },
-            );
+            toastManager.showProgress('Creating topic workspace...');
 
             const topic = await topicService.createTopic({
                 name: fileName,
@@ -95,24 +91,13 @@ export const UploadModal: React.FC = () => {
 
             const { topicId } = topic;
 
-            // Update topic creation success
-            toast(
-                <div className="flex items-center gap-2">
-                    <span>Topic workspace created!</span>
-                </div>,
-                { id: topicToastId, duration: 2000 },
-            );
+            const uploadToastId = toastManager.showProgress(`Uploading ${fileName}... 0%`);
 
-            // Insert content to topic
-            setCurrentStep('Processing content...');
+            const fileUploadResult = await uploadService.uploadFile(file, ({ progress }) => {
+                toastManager.updateProgress(uploadToastId, `Uploading ${truncate(fileName, 50)}... ${progress}%`);
+            });
 
-            resourceToastId = toast(
-                <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Adding content to workspace...</span>
-                </div>,
-                { duration: Infinity },
-            );
+            toastManager.showProgress('Adding content to workspace...');
 
             await resourceService.insertContentTopic({
                 contentType: RESOURCE_CONTENT_TYPE.FILE,
@@ -120,47 +105,16 @@ export const UploadModal: React.FC = () => {
                 topicId,
             });
 
-            // Final success message
-            setTimeout(() => {
-                toast(
-                    <div className="flex items-center gap-2">
-                        <span>Ready! Redirecting to workspace...</span>
-                    </div>,
-                    { duration: 2000 },
-                );
-            }, 1000);
+            toastManager.dismissAll();
+            toastManager.showSuccess('Ready! Redirecting to workspace...');
 
             redirectTopicWorkspace(topicId);
-        } catch (error) {
-            if (uploadToastId) {
-                toast(
-                    <div className="flex items-center gap-2">
-                        <span className="text-red-600">✗</span>
-                        <span>Upload failed</span>
-                    </div>,
-                    { id: uploadToastId, duration: 3000 },
-                );
-            }
-            if (topicToastId) {
-                toast.dismiss(topicToastId);
-            }
-            if (resourceToastId) {
-                toast.dismiss(resourceToastId);
-            }
-
-            toast(
-                <div className="flex items-center gap-2">
-                    <span className="text-red-600">✗</span>
-                    <span>Processing failed. Please try again.</span>
-                </div>,
-                { duration: 4000 },
-            );
-            throw error;
+        } catch {
+            toastManager.dismissAll();
+            toastManager.showError('Processing failed. Please try again.');
         } finally {
             setIsProcessing(false);
             setIsOpen(false);
-            setUploadProgress(0);
-            setCurrentStep('');
         }
     };
 
