@@ -7,6 +7,7 @@ import TranscriptViewer from '../youtube/TranscriptViewer';
 import { EnumLearningMaterial, ITranscriptSegment } from '../../../types';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import transcriptUtils from '../../../utils/transcript.utils';
+import H5AudioPlayer from 'react-h5-audio-player';
 
 interface IData {
     type: EnumLearningMaterial.media;
@@ -23,6 +24,7 @@ export default function AudioLearningMaterial({ data }: IProps) {
     const { blobUrl, content } = safeDestructure(data);
     const ref = useRef<HTMLDivElement | null>(null);
     const { selectingContentText, contentTextOrigin } = useTopicWorkspace();
+    const audioRef = useRef<H5AudioPlayer | null>(null);
 
     useEffect(() => {
         const prevUrl = blobUrl;
@@ -45,11 +47,16 @@ export default function AudioLearningMaterial({ data }: IProps) {
 
     function onSegmentClick(seconds: number) {
         if (selectingContentText) return;
+        const audio = audioRef.current?.audio.current;
+        if (audio) {
+            audio.currentTime = seconds;
+            audio.play();
+        }
     }
 
     return (
         <div className="flex flex-col p-4 h-full gap-8">
-            <AudioPlayer src={audioUrl} />
+            <AudioPlayer src={audioUrl} ref={audioRef} />
             <Fragment>
                 <SelectMenu refNode={ref} />
                 <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} ref={ref} />
