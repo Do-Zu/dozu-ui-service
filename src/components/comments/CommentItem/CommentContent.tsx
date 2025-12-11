@@ -71,7 +71,7 @@ export default function CommentContent({
                             handleSave();
                         }
                     }}
-                    className="min-h-[100px] text-sm"
+                    className="min-h-[50px] text-sm"
                     disabled={updating}
                 />
                 <div className="flex items-center gap-2">
