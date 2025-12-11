@@ -32,7 +32,7 @@ export default function Navbar() {
                         Dozu
                     </Link>
                     {isPro && (
-                        <span className="px-2 py-1 text-xs font-bold bg-[#1d2721] text-[#3cb371] border border-[#3cb37199] rounded-3xl shadow-md">
+                        <span className="px-2 py-1 text-xs font-bold dark:bg-[#1d2721] text-[#3cb371] border border-[#3cb37199] rounded-3xl shadow-md">
                             PRO
                         </span>
                     )}
