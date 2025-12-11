@@ -43,24 +43,29 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
                 )}
 
                 <div
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    role="presentation"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200"
                     onClick={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
                 >
-                    {menuContent(topic) ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white text-zinc-900 dark:bg-zinc-800/90 dark:hover:bg-zinc-700 dark:text-zinc-100"
-                                >
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            {menuContent(topic)}
-                        </DropdownMenu>
-                    ) : null}
+                    {(() => {
+                        const menu = menuContent(topic);
+                        return menu ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full bg-white/90 shadow-sm backdrop-blur-sm hover:bg-white text-zinc-900 dark:bg-zinc-800/90 dark:hover:bg-zinc-700 dark:text-zinc-100"
+                                    >
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                {menu}
+                            </DropdownMenu>
+                        ) : null;
+                    })()}
                 </div>
             </div>
 
