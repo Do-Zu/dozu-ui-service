@@ -141,3 +141,30 @@ export const deleteComment = async (commentId: number): Promise<ApiResponse<void
     return deleteRequest<unknown, ApiResponse<void>>(url);
 };
 
+/**
+ * Service object for assignment comment operations
+ */
+export const assignmentCommentService = {
+    getComments: getAssignmentComments,
+    createComment: createAssignmentComment,
+};
+
+/**
+ * Service object for learning material comment operations
+ */
+export const learningMaterialCommentService = {
+    getComments: getLearningMaterialComments,
+    createComment: createLearningMaterialComment,
+};
+
+/**
+ * Service object for general public comment operations
+ */
+export const publicCommentService = {
+    getCommentById,
+    updateComment,
+    deleteComment,
+    getSubmissionComments,
+    createSubmissionComment,
+};
+
