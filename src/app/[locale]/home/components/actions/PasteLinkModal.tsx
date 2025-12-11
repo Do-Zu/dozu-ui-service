@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link as LinkIcon, FileText, Loader } from 'lucide-react';
+import { Link as LinkIcon, Loader } from 'lucide-react';
 import { useActionStore } from './context/ActionContext';
 import { toast } from 'sonner';
 import { countWords, isEmpty, safeDestructure } from '@/utils';
@@ -17,7 +17,7 @@ import LoadingOverlay from '@/components/loading/LoadingOverLay';
 import usePost from '@/hooks/usePost';
 import topicService from '@/services/topic/topic.service';
 import { resourceService } from './services/contentCreation.service';
-import { RESOURCE_CONTENT_TYPE, ResourceContentType } from './constants/resource';
+import { IMPORT_METHOD, RESOURCE_CONTENT_TYPE, ResourceContentType } from './constants/resource';
 
 export const BASE_API_YOUTUBE = '/api/youtube/transcript?videoId=';
 export const BASE_API_EXTRACT_WEBSITE = '/api/website-content';
@@ -38,7 +38,7 @@ export const PasteLinkModal: React.FC = () => {
         showLink: isOpen,
         setShowLink: setIsOpen,
         redirectTopicWorkspace,
-        setIsProcessing,
+        setProcessingType,
     } = useActionStore((state) => state);
     const [inputUrl, setInputUrl] = useState<string>('');
     const uploadToastIdRef = React.useRef<string | number | undefined>();
@@ -52,8 +52,7 @@ export const PasteLinkModal: React.FC = () => {
         shouldRun: false,
         onSuccess: () => {
             toast.dismiss();
-
-            setIsProcessing(false);
+            setProcessingType(null);
         },
     });
 
@@ -119,7 +118,7 @@ export const PasteLinkModal: React.FC = () => {
     );
 
     const handleGetInfoVideo = async ({ pastedUrl }: { pastedUrl: string }) => {
-        setIsProcessing(true);
+        setProcessingType(IMPORT_METHOD.TEXT);
 
         const toastId = toast(renderProgress('Get video info'), {
             duration: Infinity,

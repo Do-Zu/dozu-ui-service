@@ -21,7 +21,7 @@ import {
 import { useUploadConvertFile } from './hooks/useUploadConvertFileFormat';
 import { compareIgnoreCapitalization, truncate } from '@/utils';
 import { blobToFile, getFileNameWithoutExtension } from './helper/helper';
-import { RESOURCE_CONTENT_TYPE } from './constants/resource';
+import { RESOURCE_CONTENT_TYPE, IMPORT_METHOD } from './constants/resource';
 import { UploadCloud, Loader } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -34,7 +34,7 @@ export const UploadModal: React.FC = () => {
         showUpload: isOpen,
         setShowUpload: setIsOpen,
         isProcessing,
-        setIsProcessing,
+        setProcessingType,
         redirectTopicWorkspace,
     } = useActionStore((state) => state);
 
@@ -82,7 +82,8 @@ export const UploadModal: React.FC = () => {
 
     const handleProcessingContent = async (file: File) => {
         try {
-            setIsProcessing(true);
+            setProcessingType(IMPORT_METHOD.FILE);
+
             const fileName = getFileNameWithoutExtension(file.name);
 
             toastManager.showProgress('Creating topic workspace...');
@@ -95,6 +96,8 @@ export const UploadModal: React.FC = () => {
             const { topicId } = topic;
 
             const uploadToastId = toastManager.showProgress(`Starting Upload ${truncate(fileName, 50)}...`);
+
+            setIsOpen(false);
 
             const fileUploadResult = await uploadService.uploadFile(file, ({ progress }) => {
                 toastManager.updateProgress(uploadToastId, `Uploading ${truncate(fileName, 50)}... ${progress}%`);
@@ -116,8 +119,7 @@ export const UploadModal: React.FC = () => {
             toastManager.dismissAll();
             toastManager.showError('Processing failed. Please try again.');
         } finally {
-            setIsProcessing(false);
-            setIsOpen(false);
+            setProcessingType(null);
         }
     };
 
@@ -212,7 +214,7 @@ export const UploadModal: React.FC = () => {
                     onDrop={handleDrop}
                     onClick={() => document.getElementById('file-upload')?.click()}
                 >
-                    {isProcessing && <LoadingOverlay />}
+                    {isProcessing() && <LoadingOverlay />}
 
                     <div className="p-4 rounded-full bg-muted mb-4">
                         <UploadCloud className="w-8 h-8 text-muted-foreground" />

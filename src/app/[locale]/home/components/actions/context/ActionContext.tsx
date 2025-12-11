@@ -1,32 +1,44 @@
 'use client';
 
-import { createStore, useStore } from 'zustand';
 import { createContext, useContext, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { createStore, useStore } from 'zustand';
 import { ROUTES } from '@/utils/constants/routes';
+import { TypeImportMethod } from '../constants/resource';
+import { isNilOrEmpty } from '@/utils';
 
 interface ActionState {
     showUpload: boolean;
     showLink: boolean;
     showRecord: boolean;
-    isProcessing: boolean;
+    processingType: TypeImportMethod | null;
     setShowUpload: (show: boolean) => void;
     setShowLink: (show: boolean) => void;
     setShowRecord: (show: boolean) => void;
-    setIsProcessing: (value: boolean) => void;
+    setProcessingType: (type: TypeImportMethod | null) => void;
+    isProcessing: (type?: TypeImportMethod) => boolean;
     redirectTopicWorkspace: (topicId: number) => void;
 }
 
 const createActionStore = (router: ReturnType<typeof useRouter>) =>
-    createStore<ActionState>((set) => ({
+    createStore<ActionState>((set, get) => ({
         showUpload: false,
         showLink: false,
         showRecord: false,
-        isProcessing: false,
-        setIsProcessing: (val) => set({ isProcessing: val }),
+        processingType: null,
+        setProcessingType: (type) => set({ processingType: type }),
         setShowUpload: (show) => set({ showUpload: show }),
         setShowLink: (show) => set({ showLink: show }),
         setShowRecord: (show) => set({ showRecord: show }),
+        isProcessing: (type) => {
+            const { processingType } = get();
+
+            if (type) {
+                return processingType === type;
+            }
+
+            return !isNilOrEmpty(processingType);
+        },
         redirectTopicWorkspace: (topicId) => {
             router.push(
                 ROUTES.TOPIC_WORKSPACE({
