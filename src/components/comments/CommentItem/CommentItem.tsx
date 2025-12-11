@@ -7,6 +7,7 @@ import CommentContent from './CommentContent';
 import CommentActions from './CommentActions';
 import ReplyInput from './ReplyInput';
 import { formatRelativeTime, getInitials } from '../utils/format';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface CommentItemProps {
     comment: IPublicComment;
@@ -25,6 +26,8 @@ export default function CommentItem({
     onReply,
     level = 0,
 }: CommentItemProps) {
+    const t = useTranslations('classBased.comment');
+    const locale = useLocale();
     const [isEditing, setIsEditing] = useState(false);
     const [showReplyInput, setShowReplyInput] = useState(false);
     const [updating, setUpdating] = useState(false);
@@ -96,15 +99,15 @@ export default function CommentItem({
                     {/* Header: Name, badge, timestamp */}
                     <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
-                            {sender?.fullName || sender?.username || 'Người dùng'}
+                            {sender?.fullName || sender?.username || t('labels.user')}
                         </span>
                         {isOwner && (
                             <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
-                                Bạn
+                                {t('labels.you')}
                             </span>
                         )}
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {formatRelativeTime(comment.createdAt)}
+                            {formatRelativeTime(comment.createdAt, locale)}
                         </span>
                     </div>
 

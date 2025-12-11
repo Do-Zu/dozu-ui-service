@@ -3,6 +3,7 @@
 import React from 'react';
 import PrivateCommentSection from '@/components/comments/PrivateCommentSection';
 import { useSubmissionComments, useCreateSubmissionComment } from '@/services/class-based-learning/comment';
+import { useTranslations } from 'next-intl';
 
 interface TeacherPrivateCommentSectionProps {
     assignmentId: number;
@@ -10,6 +11,7 @@ interface TeacherPrivateCommentSectionProps {
 }
 
 export default function TeacherPrivateCommentSection({ assignmentId, submissionId }: TeacherPrivateCommentSectionProps) {
+    const t = useTranslations('assignment.comments');
     const page = 1;
     const limit = 20;
 
@@ -34,8 +36,8 @@ export default function TeacherPrivateCommentSection({ assignmentId, submissionI
             createComment={createComment}
             creating={creating}
             canComment={submissionId !== null}
-            placeholder="Thêm nhận xét riêng tư cho học viên..."
-            submitButtonText="Gửi"
+            placeholder={t('addPrivateCommentForStudent')}
+            submitButtonText={t('send')}
         />
     );
 }

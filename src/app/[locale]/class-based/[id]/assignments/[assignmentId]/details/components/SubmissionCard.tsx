@@ -15,6 +15,7 @@ import { Plus, X, FileText, Users, Link2, Upload } from 'lucide-react';
 import { ChangeEvent, useRef, useState } from 'react';
 import { useSubmissionComments, useCreateSubmissionComment } from '@/services/class-based-learning/comment';
 import PrivateCommentSection from '@/components/comments/PrivateCommentSection';
+import { useTranslations } from 'next-intl';
 
 interface Props {
     submission: IAssignmentSubmission;
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export function SubmissionCard({ submission, attachments, onSubmit, loading }: Props) {
+    const t = useTranslations('assignment');
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [files, setFiles] = useState<File[]>([]);
 
@@ -57,7 +59,7 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-medium">Bài tập của bạn</CardTitle>
+                <CardTitle className="text-lg font-medium">{t('submission.yourAssignment')}</CardTitle>
                 <span className="text-sm text-muted-foreground">
                     {assignmentSubmissionUtils.getStatusLabel(submission.status)}
                 </span>
@@ -78,15 +80,15 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
 
                 <div className="flex flex-wrap gap-4">
                     <Button variant="outline">
-                        <Link2 className="mr-2 h-4 w-4" /> Liên kết
+                        <Link2 className="mr-2 h-4 w-4" /> {t('submission.link')}
                     </Button>
                     <Button variant="outline" onClick={handleUploadClick}>
-                        <Upload className="mr-2 h-4 w-4" /> Tải lên Tệp
+                        <Upload className="mr-2 h-4 w-4" /> {t('submission.uploadFile')}
                     </Button>
                     <input type="file" multiple ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
                 </div>
                 <Button className="w-full" onClick={handleSubmit} disabled={loading}>
-                    {loading ? 'Saving...' : 'Nộp bài'}
+                    {loading ? t('submission.saving') : t('submission.submit')}
                 </Button>
             </CardContent>
         </Card>
@@ -99,6 +101,7 @@ interface PrivateCommentsCardProps {
 }
 
 export function PrivateCommentsCard({ assignmentId, submissionId }: PrivateCommentsCardProps) {
+    const t = useTranslations('assignment');
     const page = 1;
     const limit = 20;
 
@@ -123,22 +126,24 @@ export function PrivateCommentsCard({ assignmentId, submissionId }: PrivateComme
             createComment={createComment}
             creating={creating}
             canComment={submissionId !== null}
-            placeholder="Thêm nhận xét riêng tư..."
-            submitButtonText="Đăng"
+            placeholder={t('comments.addPrivateComment')}
+            submitButtonText={t('comments.post')}
         />
     );
 }
 
 export function ClassCommentsCard() {
+    const t = useTranslations('assignment');
+    
     return (
         <Card>
             <CardContent className="p-4">
                 <div className="flex items-center space-x-3">
                     <Users className="h-5 w-5 text-muted-foreground" />
-                    <p className="text-sm font-medium">Nhận xét của lớp học</p>
+                    <p className="text-sm font-medium">{t('comments.classComments')}</p>
                 </div>
                 <button className="mt-3 w-full rounded-lg border p-3 text-left text-sm text-muted-foreground hover:bg-muted/50">
-                    Thêm nhận xét trong lớp học...
+                    {t('comments.addClassComment')}
                 </button>
             </CardContent>
         </Card>

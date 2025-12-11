@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/auth/AuthContext';
 import toastHelper from '@/utils/toast.helper';
 import { MessageCircle } from 'lucide-react';
 import CommentInput from '@/app/[locale]/teacher/class-based/[id]/assignments/[assignmentId]/details/components/CommentInput';
+import { useTranslations } from 'next-intl';
 
 export interface PublicCommentSectionProps {
     // Data hooks
@@ -34,20 +35,23 @@ function PublicCommentSection({
     refetch,
     createComment,
     creating,
-    title = 'Nhận xét công khai',
+    title,
     commentInputComponent: CommentInputComponent = CommentInput,
 }: PublicCommentSectionProps) {
+    const t = useTranslations('classBased.comment');
     const { user } = useAuth();
     const { updateComment } = useUpdateComment();
     const { deleteComment } = useDeleteComment();
+    
+    const sectionTitle = title || t('section.title');
 
     const handleCreateComment = async (content: string) => {
         try {
             await createComment({ content });
-            toastHelper.showSuccessMessage('Đã thêm nhận xét thành công');
+            toastHelper.showSuccessMessage(t('toast.createSuccess'));
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể thêm nhận xét. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(t('toast.createError'));
             throw error;
         }
     };
@@ -55,10 +59,10 @@ function PublicCommentSection({
     const handleReply = async (commentId: number, content: string) => {
         try {
             await createComment({ content, parentCommentId: commentId });
-            toastHelper.showSuccessMessage('Đã thêm phản hồi thành công');
+            toastHelper.showSuccessMessage(t('toast.replySuccess'));
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể thêm phản hồi. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(t('toast.replyError'));
             throw error;
         }
     };
@@ -66,25 +70,25 @@ function PublicCommentSection({
     const handleUpdateComment = async (commentId: number, content: string) => {
         try {
             await updateComment(commentId, { content });
-            toastHelper.showSuccessMessage('Đã cập nhật nhận xét thành công');
+            toastHelper.showSuccessMessage(t('toast.updateSuccess'));
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể cập nhật nhận xét. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(t('toast.updateError'));
             throw error;
         }
     };
 
     const handleDeleteComment = async (commentId: number) => {
-        if (!confirm('Bạn có chắc chắn muốn xóa nhận xét này?')) {
+        if (!confirm(t('toast.deleteConfirm'))) {
             return;
         }
 
         try {
             await deleteComment(commentId);
-            toastHelper.showSuccessMessage('Đã xóa nhận xét thành công');
+            toastHelper.showSuccessMessage(t('toast.deleteSuccess'));
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể xóa nhận xét. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(t('toast.deleteError'));
         }
     };
 
@@ -93,7 +97,7 @@ function PublicCommentSection({
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <MessageCircle className="h-5 w-5" />
-                    {title}
+                    {sectionTitle}
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

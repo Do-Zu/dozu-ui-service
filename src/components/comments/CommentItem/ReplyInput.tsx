@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Send, X } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { getInitials } from '../utils/format';
+import { useTranslations } from 'next-intl';
 
 interface ReplyInputProps {
     onReply: (content: string) => Promise<void>;
@@ -14,6 +15,7 @@ interface ReplyInputProps {
 }
 
 export default function ReplyInput({ onReply, onCancel }: ReplyInputProps) {
+    const t = useTranslations('classBased.comment');
     const { user } = useAuth();
     const [replyContent, setReplyContent] = useState('');
     const [replying, setReplying] = useState(false);
@@ -46,7 +48,7 @@ export default function ReplyInput({ onReply, onCancel }: ReplyInputProps) {
                     <Textarea
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
-                        placeholder="Viết phản hồi..."
+                        placeholder={t('placeholders.writeReply')}
                         className="min-h-[60px] text-sm"
                         disabled={replying}
                         onKeyDown={(e) => {

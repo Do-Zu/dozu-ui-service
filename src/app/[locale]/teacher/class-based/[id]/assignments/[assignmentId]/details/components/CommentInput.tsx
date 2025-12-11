@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Send, Bold, Italic, Underline, List, X } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
+import { useTranslations } from 'next-intl';
 
 interface CommentInputProps {
     onSubmit: (content: string) => Promise<void>;
@@ -12,10 +13,13 @@ interface CommentInputProps {
     placeholder?: string;
 }
 
-export default function CommentInput({ onSubmit, loading = false, placeholder = 'Thêm nhận xét trong lớp học...' }: CommentInputProps) {
+export default function CommentInput({ onSubmit, loading = false, placeholder }: CommentInputProps) {
+    const t = useTranslations('assignment');
     const { user } = useAuth();
     const [content, setContent] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    
+    const defaultPlaceholder = placeholder || t('comments.addClassComment');
 
     const getInitials = (name: string | null, username: string) => {
         if (name && name.trim()) {
@@ -194,7 +198,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder = 
                         value={content}
                         onChange={handleInput}
                         onKeyDown={handleKeyDown}
-                        placeholder={placeholder}
+                        placeholder={defaultPlaceholder}
                         className="w-full min-h-[60px] max-h-[200px] px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                         rows={2}
                         disabled={loading}
@@ -209,7 +213,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder = 
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => applyFormatting('bold')}
-                            title="Bold"
+                            title={t('comments.tooltips.bold', { defaultValue: 'Bold' })}
                         >
                             <Bold className="h-4 w-4" />
                         </Button>
@@ -219,7 +223,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder = 
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => applyFormatting('italic')}
-                            title="Italic"
+                            title={t('comments.tooltips.italic', { defaultValue: 'Italic' })}
                         >
                             <Italic className="h-4 w-4" />
                         </Button>
@@ -229,7 +233,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder = 
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => applyFormatting('underline')}
-                            title="Underline"
+                            title={t('comments.tooltips.underline', { defaultValue: 'Underline' })}
                         >
                             <Underline className="h-4 w-4" />
                         </Button>
@@ -239,7 +243,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder = 
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => applyFormatting('list')}
-                            title="List"
+                            title={t('comments.tooltips.list', { defaultValue: 'List' })}
                         >
                             <List className="h-4 w-4" />
                         </Button>
@@ -249,7 +253,7 @@ export default function CommentInput({ onSubmit, loading = false, placeholder = 
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => applyFormatting('clear')}
-                            title="Clear formatting"
+                            title={t('comments.tooltips.clearFormatting', { defaultValue: 'Clear formatting' })}
                         >
                             <X className="h-4 w-4" />
                         </Button>

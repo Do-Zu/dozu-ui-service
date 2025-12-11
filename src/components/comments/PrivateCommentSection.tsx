@@ -8,6 +8,7 @@ import CommentList from '@/components/comments/CommentList';
 import { useUpdateComment, useDeleteComment, IPublicComment, ICreatePublicCommentBody } from '@/services/class-based-learning/comment';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import toastHelper from '@/utils/toast.helper';
+import { useTranslations } from 'next-intl';
 
 export interface PrivateCommentSectionProps {
     // Data hooks
@@ -36,27 +37,34 @@ export default function PrivateCommentSection({
     createComment,
     creating,
     canComment,
-    title = 'Nhận xét riêng tư',
-    placeholder = 'Thêm nhận xét riêng tư...',
-    submitButtonText = 'Gửi',
-    creatingText = 'Đang gửi...',
+    title,
+    placeholder,
+    submitButtonText,
+    creatingText,
     showCommentsOnlyWhenHasData = true,
 }: PrivateCommentSectionProps) {
+    const t = useTranslations('assignment.comments');
+    const tComment = useTranslations('classBased.comment');
     const { user } = useAuth();
     const [commentContent, setCommentContent] = useState('');
     const { updateComment } = useUpdateComment();
     const { deleteComment } = useDeleteComment();
+    
+    const defaultTitle = title || t('privateComment');
+    const defaultPlaceholder = placeholder || t('addPrivateComment');
+    const defaultSubmitText = submitButtonText || t('send');
+    const defaultCreatingText = creatingText || t('sending');
 
     const handleCreateComment = async () => {
         if (!commentContent.trim() || creating) return;
 
         try {
             await createComment({ content: commentContent.trim() });
-            toastHelper.showSuccessMessage('Đã thêm nhận xét thành công');
+            toastHelper.showSuccessMessage(tComment('toast.createSuccess'));
             setCommentContent('');
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể thêm nhận xét. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(tComment('toast.createError'));
         }
     };
 
@@ -65,47 +73,47 @@ export default function PrivateCommentSection({
 
         try {
             await createComment({ content, parentCommentId: commentId });
-            toastHelper.showSuccessMessage('Đã thêm phản hồi thành công');
+            toastHelper.showSuccessMessage(tComment('toast.replySuccess'));
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể thêm phản hồi. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(tComment('toast.replyError'));
         }
     };
 
     const handleUpdateComment = async (commentId: number, content: string) => {
         try {
             await updateComment(commentId, { content });
-            toastHelper.showSuccessMessage('Đã cập nhật nhận xét thành công');
+            toastHelper.showSuccessMessage(tComment('toast.updateSuccess'));
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể cập nhật nhận xét. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(tComment('toast.updateError'));
         }
     };
 
     const handleDeleteComment = async (commentId: number) => {
-        if (!confirm('Bạn có chắc chắn muốn xóa nhận xét này?')) {
+        if (!confirm(tComment('toast.deleteConfirm'))) {
             return;
         }
 
         try {
             await deleteComment(commentId);
-            toastHelper.showSuccessMessage('Đã xóa nhận xét thành công');
+            toastHelper.showSuccessMessage(tComment('toast.deleteSuccess'));
             refetch();
         } catch (error) {
-            toastHelper.showErrorMessage('Không thể xóa nhận xét. Vui lòng thử lại.');
+            toastHelper.showErrorMessage(tComment('toast.deleteError'));
         }
     };
 
     return (
         <Card>
             <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+                <CardTitle className="text-lg font-semibold">{defaultTitle}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                 {canComment && (
                     <div className="space-y-2">
                         <Textarea
-                            placeholder={placeholder}
+                            placeholder={defaultPlaceholder}
                             className="min-h-[80px] resize-y"
                             value={commentContent}
                             onChange={(e) => setCommentContent(e.target.value)}
@@ -124,7 +132,7 @@ export default function PrivateCommentSection({
                                 onClick={handleCreateComment}
                                 disabled={!commentContent.trim() || creating}
                             >
-                                {creating ? creatingText : submitButtonText}
+                                {creating ? defaultCreatingText : defaultSubmitText}
                             </Button>
                         </div>
                     </div>

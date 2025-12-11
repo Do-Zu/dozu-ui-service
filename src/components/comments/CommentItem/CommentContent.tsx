@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Check, X as XIcon } from 'lucide-react';
 import { renderMarkdown } from '../utils/markdown';
+import { useTranslations } from 'next-intl';
 
 interface CommentContentProps {
     content: string;
@@ -25,6 +26,7 @@ export default function CommentContent({
     onCancelEdit,
     updating,
 }: CommentContentProps) {
+    const t = useTranslations('classBased.comment');
     const [editContent, setEditContent] = useState(content);
     const editTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -79,7 +81,7 @@ export default function CommentContent({
                         disabled={!editContent.trim() || updating || editContent === content}
                     >
                         <Check className="h-4 w-4 mr-1" />
-                        Lưu
+                        {t('actions.save')}
                     </Button>
                     <Button
                         size="sm"
@@ -88,7 +90,7 @@ export default function CommentContent({
                         disabled={updating}
                     >
                         <XIcon className="h-4 w-4 mr-1" />
-                        Hủy
+                        {t('actions.cancel')}
                     </Button>
                 </div>
             </div>
@@ -114,7 +116,7 @@ export default function CommentContent({
             />
             {isEdited && (
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 italic">
-                    (Đã chỉnh sửa)
+                    {t('card.edited')}
                 </p>
             )}
         </div>

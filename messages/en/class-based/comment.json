@@ -16,16 +16,29 @@
                 "mustLogin": "You must be logged in to post a comment.",
                 "failedLoadComments": "Failed to load comments.",
                 "failedLoadReplies": "Failed to load replies",
-                "comingSoon": "Coming Soon!"
+                "comingSoon": "Coming Soon!",
+                "createSuccess": "Comment added successfully",
+                "createError": "Failed to add comment. Please try again.",
+                "replySuccess": "Reply added successfully",
+                "replyError": "Failed to add reply. Please try again.",
+                "updateSuccess": "Comment updated successfully",
+                "updateError": "Failed to update comment. Please try again.",
+                "deleteSuccess": "Comment deleted successfully",
+                "deleteError": "Failed to delete comment. Please try again.",
+                "deleteConfirm": "Are you sure you want to delete this comment?"
             },
             "actions": {
                 "comment": "Comment",
                 "reply": "Reply",
-                "cancel": "Cancel"
+                "cancel": "Cancel",
+                "edit": "Edit",
+                "delete": "Delete",
+                "save": "Save"
             },
             "placeholders": {
                 "root": "Share your thoughts...",
-                "reply": "Write a thoughtful reply..."
+                "reply": "Write a thoughtful reply...",
+                "writeReply": "Write a reply..."
             },
             "replyingTo": {
                 "label": "Replying to:",
@@ -42,7 +55,12 @@
                     "viewReplies": "View replies",
                     "moreOptions": "More options"
                 },
-                "timeAgo": "ago"
+                "timeAgo": "ago",
+                "edited": "(Edited)"
+            },
+            "labels": {
+                "you": "You",
+                "user": "User"
             },
             "input": {
                 "replyingToLabel": "💬 Replying to:",
@@ -58,6 +76,9 @@
                     "reply": "Reply",
                     "comment": "Comment"
                 }
+            },
+            "section": {
+                "title": "Public Comments"
             }
         }
     }

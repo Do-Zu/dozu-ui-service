@@ -1,15 +1,18 @@
 import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { vi, enUS } from 'date-fns/locale';
 
 /**
- * Format date to relative time (e.g., "2 giờ trước")
+ * Format date to relative time (e.g., "2 giờ trước" or "2 hours ago")
+ * @param date - The date to format
+ * @param locale - The locale string ('vi' or 'en')
  */
-export const formatRelativeTime = (date: string | Date): string => {
+export const formatRelativeTime = (date: string | Date, locale: string = 'vi'): string => {
     try {
         const dateObj = typeof date === 'string' ? new Date(date) : date;
-        return formatDistanceToNow(dateObj, { addSuffix: true, locale: vi });
+        const dateFnsLocale = locale === 'vi' ? vi : enUS;
+        return formatDistanceToNow(dateObj, { addSuffix: true, locale: dateFnsLocale });
     } catch {
-        return 'Vừa xong';
+        return locale === 'vi' ? 'Vừa xong' : 'Just now';
     }
 };
 
