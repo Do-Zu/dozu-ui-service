@@ -13,10 +13,13 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, X, FileText, Users, Link2, Upload } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import UrlAttachmentItem from '@/app/[locale]/class-based/(classwork)/components/common/UrlAttachmentItem';
+import UrlAttachmentModal from '@/app/[locale]/class-based/(classwork)/components/common/UrlAttachmentModal';
 
 interface Props {
     submission: IAssignmentSubmission;
     attachments: IAttachment[];
+    urlAttachments: string[];
     onSubmit: ({
         data,
         files,
@@ -27,9 +30,12 @@ interface Props {
     loading: boolean;
 }
 
-export function SubmissionCard({ submission, attachments, onSubmit, loading }: Props) {
+export function SubmissionCard({ submission, attachments, urlAttachments, onSubmit, loading }: Props) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [files, setFiles] = useState<File[]>([]);
+    const [urls, setUrls] = useState<string[]>([]);
+    //modal open
+    const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files) return;
@@ -43,9 +49,10 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
     };
 
     async function handleSubmit() {
-        const data = { status: AssignmentSubmissionStatusEnum.SUBMITTED };
+        const data = { status: AssignmentSubmissionStatusEnum.SUBMITTED, urls: [...urlAttachments, ...urls] };
         await onSubmit({ data, files });
         setFiles([]);
+        setUrls([]);
     }
 
     function handleFileRemove(index: number) {
@@ -69,18 +76,36 @@ export function SubmissionCard({ submission, attachments, onSubmit, loading }: P
                             onRemove={() => handleFileRemove(index)}
                         />
                     ))}
+                    {urls?.map((u, i) => (
+                        <FileItem
+                            key={i}
+                            title={'link'}
+                            url={u}
+                            onRemove={() => setUrls(urls.filter((_, idx) => idx !== i))}
+                        />
+                    ))}
                     {attachments.map((attachment) => (
                         <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
+                    ))}
+                    {urlAttachments.map((url) => (
+                        <UrlAttachmentItem url={url} />
                     ))}
                 </div>
 
                 <div className="flex flex-wrap gap-4">
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => setIsUrlModalOpen(true)}>
                         <Link2 className="mr-2 h-4 w-4" /> Liên kết
                     </Button>
                     <Button variant="outline" onClick={handleUploadClick}>
                         <Upload className="mr-2 h-4 w-4" /> Tải lên Tệp
                     </Button>
+                    <UrlAttachmentModal
+                        open={isUrlModalOpen}
+                        onClose={() => setIsUrlModalOpen(false)}
+                        onSubmit={(link) => {
+                            setUrls((prev) => [...prev, link]);
+                        }}
+                    />
                     <input type="file" multiple ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
                 </div>
                 <Button className="w-full" onClick={handleSubmit} disabled={loading}>

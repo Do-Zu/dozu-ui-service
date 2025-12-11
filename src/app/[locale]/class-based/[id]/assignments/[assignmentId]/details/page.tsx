@@ -168,13 +168,14 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
                 <Separator />
 
-                <AttachmentsViewSection attachments={assignmentAttachments} urls={assignment.urls}/>
+                <AttachmentsViewSection attachments={assignmentAttachments} urls={assignment.urls} />
             </div>
 
             <div className="lg:col-span-2 space-y-6">
                 <SubmissionCard
                     submission={submission}
                     attachments={submissionAttachments}
+                    urlAttachments={submission.urls || []}
                     onSubmit={onSubmit}
                     loading={updateLoading}
                 />
