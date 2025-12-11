@@ -10,6 +10,13 @@ import {
     PDFDocumentLoadingTask,
 } from 'pdfjs-dist/types/src/display/api';
 
+interface ExecuteOptions {
+    onSuccess?: (text: string, file: File) => void;
+    onError?: (error: string, file: File) => void;
+    onBefore?: (file: File) => void;
+    onAfter?: (file: File) => void;
+}
+
 const useReaderFile = (fileInit?: File) => {
     const [file, setFile] = useState<File | undefined>(fileInit);
     const [text, setText] = useState<string | null>(null);
@@ -57,6 +64,8 @@ const useReaderFile = (fileInit?: File) => {
 
         const reader = new FileReader();
 
+        let extractContent = '';
+
         reader.onload = async (e) => {
             try {
                 const arrayBuffer = e.target?.result as ArrayBuffer;
@@ -76,10 +85,14 @@ const useReaderFile = (fileInit?: File) => {
                 const result = await mammoth.extractRawText({ arrayBuffer });
                 // The raw text content
                 const content = result.value;
+
                 if (!content) {
                     setError('Error extracting text: Empty content');
                     return;
                 }
+
+                extractContent = content;
+
                 setText(content);
             } catch (err) {
                 setError(`Error processing DOCX file`);
@@ -95,6 +108,8 @@ const useReaderFile = (fileInit?: File) => {
         };
 
         reader.readAsArrayBuffer(file);
+
+        return extractContent;
     }, [file]);
 
     const handleExtractTxtToText = useCallback(() => {
@@ -109,6 +124,8 @@ const useReaderFile = (fileInit?: File) => {
 
         const reader = new FileReader();
 
+        let extractContent = '';
+
         reader.onload = (e) => {
             try {
                 const content = e.target?.result as string;
@@ -118,7 +135,8 @@ const useReaderFile = (fileInit?: File) => {
                     return;
                 }
 
-                console.log(`Text file loaded successfully, ${content.length} characters`);
+                extractContent = content;
+
                 setText(content);
             } catch (err) {
                 console.error('Error processing text file:', err);
@@ -144,6 +162,8 @@ const useReaderFile = (fileInit?: File) => {
         } finally {
             setLoading(false);
         }
+
+        return extractContent;
     }, [file]);
 
     /**
@@ -168,9 +188,12 @@ const useReaderFile = (fileInit?: File) => {
 
         const reader = new FileReader();
 
+        let fullText = '';
+
         reader.onload = async (e) => {
             try {
                 const arrayBuffer = e.target?.result as ArrayBuffer;
+
                 if (!arrayBuffer) {
                     setError('Error reading file.!');
                     setLoading(false);
@@ -189,8 +212,6 @@ const useReaderFile = (fileInit?: File) => {
                     setNumPages(pdf.numPages);
                 }
 
-                let fullText = '';
-
                 // Loop through each page
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
@@ -206,11 +227,13 @@ const useReaderFile = (fileInit?: File) => {
 
                 setText(fullText.trim());
             } catch (error) {
-                console.error('Error reading PDF:', error);
                 setError('Error reading file pdf.');
+                return '';
             } finally {
                 setLoading(false);
             }
+
+            return fullText;
         };
 
         reader.onerror = (e) => {
@@ -267,6 +290,7 @@ const useReaderFile = (fileInit?: File) => {
 
             // Load PDF library when needed
             const pdfGetDocument = await loadPdfLibrary();
+
             if (!pdfGetDocument) {
                 setLoading(false);
                 setError('No PDF library available.');
@@ -279,6 +303,7 @@ const useReaderFile = (fileInit?: File) => {
                 reader.onload = async (e) => {
                     try {
                         const arrayBuffer = e.target?.result as ArrayBuffer;
+
                         if (!arrayBuffer) {
                             setError('Error reading file.!');
                             setLoading(false);
@@ -349,6 +374,59 @@ const useReaderFile = (fileInit?: File) => {
         [file, loadPdfLibrary],
     );
 
+    const execute = useCallback(
+        async (targetFile: File, options?: ExecuteOptions) => {
+            const { onSuccess, onError, onBefore, onAfter } = options || {};
+
+            // Set the file temporarily for processing
+            const originalFile = file;
+            setFile(targetFile);
+            setLoading(true);
+            setError(null);
+            setText(null);
+
+            try {
+                // Call onBefore callback
+                onBefore?.(targetFile);
+
+                let extractedText = '';
+
+                // Determine file type and extract accordingly
+                if (targetFile.type === 'application/pdf') {
+                    handleExtractPdfToText();
+                } else if (targetFile.type === 'text/plain') {
+                    handleExtractTxtToText();
+                } else if (
+                    targetFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+                    targetFile.type === 'application/msword' ||
+                    targetFile.type === 'application/docx'
+                ) {
+                    handleExtractDocxToText();
+                } else {
+                    throw new Error('Unsupported file type. Please select a PDF, TXT, or DOCX file.');
+                }
+
+                if (!extractedText) {
+                    throw new Error('No text content extracted from file');
+                }
+
+                setText(extractedText.trim());
+
+                onSuccess?.(extractedText.trim(), targetFile);
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+                setError(errorMessage);
+                onError?.(errorMessage, targetFile);
+            } finally {
+                setLoading(false);
+                onAfter?.(targetFile);
+                // Restore original file
+                setFile(originalFile);
+            }
+        },
+        [file, loadPdfLibrary],
+    );
+
     // Process file when file changes
     useEffect(() => {
         if (file && !loading && !text && !error) {
@@ -371,6 +449,7 @@ const useReaderFile = (fileInit?: File) => {
         fileSize: file?.size,
         fileType: file?.type,
         extractTextByRange: handleExtractPdfToTextByRange,
+        execute,
     };
 };
 
