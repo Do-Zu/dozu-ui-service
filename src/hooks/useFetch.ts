@@ -3,7 +3,7 @@ import { FetchOptions, METHOD } from './type';
 import { callApiAsync } from './helper';
 import { z } from 'zod';
 import { AxiosError } from 'axios';
-import { isEmpty, isNilOrEmpty } from '@/utils';
+import { isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
 
 /**
  * Custom hook for fetching data from an API or via a provided function with Zod validation
@@ -26,6 +26,8 @@ interface Options<Z> {
     onSuccess?: (...args: any[]) => void;
     onError?: (...args: any[]) => void;
     onEmpty?: (...args: any[]) => void;
+    onBefore?: () => void;
+    onAfter?: () => void;
 }
 
 function useFetch<T, Z = T>(
@@ -33,6 +35,7 @@ function useFetch<T, Z = T>(
     options?: Options<Z>,
     fetchOptions?: FetchOptions,
 ) {
+    const { onBefore, onAfter } = safeDestructure(options);
     const selector = options?.selector;
     const schema = options?.schema;
     const shouldRun = !isNilOrEmpty(options?.shouldRun) ? options?.shouldRun : true;
@@ -53,6 +56,8 @@ function useFetch<T, Z = T>(
             // Create a new abort controller for this request and store it in a local variable
             const currentController = new AbortController();
             abortControllerRef.current = currentController;
+
+            onBefore?.();
 
             try {
                 setLoading(true);
@@ -92,10 +97,10 @@ function useFetch<T, Z = T>(
 
                 setData(finalData);
 
-                if (isEmpty(finalData as unknown)) {
+                if (isEmpty(finalData)) {
                     options?.onEmpty?.();
                 } else {
-                    options?.onSuccess?.(data);
+                    options?.onSuccess?.(finalData);
                 }
             } catch (error) {
                 if (error instanceof DOMException && error.name === 'AbortError') {
@@ -113,6 +118,7 @@ function useFetch<T, Z = T>(
                 if (!currentController.signal.aborted) {
                     setLoading(false);
                 }
+                onAfter?.();
             }
         },
         [param, selector, schema, fetchOptions],
