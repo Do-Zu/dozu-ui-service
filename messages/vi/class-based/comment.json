@@ -25,7 +25,8 @@
                 "updateError": "Không thể cập nhật nhận xét. Vui lòng thử lại.",
                 "deleteSuccess": "Đã xóa nhận xét thành công",
                 "deleteError": "Không thể xóa nhận xét. Vui lòng thử lại.",
-                "deleteConfirm": "Bạn có chắc chắn muốn xóa nhận xét này?"
+                "deleteTitle": "Xóa bình luận?",
+                "deleteConfirm": "Bạn có chắc chắn muốn xóa nhận xét này không?"
             },
             "actions": {
                 "comment": "Bình luận",

@@ -12,6 +12,7 @@ export interface CommentListProps {
     onDelete?: (commentId: number) => void;
     onReply?: (commentId: number, content: string) => Promise<void>;
     currentUserId?: number;
+    flatMode?: boolean; // If true, display comments in flat list without nested replies
 }
 
 export default function CommentList({
@@ -21,6 +22,7 @@ export default function CommentList({
     onDelete,
     onReply,
     currentUserId,
+    flatMode = false,
 }: CommentListProps) {
     // Loading state
     if (loading && comments.length === 0) {
@@ -48,20 +50,53 @@ export default function CommentList({
         );
     }
 
+    // Flatten comments if flatMode is enabled and create parent map
+    let displayComments: IPublicComment[] = comments;
+    const parentCommentMap = new Map<number, IPublicComment>();
+
+    if (flatMode) {
+        // Build parent map first
+        comments.forEach((comment) => {
+            parentCommentMap.set(comment.commentId, comment);
+            if (comment.replies) {
+                comment.replies.forEach((reply) => {
+                    parentCommentMap.set(reply.commentId, reply);
+                });
+            }
+        });
+
+        // Flatten comments
+        displayComments = comments.reduce<IPublicComment[]>((acc, comment) => {
+            acc.push(comment);
+            if (comment.replies && comment.replies.length > 0) {
+                acc.push(...comment.replies);
+            }
+            return acc;
+        }, []);
+    }
+
     // Render comments
     return (
         <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-3">
-                {comments.map((comment) => (
-                    <CommentItem
-                        key={`comment-${comment.commentId}-${comment.updatedAt || comment.createdAt}`}
-                        comment={comment}
-                        currentUserId={currentUserId}
-                        onUpdate={onUpdate}
-                        onDelete={onDelete}
-                        onReply={onReply}
-                    />
-                ))}
+                {displayComments.map((comment) => {
+                    const parentComment = flatMode && comment.parentCommentId 
+                        ? parentCommentMap.get(comment.parentCommentId) 
+                        : null;
+
+                    return (
+                        <CommentItem
+                            key={`comment-${comment.commentId}-${comment.updatedAt || comment.createdAt}`}
+                            comment={flatMode ? { ...comment, replies: [] } : comment}
+                            currentUserId={currentUserId}
+                            onUpdate={onUpdate}
+                            onDelete={onDelete}
+                            onReply={onReply}
+                            parentComment={parentComment || undefined}
+                            isFlatMode={flatMode}
+                        />
+                    );
+                })}
             </div>
         </ScrollArea>
     );

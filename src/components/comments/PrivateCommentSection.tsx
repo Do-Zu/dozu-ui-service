@@ -4,6 +4,16 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import CommentList from '@/components/comments/CommentList';
 import { useUpdateComment, useDeleteComment, IPublicComment, ICreatePublicCommentBody } from '@/services/class-based-learning/comment';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -27,6 +37,7 @@ export interface PrivateCommentSectionProps {
     submitButtonText?: string;
     creatingText?: string;
     showCommentsOnlyWhenHasData?: boolean;
+    flatMode?: boolean; // If true, display comments in flat list without nested replies
 }
 
 export default function PrivateCommentSection({
@@ -42,11 +53,14 @@ export default function PrivateCommentSection({
     submitButtonText,
     creatingText,
     showCommentsOnlyWhenHasData = true,
+    flatMode = false,
 }: PrivateCommentSectionProps) {
     const t = useTranslations('assignment.comments');
     const tComment = useTranslations('classBased.comment');
     const { user } = useAuth();
     const [commentContent, setCommentContent] = useState('');
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [commentIdToDelete, setCommentIdToDelete] = useState<number | null>(null);
     const { updateComment } = useUpdateComment();
     const { deleteComment } = useDeleteComment();
     
@@ -90,15 +104,20 @@ export default function PrivateCommentSection({
         }
     };
 
-    const handleDeleteComment = async (commentId: number) => {
-        if (!confirm(tComment('toast.deleteConfirm'))) {
-            return;
-        }
+    const handleDeleteClick = (commentId: number) => {
+        setCommentIdToDelete(commentId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!commentIdToDelete) return;
 
         try {
-            await deleteComment(commentId);
+            await deleteComment(commentIdToDelete);
             toastHelper.showSuccessMessage(tComment('toast.deleteSuccess'));
             refetch();
+            setDeleteDialogOpen(false);
+            setCommentIdToDelete(null);
         } catch (error) {
             toastHelper.showErrorMessage(tComment('toast.deleteError'));
         }
@@ -111,10 +130,10 @@ export default function PrivateCommentSection({
             </CardHeader>
             <CardContent className="space-y-4">
                 {canComment && (
-                    <div className="space-y-2">
+                    <div className="flex items-end gap-2">
                         <Textarea
                             placeholder={defaultPlaceholder}
-                            className="min-h-[80px] resize-y"
+                            className="min-h-[60px] flex-1 resize-none"
                             value={commentContent}
                             onChange={(e) => setCommentContent(e.target.value)}
                             disabled={creating}
@@ -125,16 +144,15 @@ export default function PrivateCommentSection({
                                 }
                             }}
                         />
-                        <div className="flex justify-end">
-                            <Button
-                                variant="default"
-                                size="sm"
-                                onClick={handleCreateComment}
-                                disabled={!commentContent.trim() || creating}
-                            >
-                                {creating ? defaultCreatingText : defaultSubmitText}
-                            </Button>
-                        </div>
+                        <Button
+                            variant="default"
+                            size="sm"
+                            onClick={handleCreateComment}
+                            disabled={!commentContent.trim() || creating}
+                            className="shrink-0"
+                        >
+                            {creating ? defaultCreatingText : defaultSubmitText}
+                        </Button>
                     </div>
                 )}
 
@@ -150,13 +168,36 @@ export default function PrivateCommentSection({
                             comments={comments}
                             loading={loading}
                             onUpdate={handleUpdateComment}
-                            onDelete={handleDeleteComment}
+                            onDelete={handleDeleteClick}
                             onReply={handleReply}
                             currentUserId={user?.userId ? Number(user.userId) : undefined}
+                            flatMode={flatMode}
                         />
                     </div>
                 )}
             </CardContent>
+
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{tComment('toast.deleteTitle')}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {tComment('toast.deleteConfirm')}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setCommentIdToDelete(null)}>
+                            {tComment('actions.cancel')}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {tComment('actions.delete')}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Card>
     );
 }

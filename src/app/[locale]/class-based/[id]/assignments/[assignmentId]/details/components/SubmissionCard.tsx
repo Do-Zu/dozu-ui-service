@@ -128,6 +128,7 @@ export function PrivateCommentsCard({ assignmentId, submissionId }: PrivateComme
             canComment={submissionId !== null}
             placeholder={t('comments.addPrivateComment')}
             submitButtonText={t('comments.post')}
+            flatMode={true}
         />
     );
 }

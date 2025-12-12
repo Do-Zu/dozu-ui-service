@@ -36,20 +36,20 @@ export default function ReplyInput({ onReply, onCancel }: ReplyInputProps) {
     };
 
     return (
-        <div className="mt-3 space-y-2">
-            <div className="flex items-start gap-2">
+        <div className="mt-2 w-full">
+            <div className="flex items-start gap-2 w-full">
                 <Avatar className="h-6 w-6 flex-shrink-0">
                     <AvatarImage src={user?.avatarUrl || undefined} alt={user?.username || 'User'} />
                     <AvatarFallback className="bg-muted text-muted-foreground text-[10px]">
                         {getInitials(user?.fullName || null, user?.username || '')}
                     </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 flex items-end gap-2">
+                <div className="flex-1 relative w-full min-w-0">
                     <Textarea
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder={t('placeholders.writeReply')}
-                        className="min-h-[60px] text-sm"
+                        className="min-h-[60px] text-sm pr-12 w-full"
                         disabled={replying}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -58,24 +58,17 @@ export default function ReplyInput({ onReply, onCancel }: ReplyInputProps) {
                             }
                         }}
                     />
-                    <Button
-                        size="sm"
-                        onClick={handleSubmit}
-                        disabled={!replyContent.trim() || replying}
-                    >
-                        <Send className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                            setReplyContent('');
-                            onCancel();
-                        }}
-                        disabled={replying}
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
+                    <div className="absolute bottom-2 right-2 flex items-center gap-1">
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7"
+                            onClick={handleSubmit}
+                            disabled={!replyContent.trim() || replying}
+                        >
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,8 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import CommentList from '@/components/comments/CommentList';
 import { useUpdateComment, useDeleteComment, IPublicComment, ICreatePublicCommentBody } from '@/services/class-based-learning/comment';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -40,6 +50,8 @@ function PublicCommentSection({
 }: PublicCommentSectionProps) {
     const t = useTranslations('classBased.comment');
     const { user } = useAuth();
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [commentIdToDelete, setCommentIdToDelete] = useState<number | null>(null);
     const { updateComment } = useUpdateComment();
     const { deleteComment } = useDeleteComment();
     
@@ -78,15 +90,20 @@ function PublicCommentSection({
         }
     };
 
-    const handleDeleteComment = async (commentId: number) => {
-        if (!confirm(t('toast.deleteConfirm'))) {
-            return;
-        }
+    const handleDeleteClick = (commentId: number) => {
+        setCommentIdToDelete(commentId);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!commentIdToDelete) return;
 
         try {
-            await deleteComment(commentId);
+            await deleteComment(commentIdToDelete);
             toastHelper.showSuccessMessage(t('toast.deleteSuccess'));
             refetch();
+            setDeleteDialogOpen(false);
+            setCommentIdToDelete(null);
         } catch (error) {
             toastHelper.showErrorMessage(t('toast.deleteError'));
         }
@@ -112,11 +129,33 @@ function PublicCommentSection({
                     comments={comments}
                     loading={loading}
                     onUpdate={handleUpdateComment}
-                    onDelete={handleDeleteComment}
+                    onDelete={handleDeleteClick}
                     onReply={handleReply}
                     currentUserId={user?.userId ? Number(user.userId) : undefined}
                 />
             </CardContent>
+
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{t('toast.deleteTitle')}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {t('toast.deleteConfirm')}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setCommentIdToDelete(null)}>
+                            {t('actions.cancel')}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {t('actions.delete')}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Card>
     );
 }

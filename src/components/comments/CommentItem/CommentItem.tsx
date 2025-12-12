@@ -16,6 +16,8 @@ interface CommentItemProps {
     onDelete?: (commentId: number) => void;
     onReply?: (commentId: number, content: string) => Promise<void>;
     level?: number;
+    parentComment?: IPublicComment; // Parent comment for flat mode
+    isFlatMode?: boolean; // Whether this is in flat mode
 }
 
 export default function CommentItem({
@@ -25,6 +27,8 @@ export default function CommentItem({
     onDelete,
     onReply,
     level = 0,
+    parentComment,
+    isFlatMode = false,
 }: CommentItemProps) {
     const t = useTranslations('classBased.comment');
     const locale = useLocale();
@@ -85,9 +89,11 @@ export default function CommentItem({
         }
     };
 
+    const isReply = isFlatMode && comment.parentCommentId !== null;
+
     return (
-        <div className={level > 0 ? 'relative pl-8 mt-2' : ''}>
-            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors relative z-10 bg-background border border-border">
+        <div className={level > 0 ? 'relative pl-4 mt-2' : ''}>
+            <div className={`flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors relative z-10 bg-background border border-border ${isReply && isFlatMode ? 'pl-4 border-l-2 border-l-primary/30' : ''}`}>
                 <Avatar className="h-8 w-8 flex-shrink-0">
                     <AvatarImage src={sender?.avatarUrl || undefined} alt={sender?.username || 'User'} />
                     <AvatarFallback className="bg-muted text-muted-foreground text-xs">
@@ -95,7 +101,20 @@ export default function CommentItem({
                     </AvatarFallback>
                 </Avatar>
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 w-full">
+                    {/* Reply indicator for flat mode */}
+                    {isReply && isFlatMode && parentComment && (
+                        <div className="mb-1 text-xs text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                                <span>↳</span>
+                                <span>{t('card.replyingTo')}</span>
+                                <span className="font-medium text-foreground">
+                                    {parentComment.sender?.fullName || parentComment.sender?.username || t('labels.user')}
+                                </span>
+                            </span>
+                        </div>
+                    )}
+
                     {/* Header: Name, badge, timestamp */}
                     <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium text-sm text-foreground">
@@ -133,17 +152,19 @@ export default function CommentItem({
 
                     {/* Reply input */}
                     {showReplyInput && onReply && (
-                        <ReplyInput
-                            onReply={handleReply}
-                            onCancel={() => setShowReplyInput(false)}
-                        />
+                        <div className="w-full overflow-visible">
+                            <ReplyInput
+                                onReply={handleReply}
+                                onCancel={() => setShowReplyInput(false)}
+                            />
+                        </div>
                     )}
                 </div>
             </div>
 
             {/* Render replies recursively - infinite tree support */}
             {hasReplies && (
-                <div className="mt-2 ml-8 relative space-y-2">
+                <div className="mt-2 ml-4 relative space-y-2">
                     {replies.map((reply) => (
                         <CommentItem
                             key={`reply-${reply.commentId}-${reply.updatedAt || reply.createdAt}`}
