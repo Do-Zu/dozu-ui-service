@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Send } from 'lucide-react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -130,10 +131,10 @@ export default function PrivateCommentSection({
             </CardHeader>
             <CardContent className="space-y-4">
                 {canComment && (
-                    <div className="flex items-end gap-2">
+                    <div className="relative">
                         <Textarea
                             placeholder={defaultPlaceholder}
-                            className="min-h-[60px] flex-1 resize-none"
+                            className="min-h-[60px] w-full resize-none pr-12"
                             value={commentContent}
                             onChange={(e) => setCommentContent(e.target.value)}
                             disabled={creating}
@@ -144,15 +145,17 @@ export default function PrivateCommentSection({
                                 }
                             }}
                         />
-                        <Button
-                            variant="default"
-                            size="sm"
-                            onClick={handleCreateComment}
-                            disabled={!commentContent.trim() || creating}
-                            className="shrink-0"
-                        >
-                            {creating ? defaultCreatingText : defaultSubmitText}
-                        </Button>
+                        <div className="absolute bottom-2 right-2 flex items-center">
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7"
+                                onClick={handleCreateComment}
+                                disabled={!commentContent.trim() || creating}
+                            >
+                                <Send className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
                 )}
 

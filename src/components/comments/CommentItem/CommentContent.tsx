@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Check, X as XIcon } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { renderMarkdown } from '../utils/markdown';
 import { useTranslations } from 'next-intl';
 
@@ -53,7 +53,7 @@ export default function CommentContent({
 
     if (isEditing) {
         return (
-            <div className="space-y-2">
+            <div className="relative">
                 <Textarea
                     ref={editTextareaRef}
                     value={editContent}
@@ -71,26 +71,18 @@ export default function CommentContent({
                             handleSave();
                         }
                     }}
-                    className="min-h-[50px] text-sm"
+                    className="min-h-[50px] text-sm pr-12 w-full"
                     disabled={updating}
                 />
-                <div className="flex items-center gap-2">
+                <div className="absolute bottom-2 right-2 flex items-center">
                     <Button
-                        size="sm"
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
                         onClick={handleSave}
                         disabled={!editContent.trim() || updating || editContent === content}
                     >
-                        <Check className="h-4 w-4 mr-1" />
-                        {t('actions.save')}
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={onCancelEdit}
-                        disabled={updating}
-                    >
-                        <XIcon className="h-4 w-4 mr-1" />
-                        {t('actions.cancel')}
+                        <Send className="h-4 w-4" />
                     </Button>
                 </div>
             </div>

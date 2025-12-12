@@ -115,19 +115,21 @@ export default function CommentItem({
                         </div>
                     )}
 
-                    {/* Header: Name, badge, timestamp */}
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm text-foreground">
-                            {sender?.fullName || sender?.username || t('labels.user')}
-                        </span>
-                        {isOwner && (
-                            <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
-                                {t('labels.you')}
+                    {/* Header: Name, badge */}
+                    <div className="mb-1">
+                        <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm text-foreground">
+                                {sender?.fullName || sender?.username || t('labels.user')}
                             </span>
-                        )}
-                        <span className="text-xs text-muted-foreground">
+                            {isOwner && (
+                                <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                                    {t('labels.you')}
+                                </span>
+                            )}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
                             {formatRelativeTime(comment.createdAt, locale)}
-                        </span>
+                        </div>
                     </div>
 
                     {/* Content: Edit mode or display mode */}
