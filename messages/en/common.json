@@ -47,6 +47,7 @@
         "date": "Date"
     },
     "common": {
+        "all": "All",
         "actions": {
             "create": "Create",
             "view": "View",

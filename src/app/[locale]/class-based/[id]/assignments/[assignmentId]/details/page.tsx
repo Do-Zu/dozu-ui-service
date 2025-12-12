@@ -181,6 +181,8 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                     urlAttachments={submission.urls || []}
                     onSubmit={onSubmit}
                     loading={updateLoading}
+                    grade={submission.grade}
+                    totalGrade={assignment.totalGrades}
                 />
 
                 <PrivateCommentsCard assignmentId={assignmentId} submissionId={submission.submissionId} />

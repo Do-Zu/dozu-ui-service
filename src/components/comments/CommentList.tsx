@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { IPublicComment } from '@/services/class-based-learning/comment';
 import CommentItem from './CommentItem/CommentItem';
@@ -24,6 +25,8 @@ export default function CommentList({
     currentUserId,
     flatMode = false,
 }: CommentListProps) {
+    const t = useTranslations('classBased.comment');
+
     // Loading state
     if (loading && comments.length === 0) {
         return (
@@ -45,7 +48,7 @@ export default function CommentList({
     if (comments.length === 0) {
         return (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <p>Chưa có nhận xét nào. Hãy là người đầu tiên nhận xét!</p>
+                <p>{t('noCommentsBody')}</p>
             </div>
         );
     }
