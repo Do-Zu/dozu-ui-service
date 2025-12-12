@@ -1,6 +1,30 @@
 {
     "assignment": {
         "assignment": "Bài tập",
-        "deleteConfirmation": "Thao tác này sẽ xóa cả điểm và nhận xét liên quan. Tiếp tục?"
+        "deleteConfirmation": "Thao tác này sẽ xóa cả điểm và nhận xét liên quan. Tiếp tục?",
+        "submission": {
+            "yourAssignment": "Bài tập của bạn",
+            "submit": "Nộp bài",
+            "saving": "Đang lưu...",
+            "link": "Liên kết",
+            "uploadFile": "Tải lên Tệp"
+        },
+        "comments": {
+            "classComments": "Nhận xét của lớp học",
+            "addClassComment": "Thêm nhận xét trong lớp học...",
+            "privateComment": "Nhận xét riêng tư",
+            "addPrivateComment": "Thêm nhận xét riêng tư...",
+            "addPrivateCommentForStudent": "Thêm nhận xét riêng tư cho học viên...",
+            "post": "Đăng",
+            "send": "Gửi",
+            "sending": "Đang gửi...",
+            "tooltips": {
+                "bold": "In đậm",
+                "italic": "In nghiêng",
+                "underline": "Gạch chân",
+                "list": "Danh sách",
+                "clearFormatting": "Xóa định dạng"
+            }
+        }
     }
 }
