@@ -3,6 +3,7 @@ import { openUpgradeModal } from '@/stores/features/subscription/subscriptionUti
 import { getTimestampWithClientOffset } from '@/utils';
 import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
 import { ROUTES } from '@/utils/constants/routes';
+import toastHelper from '@/utils/toast.helper';
 
 const BASE_URL_MAI_API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -25,6 +26,11 @@ const RefreshTokenAxiosClient = axios.create({
 });
 RefreshTokenAxiosClient.defaults.withCredentials = true;
 
+const fallBackToken = () => {
+    window.localStorage.removeItem('user');
+    window.localStorage.removeItem('isLoggedIn');
+    window.location.href = ROUTES.LOGIN;
+};
 // Request Interceptor
 const requestInterceptor = Axios.interceptors.request.use(
     (config) => {
@@ -107,11 +113,18 @@ const responseInterceptor = Axios.interceptors.response.use(
                 try {
                     const response = await RefreshTokenAxiosClient.post('/auth/refresh-token');
 
-                    window.localStorage.setItem(
-                        'user',
-                        JSON.stringify({ ...response.data.data.user, accessToken: response.data.data.accessToken }),
-                    );
-                    window.localStorage.setItem('isLoggedIn', 'true');
+                    if (response?.data?.data?.user && response?.data?.data?.accessToken) {
+                        window.localStorage.setItem(
+                            'user',
+                            JSON.stringify({ ...response.data.data.user, accessToken: response.data.data.accessToken }),
+                        );
+
+                        window.localStorage.setItem('isLoggedIn', 'true');
+                    } else {
+                        toastHelper.showLog('Incomplete refresh response:', response?.data);
+                        fallBackToken();
+                        return Promise.reject(new Error('Incomplete refresh response'));
+                    }
 
                     // Axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`;
                     return Axios(originalRequest); // Retry the original request with the new access token.
@@ -119,13 +132,12 @@ const responseInterceptor = Axios.interceptors.response.use(
                     //set new user data and accessToken
                 } catch (refreshTokenError) {
                     try {
-                        window.localStorage.removeItem('user');
-                        window.localStorage.removeItem('isLoggedIn');
-
-                        window.location.href = ROUTES.LOGIN;
+                        fallBackToken();
                     } catch (localStorageError) {
-                        console.error(localStorageError);
+                        toastHelper.showLog(localStorageError);
                     }
+
+                    toastHelper.showLog(refreshTokenError);
 
                     return Promise.reject(refreshTokenError);
                 }

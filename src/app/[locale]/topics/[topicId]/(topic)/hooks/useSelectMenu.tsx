@@ -8,6 +8,7 @@ import { FlashcardTabEnum } from '../components/flashcard/FlashcardContent';
 import LoadingNode from '../components/common/LoadingNode';
 import { Layers, ListChecks, Loader2, NotebookText } from 'lucide-react';
 import Generate from '../components/generate/Generate';
+import DefaultGenerateButton from '../components/generate/DefaultGenerateButton';
 
 interface GenerateFlashcardsProps {
     content: string;
@@ -17,13 +18,17 @@ interface GenerateFlashcardsProps {
 function GenerateFlashcards({ content, onGenerateFlashcardsSuccess }: GenerateFlashcardsProps) {
     return (
         <Generate
-            customContent={content}
-            trigger={
-                <Button variant="ghost" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md">
+            trigger={(startGenerate) => (
+                <Button
+                    onClick={() => startGenerate(content)}
+                    variant="ghost"
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-md"
+                >
                     <Layers className="h-4 w-4" />
                     Flashcards
                 </Button>
-            }
+            )}
+            customGenerateTrigger={(startGenerate) => <DefaultGenerateButton onClick={() => startGenerate(content)} />}
             type={METHOD_LEARNING.FLASHCARD}
             registerNode={<LoadingNode title="Generating" />}
             generateNode={<LoadingNode title="Generating" />}

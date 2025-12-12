@@ -17,6 +17,7 @@ import {
 import { Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PrivateCommentsCard, SubmissionCard } from './components/SubmissionCard';
+import CommentSection from '@/app/[locale]/teacher/class-based/[id]/assignments/[assignmentId]/details/components/CommentSection';
 import {
     IAssignmentSubmission,
     IAssignmentSubmissionWithAttachments,
@@ -169,6 +170,8 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                 <Separator />
 
                 <AttachmentsViewSection attachments={assignmentAttachments} urls={assignment.urls} />
+
+                <CommentSection classId={classId} assignmentId={assignmentId} />
             </div>
 
             <div className="lg:col-span-2 space-y-6">
@@ -180,7 +183,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                     loading={updateLoading}
                 />
 
-                <PrivateCommentsCard />
+                <PrivateCommentsCard assignmentId={assignmentId} submissionId={submission.submissionId} />
             </div>
         </div>
     );

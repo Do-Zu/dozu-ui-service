@@ -29,6 +29,7 @@ import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.c
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SubmissionsPage from './components/SubmissionsPage';
+import CommentSection from './components/CommentSection';
 import {
     IAssignmentSubmission,
     IAssignmentSubmissionWithStudent,
@@ -231,6 +232,8 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
                         <AttachmentsViewSection attachments={attachments} urls={assignment.urls} />
 
+                        <CommentSection classId={classId} assignmentId={assignmentId} />
+
                         <DeleteAssignmentModal
                             isOpen={isOpen}
                             setIsOpen={setIsOpen}
@@ -245,6 +248,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                     <SubmissionsPage
                         studentSubmissions={studentSubmissions}
                         totalGrade={assignment.totalGrades}
+                        assignmentId={assignmentId}
                         onGradeSubmit={onGradeSubmit}
                         gradeLoading={gradeSubmissionLoading}
                     />

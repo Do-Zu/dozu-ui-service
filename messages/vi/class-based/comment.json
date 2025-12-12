@@ -16,16 +16,30 @@
                 "mustLogin": "Bạn cần đăng nhập để bình luận.",
                 "failedLoadComments": "Tải bình luận thất bại.",
                 "failedLoadReplies": "Tải trả lời thất bại",
-                "comingSoon": "Sắp ra mắt!"
+                "comingSoon": "Sắp ra mắt!",
+                "createSuccess": "Đã thêm nhận xét thành công",
+                "createError": "Không thể thêm nhận xét. Vui lòng thử lại.",
+                "replySuccess": "Đã thêm phản hồi thành công",
+                "replyError": "Không thể thêm phản hồi. Vui lòng thử lại.",
+                "updateSuccess": "Đã cập nhật nhận xét thành công",
+                "updateError": "Không thể cập nhật nhận xét. Vui lòng thử lại.",
+                "deleteSuccess": "Đã xóa nhận xét thành công",
+                "deleteError": "Không thể xóa nhận xét. Vui lòng thử lại.",
+                "deleteTitle": "Xóa bình luận?",
+                "deleteConfirm": "Bạn có chắc chắn muốn xóa nhận xét này không?"
             },
             "actions": {
                 "comment": "Bình luận",
                 "reply": "Trả lời",
-                "cancel": "Hủy"
+                "cancel": "Hủy",
+                "edit": "Chỉnh sửa",
+                "delete": "Xóa",
+                "save": "Lưu"
             },
             "placeholders": {
                 "root": "Chia sẻ suy nghĩ của bạn...",
-                "reply": "Viết một phản hồi chân thành..."
+                "reply": "Viết một phản hồi chân thành...",
+                "writeReply": "Viết phản hồi..."
             },
             "replyingTo": {
                 "label": "Đang trả lời:",
@@ -42,7 +56,12 @@
                     "viewReplies": "Xem câu trả lời",
                     "moreOptions": "Tùy chọn khác"
                 },
-                "timeAgo": "trước"
+                "timeAgo": "trước",
+                "edited": "(Đã chỉnh sửa)"
+            },
+            "labels": {
+                "you": "Bạn",
+                "user": "Người dùng"
             },
             "input": {
                 "replyingToLabel": "💬 Đang trả lời:",
@@ -58,6 +77,9 @@
                     "reply": "Trả lời",
                     "comment": "Bình luận"
                 }
+            },
+            "section": {
+                "title": "Nhận xét công khai"
             }
         }
     }

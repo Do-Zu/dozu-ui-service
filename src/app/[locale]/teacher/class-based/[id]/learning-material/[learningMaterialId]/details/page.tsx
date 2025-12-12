@@ -38,6 +38,7 @@ import assignmentSubmissionService from '@/app/[locale]/class-based/(assignment)
 import { ILearningMaterialWithAttachments } from '@/app/[locale]/class-based/(learning-material)/types/learningMaterial.type';
 import learningMaterialService from '@/app/[locale]/class-based/(learning-material)/service/learningMaterial.service';
 import DeleteLearningMaterialModal from '@/app/[locale]/class-based/(learning-material)/components/DeleteLearningMaterialModal';
+import LearningMaterialCommentSection from '@/app/[locale]/class-based/[id]/learning-material/[learningMaterialId]/details/components/LearningMaterialCommentSection';
 
 export default function Page() {
     const params = useParams();
@@ -200,6 +201,8 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
                         <Separator />
 
                         <AttachmentsViewSection attachments={attachments} urls={learningMaterial.urls} />
+
+                        <LearningMaterialCommentSection classId={classId} learningMaterialId={learningMaterialId} />
 
                         <DeleteLearningMaterialModal
                             isOpen={isOpen}

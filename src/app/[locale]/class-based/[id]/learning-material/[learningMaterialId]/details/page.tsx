@@ -16,6 +16,7 @@ import { Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ILearningMaterialWithAttachments } from '@/app/[locale]/class-based/(learning-material)/types/learningMaterial.type';
 import learningMaterialService from '@/app/[locale]/class-based/(learning-material)/service/learningMaterial.service';
+import LearningMaterialCommentSection from './components/LearningMaterialCommentSection';
 
 export default function Page() {
     const params = useParams();
@@ -90,6 +91,8 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
                 <Separator />
 
                 <AttachmentsViewSection attachments={assignmentAttachments} urls={learningMaterial.urls} />
+
+                <LearningMaterialCommentSection classId={classId} learningMaterialId={learningMaterialId} />
             </div>
 
             <div className="lg:col-span-2 space-y-6">

@@ -21,6 +21,9 @@ import {
     SquarePen,
     TableOfContents,
     Trash,
+    X,
+    HelpCircle,
+    Save,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -40,12 +43,11 @@ import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicW
 import { IResponseFlashCardGenerate } from '../../topics/[topicId]/(topic)/hooks/useFlashCardWorkSpace';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
-import {
-    GetPreparedData,
-    IGenerateNodeFlashcardsItem,
-    NodesData,
-    PreparedData,
-} from '../../topics/[topicId]/(topic)/types/generate.type';
+import { IStartGenerateFn } from '../../topics/[topicId]/(topic)/types/generate.type';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import ReferenceEdit from '../../topics/[topicId]/(topic)/components/flashcard/node/reference/ReferenceEdit';
+import DefaultGenerateButton from '../../topics/[topicId]/(topic)/components/generate/DefaultGenerateButton';
+import toastHelper from '@/utils/toast.helper';
 
 enum FlashcardActionEnum {
     BROWSE = 'browse',
@@ -88,8 +90,17 @@ const NodeSheet = ({
     const [isEditing, setIsEditing] = useState(false);
     const [newLabel, setNewLabel] = useState(selectedNodeData?.label || '');
     const [newDescription, setNewDescription] = useState(selectedNodeData?.description || '');
-    const [pageStartIndex, setPageStartIndex] = useState(selectedNodeData?.pageStartIndex);
-    const [pageEndIndex, setPageEndIndex] = useState(selectedNodeData?.pageEndIndex);
+
+    // learning material section, handling pdf & youtube input set
+    const { learningMaterial } = useTopicWorkspace();
+
+    // pdf material states
+    const [pageStartIndex, setPageStartIndex] = useState<number | undefined>();
+    const [pageEndIndex, setPageEndIndex] = useState<number | undefined>();
+
+    // youtube material states
+    const [startSegment, setStartSegment] = useState<number | undefined>();
+    const [endSegment, setEndSegment] = useState<number | undefined>();
 
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -100,20 +111,34 @@ const NodeSheet = ({
         return [];
     }, [mode, role]);
 
-    const { setGeneratingFlashcards } = useTopicWorkspace();
+    const { setGeneratingFlashcards, setIsLearningContentFullscreen, setPageNumber, seekTo } = useTopicWorkspace();
 
     useEffect(() => {
-        setPageStartIndex(selectedNodeData?.pageStartIndex);
-        setPageEndIndex(selectedNodeData?.pageEndIndex);
-    }, [selectedNodeData]);
+        // pdf logic
+        const pageStartIndex =
+            learningMaterial?.type === EnumLearningMaterial.file ? selectedNodeData?.pageStartIndex : undefined;
+        const pageEndIndex =
+            learningMaterial?.type === EnumLearningMaterial.file ? selectedNodeData?.pageEndIndex : undefined;
+        setPageStartIndex(pageStartIndex);
+        setPageEndIndex(pageEndIndex);
 
-    const getGeneratedContent: GetPreparedData = useCallback(async () => {
-        if (!pageStartIndex || !pageEndIndex) {
+        // youtube logic
+        const startSegment =
+            learningMaterial?.type === EnumLearningMaterial.youtube ? selectedNodeData?.startSegment : undefined;
+        const endSegment =
+            learningMaterial?.type === EnumLearningMaterial.youtube ? selectedNodeData?.endSegment : undefined;
+
+        setStartSegment(startSegment);
+        setEndSegment(endSegment);
+    }, [selectedNodeData, learningMaterial?.type]);
+
+    const prepareGeneratedContent = useCallback(async () => {
+        if (pageStartIndex === undefined || pageEndIndex === undefined) {
             throw new Error('No text found in the specified page range.');
         }
 
         const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
-        return { customContent: text };
+        return text;
     }, [pageStartIndex, pageEndIndex, extractTextByRange]);
 
     const dispatch = useDispatch();
@@ -154,6 +179,8 @@ const NodeSheet = ({
                 setNodes,
                 pageStartIndex: pageStartIndex || 1,
                 pageEndIndex: pageEndIndex || 1,
+                startSegment,
+                endSegment,
             });
             dispatch(closeSheet());
         } else {
@@ -260,23 +287,76 @@ const NodeSheet = ({
         setIsNodeFlashcardsEditOpen?.(true);
     };
 
+    function handleStartSegmentChange(value: string) {
+        const seconds = parseInt(value);
+        if (Number.isNaN(seconds)) {
+            setStartSegment(undefined);
+            return;
+        }
+        setStartSegment(seconds);
+    }
+
+    function handleEndSegmentChange(value: string) {
+        const seconds = parseInt(value);
+        if (Number.isNaN(seconds)) {
+            setEndSegment(undefined);
+            return;
+        }
+        setEndSegment(seconds);
+    }
+
+    function handlePageClick(page: number | undefined) {
+        if (page === undefined) return;
+        setIsLearningContentFullscreen(false);
+        requestAnimationFrame(() => {
+            setPageNumber(page);
+        });
+    }
+
+    function handleSegmentClick(segment: number | undefined) {
+        if (segment === undefined) return;
+        setIsLearningContentFullscreen(false);
+        seekTo(segment);
+    }
+
+    async function onGenerateClick(startGenerate: IStartGenerateFn) {
+        try {
+            const content = await prepareGeneratedContent();
+            startGenerate(content);
+        } catch (err) {
+            toastHelper.showErrorMessage(err);
+        }
+    }
+
     return (
         <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
-            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col space-y-4">
-                <SheetHeader className="pb-3 border-b">
-                    <SheetTitle>
-                        <div className="flex items-center justify-between gap-2">
+            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col space-y-4 [&>button]:hidden">
+                <SheetTitle>
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
                             {isEditing ? (
                                 <Input value={newLabel} onChange={onChangeNewLabel} placeholder="Enter node title" />
                             ) : (
-                                <h2 className="text-lg font-semibold">{selectedNodeData?.label}</h2>
+                                <h2 className="text-lg font-semibold truncate">{selectedNodeData?.label}</h2>
                             )}
+                        </div>
+
+                        <div className="flex items-center flex-shrink-0">
                             <Button size="icon" variant="ghost" onClick={handleEditTitle}>
-                                <SquarePen className="h-4 w-4" />
+                                {isEditing ? <Save className="h-4 w-4" /> : <SquarePen className="h-4 w-4" />}
+                            </Button>
+
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleOnOpenChange(false)}
+                                className="text-muted-foreground hover:text-foreground"
+                            >
+                                <X className="h-4 w-4" />
                             </Button>
                         </div>
-                    </SheetTitle>
-                </SheetHeader>
+                    </div>
+                </SheetTitle>
 
                 <div className="flex-1 overflow-y-auto pr-2 space-y-5">
                     <div className="space-y-2">
@@ -304,7 +384,7 @@ const NodeSheet = ({
                                 component: ({ references }) => (
                                     <ReferenceDocumentViaPage
                                         references={references as IReturnItemFileReference[]}
-                                        isEditing={isEditing}
+                                        isEditing={false}
                                         pageStartIndex={pageStartIndex}
                                         pageEndIndex={pageEndIndex}
                                         setPageStartIndex={setPageStartIndex}
@@ -316,6 +396,51 @@ const NodeSheet = ({
                             },
                         ]}
                     />
+
+                    <div className="space-y-2 pt-1 px-1 border-t">
+                        <div className="flex items-center gap-1">
+                            <Label className="text-sm font-semibold">Customize Document Range</Label>
+
+                            <TooltipProvider>
+                                <Tooltip delayDuration={200}>
+                                    <TooltipTrigger asChild>
+                                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs text-sm">
+                                        <p className="font-medium">
+                                            Define the range used to generate flashcards and other content for this
+                                            node.
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+
+                        {learningMaterial?.type === EnumLearningMaterial.file ? (
+                            <ReferenceEdit
+                                type="pdf"
+                                isEditing={isEditing}
+                                pageStartIndex={pageStartIndex}
+                                onPageStartIndexChange={onChangePageStartIndex}
+                                pageEndIndex={pageEndIndex}
+                                onPageEndIndexChange={onChangePageEndIndex}
+                                onPageClick={handlePageClick}
+                            />
+                        ) : null}
+
+                        {learningMaterial?.type === EnumLearningMaterial.youtube ? (
+                            <ReferenceEdit
+                                type="youtube"
+                                isEditing={isEditing}
+                                segments={learningMaterial.content}
+                                startSegment={startSegment}
+                                onStartSegmentChange={handleStartSegmentChange}
+                                endSegment={endSegment}
+                                onEndSegmentChange={handleEndSegmentChange}
+                                onSegmentClick={handleSegmentClick}
+                            />
+                        ) : null}
+                    </div>
 
                     <div className="border-t pt-4 space-y-2">
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
@@ -351,8 +476,12 @@ const NodeSheet = ({
                                         {availableFlashcardActions.includes(FlashcardActionEnum.GENERATE) ? (
                                             <Generate
                                                 type={METHOD_LEARNING.FLASHCARD}
-                                                getPreparedData={getGeneratedContent}
                                                 onSuccess={onGenerateFlashcardsSuccess}
+                                                trigger={(startGenerate) => (
+                                                    <DefaultGenerateButton
+                                                        onClick={() => onGenerateClick(startGenerate)}
+                                                    />
+                                                )}
                                             />
                                         ) : null}
                                         {availableFlashcardActions.includes(FlashcardActionEnum.BROWSE) ? (

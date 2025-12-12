@@ -19,13 +19,21 @@ import { ActiveDot } from '../ui/ActiveDot';
 import topicUtils from '../../utils/topic.utils';
 
 export default function TopicWorkspace() {
-    const { topic, topicId, setTopic, isPdfViewerFullscreen, setTab, tab, flashcards, learningFlashcards } =
-        useTopicWorkspace();
-
-    const [isFullscreen, setIsFullscreen] = useState(false);
+    const {
+        topic,
+        topicId,
+        setTopic,
+        isPdfViewerFullscreen,
+        setTab,
+        tab,
+        flashcards,
+        learningFlashcards,
+        isLearningContentFullscreen,
+        setIsLearningContentFullscreen,
+    } = useTopicWorkspace();
 
     function handleScreenModeToggle() {
-        setIsFullscreen((prev) => !prev);
+        setIsLearningContentFullscreen((prev) => !prev);
     }
 
     function handleTabChange(value: string) {
@@ -64,13 +72,16 @@ export default function TopicWorkspace() {
     return (
         <div className="relative w-full h-[100vh] border rounded-lg overflow-hidden bg-background">
             <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={35} className={isFullscreen ? 'hidden' : ''} minSize={35}>
+                <ResizablePanel defaultSize={35} className={isLearningContentFullscreen ? 'hidden' : ''} minSize={35}>
                     <div className="flex flex-col h-full p-4">
                         <LearningMaterial />
                     </div>
                 </ResizablePanel>
 
-                <ResizableHandle withHandle className={isFullscreen || isPdfViewerFullscreen ? 'hidden' : ''} />
+                <ResizableHandle
+                    withHandle
+                    className={isLearningContentFullscreen || isPdfViewerFullscreen ? 'hidden' : ''}
+                />
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full">
@@ -98,7 +109,7 @@ export default function TopicWorkspace() {
 
                                 <div>
                                     <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
-                                        {isFullscreen ? (
+                                        {isLearningContentFullscreen ? (
                                             <Minimize className="h-4 w-4" />
                                         ) : (
                                             <Maximize className="h-4 w-4" />

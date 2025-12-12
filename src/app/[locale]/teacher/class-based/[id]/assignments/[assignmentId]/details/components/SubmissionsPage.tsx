@@ -19,6 +19,7 @@ import classworkUtils from '@/app/[locale]/class-based/(classwork)/utils/classwo
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import UrlAttachmentItem from '@/app/[locale]/class-based/(classwork)/components/common/UrlAttachmentItem';
+import PrivateCommentSection from './PrivateCommentSection';
 
 interface StudentItemProps {
     studentSubmission: IAssignmentSubmissionWithStudentDetails;
@@ -89,11 +90,12 @@ function SubmissionsOverview({ statusCounts }: { statusCounts: IAssignmentSubmis
 interface SubmissionItemProps {
     studentSubmission: IAssignmentSubmissionWithStudentDetails;
     totalGrade: number;
+    assignmentId: number;
     onGradeSubmit: ({ submissionId, grade }: { submissionId: number; grade: number }) => Promise<void>;
     gradeLoading: boolean;
 }
 
-function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoading }: SubmissionItemProps) {
+function SubmissionItem({ studentSubmission, totalGrade, assignmentId, onGradeSubmit, gradeLoading }: SubmissionItemProps) {
     const { student, submission, attachments } = studentSubmission;
     const { fullName, email, username } = student;
 
@@ -163,25 +165,17 @@ function SubmissionItem({ studentSubmission, totalGrade, onGradeSubmit, gradeLoa
                 <span className="text-muted-foreground">/ {totalGrade}</span>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Nhận xét riêng tư</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Textarea placeholder="Thêm nhận xét riêng tư cho học viên..." disabled={!canEdit} />
-                    <div className="flex justify-end mt-3">
-                        <Button variant="secondary" disabled={!canEdit}>
-                            Gửi
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <PrivateCommentSection
+                assignmentId={assignmentId}
+                submissionId={submission?.submissionId || null}
+            />
         </div>
     );
 }
 
 interface Props {
     totalGrade: number;
+    assignmentId: number;
     studentSubmissions: IAssignmentSubmissionWithStudentDetails[];
     onGradeSubmit: ({ submissionId, grade }: { submissionId: number; grade: number }) => Promise<void>;
     gradeLoading: boolean;
@@ -192,7 +186,7 @@ const defaultSubmissionStatusCounts: IAssignmentSubmissionStatusCounts = {
     returnedCount: 0,
 };
 
-export default function SubmissionsPage({ studentSubmissions, totalGrade, onGradeSubmit, gradeLoading }: Props) {
+export default function SubmissionsPage({ studentSubmissions, totalGrade, assignmentId, onGradeSubmit, gradeLoading }: Props) {
     const [selectedStudentSubmission, setSelectedStudentSubmission] =
         useState<IAssignmentSubmissionWithStudentDetails | null>(null);
 
@@ -274,6 +268,7 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, onGrad
                         <SubmissionItem
                             studentSubmission={selectedStudentSubmission}
                             totalGrade={totalGrade}
+                            assignmentId={assignmentId}
                             onGradeSubmit={onGradeSubmit}
                             gradeLoading={gradeLoading}
                         />

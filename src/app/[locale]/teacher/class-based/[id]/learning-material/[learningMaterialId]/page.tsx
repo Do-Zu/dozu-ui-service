@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import useFetch from '@/hooks/useFetch';
+import { useTranslations } from 'next-intl';
 
 // Mock data (for now)
 const mockLearningMaterial = {
@@ -39,6 +40,7 @@ const mockLearningMaterial = {
 };
 
 export default function LearningMaterialPage() {
+    const t = useTranslations('EditLearningMaterial');
     const material = mockLearningMaterial;
     //testing
     const { data, error, loading: classWorkLoading } = useFetch<any>(`/classes/1/learning-material/15`);
@@ -73,7 +75,7 @@ export default function LearningMaterialPage() {
                             <Button variant="outline" size="sm" className="flex items-center gap-2" asChild>
                                 <a href="#" download>
                                     <Download className="w-4 h-4" />
-                                    Tải xuống
+                                    {t('download')}
                                 </a>
                             </Button>
                         </CardContent>
@@ -83,9 +85,9 @@ export default function LearningMaterialPage() {
 
             {/* Comment box */}
             <div className="pt-6 border-t">
-                <p className="font-medium mb-2">Nhận xét của lớp học</p>
+                <p className="font-medium mb-2">{t('classComments')}</p>
                 <input
-                    placeholder="Thêm nhận xét trong lớp học..."
+                    placeholder={t('addClassComment')}
                     className="w-full rounded-xl border border-gray-200 p-3 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
             </div>

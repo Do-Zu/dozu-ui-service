@@ -1,32 +1,29 @@
-import { PlanFeature } from '@/components/upgrade-plan/UpgradePlanModal';
+import { Plan, PlanFeature } from '@/components/upgrade-plan/UpgradePlanModal';
 import { toast } from '@/hooks/use-toast';
 import { closeModal, fetchPlans, openModal, setSelectedPlan } from '@/stores/features/subscription/subscriptionSlice';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
 import { ROUTES } from '@/utils/constants/routes';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function useUpgradePlanModal() {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const {
-        isModalOpen: isOpen,
-        error,
-        loading,
-        freePlan,
-        monthlyPlan,
-        plans,
-        proPlans,
-        selectedPlan,
-        yearlyPlan,
-    } = useAppSelector((state) => state.subscription);
+    const isAlreadyFetchPlan = useRef<boolean | null>(null);
+
+    const { isModalOpen: isOpen, error, loading, plans, selectedPlan } = useAppSelector((state) => state.subscription);
 
     // Fetch plans when modal opens
     useEffect(() => {
-        if (isOpen && plans.length === 0 && !loading) {
+        if (isOpen && !isAlreadyFetchPlan.current) {
             dispatch(fetchPlans());
+            isAlreadyFetchPlan.current = true;
         }
-    }, [isOpen, plans.length, loading, dispatch]);
+
+        return () => {
+            isAlreadyFetchPlan.current = false;
+        };
+    }, [isOpen]);
 
     const handleSelectPlan = () => {
         if (!selectedPlan) {
@@ -40,7 +37,7 @@ export function useUpgradePlanModal() {
 
         // Close modal and redirect to payment page
         dispatch(closeModal());
-        router.push(ROUTES.PAYMENT(selectedPlan));
+        router.push(ROUTES.PAYMENT(selectedPlan.planId));
     };
 
     const onClose = () => {
@@ -51,8 +48,8 @@ export function useUpgradePlanModal() {
         dispatch(openModal());
     };
 
-    const handleSetSelectedPlan = (planId: number | null) => {
-        dispatch(setSelectedPlan(planId));
+    const handleSetSelectedPlan = (plan: Plan | null) => {
+        dispatch(setSelectedPlan(plan));
     };
 
     const formatFeatureValue = (feature: PlanFeature): string => {
@@ -90,9 +87,9 @@ export function useUpgradePlanModal() {
         return `${symbol}${price}`;
     };
 
-    const getSelectedPlanName = (): string => {
-        const selected = plans.find((plan) => plan.planId === selectedPlan);
-        return selected?.name || 'Select a plan';
+    const getSelectedPlanName = (): string | undefined => {
+        const selected = plans.find((plan) => plan.planId === selectedPlan?.planId);
+        return selected?.name;
     };
 
     return {
@@ -109,9 +106,5 @@ export function useUpgradePlanModal() {
         loading,
         error,
         plans,
-        yearlyPlan,
-        monthlyPlan,
-        freePlan,
-        proPlans,
     };
 }

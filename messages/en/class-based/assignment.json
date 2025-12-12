@@ -1,6 +1,30 @@
 {
     "assignment": {
         "assignment": "Assignment",
-        "deleteConfirmation": "This will also delete all related grades and comments. Continue?"
+        "deleteConfirmation": "This will also delete all related grades and comments. Continue?",
+        "submission": {
+            "yourAssignment": "Your Assignment",
+            "submit": "Submit",
+            "saving": "Saving...",
+            "link": "Link",
+            "uploadFile": "Upload File"
+        },
+        "comments": {
+            "classComments": "Class Comments",
+            "addClassComment": "Add a class comment...",
+            "privateComment": "Private Comment",
+            "addPrivateComment": "Add a private comment...",
+            "addPrivateCommentForStudent": "Add a private comment for student...",
+            "post": "Post",
+            "send": "Send",
+            "sending": "Sending...",
+            "tooltips": {
+                "bold": "Bold",
+                "italic": "Italic",
+                "underline": "Underline",
+                "list": "List",
+                "clearFormatting": "Clear formatting"
+            }
+        }
     }
 }

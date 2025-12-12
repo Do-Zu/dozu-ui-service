@@ -41,7 +41,7 @@ export default function useFlashCardWorkSpace({
         error: flashcardsError,
         refetch: refetchFlashcards,
     } = useFetch<IFlashcard[]>(() => flashcardService.getFlashcardsForTopic(topicId), {
-        shouldRun: isNil(flashcards) && currentTab === 'flashcard',
+        shouldRun: isNil(flashcards) && (currentTab === 'flashcard' || currentTab === 'mindmap'),
     });
 
     useEffect(() => {
@@ -56,7 +56,7 @@ export default function useFlashCardWorkSpace({
         error: learningFlashcardsError,
         refetch: refetchLearningFlashcards,
     } = useFetch<IDueAnkiCard[]>(() => flashcardService.getDueAnkiCardsForTopic(topicId), {
-        shouldRun: isNil(learningFlashcards) && currentTab === 'flashcard',
+        shouldRun: isNil(learningFlashcards) && (currentTab === 'flashcard' || currentTab === 'mindmap'),
     });
 
     useEffect(() => {
@@ -74,7 +74,7 @@ export default function useFlashCardWorkSpace({
         settings: IAnkiSetting[];
         activeSettingId: number;
     }>(() => ankiSettingService.getUserSettingsForTopic({ topicId }), {
-        shouldRun: isNil(ankiSettings) && currentTab === 'flashcard',
+        shouldRun: isNil(ankiSettings) && (currentTab === 'flashcard' || currentTab === 'mindmap'),
     });
 
     useEffect(() => {
