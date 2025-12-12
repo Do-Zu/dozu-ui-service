@@ -91,8 +91,8 @@ export function SubmissionCard({ submission, attachments, urlAttachments, onSubm
                     {attachments.map((attachment) => (
                         <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
                     ))}
-                    {urlAttachments.map((url) => (
-                        <UrlAttachmentItem url={url} />
+                    {urlAttachments.map((url, i) => (
+                        <UrlAttachmentItem key={i} url={url} />
                     ))}
                 </div>
 
@@ -134,7 +134,7 @@ export function PrivateCommentsCard({ assignmentId, submissionId }: PrivateComme
         assignmentId,
         submissionId || undefined,
         page,
-        limit
+        limit,
     );
     const { createComment, loading: creating } = useCreateSubmissionComment(assignmentId, submissionId || undefined);
 
@@ -160,7 +160,7 @@ export function PrivateCommentsCard({ assignmentId, submissionId }: PrivateComme
 
 export function ClassCommentsCard() {
     const t = useTranslations('assignment');
-    
+
     return (
         <Card>
             <CardContent className="p-4">
