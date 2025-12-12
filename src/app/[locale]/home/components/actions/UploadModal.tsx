@@ -23,9 +23,9 @@ import { compareIgnoreCapitalization, truncate } from '@/utils';
 import { blobToFile, getFileNameWithoutExtension } from './helper/helper';
 import { RESOURCE_CONTENT_TYPE, IMPORT_METHOD } from './constants/resource';
 import { UploadCloud, Loader } from 'lucide-react';
-import { toast } from 'sonner';
-
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
+
+import { toast } from 'sonner';
 
 export const UploadModal: React.FC = () => {
     const t = useTranslations('generate.fileTab');

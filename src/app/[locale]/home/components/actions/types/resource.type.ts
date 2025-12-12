@@ -41,9 +41,25 @@ export type TextResourceMetadata = {
     content: string;
 };
 
+export interface ISegmentTranscript {
+    text: string;
+    startTime: number;
+    duration: number;
+}
+
+export interface IYoutubeCaptionSegment {
+    text: string;
+    startSecond: number;
+    startMs: number;
+    endSecond?: number;
+    endMs?: number;
+    duration?: number;
+}
+
 export type YoutubeResourcePayload = {
     url: string;
     videoInfo: VideoInfo | null;
+    segments: IYoutubeCaptionSegment[];
     content: string | null;
     lengthContent: number;
     wordCount: number;

@@ -3,13 +3,14 @@ import { postRequest } from '@/api/api';
 import {
     InsertContentTopicParams,
     IPayloadMetaDataResource,
+    IYoutubeCaptionSegment,
     NonNullableInsertParams,
     ResourceMetadataMap,
     YoutubeResourcePayload,
 } from '../types/resource.type';
 import { ResourceContentType, RESOURCE_CONTENT_TYPE } from '../constants/resource';
 import { extractYouTubeVideoId } from '../helper/helper';
-import { countWords } from '@/utils';
+import { countWords, isNilOrEmpty, safeDestructure } from '@/utils';
 import topicService from '@/services/topic/topic.service';
 
 /**
@@ -25,9 +26,13 @@ class ContentCreationService {
 
         const { data } = await axios.get(`${this.BASE_API_YOUTUBE}${videoId}`);
 
-        const { transcript, metadata: rawMetadata } = data;
+        const { transcript, metadata, transcriptSegments } = safeDestructure(data, {
+            transcript: '',
+            transcriptSegments: [],
+            metadata: {},
+        });
 
-        const metadata = rawMetadata ?? {};
+        const segments = transcriptSegments.filter((segment: IYoutubeCaptionSegment) => !isNilOrEmpty(segment.text));
 
         const youtubePayload: YoutubeResourcePayload = {
             url: pastedUrl,
@@ -36,7 +41,8 @@ class ContentCreationService {
                 videoId,
             },
             lengthContent: transcript.length,
-            content: transcript || null,
+            segments,
+            content: transcript,
             wordCount: countWords(transcript),
         };
 
