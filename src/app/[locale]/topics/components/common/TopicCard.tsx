@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { MoreVertical, Package } from 'lucide-react';
+import { Box, ImageMinus, ImageOff, MoreVertical, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -18,10 +18,18 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
 
     return (
         <Card
-            className="group relative flex flex-col h-full border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:border-zinc-400 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 cursor-pointer overflow-hidden rounded-xl hover:-translate-y-1"
+            className="group relative flex flex-col h-full cursor-pointer overflow-hidden rounded-xl
+        border border-zinc-200 bg-white shadow-sm transition-all duration-300
+        hover:border-zinc-400 hover:shadow-md hover:-translate-y-1
+
+        dark:border-zinc-700/60 dark:bg-zinc-900/40 dark:backdrop-blur-sm 
+        dark:hover:bg-zinc-900/60 dark:hover:border-zinc-500/60 dark:shadow-lg/10"
             onClick={() => handleNameClick(topic)}
         >
-            <div className="relative aspect-[3/2] w-full overflow-hidden bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800">
+            <div
+                className="relative aspect-[3/2] w-full overflow-hidden bg-zinc-50 border-zinc-100 border-b
+        dark:bg-slate-900/50 dark:border-zinc-700/50 dark:backdrop-blur-sm"
+            >
                 {imageUrl ? (
                     <Image
                         fill
@@ -37,7 +45,7 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
                                 dark:border dark:border-zinc-700
                                 border border-zinc-300/80"
                         >
-                            <Package className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
+                            <Box className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
                         </div>
                     </div>
                 )}

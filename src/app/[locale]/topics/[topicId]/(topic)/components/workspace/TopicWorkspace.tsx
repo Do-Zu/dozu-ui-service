@@ -121,7 +121,7 @@ export default function TopicWorkspace() {
 
                             <div className={cn('flex-1 h-full px-6 py-3')}>
                                 {TOPIC_WORKSPACE_TABS.map((t) => (
-                                    <TabsContent key={t.value} value={t.value} className="h-full p-4 border rounded-md">
+                                    <TabsCocntent key={t.value} value={t.value} className="h-full p-4 border rounded-md">
                                         <t.component />
                                     </TabsContent>
                                 ))}
