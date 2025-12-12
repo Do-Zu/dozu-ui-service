@@ -10,6 +10,36 @@ import {
     PDFDocumentLoadingTask,
 } from 'pdfjs-dist/types/src/display/api';
 
+const readFileAsArrayBuffer = (inputFile: File): Promise<ArrayBuffer> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const result = e.target?.result;
+            if (!result) {
+                reject(new Error('Empty file content'));
+                return;
+            }
+            resolve(result as ArrayBuffer);
+        };
+        reader.onerror = () => reject(new Error('Error reading file'));
+        reader.readAsArrayBuffer(inputFile);
+    });
+
+const readFileAsText = (inputFile: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const result = e.target?.result;
+            if (typeof result !== 'string' || !result) {
+                reject(new Error('Empty file content'));
+                return;
+            }
+            resolve(result);
+        };
+        reader.onerror = () => reject(new Error('Error reading file'));
+        reader.readAsText(inputFile);
+    });
+
 interface ExecuteOptions {
     onSuccess?: (text: string, file: File) => void;
     onError?: (error: string, file: File) => void;
@@ -46,203 +76,167 @@ const useReaderFile = (fileInit?: File) => {
             setGetDocument(() => pdfGetDocument);
             return pdfGetDocument;
         } catch (error) {
-            console.error('Failed to load PDF.js library:', error);
             setError('Failed to initialize PDF reader. Please refresh the page.');
             return null;
         }
     }, [getDocument]);
 
-    const handleExtractDocxToText = useCallback(() => {
-        if (!file) {
-            setError('No DOCX file selected');
-            return;
+    const extractDocxText = useCallback(async (inputFile: File): Promise<string> => {
+        const arrayBuffer = await readFileAsArrayBuffer(inputFile);
+
+        // NOTE: original code enforced a 6MB limit but displayed a "100 MB" message.
+        // Preserve the effective limit; adjust message to match.
+        if (arrayBuffer.byteLength > 6 * 1024 * 1024) {
+            throw new Error('File too large. Maximum 6 MB.');
         }
 
-        setLoading(true);
-        setError(null);
-        setText(null);
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        const content = result.value;
+        if (!content) {
+            throw new Error('Error extracting text: Empty content');
+        }
+        return content;
+    }, []);
 
-        const reader = new FileReader();
+    const extractTxtText = useCallback(async (inputFile: File): Promise<string> => {
+        const content = await readFileAsText(inputFile);
+        if (!content) {
+            throw new Error('Error reading file: Empty content');
+        }
+        return content;
+    }, []);
 
-        let extractContent = '';
-
-        reader.onload = async (e) => {
-            try {
-                const arrayBuffer = e.target?.result as ArrayBuffer;
-
-                if (!arrayBuffer) {
-                    setError('Error reading file: Empty content');
-                    console.error('Empty content from DOCX file');
-                    return;
-                }
-
-                //page of file must be less than 100 page
-                if (arrayBuffer.byteLength > 6 * 1024 * 1024) {
-                    setError('File too large. Over 100 MB.'); // 6 MB limit
-                    return;
-                }
-
-                const result = await mammoth.extractRawText({ arrayBuffer });
-                // The raw text content
-                const content = result.value;
-
-                if (!content) {
-                    setError('Error extracting text: Empty content');
-                    return;
-                }
-
-                extractContent = content;
-
-                setText(content);
-            } catch (err) {
-                setError(`Error processing DOCX file`);
-            } finally {
-                setLoading(false);
+    const extractPdfText = useCallback(
+        async (
+            inputFile: File,
+            range?: { startPage: number; endPage: number },
+        ): Promise<{ text: string; pages: number }> => {
+            const pdfGetDocument = await loadPdfLibrary();
+            if (!pdfGetDocument) {
+                throw new Error('Failed to initialize PDF reader. Please refresh the page.');
             }
-        };
 
-        reader.onerror = (e) => {
-            setError('Error reading DOCX file');
-            setLoading(false);
-            setText(null);
-        };
+            const arrayBuffer = await readFileAsArrayBuffer(inputFile);
+            const pdf = await pdfGetDocument(arrayBuffer).promise;
 
-        reader.readAsArrayBuffer(file);
-
-        return extractContent;
-    }, [file]);
-
-    const handleExtractTxtToText = useCallback(() => {
-        if (!file) {
-            setError('No text file selected');
-            return;
-        }
-
-        setLoading(true);
-        setError(null);
-        setText(null);
-
-        const reader = new FileReader();
-
-        let extractContent = '';
-
-        reader.onload = (e) => {
-            try {
-                const content = e.target?.result as string;
-                if (!content) {
-                    setError('Error reading file: Empty content');
-                    console.error('Empty content from text file');
-                    return;
-                }
-
-                extractContent = content;
-
-                setText(content);
-            } catch (err) {
-                console.error('Error processing text file:', err);
-                setError(`Error processing text file: ${err instanceof Error ? err.message : 'Unknown error'}`);
-            } finally {
-                setLoading(false);
+            if (!pdf) {
+                throw new Error('Error loading PDF document.');
             }
-        };
 
-        reader.onerror = (e) => {
-            console.error('FileReader error:', e);
-            setError('Error reading text file');
-            setLoading(false);
-            setText(null);
-        };
+            const pages = pdf.numPages;
+            const actualStartPage = range ? Math.max(1, range.startPage) : 1;
+            const actualEndPage = range ? Math.min(pages, range.endPage) : pages;
 
-        try {
-            // Read file as text - this is the appropriate method for .txt file
-            reader.readAsText(file);
-        } catch (err) {
-            console.error('Error initiating file read:', err);
-            setError(`Failed to read text file: ${err instanceof Error ? err.message : 'Unknown error'}`);
-        } finally {
-            setLoading(false);
-        }
+            if (actualStartPage > actualEndPage) {
+                throw new Error('Invalid page range: start page is greater than end page.');
+            }
 
-        return extractContent;
-    }, [file]);
+            let fullText = '';
+            for (let i = actualStartPage; i <= actualEndPage; i++) {
+                const page = await pdf.getPage(i);
+                const textContent: TextContent = await page.getTextContent();
+                const textItems: TextItem[] = textContent.items as TextItem[];
 
-    /**
-     * Extracts text from a PDF file using pdfjs-dist.
-     */
-    const handleExtractPdfToText = useCallback(async () => {
-        if (!file) {
-            setError('No PDF file selected');
-            return;
-        }
+                textItems.forEach((item: TextItem) => {
+                    fullText += item.str;
+                });
 
-        setLoading(true);
-        setError(null);
-        setText(null);
-
-        // Load PDF library when needed
-        const pdfGetDocument = await loadPdfLibrary();
-        if (!pdfGetDocument) {
-            setLoading(false);
-            return;
-        }
-
-        const reader = new FileReader();
-
-        let fullText = '';
-
-        reader.onload = async (e) => {
-            try {
-                const arrayBuffer = e.target?.result as ArrayBuffer;
-
-                if (!arrayBuffer) {
-                    setError('Error reading file.!');
-                    setLoading(false);
-                    return;
-                }
-
-                // Load PDF document
-                const pdf = await pdfGetDocument(arrayBuffer).promise;
-
-                if (!pdf) {
-                    setError('Error loading PDF document.');
-                    return;
-                }
-
-                if (pdf?.numPages) {
-                    setNumPages(pdf.numPages);
-                }
-
-                // Loop through each page
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent: TextContent = await page.getTextContent();
-                    const textItems: TextItem[] = textContent.items as TextItem[];
-
-                    // Extract text from each item
-                    textItems.forEach((item: TextItem) => {
-                        fullText += item.str;
-                    });
+                if (!range) {
                     fullText += `\n ---- End of Page ${i} ----- \n`;
+                } else {
+                    fullText += `\n Page ${i} \n`;
                 }
+            }
 
-                setText(fullText.trim());
-            } catch (error) {
-                setError('Error reading file pdf.');
+            return { text: fullText.trim(), pages };
+        },
+        [loadPdfLibrary],
+    );
+
+    const handleExtractDocxToText = useCallback(
+        async (inputFile?: File): Promise<string> => {
+            const activeFile = inputFile ?? file;
+            if (!activeFile) {
+                setError('No DOCX file selected');
+                return '';
+            }
+
+            setLoading(true);
+            setError(null);
+            setText(null);
+
+            try {
+                const content = await extractDocxText(activeFile);
+                setText(content);
+                return content;
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Error processing DOCX file';
+                setError(message);
                 return '';
             } finally {
                 setLoading(false);
             }
+        },
+        [extractDocxText, file],
+    );
 
-            return fullText;
-        };
+    const handleExtractTxtToText = useCallback(
+        async (inputFile?: File): Promise<string> => {
+            const activeFile = inputFile ?? file;
+            if (!activeFile) {
+                setError('No text file selected');
+                return '';
+            }
 
-        reader.onerror = (e) => {
-            setError('Error reading file');
-            setLoading(false);
+            setLoading(true);
+            setError(null);
             setText(null);
-        };
-        reader.readAsArrayBuffer(file);
-    }, [file, loadPdfLibrary]);
+
+            try {
+                const content = await extractTxtText(activeFile);
+                setText(content);
+                return content;
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Error processing text file';
+                setError(message);
+                return '';
+            } finally {
+                setLoading(false);
+            }
+        },
+        [extractTxtText, file],
+    );
+
+    /**
+     * Extracts text from a PDF file using pdfjs-dist.
+     */
+    const handleExtractPdfToText = useCallback(
+        async (inputFile?: File): Promise<string> => {
+            const activeFile = inputFile ?? file;
+            if (!activeFile) {
+                setError('No PDF file selected');
+                return '';
+            }
+
+            setLoading(true);
+            setError(null);
+            setText(null);
+
+            try {
+                const result = await extractPdfText(activeFile);
+                setNumPages(result.pages);
+                setText(result.text);
+                return result.text;
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Error reading file pdf.';
+                setError(message);
+                return '';
+            } finally {
+                setLoading(false);
+            }
+        },
+        [extractPdfText, file],
+    );
 
     const handleFileChange = useCallback(() => {
         if (!file) {
@@ -256,18 +250,16 @@ const useReaderFile = (fileInit?: File) => {
             return;
         }
 
-        console.log('Processing file:', file.name, 'Type:', file.type);
-
         if (file.type === 'application/pdf') {
-            handleExtractPdfToText();
+            void handleExtractPdfToText(file);
         } else if (file.type === 'text/plain') {
-            handleExtractTxtToText();
+            void handleExtractTxtToText(file);
         } else if (
             file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
             file.type === 'application/msword' ||
             file.type === 'application/docx'
         ) {
-            handleExtractDocxToText();
+            void handleExtractDocxToText(file);
         } else {
             setError('Unsupported file type. Please select a PDF, TXT, or DOCX file.');
             setLoading(false);
@@ -288,143 +280,72 @@ const useReaderFile = (fileInit?: File) => {
                 return '';
             }
 
-            // Load PDF library when needed
-            const pdfGetDocument = await loadPdfLibrary();
-
-            if (!pdfGetDocument) {
-                setLoading(false);
-                setError('No PDF library available.');
+            try {
+                const result = await extractPdfText(file, { startPage, endPage });
+                setNumPages(result.pages);
+                setText(result.text);
+                return result.text;
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Error reading file pdf.';
+                setError(message);
                 return '';
+            } finally {
+                setLoading(false);
             }
-
-            return new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-
-                reader.onload = async (e) => {
-                    try {
-                        const arrayBuffer = e.target?.result as ArrayBuffer;
-
-                        if (!arrayBuffer) {
-                            setError('Error reading file.!');
-                            setLoading(false);
-                            reject(new Error('Error reading file'));
-                            return;
-                        }
-
-                        // Load PDF document
-                        const pdf = await pdfGetDocument(arrayBuffer).promise;
-
-                        if (!pdf) {
-                            setError('Error loading PDF document.');
-                            setLoading(false);
-                            reject(new Error('Error loading PDF document'));
-                            return;
-                        }
-
-                        if (pdf?.numPages) {
-                            setNumPages(pdf.numPages);
-                        }
-
-                        // Validate page range
-                        const actualStartPage = Math.max(1, startPage);
-                        const actualEndPage = Math.min(pdf.numPages, endPage);
-
-                        if (actualStartPage > actualEndPage) {
-                            setError('Invalid page range: start page is greater than end page.');
-                            setLoading(false);
-                            reject(new Error('Invalid page range'));
-                            return;
-                        }
-
-                        let fullText = '';
-
-                        // Loop through specified page range
-                        for (let i = actualStartPage; i <= actualEndPage; i++) {
-                            const page = await pdf.getPage(i);
-                            const textContent: TextContent = await page.getTextContent();
-                            const textItems: TextItem[] = textContent?.items as TextItem[];
-
-                            // Extract text from each item
-                            textItems.forEach((item: TextItem) => {
-                                fullText += item.str;
-                            });
-                            fullText += `\n Page ${i} \n`;
-                        }
-
-                        const finalText = fullText.trim();
-                        setText(finalText);
-                        setLoading(false);
-                        resolve(finalText);
-                    } catch (error) {
-                        setError('Error reading file pdf.');
-                        setLoading(false);
-                        reject(error);
-                    }
-                };
-
-                reader.onerror = (e) => {
-                    setError('Error reading file');
-                    setLoading(false);
-                    reject(new Error('Error reading file'));
-                };
-
-                reader.readAsArrayBuffer(file);
-            });
         },
-        [file, loadPdfLibrary],
+        [extractPdfText, file],
     );
 
     const execute = useCallback(
         async (targetFile: File, options?: ExecuteOptions) => {
             const { onSuccess, onError, onBefore, onAfter } = options || {};
 
-            // Set the file temporarily for processing
+            // Optionally reflect the file in state, but never rely on it for extraction.
             const originalFile = file;
             setFile(targetFile);
-            setLoading(true);
-            setError(null);
-            setText(null);
 
             try {
                 // Call onBefore callback
                 onBefore?.(targetFile);
 
+                setLoading(true);
+                setError(null);
+                setText(null);
+
                 let extractedText = '';
 
-                // Determine file type and extract accordingly
                 if (targetFile.type === 'application/pdf') {
-                    handleExtractPdfToText();
+                    extractedText = await handleExtractPdfToText(targetFile);
                 } else if (targetFile.type === 'text/plain') {
-                    handleExtractTxtToText();
+                    extractedText = await handleExtractTxtToText(targetFile);
                 } else if (
                     targetFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
                     targetFile.type === 'application/msword' ||
                     targetFile.type === 'application/docx'
                 ) {
-                    handleExtractDocxToText();
+                    extractedText = await handleExtractDocxToText(targetFile);
                 } else {
                     throw new Error('Unsupported file type. Please select a PDF, TXT, or DOCX file.');
                 }
 
-                if (!extractedText) {
+                const finalText = extractedText.trim();
+                if (!finalText) {
                     throw new Error('No text content extracted from file');
                 }
 
-                setText(extractedText.trim());
-
-                onSuccess?.(extractedText.trim(), targetFile);
+                onSuccess?.(finalText, targetFile);
             } catch (err) {
                 const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
                 setError(errorMessage);
                 onError?.(errorMessage, targetFile);
             } finally {
-                setLoading(false);
                 onAfter?.(targetFile);
                 // Restore original file
                 setFile(originalFile);
+                setLoading(false);
             }
         },
-        [file, loadPdfLibrary],
+        [file, handleExtractPdfToText, handleExtractTxtToText, handleExtractDocxToText],
     );
 
     // Process file when file changes
