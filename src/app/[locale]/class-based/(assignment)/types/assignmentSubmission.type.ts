@@ -17,6 +17,7 @@ export type IAssignmentSubmission = {
     grade: number | null;
     submittedAt: string | null;
     returnedAt: string | null;
+    urls: string[] | null;
 };
 
 export type InsertAssignmentSubmission = {

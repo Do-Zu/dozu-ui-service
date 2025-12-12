@@ -7,6 +7,8 @@ import FileItem from './FileItem';
 import { IAttachment } from '../../types/attachment.type';
 import AttachmentItem from './AttachmentItem';
 import { useTranslations } from 'next-intl';
+import type { Dispatch, SetStateAction } from 'react';
+import UrlAttachmentItem from './UrlAttachmentItem';
 
 interface Props {
     title: string;
@@ -17,9 +19,23 @@ interface Props {
     setFiles: React.Dispatch<React.SetStateAction<File[]>>;
 
     attachments?: IAttachment[] | undefined;
+    urlAttachments?: string[] | undefined;
+    urls: string[];
+    setUrls: Dispatch<SetStateAction<string[]>>;
 }
 
-export default function ContentSection({ title, setTitle, content, setContent, files, setFiles, attachments }: Props) {
+export default function ContentSection({
+    title,
+    setTitle,
+    content,
+    setContent,
+    files,
+    setFiles,
+    attachments,
+    urlAttachments,
+    urls,
+    setUrls,
+}: Props) {
     const tCommon = useTranslations('common');
     const tAttachment = useTranslations('attachment');
     const tClasswork = useTranslations('classwork');
@@ -74,11 +90,20 @@ export default function ContentSection({ title, setTitle, content, setContent, f
                         {attachments?.map((attachment) => (
                             <AttachmentItem key={attachment.attachmentId} attachment={attachment} />
                         ))}
+                        {urlAttachments?.map((u, i) => <UrlAttachmentItem key={i} url={u} />)}
                         {files.map((file, index) => (
                             <FileItem
                                 key={index}
                                 file={file}
                                 onRemove={() => setFiles(files.filter((_, i) => i !== index))}
+                            />
+                        ))}
+                        {urls?.map((u, i) => (
+                            <FileItem
+                                key={i}
+                                title={'link'}
+                                url={u}
+                                onRemove={() => setUrls(urls.filter((_, idx) => idx !== i))}
                             />
                         ))}
                     </div>

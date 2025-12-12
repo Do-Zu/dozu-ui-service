@@ -18,6 +18,7 @@ import { isNil } from '@/utils';
 import classworkUtils from '@/app/[locale]/class-based/(classwork)/utils/classwork.utils';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import UrlAttachmentItem from '@/app/[locale]/class-based/(classwork)/components/common/UrlAttachmentItem';
 import PrivateCommentSection from './PrivateCommentSection';
 
 interface StudentItemProps {
@@ -145,17 +146,13 @@ function SubmissionItem({ studentSubmission, totalGrade, assignmentId, onGradeSu
                     </p>
                 </div>
 
-                <Button
-                    variant="default"
-                    className="px-6"
-                    onClick={handleGradeSubmit}
-                    disabled={gradeLoading}
-                >
+                <Button variant="default" className="px-6" onClick={handleGradeSubmit} disabled={gradeLoading}>
                     {gradeLoading ? 'Saving...' : 'Trả bài'}
                 </Button>
             </div>
 
             {attachments?.map((attachment) => <AttachmentItem key={attachment.attachmentId} attachment={attachment} />)}
+            {submission?.urls?.map((u, i) => <UrlAttachmentItem key={i} url={u} />)}
 
             <div className="flex items-center gap-4">
                 <Input

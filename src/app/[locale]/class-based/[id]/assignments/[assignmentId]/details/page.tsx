@@ -1,7 +1,7 @@
 'use client';
 
 import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/details/ContentSection';
-import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
+import AttachmentsViewSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsViewSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
 import { IAssignment, IAssignmentWithAttachments } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
@@ -169,7 +169,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
                 <Separator />
 
-                <AttachmentsSection attachments={assignmentAttachments} />
+                <AttachmentsViewSection attachments={assignmentAttachments} urls={assignment.urls} />
 
                 <CommentSection classId={classId} assignmentId={assignmentId} />
             </div>
@@ -178,6 +178,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                 <SubmissionCard
                     submission={submission}
                     attachments={submissionAttachments}
+                    urlAttachments={submission.urls || []}
                     onSubmit={onSubmit}
                     loading={updateLoading}
                 />

@@ -1,7 +1,7 @@
 'use client';
 
 import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/details/ContentSection';
-import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
+import AttachmentsViewSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsViewSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
 import { useParams, useRouter } from 'next/navigation';
@@ -90,7 +90,7 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
 
                 <Separator />
 
-                <AttachmentsSection attachments={assignmentAttachments} />
+                <AttachmentsViewSection attachments={assignmentAttachments} urls={learningMaterial.urls} />
 
                 <LearningMaterialCommentSection classId={classId} learningMaterialId={learningMaterialId} />
             </div>
