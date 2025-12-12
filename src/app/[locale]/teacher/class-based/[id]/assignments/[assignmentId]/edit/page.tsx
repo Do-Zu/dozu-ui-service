@@ -105,8 +105,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                 },
             }));
         }
-        console.log('submit urls of original', assignment.urls);
-        console.log('submit urls new', urls);
+
         const data: IUpdateAssignmentBody = {
             ...assignment,
             inputResources: uploadedFileResult,

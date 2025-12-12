@@ -46,8 +46,8 @@ export default function AttachmentsViewSection({ attachments, urls }: Props) {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {attachments?.map((file) => <AttachmentItemWithDownload attachment={file} />)}
-            {urls?.map((url) => <AttachmentItemWithUrl url={url} />)}
+            {attachments?.map((file) => <AttachmentItemWithDownload key={file.attachmentId} attachment={file} />)}
+            {urls?.map((url, index) => <AttachmentItemWithUrl key={`url-${index}`} url={url} />)}
         </div>
     );
 }

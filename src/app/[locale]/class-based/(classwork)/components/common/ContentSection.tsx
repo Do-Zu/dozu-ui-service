@@ -42,7 +42,6 @@ export default function ContentSection({
     function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
         setTitle(e.target.value);
     }
-    console.log('urls', urlAttachments);
 
     function handleContentChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
         setContent(e.target.value);

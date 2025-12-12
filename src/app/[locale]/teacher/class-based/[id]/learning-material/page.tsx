@@ -1,7 +1,6 @@
 'use client';
 
 // import { EditLearningMaterial } from '@/app/[locale]/teacher/class-based/[id]/learning-material/components/EditLearningMaterial';
-CreateLearningMaterial;
 
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';

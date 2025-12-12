@@ -36,7 +36,6 @@ import { AssignmentStatusEnum } from '@/app/[locale]/class-based/(assignment)/ty
 import { ROUTES } from '@/utils/constants/routes';
 import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.constant';
 import UrlAttachmentModal from '@/app/[locale]/class-based/(classwork)/components/common/UrlAttachmentModal';
-import { url } from 'inspector';
 
 interface Props {
     myClass: IClass;
@@ -136,7 +135,7 @@ export function CreateLearningMaterial({ myClass, topics }: Props) {
         if (uploadedFileResult) {
             requestBody.inputResources = uploadedFileResult;
         }
-        if (urls) {
+        if (urls.length > 0) {
             requestBody.urls = urls;
         }
         const result = await sendCreateLearningMaterialRequest(requestBody);

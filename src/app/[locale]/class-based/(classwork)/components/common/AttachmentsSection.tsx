@@ -56,32 +56,7 @@ export default function AttachmentsSection({ files, setFiles, urls, setUrls, ope
                     <input type="file" multiple ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
                 </div>
 
-                {/* Render URLs */}
-                {/* {urls?.length > 0 && (
-                    <div className="flex flex-col gap-3">
-                        {urls.map((u, index) => (
-                            <FileItem
-                                key={`url-${index}`}
-                                url={u}
-                                title={'link'}
-                                onRemove={() => setUrls((prev) => prev.filter((_, i) => i !== index))}
-                            />
-                        ))}
-                    </div>
-                )} */}
 
-                {/* Render Files */}
-                {/* {files.length > 0 && (
-                    <div className="flex flex-col gap-3">
-                        {files.map((file, index) => (
-                            <FileItem
-                                key={`file-${index}`}
-                                file={file}
-                                onRemove={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
-                            />
-                        ))}
-                    </div>
-                )} */}
             </CardContent>
         </Card>
     );

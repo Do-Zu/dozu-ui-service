@@ -21,6 +21,7 @@ export default function UrlAttachmentItem({ url }: Props) {
                     <a
                         href={url}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="truncate text-sm font-medium text-foreground max-w-[220px]"
                     >
                         {url}
