@@ -27,6 +27,13 @@ import LoadingOverlay from '@/components/loading/LoadingOverLay';
 
 import { toast } from 'sonner';
 
+const renderProgress = (message: string, isProcessing = false) => (
+    <div className="flex items-center gap-2">
+        {isProcessing && <Loader className="h-4 w-4 animate-spin" />}
+        <span>{message}</span>
+    </div>
+);
+
 export const UploadModal: React.FC = () => {
     const t = useTranslations('generate.fileTab');
 
@@ -48,21 +55,14 @@ export const UploadModal: React.FC = () => {
         () => ({
             ids: [] as (string | number)[],
 
-            renderProgress: (message: string, isProcessing = false) => (
-                <div className="flex items-center gap-2">
-                    {isProcessing && <Loader className="h-4 w-4 animate-spin" />}
-                    <span>{message}</span>
-                </div>
-            ),
-
             showProgress: (message: string) => {
-                const id = toast(toastManager.renderProgress(message, true), { duration: Infinity });
+                const id = toast(renderProgress(message, true), { duration: Infinity });
                 toastManager.ids.push(id);
                 return id;
             },
 
             updateProgress: (id: string | number, message: string) => {
-                toast(toastManager.renderProgress(message), { id, duration: Infinity });
+                toast(renderProgress(message), { id, duration: Infinity });
             },
 
             dismissAll: () => {
@@ -70,11 +70,11 @@ export const UploadModal: React.FC = () => {
             },
 
             showSuccess: (message: string) => {
-                toast.info(toastManager.renderProgress(message), { duration: 2000 });
+                toast.info(renderProgress(message), { duration: 2000 });
             },
 
             showError: (message: string) => {
-                toast.error(toastManager.renderProgress(message), { duration: 4000 });
+                toast.error(renderProgress(message), { duration: 4000 });
             },
         }),
         [],
@@ -163,11 +163,13 @@ export const UploadModal: React.FC = () => {
     const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
+        setIsDragging(true);
     }, []);
 
     const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
+        setIsDragging(false);
     }, []);
 
     const handleFileChange = useCallback(
@@ -194,9 +196,9 @@ export const UploadModal: React.FC = () => {
     );
 
     useEffect(() => {
-        if (isConverting) {
-            toast('Converting...');
-        }
+        const id = 'FILE_CONVERTING_FILE_TOAST';
+        if (isConverting) toast(renderProgress('Converting...'), { id, duration: Infinity });
+        else toast.dismiss(id);
     }, [isConverting]);
 
     return (

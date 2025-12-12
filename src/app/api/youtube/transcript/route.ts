@@ -46,7 +46,7 @@ export async function GET(request: Request) {
 
             const transcriptSegments = transcriptData.transcript.content.body.initial_segments.map((segment: any) => ({
                 text: segment.snippet.text,
-                startMs: toNumber(segment.start_ms, 0),
+                startMs: toNumber(segment?.start_ms, 0),
                 endMs: toNumber(segment?.end_ms, 0),
                 startSecond: toNumber(segment?.start_ms / 1000, 0),
                 endSecond: toNumber(segment?.end_ms / 1000, 0),

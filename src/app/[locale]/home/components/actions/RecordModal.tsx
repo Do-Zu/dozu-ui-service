@@ -4,6 +4,7 @@ import React from 'react';
 import { Modal } from '@/components/modal/Modal';
 import { Mic, Monitor } from 'lucide-react';
 import { useActionStore } from './context/ActionContext';
+import { toast } from 'sonner';
 
 export const RecordModal: React.FC = () => {
     const isOpen = useActionStore((state) => state.showRecord);
@@ -17,7 +18,7 @@ export const RecordModal: React.FC = () => {
                 <div className="flex flex-col gap-3 mt-2">
                     <button
                         className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-colors text-left group"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => toast('feature in coming')}
                     >
                         <div className="p-3 rounded-full bg-muted group-hover:bg-background transition-colors">
                             <Mic className="w-5 h-5" />
@@ -30,7 +31,7 @@ export const RecordModal: React.FC = () => {
 
                     <button
                         className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-colors text-left group"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => toast('feature in coming')}
                     >
                         <div className="p-3 rounded-full bg-muted group-hover:bg-background transition-colors">
                             <Monitor className="w-5 h-5" />

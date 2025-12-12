@@ -1,23 +1,20 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useActionStore } from './context/ActionContext';
+import usePost from '@/hooks/usePost';
+import useFetch from '@/hooks/useFetch';
+import { resourceService } from './services/contentCreation.service';
+import { Link as LinkIcon, Loader } from 'lucide-react';
 import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link as LinkIcon, Loader } from 'lucide-react';
-import { useActionStore } from './context/ActionContext';
-import { toast } from 'sonner';
-import { countWords, isEmpty, safeDestructure } from '@/utils';
-import axios from 'axios';
-import { STATUS_CODE } from '@/utils/constants/http';
-import { InsertContentTopicParams, YoutubeResourcePayload } from './types/resource.type';
-import { extractYouTubeVideoId, isYouTubeUrl, validateUrl } from './helper/helper';
-import useFetch from '@/hooks/useFetch';
+import { isEmpty, safeDestructure } from '@/utils';
+import { isYouTubeUrl, validateUrl } from './helper/helper';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
-import usePost from '@/hooks/usePost';
-import topicService from '@/services/topic/topic.service';
-import { resourceService } from './services/contentCreation.service';
+import { YoutubeResourcePayload } from './types/resource.type';
 import { IMPORT_METHOD, RESOURCE_CONTENT_TYPE, ResourceContentType } from './constants/resource';
+import { toast } from 'sonner';
 
 interface RequestTopicResourceRequest {
     name: string;
@@ -90,7 +87,9 @@ export const PasteLinkModal: React.FC = () => {
             onSuccess: (video: YoutubeResourcePayload) => {
                 if (isEmpty(video)) return;
 
-                const { title } = safeDestructure(video?.videoInfo, {});
+                const DEFAULT_TITLE = '';
+
+                const { title } = safeDestructure(video?.videoInfo, { title: DEFAULT_TITLE });
 
                 uploadResource({
                     name: title,

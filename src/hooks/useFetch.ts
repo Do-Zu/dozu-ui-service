@@ -121,7 +121,7 @@ function useFetch<T, Z = T>(
                 onAfter?.();
             }
         },
-        [param, selector, schema, fetchOptions],
+        [param, selector, schema, fetchOptions, options],
     );
 
     useEffect(() => {

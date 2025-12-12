@@ -10,7 +10,7 @@ import { RecordModal } from './RecordModal';
 import { ActionProvider, useActionStore } from './context/ActionContext';
 import { IMPORT_METHOD, TypeImportMethod } from './constants/resource';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
-import { compareIgnoreCapitalization, isNilOrEmpty } from '@/utils';
+import { compareIgnoreCapitalization } from '@/utils';
 
 interface IActionCard {
     title: string;

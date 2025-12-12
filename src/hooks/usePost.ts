@@ -1,10 +1,9 @@
+import { useCallback, useState } from 'react';
 import { z } from 'zod';
-import { FetchOptions, METHOD } from './type';
-import { useCallback, useEffect, useState } from 'react';
 import { callApiAsync } from './helper';
-import { AxiosError } from 'axios';
 import errorHelper from '@/utils/error.helper';
 import { isEmpty, safeDestructure } from '@/utils';
+import { FetchOptions, METHOD } from './type';
 
 interface IResultPost<TReq = unknown, TRes = unknown> {
     loading: boolean;
