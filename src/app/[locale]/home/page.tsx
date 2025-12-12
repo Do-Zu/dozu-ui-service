@@ -2,19 +2,20 @@
 
 import React, { ComponentType, ReactNode, useEffect } from 'react';
 
-import { ILearningMode, selectLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { ROUTES } from '@/utils/constants/routes';
 import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
 import { useAuthStorage } from '../auth/hooks/useAuthStorage';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import PersonalTopicLibrary from '../topics/components/ui/PersonalTopicLibrary';
 import CurrentProcessLearning from './components/CurrentProcessLearning';
 import HeroSection from './components/HeroSection';
+import Actions from './components/actions/Actions';
 import LoadingPage from '@/app/loading';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { BackgroundGradient } from '@/components/common/BackgroundGradient';
+import Title from './components/Title';
 
 type Section = {
     key: string;
@@ -25,7 +26,9 @@ type Section = {
 
 const SECTIONS: Section[] = [
     { key: 'bg', isAuth: false, Comp: BackgroundGradient },
+    { key: 'title', isAuth: false, Comp: Title },
     { key: 'hero', isAuth: false, Comp: HeroSection },
+    { key: 'actions', isAuth: false, Comp: Actions },
     { key: 'current', isAuth: true, Comp: CurrentProcessLearning },
     { key: 'library', isAuth: true, Comp: PersonalTopicLibrary, ReplaceComp: <div></div> },
 ];

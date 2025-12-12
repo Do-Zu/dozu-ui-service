@@ -3,7 +3,7 @@ import { FetchOptions, METHOD } from './type';
 import { callApiAsync } from './helper';
 import { z } from 'zod';
 import { AxiosError } from 'axios';
-import { isEmpty, isNilOrEmpty } from '@/utils';
+import { isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
 
 /**
  * Custom hook for fetching data from an API or via a provided function with Zod validation
@@ -26,6 +26,8 @@ interface Options<Z> {
     onSuccess?: (...args: any[]) => void;
     onError?: (...args: any[]) => void;
     onEmpty?: (...args: any[]) => void;
+    onBefore?: () => void;
+    onAfter?: () => void;
 }
 
 function useFetch<T, Z = T>(
@@ -33,6 +35,7 @@ function useFetch<T, Z = T>(
     options?: Options<Z>,
     fetchOptions?: FetchOptions,
 ) {
+    const { onBefore, onAfter } = safeDestructure(options);
     const selector = options?.selector;
     const schema = options?.schema;
     const shouldRun = !isNilOrEmpty(options?.shouldRun) ? options?.shouldRun : true;
@@ -43,77 +46,83 @@ function useFetch<T, Z = T>(
 
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    const fetchData = useCallback(async () => {
-        // Cancel any in-flight request
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-        }
-
-        // Create a new abort controller for this request and store it in a local variable
-        const currentController = new AbortController();
-        abortControllerRef.current = currentController;
-
-        try {
-            setLoading(true);
-            setError(null);
-
-            let rawData: unknown;
-
-            if (typeof param === 'string') {
-                const result = await callApiAsync(param, 'GET', fetchOptions);
-                rawData = result.data;
-            } else if (typeof param === 'function') {
-                rawData = await param();
-            } else {
-                throw new Error('Invalid parameter: must be a URL string or a function');
+    const fetchData = useCallback(
+        async (...args: unknown[]) => {
+            // Cancel any in-flight request
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
             }
 
-            // apply in here to select customized param
-            if (selector && rawData) rawData = selector(rawData);
+            // Create a new abort controller for this request and store it in a local variable
+            const currentController = new AbortController();
+            abortControllerRef.current = currentController;
 
-            let finalData: Z;
+            onBefore?.();
 
-            // Apply Zod validation if schema is provided
-            if (schema) {
-                try {
-                    finalData = schema.parse(rawData);
-                } catch (validationError) {
-                    if (validationError instanceof z.ZodError) {
-                        throw new Error(
-                            `Validation error: ${validationError.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-                        );
-                    }
-                    throw validationError;
+            try {
+                setLoading(true);
+                setError(null);
+
+                let rawData: unknown;
+
+                if (typeof param === 'string') {
+                    const result = await callApiAsync(param, 'GET', fetchOptions);
+                    rawData = result.data;
+                } else if (typeof param === 'function') {
+                    rawData = await param(...args);
+                } else {
+                    throw new Error('Invalid parameter: must be a URL string or a function');
                 }
-            } else {
-                finalData = rawData as Z;
-            }
 
-            setData(finalData);
+                // apply in here to select customized param
+                if (selector && rawData) rawData = selector(rawData);
 
-            if (isEmpty(finalData as unknown)) {
-                options?.onEmpty?.();
-            } else {
-                options?.onSuccess?.(data);
-            }
-        } catch (error) {
-            if (error instanceof DOMException && error.name === 'AbortError') {
-                return;
-            }
-            if (error instanceof AxiosError) {
-                setError(error.response?.data.message);
-            } else {
-                setError(error instanceof Error ? error.message : 'Unknown error');
-            }
+                let finalData: Z;
 
-            options?.onError?.(error);
-        } finally {
-            // Check the signal from our local controller variable
-            if (!currentController.signal.aborted) {
-                setLoading(false);
+                // Apply Zod validation if schema is provided
+                if (schema) {
+                    try {
+                        finalData = schema.parse(rawData);
+                    } catch (validationError) {
+                        if (validationError instanceof z.ZodError) {
+                            throw new Error(
+                                `Validation error: ${validationError.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+                            );
+                        }
+                        throw validationError;
+                    }
+                } else {
+                    finalData = rawData as Z;
+                }
+
+                setData(finalData);
+
+                if (isEmpty(finalData)) {
+                    options?.onEmpty?.();
+                } else {
+                    options?.onSuccess?.(finalData);
+                }
+            } catch (error) {
+                if (error instanceof DOMException && error.name === 'AbortError') {
+                    return;
+                }
+                if (error instanceof AxiosError) {
+                    setError(error.response?.data.message);
+                } else {
+                    setError(error instanceof Error ? error.message : 'Unknown error');
+                }
+
+                options?.onError?.(error);
+            } finally {
+                // Check the signal from our local controller variable
+                if (!currentController.signal.aborted) {
+                    setLoading(false);
+                }
+                onAfter?.();
             }
-        }
-    }, [param, selector, schema, fetchOptions]);
+        },
+        [param, selector, schema, fetchOptions, options],
+    );
 
     useEffect(() => {
         // only fetch data if shouldRun is true

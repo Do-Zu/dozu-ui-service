@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import { FetchOptions, METHOD } from './type';
 import { useCallback, useState } from 'react';
+import { z } from 'zod';
 import { callApiAsync } from './helper';
-import { AxiosError } from 'axios';
 import errorHelper from '@/utils/error.helper';
+import { isEmpty, safeDestructure } from '@/utils';
+import { FetchOptions, METHOD } from './type';
 
 interface IResultPost<TReq = unknown, TRes = unknown> {
     loading: boolean;
@@ -21,6 +21,9 @@ export interface UsePostOptions<TReq, TRes> {
     onMessageSuccess?: () => void;
     onSuccess?: (data: TRes) => void;
     onError?: (error: unknown) => void;
+    onEmpty?: () => void;
+    onBefore?: () => void;
+    onAfter?: () => void;
 }
 
 /**
@@ -32,10 +35,10 @@ export interface UsePostOptions<TReq, TRes> {
  * @param options.requestSchema - Optional Zod schema to validate request data
  * @param options.responseSchema - Optional Zod schema to validate and parse the response data
  * @param options.requestOptions - Optional Additional options for the API call (headers, etc.)
- * @param options.onMessageError - Optional Callback for showing error message 
+ * @param options.onMessageError - Optional Callback for showing error message
  * @param options.onMessageSuccess - Optional Callback for showing success message
  * @param options.onError - Optional Callback that receives error object when there is an error
- * @param options.onSuccess - Optional Callback that receives data from response, used for updating UI  
+ * @param options.onSuccess - Optional Callback that receives data from response, used for updating UI
  * @returns {Object} An object containing:
  *   - execute: Function to trigger the API call with payload
  *   - data: The response data (if any) after validation or null
@@ -52,9 +55,18 @@ function usePost<TReq = unknown, TRes = unknown>(
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    options = options || {};
-    const { requestSchema, responseSchema, requestOptions, onMessageError, onMessageSuccess, onError, onSuccess } =
-        options;
+    const {
+        requestSchema,
+        responseSchema,
+        requestOptions,
+        onBefore,
+        onMessageError,
+        onMessageSuccess,
+        onError,
+        onSuccess,
+        onEmpty,
+        onAfter,
+    } = safeDestructure<UsePostOptions<TReq, TRes>>(options);
 
     const reset = useCallback(() => {
         setData(null);
@@ -141,21 +153,20 @@ function usePost<TReq = unknown, TRes = unknown>(
     const execute = useCallback(
         async (payload: TReq): Promise<TRes | null> => {
             try {
+                onBefore?.();
+
                 setLoading(true);
                 setError(null);
 
-                // Validate request data if schema is provided
-                // Skip validation if no payload or treat as empty object if undefined
                 const validatedRequestData = payload !== undefined ? validateRequest(payload) : ({} as TReq);
 
-                // Call the API
                 let responseData: unknown;
 
                 if (typeof param === 'function') {
-                    // For function-based calls, we don't modify the payload as the function should handle that
+                    // For function-based calls
                     responseData = await callWithFunctionFormat(validatedRequestData);
                 } else {
-                    // For URL-based calls, we use the callApiAsync which now adds timezone information
+                    // For URL-based  use the callApiAsync
                     responseData = await callApiAsync(param.toString(), method, {
                         ...requestOptions,
                         body: validatedRequestData,
@@ -166,11 +177,14 @@ function usePost<TReq = unknown, TRes = unknown>(
                     onMessageSuccess();
                 }
 
-                // Validate response data if schema is provided
                 const validatedResponse = validateResponse(responseData);
 
-                // if onSuccess is passed, execute onSuccess with validatedResponse
-                onSuccess?.(validatedResponse);
+                if (isEmpty(validatedResponse)) {
+                    onEmpty?.();
+                } else {
+                    onSuccess?.(validatedResponse);
+                }
+
                 return validatedResponse;
             } catch (error) {
                 const message = errorHelper.getErrorMessage(error);
@@ -186,6 +200,7 @@ function usePost<TReq = unknown, TRes = unknown>(
                 return null;
             } finally {
                 setLoading(false);
+                onAfter?.();
             }
         },
         [param, method, validateRequest, validateResponse, requestOptions],
