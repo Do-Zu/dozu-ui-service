@@ -53,6 +53,7 @@ export default function StudentStartClassQuizPage() {
     const { locale } = useParams<{ locale: string }>();
     const { user } = useUserSession();
     const authUserId = Number(user?.userId);
+    const hasAuthUserId = Number.isFinite(authUserId);
 
     const [meta, setMeta] = useState<IPlayableMeta | null>(null);
     const [attempt, setAttempt] = useState<IStartAttemptResp | null>(null);
@@ -141,6 +142,10 @@ export default function StudentStartClassQuizPage() {
     // Start attempt
     async function onStart() {
         try {
+            if (!hasAuthUserId) {
+                toast({ title: 'Cannot start quiz', description: 'Missing user session', variant: 'destructive' });
+                return;
+            }
             setBootingAttempt(true);
 
             const a = await classQuizStudentService.startAttempt(quizId);
@@ -277,7 +282,8 @@ export default function StudentStartClassQuizPage() {
                     variant: 'destructive',
                 });
 
-                setTimeout(() => onSubmitAuto(), 300);
+                const t = window.setTimeout(() => onSubmitAuto(), 300);
+                return () => window.clearTimeout(t);
             }
             return;
         }
@@ -318,8 +324,8 @@ export default function StudentStartClassQuizPage() {
                         attempt(s).
                     </p>
 
-                    <Button size="lg" onClick={onStart}>
-                        🚀 Start Attempt
+                    <Button size="lg" onClick={onStart} disabled={bootingAttempt || !hasAuthUserId}>
+                        {bootingAttempt ? 'Starting...' : '🚀 Start Attempt'}
                     </Button>
                 </div>
             ) : (
