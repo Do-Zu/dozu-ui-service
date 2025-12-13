@@ -1,22 +1,22 @@
 // Add these constants at the top of the file
 const MAX_FILE_SIZE_MB = 10; // 10MB for documents
-const MAX_MEDIA_SIZE_MB = 50; // 50MB for audio/video
+const MAX_MEDIA_SIZE_MB = 15; // 15MB for audio/video
 const MAX_TEXT_LENGTH = 5000; // 5000 tokens (approximate)
 const ALLOWED_FILE_TYPES = ['.pdf', '.doc', '.docx', '.txt'];
-const ALLOWED_AUDIO_TYPES = ['.mp3', '.wav', '.m4a'];
+const ALLOWED_AUDIO_TYPES = ['.mp3', '.wav'];
 const ALLOWED_VIDEO_TYPES = ['.mp4', '.mov', '.avi'];
 const MAX_CONTENT_SIZE_KB = 256;
 
 const FILE_TYPES_NOT_CONVERT = '.pdf';
 const FILE_FORMAT = 'application/pdf';
 
+type ValidateFileSizeOptions = { isMedia?: boolean; maxMediaSize?: number; maxSizeFile?: number };
+
 const validateFileSize = (
     file: File,
-    isMedia = false,
-    maxSizeFile = MAX_FILE_SIZE_MB,
-    maxFileMedia = MAX_MEDIA_SIZE_MB,
+    { isMedia = false, maxMediaSize = MAX_MEDIA_SIZE_MB, maxSizeFile = MAX_FILE_SIZE_MB }: ValidateFileSizeOptions = {},
 ): boolean => {
-    const maxSizeMB = isMedia ? maxSizeFile : maxFileMedia;
+    const maxSizeMB = isMedia ? maxMediaSize : maxSizeFile;
     const fileSizeMB = file.size / (1024 * 1024);
     return fileSizeMB <= maxSizeMB;
 };

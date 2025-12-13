@@ -26,13 +26,8 @@ import { UploadCloud, Loader } from 'lucide-react';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
 
 import { toast } from 'sonner';
-
-const renderProgress = (message: string, isProcessing = false) => (
-    <div className="flex items-center gap-2">
-        {isProcessing && <Loader className="h-4 w-4 animate-spin" />}
-        <span>{message}</span>
-    </div>
-);
+import useToastManager from './hooks/useToastManager';
+import RenderProgress from './components/upload/RenderProgress';
 
 export const UploadModal: React.FC = () => {
     const t = useTranslations('generate.fileTab');
@@ -51,34 +46,7 @@ export const UploadModal: React.FC = () => {
         url: '/convert/file',
     });
 
-    const toastManager = useMemo(
-        () => ({
-            ids: [] as (string | number)[],
-
-            showProgress: (message: string) => {
-                const id = toast(renderProgress(message, true), { duration: Infinity });
-                toastManager.ids.push(id);
-                return id;
-            },
-
-            updateProgress: (id: string | number, message: string) => {
-                toast(renderProgress(message), { id, duration: Infinity });
-            },
-
-            dismissAll: () => {
-                toastManager.ids.forEach((id) => toast.dismiss(id));
-            },
-
-            showSuccess: (message: string) => {
-                toast.info(renderProgress(message), { duration: 2000 });
-            },
-
-            showError: (message: string) => {
-                toast.error(renderProgress(message), { duration: 4000 });
-            },
-        }),
-        [],
-    );
+    const toastManager = useToastManager();
 
     const handleProcessingContent = async (file: File) => {
         try {
@@ -197,7 +165,7 @@ export const UploadModal: React.FC = () => {
 
     useEffect(() => {
         const id = 'FILE_CONVERTING_FILE_TOAST';
-        if (isConverting) toast(renderProgress('Converting...'), { id, duration: Infinity });
+        if (isConverting) toast(<RenderProgress message="Converting..." />, { id, duration: Infinity });
         else toast.dismiss(id);
     }, [isConverting]);
 
@@ -205,11 +173,14 @@ export const UploadModal: React.FC = () => {
         <Modal
             isOpen={isOpen}
             setIsOpen={setIsOpen}
+            title="Upload your files here."
             body={
                 <div
-                    className={`mt-4 rounded-3xl p-8 flex flex-col items-center justify-center transition-colors hover:opacity-70 cursor-pointer ${
-                        isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
-                    }`}
+                    className={`mt-4 rounded-3xl p-8 flex flex-col items-center justify-center
+                        cursor-pointer transition-all
+                        border border-dashed
+                        hover:border-primary/60 hover:bg-primary/5
+                        ${isDragging ? 'border-primary ring-2 ring-primary/30 bg-primary/5' : 'border-muted-foreground/30'}`}
                     onDragOver={handleDragOver}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}

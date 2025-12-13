@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { Upload, Link, Mic } from 'lucide-react';
+import { Upload, Link, Mic, FileVolume, AudioLines } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UploadModal } from './UploadModal';
 import { PasteLinkModal } from './PasteLinkModal';
@@ -45,9 +45,9 @@ function ActionsContent() {
                 type: IMPORT_METHOD.TEXT,
             },
             {
-                title: 'Record',
-                description: 'Class, video call',
-                icon: Mic,
+                title: 'Media',
+                description: 'Upload audio files or record audio',
+                icon: AudioLines,
                 onClick: () => setShowRecord(true),
                 delay: 0.3,
                 type: IMPORT_METHOD.MEDIA,
@@ -58,8 +58,8 @@ function ActionsContent() {
     const isDisabled = isProcessing();
 
     return (
-        <div className="w-full max-w-3xl mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="w-full max-w-3xl mx-auto px-4 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {actions?.map((action, index) => {
                     const isCardProcessing =
                         isDisabled && processingType && compareIgnoreCapitalization(processingType, action?.type);
@@ -70,22 +70,46 @@ function ActionsContent() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: action.delay }}
-                            className="relative"
+                            className="relative h-full"
                         >
                             <Card
-                                className={`max-w-[250px] border-0.5 dark:border-2 dark:border-slate-900/50 px-2 py-6 rounded-[2.5em] shadow-md  group h-full flex flex-col items-center justify-center text-center gap-4 bg-card/50 backdrop-blur-lg overflow-hidden ${
+                                className={`
+                                relative h-full flex flex-col items-center justify-center text-center gap-5 px-4 py-8
+                                rounded-3xl border transition-all duration-300 ease-out group overflow-hidden
+                                ${
                                     isDisabled
-                                        ? 'opacity-50 cursor-not-allowed'
-                                        : 'cursor-pointer dark:hover:shadow-md transition-all hover:border-primary/10 '
-                                }`}
+                                        ? 'opacity-60 cursor-not-allowed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50'
+                                        : 'cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 border-slate-200/60 dark:border-slate-700/50 hover:border-primary/30 dark:hover:border-primary/50 bg-gradient-to-b from-white to-slate-50 dark:from-slate-800/40 dark:to-slate-900/40 backdrop-blur-md'
+                                }
+                            `}
                                 onClick={isDisabled ? undefined : action.onClick}
                             >
-                                <div className="p-4 rounded-full bg-primary/10 group-hover:bg-primary/20  group-hover:text-primary transition-colors">
-                                    <action.icon className="w-4 h-4 " />
+                                {!isDisabled && (
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                )}
+
+                                <div
+                                    className={`
+                                relative p-4 rounded-2xl transition-all duration-300
+                                ${
+                                    isDisabled
+                                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                        : 'bg-primary/5 text-primary ring-1 ring-primary/20 group-hover:bg-primary group-hover:text-white group-hover:ring-primary group-hover:shadow-lg group-hover:shadow-primary/30'
+                                }
+                            `}
+                                >
+                                    <action.icon className="w-6 h-6" />
                                 </div>
-                                <div className="space-y-1">
-                                    <h3 className="font-semibold text-sm">{action.title}</h3>
-                                    <p className="text-xs text-muted-foreground">{action.description}</p>
+
+                                <div className="space-y-1.5 relative z-10">
+                                    <h3
+                                        className={`font-bold text-base transition-colors ${!isDisabled ? 'group-hover:text-primary dark:text-slate-100' : 'text-slate-500'}`}
+                                    >
+                                        {action.title}
+                                    </h3>
+                                    <p className="text-xs text-muted-foreground/80 font-medium leading-relaxed px-2">
+                                        {action.description}
+                                    </p>
                                 </div>
 
                                 {isCardProcessing && <LoadingOverlay />}
