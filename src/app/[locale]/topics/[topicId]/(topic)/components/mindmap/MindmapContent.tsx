@@ -73,6 +73,7 @@ const MindmapContent = ({ mode, role }: Props) => {
         hasInitialized,
         isProcessingRegisterGenerate,
         executeGenerate,
+        fitView,
     } = useMindMapContext();
 
     const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -115,6 +116,9 @@ const MindmapContent = ({ mode, role }: Props) => {
     function onViewFlashcardsClose() {
         setFlashcardsViewMode('none');
         setIsFlashcardsPanelFullscreen(false);
+        requestAnimationFrame(() => {
+            fitView({ duration: 800 });
+        })
     }
 
     function onGenerateMultiNodeFlashcardsSuccess(data: IGenerateNodeFlashcardsItem[]) {

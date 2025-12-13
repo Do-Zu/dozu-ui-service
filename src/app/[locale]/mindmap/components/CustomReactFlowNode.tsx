@@ -75,12 +75,15 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
 
     const onChangeLabel = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLabel(e.target.value);
+        handleSave(e.target.value);
     };
 
-    const handleSave = () => {
-        // Update the node data with new label
+    const handleSave = (inputLabel: string) => {
+        // Update the node data with new label locally (not saving to db)
         setNodes((nds) =>
-            nds.map((node) => (node.id === data.nodeId ? { ...node, data: { ...node.data, label } } : node)),
+            nds.map((node) =>
+                node.id === data.nodeId ? { ...node, data: { ...node.data, label: inputLabel } } : node,
+            ),
         );
         setEditing(false);
     };
@@ -114,7 +117,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
-            handleSave();
+            handleSave(label);
         } else if (e.key === 'Escape') {
             handleCancel();
         }
@@ -234,7 +237,15 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                     letterSpacing: '0.01em',
                                 }}
                             >
-                                {data?.label || 'Untitled Node'}
+                                {isEditingMindmap ? (
+                                    <Input
+                                        className="h-7 px-2 py-1 text-sm border border-neutral-300 dark:border-neutral-600"
+                                        value={label}
+                                        onChange={onChangeLabel}
+                                    />
+                                ) : (
+                                    data?.label || 'Untitled Node'
+                                )}
                             </motion.h3>
 
                             {/* Description if available */}

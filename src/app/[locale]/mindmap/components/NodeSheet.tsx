@@ -81,7 +81,7 @@ const NodeSheet = ({
     const router = useRouter();
     const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
-    const { screenToFlowPosition, getNodes, getEdges, setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
+    const { screenToFlowPosition, getNodes, getEdges, setNodes, setEdges, fitView } = useReactFlow<AppNode, AppEdge>();
     const nodes = getNodes();
     const edges = getEdges();
 
@@ -272,7 +272,10 @@ const NodeSheet = ({
     };
 
     const handleOnOpenChange = (open: boolean) => {
-        if (!open) setIsEditing(false);
+        if (!open) {
+            setIsEditing(false);
+            fitView({ duration: 800 });
+        }
         dispatch(setIsSheetOpen(open));
     };
 
