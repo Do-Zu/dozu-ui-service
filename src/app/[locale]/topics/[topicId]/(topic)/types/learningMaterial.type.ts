@@ -15,4 +15,5 @@ export interface ITranscriptSegment {
 export enum EnumLearningMaterial {
     file = 'file',
     youtube = 'youtube',
+    media = 'media',
 }

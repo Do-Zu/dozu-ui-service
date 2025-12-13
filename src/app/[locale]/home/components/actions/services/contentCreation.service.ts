@@ -149,6 +149,11 @@ class ContentCreationService {
 
                 return { content };
             }
+            case RESOURCE_CONTENT_TYPE.MEDIA: {
+                return {
+                    ...params.payload,
+                };
+            }
             default:
                 return null;
         }

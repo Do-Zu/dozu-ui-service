@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import TranscriptViewer from './TranscriptViewer';
+import TranscriptViewer from '../common/transcript/TranscriptViewer';
 import { YouTubePlayer, YouTubeProps } from 'react-youtube';
 import YoutubePlayer from './YoutubePlayer';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
@@ -48,7 +48,7 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
                 <p>{content}</p>
             ) : (
                 <Fragment>
-                    <SelectMenu refNode={ref} type="youtube" />
+                    <SelectMenu refNode={ref} />
                     <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} ref={ref} />
                 </Fragment>
             )}

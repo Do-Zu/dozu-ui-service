@@ -1,6 +1,7 @@
 import { UploadFileResponse } from '@/components/generative/types';
 
 import { RESOURCE_CONTENT_TYPE } from '../constants/resource';
+import { ITranscriptSegment } from '@/app/[locale]/topics/[topicId]/(topic)/types';
 
 interface IEmbedVideoInfo {
     iframe_url: string;
@@ -41,6 +42,8 @@ export type TextResourceMetadata = {
     content: string;
 };
 
+export type MediaResourceMetadata = UploadFileResponse & { content: ITranscriptSegment[] };
+
 export interface ISegmentTranscript {
     text: string;
     startTime: number;
@@ -79,6 +82,7 @@ export type ResourceMetadataMap = {
     [RESOURCE_CONTENT_TYPE.YOUTUBE]: YoutubeResourceMetadata;
     [RESOURCE_CONTENT_TYPE.WEBSITE]: WebsiteResourceMetadata;
     [RESOURCE_CONTENT_TYPE.TEXT]: TextResourceMetadata;
+    [RESOURCE_CONTENT_TYPE.MEDIA]: MediaResourceMetadata;
 };
 
 export type IPayloadMetaDataResource =
@@ -112,6 +116,11 @@ export type InsertContentTopicParams =
           topicId: string | number;
           contentType: null;
           payload: undefined;
+      }
+    | {
+          topicId: string | number;
+          contentType: typeof RESOURCE_CONTENT_TYPE.MEDIA;
+          payload: MediaResourceMetadata;
       };
 
 export type NonNullableInsertParams = Exclude<InsertContentTopicParams, { contentType: null }>;

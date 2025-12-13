@@ -48,7 +48,7 @@ export default function PDFLearningMaterial({ data }: IProps) {
     return (
         <div className="h-full flex flex-col gap-4">
             <CustomPDFViewer pdfUrl={pdfUrl} fileName={file?.name} ref={ref} />
-            <SelectMenu refNode={ref} type="pdf" />
+            <SelectMenu refNode={ref} />
         </div>
     );
 }

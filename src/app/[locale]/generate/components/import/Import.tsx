@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { FileText, Link, Video } from 'lucide-react';
 import TabContent from './components/TextUrlContentTab';
 import FileTab from './components/FileTab';
-import MediaTab from './components/MediaTab';
+import MediaTab from './components/MyMediaTab';
 
 const Import: React.FC = memo(() => {
     const dispatch = useCardImportDispatch();

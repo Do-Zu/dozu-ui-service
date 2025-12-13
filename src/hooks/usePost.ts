@@ -19,7 +19,7 @@ export interface UsePostOptions<TReq, TRes> {
     requestOptions?: Omit<FetchOptions, 'params' | 'body'>;
     onMessageError?: () => void;
     onMessageSuccess?: () => void;
-    onSuccess?: (data: TRes) => void;
+    onSuccess?: (data: TRes) => void | Promise<void>;
     onError?: (error: unknown) => void;
     onEmpty?: () => void;
     onBefore?: () => void;
@@ -182,7 +182,7 @@ function usePost<TReq = unknown, TRes = unknown>(
                 if (isEmpty(validatedResponse)) {
                     onEmpty?.();
                 } else {
-                    onSuccess?.(validatedResponse);
+                    await onSuccess?.(validatedResponse);
                 }
 
                 return validatedResponse;
