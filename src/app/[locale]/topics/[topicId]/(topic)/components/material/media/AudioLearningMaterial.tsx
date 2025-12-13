@@ -23,7 +23,7 @@ export default function AudioLearningMaterial({ data }: IProps) {
     const { blobUrl, content } = safeDestructure(data);
     const ref = useRef<HTMLDivElement | null>(null);
     const { selectingContentText, contentTextOrigin } = useTopicWorkspace();
-    const audioRef = useRef<H5AudioPlayer | null>(null);
+    const audioRef = useRef<React.ComponentRef<typeof H5AudioPlayer> | null>(null);
 
     useEffect(() => {
         const prevUrl = blobUrl;
@@ -37,11 +37,11 @@ export default function AudioLearningMaterial({ data }: IProps) {
     }, [blobUrl]);
 
     useEffect(() => {
-        if (!isNilOrEmpty(content)) {
-            if (transcriptUtils.validateTranscript(content)) {
-                contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
-            }
+        if (!isNilOrEmpty(content) && transcriptUtils.validateTranscript(content)) {
+            contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
+            return;
         }
+        contentTextOrigin.current = '';
     }, [content]);
 
     function onSegmentClick(seconds: number) {
