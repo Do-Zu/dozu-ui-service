@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
+import { renderMarkdown } from '@/components/comments/utils/markdown';
 
 interface BaseProps {
     teacherName: string;
@@ -46,12 +47,28 @@ export default function ContentSection(props: Props) {
 
     return (
         <div className="flex items-start justify-between">
-            <div className="flex flex-1 flex-col">
-                <h1 className="text-2xl font-semibold">{title}</h1>
-                <p className="text-muted-foreground">
-                    {teacherName} • {formatDate(createdAt)}
-                </p>
-                {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
+            <div className="flex flex-1 flex-col gap-4">
+                <div className="space-y-3">
+                    <h1 className="text-2xl font-semibold">{title}</h1>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                        {teacherName && (
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-medium">Giáo viên:</span>
+                                <span>{teacherName}</span>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                            <span className="font-medium">Ngày tạo:</span>
+                            <span>{formatDate(createdAt)}</span>
+                        </div>
+                    </div>
+                </div>
+                {description && (
+                    <div 
+                        className="text-sm text-muted-foreground break-words max-h-[400px] overflow-y-auto pr-2 prose prose-sm max-w-none dark:prose-invert"
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(description) }}
+                    />
+                )}
                 <div className="mt-2 flex items-center justify-between w-full">
                     {withGrade ? (
                         <div className="flex items-center gap-3">
