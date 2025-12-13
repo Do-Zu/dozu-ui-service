@@ -244,14 +244,16 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                     </div>
                 </TabsContent>
                 <TabsContent value="submissions" className="px-6 md:px-8 py-4">
-                    <Separator />
-                    <SubmissionsPage
-                        studentSubmissions={studentSubmissions}
-                        totalGrade={assignment.totalGrades}
-                        assignmentId={assignmentId}
-                        onGradeSubmit={onGradeSubmit}
-                        gradeLoading={gradeSubmissionLoading}
-                    />
+                    <Separator className="mb-4" />
+                    <div className="h-[calc(100vh-12rem)]">
+                        <SubmissionsPage
+                            studentSubmissions={studentSubmissions}
+                            totalGrade={assignment.totalGrades}
+                            assignmentId={assignmentId}
+                            onGradeSubmit={onGradeSubmit}
+                            gradeLoading={gradeSubmissionLoading}
+                        />
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>

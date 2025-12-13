@@ -2,6 +2,7 @@ import AttachmentItem from '@/app/[locale]/class-based/(classwork)/components/co
 import {
     AssignmentSubmissionStatusEnum,
     IAssignmentSubmission,
+    IAssignmentSubmissionStatus,
     IUpdateAssignmentSubmissionBody,
 } from '@/app/[locale]/class-based/(assignment)/types/assignmentSubmission.type';
 import assignmentSubmissionUtils from '@/app/[locale]/class-based/(assignment)/utils/assignmentSubmission.utils';
@@ -10,6 +11,7 @@ import { IAttachment } from '@/app/[locale]/class-based/(classwork)/types/attach
 import attachmentUtils from '@/app/[locale]/class-based/(classwork)/utils/attachment.utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, X, FileText, Users, Link2, Upload } from 'lucide-react';
 import { ChangeEvent, useRef, useState } from 'react';
@@ -18,6 +20,7 @@ import UrlAttachmentModal from '@/app/[locale]/class-based/(classwork)/component
 import { useSubmissionComments, useCreateSubmissionComment } from '@/services/class-based-learning/comment';
 import PrivateCommentSection from '@/components/comments/PrivateCommentSection';
 import { useTranslations } from 'next-intl';
+import { isNil } from '@/utils';
 
 interface Props {
     submission: IAssignmentSubmission;
@@ -31,15 +34,33 @@ interface Props {
         files: File[];
     }) => Promise<void>;
     loading: boolean;
+    grade?: number | null;
+    totalGrade?: number;
 }
 
-export function SubmissionCard({ submission, attachments, urlAttachments, onSubmit, loading }: Props) {
+export function SubmissionCard({ submission, attachments, urlAttachments, onSubmit, loading, grade, totalGrade }: Props) {
     const t = useTranslations('assignment');
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [files, setFiles] = useState<File[]>([]);
     const [urls, setUrls] = useState<string[]>([]);
     //modal open
     const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
+
+    // Get status label with translation
+    // If status is undefined/null, treat it as 'draft' (assigned but not submitted)
+    const getStatusLabel = (status: IAssignmentSubmissionStatus | undefined) => {
+        const actualStatus = status ?? 'draft';
+        switch (actualStatus) {
+            case 'draft':
+                return t('status.draft');
+            case 'submitted':
+                return t('status.submitted');
+            case 'returned':
+                return t('status.returned');
+            default:
+                return t('status.draft'); // Fallback to draft instead of invalid
+        }
+    };
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files) return;
@@ -63,13 +84,68 @@ export function SubmissionCard({ submission, attachments, urlAttachments, onSubm
         setFiles((prev) => prev.filter((_, i) => i !== index));
     }
 
+    // Get grade-based color (for consistent coloring with score)
+    const getGradeColor = () => {
+        if (isNil(grade) || !totalGrade) return null;
+        const percent = (grade / totalGrade) * 100;
+        if (percent >= 80) {
+            return 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30';
+        }
+        if (percent >= 60) {
+            return 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30';
+        }
+        if (percent >= 40) {
+            return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200 dark:border-amber-500/30';
+        }
+        return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30';
+    };
+
+    // Get status badge styling - use grade color if available and status is 'returned'
+    const getStatusBadge = (status: IAssignmentSubmissionStatus) => {
+        // If status is 'returned' and we have grade, use grade-based color for consistency
+        if (status === 'returned' && !isNil(grade) && totalGrade) {
+            const gradeColor = getGradeColor();
+            if (gradeColor) {
+                return {
+                    label: getStatusLabel(status),
+                    className: gradeColor,
+                };
+            }
+        }
+        
+        // Otherwise use status-based colors
+        switch (status) {
+            case 'submitted':
+                return {
+                    label: getStatusLabel(status),
+                    className: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30',
+                };
+            case 'returned':
+                return {
+                    label: getStatusLabel(status),
+                    className: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
+                };
+            case 'draft':
+            default:
+                return {
+                    label: getStatusLabel(status),
+                    className: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
+                };
+        }
+    };
+
+    const statusBadge = getStatusBadge(submission.status);
+
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-medium">{t('submission.yourAssignment')}</CardTitle>
-                <span className="text-sm text-muted-foreground">
-                    {assignmentSubmissionUtils.getStatusLabel(submission.status)}
-                </span>
+        <Card className="border-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-3 bg-muted/30">
+                <CardTitle className="text-lg font-semibold">{t('submission.yourAssignment')}</CardTitle>
+                <Badge 
+                    variant="outline" 
+                    className={`text-xs font-semibold px-3 py-1 ${statusBadge.className}`}
+                >
+                    {statusBadge.label}
+                </Badge>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
