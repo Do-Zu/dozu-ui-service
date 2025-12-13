@@ -350,13 +350,13 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, assign
     }
 
     return (
-        <div className="flex h-screen bg-background text-foreground">
-            <div className="w-80 border-r border-border flex flex-col">
-                <div className="p-4 border-b border-border">
+        <div className="flex h-full bg-background text-foreground overflow-hidden">
+            <div className="w-80 border-r border-border flex flex-col overflow-hidden">
+                <div className="p-4 border-b border-border flex-shrink-0">
                     <h2 className="font-semibold text-lg">{t('submission.studentSubmissions')}</h2>
                 </div>
 
-                <div className="p-4 border-b border-border">
+                <div className="p-4 border-b border-border flex-shrink-0">
                     <Select value={selectedStatus ?? 'all'} onValueChange={handleStatusSelect}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder={t('submission.status')} />
@@ -370,8 +370,8 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, assign
                     </Select>
                 </div>
 
-                <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-4">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="pt-4 pr-6 space-y-4">
                         {studentSubmissionsByGroup?.map((studentSubmission) => (
                             <StudentItem
                                 key={studentSubmission.student.userId}
@@ -389,15 +389,15 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, assign
             </div>
 
             {selectedStudentSubmission ? (
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    <div className="flex justify-end m-2 px-6">
+                <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+                    <div className="flex justify-end m-2 px-6 flex-shrink-0">
                         <Button variant="ghost" size="icon" onClick={() => setSelectedStudentSubmission(null)}>
                             <X className="h-5 w-5" />
                         </Button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        <div className="max-w-4xl mx-auto px-4">
+                    <div className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div className="max-w-4xl mx-auto px-4 py-4">
                             <SubmissionItem
                                 studentSubmission={selectedStudentSubmission}
                                 totalGrade={totalGrade}
@@ -409,7 +409,9 @@ export default function SubmissionsPage({ studentSubmissions, totalGrade, assign
                     </div>
                 </div>
             ) : (
-                <SubmissionsOverview statusCounts={studentSubmissionStatusCounts} />
+                <div className="flex-1 overflow-y-auto min-h-0">
+                    <SubmissionsOverview statusCounts={studentSubmissionStatusCounts} />
+                </div>
             )}
         </div>
     );
