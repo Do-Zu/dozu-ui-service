@@ -76,9 +76,9 @@ export default function ContentSection(props: Props) {
                     {withGrade ? (
                         <div className="flex items-center gap-3">
                             {!isNil(props.grade) ? (
-                                <div className="flex items-center gap-2 p-3 rounded-lg border-2 bg-muted/30">
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 bg-muted/30">
                                     <div className="flex items-baseline gap-1">
-                                        <span className={`text-3xl font-bold ${
+                                        <span className={`text-2xl font-bold ${
                                             (props.grade / props.totalGrade) * 100 >= 80
                                                 ? 'text-green-600 dark:text-green-400'
                                                 : (props.grade / props.totalGrade) * 100 >= 60
@@ -89,12 +89,12 @@ export default function ContentSection(props: Props) {
                                         }`}>
                                             {props.grade}
                                         </span>
-                                        <span className="text-xl text-muted-foreground font-semibold">/{props.totalGrade}</span>
+                                        <span className="text-lg text-muted-foreground font-semibold">/{props.totalGrade}</span>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="p-3 rounded-lg border-2 bg-muted/30">
-                                    <p className="text-lg font-semibold text-muted-foreground">
+                                <div className="px-3 py-2 rounded-lg border-2 bg-muted/30">
+                                    <p className="text-base font-semibold text-muted-foreground">
                                         {props.totalGrade} {t('labels.points')}
                                     </p>
                                 </div>
