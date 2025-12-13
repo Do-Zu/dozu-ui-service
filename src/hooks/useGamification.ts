@@ -18,30 +18,79 @@ export function useGamification(userId?: number, classId?: number) {
             setLoading(true);
             setError(null);
 
-            // Only fetch streak data (doesn't require classId)
-            const streak = await gamificationService.getUserStreak();
-            
-            // Only fetch points if classId is provided (points are class-specific)
-            let points: PointsData | null = null;
-            if (classId) {
-                points = await gamificationService.getUserPoints(classId);
-            } else {
-                // Return default data when classId is not provided
-                points = {
+            // Streak and points are now class-specific - require both userId and classId
+            if (!userId || !classId) {
+                // Return default data when userId or classId is not provided
+                const defaultStreak: StreakData = {
+                    currentStreak: 0,
+                    longestStreak: 0,
+                    lastStudyDate: null,
+                    streakFreezeActive: false,
+                    streakFreezeCount: 0
+                };
+                const defaultPoints: PointsData = {
                     totalPoints: 0,
                     availablePoints: 0,
                     level: 1,
                     experiencePoints: 0,
                     nextLevelExperience: 200
                 };
+                setStreakData(defaultStreak);
+                setPointsData(defaultPoints);
+                setGamificationStats(null);
+                setFreeze(0);
+                setRank(null);
+                return;
             }
 
-            setStreakData(streak);
-            setPointsData(points);
-            setGamificationStats(null); // Don't fetch stats for current user
+            // Fetch gamification stats which includes both streak and points data
+            const stats = await gamificationService.getUserGamificationStats(userId, classId);
             
-            // Set freeze count from streak data
-            setFreeze(streak?.streakFreezeCount || 0);
+            if (stats) {
+                // Extract streak data from stats
+                const streak: StreakData = {
+                    currentStreak: stats.currentStreak || 0,
+                    longestStreak: stats.longestStreak || 0,
+                    lastStudyDate: stats.lastStudyDate || null,
+                    streakFreezeActive: stats.streakFreezeActive || false,
+                    streakFreezeCount: stats.streakFreezeCount || 0
+                };
+                
+                // Extract points data from stats
+                // Note: GamificationStats doesn't have availablePoints, use totalPoints as availablePoints
+                const points: PointsData = {
+                    totalPoints: stats.totalPoints || 0,
+                    availablePoints: stats.totalPoints || 0, // Use totalPoints as availablePoints
+                    level: stats.level || 1,
+                    experiencePoints: stats.experiencePoints || 0,
+                    nextLevelExperience: stats.nextLevelExperience || 200
+                };
+
+                setStreakData(streak);
+                setPointsData(points);
+                setGamificationStats(stats);
+                setFreeze(stats.streakFreezeCount || 0);
+            } else {
+                // Return default data if stats not found
+                const defaultStreak: StreakData = {
+                    currentStreak: 0,
+                    longestStreak: 0,
+                    lastStudyDate: null,
+                    streakFreezeActive: false,
+                    streakFreezeCount: 0
+                };
+                const defaultPoints: PointsData = {
+                    totalPoints: 0,
+                    availablePoints: 0,
+                    level: 1,
+                    experiencePoints: 0,
+                    nextLevelExperience: 200
+                };
+                setStreakData(defaultStreak);
+                setPointsData(defaultPoints);
+                setGamificationStats(null);
+                setFreeze(0);
+            }
             
             // Set rank to null for now (can be fetched from leaderboard if needed)
             setRank(null);
@@ -51,7 +100,7 @@ export function useGamification(userId?: number, classId?: number) {
         } finally {
             setLoading(false);
         }
-    }, [classId]);
+    }, [userId, classId]);
 
     const updateStreak = useCallback(async () => {
         if (!classId) {

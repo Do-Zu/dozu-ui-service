@@ -30,7 +30,7 @@ export const API_TOPIC_ROUTES = Object.freeze({
 // Gamification Routes
 export const API_GAMIFICATION_ROUTES = Object.freeze({
     // Streak Routes
-    GET_USER_STREAK: '/gamification/streak',
+    // DEPRECATED: GET_USER_STREAK removed - use GET_USER_GAMIFICATION_STATS instead
     UPDATE_STREAK: '/gamification/streak/update',
     GET_STREAK_STATS: '/gamification/streak/stats',
     GET_STUDENT_STREAKS: ({ classId }: { classId: ResourceId }) => `/gamification/streak/students/${classId}`,
