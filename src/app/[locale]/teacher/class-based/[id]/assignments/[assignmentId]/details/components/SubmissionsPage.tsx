@@ -126,34 +126,34 @@ function SubmissionsOverview({ statusCounts }: { statusCounts: IAssignmentSubmis
             <h2 className="text-2xl font-semibold mb-8">{t('assignment')}</h2>
 
             <div className="flex justify-center items-center gap-8 mb-8">
-                <Card className="flex-1 max-w-[200px] border-2 border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-500/10">
+                <Card className="w-[240px] border-2 border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-500/10">
                     <CardContent className="p-6 text-center">
                         <p className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
                             {submittedCount}
                         </p>
-                        <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30 font-semibold">
+                        <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30 font-semibold whitespace-nowrap">
                             {t('status.submitted')}
                         </Badge>
                     </CardContent>
                 </Card>
                 
-                <Card className="flex-1 max-w-[200px] border-2 border-gray-200 dark:border-gray-500/30 bg-gray-50/50 dark:bg-gray-500/10">
+                <Card className="w-[240px] border-2 border-gray-200 dark:border-gray-500/30 bg-gray-50/50 dark:bg-gray-500/10">
                     <CardContent className="p-6 text-center">
                         <p className="text-4xl font-bold text-gray-600 dark:text-gray-400 mb-2">
                             {assignedCount}
                         </p>
-                        <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30 font-semibold">
+                        <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30 font-semibold whitespace-nowrap">
                             {t('status.draft')}
                         </Badge>
                     </CardContent>
                 </Card>
                 
-                <Card className="flex-1 max-w-[200px] border-2 border-green-200 dark:border-green-500/30 bg-green-50/50 dark:bg-green-500/10">
+                <Card className="w-[240px] border-2 border-green-200 dark:border-green-500/30 bg-green-50/50 dark:bg-green-500/10">
                     <CardContent className="p-6 text-center">
                         <p className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
                             {returnedCount}
                         </p>
-                        <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30 font-semibold">
+                        <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30 font-semibold whitespace-nowrap">
                             {t('status.returned')}
                         </Badge>
                     </CardContent>
