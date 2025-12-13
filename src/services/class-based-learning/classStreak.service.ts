@@ -23,18 +23,21 @@ class ClassStreakService {
      */
     async getStudentClassStreak(userId: number, classId: number): Promise<IClassStreakData> {
         try {
-            // Use API endpoint with classId parameter
-            const response = await getRequest(`${API_GAMIFICATION_ROUTES.GET_USER_STREAK}?classId=${classId}`) as ApiResponse<StreakDataResponse>;
+            // Use new endpoint: /api/gamification/points/user/{userId}?classId={classId}
+            const response = await getRequest(
+                `${API_GAMIFICATION_ROUTES.GET_USER_GAMIFICATION_STATS({ userId })}?classId=${classId}`
+            ) as ApiResponse<{ gamificationStats: any }>;
             
-            if (response.status === 'success' && response.data) {
+            if (response.status === 'success' && response.data?.gamificationStats) {
+                const stats = response.data.gamificationStats;
                 return {
-                    userId: response.data.userId,
-                    currentStreak: response.data.currentStreak,
-                    longestStreak: response.data.longestStreak,
-                    lastStudyDate: response.data.lastStudyDate ? new Date(response.data.lastStudyDate) : null,
-                    streakActive: response.data.currentStreak > 0,
-                    streakFreezeCount: response.data.streakFreezeCount || 0,
-                    streakFreezeActive: response.data.streakFreezeUsed || false,
+                    userId,
+                    currentStreak: stats.currentStreak || 0,
+                    longestStreak: stats.longestStreak || 0,
+                    lastStudyDate: stats.lastStudyDate ? new Date(stats.lastStudyDate) : null,
+                    streakActive: (stats.currentStreak || 0) > 0,
+                    streakFreezeCount: stats.streakFreezeCount || 0,
+                    streakFreezeActive: stats.streakFreezeActive || false,
                 };
             }
             

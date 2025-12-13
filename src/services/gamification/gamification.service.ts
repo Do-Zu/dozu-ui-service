@@ -10,24 +10,20 @@ import {
 
 class GamificationService {
     // Streak-related methods
+    /**
+     * @deprecated This method is deprecated. Use getUserGamificationStats(userId, classId) instead.
+     * Streak is now class-specific and requires both userId and classId.
+     */
     async getUserStreak(): Promise<StreakData | null> {
-        try {
-            const response = await getRequest(API_GAMIFICATION_ROUTES.GET_USER_STREAK) as ApiResponse<StreakData>;
-            if (response.status === 'success' && response.data) {
-                return response.data;
-            }
-            return null;
-        } catch (error) {
-            console.error('Error fetching user streak:', error);
-            // Return default data instead of throwing for better UX
-            return {
-                currentStreak: 0,
-                longestStreak: 0,
-                lastStudyDate: null,
-                streakFreezeActive: false,
-                streakFreezeCount: 0
-            };
-        }
+        console.warn('getUserStreak() is deprecated. Use getUserGamificationStats(userId, classId) instead.');
+        // Return default data since endpoint no longer exists
+        return {
+            currentStreak: 0,
+            longestStreak: 0,
+            lastStudyDate: null,
+            streakFreezeActive: false,
+            streakFreezeCount: 0
+        };
     }
 
     async updateStreak(classId: number): Promise<StreakUpdateResult | null> {
