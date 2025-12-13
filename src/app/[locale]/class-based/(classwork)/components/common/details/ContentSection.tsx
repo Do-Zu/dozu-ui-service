@@ -7,6 +7,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import React from 'react';
 
 interface BaseProps {
@@ -53,11 +54,32 @@ export default function ContentSection(props: Props) {
                 {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
                 <div className="mt-2 flex items-center justify-between w-full">
                     {withGrade ? (
-                        <p>
-                            {!isNil(props.grade) ? <span className="font-semibold">{props.grade}/</span> : null}
-                            <span className={!isNil(props.grade) ? '' : 'font-medium'}>{props.totalGrade}</span>
-                            {!isNil(props.grade) ? '' : ' điểm'}
-                        </p>
+                        <div className="flex items-center gap-3">
+                            {!isNil(props.grade) ? (
+                                <div className="flex items-center gap-2 p-3 rounded-lg border-2 bg-muted/30">
+                                    <div className="flex items-baseline gap-1">
+                                        <span className={`text-3xl font-bold ${
+                                            (props.grade / props.totalGrade) * 100 >= 80
+                                                ? 'text-green-600 dark:text-green-400'
+                                                : (props.grade / props.totalGrade) * 100 >= 60
+                                                ? 'text-blue-600 dark:text-blue-400'
+                                                : (props.grade / props.totalGrade) * 100 >= 40
+                                                ? 'text-amber-600 dark:text-amber-400'
+                                                : 'text-red-600 dark:text-red-400'
+                                        }`}>
+                                            {props.grade}
+                                        </span>
+                                        <span className="text-xl text-muted-foreground font-semibold">/{props.totalGrade}</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="p-3 rounded-lg border-2 bg-muted/30">
+                                    <p className="text-lg font-semibold text-muted-foreground">
+                                        {props.totalGrade} điểm
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     ) : null}
                     {withDeadline && props.deadline ? (
                         <p className="text-sm text-muted-foreground">

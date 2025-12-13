@@ -2,8 +2,16 @@
     "assignment": {
         "assignment": "Bài tập",
         "deleteConfirmation": "Thao tác này sẽ xóa cả điểm và nhận xét liên quan. Tiếp tục?",
+        "status": {
+            "draft": "Đã giao",
+            "submitted": "Đã nộp",
+            "returned": "Đã chấm điểm",
+            "invalid": "Giá trị không hợp lệ"
+        },
         "submission": {
             "yourAssignment": "Bài tập của bạn",
+            "studentSubmissions": "Bài nộp của học viên",
+            "status": "Trạng thái bài nộp",
             "submit": "Nộp bài",
             "saving": "Đang lưu...",
             "link": "Liên kết",

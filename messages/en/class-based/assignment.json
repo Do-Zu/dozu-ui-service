@@ -2,8 +2,16 @@
     "assignment": {
         "assignment": "Assignment",
         "deleteConfirmation": "This will also delete all related grades and comments. Continue?",
+        "status": {
+            "draft": "Assigned",
+            "submitted": "Submitted",
+            "returned": "Graded",
+            "invalid": "Invalid value"
+        },
         "submission": {
             "yourAssignment": "Your Assignment",
+            "studentSubmissions": "Student Submissions",
+            "status": "Submission Status",
             "submit": "Submit",
             "saving": "Saving...",
             "link": "Link",
