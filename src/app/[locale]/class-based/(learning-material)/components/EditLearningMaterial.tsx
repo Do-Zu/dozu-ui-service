@@ -2,12 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+
 import { CalendarIcon, Link2, Upload, X, ChevronDown } from 'lucide-react';
 import ContentSection from '../../(classwork)/components/common/ContentSection';
 import AttachmentsSection from '../../(classwork)/components/common/AttachmentsSection';
@@ -15,20 +10,14 @@ import DetailsPanel from '../../(classwork)/components/common/DetailsPanel';
 import { useRouter } from 'next/navigation';
 import { IClass } from '../../types/class.type';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
-// import {
-//     AssignmentStatusEnum,
-//     IAssignment,
-//     InsertAssignmentStatus,
-//     IUpdateAssignmentBody,
-// } from '../types/assignment.type';
-// import assignmentUtils from '../utils/assignment.utils';
-// import { DEFAULT_ASSIGNMENT_STATUS, DEFAULT_TOTAL_GRADE } from '../utils/assignment.constant';
+
 import { NO_TOPIC_ID } from '../../(classwork)/utils/classwork.constant';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
 import { IAttachment } from '../../(classwork)/types/attachment.type';
 import { ILearningMaterial, IUpdateLearningMaterialBody } from '../types/learningMaterial.type';
 import assignmentUtils from '../../(assignment)/utils/assignment.utils';
+import UrlAttachmentModal from '../../(classwork)/components/common/UrlAttachmentModal';
 
 interface Props {
     myClass: IClass;
@@ -38,15 +27,26 @@ interface Props {
     onSubmit: ({
         learningMaterial,
         files,
+        urls,
     }: {
         learningMaterial: IUpdateLearningMaterialBody;
         files: File[];
+        urls: string[];
     }) => Promise<void>;
     loading: boolean;
+    urlAttachments: string[];
 }
 
 // create another component for implementing your feature
-export function EditLearningMaterial({ myClass, topics, learningMaterial, attachments, onSubmit, loading }: Props) {
+export function EditLearningMaterial({
+    myClass,
+    topics,
+    learningMaterial,
+    attachments,
+    onSubmit,
+    loading,
+    urlAttachments,
+}: Props) {
     const router = useRouter();
     const tCommon = useTranslations('common');
     // const tAssignment = useTranslations('assignment');
@@ -59,6 +59,12 @@ export function EditLearningMaterial({ myClass, topics, learningMaterial, attach
     // Attachments Section states
     // ... states
     const [files, setFiles] = useState<File[]>([]);
+
+    //urls
+    const [urls, setUrls] = useState<string[]>([]);
+
+    //modal open
+    const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
@@ -83,8 +89,9 @@ export function EditLearningMaterial({ myClass, topics, learningMaterial, attach
             title,
             content,
         };
-        await onSubmit({ learningMaterial, files });
+        await onSubmit({ learningMaterial, files, urls });
         setFiles([]);
+        setUrls([]);
     }
 
     return (
@@ -134,8 +141,24 @@ export function EditLearningMaterial({ myClass, topics, learningMaterial, attach
                         files={files}
                         setFiles={setFiles}
                         attachments={attachments}
+                        urlAttachments={urlAttachments}
+                        urls={urls}
+                        setUrls={setUrls}
                     />
-                    <AttachmentsSection files={files} setFiles={setFiles} />
+                    <AttachmentsSection
+                        files={files}
+                        setFiles={setFiles}
+                        urls={urls}
+                        setUrls={setUrls}
+                        openUrlModal={() => setIsUrlModalOpen(true)}
+                    />
+                    <UrlAttachmentModal
+                        open={isUrlModalOpen}
+                        onClose={() => setIsUrlModalOpen(false)}
+                        onSubmit={(link) => {
+                            setUrls((prev) => [...prev, link]);
+                        }}
+                    />
                 </div>
 
                 <div className="space-y-8">

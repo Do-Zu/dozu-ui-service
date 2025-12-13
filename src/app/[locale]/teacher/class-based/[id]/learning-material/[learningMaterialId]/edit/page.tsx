@@ -96,9 +96,11 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
     async function onSubmit({
         learningMaterial,
         files,
+        urls,
     }: {
         learningMaterial: IUpdateLearningMaterialBody;
         files: File[];
+        urls: string[];
     }) {
         let uploadedFileResult: IInputResource[] | undefined = undefined;
         if (files.length > 0) {
@@ -111,7 +113,11 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
                 },
             }));
         }
-        const data: IUpdateLearningMaterialBody = { ...learningMaterial, inputResources: uploadedFileResult };
+        const data: IUpdateLearningMaterialBody = {
+            ...learningMaterial,
+            inputResources: uploadedFileResult,
+            urls: urls,
+        };
         await updateLearningMaterialAsync({ classId, learningMaterialId, learningMaterial: data });
     }
 
@@ -139,6 +145,7 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
                 topics={topics}
                 learningMaterial={learningMaterialWithAttachments.learningMaterial}
                 attachments={learningMaterialWithAttachments.attachments}
+                urlAttachments={learningMaterialWithAttachments.learningMaterial.urls}
                 onSubmit={onSubmit}
                 loading={updateLoading}
             />

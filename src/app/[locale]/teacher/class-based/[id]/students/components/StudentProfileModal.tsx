@@ -63,11 +63,11 @@ export default function StudentProfileModal({
         loading: gamificationLoading,
         error: gamificationError,
     } = useFetch<GamificationStats>(async () => {
-        if (!student) return null;
+        if (!student || !classId) return null;
         
         try {
-            // Get authoritative data from gamification API
-            const gamificationStats = await gamificationService.getUserGamificationStats(student.userId);
+            // Get authoritative data from gamification API with classId
+            const gamificationStats = await gamificationService.getUserGamificationStats(student.userId, classId);
             
             if (gamificationStats) {
                 // Ensure we have the most up-to-date data
@@ -89,7 +89,7 @@ export default function StudentProfileModal({
             console.error('Error fetching gamification stats:', error);
             return null;
         }
-    });
+    }, { shouldRun: !!student && !!classId });
 
     // Fetch real lesson completion stats for the student
     // const {

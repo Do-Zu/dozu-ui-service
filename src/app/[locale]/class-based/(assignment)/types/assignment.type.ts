@@ -23,6 +23,7 @@ export type IAssignment = {
     publishedAt: string | null;
     status: 'draft' | 'scheduled' | 'published' | 'closed';
     acceptingSubmissions: boolean;
+    urls?: string[];
 };
 
 export type InsertAssignment = {
@@ -39,6 +40,7 @@ export type InsertAssignment = {
     totalGrades?: number | undefined;
     publishedAt?: Date | null | undefined;
     status?: 'draft' | 'scheduled' | 'published' | 'closed' | undefined;
+    urls?: string[];
 };
 
 export type InsertAssignmentBody = Pick<
@@ -51,7 +53,15 @@ export type InsertAssignmentStatus = 'draft' | 'scheduled' | 'published';
 
 export type IUpdateAssignment = Pick<
     InsertAssignment,
-    'topicId' | 'title' | 'content' | 'deadline' | 'totalGrades' | 'status' | 'acceptingSubmissions' | 'updatedAt'
+    | 'topicId'
+    | 'title'
+    | 'content'
+    | 'deadline'
+    | 'totalGrades'
+    | 'status'
+    | 'acceptingSubmissions'
+    | 'updatedAt'
+    | 'urls'
 >;
 
 export type IUpdateAssignmentBody = Omit<IUpdateAssignment, 'updatedAt'> & {

@@ -48,15 +48,6 @@ export interface UploadedPart {
     size: number;
 }
 
-export interface CompletionNotification {
-    fileId: string;
-    fileName: string;
-    fileSize: number;
-    contentType: string;
-    uploadUrl?: string;
-    metadata?: Record<string, any>;
-}
-
 export interface ICompleteResponseInsertInputSet {
     userId: number;
     setId: number;
@@ -414,75 +405,6 @@ class UploadService {
     // }
 
     /**
-     * Upload a single part of a multipart upload
-     */
-    private async uploadPart(
-        file: File,
-        presignedResponse: PresignedUrlResponse,
-        partNumber: number,
-        fileId: string,
-        signal: AbortSignal,
-    ): Promise<UploadedPart> {
-        const start = (partNumber - 1) * PART_SIZE;
-        const end = Math.min(start + PART_SIZE, file.size);
-        const partBlob = file.slice(start, end);
-
-        try {
-            // Create FormData for the part
-            const formData = new FormData();
-            formData.append('file', partBlob, `${file.name}.part${partNumber}`);
-            formData.append('partNumber', partNumber.toString());
-            formData.append('fileName', file.name);
-
-            // In a real implementation, you would request a separate presigned URL for each part
-            const partUploadUrl = `${this.BASE_URL_API}${presignedResponse.uploadUrl}?partNumber=${partNumber}`;
-
-            const response = await Axios.post(partUploadUrl, formData, {
-                headers: {
-                    // Let Axios handle Content-Type for FormData
-                },
-                signal,
-                onUploadProgress: (progressEvent) => {
-                    // Individual part progress can be tracked here if needed
-                    // For now, we rely on the overall progress tracking in uploadLargeFile
-                },
-            });
-
-            if (!response || response.status < 200 || response.status >= 300) {
-                throw new Error(`Part ${partNumber} upload failed with status ${response?.status}`);
-            }
-
-            // Extract ETag from response headers (required for multipart completion)
-            const etag = response.headers['etag'] || response.headers['ETag'] || `"part-${partNumber}"`;
-
-            return {
-                partNumber,
-                etag: etag.replace(/"/g, ''), // Remove quotes if present
-                size: partBlob.size,
-            };
-        } catch (error) {
-            if (axios.isCancel(error)) {
-                throw new Error(`Part ${partNumber} upload cancelled`);
-            }
-            throw new Error(
-                `Part ${partNumber} upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            );
-        }
-    }
-
-    //   /**
-    //    * Notify server that upload is complete
-    //    */
-    //   private async notifyUploadCompletion(notification: CompletionNotification): Promise<void> {
-    //     try {
-    //       await axios.post(`${this.baseUrl}/upload/complete`, notification);
-    //     } catch (error) {
-    //       console.error('Failed to notify server of upload completion:', error);
-    //       // Don't throw error here as the file upload itself was successful
-    //     }
-    //   }
-
-    /**
      * Cancel an active upload
      */
     cancelUpload(fileId: string): void {
@@ -518,28 +440,6 @@ class UploadService {
     resumeUpload(fileId: string): void {
         // Implementation would depend on your specific multipart upload strategy
         console.log(`Resuming upload for file ${fileId}`);
-    }
-    /**
-     * Complete a multipart upload
-     */
-    private async completeMultipartUpload(fileId: string, parts: UploadedPart[]): Promise<void> {
-        try {
-            // Sort parts by part number to ensure correct order
-            const sortedParts = parts.sort((a, b) => a.partNumber - b.partNumber);
-
-            // In a real implementation, you would call your backend API to complete the multipart upload
-            // const completionData = {
-            //   fileId,
-            //   parts: sortedParts,
-            // };
-            // await this.apiUpload.completeMultipartUpload(completionData);
-
-            console.log(`Multipart upload completed for file ${fileId} with ${sortedParts.length} parts`);
-        } catch (error) {
-            throw new Error(
-                `Failed to complete multipart upload: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            );
-        }
     }
 
     /**

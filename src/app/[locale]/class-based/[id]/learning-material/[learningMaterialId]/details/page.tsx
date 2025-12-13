@@ -1,7 +1,7 @@
 'use client';
 
 import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/details/ContentSection';
-import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
+import AttachmentsViewSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsViewSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
 import { useParams, useRouter } from 'next/navigation';
@@ -16,6 +16,7 @@ import { Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ILearningMaterialWithAttachments } from '@/app/[locale]/class-based/(learning-material)/types/learningMaterial.type';
 import learningMaterialService from '@/app/[locale]/class-based/(learning-material)/service/learningMaterial.service';
+import LearningMaterialCommentSection from './components/LearningMaterialCommentSection';
 
 export default function Page() {
     const params = useParams();
@@ -89,7 +90,9 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
 
                 <Separator />
 
-                <AttachmentsSection attachments={assignmentAttachments} />
+                <AttachmentsViewSection attachments={assignmentAttachments} urls={learningMaterial.urls} />
+
+                <LearningMaterialCommentSection classId={classId} learningMaterialId={learningMaterialId} />
             </div>
 
             <div className="lg:col-span-2 space-y-6">

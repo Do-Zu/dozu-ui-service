@@ -4,7 +4,7 @@ import { StreakData, PointsData, GamificationStats } from '@/types/streaks/gamif
 import { leaderboardService } from '@/services/gamification/leaderboard.service';
 import { LeaderboardEntry } from '@/types/streaks/leaderboard.types';
 
-export function useGamification(userId?: number) {
+export function useGamification(userId?: number, classId?: number) {
     const [streakData, setStreakData] = useState<StreakData | null>(null);
     const [pointsData, setPointsData] = useState<PointsData | null>(null);
     const [gamificationStats, setGamificationStats] = useState<GamificationStats | null>(null);
@@ -18,12 +18,23 @@ export function useGamification(userId?: number) {
             setLoading(true);
             setError(null);
 
-            // Only fetch streak and points data for current user
-            // Don't fetch getUserGamificationStats as it requires teacher role
-            const [streak, points] = await Promise.all([
-                gamificationService.getUserStreak(),
-                gamificationService.getUserPoints()
-            ]);
+            // Only fetch streak data (doesn't require classId)
+            const streak = await gamificationService.getUserStreak();
+            
+            // Only fetch points if classId is provided (points are class-specific)
+            let points: PointsData | null = null;
+            if (classId) {
+                points = await gamificationService.getUserPoints(classId);
+            } else {
+                // Return default data when classId is not provided
+                points = {
+                    totalPoints: 0,
+                    availablePoints: 0,
+                    level: 1,
+                    experiencePoints: 0,
+                    nextLevelExperience: 200
+                };
+            }
 
             setStreakData(streak);
             setPointsData(points);
@@ -40,11 +51,14 @@ export function useGamification(userId?: number) {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [classId]);
 
     const updateStreak = useCallback(async () => {
+        if (!classId) {
+            throw new Error('classId is required to update streak');
+        }
         try {
-            const result = await gamificationService.updateStreak();
+            const result = await gamificationService.updateStreak(classId);
             if (result) {
                 await fetchAllData(); // Refresh all data
                 return result;
@@ -53,11 +67,14 @@ export function useGamification(userId?: number) {
             console.error('Error updating streak:', err);
             throw err;
         }
-    }, [fetchAllData]);
+    }, [fetchAllData, classId]);
 
     const buyStreakFreeze = useCallback(async (cost: number = 100) => {
+        if (!classId) {
+            throw new Error('classId is required to buy streak freeze');
+        }
         try {
-            const success = await gamificationService.buyStreakFreeze(cost);
+            const success = await gamificationService.buyStreakFreeze(classId, cost);
             if (success) {
                 // Update freeze count immediately
                 setFreeze(prev => prev + 1);
@@ -68,7 +85,7 @@ export function useGamification(userId?: number) {
             console.error('Error buying streak freeze:', err);
             throw err;
         }
-    }, [fetchAllData]);
+    }, [fetchAllData, classId]);
 
     const awardPoints = useCallback(async (activity: {
         action: 'lesson_completed' | 'quiz_high_score' | 'streak_maintained' | 'flashcard_reviewed' | 'daily_login';

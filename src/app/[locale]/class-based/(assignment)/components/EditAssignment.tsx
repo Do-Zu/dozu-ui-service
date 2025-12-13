@@ -27,18 +27,28 @@ import { NO_TOPIC_ID } from '../../(classwork)/utils/classwork.constant';
 import toastHelper from '@/utils/toast.helper';
 import { useTranslations } from 'next-intl';
 import { IAttachment } from '../../(classwork)/types/attachment.type';
+import UrlAttachmentModal from '../../(classwork)/components/common/UrlAttachmentModal';
 
 interface Props {
     myClass: IClass;
     topics: Pick<ITopic, 'topicId' | 'name'>[];
     assignment: IAssignment;
     attachments: IAttachment[];
-    onSubmit: ({ assignment, files }: { assignment: IUpdateAssignmentBody; files: File[] }) => Promise<void>;
+    onSubmit: ({
+        assignment,
+        files,
+        urls,
+    }: {
+        assignment: IUpdateAssignmentBody;
+        files: File[];
+        urls: string[];
+    }) => Promise<void>;
     loading: boolean;
+    urlAttachments: string[];
 }
 
 // create another component for implementing your feature
-export function EditAssignment({ myClass, topics, assignment, attachments, onSubmit, loading }: Props) {
+export function EditAssignment({ myClass, topics, assignment, attachments, urlAttachments, onSubmit, loading }: Props) {
     const router = useRouter();
     const tCommon = useTranslations('common');
     const tAssignment = useTranslations('assignment');
@@ -54,6 +64,12 @@ export function EditAssignment({ myClass, topics, assignment, attachments, onSub
     // Attachments Section states
     // ... states
     const [files, setFiles] = useState<File[]>([]);
+
+    //urls
+    const [urls, setUrls] = useState<string[]>([]);
+
+    //modal open
+    const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
 
     // Details
     const [selectedTopic, setSelectedTopic] = useState<string>(NO_TOPIC_ID);
@@ -93,9 +109,11 @@ export function EditAssignment({ myClass, topics, assignment, attachments, onSub
             deadline,
             totalGrades: grade,
             status: AssignmentStatusEnum.PUBLISHED,
+            urls: urlAttachments,
         };
-        await onSubmit({ assignment, files });
+        await onSubmit({ assignment, files, urls });
         setFiles([]);
+        setUrls([]);
     }
 
     return (
@@ -144,8 +162,24 @@ export function EditAssignment({ myClass, topics, assignment, attachments, onSub
                         files={files}
                         setFiles={setFiles}
                         attachments={attachments}
+                        urlAttachments={urlAttachments}
+                        urls={urls}
+                        setUrls={setUrls}
                     />
-                    <AttachmentsSection files={files} setFiles={setFiles} />
+                    <AttachmentsSection
+                        files={files}
+                        setFiles={setFiles}
+                        urls={urls}
+                        setUrls={setUrls}
+                        openUrlModal={() => setIsUrlModalOpen(true)}
+                    />
+                    <UrlAttachmentModal
+                        open={isUrlModalOpen}
+                        onClose={() => setIsUrlModalOpen(false)}
+                        onSubmit={(link) => {
+                            setUrls((prev) => [...prev, link]);
+                        }}
+                    />
                 </div>
 
                 <div className="space-y-8">

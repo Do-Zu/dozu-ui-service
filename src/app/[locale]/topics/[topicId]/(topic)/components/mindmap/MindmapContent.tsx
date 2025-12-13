@@ -22,7 +22,12 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
 import { useDispatch } from 'react-redux';
-import { closeSheet, openSheet } from '@/stores/features/mindmap/selectedNodeSlice';
+import {
+    clearNodeSelection,
+    closeSheet,
+    openSheet,
+    turnOffMultiSelectMode,
+} from '@/stores/features/mindmap/selectedNodeSlice';
 import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
@@ -182,6 +187,13 @@ const MindmapContent = ({ mode, role }: Props) => {
             setHasShownModal(true);
         }
     }, [hasInitialized, hasShownModal, nodes.length]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(clearNodeSelection());
+            dispatch(turnOffMultiSelectMode());
+        };
+    }, []);
 
     const handleManualCreation = () => {
         setShowGenerateModal(false);

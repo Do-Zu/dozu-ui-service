@@ -1,7 +1,7 @@
 'use client';
 
 import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/details/ContentSection';
-import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
+import AttachmentsViewSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsViewSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
 import {
@@ -29,6 +29,7 @@ import { ClassDashboardTab } from '@/app/[locale]/class-based/[id]/utils/class.c
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SubmissionsPage from './components/SubmissionsPage';
+import CommentSection from './components/CommentSection';
 import {
     IAssignmentSubmission,
     IAssignmentSubmissionWithStudent,
@@ -229,7 +230,9 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
                         <Separator />
 
-                        <AttachmentsSection attachments={attachments} />
+                        <AttachmentsViewSection attachments={attachments} urls={assignment.urls} />
+
+                        <CommentSection classId={classId} assignmentId={assignmentId} />
 
                         <DeleteAssignmentModal
                             isOpen={isOpen}
@@ -245,6 +248,7 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
                     <SubmissionsPage
                         studentSubmissions={studentSubmissions}
                         totalGrade={assignment.totalGrades}
+                        assignmentId={assignmentId}
                         onGradeSubmit={onGradeSubmit}
                         gradeLoading={gradeSubmissionLoading}
                     />

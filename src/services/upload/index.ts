@@ -9,7 +9,6 @@ export type {
     UploadProgress,
     MultipartUpload,
     UploadedPart,
-    CompletionNotification,
 } from './upload.service';
 
 // Re-export for convenience
