@@ -473,15 +473,15 @@ export default function StudentStartClassQuizPage() {
                         </div>
                     </div>
 
+                    {submitting && (
+                        <div className="fixed inset-0 z-[9999] bg-background/60 backdrop-blur-sm flex items-center justify-center">
+                            <div className="text-sm font-medium">Submitting your answers…</div>
+                        </div>
+                    )}
+
                     {/* CONFIRM SUBMIT DIALOG (manual only) */}
                     <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                        <AlertDialogContent className="relative">
-                            {submitting && (
-                                <div className="absolute inset-0 bg-background/60 backdrop-blur-sm rounded-md flex items-center justify-center z-50">
-                                    <div className="text-sm font-medium">Submitting your answers…</div>
-                                </div>
-                            )}
-
+                        <AlertDialogContent>
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Submit quiz?</AlertDialogTitle>
                                 <AlertDialogDescription>
@@ -495,6 +495,7 @@ export default function StudentStartClassQuizPage() {
                                     disabled={submitting}
                                     onClick={(e) => {
                                         e.preventDefault();
+                                        setConfirmOpen(false);
                                         submitCore();
                                     }}
                                 >
