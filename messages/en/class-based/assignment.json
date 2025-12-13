@@ -15,7 +15,15 @@
             "submit": "Submit",
             "saving": "Saving...",
             "link": "Link",
-            "uploadFile": "Upload File"
+            "uploadFile": "Upload File",
+            "returnAssignment": "Return Assignment",
+            "enterGrade": "Enter Grade",
+            "disableSubmissions": "Disable Submissions"
+        },
+        "labels": {
+            "teacher": "Teacher",
+            "points": "points",
+            "dueDate": "Due Date"
         },
         "comments": {
             "classComments": "Class Comments",

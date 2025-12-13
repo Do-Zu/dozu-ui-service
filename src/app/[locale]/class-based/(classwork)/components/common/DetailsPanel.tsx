@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, startOfToday } from 'date-fns';
 import React, { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { IClass } from '../../../types/class.type';
@@ -64,6 +64,16 @@ export default function DetailsPanel(props: Props) {
 
     function handleDeadlineSelect(value: Date | undefined) {
         if (!withDeadline) return;
+        // Prevent selecting past dates
+        if (value) {
+            const today = startOfToday();
+            const selectedDate = new Date(value);
+            selectedDate.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                return; // Don't set deadline if it's in the past
+            }
+        }
         props.setDeadline(value);
     }
 
@@ -150,6 +160,7 @@ export default function DetailsPanel(props: Props) {
                                         mode="single"
                                         selected={props.deadline}
                                         onSelect={handleDeadlineSelect}
+                                        disabled={(date) => date < startOfToday()}
                                         initialFocus
                                     />
                                 </PopoverContent>
