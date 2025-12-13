@@ -91,37 +91,40 @@ export const UploadModal: React.FC = () => {
         }
     };
 
-    const processFiles = useCallback(async (fileList: File[]) => {
-        // Only process the first file if multiple files are somehow provided
-        let file = fileList[0];
+    const processFiles = useCallback(
+        async (fileList: File[]) => {
+            // Only process the first file if multiple files are somehow provided
+            let file = fileList[0];
 
-        if (!validateFileType(file) || !validateFileSize(file)) {
-            toast(
-                t('validations.fileRejected', {
-                    types: ALLOWED_FILE_TYPES.join(', '),
-                    size: MAX_FILE_SIZE_MB,
-                }),
-            );
+            if (!validateFileType(file) || !validateFileSize(file)) {
+                toast(
+                    t('validations.fileRejected', {
+                        types: ALLOWED_FILE_TYPES.join(', '),
+                        size: MAX_FILE_SIZE_MB,
+                    }),
+                );
 
-            return;
-        }
-
-        //Convert all file type into PDF format
-        if (!compareIgnoreCapitalization(getFileExtension(file), FILE_TYPES_NOT_CONVERT)) {
-            const arrayBuffer = await upload(file);
-
-            if (!arrayBuffer) {
-                toast(t('toasts.convertFailed'));
                 return;
             }
 
-            const blob = new Blob([arrayBuffer], { type: FILE_FORMAT });
+            //Convert all file type into PDF format
+            if (!compareIgnoreCapitalization(getFileExtension(file), FILE_TYPES_NOT_CONVERT)) {
+                const arrayBuffer = await upload(file);
 
-            file = blobToFile(blob, file.name);
-        }
+                if (!arrayBuffer) {
+                    toast(t('toasts.convertFailed'));
+                    return;
+                }
 
-        await handleProcessingContent(file);
-    }, []);
+                const blob = new Blob([arrayBuffer], { type: FILE_FORMAT });
+
+                file = blobToFile(blob, file.name);
+            }
+
+            await handleProcessingContent(file);
+        },
+        [t, handleProcessingContent],
+    );
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();

@@ -69,22 +69,25 @@ export default function useUploadAudioFile() {
         }
     };
 
-    const processFiles = useCallback(async (fileList: File[]) => {
-        const file = fileList[0];
+    const processFiles = useCallback(
+        async (fileList: File[]) => {
+            const file = fileList[0];
 
-        if (!validateMediaType(file, 'audio') || !validateFileSize(file, { isMedia: true })) {
-            toast(
-                t('validations.fileRejected', {
-                    types: ALLOWED_AUDIO_TYPES.join(', '),
-                    size: MAX_MEDIA_SIZE_MB,
-                }),
-            );
+            if (!validateMediaType(file, 'audio') || !validateFileSize(file, { isMedia: true })) {
+                toast(
+                    t('validations.fileRejected', {
+                        types: ALLOWED_AUDIO_TYPES.join(', '),
+                        size: MAX_MEDIA_SIZE_MB,
+                    }),
+                );
 
-            return;
-        }
+                return;
+            }
 
-        await handleProcessingContent(file);
-    }, []);
+            await handleProcessingContent(file);
+        },
+        [t, handleProcessingContent],
+    );
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();

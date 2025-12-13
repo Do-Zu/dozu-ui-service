@@ -139,6 +139,9 @@ class LearningMaterialService {
                     if (response?.data?.fileUrl) {
                         const result = await this.getAudioDocument(response as IResponseFileFromInputSet);
                         const content = (response.data as { content: ITranscriptSegment[] }).content;
+                        if (!content || !Array.isArray(content)) {
+                            throw new Error('Error: Media content transcript is missing or invalid');
+                        }
                         return { ...result, content, type: EnumLearningMaterial.media };
                     }
                     return null;

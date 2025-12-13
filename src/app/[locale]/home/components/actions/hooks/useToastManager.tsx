@@ -19,6 +19,7 @@ export default function useToastManager() {
 
             dismissAll: () => {
                 toastManager.ids.forEach((id) => toast.dismiss(id));
+                toastManager.ids.length = 0;
             },
 
             showSuccess: (message: string) => {

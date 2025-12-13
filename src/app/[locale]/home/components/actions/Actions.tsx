@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { Upload, Link, Mic, FileVolume, AudioLines } from 'lucide-react';
+import { Upload, Link, AudioLines } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UploadModal } from './UploadModal';
 import { PasteLinkModal } from './PasteLinkModal';

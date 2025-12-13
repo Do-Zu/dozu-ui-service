@@ -29,11 +29,13 @@ export default function UploadAudioFileInput({
                 border border-dashed
                 hover:border-primary/60 hover:bg-primary/5
                 ${isDragging ? 'border-primary ring-2 ring-primary/30 bg-primary/5' : 'border-muted-foreground/30'}`}
+            role="button"
+            tabIndex={0}
             onDragOver={onDragOver}
             onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
-            onClick={() => document.getElementById('file-upload')?.click()}
+            onClick={() => document.getElementById('audio-file-upload')?.click()}
         >
             {isProcessing() && <LoadingOverlay />}
 
@@ -44,7 +46,7 @@ export default function UploadAudioFileInput({
             <p className="text-xs text-muted-foreground text-center mb-4">MP3</p>
 
             <input
-                id="file-upload"
+                id="audio-file-upload"
                 type="file"
                 className="hidden"
                 onChange={onFileChange}

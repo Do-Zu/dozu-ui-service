@@ -33,7 +33,7 @@ export const RecordModal: React.FC = () => {
 
                     <button
                         className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-colors text-left group"
-                        onClick={() => toast('feature in coming')}
+                        onClick={() => toast('Feature coming soon')}
                     >
                         <div className="p-3 rounded-full bg-muted group-hover:bg-background transition-colors">
                             <Mic className="w-5 h-5" />
