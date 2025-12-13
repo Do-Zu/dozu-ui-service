@@ -79,8 +79,8 @@ export const renderMarkdown = (text: string): string => {
         }
         
         // Handle headings (#, ##, ###)
-        // Use [^\n] instead of . to avoid backtracking issues
-        const headingMatch = trimmedLine.match(/^(#{1,6})\s+([^\n]+)$/);
+        // Use [^\n]* instead of [^\n]+ to avoid backtracking issues
+        const headingMatch = trimmedLine.match(/^(#{1,6})\s+([^\n]*)$/);
         if (headingMatch) {
             closeList();
             const level = headingMatch[1].length;
@@ -94,8 +94,8 @@ export const renderMarkdown = (text: string): string => {
         }
         
         // Handle list items (- or *)
-        // Use [^\n] instead of . to avoid backtracking issues
-        const listMatch = trimmedLine.match(/^[-*]\s+([^\n]+)$/);
+        // Use [^\n]* instead of [^\n]+ to avoid backtracking issues
+        const listMatch = trimmedLine.match(/^[-*]\s+([^\n]*)$/);
         if (listMatch) {
             if (inList !== 'ul') {
                 closeList();
@@ -107,8 +107,8 @@ export const renderMarkdown = (text: string): string => {
         }
         
         // Handle numbered lists (1. 2. etc)
-        // Use [^\n] instead of . to avoid backtracking issues
-        const numberedListMatch = trimmedLine.match(/^\d+\.\s+([^\n]+)$/);
+        // Use [^\n]* instead of [^\n]+ to avoid backtracking issues
+        const numberedListMatch = trimmedLine.match(/^\d+\.\s+([^\n]*)$/);
         if (numberedListMatch) {
             if (inList !== 'ol') {
                 closeList();
@@ -156,15 +156,16 @@ function processInlineMarkdown(text: string): string {
     let html = escapeHtml(text);
     
     // Process bold: **text** (double asterisk) - do this first
-    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold">$1</strong>');
+    // Use * instead of + to avoid backtracking
+    html = html.replace(/\*\*([^*]*)\*\*/g, '<strong class="font-bold">$1</strong>');
     
     // Process underline: __text__ (double underscore)
-    html = html.replace(/__([^_]+)__/g, '<u class="underline">$1</u>');
+    // Use * instead of + to avoid backtracking
+    html = html.replace(/__([^_]*)__/g, '<u class="underline">$1</u>');
     
     // Process italic: *text* (single asterisk, not part of double asterisk)
-    // Use simpler pattern with lookahead/lookbehind to avoid backtracking
-    // Match *text* where text doesn't contain * or newline, and is not surrounded by *
-    html = html.replace(/\*([^*\n]+)\*/g, (match, content, offset, string) => {
+    // Use [^\n]* instead of [^\n]+ to avoid backtracking
+    html = html.replace(/\*([^*\n]*)\*/g, (match, content, offset, string) => {
         // Check surrounding characters to ensure this is not part of bold
         const before = offset > 0 ? string[offset - 1] : '';
         const after = offset + match.length < string.length ? string[offset + match.length] : '';
@@ -178,7 +179,8 @@ function processInlineMarkdown(text: string): string {
     });
     
     // Process inline code: `code`
-    html = html.replace(/`([^`]+)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">$1</code>');
+    // Use * instead of + to avoid backtracking
+    html = html.replace(/`([^`]*)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">$1</code>');
     
     return html;
 }
