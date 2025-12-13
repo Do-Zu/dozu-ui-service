@@ -15,7 +15,15 @@
             "submit": "Nộp bài",
             "saving": "Đang lưu...",
             "link": "Liên kết",
-            "uploadFile": "Tải lên Tệp"
+            "uploadFile": "Tải lên Tệp",
+            "returnAssignment": "Trả bài",
+            "enterGrade": "Nhập điểm",
+            "disableSubmissions": "Không nhận bài tập"
+        },
+        "labels": {
+            "teacher": "Giáo viên",
+            "points": "điểm",
+            "dueDate": "Đến hạn"
         },
         "comments": {
             "classComments": "Nhận xét của lớp học",

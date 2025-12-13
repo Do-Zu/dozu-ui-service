@@ -163,7 +163,7 @@ function SubmissionsOverview({ statusCounts }: { statusCounts: IAssignmentSubmis
             <div className="flex justify-center items-center gap-3 mb-10">
                 <Switch id="disable-submissions" />
                 <Label htmlFor="disable-submissions" className="text-sm">
-                    Không nhận bài tập
+                    {t('submission.disableSubmissions')}
                 </Label>
             </div>
         </div>
@@ -182,6 +182,7 @@ function SubmissionItem({ studentSubmission, totalGrade, assignmentId, onGradeSu
     const { student, submission, attachments } = studentSubmission;
     const { fullName, email, username } = student;
     const t = useTranslations('assignment');
+    const tCommon = useTranslations('common');
 
     const [grade, setGrade] = useState<number | null>();
 
@@ -256,7 +257,7 @@ function SubmissionItem({ studentSubmission, totalGrade, assignmentId, onGradeSu
                 </div>
 
                 <Button variant="default" className="px-6" onClick={handleGradeSubmit} disabled={gradeLoading}>
-                    {gradeLoading ? 'Saving...' : 'Trả bài'}
+                    {gradeLoading ? tCommon('status.saving') : t('submission.returnAssignment')}
                 </Button>
             </div>
 
@@ -267,7 +268,7 @@ function SubmissionItem({ studentSubmission, totalGrade, assignmentId, onGradeSu
                 <div className="flex items-center gap-2">
                     <Input
                         type="number"
-                        placeholder="Nhập điểm"
+                        placeholder={t('submission.enterGrade')}
                         className="w-32 font-semibold"
                         value={grade === null ? '' : grade}
                         onChange={handleGradeChange}

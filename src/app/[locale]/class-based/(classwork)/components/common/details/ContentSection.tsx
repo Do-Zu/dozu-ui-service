@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
 import { renderMarkdown } from '@/components/comments/utils/markdown';
+import { useTranslations } from 'next-intl';
 
 interface BaseProps {
     teacherName: string;
@@ -44,6 +45,8 @@ type Props = BaseProps & (WithGradeProps | WithoutGradeProps) & (WithDeadlinePro
 
 export default function ContentSection(props: Props) {
     const { teacherName, title, description, createdAt, withGrade, withDeadline, dropdownMenuContent } = props;
+    const t = useTranslations('assignment');
+    const tCommon = useTranslations('common');
 
     return (
         <div className="flex items-start justify-between">
@@ -53,12 +56,12 @@ export default function ContentSection(props: Props) {
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                         {teacherName && (
                             <div className="flex items-center gap-1.5">
-                                <span className="font-medium">Giáo viên:</span>
+                                <span className="font-medium">{t('labels.teacher')}:</span>
                                 <span>{teacherName}</span>
                             </div>
                         )}
                         <div className="flex items-center gap-1.5">
-                            <span className="font-medium">Ngày tạo:</span>
+                            <span className="font-medium">{tCommon('labels.createdAt')}:</span>
                             <span>{formatDate(createdAt)}</span>
                         </div>
                     </div>
@@ -92,7 +95,7 @@ export default function ContentSection(props: Props) {
                             ) : (
                                 <div className="p-3 rounded-lg border-2 bg-muted/30">
                                     <p className="text-lg font-semibold text-muted-foreground">
-                                        {props.totalGrade} điểm
+                                        {props.totalGrade} {t('labels.points')}
                                     </p>
                                 </div>
                             )}
@@ -100,7 +103,7 @@ export default function ContentSection(props: Props) {
                     ) : null}
                     {withDeadline && props.deadline ? (
                         <p className="text-sm text-muted-foreground">
-                            Đến hạn <span className="font-medium text-foreground">{formatDate(props.deadline)}</span>
+                            {t('labels.dueDate')} <span className="font-medium text-foreground">{formatDate(props.deadline)}</span>
                         </p>
                     ) : null}
                 </div>
