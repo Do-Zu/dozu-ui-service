@@ -191,7 +191,6 @@ export const PasteLinkModal: React.FC = () => {
                     </Button>
                 </div>
             }
-            contentStyle="top-[30%] left-[50%] max-w-[40vw] -translate-x-1/2 -translate-y-0"
         />
     );
 };
