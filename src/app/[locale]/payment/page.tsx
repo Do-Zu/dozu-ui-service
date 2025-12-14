@@ -1,6 +1,11 @@
 'use client';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { AnimatePresence, motion } from 'framer-motion';
+import { usePayment } from './hooks/usePayment';
+import { withAuth } from '@/hoc/withAuth';
 
-import LoadingPage from '@/app/loading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,13 +16,12 @@ import { QRCodeComponent } from '@/components/ui/qr-code';
 import { toast } from '@/hooks/use-toast';
 import { ROUTES } from '@/utils/constants/routes';
 import { ArrowLeft, CheckCircle, XCircle, CreditCard, QrCode, ShieldCheck } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { AnimatePresence, motion } from 'framer-motion';
-import { usePayment } from './hooks/usePayment';
+
+import { UpdateSubscriptionRequest } from '@/services/payment';
+
 import { PAYMENT_STATUS } from './utils/constants';
-import { withAuth } from '@/hoc/withAuth';
+import LoadingPage from '@/app/loading';
+
 import { USER_ROLES } from '@/utils/constants/roles';
 import { isNilOrEmpty } from '@/utils';
 
@@ -27,10 +31,8 @@ const PaymentPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const t = useTranslations('payment');
-    const [isRedirectFromPayment, setIsRedirectFromPayment] = useState(false);
 
-    // CHECK  INFINITIVE REQUEST API
-    // const { refreshUserPlan } = useAuth();
+    const [isRedirectFromPayment, setIsRedirectFromPayment] = useState(false);
 
     const {
         isUpdatingSubscription,
@@ -49,6 +51,18 @@ const PaymentPage = () => {
     const status = searchParams?.get('status');
     const orderCode = searchParams?.get('orderCode');
 
+    const handlePaymentUpgradeSubscriptionSuccess = async ({
+        planId,
+        orderCode,
+        paymentId,
+    }: UpdateSubscriptionRequest) => {
+        return await updateSubscription({
+            planId,
+            orderCode,
+            paymentId,
+        });
+    };
+
     // Check if this is a redirect from payment
     useEffect(() => {
         if (!isNilOrEmpty(code) && paymentId && status && orderCode && planId) {
@@ -59,8 +73,7 @@ const PaymentPage = () => {
                     description: 'Your payment was cancelled!',
                 });
             } else if (status === PAYMENT_STATUS.PAID) {
-                // Update subscription after successful payment
-                updateSubscription({
+                handlePaymentUpgradeSubscriptionSuccess({
                     planId,
                     orderCode,
                     paymentId,
@@ -101,9 +114,6 @@ const PaymentPage = () => {
                                     {t('orderCode')}: {orderCode}
                                 </Badge>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                                    {/* <Button onClick={handleRetry} variant="outline" className="w-full">
-                                        {t('error.tryAgain')}
-                                    </Button> */}
                                     <Button onClick={handleBackToPlans} className="w-full">
                                         {t('backToPlans')}
                                     </Button>
@@ -125,9 +135,6 @@ const PaymentPage = () => {
                         <CardContent className="text-center space-y-4">
                             <p className="text-muted-foreground">{error}</p>
                             <div className="flex gap-2 pt-4">
-                                {/* <Button onClick={handleRetry} variant="outline" className="flex-1">
-                                    {t('error.tryAgain')}
-                                </Button> */}
                                 <Button onClick={handleBackToPlans} className="flex-1">
                                     <ArrowLeft className="w-4 h-4 mr-2" />
                                     {t('backToPlans')}
@@ -143,7 +150,6 @@ const PaymentPage = () => {
     if (isRedirectFromPayment && status === PAYMENT_STATUS.PAID) {
         return (
             <div className="relative min-h-[calc(100dvh-4rem)]">
-                {/* Background gradient + glow */}
                 <div className="pointer-events-none absolute inset-0 -z-10">
                     <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/60 via-background to-background dark:from-emerald-950/30" />
                     <div className="absolute left-1/2 top-10 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
