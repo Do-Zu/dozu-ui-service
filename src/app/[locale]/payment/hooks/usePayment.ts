@@ -16,6 +16,7 @@ import useRetry from '@/hooks/useRetry';
 import { toast } from '@/hooks/use-toast';
 import { STATUS_CODE } from '@/utils/constants/http';
 import { compareIgnoreCapitalization, isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
+import toastHelper from '@/utils/toast.helper';
 
 export interface PaymentResponse {
     status: string;
@@ -139,11 +140,11 @@ export function usePayment(options?: UsePaymentOptions) {
                 };
 
                 const paymentData = await paymentService.registerPayment(paymentRequest);
-                setPaymentData(paymentData);
 
-                // TODO: using webhook for check status payment status
-            } catch (err: any) {
-                setError(err.response?.data?.message || err.message || 'Failed to initialize payment');
+                setPaymentData(paymentData);
+            } catch (err) {
+                const error = err as AxiosError;
+                setError(error.message || 'Failed to initialize payment');
             } finally {
                 setIsProcessingPayment(false);
             }
@@ -177,7 +178,8 @@ export function usePayment(options?: UsePaymentOptions) {
                 });
 
                 await refreshUserPlan();
-            } catch {
+            } catch (error) {
+                toastHelper.showLog(error);
             } finally {
                 setIsUpdatingSubscription(false);
             }
