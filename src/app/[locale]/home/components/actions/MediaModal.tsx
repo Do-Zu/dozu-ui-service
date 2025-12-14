@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import useUploadAudioFile from './hooks/useUploadAudioFile';
 import UploadAudioFileInput from './components/upload/UploadAudioFileInput';
 
-export const RecordModal: React.FC = () => {
-    const { showRecord: isOpen, setShowRecord: setIsOpen, isProcessing } = useActionStore((state) => state);
+export const MediaModal: React.FC = () => {
+    const { showMedia: isOpen, setShowMedia: setIsOpen, isProcessing } = useActionStore((state) => state);
 
     const { isDragging, handleDragOver, handleDragEnter, handleDragLeave, handleFileChange, handleDrop } =
         useUploadAudioFile();

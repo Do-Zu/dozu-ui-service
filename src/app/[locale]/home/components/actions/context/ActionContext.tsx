@@ -10,11 +10,11 @@ import { isNilOrEmpty } from '@/utils';
 interface ActionState {
     showUpload: boolean;
     showLink: boolean;
-    showRecord: boolean;
+    showMedia: boolean;
     processingType: TypeImportMethod | null;
     setShowUpload: (show: boolean) => void;
     setShowLink: (show: boolean) => void;
-    setShowRecord: (show: boolean) => void;
+    setShowMedia: (show: boolean) => void;
     setProcessingType: (type: TypeImportMethod | null) => void;
     isProcessing: (type?: TypeImportMethod) => boolean;
     redirectTopicWorkspace: (topicId: number) => void;
@@ -24,12 +24,12 @@ const createActionStore = (router: ReturnType<typeof useRouter>) => {
     return createStore<ActionState>((set, get) => ({
         showUpload: false,
         showLink: false,
-        showRecord: false,
+        showMedia: false,
         processingType: null,
         setProcessingType: (type) => set({ processingType: type }),
         setShowUpload: (show) => set({ showUpload: show }),
         setShowLink: (show) => set({ showLink: show }),
-        setShowRecord: (show) => set({ showRecord: show }),
+        setShowMedia: (show) => set({ showMedia: show }),
         isProcessing: (type) => {
             const { processingType } = get();
 

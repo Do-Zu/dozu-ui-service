@@ -19,7 +19,7 @@ export default function useUploadAudioFile() {
 
     const [isDragging, setIsDragging] = useState(false);
 
-    const { setShowRecord: setIsOpen, setProcessingType, redirectTopicWorkspace } = useActionStore((state) => state);
+    const { setShowMedia: setIsOpen, setProcessingType, redirectTopicWorkspace } = useActionStore((state) => state);
 
     const handleProcessingContent = async (audioFile: File) => {
         try {
