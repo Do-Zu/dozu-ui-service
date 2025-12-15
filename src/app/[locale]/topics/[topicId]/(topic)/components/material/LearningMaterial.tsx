@@ -14,6 +14,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import AudioLearningMaterial from './media/AudioLearningMaterial';
+import VideoLearningMaterial from './media/video/VideoLearningMaterial';
 
 export default function LearningMaterial() {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
@@ -73,7 +74,9 @@ export default function LearningMaterial() {
         case 'youtube':
             return <YoutubeLearningMaterial videoId={data.videoId} content={data.content} />;
         case 'media':
-            return <AudioLearningMaterial data={data} />;
+            if (data.file.type.includes('audio')) return <AudioLearningMaterial data={data} />;
+            if (data.file.type.includes('video')) return <VideoLearningMaterial data={data} />;
+            return <DataStatus variant="empty" title="This type of media file is not supported yet." />;
         default:
             return <DataStatus variant="empty" title="This type of document is not supported yet." />;
     }

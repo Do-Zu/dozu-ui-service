@@ -5,26 +5,59 @@ import { getFileNameWithoutExtension } from '../helper/helper';
 import useToastManager from './useToastManager';
 import { truncate } from '@/utils';
 import uploadService from '@/services/upload';
-import audioTranscriptionService from '@/app/[locale]/topics/[topicId]/(topic)/service/audioTranscription.service';
+import mediaTranscriptionService from '@/app/[locale]/topics/[topicId]/(topic)/service/mediaTranscription.service';
 import { MediaResourceMetadata } from '../types/resource.type';
 import { resourceService } from '../services/contentCreation.service';
 import { useCallback, useState } from 'react';
-import { ALLOWED_AUDIO_TYPES, MAX_MEDIA_SIZE_MB, validateFileSize, validateMediaType } from '../constants/validate';
+import {
+    ALLOWED_AUDIO_TYPES,
+    ALLOWED_MEDIA_TYPES,
+    MAX_MEDIA_SIZE_MB,
+    validateFileSize,
+    validateMediaFile,
+    validateMediaType,
+} from '../constants/validate';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
-export default function useUploadAudioFile() {
+export default function useUploadMediaFile() {
     const t = useTranslations('generate.fileTab');
     const toastManager = useToastManager();
 
     const [isDragging, setIsDragging] = useState(false);
 
-    const { setShowRecord: setIsOpen, setProcessingType, redirectTopicWorkspace } = useActionStore((state) => state);
+    const { setShowMedia: setIsOpen, setProcessingType, redirectTopicWorkspace } = useActionStore((state) => state);
 
-    const handleProcessingContent = async (audioFile: File) => {
+    function validateAudioFile(audioFile: File) {
+        const validated = validateMediaType(audioFile, 'audio') && validateFileSize(audioFile, { isMedia: true });
+        if (!validated) {
+            toast(
+                t('validations.fileRejected', {
+                    types: ALLOWED_AUDIO_TYPES.join(', '),
+                    size: MAX_MEDIA_SIZE_MB,
+                }),
+            );
+        }
+        return validated;
+    }
+
+    function validateFile(file: File) {
+        const validated = validateMediaFile(file) && validateFileSize(file, { isMedia: true });
+        if (!validated) {
+            toast(
+                t('validations.fileRejected', {
+                    types: ALLOWED_MEDIA_TYPES.join(', '),
+                    size: MAX_MEDIA_SIZE_MB,
+                }),
+            );
+        }
+        return validated;
+    }
+
+    const handleProcessingContent = async (file: File) => {
         try {
             setProcessingType(IMPORT_METHOD.MEDIA);
-            const fileName = getFileNameWithoutExtension(audioFile.name);
+            const fileName = getFileNameWithoutExtension(file.name);
 
             // step 1: create new topic using name from selected file
             toastManager.showProgress('Creating topic workspace...');
@@ -37,15 +70,15 @@ export default function useUploadAudioFile() {
             setIsOpen(false);
 
             // step 2: upload file
-            const fileUploadResult = await uploadService.uploadFile(audioFile, ({ progress }) => {
+            const fileUploadResult = await uploadService.uploadFile(file, ({ progress }) => {
                 toastManager.updateProgress(uploadToastId, `Uploading ${truncate(fileName, 50)}... ${progress}%`);
             });
 
             toastManager.showProgress('Adding content to workspace...');
 
-            // step 3: get audio transcript segments
-            const transcriptSegments = await audioTranscriptionService.getTranscripSegmentsFromAudio({
-                audioFile,
+            // step 3: get transcript segments
+            const transcriptSegments = await mediaTranscriptionService.getTranscripSegmentsFromMediaFile({
+                file,
             });
 
             // step 4: insert input set
@@ -73,14 +106,7 @@ export default function useUploadAudioFile() {
         async (fileList: File[]) => {
             const file = fileList[0];
 
-            if (!validateMediaType(file, 'audio') || !validateFileSize(file, { isMedia: true })) {
-                toast(
-                    t('validations.fileRejected', {
-                        types: ALLOWED_AUDIO_TYPES.join(', '),
-                        size: MAX_MEDIA_SIZE_MB,
-                    }),
-                );
-
+            if (!validateFile(file)) {
                 return;
             }
 
@@ -130,6 +156,7 @@ export default function useUploadAudioFile() {
     );
 
     return {
+        validateAudioFile,
         isDragging,
         handleProcessingContent,
         processFiles,

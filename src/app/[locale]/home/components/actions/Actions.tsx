@@ -6,7 +6,7 @@ import { Upload, Link, AudioLines } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UploadModal } from './UploadModal';
 import { PasteLinkModal } from './PasteLinkModal';
-import { RecordModal } from './RecordModal';
+import { MediaModal } from './MediaModal';
 import { ActionProvider, useActionStore } from './context/ActionContext';
 import { IMPORT_METHOD, TypeImportMethod } from './constants/resource';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
@@ -22,9 +22,7 @@ interface IActionCard {
 }
 
 function ActionsContent() {
-    const { isProcessing, processingType, setShowLink, setShowRecord, setShowUpload } = useActionStore(
-        (state) => state,
-    );
+    const { isProcessing, processingType, setShowLink, setShowMedia, setShowUpload } = useActionStore((state) => state);
 
     const actions: IActionCard[] = useMemo(() => {
         return [
@@ -46,9 +44,9 @@ function ActionsContent() {
             },
             {
                 title: 'Media',
-                description: 'Upload audio files or record audio',
+                description: 'Upload media files or record audio',
                 icon: AudioLines,
-                onClick: () => setShowRecord(true),
+                onClick: () => setShowMedia(true),
                 delay: 0.3,
                 type: IMPORT_METHOD.MEDIA,
             },
@@ -97,7 +95,7 @@ function ActionsContent() {
 
             <UploadModal />
             <PasteLinkModal />
-            <RecordModal />
+            <MediaModal />
         </div>
     );
 }
