@@ -69,7 +69,7 @@ export default function RecordTab() {
 
     function getDisplayTimeRecording(timeRecording: number) {
         const hours = Math.floor(timeRecording / 3600);
-        const minutes = Math.floor(timeRecording / 60);
+        const minutes = Math.floor((timeRecording % 60) / 60);
         const seconds = timeRecording % 60;
         return [
             hours.toString().padStart(2, '0'),

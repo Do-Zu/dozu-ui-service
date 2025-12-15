@@ -31,7 +31,6 @@ export default function VideoPlayer({ url, playerRef }: { url: string; playerRef
                     width: '100%',
                     height: '100%',
                 }}
-                light
             ></ReactPlayer>
             <MediaControlBar>
                 <MediaPlayButton />
