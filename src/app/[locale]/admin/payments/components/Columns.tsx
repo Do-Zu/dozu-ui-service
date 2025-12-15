@@ -77,7 +77,7 @@ function ActionButtons({ payment, refetch }: { payment: Payment; refetch: () => 
                     <Copy className="h-4 w-4" />
                 </Button>
             )}
-            
+{/*             
             {canRefund && (
                 <>
                     <Button
@@ -100,7 +100,7 @@ function ActionButtons({ payment, refetch }: { payment: Payment; refetch: () => 
                 <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
                     Refunded
                 </Badge>
-            )}
+            )} */}
         </div>
     );
 }
