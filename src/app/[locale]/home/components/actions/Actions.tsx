@@ -44,7 +44,7 @@ function ActionsContent() {
             },
             {
                 title: 'Media',
-                description: 'Upload audio files or record audio',
+                description: 'Upload media files or record audio',
                 icon: AudioLines,
                 onClick: () => setShowMedia(true),
                 delay: 0.3,

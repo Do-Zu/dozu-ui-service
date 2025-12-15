@@ -54,7 +54,7 @@ class LearningMaterialService {
         return { blobUrl, file };
     }
 
-    private async getAudioDocument(fileResponse: IResponseFileFromInputSet) {
+    private async getMediaDocument(fileResponse: IResponseFileFromInputSet) {
         if (!fileResponse?.data?.fileUrl) {
             throw new Error('No file URL provided');
         }
@@ -63,7 +63,6 @@ class LearningMaterialService {
         const response = await fetch(fileContent.fileUrl, {
             method: 'GET',
             headers: {
-                Accept: 'audio/mpeg, */*',
                 'Cache-Control': 'no-cache',
             },
         });
@@ -128,7 +127,7 @@ class LearningMaterialService {
 
             case RESOURCE_CONTENT_TYPE.MEDIA: {
                 if (response?.data?.fileUrl) {
-                    const result = await this.getAudioDocument(response as IResponseFileFromInputSet);
+                    const result = await this.getMediaDocument(response as IResponseFileFromInputSet);
                     const content = (response.data as { content: ITranscriptSegment[] }).content;
                     if (!content || !Array.isArray(content)) {
                         throw new Error('Error: Media content transcript is missing or invalid');

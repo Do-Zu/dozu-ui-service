@@ -1,7 +1,7 @@
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
 import { TypeImportMethod } from '../../constants/resource';
 import { UploadCloud } from 'lucide-react';
-import { ALLOWED_AUDIO_TYPES, MAX_MEDIA_SIZE_MB } from '../../constants/validate';
+import { ALLOWED_MEDIA_TYPES, MAX_MEDIA_SIZE_MB } from '../../constants/validate';
 
 interface UploadItemProps {
     onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -13,7 +13,7 @@ interface UploadItemProps {
     isProcessing: (type?: TypeImportMethod | undefined) => boolean;
 }
 
-export default function UploadAudioFileInput({
+export default function UploadMediaFileInput({
     isDragging,
     isProcessing,
     onDragOver,
@@ -35,7 +35,7 @@ export default function UploadAudioFileInput({
             onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
-            onClick={() => document.getElementById('audio-file-upload')?.click()}
+            onClick={() => document.getElementById('media-file-upload')?.click()}
         >
             {isProcessing() && <LoadingOverlay />}
 
@@ -44,15 +44,15 @@ export default function UploadAudioFileInput({
             </div>
             <p className="text-sm font-medium text-center mb-1">Click to upload or drag and drop</p>
             <p className="text-xs text-muted-foreground text-center mb-4">
-                {ALLOWED_AUDIO_TYPES.join(', ')} files up to {MAX_MEDIA_SIZE_MB}MB are supported now
+                {ALLOWED_MEDIA_TYPES.join(', ')} files up to {MAX_MEDIA_SIZE_MB}MB are supported now
             </p>
 
             <input
-                id="audio-file-upload"
+                id="media-file-upload"
                 type="file"
                 className="hidden"
                 onChange={onFileChange}
-                accept={ALLOWED_AUDIO_TYPES.join(',')}
+                accept={ALLOWED_MEDIA_TYPES.join(',')}
             />
         </div>
     );

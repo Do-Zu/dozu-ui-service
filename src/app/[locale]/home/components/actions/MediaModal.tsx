@@ -3,8 +3,8 @@
 import React from 'react';
 import { Modal } from '@/components/modal/Modal';
 import { useActionStore } from './context/ActionContext';
-import useUploadAudioFile from './hooks/useUploadAudioFile';
-import UploadAudioFileInput from './components/upload/UploadAudioFileInput';
+import useUploadMediaFile from './hooks/useUploadMediaFile';
+import UploadMediaFileInput from './components/upload/UploadMediaFileInput';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RecordTab from './components/record/RecordTab';
 
@@ -12,7 +12,7 @@ export const MediaModal: React.FC = () => {
     const { showMedia: isOpen, setShowMedia: setIsOpen, isProcessing } = useActionStore((state) => state);
 
     const { isDragging, handleDragOver, handleDragEnter, handleDragLeave, handleFileChange, handleDrop } =
-        useUploadAudioFile();
+        useUploadMediaFile();
 
     return (
         <Modal
@@ -32,7 +32,7 @@ export const MediaModal: React.FC = () => {
                         </TabsList>
 
                         <TabsContent value="upload">
-                            <UploadAudioFileInput
+                            <UploadMediaFileInput
                                 onDragOver={handleDragOver}
                                 onDragEnter={handleDragEnter}
                                 onDragLeave={handleDragLeave}

@@ -4,7 +4,8 @@ const MAX_MEDIA_SIZE_MB = 20; // 15MB for audio/video
 const MAX_TEXT_LENGTH = 5000; // 5000 tokens (approximate)
 const ALLOWED_FILE_TYPES = ['.pdf', '.doc', '.docx', '.txt'];
 const ALLOWED_AUDIO_TYPES = ['.mp3', '.wav'];
-const ALLOWED_VIDEO_TYPES = ['.mp4', '.mov', '.avi'];
+const ALLOWED_VIDEO_TYPES = ['.mp4'];
+const ALLOWED_MEDIA_TYPES = ALLOWED_AUDIO_TYPES.concat(ALLOWED_VIDEO_TYPES);
 const MAX_CONTENT_SIZE_KB = 256;
 
 const FILE_TYPES_NOT_CONVERT = '.pdf';
@@ -37,6 +38,11 @@ const validateMediaType = (file: File, mediaType: 'audio' | 'video'): boolean =>
         : ALLOWED_VIDEO_TYPES.includes(fileExtension);
 };
 
+const validateMediaFile = (file: File): boolean => {
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    return ALLOWED_MEDIA_TYPES.includes(fileExtension);
+};
+
 const validateTextLength = (text: string): boolean => {
     // Simple approximation: 1 token ≈ 4 characters
     return text.length <= MAX_TEXT_LENGTH * 4;
@@ -57,4 +63,6 @@ export {
     validateMediaType,
     validateTextLength,
     getFileExtension,
+    ALLOWED_MEDIA_TYPES,
+    validateMediaFile,
 };

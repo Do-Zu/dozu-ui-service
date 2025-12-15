@@ -8,7 +8,7 @@ import toastHelper from '@/utils/toast.helper';
 import { useInterval } from '@/hooks/useInterval';
 import { format } from 'date-fns';
 import { blobToFile } from '../../helper/helper';
-import useUploadAudioFile from '../../hooks/useUploadAudioFile';
+import useUploadMediaFile from '../../hooks/useUploadMediaFile';
 import { useActionStore } from '../../context/ActionContext';
 
 function AcquiringMedia() {
@@ -20,7 +20,7 @@ const AUDIO_RECORD_EXT = '.wav';
 export default function RecordTab() {
     const [timeRecording, setTimeRecording] = useState<number>(0);
     const submitAfterStopRef = useRef<boolean>(false);
-    const { validateAudioFile, handleProcessingContent } = useUploadAudioFile();
+    const { validateAudioFile, handleProcessingContent } = useUploadMediaFile();
     const { setShowMedia } = useActionStore((state) => state);
 
     const audioRecorder = useReactMediaRecorder({
