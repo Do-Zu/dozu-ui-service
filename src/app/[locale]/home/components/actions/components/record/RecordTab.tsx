@@ -15,7 +15,7 @@ function AcquiringMedia() {
     return <LoadingNode title="Preparing" />;
 }
 
-const AUDIO_RECORD_EXT = '.wav';
+const AUDIO_RECORD_EXT = '.mp3';
 
 export default function RecordTab() {
     const [timeRecording, setTimeRecording] = useState<number>(0);
