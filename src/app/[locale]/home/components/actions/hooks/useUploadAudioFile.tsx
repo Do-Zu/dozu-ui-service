@@ -21,6 +21,19 @@ export default function useUploadAudioFile() {
 
     const { setShowMedia: setIsOpen, setProcessingType, redirectTopicWorkspace } = useActionStore((state) => state);
 
+    function validateAudioFile(audioFile: File) {
+        const validated = validateMediaType(audioFile, 'audio') && validateFileSize(audioFile, { isMedia: true });
+        if (!validated) {
+            toast(
+                t('validations.fileRejected', {
+                    types: ALLOWED_AUDIO_TYPES.join(', '),
+                    size: MAX_MEDIA_SIZE_MB,
+                }),
+            );
+        }
+        return validated;
+    }
+
     const handleProcessingContent = async (audioFile: File) => {
         try {
             setProcessingType(IMPORT_METHOD.MEDIA);
@@ -73,14 +86,7 @@ export default function useUploadAudioFile() {
         async (fileList: File[]) => {
             const file = fileList[0];
 
-            if (!validateMediaType(file, 'audio') || !validateFileSize(file, { isMedia: true })) {
-                toast(
-                    t('validations.fileRejected', {
-                        types: ALLOWED_AUDIO_TYPES.join(', '),
-                        size: MAX_MEDIA_SIZE_MB,
-                    }),
-                );
-
+            if (!validateAudioFile(file)) {
                 return;
             }
 
@@ -130,6 +136,7 @@ export default function useUploadAudioFile() {
     );
 
     return {
+        validateAudioFile,
         isDragging,
         handleProcessingContent,
         processFiles,

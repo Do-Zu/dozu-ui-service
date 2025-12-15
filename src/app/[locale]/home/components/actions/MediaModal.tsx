@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { Modal } from '@/components/modal/Modal';
-import { Mic } from 'lucide-react';
 import { useActionStore } from './context/ActionContext';
-import { toast } from 'sonner';
 import useUploadAudioFile from './hooks/useUploadAudioFile';
 import UploadAudioFileInput from './components/upload/UploadAudioFileInput';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import RecordTab from './components/record/RecordTab';
 
 export const MediaModal: React.FC = () => {
     const { showMedia: isOpen, setShowMedia: setIsOpen, isProcessing } = useActionStore((state) => state);
@@ -18,33 +18,38 @@ export const MediaModal: React.FC = () => {
         <Modal
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            title="Upload or record audio."
             body={
-                <div className="flex flex-col gap-6 mt-2">
-                    <UploadAudioFileInput
-                        onDragOver={handleDragOver}
-                        onDragEnter={handleDragEnter}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        onFileChange={handleFileChange}
-                        isDragging={isDragging}
-                        isProcessing={isProcessing}
-                    />
+                <div className="w-full flex-col p-4">
+                    <Tabs className="w-full">
+                        <TabsList className="w-full flex">
+                            <TabsTrigger value="upload" className="flex-1 flex items-center justify-center">
+                                Upload
+                            </TabsTrigger>
 
-                    <button
-                        className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-colors text-left group"
-                        onClick={() => toast('Feature coming soon')}
-                    >
-                        <div className="p-3 rounded-full bg-muted group-hover:bg-background transition-colors">
-                            <Mic className="w-5 h-5" />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <span className="font-medium text-sm">Microphone</span>
-                            <span className="text-xs text-muted-foreground">Record your voice or class</span>
-                        </div>
-                    </button>
+                            <TabsTrigger value="record" className="flex-1 flex items-center justify-center">
+                                Record
+                            </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="upload">
+                            <UploadAudioFileInput
+                                onDragOver={handleDragOver}
+                                onDragEnter={handleDragEnter}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                onFileChange={handleFileChange}
+                                isDragging={isDragging}
+                                isProcessing={isProcessing}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="record">
+                            <RecordTab />
+                        </TabsContent>
+                    </Tabs>
                 </div>
             }
+            contentStyle="top-[20%] left-[50%] max-w-[40vw] h-[60vh] -translate-x-1/2 -translate-y-0"
         />
     );
 };
