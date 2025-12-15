@@ -11,6 +11,7 @@ import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { NotificationSettings } from '@/types/profile';
 import { ProfileService } from '@/services/profile/profileService';
+import { SESSION_STORAGE_KEY } from '@/utils/constants/storage';
 import { isEmpty, safeDestructure } from '@/utils';
 
 interface AuthContextType {
@@ -38,7 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { isAuthenticated, user, setAuthData, updateUser, clearAuthData, markOnboardingComplete } = useAuthStorage();
 
-    const [currentPlanUser, setCurrentPlanUser] = useSessionStorage<ICurrentPlan | null>('currentPlanUser');
+    const [currentPlanUser, setCurrentPlanUser] = useSessionStorage<ICurrentPlan | null>(
+        SESSION_STORAGE_KEY.CURRENT_USER_PLAN,
+    );
 
     const [notificationSettings, setNotificationSettings] = useState<NotificationSettings | null>(null);
 

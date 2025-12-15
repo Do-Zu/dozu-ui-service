@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { openUpgradeModal } from '@/stores/features/subscription/subscriptionUtils';
-import { getTimestampWithClientOffset } from '@/utils';
+import { getTimestampWithClientOffset, isEmpty } from '@/utils';
 import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
 import { ROUTES } from '@/utils/constants/routes';
 import toastHelper from '@/utils/toast.helper';
@@ -33,7 +33,7 @@ const fallBackToken = () => {
 };
 // Request Interceptor
 const requestInterceptor = Axios.interceptors.request.use(
-    (config) => {
+    async (config) => {
         if (!(config.data instanceof FormData)) {
             config.headers['Content-Type'] = 'application/json';
         }
@@ -46,6 +46,11 @@ const requestInterceptor = Axios.interceptors.request.use(
             const accessToken = userObject?.accessToken;
             config.headers['Authorization'] = `Bearer ${accessToken}`;
         }
+
+        const { timestamp, timezone } = getTimestampWithClientOffset();
+
+        config.headers['X-Timestamp'] = timestamp;
+        config.headers['X-Timezone'] = timezone;
 
         const { method, url } = config;
 
@@ -75,12 +80,6 @@ const requestInterceptor = Axios.interceptors.request.use(
                 }
             }
         }
-
-        const { timestamp, timezone } = getTimestampWithClientOffset();
-
-        // Attach timestamp and timezone to the request headers
-        config.headers['X-Timestamp'] = timestamp;
-        config.headers['X-Timezone'] = timezone;
 
         return config;
     },

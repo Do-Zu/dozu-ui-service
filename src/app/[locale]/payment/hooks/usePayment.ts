@@ -1,6 +1,9 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { AxiosError } from 'axios';
 import { useAppDispatch, useAppSelector } from '@/stores/hooks';
-import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { fetchPlans } from '@/stores/features/subscription';
+
 import { Plan } from '@/components/upgrade-plan/UpgradePlanModal';
 import {
     paymentService,
@@ -10,12 +13,10 @@ import {
     PaymentRegisterRequest,
 } from '@/services/payment';
 import useRetry from '@/hooks/useRetry';
-import { AxiosError } from 'axios';
+import { toast } from '@/hooks/use-toast';
 import { STATUS_CODE } from '@/utils/constants/http';
 import { compareIgnoreCapitalization, isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
-import { fetchPlans } from '@/stores/features/subscription';
-import Axios from '@/api/axios';
-import { PAYMENT_STATUS } from '../utils/constants';
+import toastHelper from '@/utils/toast.helper';
 
 export interface PaymentResponse {
     status: string;
@@ -49,6 +50,7 @@ export interface IStatusTransactionPayOSGateway {
 }
 export function usePayment(options?: UsePaymentOptions) {
     const dispatch = useAppDispatch();
+    const { refreshUserPlan } = useAuth();
 
     const [plan, setPlan] = useState<Plan | null>(null);
     const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
@@ -138,11 +140,11 @@ export function usePayment(options?: UsePaymentOptions) {
                 };
 
                 const paymentData = await paymentService.registerPayment(paymentRequest);
-                setPaymentData(paymentData);
 
-                // TODO: using webhook for check status payment status
-            } catch (err: any) {
-                setError(err.response?.data?.message || err.message || 'Failed to initialize payment');
+                setPaymentData(paymentData);
+            } catch (err) {
+                const error = err as AxiosError;
+                setError(error.message || 'Failed to initialize payment');
             } finally {
                 setIsProcessingPayment(false);
             }
@@ -175,11 +177,9 @@ export function usePayment(options?: UsePaymentOptions) {
                     description: 'Your subscription has been successfully updated!',
                 });
 
-                // Call callback to refresh user plan
-                if (options?.onSubscriptionUpdated) {
-                    await options.onSubscriptionUpdated();
-                }
-            } catch (error: any) {
+                await refreshUserPlan();
+            } catch (error) {
+                toastHelper.showLog(error);
             } finally {
                 setIsUpdatingSubscription(false);
             }
