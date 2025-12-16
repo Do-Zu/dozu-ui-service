@@ -28,7 +28,7 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
                 break;
             }
             const { pageStartIndex, pageEndIndex } = nodeFound.data;
-            if (!pageStartIndex || !pageEndIndex) {
+            if (pageStartIndex === undefined || pageEndIndex === undefined) {
                 validNodesData = false;
                 message =
                     'Page index is not available yet. Please edit page indexes of your selected nodes to generate content.';
@@ -93,7 +93,7 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
                 break;
             }
             const { startSegment, endSegment } = nodeFound.data;
-            if (!startSegment || !endSegment) {
+            if (startSegment === undefined || endSegment === undefined) {
                 validNodesData = false;
                 message =
                     'Start or end segment is not available yet. Please edit segments of your selected nodes to generate content.';
@@ -115,37 +115,42 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
             throw new Error('Youtube type is required');
         }
         const { smallestStartSegment, largestStartSegment } = validateNodeIdsForYoutube();
+
         const nodesData: NodesData = [];
 
-        let content: string = '';
-        for (let segment = smallestStartSegment; segment < largestStartSegment; ) {
-            const segmentFound = learningMaterial.content.find((item) => item.startTime === segment);
-            const text = segmentFound?.text;
-            const segmentIndex = segmentFound ? learningMaterial.content.indexOf(segmentFound) : -1;
+        const content = learningMaterial.content
+            .filter((item) => item.startTime >= smallestStartSegment && item.startTime <= largestStartSegment)
+            .map((item) => item.text)
+            .join('');
 
-            if (!text || segmentIndex === -1) throw new Error('Text not found in choosen segments.');
-
-            const nextSegmentIndex = segmentIndex + 1;
-            segment = learningMaterial.content[nextSegmentIndex].startTime;
-            content += text;
-        }
+        const nodeMap = new Map<string, AppNode>();
+        nodes.forEach((node) => {
+            nodeMap.set(node.data.nodeId, node);
+        });
 
         for (const id of nodeIds) {
-            const nodeFound = nodes.find((item) => item.data.nodeId === id) as AppNode;
+            const nodeFound = nodeMap.get(id) as AppNode;
             const { nodeId, label, description } = nodeFound.data;
-            const { startSegment, endSegment } = nodeFound.data as { startSegment: number; endSegment: number };
-            const startSection = learningMaterial.content.find((item) => item.startTime === startSegment)?.text;
-            const endSection = learningMaterial.content.find((item) => item.startTime === endSegment)?.text;
+            const { startSegment: startSegmentTime, endSegment: endSegmentTime } = nodeFound.data as {
+                startSegment: number;
+                endSegment: number;
+            };
 
-            if (!startSection || !endSection) {
+            const startSegmentContent = learningMaterial.content
+                .find((item) => item.startTime === startSegmentTime)
+                ?.text.slice(0, 50);
+            const endSegmentContent = learningMaterial.content.find((item) => item.startTime === endSegmentTime)?.text;
+
+            if (startSegmentContent === undefined || endSegmentContent === undefined) {
                 throw new Error('Start or end section is required.');
             }
+            const endSection = endSegmentContent.slice(endSegmentContent.length - 50, endSegmentContent.length);
 
             nodesData.push({
                 nodeId,
                 label,
                 description,
-                startSection,
+                startSection: startSegmentContent,
                 endSection,
             });
         }
@@ -164,8 +169,8 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
     }
 
     function onHandleBeforeGenerate() {
-        if (nodeIds.length > 10) {
-            throw new Error('Maximum selected nodes to generate flashcards is 10, please select less than 10 nodes.');
+        if (nodeIds.length === 0 || nodeIds.length > 10) {
+            throw new Error('Please select between 1 and 10 nodes.');
         }
     }
 

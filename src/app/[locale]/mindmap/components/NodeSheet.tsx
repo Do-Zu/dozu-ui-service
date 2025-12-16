@@ -48,6 +48,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import ReferenceEdit from '../../topics/[topicId]/(topic)/components/flashcard/node/reference/ReferenceEdit';
 import DefaultGenerateButton from '../../topics/[topicId]/(topic)/components/generate/DefaultGenerateButton';
 import toastHelper from '@/utils/toast.helper';
+import useMultiNodeFlashcardsGenerate from '../../topics/[topicId]/(topic)/hooks/useMultiNodeFlashcardsGenerate';
 
 enum FlashcardActionEnum {
     BROWSE = 'browse',
@@ -112,6 +113,10 @@ const NodeSheet = ({
     }, [mode, role]);
 
     const { setGeneratingFlashcards, setIsLearningContentFullscreen, setPageNumber, seekTo } = useTopicWorkspace();
+    const { prepareGeneratedData, onHandleBeforeGenerate } = useMultiNodeFlashcardsGenerate({
+        nodes,
+        nodeIds: selectedNodeData ? [selectedNodeData.nodeId] : [],
+    });
 
     useEffect(() => {
         // pdf logic
@@ -132,14 +137,6 @@ const NodeSheet = ({
         setEndSegment(endSegment);
     }, [selectedNodeData, learningMaterial?.type]);
 
-    const prepareGeneratedContent = useCallback(async () => {
-        if (pageStartIndex === undefined || pageEndIndex === undefined) {
-            throw new Error('No text found in the specified page range.');
-        }
-
-        const { text } = await extractTextByRange(pageStartIndex, pageEndIndex);
-        return text;
-    }, [pageStartIndex, pageEndIndex, extractTextByRange]);
 
     const dispatch = useDispatch();
 
@@ -324,8 +321,8 @@ const NodeSheet = ({
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
         try {
-            const content = await prepareGeneratedContent();
-            startGenerate(content);
+            const { content, customOptions } = await prepareGeneratedData();
+            startGenerate(content, customOptions);
         } catch (err) {
             toastHelper.showErrorMessage(err);
         }
@@ -480,6 +477,7 @@ const NodeSheet = ({
                                             <Generate
                                                 type={METHOD_LEARNING.FLASHCARD}
                                                 onSuccess={onGenerateFlashcardsSuccess}
+                                                onHandleBeforeGenerate={onHandleBeforeGenerate}
                                                 trigger={(startGenerate) => (
                                                     <DefaultGenerateButton
                                                         onClick={() => onGenerateClick(startGenerate)}
