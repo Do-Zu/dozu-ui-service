@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import AuthButton from '@/components/toolbar/AuthButton';
-import { Home, Users, BarChart3, TrendingUp, DollarSign, Wallet, Link as LinkIcon } from 'lucide-react';
+import { Home, Users, BarChart3, TrendingUp, DollarSign, Wallet, MessageSquare } from 'lucide-react';
 
 interface SidebarProps {
     className?: string;
@@ -37,6 +37,12 @@ const navItems = [
         label: 'Payments',
         icon: Wallet,
         href: '/admin/payments',
+    },
+
+    {
+        label: 'Feedback',
+        icon: MessageSquare,
+        href: '/admin/feedback',
     },
 
     {
