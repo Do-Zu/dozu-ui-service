@@ -22,11 +22,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
 import { useDispatch } from 'react-redux';
-import {
-    clearNodeSelection,
-    closeSheet,
-    turnOffMultiSelectMode,
-} from '@/stores/features/mindmap/selectedNodeSlice';
+import { clearNodeSelection, closeSheet, turnOffMultiSelectMode } from '@/stores/features/mindmap/selectedNodeSlice';
 import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
@@ -325,17 +321,20 @@ const MindmapContent = ({ mode, role }: Props) => {
                         </div>
                     )}
                 </ResizablePanel>
-                
+
                 {!isSheetOpen && isNodeFlashcardsPanelOpen && (
-                    <ResizablePanel defaultSize={50} minSize={35}>
-                        <div className="h-full overflow-y-auto">{showNodeFlashcardsPanel()}</div>
-                    </ResizablePanel>
+                    <>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel defaultSize={50} minSize={35}>
+                            <div className="h-full overflow-y-auto">{showNodeFlashcardsPanel()}</div>
+                        </ResizablePanel>
+                    </>
                 )}
 
                 {isSheetOpen && (
                     <>
-                        <ResizableHandle />
-                        <ResizablePanel defaultSize={20}>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel defaultSize={20} minSize={20}>
                             <div className="h-full overflow-y-auto">
                                 <NodeDetails
                                     onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
