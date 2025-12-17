@@ -186,6 +186,7 @@ const NodeDetails = ({
 
         if (isNullOrEmpty(val)) {
             setPageStartIndex(undefined);
+            return;
         }
 
         const pageNumber = parseInt(toNumber(val).toString(), 10);
@@ -205,6 +206,7 @@ const NodeDetails = ({
 
         if (isNullOrEmpty(val)) {
             setPageEndIndex(undefined);
+            return;
         }
 
         const pageNumber = parseInt(toNumber(val).toString(), 10);
@@ -335,7 +337,7 @@ const NodeDetails = ({
             </CardHeader>
 
             <CardContent>
-                <div className="flex-1 overflow-y-auto pr-2 space-y-5">
+                <div className="flex-1 overflow-y-auto pr-2 space-y-5 mt-2">
                     <div className="space-y-2">
                         <Label className="text-sm font-medium">Description</Label>
                         {isEditing ? (
@@ -375,7 +377,7 @@ const NodeDetails = ({
                     />
 
                     <div className="space-y-2 pt-1 px-1 border-t">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 mt-2">
                             <Label className="text-sm font-semibold">Customize Document Range</Label>
 
                             <TooltipProvider>
