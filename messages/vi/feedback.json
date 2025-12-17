@@ -1,0 +1,15 @@
+{
+  "feedback": {
+    "title": "Gửi phản hồi",
+    "description": "Chia sẻ suy nghĩ của bạn về trang web. Chúng tôi rất trân trọng mọi ý kiến đóng góp!",
+    "placeholder": "Chia sẻ suy nghĩ của bạn...",
+    "cancel": "Hủy bỏ",
+    "submit": "Gửi phản hồi",
+    "submitting": "Đang gửi...",
+    "successMessage": "Feedback đã được gửi thành công. Cảm ơn bạn đã đóng góp!",
+    "errorMessage": "Có lỗi xảy ra khi gửi feedback",
+    "community": "Tham gia cùng chúng tôi",
+    "discordCommunity": "Cộng đồng Discord",
+    "communityDescription": "để kết nối với những người học khác, chia sẻ ý tưởng và giúp định hình nền tảng của chúng tôi."
+  }
+}

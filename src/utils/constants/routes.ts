@@ -70,6 +70,12 @@ export const ROUTES = Object.freeze({
     LLM_API_KEY_MODELS_UPDATE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
     LLM_API_KEY_MODELS_DELETE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
 
+    // Feedback Dashboard
+    ADMIN_FEEDBACK: '/admin/feedback',
+    ADMIN_FEEDBACK_LIST: (query?: string) => (query ? `/admin/feedback?${query}` : '/admin/feedback'),
+    ADMIN_FEEDBACK_UPDATE: (id: string | number) => `/admin/feedback/${id}`,
+    ADMIN_FEEDBACK_AUTO_IGNORE: '/admin/feedback/ops/auto-ignore',
+
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
     CLASS_BASED_ID: (classId: string | number) => `/class-based/${classId}`,
