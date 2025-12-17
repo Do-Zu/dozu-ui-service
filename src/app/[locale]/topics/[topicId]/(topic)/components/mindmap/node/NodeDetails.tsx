@@ -122,11 +122,13 @@ const NodeDetails = ({
 
         // youtube logic
         const startSegment =
-            learningMaterial?.type === EnumLearningMaterial.youtube || EnumLearningMaterial.media
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
                 ? selectedNodeData?.startSegment
                 : undefined;
         const endSegment =
-            learningMaterial?.type === EnumLearningMaterial.youtube || EnumLearningMaterial.media
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
                 ? selectedNodeData?.endSegment
                 : undefined;
 
@@ -166,8 +168,8 @@ const NodeDetails = ({
                 newLabel,
                 newDescription,
                 setNodes,
-                pageStartIndex: pageStartIndex || 1,
-                pageEndIndex: pageEndIndex || 1,
+                pageStartIndex: pageStartIndex,
+                pageEndIndex: pageEndIndex,
                 startSegment,
                 endSegment,
             });
