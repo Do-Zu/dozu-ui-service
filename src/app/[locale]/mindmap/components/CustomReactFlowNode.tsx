@@ -107,7 +107,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const handleRightClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         if (internalNode) {
-            fitView({ nodes: [internalNode], duration: 800, padding: 0.2 }); // Animate and add padding
+            requestAnimationFrame(() => {
+                fitView({ nodes: [internalNode], duration: 800, padding: 0.2 }); // Animate and add padding
+            });
         }
         setIsClickedOn(true);
 
