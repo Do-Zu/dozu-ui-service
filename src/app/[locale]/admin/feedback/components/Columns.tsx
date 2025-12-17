@@ -3,6 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import type { AdminFeedbackItem, FeedbackCategory, FeedbackStatus } from '@/types/feedback-admin/feedback';
 import { ScoreCell } from '@/app/[locale]/admin/feedback/components/score-cell';
+import { ImageCell } from '@/app/[locale]/admin/feedback/components/image-cell';
 import { FeedbackContentCell } from '@/app/[locale]/admin/feedback/components/feedback-content-cell';
 import { StatusSelect } from '@/app/[locale]/admin/feedback/components/status-select';
 import { CategorySelect } from '@/app/[locale]/admin/feedback/components/category-select';
@@ -15,7 +16,12 @@ export function getFeedbackColumns(opts: {
     {
       id: 'score',
       header: 'Score',
-      cell: ({ row }) => <ScoreCell score={row.original.score} hasImage={row.original.hasImage} />,
+      cell: ({ row }) => <ScoreCell score={row.original.score} />,
+    },
+    {
+      id: 'image',
+      header: 'Image',
+      cell: ({ row }) => <ImageCell imageUrl={row.original.imageUrl ?? null} />,
     },
     {
       accessorKey: 'message',
@@ -27,7 +33,7 @@ export function getFeedbackColumns(opts: {
           userEmail={row.original.userEmail}
           userName={row.original.userName}
           userId={row.original.userId}
-          imageUrl={row.original.imageUrl}
+          // imageUrl={row.original.imageUrl}
           reasons={row.original.reasons}
         />
       ),
