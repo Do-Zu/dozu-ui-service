@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
+import { closeSheet } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
 import { useReactFlow } from '@xyflow/react';
 import {
@@ -24,7 +23,6 @@ import {
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useMindMapContext } from '../../../../../../mindmap/context/MindMapContext';
 import { AppEdge, AppNode } from '../../../../../../../../types/mindmap/mindmap.type';
 import { addChildNode, changeNodeLabel, deleteNode } from '../../../../../../../../utils/mindmap/mindmapUtils';
 import Reference from '../../reference/Reference';
@@ -425,11 +423,9 @@ const NodeDetails = ({
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
                         <div className="grid grid-cols-1 gap-2">
                             {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
-                                <>
-                                    <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
-                                        <DiamondPlus className="h-4 w-4" /> Add Child
-                                    </Button>
-                                </>
+                                <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
+                                    <DiamondPlus className="h-4 w-4" /> Add Child
+                                </Button>
                             ) : null}
 
                             <div className="flex flex-col space-y-2 w-full">
@@ -506,17 +502,15 @@ const NodeDetails = ({
                         </div>
                     </div>
                     {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
-                        <>
-                            <div className="border-t pt-4">
-                                <Button
-                                    onClick={handleDeleteNode}
-                                    variant="destructive"
-                                    className="w-full justify-center gap-2"
-                                >
-                                    <Trash className="h-4 w-4" /> Delete Node
-                                </Button>
-                            </div>
-                        </>
+                        <div className="border-t pt-4">
+                            <Button
+                                onClick={handleDeleteNode}
+                                variant="destructive"
+                                className="w-full justify-center gap-2"
+                            >
+                                <Trash className="h-4 w-4" /> Delete Node
+                            </Button>
+                        </div>
                     ) : null}
                 </div>
             </CardContent>
