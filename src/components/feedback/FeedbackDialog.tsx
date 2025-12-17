@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Image, Send, X, Loader2 } from 'lucide-react';
@@ -12,7 +13,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { postRequest } from '@/api/api';
-import toastHelper from '@/utils/toast.helper';
+import { toast } from '@/hooks/use-toast';
 
 interface FeedbackDialogProps {
     open: boolean;
@@ -20,6 +21,7 @@ interface FeedbackDialogProps {
 }
 
 export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
+    const t = useTranslations('feedback');
     const [feedback, setFeedback] = useState('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -69,15 +71,14 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
             // Backend returns status: 'success' for SuccessResponse.ok()
             if (response.status === 'success' || response.status === 'created' || response.status === 'accepted') {
-                const message = response.data?.message || response.message || 'Feedback đã được gửi thành công. Cảm ơn bạn đã đóng góp!';
-                toastHelper.showSuccessMessage(message);
+                toast({ description: t('successMessage') });
                 handleCancel();
             } else {
-                throw new Error(response.message || 'Có lỗi xảy ra khi gửi feedback');
+                throw new Error(response.message || t('errorMessage'));
             }
         } catch (error: any) {
             console.error('Error submitting feedback:', error);
-            toastHelper.showErrorMessage(error);
+            toast({ description: error?.message || t('errorMessage'), variant: 'destructive' });
         } finally {
             setIsSubmitting(false);
         }
@@ -87,16 +88,16 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Gửi phản hồi</DialogTitle>
+                    <DialogTitle>{t('title')}</DialogTitle>
                     <DialogDescription>
-                        Chia sẻ suy nghĩ của bạn về trang web. Chúng tôi rất trân trọng mọi ý kiến đóng góp!
+                        {t('description')}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
                     <div className="space-y-3">
                         <Textarea
-                            placeholder="Chia sẻ suy nghĩ của bạn..."
+                            placeholder={t('placeholder')}
                             value={feedback}
                             onChange={(e) => setFeedback(e.target.value)}
                             className="min-h-[120px] resize-none"
@@ -147,7 +148,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                                     className="flex-1"
                                     disabled={isSubmitting}
                                 >
-                                    Hủy bỏ
+                                    {t('cancel')}
                                 </Button>
                                 <Button
                                     type="button"
@@ -159,12 +160,12 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                                     {isSubmitting ? (
                                         <>
                                             <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                            Đang gửi...
+                                            {t('submitting')}
                                         </>
                                     ) : (
                                         <>
                                             <Send className="h-4 w-4 mr-1" />
-                                            Gửi phản hồi
+                                            {t('submit')}
                                         </>
                                     )}
                                 </Button>
@@ -174,16 +175,16 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
                     <div className="text-xs text-muted-foreground pt-2 border-t">
                         <p>
-                            Tham gia cùng chúng tôi{' '}
+                            {t('community')}{' '}
                             <a
                                 href="https://discord.gg/dozu"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-green-600 dark:text-green-400 hover:underline"
                             >
-                                Cộng đồng Discord
+                                {t('discordCommunity')}
                             </a>{' '}
-                            để kết nối với những người học khác, chia sẻ ý tưởng và giúp định hình nền tảng của chúng tôi.
+                            {t('communityDescription')}
                         </p>
                     </div>
                 </div>
