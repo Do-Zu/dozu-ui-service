@@ -122,9 +122,13 @@ const NodeDetails = ({
 
         // youtube logic
         const startSegment =
-            learningMaterial?.type === EnumLearningMaterial.youtube ? selectedNodeData?.startSegment : undefined;
+            learningMaterial?.type === EnumLearningMaterial.youtube || EnumLearningMaterial.media
+                ? selectedNodeData?.startSegment
+                : undefined;
         const endSegment =
-            learningMaterial?.type === EnumLearningMaterial.youtube ? selectedNodeData?.endSegment : undefined;
+            learningMaterial?.type === EnumLearningMaterial.youtube || EnumLearningMaterial.media
+                ? selectedNodeData?.endSegment
+                : undefined;
 
         setStartSegment(startSegment);
         setEndSegment(endSegment);
@@ -293,7 +297,11 @@ const NodeDetails = ({
     function handleSegmentClick(segment: number | undefined) {
         if (segment === undefined) return;
         setIsLearningContentFullscreen(false);
-        seekTo(segment);
+        if (learningMaterial?.type === EnumLearningMaterial.youtube) {
+            seekTo(segment);
+        } else if (learningMaterial?.type === EnumLearningMaterial.media) {
+            // implement for media
+        }
     }
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
@@ -405,9 +413,10 @@ const NodeDetails = ({
                             />
                         ) : null}
 
-                        {learningMaterial?.type === EnumLearningMaterial.youtube ? (
+                        {learningMaterial?.type === EnumLearningMaterial.youtube ||
+                        learningMaterial?.type === EnumLearningMaterial.media ? (
                             <ReferenceEdit
-                                type="youtube"
+                                type={learningMaterial.type}
                                 isEditing={isEditing}
                                 segments={learningMaterial.content}
                                 startSegment={startSegment}

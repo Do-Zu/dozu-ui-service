@@ -79,7 +79,7 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
         return { content: fullPageContent, customOptions: { nodesData } };
     }
 
-    function validateNodeIdsForYoutube() {
+    function validateNodeIdsForMediaSegments() {
         let validNodesData: boolean = true;
         let message: string = '';
         let smallestStartSegment: number = 1000000,
@@ -110,11 +110,15 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
         return { smallestStartSegment, largestStartSegment };
     }
 
-    function prepareGeneratedDataForYoutube() {
-        if (learningMaterial?.type !== EnumLearningMaterial.youtube || typeof learningMaterial.content === 'string') {
-            throw new Error('Youtube type is required');
+    function prepareGeneratedDataForMediaSegments() {
+        if (
+            (learningMaterial?.type !== EnumLearningMaterial.youtube &&
+                learningMaterial?.type !== EnumLearningMaterial.media) ||
+            typeof learningMaterial.content === 'string'
+        ) {
+            throw new Error('Youtube or media type is required');
         }
-        const { smallestStartSegment, largestStartSegment } = validateNodeIdsForYoutube();
+        const { smallestStartSegment, largestStartSegment } = validateNodeIdsForMediaSegments();
 
         const nodesData: NodesData = [];
 
@@ -161,8 +165,11 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
     function prepareGeneratedData() {
         if (learningMaterial?.type === EnumLearningMaterial.file) {
             return prepareGeneratedDataForPdf();
-        } else if (learningMaterial?.type === EnumLearningMaterial.youtube) {
-            return prepareGeneratedDataForYoutube();
+        } else if (
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
+        ) {
+            return prepareGeneratedDataForMediaSegments();
         } else {
             throw new Error('Pdf or youtube type is required.');
         }
