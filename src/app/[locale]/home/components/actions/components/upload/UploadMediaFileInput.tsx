@@ -1,7 +1,12 @@
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
 import { TypeImportMethod } from '../../constants/resource';
 import { UploadCloud } from 'lucide-react';
-import { ALLOWED_MEDIA_TYPES, MAX_MEDIA_SIZE_MB } from '../../constants/validate';
+import {
+    ALLOWED_AUDIO_TYPES,
+    ALLOWED_MEDIA_TYPES,
+    ALLOWED_VIDEO_TYPES,
+    MAX_MEDIA_SIZE_MB,
+} from '../../constants/validate';
 
 interface UploadItemProps {
     onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -43,9 +48,11 @@ export default function UploadMediaFileInput({
                 <UploadCloud className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-sm font-medium text-center mb-1">Click to upload or drag and drop</p>
-            <p className="text-xs text-muted-foreground text-center mb-4">
-                {ALLOWED_MEDIA_TYPES.join(', ')} files up to {MAX_MEDIA_SIZE_MB}MB are supported now
-            </p>
+            <div className="text-xs text-muted-foreground text-center mb-4">
+                <p>{ALLOWED_AUDIO_TYPES.join(', ')} (Audio)</p>
+                <p>{ALLOWED_VIDEO_TYPES.join(', ')} (Video)</p>
+                <p>({MAX_MEDIA_SIZE_MB}MB)</p>
+            </div>
 
             <input
                 id="media-file-upload"

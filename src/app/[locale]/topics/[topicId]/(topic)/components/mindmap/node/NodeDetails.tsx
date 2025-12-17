@@ -1,54 +1,49 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { closeSheet, setIsSheetOpen } from '@/stores/features/mindmap/selectedNodeSlice';
+import { closeSheet } from '@/stores/features/mindmap/selectedNodeSlice';
 import { useAppSelector } from '@/stores/hooks';
 import { useReactFlow } from '@xyflow/react';
 import {
-    Bot,
     ChevronDown,
     CopyPlus,
     DiamondPlus,
     Edit,
-    FileText,
     GraduationCap,
     Layers,
     LayoutGrid,
-    Plus,
     SquarePen,
-    TableOfContents,
     Trash,
     X,
     HelpCircle,
     Save,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { compressContent } from '../../generate/helper/compress';
-import { useMindMapContext } from '../context/MindMapContext';
-import { AppEdge, AppNode } from '../../../../types/mindmap/mindmap.type';
-import { addChildNode, changeNodeLabel, deleteNode } from '../../../../utils/mindmap/mindmapUtils';
-import Reference from '../../topics/[topicId]/(topic)/components/reference/Reference';
+import { AppEdge, AppNode } from '../../../../../../../../types/mindmap/mindmap.type';
+import { addChildNode, changeNodeLabel, deleteNode } from '../../../../../../../../utils/mindmap/mindmapUtils';
+import Reference from '../../reference/Reference';
 import { UserRoleEnum } from '@/utils/constants/roles';
-import { EnumLearningMaterial, IReturnItemFileReference } from '../../topics/[topicId]/(topic)/types';
-import ReferenceDocumentViaPage from './ReferenceDocumentViaPage';
+import { EnumLearningMaterial, IReturnItemFileReference } from '../../../types';
+import ReferenceDocumentViaPage from '../../../../../../mindmap/components/ReferenceDocumentViaPage';
 import { isNullOrEmpty, toNumber } from '@/utils';
-import Generate from '../../topics/[topicId]/(topic)/components/generate/Generate';
+import Generate from '../../generate/Generate';
 import { METHOD_LEARNING } from '@/utils/constants/method';
-import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicWorkspaceContext';
-import { IResponseFlashCardGenerate } from '../../topics/[topicId]/(topic)/hooks/useFlashCardWorkSpace';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
-import { IStartGenerateFn } from '../../topics/[topicId]/(topic)/types/generate.type';
+import { IStartGenerateFn } from '../../../types/generate.type';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import ReferenceEdit from '../../topics/[topicId]/(topic)/components/flashcard/node/reference/ReferenceEdit';
-import DefaultGenerateButton from '../../topics/[topicId]/(topic)/components/generate/DefaultGenerateButton';
+import ReferenceEdit from '../../flashcard/node/reference/ReferenceEdit';
+import DefaultGenerateButton from '../../generate/DefaultGenerateButton';
 import toastHelper from '@/utils/toast.helper';
-import useMultiNodeFlashcardsGenerate from '../../topics/[topicId]/(topic)/hooks/useMultiNodeFlashcardsGenerate';
+import useMultiNodeFlashcardsGenerate from '../../../hooks/useMultiNodeFlashcardsGenerate';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import DataStatus from '@/components/errors/DataStatus';
 
 enum FlashcardActionEnum {
     BROWSE = 'browse',
@@ -70,7 +65,7 @@ interface Props {
     role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
 }
 
-const NodeSheet = ({
+const NodeDetails = ({
     onViewNodeFlashcardsClick,
     onLinkNodeFlashcardsClick,
     onLearnNodeFlashcardsClick,
@@ -80,13 +75,11 @@ const NodeSheet = ({
     role = UserRoleEnum.TEACHER,
 }: Props) => {
     const router = useRouter();
-    const { setCurrentPageNumber, setIsFileSheetOpen, extractTextByRange, executeGenerate } = useMindMapContext();
 
     const { screenToFlowPosition, getNodes, getEdges, setNodes, setEdges, fitView } = useReactFlow<AppNode, AppEdge>();
     const nodes = getNodes();
     const edges = getEdges();
 
-    const isSheetOpen = useAppSelector((state) => state.selectedNodeSlice.isSheetOpen);
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
     const [isEditing, setIsEditing] = useState(false);
     const [newLabel, setNewLabel] = useState(selectedNodeData?.label || '');
@@ -129,16 +122,25 @@ const NodeSheet = ({
 
         // youtube logic
         const startSegment =
-            learningMaterial?.type === EnumLearningMaterial.youtube ? selectedNodeData?.startSegment : undefined;
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
+                ? selectedNodeData?.startSegment
+                : undefined;
         const endSegment =
-            learningMaterial?.type === EnumLearningMaterial.youtube ? selectedNodeData?.endSegment : undefined;
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
+                ? selectedNodeData?.endSegment
+                : undefined;
 
         setStartSegment(startSegment);
         setEndSegment(endSegment);
     }, [selectedNodeData, learningMaterial?.type]);
 
-
     const dispatch = useDispatch();
+
+    function closePanel() {
+        dispatch(closeSheet());
+    }
 
     const handleDeleteNode = () => {
         if (!selectedNodeData?.nodeId) {
@@ -150,20 +152,12 @@ const NodeSheet = ({
                 setNodes: setNodes,
                 setEdges: setEdges,
             });
-            dispatch(closeSheet());
+            closePanel();
         }
     };
 
     if (!selectedNodeData) {
-        return (
-            <Sheet open={isSheetOpen} onOpenChange={(open) => dispatch(setIsSheetOpen(open))}>
-                <SheetContent className="w-[400px] sm:w-[540px]">
-                    <SheetHeader>
-                        <SheetTitle>Error</SheetTitle>
-                    </SheetHeader>
-                </SheetContent>
-            </Sheet>
-        );
+        return <DataStatus variant="empty" title="Node not found." />;
     }
 
     const handleEditTitle = () => {
@@ -174,12 +168,12 @@ const NodeSheet = ({
                 newLabel,
                 newDescription,
                 setNodes,
-                pageStartIndex: pageStartIndex || 1,
-                pageEndIndex: pageEndIndex || 1,
+                pageStartIndex: pageStartIndex,
+                pageEndIndex: pageEndIndex,
                 startSegment,
                 endSegment,
             });
-            dispatch(closeSheet());
+            closePanel();
         } else {
             setNewLabel(selectedNodeData?.label);
             setNewDescription(selectedNodeData.description || '');
@@ -196,6 +190,7 @@ const NodeSheet = ({
 
         if (isNullOrEmpty(val)) {
             setPageStartIndex(undefined);
+            return;
         }
 
         const pageNumber = parseInt(toNumber(val).toString(), 10);
@@ -215,6 +210,7 @@ const NodeSheet = ({
 
         if (isNullOrEmpty(val)) {
             setPageEndIndex(undefined);
+            return;
         }
 
         const pageNumber = parseInt(toNumber(val).toString(), 10);
@@ -235,7 +231,7 @@ const NodeSheet = ({
 
     const handleAddChild = () => {
         addChildNode({ nodes, screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
-        dispatch(closeSheet());
+        closePanel();
     };
 
     const handleAddFlashcards = () => {
@@ -268,22 +264,9 @@ const NodeSheet = ({
         }
     };
 
-    const handleOnOpenChange = (open: boolean) => {
-        if (!open) {
-            setIsEditing(false);
-            fitView({ duration: 800 });
-        }
-        dispatch(setIsSheetOpen(open));
-    };
-
-    const handleViewDocument = () => {
-        setCurrentPageNumber(pageStartIndex || pageEndIndex || 1);
-        setIsFileSheetOpen(true);
-    };
-
     const onGenerateFlashcardsSuccess = (data: IResponseFlashCardGenerate[]) => {
         setGeneratingFlashcards(data);
-        dispatch(setIsSheetOpen(false));
+        closePanel();
         setIsNodeFlashcardsEditOpen?.(true);
     };
 
@@ -316,7 +299,11 @@ const NodeSheet = ({
     function handleSegmentClick(segment: number | undefined) {
         if (segment === undefined) return;
         setIsLearningContentFullscreen(false);
-        seekTo(segment);
+        if (learningMaterial?.type === EnumLearningMaterial.youtube) {
+            seekTo(segment);
+        } else if (learningMaterial?.type === EnumLearningMaterial.media) {
+            // implement for media
+        }
     }
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
@@ -329,36 +316,36 @@ const NodeSheet = ({
     }
 
     return (
-        <Sheet open={isSheetOpen} onOpenChange={handleOnOpenChange}>
-            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col space-y-4 [&>button]:hidden">
-                <SheetTitle>
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                            {isEditing ? (
-                                <Input value={newLabel} onChange={onChangeNewLabel} placeholder="Enter node title" />
-                            ) : (
-                                <h2 className="text-lg font-semibold truncate">{selectedNodeData?.label}</h2>
-                            )}
-                        </div>
-
-                        <div className="flex items-center flex-shrink-0">
-                            <Button size="icon" variant="ghost" onClick={handleEditTitle}>
-                                {isEditing ? <Save className="h-4 w-4" /> : <SquarePen className="h-4 w-4" />}
-                            </Button>
-
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => handleOnOpenChange(false)}
-                                className="text-muted-foreground hover:text-foreground"
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
+        <Card className="w-full h-full flex flex-col">
+            <CardHeader className="border-b">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        {isEditing ? (
+                            <Input value={newLabel} onChange={onChangeNewLabel} placeholder="Enter node title" />
+                        ) : (
+                            <h2 className="text-lg font-semibold truncate">{selectedNodeData?.label}</h2>
+                        )}
                     </div>
-                </SheetTitle>
 
-                <div className="flex-1 overflow-y-auto pr-2 space-y-5">
+                    <div className="flex items-center gap-1">
+                        <Button size="icon" variant="ghost" onClick={handleEditTitle}>
+                            {isEditing ? <Save className="h-4 w-4" /> : <SquarePen className="h-4 w-4" />}
+                        </Button>
+
+                        <Button
+                            className="text-muted-foreground hover:text-primary"
+                            size="icon"
+                            variant="ghost"
+                            onClick={closePanel}
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+            </CardHeader>
+
+            <CardContent>
+                <div className="flex-1 overflow-y-auto pr-2 space-y-5 mt-2">
                     <div className="space-y-2">
                         <Label className="text-sm font-medium">Description</Label>
                         {isEditing ? (
@@ -398,7 +385,7 @@ const NodeSheet = ({
                     />
 
                     <div className="space-y-2 pt-1 px-1 border-t">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 mt-2">
                             <Label className="text-sm font-semibold">Customize Document Range</Label>
 
                             <TooltipProvider>
@@ -428,9 +415,10 @@ const NodeSheet = ({
                             />
                         ) : null}
 
-                        {learningMaterial?.type === EnumLearningMaterial.youtube ? (
+                        {learningMaterial?.type === EnumLearningMaterial.youtube ||
+                        learningMaterial?.type === EnumLearningMaterial.media ? (
                             <ReferenceEdit
-                                type="youtube"
+                                type={learningMaterial.type}
                                 isEditing={isEditing}
                                 segments={learningMaterial.content}
                                 startSegment={startSegment}
@@ -446,11 +434,9 @@ const NodeSheet = ({
                         <Label className="text-sm font-semibold text-muted-foreground">Actions</Label>
                         <div className="grid grid-cols-1 gap-2">
                             {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
-                                <>
-                                    <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
-                                        <DiamondPlus className="h-4 w-4" /> Add Child
-                                    </Button>
-                                </>
+                                <Button onClick={handleAddChild} variant="outline" className="justify-start gap-2">
+                                    <DiamondPlus className="h-4 w-4" /> Add Child
+                                </Button>
                             ) : null}
 
                             <div className="flex flex-col space-y-2 w-full">
@@ -527,22 +513,20 @@ const NodeSheet = ({
                         </div>
                     </div>
                     {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
-                        <>
-                            <div className="border-t pt-4">
-                                <Button
-                                    onClick={handleDeleteNode}
-                                    variant="destructive"
-                                    className="w-full justify-center gap-2"
-                                >
-                                    <Trash className="h-4 w-4" /> Delete Node
-                                </Button>
-                            </div>
-                        </>
+                        <div className="border-t pt-4">
+                            <Button
+                                onClick={handleDeleteNode}
+                                variant="destructive"
+                                className="w-full justify-center gap-2"
+                            >
+                                <Trash className="h-4 w-4" /> Delete Node
+                            </Button>
+                        </div>
                     ) : null}
                 </div>
-            </SheetContent>
-        </Sheet>
+            </CardContent>
+        </Card>
     );
 };
 
-export default NodeSheet;
+export default NodeDetails;

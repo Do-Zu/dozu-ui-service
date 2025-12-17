@@ -15,6 +15,7 @@ import { ILearningMode } from '@/stores/features/class-based-learning/learningMo
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import AudioLearningMaterial from './media/AudioLearningMaterial';
 import VideoLearningMaterial from './media/video/VideoLearningMaterial';
+import { EnumLearningMaterial, ITranscriptSegment } from '../../types';
 
 export default function LearningMaterial() {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
@@ -41,6 +42,17 @@ export default function LearningMaterial() {
 
     useEffect(() => {
         if (data && !error) {
+            if (data.type === EnumLearningMaterial.youtube || data.type === EnumLearningMaterial.media) {
+                setLearningMaterial({
+                    ...data,
+                    content: (data.content as ITranscriptSegment[]).map((segment) => ({
+                        ...segment,
+                        startTime: Math.floor(segment.startTime),
+                        endTime: Math.floor(segment.endTime),
+                    })),
+                });
+                return;
+            }
             setLearningMaterial(data);
         }
     }, [data, error]);

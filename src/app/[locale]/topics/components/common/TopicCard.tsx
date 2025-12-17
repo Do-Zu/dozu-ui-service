@@ -33,7 +33,7 @@ export default function TopicCard({ topic, handleNameClick, menuContent, footer 
                 {imageUrl ? (
                     <Image
                         fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="object-fill transition-transform duration-700 group-hover:scale-105"
                         alt={name}
                         src={imageUrl}
                     />

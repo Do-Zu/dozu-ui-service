@@ -47,8 +47,8 @@ interface IChangeNodeLabelParams {
     newLabel: string;
     newDescription: string;
     setNodes: React.Dispatch<React.SetStateAction<AppNode[]>>;
-    pageStartIndex: number;
-    pageEndIndex: number;
+    pageStartIndex?: number | undefined;
+    pageEndIndex?: number | undefined;
     startSegment?: number | undefined;
     endSegment?: number | undefined;
 }

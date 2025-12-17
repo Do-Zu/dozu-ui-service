@@ -1,12 +1,11 @@
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { EyeIcon } from 'lucide-react';
 import { ITranscriptSegment } from '../../../../types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import transcriptUtils from '../../../../utils/transcript.utils';
 import { Button } from '@/components/ui/button';
 
-interface YoutubeReferenceItemProps {
+interface MediaSegmentReferenceItemProps {
     segments: ITranscriptSegment[];
     label: string;
     isEditing: boolean;
@@ -14,14 +13,14 @@ interface YoutubeReferenceItemProps {
     onSegmentChange: (value: string) => void;
     onSegmentClick: (segment: number | undefined) => void;
 }
-function YoutubeReferenceItem({
+function MediaSegmentReferenceItem({
     segments,
     label,
     isEditing,
     segment,
     onSegmentChange,
     onSegmentClick,
-}: YoutubeReferenceItemProps) {
+}: MediaSegmentReferenceItemProps) {
     function getShortSegmentText(text: string) {
         return text.slice(0, 20);
     }
@@ -76,7 +75,7 @@ interface Props {
     onSegmentClick: (segment: number | undefined) => void;
 }
 
-export default function YoutubeReferenceEdit({
+export default function MediaSegmentReferenceEdit({
     isEditing,
     segments,
     startSegment,
@@ -87,7 +86,7 @@ export default function YoutubeReferenceEdit({
 }: Props) {
     return (
         <div className="grid grid-cols-2 gap-4">
-            <YoutubeReferenceItem
+            <MediaSegmentReferenceItem
                 segments={segments}
                 label="Start Segment"
                 isEditing={isEditing}
@@ -96,7 +95,7 @@ export default function YoutubeReferenceEdit({
                 onSegmentClick={onSegmentClick}
             />
 
-            <YoutubeReferenceItem
+            <MediaSegmentReferenceItem
                 segments={segments}
                 label="End Segment"
                 isEditing={isEditing}

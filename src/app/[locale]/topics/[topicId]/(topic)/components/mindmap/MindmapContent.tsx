@@ -1,7 +1,7 @@
 import CustomReactFlowNode from '@/app/[locale]/mindmap/components/CustomReactFlowNode';
 import FloatingEdge from '@/app/[locale]/mindmap/components/FloatingEdge';
 import MindmapButtonsPanel from '@/app/[locale]/mindmap/components/MindmapButtonsPanel';
-import NodeSheet from '@/app/[locale]/mindmap/components/NodeSheet';
+import NodeDetails from '@/app/[locale]/topics/[topicId]/(topic)/components/mindmap/node/NodeDetails';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import Spinner from '@/components/ui/spinner';
 import { ColorMode, ReactFlow, Controls, Background, BackgroundVariant, Panel } from '@xyflow/react';
@@ -22,12 +22,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
 import { useDispatch } from 'react-redux';
-import {
-    clearNodeSelection,
-    closeSheet,
-    openSheet,
-    turnOffMultiSelectMode,
-} from '@/stores/features/mindmap/selectedNodeSlice';
+import { clearNodeSelection, closeSheet, turnOffMultiSelectMode } from '@/stores/features/mindmap/selectedNodeSlice';
 import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
@@ -86,6 +81,8 @@ const MindmapContent = ({ mode, role }: Props) => {
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
     const selectedNodeIds = useAppSelector((state) => state.selectedNodeSlice.selectedNodeIds);
 
+    const isSheetOpen = useAppSelector((state) => state.selectedNodeSlice.isSheetOpen);
+
     const [isFlashcardsPanelFullscreen, setIsFlashcardsPanelFullscreen] = useState<boolean>(false);
     const [flashcardsViewMode, setFlashcardsViewMode] = useState<FlashcardsViewMode>('none');
 
@@ -118,7 +115,7 @@ const MindmapContent = ({ mode, role }: Props) => {
         setIsFlashcardsPanelFullscreen(false);
         requestAnimationFrame(() => {
             fitView({ duration: 800 });
-        })
+        });
     }
 
     function onGenerateMultiNodeFlashcardsSuccess(data: IGenerateNodeFlashcardsItem[]) {
@@ -282,16 +279,6 @@ const MindmapContent = ({ mode, role }: Props) => {
                             nodeIds={selectedNodeIds}
                             onSuccess={onGenerateMultiNodeFlashcardsSuccess}
                         />
-
-                        <NodeSheet
-                            onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
-                            onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
-                            onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
-                            onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
-                            setIsNodeFlashcardsEditOpen={() => setFlashcardsViewMode('edit')}
-                            mode={mode}
-                            role={role}
-                        />
                         <Controls position="bottom-right" />
                         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
                     </ReactFlow>
@@ -334,13 +321,34 @@ const MindmapContent = ({ mode, role }: Props) => {
                         </div>
                     )}
                 </ResizablePanel>
-                <ResizableHandle
-                    withHandle
-                    className={!isNodeFlashcardsPanelOpen || isFlashcardsPanelFullscreen ? 'hidden' : ''}
-                />
-                <ResizablePanel className={!isNodeFlashcardsPanelOpen ? 'hidden' : ''} defaultSize={50} minSize={35}>
-                    <div className="h-full overflow-y-auto">{showNodeFlashcardsPanel()}</div>
-                </ResizablePanel>
+
+                {!isSheetOpen && isNodeFlashcardsPanelOpen && (
+                    <>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel defaultSize={50} minSize={35}>
+                            <div className="h-full overflow-y-auto">{showNodeFlashcardsPanel()}</div>
+                        </ResizablePanel>
+                    </>
+                )}
+
+                {isSheetOpen && (
+                    <>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel defaultSize={20} minSize={20}>
+                            <div className="h-full overflow-y-auto">
+                                <NodeDetails
+                                    onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
+                                    onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
+                                    onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
+                                    onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
+                                    setIsNodeFlashcardsEditOpen={() => setFlashcardsViewMode('edit')}
+                                    mode={mode}
+                                    role={role}
+                                />
+                            </div>
+                        </ResizablePanel>
+                    </>
+                )}
             </ResizablePanelGroup>
         </div>
     );
