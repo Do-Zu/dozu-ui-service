@@ -24,4 +24,3 @@ export const BackgroundGradient: React.FC = React.memo(() => (
 ));
 
 BackgroundGradient.displayName = 'BackgroundGradient';
-

@@ -15,6 +15,7 @@ import LoadingPage from '@/app/loading';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { BackgroundGradient } from '@/components/common/BackgroundGradient';
+import GuestLibraryPlaceholder from './components/GuestLibraryPlaceholder';
 import Title from './components/Title';
 
 type Section = {
@@ -28,9 +29,9 @@ const SECTIONS: Section[] = [
     { key: 'bg', isAuth: false, Comp: BackgroundGradient },
     { key: 'title', isAuth: false, Comp: Title },
     { key: 'hero', isAuth: false, Comp: HeroSection },
-    { key: 'actions', isAuth: false, Comp: Actions },
+    { key: 'actions', isAuth: true, Comp: Actions },
     { key: 'current', isAuth: true, Comp: CurrentProcessLearning },
-    { key: 'library', isAuth: true, Comp: PersonalTopicLibrary, ReplaceComp: <div></div> },
+    { key: 'library', isAuth: true, Comp: PersonalTopicLibrary, ReplaceComp: <GuestLibraryPlaceholder /> },
 ];
 
 // only for user and student
