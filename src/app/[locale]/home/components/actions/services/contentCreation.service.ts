@@ -1,16 +1,17 @@
 import axios from 'axios';
-import { postRequest } from '@/api/api';
+import { getRequest, postRequest } from '@/api/api';
 import {
     InsertContentTopicParams,
     IPayloadMetaDataResource,
     IYoutubeCaptionSegment,
+    IYoutubeResponse,
     NonNullableInsertParams,
     ResourceMetadataMap,
     YoutubeResourcePayload,
 } from '../types/resource.type';
 import { ResourceContentType, RESOURCE_CONTENT_TYPE } from '../constants/resource';
 import { extractYouTubeVideoId } from '../helper/helper';
-import { countWords, isNilOrEmpty, safeDestructure } from '@/utils';
+import { countWords, isEmpty, isNilOrEmpty, safeDestructure } from '@/utils';
 import topicService from '@/services/topic/topic.service';
 
 /**
@@ -18,27 +19,32 @@ import topicService from '@/services/topic/topic.service';
  */
 class ContentCreationService {
     private readonly INPUT_SET_RESOURCES_ENDPOINT = '/input-set/resources';
-    private readonly BASE_API_YOUTUBE = '/api/youtube/transcript?videoId=';
+    private readonly ENDPOINT = '/youtube/v3/transcript';
     private readonly BASE_API_EXTRACT_WEBSITE = '/api/website-content';
 
     public handleGetInfoVideo = async ({ pastedUrl }: { pastedUrl: string }): Promise<YoutubeResourcePayload> => {
         const videoId = extractYouTubeVideoId(pastedUrl?.trim());
 
-        const { data } = await axios.get(`${this.BASE_API_YOUTUBE}${videoId}`);
+        const { data } = await getRequest<unknown, IYoutubeResponse>(
+            `${this.ENDPOINT}?url=${pastedUrl}&videoId=${videoId}`,
+        );
 
-        const { transcript, metadata, transcriptSegments } = safeDestructure(data, {
+        let { transcript, metadata, segments } = safeDestructure(data, {
             transcript: '',
-            transcriptSegments: [],
-            metadata: {},
+            metadata: {
+                title: '',
+            },
         });
 
-        const segments = transcriptSegments.filter((segment: IYoutubeCaptionSegment) => !isNilOrEmpty(segment.text));
+        if (isEmpty(transcript)) {
+            transcript = segments.map((segment) => segment.text).join('');
+        }
 
         const youtubePayload: YoutubeResourcePayload = {
             url: pastedUrl,
             videoInfo: {
                 ...metadata,
-                videoId,
+                videoId: videoId!,
             },
             lengthContent: transcript.length,
             segments,
