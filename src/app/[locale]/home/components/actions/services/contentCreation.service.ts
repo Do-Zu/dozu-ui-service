@@ -23,17 +23,20 @@ class ContentCreationService {
     private readonly BASE_API_EXTRACT_WEBSITE = '/api/website-content';
 
     public handleGetInfoVideo = async ({ pastedUrl }: { pastedUrl: string }): Promise<YoutubeResourcePayload> => {
+        const queryParams = new URLSearchParams({ url: pastedUrl });
+
         const videoId = extractYouTubeVideoId(pastedUrl?.trim());
 
-        const { data } = await getRequest<unknown, IYoutubeResponse>(
-            `${this.ENDPOINT}?url=${pastedUrl}&videoId=${videoId}`,
-        );
+        if (videoId) queryParams.append('videoId', videoId);
+
+        const { data } = await getRequest<unknown, IYoutubeResponse>(`${this.ENDPOINT}?${queryParams.toString()}`);
 
         let { transcript, metadata, segments } = safeDestructure(data, {
             transcript: '',
             metadata: {
                 title: '',
             },
+            segments: [],
         });
 
         if (isEmpty(transcript)) {
