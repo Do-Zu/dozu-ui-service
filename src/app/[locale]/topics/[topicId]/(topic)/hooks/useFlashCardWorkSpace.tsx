@@ -136,7 +136,12 @@ export default function useFlashCardWorkSpace({
     }
 
     function applyUpdate(flashcard: IFlashcard | IDueAnkiCard, updatedMap: Map<number, IFlashcard | IDueAnkiCard>) {
-        return updatedMap.get(flashcard.flashcardId) ?? flashcard;
+        const updatedFlashcard = updatedMap.get(flashcard.flashcardId);
+        const front = updatedFlashcard?.front ?? flashcard.front;
+        const back = updatedFlashcard?.back ?? flashcard.back;
+        const imageUrl = updatedFlashcard?.imageUrl ?? flashcard.imageUrl;
+        const nodeId = updatedFlashcard?.nodeId ?? flashcard.nodeId;
+        return { ...flashcard, front, back, imageUrl, nodeId };
     }
 
     function applyFilter(flashcard: IFlashcard | IDueAnkiCard, deletedSet: Set<number>) {
