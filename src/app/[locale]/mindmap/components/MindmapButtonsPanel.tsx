@@ -84,6 +84,7 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                     edges={edges}
                     setNodes={setNodes}
                     role={role}
+                    mode={mode}
                 />
                 <DownloadButton />
                 {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}

@@ -2,6 +2,31 @@ import Axios from '@/api/axios';
 import { AppEdge, AppNode } from '../../types/mindmap/mindmap.type';
 import { v4 as uuidv4 } from 'uuid';
 
+import { LayoutOptions, ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk-api';
+// import { GeneratedEdge } from './mindmapUtils';
+import ELK from 'elkjs/lib/elk.bundled.js';
+
+export const elk = new ELK();
+
+export interface GeneratedEdge {
+    id: string;
+    source: string;
+    target: string;
+}
+
+export interface GeneratedNode {
+    id: string;
+    position: { x: number; y: number };
+    data: {
+        label: string;
+        description: string;
+        pageStartIndex: number;
+        pageEndIndex: number;
+        isRoot: boolean;
+        color?: string;
+    };
+}
+
 interface IDeleteNodeParams {
     nodeId: string;
     edges: AppEdge[];
@@ -122,4 +147,187 @@ export const addChildNode = ({
     setEdges((eds) =>
         eds.concat({ id: `${id}-${currentNodeId}`, source: currentNodeId, target: id, type: 'floating' }),
     );
+};
+export const getLayoutedElements = async (nodes: AppNode[], edges: AppEdge[], options: LayoutOptions = {}) => {
+    const isHorizontal = options?.['elk.direction'] === 'RIGHT';
+
+    const graph: ElkNode = {
+        id: 'root',
+        layoutOptions: options,
+        children: nodes.map((node) => ({
+            //FIX SPACING HERE :)
+            id: node.id,
+            width: 300,
+            height: 100,
+        })),
+        edges: edges.map(
+            (edge): ElkExtendedEdge => ({
+                id: edge.id,
+                sources: [edge.source],
+                targets: [edge.target],
+            }),
+        ),
+    };
+
+    try {
+        const layoutedGraph = await elk.layout(graph);
+
+        //  Handle possible undefined children safely
+        const layoutedNodes: AppNode[] =
+            layoutedGraph.children?.map((node) => {
+                const original = nodes.find((n) => n.id === node.id)!;
+                return {
+                    ...original, // preserve React Flow-specific data, type, etc.
+                    position: { x: node.x ?? 0, y: node.y ?? 0 },
+                };
+            }) ?? [];
+
+        //Shrink layout vertically
+        layoutedNodes.forEach((node) => {
+            node.position.y *= 0.5;
+        });
+
+        const layoutedEdges: AppEdge[] = edges.map((edge) => ({
+            ...edge,
+        }));
+
+        return {
+            nodes: layoutedNodes,
+            edges: layoutedEdges,
+        };
+    } catch (err) {
+        console.error(err);
+        return { nodes, edges }; // fallback
+    }
+};
+
+export const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEdge[]) => {
+    const updatedEdges = edges.map((edge: GeneratedEdge) => {
+        if (edge.source === oldId) {
+            edge.source = newId;
+        }
+        if (edge.target === oldId) {
+            edge.target = newId;
+        }
+        return edge;
+    });
+    return updatedEdges;
+};
+
+export const getAllChildNodeAndSelfIds = ({
+    nodes = [],
+    edges = [],
+    nodeId,
+    resultNodeIds = [],
+}: {
+    nodes: AppNode[];
+    edges: AppEdge[];
+    nodeId: string;
+    resultNodeIds?: string[];
+}): string[] => {
+    if (!nodes.length || !edges.length) return [nodeId]; // Safety: return just the nodeId if no data
+
+    const childEdges = edges.filter((edge) => edge.source === nodeId);
+    const childNodeIds = childEdges.map((edge) => edge.target);
+
+    // resultNodeIds = [...resultNodeIds, ...childNodeIds];
+    resultNodeIds.push(nodeId);
+
+    for (const childId of childNodeIds) {
+        resultNodeIds = getAllChildNodeAndSelfIds({ nodes, edges, nodeId: childId, resultNodeIds });
+    }
+
+    return resultNodeIds;
+};
+
+export const toggleComplete = ({
+    allNodes,
+    allEdges,
+    nodeId,
+    items,
+    setItems,
+    isComplete,
+    setNodes,
+}: {
+    allNodes: AppNode[] | undefined;
+    allEdges: AppEdge[] | undefined;
+    nodeId: string;
+    items: AppNode[];
+    setItems: React.Dispatch<React.SetStateAction<AppNode[]>>;
+    isComplete: boolean;
+    setNodes: ((nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void) | undefined;
+}) => {
+    // Find and toggle the isComplete property on the node
+    const nodesToUpdate =
+        allNodes && allEdges ? getAllChildNodeAndSelfIds({ nodes: allNodes, edges: allEdges, nodeId }) : [nodeId]; // Fallback: just toggle the node itself if data is missing
+    const updatedItems = items.map((node) => {
+        if (nodesToUpdate.includes(node.data.nodeId)) {
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    isComplete: isComplete,
+                },
+            };
+        }
+        return node;
+    });
+
+    const updatedAllNodes = allNodes?.map((node) => {
+        if (nodesToUpdate.includes(node.data.nodeId)) {
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    isComplete: isComplete,
+                },
+            };
+        }
+        return node;
+    });
+
+    setItems(updatedItems);
+
+    // Propagate the updated completion state back to the global nodes via setNodes if provided
+    if (setNodes && updatedAllNodes) {
+        setNodes(updatedAllNodes);
+        // setNodes(updatedItems);
+    }
+};
+
+export const toggleCompleteWithoutItems = ({
+    allNodes,
+    allEdges,
+    nodeId,
+    isComplete,
+    setNodes,
+}: {
+    allNodes: AppNode[] | undefined;
+    allEdges: AppEdge[] | undefined;
+    nodeId: string;
+
+    isComplete: boolean;
+    setNodes: ((nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void) | undefined;
+}) => {
+    console.log(allNodes, allEdges, nodeId, isComplete, setNodes);
+    // Find and toggle the isComplete property on the node
+    const nodesToUpdate =
+        allNodes && allEdges ? getAllChildNodeAndSelfIds({ nodes: allNodes, edges: allEdges, nodeId }) : [nodeId]; // Fallback: just toggle the node itself if data is missing
+
+    const updatedAllNodes = allNodes?.map((node) => {
+        if (nodesToUpdate.includes(node.data.nodeId)) {
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    isComplete: isComplete,
+                },
+            };
+        }
+        return node;
+    });
+
+    if (setNodes && updatedAllNodes) {
+        setNodes(updatedAllNodes);
+    }
 };
