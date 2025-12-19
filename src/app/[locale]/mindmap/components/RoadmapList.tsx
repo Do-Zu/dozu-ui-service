@@ -3,10 +3,11 @@ import { RoadmapItem } from './RoadmapItem';
 import { ArrowDown, ChevronLeft } from 'lucide-react';
 import { AppNode, AppEdge } from '@/types/mindmap/mindmap.type';
 import { Button } from '@/components/ui/button';
-import { getAllChildNodeAndSelfIds } from '../utils/mindmap.utils';
+import { getAllChildNodeAndSelfIds, toggleComplete } from '@/utils/mindmap/mindmapUtils';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 
-interface RoadmapListProps {
+interface Props {
     initialItems: AppNode[];
     setNodes?: (nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void;
     allNodes?: AppNode[];
@@ -14,6 +15,7 @@ interface RoadmapListProps {
     getImmediateChildNodes?: (parentNodeId: string) => AppNode[];
     normalizeRoadmapOrder?: (nodes: AppNode[]) => AppNode[];
     role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
+    mode?: ILearningMode;
 }
 
 export default function RoadmapList({
@@ -24,7 +26,8 @@ export default function RoadmapList({
     getImmediateChildNodes,
     normalizeRoadmapOrder,
     role,
-}: RoadmapListProps) {
+    mode,
+}: Props) {
     const [items, setItems] = useState<AppNode[]>(initialItems);
     const [currentNode, setCurrentNode] = useState<AppNode | null>(null); // Track the node being drilled into
     const [breadcrumb, setBreadcrumb] = useState<AppNode[]>([]); // Track parent nodes for back navigation
@@ -52,45 +55,6 @@ export default function RoadmapList({
                 const updatedMap = Object.fromEntries(updatedItems.map((n) => [n.data.nodeId, n]));
                 return prev.map((p) => (updatedMap[p.data.nodeId] ? updatedMap[p.data.nodeId] : p));
             });
-        }
-    };
-
-    const toggleComplete = (nodeId: string, isComplete: boolean) => {
-        // Find and toggle the isComplete property on the node
-        const nodesToUpdate =
-            allNodes && allEdges ? getAllChildNodeAndSelfIds({ nodes: allNodes, edges: allEdges, nodeId }) : [nodeId]; // Fallback: just toggle the node itself if data is missing
-        const updatedItems = items.map((node) => {
-            if (nodesToUpdate.includes(node.data.nodeId)) {
-                return {
-                    ...node,
-                    data: {
-                        ...node.data,
-                        isComplete: isComplete,
-                    },
-                };
-            }
-            return node;
-        });
-
-        const updatedAllNodes = allNodes?.map((node) => {
-            if (nodesToUpdate.includes(node.data.nodeId)) {
-                return {
-                    ...node,
-                    data: {
-                        ...node.data,
-                        isComplete: isComplete,
-                    },
-                };
-            }
-            return node;
-        });
-
-        setItems(updatedItems);
-
-        // Propagate the updated completion state back to the global nodes via setNodes if provided
-        if (setNodes && updatedAllNodes) {
-            setNodes(updatedAllNodes);
-            // setNodes(updatedItems);
         }
     };
 
@@ -170,10 +134,21 @@ export default function RoadmapList({
                             completed={node.data.isComplete}
                             onMoveUp={() => moveItem(index, 'up')}
                             onMoveDown={() => moveItem(index, 'down')}
-                            onComplete={() => toggleComplete(node.data.nodeId, !node.data.isComplete)}
+                            onComplete={() =>
+                                toggleComplete({
+                                    allNodes,
+                                    allEdges,
+                                    nodeId: node.data.nodeId,
+                                    items,
+                                    setItems,
+                                    isComplete: !node.data.isComplete,
+                                    setNodes,
+                                })
+                            }
                             onExpand={() => handleExpand(node)}
                             node={node}
                             role={role}
+                            mode={mode}
                         />
 
                         {/* Arrow between items */}

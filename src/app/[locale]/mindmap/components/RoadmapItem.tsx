@@ -4,6 +4,8 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { AppNode } from '@/types/mindmap/mindmap.type';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 interface RoadmapItemProps {
     label: string;
@@ -16,6 +18,7 @@ interface RoadmapItemProps {
     onExpand?: () => void; // New prop for expand action
     node: AppNode;
     role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
+    mode?: ILearningMode;
 }
 export function RoadmapItem({
     label,
@@ -28,6 +31,7 @@ export function RoadmapItem({
     onExpand,
     node,
     role = UserRoleEnum.TEACHER,
+    mode,
 }: RoadmapItemProps) {
     const completeButtonVariant = completed ? 'secondary' : 'outline';
 
@@ -41,7 +45,7 @@ export function RoadmapItem({
             {/* Left content (text truncates behind buttons) */}
             <div className="flex items-center gap-3 flex-1 pr-20">
                 {/* Reorder buttons */}
-                {role === UserRoleEnum.TEACHER ? (
+                {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                     <>
                         {' '}
                         <div className="flex flex-col gap-1.5">
@@ -88,7 +92,7 @@ export function RoadmapItem({
 
                 {/* Complete */}
 
-                {role === UserRoleEnum.TEACHER ? (
+                {mode === MODE_ACCESS_PAGE_ROLE.personal ? (
                     <>
                         <Button
                             variant={completeButtonVariant}

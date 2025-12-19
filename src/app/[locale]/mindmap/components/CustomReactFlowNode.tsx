@@ -9,7 +9,7 @@ import { openSheet, setSelectedNodeData, toggleNodeSelection } from '@/stores/fe
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus } from 'lucide-react';
+import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus, CheckCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
@@ -24,6 +24,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     const total = data.statistics?.total || 0;
     const mature = data.statistics?.mature || 0;
     const progress = total > 0 ? (mature / total) * 100 : 0;
+
+    // Check completion status
+    const isComplete = data.isComplete;
 
     const dispatch = useDispatch();
     // const router = getRouter();
@@ -79,7 +82,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     };
 
     const handleSave = (inputLabel: string) => {
-        // Update the node data with new label locally (not saving to db)
         setNodes((nds) =>
             nds.map((node) =>
                 node.id === data.nodeId ? { ...node, data: { ...node.data, label: inputLabel } } : node,
@@ -101,14 +103,13 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         } else {
             setIsClickedOn(true);
         }
-        // dispatch(openSheet());
     };
 
     const handleRightClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         if (internalNode) {
             requestAnimationFrame(() => {
-                fitView({ nodes: [internalNode], duration: 800, padding: 0.2 }); // Animate and add padding
+                fitView({ nodes: [internalNode], duration: 800, padding: 0.2 });
             });
         }
         setIsClickedOn(true);
@@ -143,6 +144,36 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         visible: { opacity: 1, scale: 1, x: 0 },
     };
 
+    // --- Dynamic Styles Logic ---
+
+    // Helper to determine if we are overriding the ring color
+    // We override if the node is active, complete, and has a specific color assigned.
+    const shouldUseCustomRingColor = isActive && isComplete && data.color;
+
+    const getBorderClass = () => {
+        if (isActive) return isComplete ? 'border-green-500' : 'border-primary/40';
+        if (isComplete) return 'border-green-500/40';
+        return 'border-border/10 hover:border-border';
+    };
+
+    const getRingClass = () => {
+        if (isActive) {
+            // If we are using a custom ring color via style prop, just set the width/shadow
+            if (shouldUseCustomRingColor) return 'shadow-2xl ring-2';
+            // Otherwise use default Tailwind classes
+            return `shadow-2xl ring-2 ${isComplete ? 'ring-green-500/60' : 'ring-primary/60'}`;
+        }
+        if (data.isRoot) return 'ring-2 ring-primary/20';
+        return '';
+    };
+
+    const getBackgroundClass = () => {
+        // Keep the green tint for completion to distinguish it from regular nodes
+        if (isComplete) return 'bg-green-50/10 dark:bg-green-900/10';
+        if (data.isRoot) return 'bg-primary/5';
+        return '';
+    };
+
     return (
         <motion.div
             variants={nodeVariants}
@@ -163,19 +194,35 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             className={`
                 relative group min-w-[180px] max-w-[280px]
                 bg-card/95 backdrop-blur-sm
-                border border-border/10 hover:border-border
                 rounded-xl shadow-sm hover:shadow-md
                 transition-all duration-200 ease-out
-                ${data.isRoot ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
-                ${isActive ? 'shadow-2xl ring-2 ring-primary/60 border-primary/40' : ''}
+                border
+                ${getBorderClass()}
+                ${getRingClass()}
+                ${getBackgroundClass()}
             `}
-            style={{
-                borderColor: data.color || 'hsl(var(--border))', // use custom color or fallback
-                // background: data.isRoot
-                //     ? 'linear-gradient(135deg, hsl(var(--primary))/0.05 0%, hsl(var(--background)) 100%)'
-                //     : undefined,
-            }}
+            style={
+                {
+                    // Border color fallback for inactive, incomplete, colored nodes
+                    borderColor: !isActive && !isComplete && data.color ? data.color : undefined,
+
+                    // If active, complete, and colored: override the CSS variable for ring color
+                    // We append '99' to the hex to create a ~60% opacity effect (Hex 8-digit notation)
+                    '--tw-ring-color': shouldUseCustomRingColor ? `${data.color}99` : undefined,
+                } as React.CSSProperties
+            }
         >
+            {/* Completed Indicator Tick */}
+            {isComplete && (
+                <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    className="absolute -top-2 -right-2 z-20 bg-card rounded-full shadow-sm ring-1 ring-green-100 dark:ring-green-900"
+                >
+                    <CheckCircle className="w-5 h-5 text-green-500 fill-green-100 dark:fill-green-900/30" />
+                </motion.div>
+            )}
+
             {/* Connection Handles */}
             <Handle
                 className="w-3 h-3 bg-primary/60 border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -232,11 +279,13 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                     <div className="space-y-2">
                         <div className="cursor-pointer group/title">
                             <motion.h3
-                                className="text-sm font-medium text-foreground leading-relaxed line-height-[1.5] group-hover/title:text-primary transition-colors duration-200"
+                                className={`text-sm font-medium text-foreground leading-relaxed line-height-[1.5] group-hover/title:text-primary transition-colors duration-200 ${isComplete ? 'text-muted-foreground' : ''}`}
                                 style={{
                                     fontSize: '14px',
                                     lineHeight: '1.5',
                                     letterSpacing: '0.01em',
+                                    textDecoration: isComplete ? 'line-through' : 'none',
+                                    textDecorationColor: 'hsl(var(--muted-foreground))',
                                 }}
                             >
                                 {isEditingMindmap ? (
@@ -300,7 +349,10 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                 </div>
                             </div>
 
-                            <Progress value={progress} className="h-2" />
+                            <Progress
+                                value={progress}
+                                className={`h-2 ${isComplete ? 'bg-green-100 [&>div]:bg-green-500' : ''}`}
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>

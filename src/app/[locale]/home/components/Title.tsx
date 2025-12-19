@@ -8,7 +8,7 @@ export default function Title() {
     const tHome = useTranslations('home');
     return (
         <div
-            className={`relative isolate md:pt-10 md:pb-5 ${isAuthenticated ? '' : 'min-h-full flex items-center justify-center'}`}
+            className={`relative isolate md:pt-10 md:pb-5 ${isAuthenticated ? '' : 'flex items-center justify-center'}`}
         >
             <div className="mx-auto max-w-6xl px-4 relative">
                 <div className="flex flex-col items-center text-center">

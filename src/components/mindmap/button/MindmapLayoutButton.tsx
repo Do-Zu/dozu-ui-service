@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRightFromLine, CircleDashed } from 'lucide-react';
 import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
-import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
+import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
 import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';

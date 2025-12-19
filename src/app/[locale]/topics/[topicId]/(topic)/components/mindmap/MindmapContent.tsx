@@ -11,12 +11,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Generate from '../generate/Generate';
 import { v4 as uuidv4 } from 'uuid';
-import {
-    GeneratedEdge,
-    GeneratedNode,
-    getLayoutedElements,
-    getUpdatedEdges,
-} from '@/app/[locale]/mindmap/utils/mindmap.utils';
+import { getLayoutedElements, getUpdatedEdges } from '@/utils/mindmap/mindmapUtils';
+import { GeneratedNode } from '@/utils/mindmap/mindmapUtils';
+import { GeneratedEdge } from '@/utils/mindmap/mindmapUtils';
 import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';

@@ -2,7 +2,7 @@ import { AppNode } from '@/types/mindmap/mindmap.type';
 import { useReactFlow } from '@xyflow/react';
 import { useCallback } from 'react';
 import { useMindMapContext } from '../context/MindMapContext';
-import { getLayoutedElements } from '../utils/mindmap.utils';
+import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
 
 const elkOptions = {
     'elk.algorithm': 'radial',
