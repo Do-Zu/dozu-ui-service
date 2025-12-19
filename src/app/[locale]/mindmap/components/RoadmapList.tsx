@@ -58,45 +58,6 @@ export default function RoadmapList({
         }
     };
 
-    // const toggleComplete = (nodeId: string, isComplete: boolean) => {
-    //     // Find and toggle the isComplete property on the node
-    //     const nodesToUpdate =
-    //         allNodes && allEdges ? getAllChildNodeAndSelfIds({ nodes: allNodes, edges: allEdges, nodeId }) : [nodeId]; // Fallback: just toggle the node itself if data is missing
-    //     const updatedItems = items.map((node) => {
-    //         if (nodesToUpdate.includes(node.data.nodeId)) {
-    //             return {
-    //                 ...node,
-    //                 data: {
-    //                     ...node.data,
-    //                     isComplete: isComplete,
-    //                 },
-    //             };
-    //         }
-    //         return node;
-    //     });
-
-    //     const updatedAllNodes = allNodes?.map((node) => {
-    //         if (nodesToUpdate.includes(node.data.nodeId)) {
-    //             return {
-    //                 ...node,
-    //                 data: {
-    //                     ...node.data,
-    //                     isComplete: isComplete,
-    //                 },
-    //             };
-    //         }
-    //         return node;
-    //     });
-
-    //     setItems(updatedItems);
-
-    //     // Propagate the updated completion state back to the global nodes via setNodes if provided
-    //     if (setNodes && updatedAllNodes) {
-    //         setNodes(updatedAllNodes);
-    //         // setNodes(updatedItems);
-    //     }
-    // };
-
     const handleExpand = (node: AppNode) => {
         if (getImmediateChildNodes && normalizeRoadmapOrder) {
             const childNodes = getImmediateChildNodes(node.data.nodeId);

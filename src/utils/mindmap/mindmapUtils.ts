@@ -201,43 +201,34 @@ export const getLayoutedElements = async (nodes: AppNode[], edges: AppEdge[], op
     }
 };
 
-export const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEdge[]) => {
-    const updatedEdges = edges.map((edge: GeneratedEdge) => {
-        if (edge.source === oldId) {
-            edge.source = newId;
-        }
-        if (edge.target === oldId) {
-            edge.target = newId;
-        }
-        return edge;
-    });
-    return updatedEdges;
+export const getUpdatedEdges = (oldId: string, newId: string, edges: GeneratedEdge[]): GeneratedEdge[] => {
+    return edges.map((edge) => ({
+        ...edge,
+        source: edge.source === oldId ? newId : edge.source,
+        target: edge.target === oldId ? newId : edge.target,
+    }));
 };
 
 export const getAllChildNodeAndSelfIds = ({
     nodes = [],
     edges = [],
     nodeId,
-    resultNodeIds = [],
 }: {
     nodes: AppNode[];
     edges: AppEdge[];
     nodeId: string;
-    resultNodeIds?: string[];
 }): string[] => {
-    if (!nodes.length || !edges.length) return [nodeId]; // Safety: return just the nodeId if no data
+    const result = new Set<string>();
 
-    const childEdges = edges.filter((edge) => edge.source === nodeId);
-    const childNodeIds = childEdges.map((edge) => edge.target);
+    const dfs = (id: string) => {
+        if (result.has(id)) return;
+        result.add(id);
 
-    // resultNodeIds = [...resultNodeIds, ...childNodeIds];
-    resultNodeIds.push(nodeId);
+        edges.filter((edge) => edge.source === id).forEach((edge) => dfs(edge.target));
+    };
 
-    for (const childId of childNodeIds) {
-        resultNodeIds = getAllChildNodeAndSelfIds({ nodes, edges, nodeId: childId, resultNodeIds });
-    }
-
-    return resultNodeIds;
+    dfs(nodeId);
+    return Array.from(result);
 };
 
 export const toggleComplete = ({
@@ -309,7 +300,6 @@ export const toggleCompleteWithoutItems = ({
     isComplete: boolean;
     setNodes: ((nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void) | undefined;
 }) => {
-    console.log(allNodes, allEdges, nodeId, isComplete, setNodes);
     // Find and toggle the isComplete property on the node
     const nodesToUpdate =
         allNodes && allEdges ? getAllChildNodeAndSelfIds({ nodes: allNodes, edges: allEdges, nodeId }) : [nodeId]; // Fallback: just toggle the node itself if data is missing
