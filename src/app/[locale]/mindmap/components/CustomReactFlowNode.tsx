@@ -263,17 +263,6 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                             )}
                         </div>
                     </div>
-
-                    {/* Page Index Info */}
-                    {(data.pageStartIndex || data.pageEndIndex) && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex items-center gap-1 text-xs text-muted-foreground"
-                        >
-                            <FileText className="w-3 h-3" />
-                        </motion.div>
-                    )}
                 </motion.div>
 
                 {/* Action Buttons */}

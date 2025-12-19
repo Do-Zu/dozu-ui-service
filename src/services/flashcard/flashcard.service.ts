@@ -22,8 +22,9 @@ import { IAnkiRating } from '@/types/anki';
 import { IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
 import { activityTrackingService } from '@/services/gamification/activityTracking.service';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
-import AnkiService from '../anki/anki.service';
 import { ApiResponse } from '@/api/type';
+import AnkiScheduler from '../anki/implementation/anki-scheduler';
+import AnkiService from '../anki/application/anki.service';
 
 export interface IFlashcardReviewPayload {
     topicId: string | number;
@@ -179,7 +180,8 @@ class FlashcardService {
                 lastReviewed: learningState.lastReviewed ? new Date(learningState.lastReviewed) : null,
                 nextReview: new Date(learningState.nextReview),
             };
-            const ankiService = new AnkiService(ankiSetting);
+            const ankiScheduler = new AnkiScheduler(ankiSetting);
+            const ankiService = new AnkiService(ankiScheduler);
             const ankiResult = ankiService.schedule(ankiCard, rating);
             result.push({
                 rating,
