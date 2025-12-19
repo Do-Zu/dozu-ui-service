@@ -5,7 +5,7 @@ import PreviewMindmap from './PreviewMindmap';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
 import { mindmapLayoutElkOptions } from '../constants';
-import { getLayoutedElements, getUpdatedEdges } from '../utils/mindmap.utils';
+import { getLayoutedElements, getUpdatedEdges } from '@/utils/mindmap/mindmapUtils';
 import toastHelper from '@/utils/toast.helper';
 import { useRouter } from 'next/navigation';
 
