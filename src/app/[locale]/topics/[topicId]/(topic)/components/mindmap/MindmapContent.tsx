@@ -28,6 +28,7 @@ import { ILearningMode } from '@/stores/features/class-based-learning/learningMo
 import { IGenerateNodeFlashcardsItem } from '../../types/generate.type';
 import MultiNodeFlashcardsPreview from '../flashcard/node/MultiNodeFlashcardsPreview';
 import MultiNodeGeneratePanel from '../flashcard/node/MultiNodeGeneratePanel';
+import RoadmapButtonPanel from '@/app/[locale]/mindmap/components/RoadmapButtonPanel';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -271,6 +272,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                         className={showGenerateModal ? 'blur-sm' : ''}
                     >
                         <MindmapButtonsPanel mode={mode} role={role} />
+                        <RoadmapButtonPanel mode={mode} role={role} />
                         <MultiNodeGeneratePanel
                             nodes={nodes}
                             nodeIds={selectedNodeIds}
