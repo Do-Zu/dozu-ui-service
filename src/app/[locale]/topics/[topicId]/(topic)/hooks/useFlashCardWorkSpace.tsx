@@ -11,10 +11,11 @@ import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import useFetch from '@/hooks/useFetch';
 import flashcardService from '@/services/flashcard/flashcard.service';
 import ankiSettingService from '@/services/anki-setting/ankiSetting.service';
-import { isNil } from '@/utils';
+import { isNil, TimeUnit } from '@/utils';
 import { TopicWorkspaceTabValue } from '../types';
 import toastHelper from '@/utils/toast.helper';
 import { IAnkiStatus } from '@/types/anki';
+import { learnAheadLimit } from '../constants/anki.constant';
 
 export interface IResponseFlashCardGenerate {
     q: string;
@@ -88,12 +89,19 @@ export default function useFlashCardWorkSpace({
 
     const [generatingFlashcards, setGeneratingFlashcards] = useState<IResponseFlashCardGenerate[] | null>(null);
 
+    function shouldReviewNow(reviewedCard: IAnkiCardReviewed) {
+        return (
+            reviewedCard.nextReviewInterval.timeUnit === TimeUnit.MINUTE &&
+            reviewedCard.nextReviewInterval.interval <= learnAheadLimit
+        );
+    }
+
     const onReviewCard = useCallback(
         ({ currentCard, reviewedCard }: { currentCard: IDueAnkiCard; reviewedCard: IAnkiCardReviewed | null }) => {
             const updatedLearningFlashcards = (learningFlashcards || []).filter(
                 (card) => card.flashcardId !== currentCard.flashcardId,
             );
-            if (reviewedCard) {
+            if (reviewedCard && shouldReviewNow(reviewedCard)) {
                 // INSERT this card to a suitable position (to maintain ORDER by nextReview)
                 let inserted = false;
                 for (let i = 0; i < updatedLearningFlashcards.length; ++i) {
