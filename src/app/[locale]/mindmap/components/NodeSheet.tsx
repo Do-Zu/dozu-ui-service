@@ -137,7 +137,6 @@ const NodeSheet = ({
         setEndSegment(endSegment);
     }, [selectedNodeData, learningMaterial?.type]);
 
-
     const dispatch = useDispatch();
 
     const handleDeleteNode = () => {
@@ -322,7 +321,7 @@ const NodeSheet = ({
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
         try {
             const { content, customOptions } = await prepareGeneratedData();
-            startGenerate(content, customOptions);
+            await startGenerate(content, customOptions);
         } catch (err) {
             toastHelper.showErrorMessage(err);
         }

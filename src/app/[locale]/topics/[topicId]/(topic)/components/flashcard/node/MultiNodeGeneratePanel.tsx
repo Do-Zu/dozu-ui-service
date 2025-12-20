@@ -29,7 +29,7 @@ export default function MultiNodeGeneratePanel({ nodes, nodeIds, onSuccess }: Pr
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
         try {
             const { content, customOptions } = await prepareGeneratedData();
-            startGenerate(content, customOptions);
+            await startGenerate(content, customOptions);
         } catch (err) {
             toastHelper.showErrorMessage(err);
         }
