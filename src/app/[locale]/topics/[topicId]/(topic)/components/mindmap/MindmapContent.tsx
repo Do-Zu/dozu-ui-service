@@ -29,6 +29,7 @@ import { IGenerateNodeFlashcardsItem } from '../../types/generate.type';
 import MultiNodeFlashcardsPreview from '../flashcard/node/MultiNodeFlashcardsPreview';
 import MultiNodeGeneratePanel from '../flashcard/node/MultiNodeGeneratePanel';
 import RoadmapButtonPanel from '@/app/[locale]/mindmap/components/RoadmapButtonPanel';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -51,7 +52,6 @@ type FlashcardsViewMode = 'none' | 'browse' | 'edit' | 'link' | 'learning' | 'mu
 
 const MindmapContent = ({ mode, role }: Props) => {
     const {
-        topicId,
         isLoading,
         nodes,
         edges,
@@ -59,15 +59,10 @@ const MindmapContent = ({ mode, role }: Props) => {
         setEdges,
         onNodesChange,
         onEdgesChange,
-        isSaving,
         saveMindmap,
-        sseData,
-        sseStatus,
         hasInitialized,
-        isProcessingRegisterGenerate,
-        executeGenerate,
         fitView,
-    } = useMindMapContext();
+    } = useTopicWorkspace();
 
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [hasShownModal, setHasShownModal] = useState(false);

@@ -30,6 +30,9 @@ import { YouTubePlayer } from 'react-youtube';
 import { INote } from '../types/note.type';
 import useNoteWorkspace from '../hooks/useNoteWorkspace';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
+import { MindMapProvider, useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
+import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
+import { FitView } from '@xyflow/react';
 
 export type TypeTopicId = number;
 
@@ -89,6 +92,18 @@ interface ContextType {
 
     isLearningContentFullscreen: boolean;
     setIsLearningContentFullscreen: Dispatch<SetStateAction<boolean>>;
+
+    //mindmap
+    isLoading: boolean;
+    nodes: AppNode[];
+    edges: AppEdge[];
+    setNodes: (nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void;
+    setEdges: (edges: AppEdge[] | ((edges: AppEdge[]) => AppEdge[])) => void;
+    onNodesChange: (changes: any) => void;
+    onEdgesChange: (changes: any) => void;
+    saveMindmap: () => Promise<void>;
+    hasInitialized: boolean;
+    fitView: FitView;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -145,6 +160,19 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         onCreateFlashcardsSuccess,
     } = useFlashCardWorkSpace({ topicId: topicIdRef.current, currentTab: tab });
 
+    const {
+        isLoading,
+        nodes,
+        edges,
+        setNodes,
+        setEdges,
+        onNodesChange,
+        onEdgesChange,
+        saveMindmap,
+        hasInitialized,
+        fitView,
+    } = useMindMapContext();
+
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
 
     const { note, setNote } = useNoteWorkspace();
@@ -198,6 +226,16 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             onCreateFlashcardsSuccess,
             isLearningContentFullscreen,
             setIsLearningContentFullscreen,
+            isLoading,
+            nodes,
+            edges,
+            setNodes,
+            setEdges,
+            onNodesChange,
+            onEdgesChange,
+            saveMindmap,
+            hasInitialized,
+            fitView,
         }),
         [
             tab,
@@ -225,10 +263,24 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             onBatchFlashcardsSuccess,
             onCreateFlashcardsSuccess,
             isLearningContentFullscreen,
+            isLoading,
+            nodes,
+            edges,
+            setNodes,
+            setEdges,
+            onNodesChange,
+            onEdgesChange,
+            saveMindmap,
+            hasInitialized,
+            fitView,
         ],
     );
 
-    return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;
+    return (
+        
+            <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>
+        
+    );
 }
 
 export function useTopicWorkspace() {
