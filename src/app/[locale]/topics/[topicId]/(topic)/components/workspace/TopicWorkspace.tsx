@@ -87,10 +87,6 @@ export default function TopicWorkspace() {
                     <div className="flex flex-col h-full">
                         <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
                             <div className="flex items-center justify-between mt-6 w-full px-6">
-                                {/* <div className="font-bold text-lg">
-                                    {topicUtils.getDisplayTopicName(topic?.name || '')}
-                                </div> */}
-
                                 <div className="flex-1 flex justify-center">
                                     <TabsList className="grid grid-cols-5 w-[95%] rounded-2xl">
                                         {TOPIC_WORKSPACE_TABS.map((t) => (
