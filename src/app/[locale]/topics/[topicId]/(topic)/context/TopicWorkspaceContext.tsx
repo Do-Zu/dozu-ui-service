@@ -104,6 +104,7 @@ interface ContextType {
     saveMindmap: () => Promise<void>;
     hasInitialized: boolean;
     fitView: FitView;
+    setIsNodeSheetOpen: (open: boolean) => void;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -171,6 +172,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         saveMindmap,
         hasInitialized,
         fitView,
+        setIsNodeSheetOpen,
     } = useMindMapContext();
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
@@ -236,6 +238,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             saveMindmap,
             hasInitialized,
             fitView,
+            setIsNodeSheetOpen,
         }),
         [
             tab,
@@ -273,14 +276,11 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             saveMindmap,
             hasInitialized,
             fitView,
+            setIsNodeSheetOpen,
         ],
     );
 
-    return (
-        
-            <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>
-        
-    );
+    return <TopicWorkspaceContext.Provider value={value}>{children}</TopicWorkspaceContext.Provider>;
 }
 
 export function useTopicWorkspace() {

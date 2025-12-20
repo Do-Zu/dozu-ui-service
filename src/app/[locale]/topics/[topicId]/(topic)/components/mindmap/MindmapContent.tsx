@@ -19,7 +19,12 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
 import { useDispatch } from 'react-redux';
-import { clearNodeSelection, closeSheet, turnOffMultiSelectMode } from '@/stores/features/mindmap/selectedNodeSlice';
+import {
+    clearNodeSelection,
+    clearSelectedNodeData,
+    closeSheet,
+    turnOffMultiSelectMode,
+} from '@/stores/features/mindmap/selectedNodeSlice';
 import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
@@ -62,6 +67,7 @@ const MindmapContent = ({ mode, role }: Props) => {
         saveMindmap,
         hasInitialized,
         fitView,
+        setIsNodeSheetOpen,
     } = useTopicWorkspace();
 
     const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -186,6 +192,8 @@ const MindmapContent = ({ mode, role }: Props) => {
         return () => {
             dispatch(clearNodeSelection());
             dispatch(turnOffMultiSelectMode());
+            setIsNodeSheetOpen(false);
+            dispatch(clearSelectedNodeData());
         };
     }, []);
 
