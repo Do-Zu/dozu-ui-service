@@ -12,7 +12,7 @@
             },
             "toasts": {
                 "timeout": "The generation process timed out. Please try again with a smaller file.",
-                "error": "There was an error with the generation process. Please try again.",
+                "error": "Server  Busy. Please try again.",
                 "success": "Your content has been successfully generated."
             }
         },
