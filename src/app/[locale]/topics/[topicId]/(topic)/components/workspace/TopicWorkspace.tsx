@@ -16,7 +16,6 @@ import { isEmpty } from '@/utils';
 import { cn } from '@/lib/utils';
 import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
-import topicUtils from '../../utils/topic.utils';
 
 export default function TopicWorkspace() {
     const {
