@@ -19,7 +19,12 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
 import { useDispatch } from 'react-redux';
-import { clearNodeSelection, closeSheet, turnOffMultiSelectMode } from '@/stores/features/mindmap/selectedNodeSlice';
+import {
+    clearNodeSelection,
+    clearSelectedNodeData,
+    closeSheet,
+    turnOffMultiSelectMode,
+} from '@/stores/features/mindmap/selectedNodeSlice';
 import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
@@ -28,6 +33,8 @@ import { ILearningMode } from '@/stores/features/class-based-learning/learningMo
 import { IGenerateNodeFlashcardsItem } from '../../types/generate.type';
 import MultiNodeFlashcardsPreview from '../flashcard/node/MultiNodeFlashcardsPreview';
 import MultiNodeGeneratePanel from '../flashcard/node/MultiNodeGeneratePanel';
+import RoadmapButtonPanel from '@/app/[locale]/mindmap/components/RoadmapButtonPanel';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -50,7 +57,6 @@ type FlashcardsViewMode = 'none' | 'browse' | 'edit' | 'link' | 'learning' | 'mu
 
 const MindmapContent = ({ mode, role }: Props) => {
     const {
-        topicId,
         isLoading,
         nodes,
         edges,
@@ -58,15 +64,11 @@ const MindmapContent = ({ mode, role }: Props) => {
         setEdges,
         onNodesChange,
         onEdgesChange,
-        isSaving,
         saveMindmap,
-        sseData,
-        sseStatus,
         hasInitialized,
-        isProcessingRegisterGenerate,
-        executeGenerate,
         fitView,
-    } = useMindMapContext();
+        setIsNodeSheetOpen,
+    } = useTopicWorkspace();
 
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [hasShownModal, setHasShownModal] = useState(false);
@@ -190,6 +192,8 @@ const MindmapContent = ({ mode, role }: Props) => {
         return () => {
             dispatch(clearNodeSelection());
             dispatch(turnOffMultiSelectMode());
+            setIsNodeSheetOpen(false);
+            dispatch(clearSelectedNodeData());
         };
     }, []);
 
@@ -271,6 +275,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                         className={showGenerateModal ? 'blur-sm' : ''}
                     >
                         <MindmapButtonsPanel mode={mode} role={role} />
+                        <RoadmapButtonPanel mode={mode} role={role} />
                         <MultiNodeGeneratePanel
                             nodes={nodes}
                             nodeIds={selectedNodeIds}

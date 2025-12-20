@@ -38,8 +38,8 @@ export default function MindmapTab({}: Props) {
     if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 
     return (
-        <MindMapProvider>
+        // <MindMapProvider>
             <MindmapContent mode={learningMode as ILearningMode} role={getRole()} />
-        </MindMapProvider>
+        // </MindMapProvider>
     );
 }

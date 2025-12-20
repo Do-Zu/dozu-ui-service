@@ -36,6 +36,7 @@ import { useTheme } from 'next-themes';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
 
 import MindmapButtonsPanel from '../components/MindmapButtonsPanel';
+import RoadmapButtonPanel from '../components/RoadmapButtonPanel';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -231,6 +232,7 @@ export default function page() {
                 </Panel> */}
 
                 <MindmapButtonsPanel />
+                <RoadmapButtonPanel />
                 <FileSheet />
                 <NodeSheet />
                 <Controls />

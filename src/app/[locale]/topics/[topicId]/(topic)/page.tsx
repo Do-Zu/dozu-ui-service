@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import TopicWorkspace from './components/workspace/TopicWorkspace';
 import { TopicWorkspaceProvider } from './context/TopicWorkspaceContext';
 import { withAuth } from '@/hoc/withAuth';
+import { MindMapProvider } from '@/app/[locale]/mindmap/context/MindMapContext';
 
 const TopicPage = () => {
     const params = useParams();
@@ -19,9 +20,11 @@ const TopicPage = () => {
     const topicId = Number(params.topicId);
 
     return (
-        <TopicWorkspaceProvider topicIdInit={topicId}>
-            <TopicWorkspace />
-        </TopicWorkspaceProvider>
+        <MindMapProvider>
+            <TopicWorkspaceProvider topicIdInit={topicId}>
+                <TopicWorkspace />
+            </TopicWorkspaceProvider>
+        </MindMapProvider>
     );
 };
 
