@@ -87,9 +87,9 @@ export default function TopicWorkspace() {
                     <div className="flex flex-col h-full">
                         <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
                             <div className="flex items-center justify-between mt-6 w-full px-6">
-                                <div className="font-bold text-lg">
+                                {/* <div className="font-bold text-lg">
                                     {topicUtils.getDisplayTopicName(topic?.name || '')}
-                                </div>
+                                </div> */}
 
                                 <div className="flex-1 flex justify-center">
                                     <TabsList className="grid grid-cols-5 w-[95%] rounded-2xl">
@@ -121,7 +121,7 @@ export default function TopicWorkspace() {
 
                             <div className={cn('flex-1 h-full px-6 py-3')}>
                                 {TOPIC_WORKSPACE_TABS.map((t) => (
-                                    <TabsContent key={t.value} value={t.value} className="h-full p-4 border rounded-md">
+                                    <TabsContent key={t.value} value={t.value} className="h-full">
                                         <t.component />
                                     </TabsContent>
                                 ))}
