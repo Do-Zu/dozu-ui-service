@@ -1,14 +1,14 @@
-import { IAnkiCard, IAnkiResult } from '@/app/[locale]/flashcards/types/flashcard.type';
+import { IAnkiResult } from '@/app/[locale]/flashcards/types/flashcard.type';
 import { IAnkiRating, IAnkiStatus, IBaseIntervalWithDeviation, INextReviewInterval } from '@/types/anki';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
-import { getCurrentSystemDateTime, TimeUnit } from '@/utils';
+import { TimeUnit } from '@/utils';
 import { addDays, addMinutes, differenceInHours } from 'date-fns';
 import { IPrivateAnkiCard } from './anki-scheduler';
 import Fuzz from './fuzz';
 import { INVALID_RATING_MESSAGE } from '../constants/anki.constant';
 
 export default class ReviewStageHandler {
-    private fuzzHandler;
+    private readonly fuzzHandler;
     constructor(private readonly ankiSetting: IAnkiSetting) {
         this.fuzzHandler = new Fuzz(ankiSetting);
     }

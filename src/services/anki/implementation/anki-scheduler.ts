@@ -16,9 +16,9 @@ export type IPrivateAnkiCard = Omit<IAnkiCard, 'lastReviewed'> & {
  * Main implementation for anki scheduling logic
  */
 class AnkiScheduler implements AnkiSchedulerInterface {
-    private learningStageHandler;
-    private reviewStageHandler;
-    private relearningStageHandler;
+    private readonly learningStageHandler;
+    private readonly reviewStageHandler;
+    private readonly relearningStageHandler;
 
     /**
      *
@@ -38,9 +38,6 @@ class AnkiScheduler implements AnkiSchedulerInterface {
     schedule(card: IAnkiCard, rating: IAnkiRating): IAnkiResult {
         // copy card object, update lastReviewed
         card = { ...card, lastReviewed: getCurrentSystemDateTime() };
-        if (card.lastReviewed === null) {
-            throw new Error('lastReviewed is NULL');
-        }
 
         if (card.status === IAnkiStatus.NEW) {
             card.status = IAnkiStatus.LEARNING;
