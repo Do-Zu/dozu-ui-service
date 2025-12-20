@@ -6,7 +6,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import RoadmapList from '../RoadmapList';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 
@@ -81,16 +80,13 @@ const RoadmapButton = ({ isPanelExpanded, nodes, edges, setNodes, role, mode }: 
 
     return (
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <SheetTrigger asChild>
-                        <Button size="icon-sm" variant="outline">
-                            <Signpost />
-                        </Button>
-                    </SheetTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{t('RoadmapButtonLabel')}</TooltipContent>
-            </Tooltip>
+            <SheetTrigger asChild>
+                <Button variant="outline">
+                    <Signpost />
+                    Roadmap
+                </Button>
+            </SheetTrigger>
+
             <SheetContent>
                 <SheetHeader>
                     <SheetTitle>{t('RoadmapButtonLabel')}</SheetTitle>

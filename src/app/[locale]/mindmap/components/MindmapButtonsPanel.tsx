@@ -76,18 +76,8 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                     ''
                 )}
 
-                {/* <Separator className="my-4" /> */}
-
-                <RoadmapButton
-                    isPanelExpanded={isPanelExpanded}
-                    nodes={nodes}
-                    edges={edges}
-                    setNodes={setNodes}
-                    role={role}
-                    mode={mode}
-                />
+ 
                 <DownloadButton />
-                {/* <ImportMindmapButton isPanelExpanded={isPanelExpanded} /> */}
                 {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                     <>
                         <ImportButton isPanelExpanded={isPanelExpanded} />

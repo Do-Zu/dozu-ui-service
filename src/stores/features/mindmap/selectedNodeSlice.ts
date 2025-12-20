@@ -31,6 +31,9 @@ export const selectedNodeSlice = createSlice({
         setSelectedNodeData: (state, action: PayloadAction<CustomNodeData>) => {
             state.selectedNodeData = action.payload;
         },
+        clearSelectedNodeData: (state) => {
+            state.selectedNodeData = undefined;
+        },
         toggleNodeSelection: (state, action: PayloadAction<string>) => {
             const nodeId = action.payload;
             const index = state.selectedNodeIds.indexOf(nodeId);
@@ -61,6 +64,7 @@ export const {
     closeSheet,
     setIsSheetOpen,
     setSelectedNodeData,
+    clearSelectedNodeData,
     toggleNodeSelection,
     clearNodeSelection,
     setMultiSelectMode,

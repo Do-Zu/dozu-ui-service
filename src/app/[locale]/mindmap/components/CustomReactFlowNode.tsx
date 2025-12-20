@@ -9,7 +9,7 @@ import { openSheet, setSelectedNodeData, toggleNodeSelection } from '@/stores/fe
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus, CheckCircle } from 'lucide-react';
+import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus, CheckCircle, MoreHorizontal } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
@@ -119,6 +119,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         dispatch(openSheet());
     };
 
+    const handleGhostIconClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent triggering handleClickNode
+        handleRightClickNode(e as any);
+    };
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleSave(label);
@@ -214,6 +219,23 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 } as React.CSSProperties
             }
         >
+            {/* GHOST ICON: Only visible on hover, triggers the "Right Click" menu */}
+            {!isEditingMindmap && !isMultiSelectMode && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: isHovered ? 1 : 0 }}
+                    className="absolute top-2 right-2 z-30"
+                >
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 rounded-md hover:bg-muted bg-card/50 backdrop-blur-sm border shadow-sm"
+                        onClick={handleGhostIconClick}
+                    >
+                        <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                </motion.div>
+            )}
             {/* Completed Indicator Tick */}
             {isComplete && (
                 <motion.div
