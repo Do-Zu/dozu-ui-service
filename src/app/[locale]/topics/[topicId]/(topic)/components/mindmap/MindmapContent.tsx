@@ -33,6 +33,7 @@ import { ILearningMode } from '@/stores/features/class-based-learning/learningMo
 import { IGenerateNodeFlashcardsItem } from '../../types/generate.type';
 import MultiNodeFlashcardsPreview from '../flashcard/node/MultiNodeFlashcardsPreview';
 import MultiNodeGeneratePanel from '../flashcard/node/MultiNodeGeneratePanel';
+import MindmapGenerate from './components/MindmapGenerate';
 import RoadmapButtonPanel from '@/app/[locale]/mindmap/components/RoadmapButtonPanel';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 
@@ -296,7 +297,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                                 <p className="text-sm text-muted-foreground mb-6">
                                     Would you like to generate a mindmap for this topic, or create it manually?
                                 </p>
-                                <div className="flex gap-3 w-full">
+                                <div className="flex gap-6 w-full">
                                     <div className="flex-1">
                                         <div className=" flex items-center justify-center py-4">
                                             <Button
@@ -310,11 +311,10 @@ const MindmapContent = ({ mode, role }: Props) => {
                                         </div>
                                     </div>
                                     <div className="flex-1">
-                                        <Generate
+                                        <MindmapGenerate
                                             onHandleBeforeGenerate={() => {
                                                 setIsGenerating(true);
                                             }}
-                                            type="mindmap"
                                             onSuccess={onGenerateSuccess}
                                         />
                                     </div>

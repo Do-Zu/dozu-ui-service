@@ -66,3 +66,16 @@ export interface ILinkFlashcardsToNodePayload {
     unlinkedFlashcards: number[];
     linkedFlashcards: number[];
 }
+
+export interface IColorTheme {
+    name: string;
+    colors: string[];
+}
+
+export type IMindmapType = 'abstract' | 'detailed';
+
+export interface IMindmapGenerateOptions {
+    type?: IMindmapType;
+    colorTheme?: IColorTheme | null;
+    instruction?: string;
+}

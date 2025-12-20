@@ -33,48 +33,40 @@ export default function Flashcard({
         >
             <div
                 className={cn(
-                    'absolute inset-0 transform-style-preserve-3d',
+                    'absolute inset-0 transform-style-preserve-3d transition-transform duration-500',
                     isFlipped ? 'rotate-x-180' : 'rotate-x-0',
-                    isAnimating === undefined || isAnimating ? 'transition-transform duration-500' : '',
+                    isAnimating === false ? 'transition-none' : '',
                 )}
             >
                 {/* Front Side */}
-                <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden shadow-md text-center p-8 text-lg whitespace-pre-wrap break-words overflow-auto">
-                    <div className="w-full max-w-full">{front}</div>
+                <div className="absolute inset-0 flex flex-col bg-white dark:bg-gray-700 border rounded-xl backface-hidden shadow-md overflow-hidden">
+                    <div className="flex-1 overflow-y-auto p-8 flex items-center justify-center">
+                        <div className="w-full text-center text-lg whitespace-pre-wrap break-words">{front}</div>
+                    </div>
                 </div>
-                {/* Back Side and image if have */}
-                <div className="absolute inset-0  flex items-center flex-col gap-2 justify-center bg-white dark:bg-gray-700 border rounded-xl backface-hidden rotate-x-180 shadow-md text-center p-8 text-lg">
-                    {imageUrl ? (
-                        <Image
-                            src={imageUrl}
-                            alt="Flashcard image"
-                            width={0}
-                            height={0}
-                            sizes="100vw"
-                            className="w-full h-[80%] object-contain"
-                        />
-                    ) : null}
-                    <div>{back}</div>
-                    <div
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                    >
-                        <Reference content={`${front} : ${back}`} />
+
+                {/* Back Side */}
+                <div className="absolute inset-0 flex flex-col bg-white dark:bg-gray-700 border rounded-xl backface-hidden rotate-x-180 shadow-md overflow-hidden">
+                    <div className="flex-1 overflow-y-auto p-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                        <div className="flex flex-col items-center justify-center min-h-full gap-4 text-center">
+                            {imageUrl && (
+                                <div className="relative w-full max-h-[250px] min-h-[150px] shrink-0">
+                                    <Image src={imageUrl} alt="Flashcard image" fill className="object-contain" />
+                                </div>
+                            )}
+                            <div className="text-lg whitespace-pre-wrap break-words w-full">{back}</div>
+
+                            <div onClick={(e) => e.stopPropagation()} className="mt-2 shrink-0">
+                                <Reference content={`${front} : ${back}`} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            {/* Top right actions - rendered on top of the card */}
+
             {topRightActions && (
-                <div 
-                    className="absolute top-4 right-4 z-50 pointer-events-none"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div 
-                        className="pointer-events-auto" 
-                        onClick={(e) => e.stopPropagation()}
-                        onMouseDown={(e) => e.stopPropagation()}
-                    >
+                <div className="absolute top-4 right-4 z-50" onClick={(e) => e.stopPropagation()}>
+                    <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
                         {topRightActions}
                     </div>
                 </div>

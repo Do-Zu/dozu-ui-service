@@ -77,6 +77,7 @@ export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | '
 export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
     learningState: IFlashcardLearningState;
     nextReview: string;
+    nextReviewInterval: INextReviewInterval;
     status: IAnkiStatus;
     rating: IAnkiRating;
 };

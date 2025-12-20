@@ -1,0 +1,1 @@
+export const learnAheadLimit = 20;

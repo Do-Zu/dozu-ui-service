@@ -177,7 +177,7 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
         </Button>
     );
 
-    const startGenerate: IStartGenerateFn = (content, customOptions) => {
+    const startGenerate: IStartGenerateFn = async (content, customOptions) => {
         if (isEmpty(listType)) {
             toastHelper.showSuccessMessage('Select at least one type to generate content.');
             return;
