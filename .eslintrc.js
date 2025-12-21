@@ -95,6 +95,7 @@ module.exports = {
         {
             plugins: ['check-file'],
             files: ['src/**/*'],
+            excludedFiles: ['src/app/**', '**/__tests__/**'],
             rules: {
                 // FILE NAMES
                 // - React component files in src/components: PascalCase
@@ -115,8 +116,7 @@ module.exports = {
                 'check-file/folder-naming-convention': [
                     'error',
                     {
-                        '!(src/app)/**/*': 'KEBAB_CASE',
-                        '!(**/__tests__)/**/*': 'KEBAB_CASE',
+                        'src/**/': 'KEBAB_CASE',
                     },
                 ],
             },
