@@ -4,7 +4,7 @@ import CustomizedGenerateOptions from './CustomizedGenerateOptions';
 import DefaultGenerateButton from '../../generate/DefaultGenerateButton';
 import { IStartGenerateFn } from '../../../types/generate.type';
 import { IColorTheme, IMindmapGenerateOptions, IMindmapType } from '@/types/mindmap/mindmap.type';
-
+import { DEFAULT_THEME } from '../../../constants/mindmap/colorTheme.constant';
 interface Props {
     onHandleBeforeGenerate?: () => void;
     onSuccess?: (data: any) => void;
@@ -13,7 +13,7 @@ interface Props {
 export default function MindmapGenerate({ onHandleBeforeGenerate, onSuccess }: Props) {
     const [open, setOpen] = useState<boolean>(false);
     const [type, setType] = useState<IMindmapType>('abstract');
-    const [colorTheme, setColorTheme] = useState<IColorTheme | null>(null);
+    const [colorTheme, setColorTheme] = useState<IColorTheme>(DEFAULT_THEME);
     const [instruction, setInstruction] = useState<string>('');
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {

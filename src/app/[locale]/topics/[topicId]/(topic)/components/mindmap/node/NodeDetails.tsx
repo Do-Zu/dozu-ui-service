@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { AppEdge, AppNode } from '../../../../../../../../types/mindmap/mindmap.type';
 import { addChildNode, changeNodeLabel, deleteNode } from '../../../../../../../../utils/mindmap/mindmapUtils';
 import Reference from '../../reference/Reference';
@@ -56,6 +55,7 @@ type FlashcardActionType = (typeof FlashcardActionEnum)[keyof typeof FlashcardAc
 const flashcardActionsTypes: FlashcardActionType[] = Object.values(FlashcardActionEnum);
 
 interface Props {
+    onClose?: () => void;
     onViewNodeFlashcardsClick?: () => void;
     onLinkNodeFlashcardsClick?: () => void;
     onLearnNodeFlashcardsClick?: () => void;
@@ -66,6 +66,7 @@ interface Props {
 }
 
 const NodeDetails = ({
+    onClose,
     onViewNodeFlashcardsClick,
     onLinkNodeFlashcardsClick,
     onLearnNodeFlashcardsClick,
@@ -136,12 +137,6 @@ const NodeDetails = ({
         setEndSegment(endSegment);
     }, [selectedNodeData, learningMaterial?.type]);
 
-    const dispatch = useDispatch();
-
-    function closePanel() {
-        dispatch(closeSheet());
-    }
-
     const handleDeleteNode = () => {
         if (!selectedNodeData?.nodeId) {
             toast({ description: 'Missing nodeId', variant: 'destructive' });
@@ -152,7 +147,7 @@ const NodeDetails = ({
                 setNodes: setNodes,
                 setEdges: setEdges,
             });
-            closePanel();
+            onClose?.();
         }
     };
 
@@ -173,7 +168,7 @@ const NodeDetails = ({
                 startSegment,
                 endSegment,
             });
-            closePanel();
+            onClose?.();
         } else {
             setNewLabel(selectedNodeData?.label);
             setNewDescription(selectedNodeData.description || '');
@@ -231,7 +226,7 @@ const NodeDetails = ({
 
     const handleAddChild = () => {
         addChildNode({ nodes, screenToFlowPosition, setNodes, setEdges, currentNodeId: selectedNodeData.nodeId });
-        closePanel();
+        onClose?.();
     };
 
     const handleAddFlashcards = () => {
@@ -266,7 +261,7 @@ const NodeDetails = ({
 
     const onGenerateFlashcardsSuccess = (data: IResponseFlashCardGenerate[]) => {
         setGeneratingFlashcards(data);
-        closePanel();
+        onClose?.();
         setIsNodeFlashcardsEditOpen?.(true);
     };
 
@@ -332,14 +327,16 @@ const NodeDetails = ({
                             {isEditing ? <Save className="h-4 w-4" /> : <SquarePen className="h-4 w-4" />}
                         </Button>
 
-                        <Button
-                            className="text-muted-foreground hover:text-primary"
-                            size="icon"
-                            variant="ghost"
-                            onClick={closePanel}
-                        >
-                            <X className="h-4 w-4" />
-                        </Button>
+                        {onClose ? (
+                            <Button
+                                className="text-muted-foreground hover:text-primary"
+                                size="icon"
+                                variant="ghost"
+                                onClick={onClose}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        ) : null}
                     </div>
                 </div>
             </CardHeader>
