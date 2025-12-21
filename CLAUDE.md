@@ -49,7 +49,7 @@ Use this file as the single source of truth for how an AI agent should work in t
 
 ### Global State
 
-- Use Zudtand Toolkit (store setup in `<feature or component>/stores/store.ts`).
+- Use Zustand Toolkit (store setup in `<feature or component>/stores/store.ts`).
 
 ## Implementation Rules (Must Follow)
 

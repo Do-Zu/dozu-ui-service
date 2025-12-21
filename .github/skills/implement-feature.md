@@ -187,15 +187,12 @@ Use component-local state (`useState`, `useReducer`) when the state is only used
 
 Use Zustand when state needs to be shared across multiple components **within a single route/feature**.
 
-- Put route-only contexts under the route folder (example patterns exist under `src/app/[locale]/**/context/`).
+- Put route-only contexts under the route folder
 - Keep providers close to the route `layout.tsx` / `page.tsx` to avoid accidental global coupling.
 
 ### When to use Zustand (global)
 
-Use Zustand when state is truly cross-feature (auth, cart, subscription, etc.).
-
-- Create slices under `src/stores/features/<feature>/<feature>Slice.ts` following the existing patterns.
-- Access state via the existing typed hooks in `src/stores/hooks.tsx`.
+Use Zustand when state is truly cross-feature
 
 ## Checklist (Before You Open a PR)
 
