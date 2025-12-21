@@ -1,6 +1,6 @@
 # Claude Agent Instructions
 
-This repository is a **Next.js App Router (Next 14)** frontend written in **TypeScript**, styled with **Tailwind**, using **next-intl** for i18n and **Redux Toolkit** for state.
+This repository is a **Next.js App Router (Next 14)** frontend written in **TypeScript**, styled with **Tailwind**, using **next-intl** for i18n and **Zustand Toolkit** for state.
 
 Use this file as the single source of truth for how an AI agent should work in this codebase.
 
@@ -47,10 +47,9 @@ Use this file as the single source of truth for how an AI agent should work in t
 - Axios client behavior is centralized in `src/api/axios.ts` (auth header, timezone headers, refresh, upgrade modal).
 - Feature services generally live in `src/services/**` and should be thin.
 
-### State
+### Global State
 
-- Use Redux Toolkit (store setup in `src/stores/store.ts`).
-- Prefer existing slices/patterns; avoid introducing new state libraries.
+- Use Zudtand Toolkit (store setup in `<feature or component>/stores/store.ts`).
 
 ## Implementation Rules (Must Follow)
 

@@ -175,6 +175,28 @@ In `page.tsx` and route-local `components/`:
 - Route is locale-prefixed: `src/app/[locale]/...`
 - For new text, add translations under `messages/en` and `messages/vi`, and ensure they are included by the message loader.
 
+## State Management (Component / Route / Global)
+
+This repo already standardizes on **Redux Toolkit** for global state and **React Context** for scoped state.
+
+### When state should stay inside components
+
+Use component-local state (`useState`, `useReducer`) when the state is only used by a single component subtree and does not need to be accessed globally.
+
+### When to use Zustand (route-scoped or feature-scoped)
+
+Use Zustand when state needs to be shared across multiple components **within a single route/feature**.
+
+- Put route-only contexts under the route folder (example patterns exist under `src/app/[locale]/**/context/`).
+- Keep providers close to the route `layout.tsx` / `page.tsx` to avoid accidental global coupling.
+
+### When to use Zustand (global)
+
+Use Zustand when state is truly cross-feature (auth, cart, subscription, etc.).
+
+- Create slices under `src/stores/features/<feature>/<feature>Slice.ts` following the existing patterns.
+- Access state via the existing typed hooks in `src/stores/hooks.tsx`.
+
 ## Checklist (Before You Open a PR)
 
 - Feature code lives under `src/app/[locale]/<feature-name>` when route-scoped
@@ -182,3 +204,4 @@ In `page.tsx` and route-local `components/`:
 - Zod schemas exist for payloads and are used for validation
 - All UI strings use translations
 - Naming matches required conventions
+- State follows repo conventions (component-local state, route-scoped Context, or global Zustand Toolkit)
