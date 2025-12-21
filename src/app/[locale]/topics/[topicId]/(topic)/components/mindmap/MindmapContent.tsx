@@ -273,7 +273,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                         colorMode={colorMode}
                         fitView
                         minZoom={0.001}
-                        className={showGenerateModal ? 'blur-sm' : ''}
+                        className={showGenerateModal ? 'blur-sm' : 'rounded-md'}
                     >
                         <MindmapButtonsPanel mode={mode} role={role} />
                         <RoadmapButtonPanel mode={mode} role={role} />
