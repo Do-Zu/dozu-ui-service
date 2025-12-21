@@ -58,6 +58,27 @@ Before you begin, ensure you have:
 
 ## 📋 Development Guidelines
 
+### Naming Conventions
+
+- **Do not abbreviate**: Prefer clear, descriptive names.
+- **English only**: Do not use Vietnamese for identifiers.
+- **Avoid special characters** in identifiers (e.g., `@`, `#`, `$`).
+
+**Folders**
+
+- kebab-case (e.g., `user-profile-pictures`)
+
+**Files**
+
+- React component files: PascalCase (e.g., `UserProfile.tsx`)
+- General TypeScript/JavaScript files: camelCase (e.g., `formatDate.ts`)
+- Next.js reserved App Router names are exceptions and must remain as-is (e.g., `page.tsx`, `layout.tsx`, `not-found.tsx`, `global-error.tsx`).
+
+**Code**
+
+- Variables/functions: camelCase (e.g., `handleSubmit`)
+- Constants: UPPER_CASE (e.g., `MAX_ITEMS`)
+
 ### Code Style
 
 We maintain consistent code quality through:

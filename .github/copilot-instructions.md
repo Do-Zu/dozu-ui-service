@@ -52,6 +52,31 @@ npm run start
 
 ## Conventions & Tips
 
+## Naming Conventions
+
+Follow these conventions for any new code (and when touching existing code):
+
+- Do not abbreviate or shorten names.
+- Use English only (no Vietnamese identifiers).
+- Use names that accurately describe the function and content.
+- Do not use special characters in identifiers (e.g., `@`, `#`, `$`).
+
+### Folders
+
+- Use kebab-case (e.g., `user-profile-pictures`).
+- **Exception (Next.js App Router):** route segment folders may include Next.js syntax like `[locale]`, `[id]`, or `(group)` and should not be renamed.
+
+### Files
+
+- React component files: PascalCase (e.g., `UserProfile.tsx`, `ProductCard.tsx`).
+- General TypeScript/JavaScript files: camelCase (e.g., `formatDate.ts`, `validate.ts`).
+- **Exception (Next.js App Router reserved filenames):** keep framework-reserved names as-is (e.g., `page.tsx`, `layout.tsx`, `not-found.tsx`, `global-error.tsx`).
+
+### Variables / Functions / Constants
+
+- Variables and functions: camelCase (e.g., `handleSubmit`, `userData`).
+- Constants: UPPER_CASE with underscores (e.g., `MAX_ITEMS`, `DEFAULT_TIMEOUT`).
+
 - **Paths**: Use TS alias `@/*` per [tsconfig.json](tsconfig.json#L1-L40).
 - **Timezone**: Requests include `timestamp` and `timezone`; prefer wrappers over raw `Axios`.
 - **UI**: shadcn/radix components throughout `src/components/**`.
