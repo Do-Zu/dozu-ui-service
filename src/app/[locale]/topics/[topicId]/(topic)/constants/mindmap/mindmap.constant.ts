@@ -1,10 +1,10 @@
 import { IColorTheme } from '@/types/mindmap/mindmap.type';
 
 const SUNNY_BEACH_DAY = ['#264653', '#2A9D8F', '#E9C46A', '#F4A261', '#E76F51']; // ok
-const PURPLE_SUNSET = ['#390099', '#9E0059', '#FF0054', '#FF5400', '#FFBD00'];
-const WATERMELON_SORBET = ['#EF476F', '#FFD166', '#06D6A0', '#118AB2', '#073B4C'];
-const CANDY_POP = ['#9B5DE5', '#F15BB5', '#FEE440', '#00BBF9', '#00F5D4'];
-const SOFT_PASTELS_1 = ['#FFD6FF', '#E7C6FF', '#C8B6FF', '#B8C0FF', '#BBD0FF'];
+const WATERMELON_SORBET = ['#EF476F', '#FFD166', '#06D6A0', '#118AB2', '#073B4C']; // ok
+const CANDY_POP = ['#9B5DE5', '#F15BB5', '#FEE440', '#00BBF9', '#00F5D4']; // ok
+const PURPLE_SUNSET = ['#390099', '#9E0059', '#FF0054', '#FF5400', '#FFBD00']; // fine
+const SOFT_PASTELS_1 = ['#FFD6FF', '#E7C6FF', '#C8B6FF', '#B8C0FF', '#BBD0FF']; // fine
 const SOFT_PASTELS_2 = ['#9C89B8', '#F0A6CA', '#EFC3E6', '#F0E6EF', '#B8BEDD'];
 const SUNRISE_GLOW = ['#FFC09F', '#FFEE93', '#FCF5C7', '#A0CED9', '#ADF7B6'];
 const REFRESHING_SPRING_HUES = ['#90F1EF', '#FFD6E0', '#FFEF9F', '#C1FBA4', '#7BF1A8']; // ok
