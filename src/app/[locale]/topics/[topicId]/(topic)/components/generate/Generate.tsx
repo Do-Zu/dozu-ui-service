@@ -103,30 +103,21 @@ function GenerateContent<TRes>({
         }
     };
 
-    if (isRegisterGenerate) {
-        return registerNode ? (
-            registerNode
-        ) : (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Processing ...</span>
-                </div>
+    const LoadingDefault = ({ title }: { title: string }) => (
+        <div className="w-full flex items-center justify-center min-h-24 py-4">
+            <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>{title}</span>
             </div>
-        );
-    }
+        </div>
+    );
 
     if (isGenerating) {
-        return generateNode ? (
-            generateNode
-        ) : (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Generating ...</span>
-                </div>
-            </div>
-        );
+        return generateNode ? generateNode : <LoadingDefault title="Generating..." />;
+    }
+
+    if (isRegisterGenerate) {
+        return registerNode ? registerNode : <LoadingDefault title="Processing..." />;
     }
 
     if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
