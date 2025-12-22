@@ -11,7 +11,7 @@ import { IColorTheme, IMindmapType } from '@/types/mindmap/mindmap.type';
 import ColorThemeSelection, { ThemeItem } from './ColorThemeSelection';
 import ReferenceEdit from '../../flashcard/node/reference/ReferenceEdit';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
-import { EnumLearningMaterial, ITranscriptSegment } from '../../../types';
+import { EnumLearningMaterial } from '../../../types';
 
 interface Props {
     open: boolean;
@@ -49,10 +49,10 @@ export default function CustomizedGenerateOptions({
             learningMaterial?.type === EnumLearningMaterial.youtube ||
             learningMaterial?.type === EnumLearningMaterial.media
         ) {
-            const len = (learningMaterial.content as ITranscriptSegment[]).length;
+            const len = learningMaterial.content.length;
             if (len > 0) {
-                const start = (learningMaterial.content as ITranscriptSegment[])[0].startTime;
-                const end = (learningMaterial.content as ITranscriptSegment[])[len - 1].startTime;
+                const start = learningMaterial.content[0].startTime;
+                const end = learningMaterial.content[len - 1].startTime;
                 setRange({ start, end });
             }
         }
@@ -93,7 +93,7 @@ export default function CustomizedGenerateOptions({
         const seconds = parseInt(value);
         if (value === '' || isNaN(seconds)) {
             setRange((prev) => {
-                const start = (learningMaterial.content as ITranscriptSegment[])[0].startTime;
+                const start = learningMaterial.content[0].startTime;
                 return prev ? { ...prev, start } : prev;
             });
             return;
@@ -115,7 +115,7 @@ export default function CustomizedGenerateOptions({
         const seconds = parseInt(value);
         if (value === '' || isNaN(seconds)) {
             setRange((prev) => {
-                const end = (learningMaterial.content as ITranscriptSegment[])[len - 1].startTime;
+                const end = learningMaterial.content[len - 1].startTime;
                 return prev ? { ...prev, end } : prev;
             });
             return;

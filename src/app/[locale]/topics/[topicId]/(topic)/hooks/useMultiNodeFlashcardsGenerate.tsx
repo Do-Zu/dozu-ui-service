@@ -193,7 +193,7 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
         ) {
             const nodesData = prepareGeneratedDataForMediaSegments({
                 nodes: nodesForGeneration,
-                segments: learningMaterial.content as ITranscriptSegment[],
+                segments: learningMaterial.content,
             });
             return {
                 ok: true,

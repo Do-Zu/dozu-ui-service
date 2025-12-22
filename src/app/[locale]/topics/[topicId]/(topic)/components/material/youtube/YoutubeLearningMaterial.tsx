@@ -11,7 +11,7 @@ import { YoutubePlayerAdapter } from '../../../media/core/youtube/YoutubePlayerA
 
 interface Props {
     videoId: string;
-    content: string | ITranscriptSegment[];
+    content: ITranscriptSegment[];
 }
 
 export default function YoutubeLearningMaterial({ videoId, content }: Props) {
@@ -26,12 +26,8 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
 
     useEffect(() => {
         if (!isNilOrEmpty(content)) {
-            if (typeof content === 'string') {
-                contentTextOrigin.current = content;
-            } else {
-                if (transcriptUtils.validateTranscript(content)) {
-                    contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
-                }
+            if (transcriptUtils.validateTranscript(content)) {
+                contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
             }
         }
     }, [content]);
