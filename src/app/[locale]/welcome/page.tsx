@@ -23,11 +23,19 @@ import {
 const WelcomePage: React.FC = () => {
   const { updateUser } = useAuth();
   const { handleWelcomeComplete } = useAuthNavigation();
+  const featuresRef = React.useRef<HTMLElement>(null);
 
   const t = useTranslations('welcome');
 
   const handleNavigateNextPage = () => {
     handleWelcomeComplete();
+  };
+
+  const handleLearnMore = () => {
+    featuresRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
   };
 
   const features = [
@@ -62,7 +70,7 @@ const WelcomePage: React.FC = () => {
             <Threads
               color={[0.2, 0.2, 0.2]}
               amplitude={1.6}
-              distance={0.2}
+              distance={0.15}
               enableMouseInteraction={false}
             />
           </div>
@@ -72,49 +80,112 @@ const WelcomePage: React.FC = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-10 lg:mb-20 relative z-10"
+            className="text-center mb-16 lg:mb-24 relative z-10"
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight text-black">
-              {t('title')}
-            </h1>
-            <div className="text-lg sm:text-xl lg:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 shadow-sm"
+            >
+              <Star className="w-4 h-4 text-blue-600 fill-blue-600" />
+              <span className="text-sm font-medium text-blue-700">
+                {t('badge') || 'Nền tảng học tập thông minh'}
+              </span>
+            </motion.div>
+
+            {/* Title with gradient */}
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-5xl sm:text-6xl lg:text-8xl font-bold mb-8 leading-tight"
+            >
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
+                {t('title')}
+              </span>
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12"
+            >
               <TextType
                 text={t('subtitle')}
                 as="p"
                 typingSpeed={50}
-                initialDelay={500}
+                initialDelay={800}
                 showCursor={true}
                 cursorCharacter="|"
                 cursorBlinkDuration={0.5}
                 className="text-center"
                 loop={true}
               />
-            </div>
+            </motion.div>
+
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.7 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
+              <StarBorder
+                as="button"
+                color="#3B82F6"
+                speed="5s"
+                className="w-full sm:w-auto"
+                onClick={handleNavigateNextPage}
+              >
+                <span className="flex items-center justify-center font-semibold text-base px-6 py-2.5 group">
+                  {t('cta.button')}
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </StarBorder>
+              
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleLearnMore}
+                className="w-full sm:w-auto px-8 py-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-lg transition-all shadow-sm hover:shadow-md"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <HelpCircle className="w-5 h-5" />
+                  {t('cta.learn_more') || 'Tìm hiểu thêm'}
+                </span>
+              </motion.button>
+            </motion.div>
+
+            {/* Trust indicators */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.9 }}
+              className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white" />
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white" />
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white" />
+                </div>
+                <span className="font-medium text-gray-700">1000+ học viên</span>
+              </div>
+              <div className="h-4 w-px bg-gray-300" />
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                ))}
+                <span className="ml-1 font-medium text-gray-700">4.9/5</span>
+              </div>
+            </motion.div>
           </motion.section>
 
         </div>
-
-        {/* CTA Section */}
-        <motion.section
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-          className="text-center"
-        >
-          <StarBorder
-            as="button"
-            color="#0000FF"
-            speed="5s"
-            className="mb-4"
-            onClick={handleNavigateNextPage}
-          >
-            <span className="flex items-center font-semibold text-lg group">
-              {t('cta.button')}
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </StarBorder>
-          {/* <p className="text-gray-600 text-sm">{t('cta.subtitle')}</p> */}
-        </motion.section>
 
         {/* Intro Video Section */}
         <motion.section
@@ -160,6 +231,7 @@ const WelcomePage: React.FC = () => {
 
          {/* Features Section */}
         <motion.section
+          ref={featuresRef}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}

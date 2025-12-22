@@ -1,5 +1,6 @@
 {
   "welcome": {
+    "badge": "Nền Tảng Học Tập Thông Minh",
     "title": "Chào Mừng Đến Với Hành Trình Học Tập Của Bạn",
     "subtitle": "Khám phá cách học thông minh hơn với phương pháp cá nhân hóa và lịch trình hiệu quả",
     "sections": {
@@ -23,6 +24,7 @@
     },
     "cta": {
       "button": "Bắt Đầu",
+      "learn_more": "Tìm Hiểu Thêm",
       "subtitle": "Trải nghiệm học tập cá nhân hóa đang chờ đợi bạn"
     },
     "faq": {

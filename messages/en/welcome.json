@@ -1,5 +1,6 @@
 {
   "welcome": {
+    "badge": "Smart Learning Platform",
     "title": "Welcome to Your Learning Journey",
     "subtitle": "Discover a smarter way to learn with personalized methods and efficient scheduling",
     "sections": {
@@ -23,6 +24,7 @@
     },
     "cta": {
       "button": "Get Started",
+      "learn_more": "Learn More",
       "subtitle": "Your personalized learning experience awaits"
     },
     "faq": {
