@@ -3,6 +3,11 @@
     "title": "Welcome to Your Learning Journey",
     "subtitle": "Discover a smarter way to learn with personalized methods and efficient scheduling",
     "sections": {
+      "features": {
+        "title": "Outstanding Features",
+        "description": "Discover unique features that help you learn more effectively"
+      },
+      "learnMore": "Learn More",
       "personalizedLearning": {
         "title": "Personalized Learning",
         "description": "Customize your learning experience based on your preferences and goals."
@@ -20,6 +25,100 @@
       "button": "Get Started",
       "subtitle": "Your personalized learning experience awaits"
     },
-    "footer": "Learning Platform • Personalized Learning Made Simple"
+    "faq": {
+      "badge": "FAQ'S",
+      "title": {
+        "normal": "Frequently Asked",
+        "italic": "Questions"
+      },
+      "subtitle": "Find quick answers to the most common support questions",
+      "contact": {
+        "title": "Still Have Questions?",
+        "description": "Still have questions? Feel free to get in touch with us today!",
+        "button": "Ask A Question"
+      },
+      "questions": {
+        "q1": {
+          "question": "How do I get started with the platform?",
+          "answer": "Getting started is easy! Simply create an account, complete your profile, and follow our onboarding guide to set up your personalized learning path."
+        },
+        "q2": {
+          "question": "Is the platform suitable for all learning levels?",
+          "answer": "Yes! Our platform adapts to your skill level and learning pace. Whether you're a beginner or advanced learner, the system will customize content to match your needs."
+        },
+        "q3": {
+          "question": "Can I access my learning materials offline?",
+          "answer": "Currently, an internet connection is required to access most features. However, we're working on offline mode for downloadable content in future updates."
+        },
+        "q4": {
+          "question": "How does the smart scheduling feature work?",
+          "answer": "Our AI-powered scheduling system analyzes your availability, learning patterns, and goals to create an optimal study schedule that maximizes retention and minimizes burnout."
+        },
+        "q5": {
+          "question": "Is my learning data secure and private?",
+          "answer": "Absolutely! We use industry-standard encryption and follow strict privacy policies to protect your personal information and learning data. Your privacy is our top priority."
+        }
+      }
+    },
+    "testimonials": {
+      "badge": "TESTIMONIALS",
+      "title": "What Our Learners Say",
+      "subtitle": "Real stories from students who transformed their learning journey",
+      "reviews": {
+        "r1": {
+          "name": "Sarah Johnson",
+          "role": "Computer Science Student",
+          "content": "This platform completely changed how I approach learning. The personalized scheduling helped me balance my studies with my part-time job perfectly!"
+        },
+        "r2": {
+          "name": "Michael Chen",
+          "role": "High School Senior",
+          "content": "The adaptive learning methods are amazing! I went from struggling with math to actually enjoying it. Best investment in my education."
+        },
+        "r3": {
+          "name": "Emily Rodriguez",
+          "role": "Working Professional",
+          "content": "As someone who juggles work and upskilling, the smart scheduling feature is a lifesaver. I've learned more in 3 months than I did in a year!"
+        },
+        "r4": {
+          "name": "David Kim",
+          "role": "University Student",
+          "content": "The platform adapts to my learning pace and style. It feels like having a personal tutor available 24/7. Highly recommend!"
+        }
+      }
+    },
+    "footer": {
+      "description": "Empowering learners worldwide with personalized, adaptive learning experiences that fit your unique style and schedule.",
+      "quickLinks": {
+        "title": "Quick Links",
+        "features": "Features",
+        "pricing": "Pricing",
+        "about": "About Us",
+        "blog": "Blog"
+      },
+      "resources": {
+        "title": "Resources",
+        "helpCenter": "Help Center",
+        "tutorials": "Tutorials",
+        "community": "Community",
+        "contact": "Contact"
+      },
+      "legal": {
+        "title": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "cookies": "Cookie Policy",
+        "license": "License"
+      },
+      "newsletter": {
+        "title": "Newsletter",
+        "description": "Get the latest updates and tips.",
+        "placeholder": "Your email",
+        "button": "Subscribe"
+      },
+      "copyright": "© 2025 Dozu. All rights reserved.",
+      "madeWith": "Made with",
+      "by": "by Dozu Team"
+    }
   }
 }

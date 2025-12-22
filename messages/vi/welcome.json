@@ -3,6 +3,11 @@
     "title": "Chào Mừng Đến Với Hành Trình Học Tập Của Bạn",
     "subtitle": "Khám phá cách học thông minh hơn với phương pháp cá nhân hóa và lịch trình hiệu quả",
     "sections": {
+      "features": {
+        "title": "Tính Năng Nổi Bật",
+        "description": "Khám phá những tính năng độc đáo giúp bạn học tập hiệu quả hơn"
+      },
+      "learnMore": "Tìm Hiểu Thêm",
       "personalizedLearning": {
         "title": "Học Tập Cá Nhân Hóa",
         "description": "Tùy chỉnh trải nghiệm học tập của bạn dựa trên sở thích và mục tiêu cá nhân."
@@ -20,6 +25,100 @@
       "button": "Bắt Đầu",
       "subtitle": "Trải nghiệm học tập cá nhân hóa đang chờ đợi bạn"
     },
-    "footer": "Nền Tảng Học Tập • Học Tập Cá Nhân Hóa Đơn Giản"
+    "faq": {
+      "badge": "CÂU HỎI THƯỜNG GẶP",
+      "title": {
+        "normal": "Câu Hỏi",
+        "italic": "Thường Gặp"
+      },
+      "subtitle": "Tìm câu trả lời nhanh cho các câu hỏi hỗ trợ phổ biến nhất",
+      "contact": {
+        "title": "Vẫn Còn Thắc Mắc?",
+        "description": "Vẫn còn thắc mắc? Hãy liên hệ với chúng tôi ngay hôm nay!",
+        "button": "Đặt Câu Hỏi"
+      },
+      "questions": {
+        "q1": {
+          "question": "Làm thế nào để bắt đầu với nền tảng?",
+          "answer": "Bắt đầu rất dễ dàng! Chỉ cần tạo tài khoản, hoàn thành hồ sơ của bạn và làm theo hướng dẫn để thiết lập lộ trình học tập cá nhân hóa."
+        },
+        "q2": {
+          "question": "Nền tảng có phù hợp với mọi trình độ học tập không?",
+        "answer": "Có! Nền tảng của chúng tôi thích ứng với trình độ và tốc độ học của bạn. Dù bạn là người mới bắt đầu hay học viên nâng cao, hệ thống sẽ tùy chỉnh nội dung phù hợp với nhu cầu của bạn."
+        },
+        "q3": {
+          "question": "Tôi có thể truy cập tài liệu học tập ngoại tuyến không?",
+          "answer": "Hiện tại, bạn cần kết nối internet để truy cập hầu hết các tính năng. Tuy nhiên, chúng tôi đang phát triển chế độ ngoại tuyến cho nội dung có thể tải xuống trong các bản cập nhật tương lai."
+        },
+        "q4": {
+          "question": "Tính năng lịch trình thông minh hoạt động như thế nào?",
+          "answer": "Hệ thống lịch trình hỗ trợ AI của chúng tôi phân tích thời gian rảnh, thói quen học tập và mục tiêu của bạn để tạo lịch học tối ưu giúp tăng cường ghi nhớ và giảm thiểu mệt mỏi."
+        },
+        "q5": {
+          "question": "Dữ liệu học tập của tôi có an toàn và riêng tư không?",
+          "answer": "Hoàn toàn! Chúng tôi sử dụng mã hóa tiêu chuẩn ngành và tuân theo chính sách bảo mật nghiêm ngặt để bảo vệ thông tin cá nhân và dữ liệu học tập của bạn. Quyền riêng tư của bạn là ưu tiên hàng đầu của chúng tôi."
+        }
+      }
+    },
+    "testimonials": {
+      "badge": "ĐÁNH GIÁ",
+      "title": "Học Viên Nói Gì Về Chúng Tôi",
+      "subtitle": "Những câu chuyện thực từ các học viên đã thay đổi hành trình học tập",
+      "reviews": {
+        "r1": {
+          "name": "Nguyễn Thị Lan",
+          "role": "Sinh viên Khoa học Máy tính",
+          "content": "Nền tảng này hoàn toàn thay đổi cách tôi tiếp cận việc học. Lịch trình cá nhân hóa giúp tôi cân bằng học tập với công việc bán thời gian một cách hoàn hảo!"
+        },
+        "r2": {
+          "name": "Trần Minh Tuấn",
+          "role": "Học sinh THPT",
+          "content": "Phương pháp học thích ứng thật tuyệt vời! Tôi đã chuyển từ việc gặp khó khăn với toán học thành thực sự thích thú. Đây là khoản đầu tư tốt nhất cho việc học của tôi."
+        },
+        "r3": {
+          "name": "Lê Thị Mai",
+          "role": "Nhân viên văn phòng",
+          "content": "Với người kiêm nhiệm công việc và nâng cao kỹ năng, tính năng lịch trình thông minh quá xuất sắc. Tôi đã học được nhiều hơn trong 3 tháng so với cả năm trước!"
+        },
+        "r4": {
+          "name": "Phạm Văn Hùng",
+          "role": "Sinh viên Đại học",
+          "content": "Nền tảng thích ứng với tốc độ và phong cách học của tôi. Giống như có một gia sư riêng sẵn sàng 24/7. Rất khuyến nghị!"
+        }
+      }
+    },
+    "footer": {
+      "description": "Trao quyền cho người học trên toàn thế giới với trải nghiệm học tập cá nhân hóa, thích ứng phù hợp với phong cách và lịch trình riêng của bạn.",
+      "quickLinks": {
+        "title": "Liên Kết Nhanh",
+        "features": "Tính Năng",
+        "pricing": "Bảng Giá",
+        "about": "Về Chúng Tôi",
+        "blog": "Blog"
+      },
+      "resources": {
+        "title": "Tài Nguyên",
+        "helpCenter": "Trung Tâm Hỗ Trợ",
+        "tutorials": "Hướng Dẫn",
+        "community": "Cộng Đồng",
+        "contact": "Liên Hệ"
+      },
+      "legal": {
+        "title": "Pháp Lý",
+        "privacy": "Chính Sách Bảo Mật",
+        "terms": "Điều Khoản Dịch Vụ",
+        "cookies": "Chính Sách Cookie",
+        "license": "Giấy Phép"
+      },
+      "newsletter": {
+        "title": "Bản Tin",
+        "description": "Nhận cập nhật và mẹo mới nhất.",
+        "placeholder": "Email của bạn",
+        "button": "Đăng Ký"
+      },
+      "copyright": "© 2025 Dozu. Bảo lưu mọi quyền.",
+      "madeWith": "Phát triển với",
+      "by": "bởi Đội Ngũ Dozu"
+    }
   }
 }
