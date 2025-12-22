@@ -2,7 +2,7 @@ import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { IColorTheme } from '@/types/mindmap/mindmap.type';
+import { IColorMode, IColorTheme } from '@/types/mindmap/mindmap.type';
 import { ChevronRightIcon } from 'lucide-react';
 import React, { Dispatch, ReactElement, SetStateAction, useMemo } from 'react';
 
@@ -39,8 +39,6 @@ export function ThemeItem({ theme, isSelected, onSelect }: ThemeItemProps) {
         </Button>
     );
 }
-
-export type IColorMode = 'branch' | 'depth';
 
 interface Props {
     trigger?: ReactElement;

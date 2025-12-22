@@ -1,5 +1,5 @@
-import { AppEdge, AppNode, IColorTheme } from '@/types/mindmap/mindmap.type';
-import { IColorMode } from '@/app/[locale]/topics/[topicId]/(topic)/components/mindmap/components/ColorThemeSelection';
+import { COLOR_THEMES } from '@/app/[locale]/topics/[topicId]/(topic)/constants/mindmap/colorTheme.constant';
+import { AppEdge, AppNode, IColorMode, IColorTheme } from '@/types/mindmap/mindmap.type';
 
 class ColorThemeUtils {
     private getNodesByDepth(
@@ -92,6 +92,25 @@ class ColorThemeUtils {
 
         return result;
     };
+
+    public getNodeColors(nodes: AppNode[]) {
+        const colorsFound: string[] = [];
+        nodes.forEach((item) => {
+            if (item.data.color && !colorsFound.includes(item.data.color)) colorsFound.push(item.data.color);
+        });
+        let result = colorsFound;
+        for (const colorTheme of COLOR_THEMES) {
+            let ok = true;
+            for (const color of colorsFound) {
+                if (!colorTheme.colors.includes(color)) ok = false;
+            }
+            if (ok) {
+                result = colorTheme.colors;
+                break;
+            }
+        }
+        return result;
+    }
 }
 
 export default new ColorThemeUtils();

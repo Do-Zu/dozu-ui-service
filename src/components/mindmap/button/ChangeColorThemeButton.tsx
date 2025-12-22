@@ -1,11 +1,9 @@
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
-import ColorThemeSelection, {
-    IColorMode,
-} from '@/app/[locale]/topics/[topicId]/(topic)/components/mindmap/components/ColorThemeSelection';
+import ColorThemeSelection from '@/app/[locale]/topics/[topicId]/(topic)/components/mindmap/components/ColorThemeSelection';
 import { COLOR_THEMES } from '@/app/[locale]/topics/[topicId]/(topic)/constants/mindmap/colorTheme.constant';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { IColorTheme } from '@/types/mindmap/mindmap.type';
+import { IColorMode, IColorTheme } from '@/types/mindmap/mindmap.type';
 import colorThemeUtils from '@/utils/mindmap/colorThemeUtils';
 import { Palette } from 'lucide-react';
 import { useState } from 'react';

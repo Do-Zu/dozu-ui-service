@@ -40,14 +40,10 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
     return (
         <div className="flex flex-col p-4 h-full">
             <YoutubePlayer videoId={videoId} onPlayerReady={onPlayerReady} />
-            {typeof content === 'string' ? (
-                <p>{content}</p>
-            ) : (
-                <Fragment>
-                    <SelectMenu refNode={ref} />
-                    <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} ref={ref} />
-                </Fragment>
-            )}
+            <Fragment>
+                <SelectMenu refNode={ref} />
+                <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} ref={ref} />
+            </Fragment>
         </div>
     );
 }
