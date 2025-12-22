@@ -121,7 +121,7 @@ export default function usePdfReader(args?: Props) {
                 setLoading(false);
             }
         },
-        [extractPdfText],
+        [extractPdfText, onExtractFullSuccess],
     );
 
     const handleExtractPdfToTextByRange = useCallback(
@@ -149,7 +149,7 @@ export default function usePdfReader(args?: Props) {
                 setLoading(false);
             }
         },
-        [extractPdfText],
+        [extractPdfText, onExtractRangeSuccess],
     );
 
     return {

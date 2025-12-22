@@ -5,7 +5,7 @@ class MediaUtils {
         const content = segments
             .filter((item) => item.startTime >= start && item.startTime <= end)
             .map((item) => item.text)
-            .join('');
+            .join(' ');
         return content;
     }
 }

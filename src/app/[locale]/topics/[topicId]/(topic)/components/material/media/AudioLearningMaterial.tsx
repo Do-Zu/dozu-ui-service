@@ -28,7 +28,7 @@ export default function AudioLearningMaterial({ data }: IProps) {
 
     useEffect(() => {
         registerPlayer(new AudioPlayerAdapter(audioRef));
-    }, []);
+    }, [registerPlayer]);
 
     useEffect(() => {
         const prevUrl = blobUrl;

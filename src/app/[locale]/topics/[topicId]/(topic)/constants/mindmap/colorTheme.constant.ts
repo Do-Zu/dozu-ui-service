@@ -25,4 +25,4 @@ export const COLOR_THEMES: IColorTheme[] = [
 ];
 
 const DEFAULT_THEME_NAME = 'Refreshing Spring Hues';
-export const DEFAULT_THEME = COLOR_THEMES.find((item) => item.name === DEFAULT_THEME_NAME) as IColorTheme;
+export const DEFAULT_THEME = COLOR_THEMES.find((item) => item.name === DEFAULT_THEME_NAME) ?? COLOR_THEMES[0];

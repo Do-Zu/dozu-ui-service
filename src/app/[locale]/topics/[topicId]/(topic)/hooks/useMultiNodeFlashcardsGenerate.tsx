@@ -205,7 +205,7 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
         } else {
             return {
                 ok: false,
-                message: 'Pdf or youtube type is required.',
+                message: 'Pdf, youtube, or media type is required.',
                 type: 'error',
             };
         }

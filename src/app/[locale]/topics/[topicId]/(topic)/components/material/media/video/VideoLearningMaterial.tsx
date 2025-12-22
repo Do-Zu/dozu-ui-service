@@ -27,7 +27,7 @@ export default function VideoLearningMaterial({ data }: IProps) {
 
     useEffect(() => {
         registerPlayer(new VideoPlayerAdapter(playerRef));
-    }, []);
+    }, [registerPlayer]);
 
     useEffect(() => {
         const prevUrl = blobUrl;
