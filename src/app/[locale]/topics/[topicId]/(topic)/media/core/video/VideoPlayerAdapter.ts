@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import MediaPlayerController from '../MediaPlayerController';
 
 export class VideoPlayerAdapter implements MediaPlayerController {
-    private playerRef: RefObject<HTMLVideoElement | null>;
+    private readonly playerRef: RefObject<HTMLVideoElement | null>;
     constructor(playerRef: RefObject<HTMLVideoElement | null>) {
         this.playerRef = playerRef;
     }

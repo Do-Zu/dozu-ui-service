@@ -132,7 +132,7 @@ const pagesPerDownload = 5;
 const pagesGap = 2;
 
 const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName }, ref) => {
-    const { totalPages, setTotalPages, pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullScreen } =
+    const { totalPages, setTotalPages, pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullscreen } =
         useTopicWorkspace();
 
     const documentRef = useRef<HTMLDivElement>(null);
@@ -236,7 +236,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
     }, [pdfSize?.width, pdfSize?.height, pageNumber, documentScale]);
 
     function onScreenModeToogle() {
-        setIsPdfViewerFullScreen((prev) => !prev);
+        setIsPdfViewerFullscreen((prev) => !prev);
     }
 
     function onPageLoading(pageNumber: number) {

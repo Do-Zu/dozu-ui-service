@@ -72,7 +72,7 @@ interface ContextType {
     selectGame: (game: GameType) => void;
     resetGame: () => void;
 
-    setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
+    setIsPdfViewerFullscreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
     setPageNumber: Dispatch<SetStateAction<number>>;
 
@@ -156,7 +156,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         pdfPageTexts,
         isPdfViewerFullscreen,
         pageNumber,
-        setIsPdfViewerFullScreen,
+        setIsPdfViewerFullscreen,
         setPageNumber,
     } = usePdfMaterial();
     const { registerPlayer, play, seekTo } = useMediaPlayer();
@@ -241,7 +241,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setLearningFlashcards,
             onReviewCard,
             setAnkiSettings,
-            setIsPdfViewerFullScreen,
+            setIsPdfViewerFullscreen,
             setLearningMaterial,
             setPageNumber,
             generatingFlashcards,

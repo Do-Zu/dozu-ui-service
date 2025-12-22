@@ -3,7 +3,7 @@ import MediaPlayerController from '../MediaPlayerController';
 import H5AudioPlayer from 'react-h5-audio-player';
 
 export class AudioPlayerAdapter implements MediaPlayerController {
-    private audioRef: RefObject<H5AudioPlayer | null>;
+    private readonly audioRef: RefObject<H5AudioPlayer | null>;
     constructor(audioRef: RefObject<H5AudioPlayer | null>) {
         this.audioRef = audioRef;
     }

@@ -5,7 +5,7 @@ export default function usePdfMaterial() {
     const pdfPageTexts = useRef<PdfPageText[] | null>(null);
     const [totalPages, setTotalPages] = useState<number | null>(null);
 
-    const [isPdfViewerFullscreen, setIsPdfViewerFullScreen] = useState<boolean>(false);
+    const [isPdfViewerFullscreen, setIsPdfViewerFullscreen] = useState<boolean>(false);
     const [pageNumber, setPageNumber] = useState<number>(1);
 
     return {
@@ -15,6 +15,6 @@ export default function usePdfMaterial() {
         pageNumber,
         setPageNumber,
         isPdfViewerFullscreen,
-        setIsPdfViewerFullScreen,
+        setIsPdfViewerFullscreen,
     };
 }
