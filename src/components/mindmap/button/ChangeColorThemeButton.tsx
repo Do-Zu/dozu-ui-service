@@ -33,7 +33,7 @@ export default function ChangeColorThemeButton() {
             <TooltipTrigger asChild>
                 <ColorThemeSelection
                     trigger={
-                        <Button variant="ghost" size="icon-sm">
+                        <Button variant="outline" size="icon-sm">
                             <Palette />
                         </Button>
                     }
