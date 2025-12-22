@@ -107,7 +107,7 @@ interface ContextType {
     setIsNodeSheetOpen: (open: boolean) => void;
 
     // pdf
-    pdfPageTexts: MutableRefObject<PdfPageText[] | null>;
+    pdfPageTexts: MutableRefObject<PdfPageText[]>;
     totalPages: number | null;
     setTotalPages: Dispatch<SetStateAction<number | null>>;
 

@@ -2,7 +2,7 @@ import { PdfPageText } from '@/hooks/usePdfReader';
 import { useRef, useState } from 'react';
 
 export default function usePdfMaterial() {
-    const pdfPageTexts = useRef<PdfPageText[] | null>(null);
+    const pdfPageTexts = useRef<PdfPageText[]>([]);
     const [totalPages, setTotalPages] = useState<number | null>(null);
 
     const [isPdfViewerFullscreen, setIsPdfViewerFullscreen] = useState<boolean>(false);

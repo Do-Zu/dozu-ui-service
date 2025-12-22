@@ -105,15 +105,15 @@ export default function useMultiNodeFlashcardsGenerate({ nodes, nodeIds }: Props
         pageTexts,
     }: {
         nodes: AppNode[];
-        pageTexts: PdfPageText[] | null;
+        pageTexts: PdfPageText[];
     }): NodesData {
         const nodesData: NodesData = [];
 
         for (const nodeFound of nodes) {
             const { nodeId, label, description } = nodeFound.data;
             const { pageStartIndex, pageEndIndex } = nodeFound.data as { pageStartIndex: number; pageEndIndex: number };
-            const startSection = pageTexts?.find((item) => item.page === pageStartIndex)?.text.slice(0, 50);
-            const endPageContent = pageTexts?.find((item) => item.page === pageEndIndex)?.text;
+            const startSection = pageTexts.find((item) => item.page === pageStartIndex)?.text.slice(0, 50);
+            const endPageContent = pageTexts.find((item) => item.page === pageEndIndex)?.text;
             const endSection = endPageContent?.slice(endPageContent.length - 50, endPageContent.length);
             nodesData.push({
                 nodeId,
