@@ -1,3 +1,4 @@
+import { format as formatWithDateFns, isValid as isValidDate } from 'date-fns';
 import {
     ISO_WITH_OFFSET_FORMAT,
     ISO_UTC_FORMAT,
@@ -59,68 +60,16 @@ const formatDate = (date: Date | string | number, pattern: DateFormatPattern = D
  * @returns {string} - The formatted date string based on the given pattern.
  */
 const formatDateCustom = (date: Date | string | number, pattern: string): string => {
-    const d = new Date(date);
+    const parsedDate = new Date(date);
 
-    if (isNaN(d.getTime())) {
+    if (!isValidDate(parsedDate)) {
         throw new Error('Invalid date provided');
     }
 
-    // Extract date components
-    const year = d.getFullYear();
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-    const hours = d.getHours();
-    const hours12 = hours % 12 || 12;
-    const minutes = d.getMinutes();
-    const seconds = d.getSeconds();
-    const milliseconds = d.getMilliseconds();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    // Normalize legacy tokens to date-fns-compatible tokens (keep existing semantics)
+    const normalizedPattern = pattern.replace(/YYYY/g, 'yyyy').replace(/DD/g, 'dd');
 
-    // Prepare the replacement map
-    const replacements: Record<string, string> = {
-        yyyy: year.toString(),
-        YYYY: year.toString(),
-        MM: month.toString().padStart(2, '0'),
-        M: month.toString(),
-        dd: day.toString().padStart(2, '0'),
-        DD: day.toString().padStart(2, '0'),
-        d: day.toString(),
-        HH: hours.toString().padStart(2, '0'),
-        H: hours.toString(),
-        hh: hours12.toString().padStart(2, '0'),
-        h: hours12.toString(),
-        mm: minutes.toString().padStart(2, '0'),
-        m: minutes.toString(),
-        ss: seconds.toString().padStart(2, '0'),
-        s: seconds.toString(),
-        SSS: milliseconds.toString().padStart(3, '0'),
-        a: ampm,
-    };
-
-    // Handle timezone offset
-    const offset = -d.getTimezoneOffset();
-    const offsetHours = Math.floor(Math.abs(offset) / 60)
-        .toString()
-        .padStart(2, '0');
-    const offsetMinutes = (Math.abs(offset) % 60).toString().padStart(2, '0');
-    const offsetSign = offset >= 0 ? '+' : '-';
-    replacements['XXX'] = `${offsetSign}${offsetHours}:${offsetMinutes}`;
-
-    // Process the pattern
-    let result = pattern;
-
-    // Handle special quoted parts (like 'T' and 'Z')
-    result = result.replace(/'T'/g, '--T--').replace(/'Z'/g, '--Z--');
-
-    // Replace all tokens
-    Object.entries(replacements).forEach(([token, value]) => {
-        result = result.replace(new RegExp(token, 'g'), value);
-    });
-
-    // Restore special characters
-    result = result.replace(/--T--/g, 'T').replace(/--Z--/g, 'Z');
-
-    return result;
+    return formatWithDateFns(parsedDate, normalizedPattern);
 };
 
 /**

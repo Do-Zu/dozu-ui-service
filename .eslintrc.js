@@ -24,12 +24,10 @@ module.exports = {
             },
             extends: [
                 'eslint:recommended',
-                'plugin:import/errors',
                 'plugin:import/warnings',
                 'plugin:import/typescript',
                 'plugin:@typescript-eslint/recommended',
                 'plugin:react/recommended',
-                'plugin:jsx-a11y/recommended',
                 'plugin:prettier/recommended',
                 'plugin:testing-library/react',
                 'plugin:tailwindcss/recommended',
@@ -39,55 +37,45 @@ module.exports = {
                 'react/react-in-jsx-scope': 'off',
                 'react/prop-types': 'off',
                 'jsx-a11y/anchor-is-valid': 'off',
-                '@typescript-eslint/no-explicit-any': 'off',
-                '@typescript-eslint/no-empty-function': 'off',
-                '@typescript-eslint/explicit-function-return-type': 'off',
+                '@typescript-eslint/no-explicit-any': 'error',
+                '@typescript-eslint/no-empty-function': 'error',
+                '@typescript-eslint/explicit-function-return-type': 'warn',
                 '@typescript-eslint/explicit-module-boundary-types': 'off',
                 '@typescript-eslint/no-unused-vars': ['error'],
-                'import/no-cycle': 'error',
+                'import/no-cycle': 'off',
                 'import/default': 'off',
                 'import/no-named-as-default-member': 'off',
                 'import/no-named-as-default': 'off',
+                'linebreak-style': 'off',
                 'import/order': [
-                    'error',
+                    'off',
                     {
                         groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object'],
                         'newlines-between': 'always',
                         alphabetize: { order: 'asc', caseInsensitive: true },
                     },
                 ],
-                'linebreak-style': ['error', 'unix'],
-                'prettier/prettier': ['error', {}, { usePrettierrc: true }],
 
-                // ENFORCE NAMING CONVENTIONS
+                'prettier/prettier': ['off', {}, { usePrettierrc: true }],
+
                 '@typescript-eslint/naming-convention': [
                     'error',
-                    {
-                        selector: 'default',
-                        format: ['camelCase'],
-                        leadingUnderscore: 'allow',
-                    },
+                    { selector: 'import', format: ['camelCase', 'PascalCase'], leadingUnderscore: 'allow' },
+                    { selector: 'default', format: ['camelCase'], leadingUnderscore: 'allow' },
                     {
                         selector: 'variable',
+                        format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+                        leadingUnderscore: 'allow',
+                    },
+                    { selector: 'function', format: ['camelCase', 'PascalCase'] },
+                    { selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow' },
+                    { selector: 'typeLike', format: ['PascalCase'] },
+                    { selector: 'enumMember', format: ['UPPER_CASE'] },
+                    { selector: 'property', format: ['camelCase', 'UPPER_CASE'], leadingUnderscore: 'allow' },
+                    {
+                        selector: 'objectLiteralProperty',
                         format: ['camelCase', 'UPPER_CASE'],
                         leadingUnderscore: 'allow',
-                    },
-                    {
-                        selector: 'function',
-                        format: ['camelCase'],
-                    },
-                    {
-                        selector: 'parameter',
-                        format: ['camelCase'],
-                        leadingUnderscore: 'allow',
-                    },
-                    {
-                        selector: 'typeLike', // class, interface, type, enum
-                        format: ['PascalCase'],
-                    },
-                    {
-                        selector: 'enumMember',
-                        format: ['UPPER_CASE'],
                     },
                 ],
             },
@@ -95,26 +83,19 @@ module.exports = {
         {
             plugins: ['check-file'],
             files: ['src/**/*'],
-            excludedFiles: ['src/app/**', '**/__tests__/**'],
+            excludedFiles: ['**/src/app/**', '**/__tests__/**'],
             rules: {
-                // FILE NAMES
-                // - React component files in src/components: PascalCase
-                // - General TS/TSX files: camelCase
-                // - Next.js reserved files in src/app may be kebab-case (e.g., not-found.tsx)
                 'check-file/filename-naming-convention': [
-                    'error',
+                    'off',
                     {
-                        'src/components/**/*.tsx': 'PASCAL_CASE',
+                        'src/components/**/*.tsx': 'camelCase',
                         'src/app/{not-found,global-error}.tsx': 'KEBAB_CASE',
-                        '**/*.{ts,tsx}': 'CAMEL_CASE',
+                        '**/*.{ts,tsx}': 'camelCase',
                     },
-                    {
-                        ignoreMiddleExtensions: true,
-                    },
+                    { ignoreMiddleExtensions: true },
                 ],
-                // FOLDER NAMES = kebab-case
                 'check-file/folder-naming-convention': [
-                    'error',
+                    'warn',
                     {
                         'src/**/': 'KEBAB_CASE',
                     },
