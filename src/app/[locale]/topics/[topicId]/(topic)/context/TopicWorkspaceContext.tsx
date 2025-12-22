@@ -18,7 +18,7 @@ import React, {
     useState,
 } from 'react';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
-import { EnumLearningMaterial, ITranscriptSegment, TopicWorkspaceTabValue } from '../types';
+import { EnumLearningMaterial, TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace, { IResponseFlashCardGenerate } from '../hooks/useFlashCardWorkSpace';
 import useGamesWorkSpace, { GameType } from '../hooks/useGamesWorkSpace';
 import { useSearchParams } from 'next/navigation';
@@ -214,7 +214,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             learningMaterial?.type === EnumLearningMaterial.media
         ) {
             return mediaMaterialUtils.getMediaContent({
-                segments: learningMaterial.content as ITranscriptSegment[],
+                segments: learningMaterial.content,
                 start,
                 end,
             });

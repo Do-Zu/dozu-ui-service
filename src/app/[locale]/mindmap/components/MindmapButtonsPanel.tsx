@@ -21,6 +21,7 @@ import { ILearningMode } from '@/stores/features/class-based-learning/learningMo
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import SelectMultipleButton from '@/components/mindmap/button/SelectMultipleButton';
 import { useAppSelector } from '@/stores/hooks';
+import ChangeColorThemeButton from '@/components/mindmap/button/ChangeColorThemeButton';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
@@ -71,12 +72,12 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                         </Tooltip>
                         <EditMindmapButton disabled={isMultiSelectMode} isPanelExpanded={isPanelExpanded} />
                         <SelectMultipleButton />
+                        <ChangeColorThemeButton />
                     </>
                 ) : (
                     ''
                 )}
 
- 
                 <DownloadButton />
                 {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                     <>

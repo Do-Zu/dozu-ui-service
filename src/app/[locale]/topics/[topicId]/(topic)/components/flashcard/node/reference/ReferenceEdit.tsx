@@ -14,7 +14,7 @@ interface PdfReference {
 
 interface MediaSegmentReference {
     type: 'youtube' | 'media';
-    segments: ITranscriptSegment[] | string;
+    segments: ITranscriptSegment[];
     startSegment: number | undefined;
     onStartSegmentChange: (value: string) => void;
     endSegment: number | undefined;
