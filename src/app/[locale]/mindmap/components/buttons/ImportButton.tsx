@@ -23,16 +23,32 @@ import { useTranslations } from 'next-intl';
 import { useSetMindmapLayout } from '@/app/[locale]/mindmap/hooks/useSetMindmapLayout';
 import { Tooltip } from '@radix-ui/react-tooltip';
 import { TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useMindMapContext } from '../../context/MindMapContext';
 
 interface ImportButtonProps {
     isPanelExpanded: boolean;
 }
 
+const csvPlaceholder = [
+    '0,1,2',
+    'JavaScript: The Good Parts,Grammar',
+    'JavaScript: The Good Parts,Objects',
+    'JavaScript: The Good Parts,Functions',
+    'JavaScript: The Good Parts,Inheritance',
+    'JavaScript: The Good Parts,Arrays',
+    'JavaScript: The Good Parts,Regular Expressions',
+    'JavaScript: The Good Parts,Methods,Empty node',
+    'JavaScript: The Good Parts,Style',
+    'JavaScript: The Good Parts,Beautiful Features',
+    'JavaScript: The Good Parts,Awful Parts',
+].join('\n');
+
 const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
     const t = useTranslations('ImportButton');
     const [shouldLayout, setShouldLayout] = useState(false);
 
-    const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
+    // const { setNodes, setEdges } = useReactFlow<AppNode, AppEdge>();
+    const { setNodes, setEdges } = useMindMapContext();
     const [csvInput, setCsvInput] = useState('');
 
     const onLayout = useSetMindmapLayout();
@@ -142,7 +158,7 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
                     </Tooltip>
                 </div>
 
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[700px] ">
                     <DialogHeader>
                         <DialogTitle>{t('ImportDialogTitle')}</DialogTitle>
                         <DialogDescription>{t('ImportDialogDesc')}</DialogDescription>
@@ -152,7 +168,9 @@ const ImportButton = ({ isPanelExpanded }: ImportButtonProps) => {
                             <Label htmlFor="name-1">CSV</Label>
                             <Textarea
                                 id="name-1"
+                                className="min-h-[400px] font-mono text-sm"
                                 name="name"
+                                placeholder={csvPlaceholder}
                                 value={csvInput}
                                 onChange={(e) => setCsvInput(e.target.value)}
                             />

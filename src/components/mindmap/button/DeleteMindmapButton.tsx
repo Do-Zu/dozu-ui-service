@@ -26,7 +26,7 @@ interface DeleteMindmapButtonProps {
 const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
     // const params = useParams();
     // const { topicId } = params as { topicId: string };
-    const { topicId } = useMindMapContext();
+    const { topicId, setNodes, nodes, setEdges } = useMindMapContext();
 
     const router = useRouter();
     const t = useTranslations('DeleteMindmapButton');
@@ -38,8 +38,14 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
             router.refresh();
             // applyDelete(data);
             // setIsOpen(false);
+            setNodes(nodes.filter((node) => node.data.isRoot === true));
+            setEdges([]);
         },
     });
+
+    const handleDeleteMindmap = async () => {
+        await deleteAsync(topicId as string);
+    };
 
     async function submit(topicId: string) {
         await deleteAsync(topicId);
@@ -61,7 +67,7 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
                     <AlertDialogCancel>{t('confirmationCancel')}</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={() => {
-                            deleteAsync(topicId as string);
+                            handleDeleteMindmap();
                         }}
                     >
                         {t('confirmationProceed')}
