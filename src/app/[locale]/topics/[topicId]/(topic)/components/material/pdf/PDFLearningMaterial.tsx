@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { pdfjs } from 'react-pdf';
 import CustomPDFViewer from './CustomPDFViewer';
-import { isNilOrEmpty, safeDestructure } from '@/utils';
-import useReaderFile from '@/hooks/useReaderFile';
+import { safeDestructure } from '@/utils';
 import SelectMenu from '../SelectMenu';
+import usePdfReader from '@/hooks/usePdfReader';
+import DataStatus from '@/components/errors/DataStatus';
+import LoadingPage from '@/app/loading';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -18,13 +20,19 @@ interface IProps {
 }
 
 export default function PDFLearningMaterial({ data }: IProps) {
-    const { contentTextOrigin } = useTopicWorkspace();
+    const { contentTextOrigin, pdfPageTexts, setTotalPages } = useTopicWorkspace();
 
     const { blobUrl, file } = safeDestructure(data);
 
     const [pdfUrl, setPdfUrl] = useState<string>('');
 
-    const { text, isProcessing } = useReaderFile(file);
+    const { extractPdfToText, loading, error } = usePdfReader({
+        onExtractFullSuccess(extractResult) {
+            contentTextOrigin.current = extractResult.text;
+            pdfPageTexts.current = extractResult.pageTexts;
+            setTotalPages(extractResult.pages);
+        },
+    });
 
     useEffect(() => {
         const prevUrl = blobUrl;
@@ -38,12 +46,17 @@ export default function PDFLearningMaterial({ data }: IProps) {
     }, [blobUrl]);
 
     useEffect(() => {
-        if (!isNilOrEmpty(text) && !isProcessing) {
-            contentTextOrigin.current = text!;
-        }
-    }, [text, isProcessing]);
+        extractPdfToText(data.file);
+    }, [data.file]);
 
     const ref = useRef<HTMLDivElement>(null);
+
+    if (error) {
+        return <DataStatus variant="error" title="Error while processing PDF file." />;
+    }
+    if (loading) {
+        return <LoadingPage />;
+    }
 
     return (
         <div className="h-full flex flex-col gap-4">

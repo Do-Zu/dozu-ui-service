@@ -3,20 +3,25 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 import { Modal } from '@/components/modal/Modal';
-import { COLOR_THEMES } from '../../../constants/mindmap/mindmap.constant';
-import { Dispatch, SetStateAction } from 'react';
+import { COLOR_THEMES } from '../../../constants/mindmap/colorTheme.constant';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Settings2Icon } from 'lucide-react';
 import { IColorTheme, IMindmapType } from '@/types/mindmap/mindmap.type';
+import ColorThemeSelection, { ThemeItem } from './ColorThemeSelection';
+import ReferenceEdit from '../../flashcard/node/reference/ReferenceEdit';
+import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
+import { EnumLearningMaterial, ITranscriptSegment } from '../../../types';
 
 interface Props {
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
     type: IMindmapType;
     setType: Dispatch<SetStateAction<IMindmapType>>;
-    colorTheme: IColorTheme | null;
-    setColorTheme: Dispatch<SetStateAction<IColorTheme | null>>;
+    colorTheme: IColorTheme;
+    setColorTheme: Dispatch<SetStateAction<IColorTheme>>;
+    range: { start: number; end: number } | null;
+    setRange: Dispatch<SetStateAction<{ start: number; end: number } | null>>;
     instruction: string;
     setInstruction: Dispatch<SetStateAction<string>>;
     onGenerateClick: () => void;
@@ -30,16 +35,95 @@ export default function CustomizedGenerateOptions({
     setType,
     colorTheme,
     setColorTheme,
+    range,
+    setRange,
     instruction,
     setInstruction,
 }: Props) {
-    function handleTypeSelect(input: IMindmapType) {
-        setType(input);
+    const { learningMaterial, totalPages } = useTopicWorkspace();
+    const [showAllThemes, setShowAllThemes] = useState(false);
+    useEffect(() => {
+        if (learningMaterial?.type === EnumLearningMaterial.file) {
+            if (totalPages) setRange({ start: 1, end: totalPages });
+        } else if (
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
+        ) {
+            const len = (learningMaterial.content as ITranscriptSegment[]).length;
+            if (len > 0) {
+                const start = (learningMaterial.content as ITranscriptSegment[])[0].startTime;
+                const end = (learningMaterial.content as ITranscriptSegment[])[len - 1].startTime;
+                setRange({ start, end });
+            }
+        }
+    }, [learningMaterial, totalPages]);
+
+    function handleThemeSelect(theme: IColorTheme) {
+        setColorTheme(theme);
+        setShowAllThemes(false);
     }
 
-    function handleColorThemesSelect(input: IColorTheme) {
-        if (input.name === colorTheme?.name) setColorTheme(null);
-        else setColorTheme(input);
+    function handlePageStartIndexChange(value: string) {
+        if (!totalPages) return;
+        const page = parseInt(value);
+        if (value === '' || isNaN(page) || page < 1 || page > totalPages) {
+            setRange((prev) => (prev ? { ...prev, start: 1 } : prev));
+            return;
+        }
+        setRange((prev) => (prev ? { ...prev, start: page } : prev));
+    }
+
+    function handlePageEndIndexChange(value: string) {
+        if (!totalPages) return;
+        const page = parseInt(value);
+        if (value === '' || isNaN(page) || page < 1 || page > totalPages) {
+            setRange((prev) => (prev ? { ...prev, end: totalPages } : prev));
+            return;
+        }
+        setRange((prev) => (prev ? { ...prev, end: page } : prev));
+    }
+
+    function handleStartSegmentChange(value: string) {
+        if (
+            (learningMaterial?.type !== EnumLearningMaterial.youtube &&
+                learningMaterial?.type !== EnumLearningMaterial.media) ||
+            learningMaterial?.content.length === 0
+        )
+            return;
+        const seconds = parseInt(value);
+        if (value === '' || isNaN(seconds)) {
+            setRange((prev) => {
+                const start = (learningMaterial.content as ITranscriptSegment[])[0].startTime;
+                return prev ? { ...prev, start } : prev;
+            });
+            return;
+        }
+
+        setRange((prev) => {
+            return prev ? { ...prev, start: seconds } : prev;
+        });
+    }
+
+    function handleEndSegmentChange(value: string) {
+        let len;
+        if (
+            (learningMaterial?.type !== EnumLearningMaterial.youtube &&
+                learningMaterial?.type !== EnumLearningMaterial.media) ||
+            (len = learningMaterial?.content.length) === 0
+        )
+            return;
+        const seconds = parseInt(value);
+        if (value === '' || isNaN(seconds)) {
+            setRange((prev) => {
+                const end = (learningMaterial.content as ITranscriptSegment[])[len - 1].startTime;
+                return prev ? { ...prev, end } : prev;
+            });
+            return;
+        }
+
+        setRange((prev) => {
+            return prev ? { ...prev, end: seconds } : prev;
+        });
     }
 
     return (
@@ -54,78 +138,71 @@ export default function CustomizedGenerateOptions({
             title="Customize"
             body={
                 <div className="space-y-6">
-                    {/* Depths */}
                     <div className="space-y-2">
                         <Label className="text-sm font-medium">Type *</Label>
                         <div className="flex gap-2">
-                            {[
-                                { key: 'abstract', label: 'Abstract', description: 'High-level overview' },
-                                { key: 'detailed', label: 'Detailed', description: 'In-depth exploration' },
-                            ].map((mindmapType) => (
+                            {['abstract', 'detailed'].map((key) => (
                                 <Button
-                                    key={mindmapType.key}
-                                    variant={type === mindmapType.key ? 'default' : 'outline'}
-                                    className={cn(
-                                        'flex-1 h-auto py-3 px-4 flex flex-col items-start gap-1 transition-all duration-200',
-                                        type !== mindmapType.key &&
-                                            'hover:border-primary/50 border-input dark:border-slate-700',
-                                    )}
-                                    onClick={() => handleTypeSelect(mindmapType.key as IMindmapType)}
+                                    key={key}
+                                    variant={type === key ? 'default' : 'outline'}
+                                    className="flex-1 capitalize h-10"
+                                    onClick={() => setType(key as IMindmapType)}
                                 >
-                                    <span className="text-sm font-medium">{mindmapType.label}</span>
-                                    <span className="text-xs text-muted-foreground">{mindmapType.description}</span>
+                                    {key}
                                 </Button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Color Themes */}
                     <div className="space-y-2">
-                        <Label className="text-sm font-medium">Color Theme *</Label>
-                        <div className="grid grid-cols-2 gap-3">
-                            {COLOR_THEMES.map((theme) => {
-                                const isSelected = colorTheme?.name === theme.name;
-                                return (
-                                    <Button
-                                        key={theme.name}
-                                        variant="outline"
-                                        className={cn(
-                                            'h-auto flex flex-col items-start justify-start p-3 text-left transition-all duration-200 border-2',
-                                            isSelected
-                                                ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                                : 'border-input dark:border-slate-800 hover:border-primary/50',
-                                        )}
-                                        onClick={() => handleColorThemesSelect(theme)}
-                                    >
-                                        <div
-                                            className={cn(
-                                                'text-sm font-bold mb-2',
-                                                isSelected ? 'text-primary' : 'text-foreground',
-                                            )}
-                                        >
-                                            {theme.name}
-                                        </div>
-                                        <div className="flex gap-1.5">
-                                            {theme.colors.map((color, idx) => (
-                                                <span
-                                                    key={`${theme.name}-${idx}`}
-                                                    className="h-4 w-4 rounded-full border border-black/10 dark:border-white/10"
-                                                    style={{ backgroundColor: color }}
-                                                />
-                                            ))}
-                                        </div>
-                                    </Button>
-                                );
-                            })}
+                        <Label className="text-sm font-medium">Color Theme</Label>
+                        <div className="flex items-center gap-3">
+                            {colorTheme && (
+                                <div className="flex-1">
+                                    <ThemeItem theme={colorTheme} isSelected={false} />
+                                </div>
+                            )}
+
+                            <ColorThemeSelection
+                                themes={COLOR_THEMES}
+                                selectedTheme={colorTheme}
+                                onThemeSelect={handleThemeSelect}
+                                open={showAllThemes}
+                                setOpen={setShowAllThemes}
+                            />
                         </div>
                     </div>
 
-                    {/* Custom Prompt */}
+                    <div className="space-y-2">
+                        {learningMaterial?.type === EnumLearningMaterial.file ? (
+                            <ReferenceEdit
+                                type="pdf"
+                                isEditing={true}
+                                pageStartIndex={range?.start}
+                                onPageStartIndexChange={handlePageStartIndexChange}
+                                pageEndIndex={range?.end}
+                                onPageEndIndexChange={handlePageEndIndexChange}
+                            />
+                        ) : null}
+
+                        {learningMaterial?.type === EnumLearningMaterial.youtube ||
+                        learningMaterial?.type === EnumLearningMaterial.media ? (
+                            <ReferenceEdit
+                                type={learningMaterial.type}
+                                isEditing={true}
+                                segments={learningMaterial.content}
+                                startSegment={range?.start}
+                                onStartSegmentChange={handleStartSegmentChange}
+                                endSegment={range?.end}
+                                onEndSegmentChange={handleEndSegmentChange}
+                            />
+                        ) : null}
+                    </div>
+
                     <div className="space-y-2">
                         <Label className="text-sm font-medium">Custom Instructions</Label>
                         <Textarea
-                            placeholder="E.g. Focus more on definitions, keep descriptions short, emphasize relationships..."
-                            className="min-h-[100px]"
+                            placeholder="E.g. Focus more on definitions..."
                             value={instruction}
                             onChange={(e) => setInstruction(e.target.value)}
                         />

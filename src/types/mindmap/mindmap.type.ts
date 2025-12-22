@@ -68,6 +68,7 @@ export interface ILinkFlashcardsToNodePayload {
 }
 
 export interface IColorTheme {
+    type: 'light' | 'dark';
     name: string;
     colors: string[];
 }
