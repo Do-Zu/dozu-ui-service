@@ -118,6 +118,13 @@ const MindmapContent = ({ mode, role }: Props) => {
         });
     }
 
+    function onNodeDetailsClose() {
+        dispatch(closeSheet());
+        requestAnimationFrame(() => {
+            fitView({ duration: 800 });
+        });
+    }
+
     function onGenerateMultiNodeFlashcardsSuccess(data: IGenerateNodeFlashcardsItem[]) {
         dispatch(closeSheet());
         setGeneratedNodeFlashcards(data);
@@ -273,7 +280,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                         colorMode={colorMode}
                         fitView
                         minZoom={0.001}
-                        className={showGenerateModal ? 'blur-sm' : ''}
+                        className={showGenerateModal ? 'blur-sm' : 'rounded-md'}
                     >
                         <MindmapButtonsPanel mode={mode} role={role} />
                         <RoadmapButtonPanel mode={mode} role={role} />
@@ -339,6 +346,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                         <ResizablePanel defaultSize={20} minSize={20}>
                             <div className="h-full overflow-y-auto">
                                 <NodeDetails
+                                    onClose={onNodeDetailsClose}
                                     onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
                                     onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
                                     onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}

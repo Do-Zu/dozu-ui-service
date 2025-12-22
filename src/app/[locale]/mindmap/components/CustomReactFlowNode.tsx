@@ -9,7 +9,7 @@ import { openSheet, setSelectedNodeData, toggleNodeSelection } from '@/stores/fe
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus, CheckCircle, MoreHorizontal } from 'lucide-react';
+import { BookOpenIcon, Target, CheckCircle, MoreHorizontal } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
@@ -335,7 +335,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                 <motion.p
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
-                                    className={`text-xs text-muted-foreground mt-1 leading-relaxed ${isActive ? '' : 'truncate'}`}
+                                    className={`text-xs text-muted-foreground mt-1 leading-relaxed ${isActive ? '' : 'hidden'}`}
                                     style={{ lineHeight: '1.4' }}
                                 >
                                     <span style={{ color: data.color ? readableColor(data.color) : '' }}>

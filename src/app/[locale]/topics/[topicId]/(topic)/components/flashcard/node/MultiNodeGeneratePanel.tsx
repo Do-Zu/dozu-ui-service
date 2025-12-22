@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import DefaultGenerateButton from '../../generate/DefaultGenerateButton';
 import toastHelper from '@/utils/toast.helper';
 import nodeFlashcardsGenerateUtils from '../../../utils/flashcard/nodeFlashcardsGenerate.utils';
+import { toast } from '@/hooks/use-toast';
 
 interface Props {
     nodes: AppNode[];
@@ -28,7 +29,15 @@ export default function MultiNodeGeneratePanel({ nodes, nodeIds, onSuccess }: Pr
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
         try {
-            const { content, customOptions } = await prepareGeneratedData();
+            const result = prepareGeneratedData();
+            if (!result.ok) {
+                toast({
+                    title: result.message,
+                    variant: result.type === 'error' ? 'destructive' : 'default',
+                });
+                return;
+            }
+            const { content, customOptions } = result.data;
             await startGenerate(content, customOptions);
         } catch (err) {
             toastHelper.showErrorMessage(err);

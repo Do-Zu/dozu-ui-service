@@ -11,7 +11,7 @@ interface MediaSegmentReferenceItemProps {
     isEditing: boolean;
     segment: number | undefined;
     onSegmentChange: (value: string) => void;
-    onSegmentClick: (segment: number | undefined) => void;
+    onSegmentClick?: (segment: number | undefined) => void;
 }
 function MediaSegmentReferenceItem({
     segments,
@@ -37,7 +37,7 @@ function MediaSegmentReferenceItem({
                         <SelectValue placeholder="Select" />
                     </SelectTrigger>
 
-                    <SelectContent>
+                    <SelectContent className="z-[1001]">
                         {segments.map((seg, index) => (
                             <SelectItem key={index} value={String(seg.startTime)}>
                                 {`[${transcriptUtils.formatTime(seg.startTime)}s] ${getShortSegmentText(seg.text)}...`}
@@ -51,7 +51,7 @@ function MediaSegmentReferenceItem({
                 <TooltipProvider>
                     <Tooltip delayDuration={200}>
                         <TooltipTrigger asChild>
-                            <Button variant="outline" onClick={() => onSegmentClick(segment)}>
+                            <Button variant="outline" onClick={() => onSegmentClick?.(segment)}>
                                 {segment === undefined ? 'No segment yet' : `[${transcriptUtils.formatTime(segment)}s]`}
                             </Button>
                         </TooltipTrigger>
@@ -72,7 +72,7 @@ interface Props {
     onStartSegmentChange: (value: string) => void;
     endSegment: number | undefined;
     onEndSegmentChange: (value: string) => void;
-    onSegmentClick: (segment: number | undefined) => void;
+    onSegmentClick?: (segment: number | undefined) => void;
 }
 
 export default function MediaSegmentReferenceEdit({

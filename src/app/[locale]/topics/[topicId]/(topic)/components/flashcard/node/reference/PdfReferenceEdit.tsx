@@ -8,8 +8,8 @@ interface PdfReferenceItemProps {
     label: string;
     isEditing: boolean;
     pageIndex: number | undefined;
-    onPageIndexChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onPageClick: (page: number | undefined) => void;
+    onPageIndexChange: (value: string) => void;
+    onPageClick?: (page: number | undefined) => void;
 }
 
 function PdfReferenceItem({ id, label, isEditing, pageIndex, onPageIndexChange, onPageClick }: PdfReferenceItemProps) {
@@ -26,7 +26,7 @@ function PdfReferenceItem({ id, label, isEditing, pageIndex, onPageIndexChange, 
                     id={id}
                     type="number"
                     value={pageIndex}
-                    onChange={onPageIndexChange}
+                    onChange={(e) => onPageIndexChange(e.target.value)}
                     placeholder="E.g. 1"
                     min={0}
                     className="h-9 text-sm transition-all"
@@ -37,7 +37,7 @@ function PdfReferenceItem({ id, label, isEditing, pageIndex, onPageIndexChange, 
                 <TooltipProvider>
                     <Tooltip delayDuration={200}>
                         <TooltipTrigger asChild>
-                            <Button variant="outline" onClick={() => onPageClick(pageIndex)}>
+                            <Button variant="outline" onClick={() => onPageClick?.(pageIndex)}>
                                 {pageIndex === undefined ? 'No page index yet' : pageIndex}
                             </Button>
                         </TooltipTrigger>
@@ -54,10 +54,10 @@ function PdfReferenceItem({ id, label, isEditing, pageIndex, onPageIndexChange, 
 interface Props {
     isEditing: boolean;
     pageStartIndex: number | undefined;
-    onPageStartIndexChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onPageStartIndexChange: (value: string) => void;
     pageEndIndex: number | undefined;
-    onPageEndIndexChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onPageClick: (page: number | undefined) => void;
+    onPageEndIndexChange: (value: string) => void;
+    onPageClick?: (page: number | undefined) => void;
 }
 
 export default function PdfReferenceEdit({

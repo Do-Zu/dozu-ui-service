@@ -18,21 +18,24 @@ import React, {
     useState,
 } from 'react';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
-import { TopicWorkspaceTabValue } from '../types';
+import { EnumLearningMaterial, ITranscriptSegment, TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace, { IResponseFlashCardGenerate } from '../hooks/useFlashCardWorkSpace';
 import useGamesWorkSpace, { GameType } from '../hooks/useGamesWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
-import useYoutubePlayer from '../hooks/useYoutubePlayer';
-import usePdfToolBar from '../hooks/usePdfToolBar';
-import { YouTubePlayer } from 'react-youtube';
+import usePdfMaterial from '../hooks/usePdfMaterial';
 import { INote } from '../types/note.type';
 import useNoteWorkspace from '../hooks/useNoteWorkspace';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import { MindMapProvider, useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import { FitView } from '@xyflow/react';
+import { PdfPageText } from '@/hooks/usePdfReader';
+import useMediaPlayer from '../hooks/media/useMediaPlayer';
+import MediaPlayerController from '../media/core/MediaPlayerController';
+import pdfMaterialUtils from '../utils/material/pdfMaterial.utils';
+import mediaMaterialUtils from '../utils/material/mediaMaterial.utils';
 
 export type TypeTopicId = number;
 
@@ -47,7 +50,6 @@ interface ContextType {
     isPdfViewerFullscreen: boolean;
     pageNumber: number;
     contentTextOrigin: MutableRefObject<string>;
-    player: YouTubePlayer | null;
 
     setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
     setTopicId: (topicId: TypeTopicId) => void;
@@ -70,11 +72,9 @@ interface ContextType {
     selectGame: (game: GameType) => void;
     resetGame: () => void;
 
-    setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
+    setIsPdfViewerFullscreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
     setPageNumber: Dispatch<SetStateAction<number>>;
-    setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
-    seekTo: (seconds: number) => void;
 
     note: INote | null;
     setNote: Dispatch<SetStateAction<INote | null>>;
@@ -105,6 +105,19 @@ interface ContextType {
     hasInitialized: boolean;
     fitView: FitView;
     setIsNodeSheetOpen: (open: boolean) => void;
+
+    // pdf
+    pdfPageTexts: MutableRefObject<PdfPageText[]>;
+    totalPages: number | null;
+    setTotalPages: Dispatch<SetStateAction<number | null>>;
+
+    // media
+    registerPlayer: (controller: MediaPlayerController) => void;
+    play: () => void;
+    seekTo: (seconds: number) => void;
+
+    // for all types of material
+    getLearningMaterialContent: (args: { start: number; end: number }) => string;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -137,8 +150,16 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const [selectingContentText, setSelectingContentText] = useState<string>('');
 
     const [isLearningContentFullscreen, setIsLearningContentFullscreen] = useState<boolean>(false);
-    const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
-    const { player, setPlayer, seekTo } = useYoutubePlayer();
+    const {
+        totalPages,
+        setTotalPages,
+        pdfPageTexts,
+        isPdfViewerFullscreen,
+        pageNumber,
+        setIsPdfViewerFullscreen,
+        setPageNumber,
+    } = usePdfMaterial();
+    const { registerPlayer, play, seekTo } = useMediaPlayer();
 
     const {
         flashcards,
@@ -183,6 +204,24 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         topicIdRef.current = topicIdArg;
     }, []);
 
+    function getLearningMaterialContent({ start, end }: { start: number; end: number }) {
+        if (start > end) throw new Error('Start section must not exceed end section.');
+        if (learningMaterial?.type === EnumLearningMaterial.file) {
+            return pdfMaterialUtils.getPdfContent({ pageTexts: pdfPageTexts.current, start, end });
+        }
+        if (
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
+        ) {
+            return mediaMaterialUtils.getMediaContent({
+                segments: learningMaterial.content as ITranscriptSegment[],
+                start,
+                end,
+            });
+        }
+        throw new Error('Document type is not supported yet.');
+    }
+
     const value = useMemo(
         () => ({
             tab,
@@ -195,7 +234,6 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             contentTextOrigin,
             learningMaterial,
             pageNumber,
-            player,
             setTab,
             setTopicId,
             setTopic,
@@ -203,11 +241,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setLearningFlashcards,
             onReviewCard,
             setAnkiSettings,
-            setIsPdfViewerFullScreen,
+            setIsPdfViewerFullscreen,
             setLearningMaterial,
             setPageNumber,
-            setPlayer,
-            seekTo,
             generatingFlashcards,
             setGeneratingFlashcards,
             flashcardTab,
@@ -239,6 +275,13 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             hasInitialized,
             fitView,
             setIsNodeSheetOpen,
+            pdfPageTexts,
+            totalPages,
+            setTotalPages,
+            registerPlayer,
+            play,
+            seekTo,
+            getLearningMaterialContent,
         }),
         [
             tab,
@@ -249,8 +292,6 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             isPdfViewerFullscreen,
             learningMaterial,
             pageNumber,
-            player,
-            seekTo,
             generatingFlashcards,
             flashcardTab,
             selectedGame,
@@ -277,6 +318,11 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             hasInitialized,
             fitView,
             setIsNodeSheetOpen,
+            totalPages,
+            registerPlayer,
+            play,
+            seekTo,
+            getLearningMaterialContent,
         ],
     );
 

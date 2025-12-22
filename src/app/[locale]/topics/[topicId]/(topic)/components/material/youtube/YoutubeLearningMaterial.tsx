@@ -1,13 +1,13 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 import TranscriptViewer from '../common/transcript/TranscriptViewer';
-import { YouTubePlayer, YouTubeProps } from 'react-youtube';
+import { YouTubeProps } from 'react-youtube';
 import YoutubePlayer from './YoutubePlayer';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { isNilOrEmpty } from '@/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { ITranscriptSegment } from '../../../types';
 import transcriptUtils from '../../../utils/transcript.utils';
 import SelectMenu from '../SelectMenu';
+import { YoutubePlayerAdapter } from '../../../media/core/youtube/YoutubePlayerAdapter';
 
 interface Props {
     videoId: string;
@@ -15,13 +15,13 @@ interface Props {
 }
 
 export default function YoutubeLearningMaterial({ videoId, content }: Props) {
-    const { contentTextOrigin, player, setPlayer, seekTo } = useTopicWorkspace();
+    const { contentTextOrigin, registerPlayer, seekTo } = useTopicWorkspace();
     const { selectingContentText } = useTopicWorkspace();
     const ref = useRef<HTMLDivElement | null>(null);
 
     const onPlayerReady: YouTubeProps['onReady'] = (event) => {
         event.target.pauseVideo();
-        setPlayer(event.target);
+        registerPlayer(new YoutubePlayerAdapter(event.target));
     };
 
     useEffect(() => {

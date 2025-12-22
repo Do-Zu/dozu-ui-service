@@ -13,7 +13,7 @@ import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
 import FloatingEdge from '../components/FloatingEdge';
-import NodeSheet from '../components/NodeSheet';
+// import NodeSheet from '../components/NodeSheet';
 import { useMindMapContext } from '../context/MindMapContext';
 
 import LoadingPage from '@/app/loading';
@@ -234,7 +234,7 @@ export default function page() {
                 <MindmapButtonsPanel />
                 <RoadmapButtonPanel />
                 <FileSheet />
-                <NodeSheet />
+                {/* <NodeSheet /> */}
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
