@@ -61,8 +61,8 @@ const WelcomePage: React.FC = () => {
           <div className="absolute inset-0 z-0 pointer-events-none">
             <Threads
               color={[0.2, 0.2, 0.2]}
-              amplitude={1.2}
-              distance={0}
+              amplitude={1.6}
+              distance={0.2}
               enableMouseInteraction={false}
             />
           </div>
@@ -123,7 +123,6 @@ const WelcomePage: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="relative w-full py-16 lg:py-32 mb-20 lg:mb-40 overflow-hidden z-10"
         >
-          {/* Background layer */}
           <div
             className="absolute inset-0 bg-cover bg-center scale-110 blur-sm"
             style={{
@@ -131,11 +130,7 @@ const WelcomePage: React.FC = () => {
                 'url(https://framerusercontent.com/images/n1CUtQNh6MFnf07jCSuDbqX5XIE.png?scale-down-to=1024)',
             }}
           />
-
-          {/* Subtle overlay */}
           <div className="absolute inset-0 bg-black/5" />
-
-          {/* Foreground video - nổi lên như modal */}
           <div className="relative z-10 flex justify-center px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -360,7 +355,7 @@ const WelcomePage: React.FC = () => {
           </div>
         </motion.section>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section
         <motion.section
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -468,7 +463,7 @@ const WelcomePage: React.FC = () => {
               </div>
             </Carousel>
           </motion.div>
-        </motion.section>
+        </motion.section> */}
 
         {/* Footer */}
         <motion.footer
