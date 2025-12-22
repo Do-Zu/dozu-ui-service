@@ -6,7 +6,7 @@
  *
  */
 const validateDate = (dateStr: string): boolean => {
-    const regex = /^(\d{4})[-\/\.](\d{2})[-\/\.](\d{2})$/;
+    const regex = /^(\d{4})[-/.](\d{2})[-/.](\d{2})$/;
 
     const match = dateStr.match(regex);
     if (!match) {
@@ -18,7 +18,6 @@ const validateDate = (dateStr: string): boolean => {
     const parsedMonth = parseInt(month, 10) - 1;
     const parsedDay = parseInt(day, 10);
 
-    // Check if the date is valid by constructing a new Date object
     const date = new Date(parsedYear, parsedMonth, parsedDay);
 
     return date.getFullYear() === parsedYear && date.getMonth() === parsedMonth && date.getDate() === parsedDay;
