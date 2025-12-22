@@ -31,7 +31,7 @@ import ViewFileButton from '@/components/mindmap/button/ViewFileButton';
 import CustomReactFlowNode from '@/app/[locale]/mindmap/components/CustomReactFlowNode';
 import FileSheet from '@/app/[locale]/mindmap/components/FileSheet';
 import FloatingEdge from '@/app/[locale]/mindmap/components/FloatingEdge';
-import NodeSheet from '@/app/[locale]/mindmap/components/NodeSheet';
+// import NodeSheet from '@/app/[locale]/mindmap/components/NodeSheet';
 import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import { IFlashcardWithServer } from '@/app/[locale]/flashcards/components/FlashcardEditor';

@@ -180,15 +180,13 @@ const NodeDetails = ({
         setNewLabel(e.target.value);
     };
 
-    const onChangePageStartIndex = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-
-        if (isNullOrEmpty(val)) {
+    const onPageStartIndexChange = (value: string) => {
+        if (isNullOrEmpty(value)) {
             setPageStartIndex(undefined);
             return;
         }
 
-        const pageNumber = parseInt(toNumber(val).toString(), 10);
+        const pageNumber = parseInt(toNumber(value).toString(), 10);
 
         if (pageNumber <= 0) {
             toast({
@@ -200,15 +198,13 @@ const NodeDetails = ({
         setPageStartIndex(pageNumber);
     };
 
-    const onChangePageEndIndex = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-
-        if (isNullOrEmpty(val)) {
+    const onPageEndIndexChange = (value: string) => {
+        if (isNullOrEmpty(value)) {
             setPageEndIndex(undefined);
             return;
         }
 
-        const pageNumber = parseInt(toNumber(val).toString(), 10);
+        const pageNumber = parseInt(toNumber(value).toString(), 10);
 
         if (pageNumber <= 0) {
             toast({
@@ -294,16 +290,20 @@ const NodeDetails = ({
     function handleSegmentClick(segment: number | undefined) {
         if (segment === undefined) return;
         setIsLearningContentFullscreen(false);
-        if (learningMaterial?.type === EnumLearningMaterial.youtube) {
-            seekTo(segment);
-        } else if (learningMaterial?.type === EnumLearningMaterial.media) {
-            // implement for media
-        }
+        seekTo(segment);
     }
 
     async function onGenerateClick(startGenerate: IStartGenerateFn) {
         try {
-            const { content, customOptions } = await prepareGeneratedData();
+            const result = prepareGeneratedData();
+            if (!result.ok) {
+                toast({
+                    title: result.message,
+                    variant: result.type === 'error' ? 'destructive' : 'default',
+                });
+                return;
+            }
+            const { content, customOptions } = result.data;
             await startGenerate(content, customOptions);
         } catch (err) {
             toastHelper.showErrorMessage(err);
@@ -373,8 +373,8 @@ const NodeDetails = ({
                                         pageEndIndex={pageEndIndex}
                                         setPageStartIndex={setPageStartIndex}
                                         setPageEndIndex={setPageEndIndex}
-                                        onChangePageStartIndex={onChangePageStartIndex}
-                                        onChangePageEndIndex={onChangePageEndIndex}
+                                        onChangePageStartIndex={(e) => onPageStartIndexChange(e.target.value)}
+                                        onChangePageEndIndex={(e) => onPageEndIndexChange(e.target.value)}
                                     />
                                 ),
                             },
@@ -405,9 +405,9 @@ const NodeDetails = ({
                                 type="pdf"
                                 isEditing={isEditing}
                                 pageStartIndex={pageStartIndex}
-                                onPageStartIndexChange={onChangePageStartIndex}
+                                onPageStartIndexChange={onPageStartIndexChange}
                                 pageEndIndex={pageEndIndex}
-                                onPageEndIndexChange={onChangePageEndIndex}
+                                onPageEndIndexChange={onPageEndIndexChange}
                                 onPageClick={handlePageClick}
                             />
                         ) : null}

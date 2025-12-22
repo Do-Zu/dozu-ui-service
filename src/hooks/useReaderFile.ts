@@ -10,7 +10,7 @@ import {
     PDFDocumentLoadingTask,
 } from 'pdfjs-dist/types/src/display/api';
 
-const readFileAsArrayBuffer = (inputFile: File): Promise<ArrayBuffer> =>
+export const readFileAsArrayBuffer = (inputFile: File): Promise<ArrayBuffer> =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
