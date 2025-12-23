@@ -3,7 +3,19 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Calendar, Brain, ArrowRight, HelpCircle, ChevronDown, Quote, Star, Mail, Github, Linkedin, Twitter } from 'lucide-react';
+import {
+    BookOpen,
+    Calendar,
+    Brain,
+    ArrowRight,
+    HelpCircle,
+    ChevronDown,
+    Star,
+    Mail,
+    Github,
+    Linkedin,
+    Twitter,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
@@ -11,727 +23,656 @@ import Threads from '@/components/react-bits/Threads';
 import TextType from '@/components/react-bits/TextType';
 import StarBorder from '@/components/react-bits/StarBorder';
 import CardSwap, { Card } from '@/components/react-bits/CardSwap';
-import Autoplay from 'embla-carousel-autoplay';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
+import Particles from '@/components/react-bits/Particles';
 
 const WelcomePage: React.FC = () => {
-  const { updateUser } = useAuth();
-  const { handleWelcomeComplete } = useAuthNavigation();
-  const featuresRef = React.useRef<HTMLElement>(null);
+    const { updateUser } = useAuth();
+    const { handleWelcomeComplete } = useAuthNavigation();
+    const featuresRef = React.useRef<HTMLElement>(null);
 
-  const t = useTranslations('welcome');
+    const t = useTranslations('welcome');
 
-  const handleNavigateNextPage = () => {
-    handleWelcomeComplete();
-  };
+    const handleNavigateNextPage = () => {
+        handleWelcomeComplete();
+    };
 
-  const handleLearnMore = () => {
-    featuresRef.current?.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'start' 
-    });
-  };
+    const handleLearnMore = () => {
+        featuresRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
+    };
 
-  const features = [
-    {
-      title: t('sections.personalizedLearning.title'),
-      description: t('sections.personalizedLearning.description'),
-      icon: BookOpen,
-    },
-    {
-      title: t('sections.smartScheduling.title'),
-      description: t('sections.smartScheduling.description'),
-      icon: Calendar,
-    },
-    {
-      title: t('sections.adaptiveMethods.title'),
-      description: t('sections.adaptiveMethods.description'),
-      icon: Brain,
-    },
-  ];
+    const features = [
+        {
+            title: t('sections.personalizedLearning.title'),
+            description: t('sections.personalizedLearning.description'),
+            icon: BookOpen,
+        },
+        {
+            title: t('sections.smartScheduling.title'),
+            description: t('sections.smartScheduling.description'),
+            icon: Calendar,
+        },
+        {
+            title: t('sections.adaptiveMethods.title'),
+            description: t('sections.adaptiveMethods.description'),
+            icon: Brain,
+        },
+    ];
 
-  useEffect(() => {
-    updateUser({ isNewUser: false });
-  }, []);
+    useEffect(() => {
+        updateUser({ isNewUser: false });
+    }, []);
 
-  return (
-    <div className="relative w-full min-h-screen bg-white text-black overflow-hidden">
-      {/* Content Container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        {/* Hero and Features Section with Threads Background */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <Threads
-              color={[0.2, 0.2, 0.2]}
-              amplitude={1.6}
-              distance={0.15}
-              enableMouseInteraction={false}
+    return (
+        <div className="relative min-h-screen w-full overflow-hidden bg-white text-black">
+            <Particles
+                className="absolute inset-0 z-0"
+                particleColors={['text-white']}
+                particleCount={500}
+                particleSpread={10}
+                speed={0.1}
+                particleBaseSize={100}
+                moveParticlesOnHover={true}
+                alphaParticles={false}
+                disableRotation={false}
             />
-          </div>
-
-          {/* Hero Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16 lg:mb-24 relative z-10"
-          >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 shadow-sm"
-            >
-              <Star className="w-4 h-4 text-blue-600 fill-blue-600" />
-              <span className="text-sm font-medium text-blue-700">
-                {t('badge') || 'Nền tảng học tập thông minh'}
-              </span>
-            </motion.div>
-
-            {/* Title with gradient */}
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-5xl sm:text-6xl lg:text-8xl font-bold mb-8 leading-tight"
-            >
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
-                {t('title')}
-              </span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12"
-            >
-              <TextType
-                text={t('subtitle')}
-                as="p"
-                typingSpeed={50}
-                initialDelay={800}
-                showCursor={true}
-                cursorCharacter="|"
-                cursorBlinkDuration={0.5}
-                className="text-center"
-                loop={true}
-              />
-            </motion.div>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            >
-              <StarBorder
-                as="button"
-                color="#3B82F6"
-                speed="5s"
-                className="w-full sm:w-auto"
-                onClick={handleNavigateNextPage}
-              >
-                <span className="flex items-center justify-center font-semibold text-base px-6 py-2.5 group">
-                  {t('cta.button')}
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </StarBorder>
-              
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleLearnMore}
-                className="w-full sm:w-auto px-8 py-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-lg transition-all shadow-sm hover:shadow-md"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  <HelpCircle className="w-5 h-5" />
-                  {t('cta.learn_more') || 'Tìm hiểu thêm'}
-                </span>
-              </motion.button>
-            </motion.div>
-
-            {/* Trust indicators */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500"
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white" />
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white" />
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white" />
-                </div>
-                <span className="font-medium text-gray-700">1000+ học viên</span>
-              </div>
-              <div className="h-4 w-px bg-gray-300" />
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                ))}
-                <span className="ml-1 font-medium text-gray-700">4.9/5</span>
-              </div>
-            </motion.div>
-          </motion.section>
-
-        </div>
-
-        {/* Intro Video Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative w-full py-16 lg:py-32 mb-20 lg:mb-40 overflow-hidden z-10"
-        >
-          <div
-            className="absolute inset-0 bg-cover bg-center scale-110 blur-sm"
-            style={{
-              backgroundImage:
-                'url(https://framerusercontent.com/images/n1CUtQNh6MFnf07jCSuDbqX5XIE.png?scale-down-to=1024)',
-            }}
-          />
-          <div className="absolute inset-0 bg-black/5" />
-          <div className="relative z-10 flex justify-center px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="relative"
-            >
-              {/* Glow effect */}
-              <div className="absolute -inset-4 bg-white/10 blur-2xl rounded-3xl" />
-              
-              {/* Video card */}
-              <div className="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                >
-                  <source src="https://pub-4a3aef2ee7734e2d88f95beac2d17412.r2.dev/introduce%20video.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            </motion.div>
-          </div>
-        </motion.section>
-
-         {/* Features Section */}
-        <motion.section
-          ref={featuresRef}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-10 lg:mb-20 mt-8 lg:mt-16 relative z-20"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left Content */}
-            <div className="space-y-8">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <h2 className="text-4xl lg:text-5xl font-bold text-black mb-6">
-                  {t('sections.features.title') || 'Tính Năng Nổi Bật'}
-                </h2>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  {t('sections.features.description') || 'Khám phá những tính năng độc đáo giúp bạn học tập hiệu quả hơn'}
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="space-y-4"
-              >
-                {features.map((feature, index) => {
-                  const IconComponent = feature.icon;
-                  return (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                      className="flex items-start gap-4 p-4 rounded-lg hover:bg-black/5 transition-colors duration-300 cursor-pointer group"
-                    >
-                      <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-black/10 border border-black/20 flex items-center justify-center group-hover:bg-black/20 transition-colors duration-300">
-                        <IconComponent className="w-6 h-6 text-black" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-black mb-1">
-                          {feature.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-                className="flex flex-wrap gap-4 pt-6"
-              >
-                <div className="bg-gradient-to-br from-black/5 to-black/10 rounded-lg px-6 py-4 border border-black/20">
-                  <div className="text-3xl font-bold text-black">1000+</div>
-                  <div className="text-sm text-gray-600 mt-1">Học viên đang sử dụng</div>
-                </div>
-                <div className="bg-gradient-to-br from-black/5 to-black/10 rounded-lg px-6 py-4 border border-black/20">
-                  <div className="text-3xl font-bold text-black">95%</div>
-                  <div className="text-sm text-gray-600 mt-1">Tỷ lệ hài lòng</div>
-                </div>
-                <div className="bg-gradient-to-br from-black/5 to-black/10 rounded-lg px-6 py-4 border border-black/20">
-                  <div className="text-3xl font-bold text-black">24/7</div>
-                  <div className="text-sm text-gray-600 mt-1">Hỗ trợ liên tục</div>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Right Content - CardSwap */}
-            <div className="relative h-[600px] flex items-center justify-center">
-              <CardSwap
-                width={400}
-                height={500}
-                cardDistance={50}
-                verticalDistance={60}
-                delay={4000}
-                pauseOnHover={true}
-                skewAmount={5}
-                easing="elastic"
-              >
-                {features.map((feature, index) => {
-                  const IconComponent = feature.icon;
-                  return (
-                    <Card
-                      key={index}
-                      customClass="bg-white/95 backdrop-blur-md border-black/20 shadow-2xl cursor-pointer hover:shadow-3xl transition-shadow duration-300"
-                    >
-                      <div className="p-8 h-full flex flex-col">
-                        <div className="mb-6">
-                          <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-black/10 to-black/5 border border-black/20 shadow-inner">
-                            <IconComponent className="w-7 h-7 text-black" />
-                          </div>
-                        </div>
-                        <h3 className="text-2xl font-bold mb-4 text-black">
-                          {feature.title}
-                        </h3>
-                        <p className="text-gray-700 text-base leading-relaxed flex-1">
-                          {feature.description}
-                        </p>
-                        <div className="mt-6 pt-4 border-t border-black/10">
-                          <span className="text-sm text-gray-500 font-medium">
-                            {t('sections.learnMore')}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </CardSwap>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* FAQ Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mb-20 lg:mb-32 relative z-10"
-        >
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <div className="inline-flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <HelpCircle className="w-4 h-4" />
-                <span className="uppercase tracking-wider font-medium">{t('faq.badge')}</span>
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-black mb-4">
-                {t('faq.title.normal')} <span className="text-gray-400 italic">{t('faq.title.italic')}</span>
-              </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                {t('faq.subtitle')}
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left - Contact Card */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="lg:col-span-1"
-            >
-              <div className="bg-gradient-to-br from-black/5 to-black/10 rounded-2xl p-8 border border-black/10 h-full flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 rounded-full bg-black/10 border border-black/20 flex items-center justify-center mb-6">
-                  <HelpCircle className="w-8 h-8 text-black" />
-                </div>
-                <h3 className="text-2xl font-bold text-black mb-3">
-                  {t('faq.contact.title')}
-                </h3>
-                <p className="text-gray-600 mb-6 text-sm">
-                  {t('faq.contact.description')}
-                </p>
-                <Button
-                  variant="outline"
-                  className="border-black/20 hover:bg-black hover:text-white transition-colors"
-                >
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                  {t('faq.contact.button')}
-                </Button>
-              </div>
-            </motion.div>
-
-            {/* Right - FAQ Accordion */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="lg:col-span-2"
-            >
-              <div className="space-y-4">
-                {[
-                  { id: 'q1', question: t('faq.questions.q1.question'), answer: t('faq.questions.q1.answer') },
-                  { id: 'q2', question: t('faq.questions.q2.question'), answer: t('faq.questions.q2.answer') },
-                  { id: 'q3', question: t('faq.questions.q3.question'), answer: t('faq.questions.q3.answer') },
-                  { id: 'q4', question: t('faq.questions.q4.question'), answer: t('faq.questions.q4.answer') },
-                  { id: 'q5', question: t('faq.questions.q5.question'), answer: t('faq.questions.q5.answer') },
-                ].map((faq, index) => (
-                  <FAQItem key={faq.id} faq={faq} index={index} />
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* Testimonials Section
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mb-20 lg:mb-32 relative z-10"
-        >
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              <div className="inline-flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <Quote className="w-4 h-4" />
-                <span className="uppercase tracking-wider font-medium">{t('testimonials.badge')}</span>
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-black mb-4">
-                {t('testimonials.title')}
-              </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                {t('testimonials.subtitle')}
-              </p>
-            </motion.div>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="max-w-6xl mx-auto"
-          >
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              plugins={[
-                Autoplay({
-                  delay: 4000,
-                }),
-              ]}
-              className="w-full"
-            >
-              <CarouselContent>
-                {[
-                  {
-                    id: 1,
-                    name: t('testimonials.reviews.r1.name'),
-                    role: t('testimonials.reviews.r1.role'),
-                    content: t('testimonials.reviews.r1.content'),
-                    rating: 5,
-                  },
-                  {
-                    id: 2,
-                    name: t('testimonials.reviews.r2.name'),
-                    role: t('testimonials.reviews.r2.role'),
-                    content: t('testimonials.reviews.r2.content'),
-                    rating: 5,
-                  },
-                  {
-                    id: 3,
-                    name: t('testimonials.reviews.r3.name'),
-                    role: t('testimonials.reviews.r3.role'),
-                    content: t('testimonials.reviews.r3.content'),
-                    rating: 5,
-                  },
-                  {
-                    id: 4,
-                    name: t('testimonials.reviews.r4.name'),
-                    role: t('testimonials.reviews.r4.role'),
-                    content: t('testimonials.reviews.r4.content'),
-                    rating: 5,
-                  },
-                ].map((review, index) => (
-                  <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
-                    <div className="p-2">
-                      <div className="bg-white rounded-2xl p-8 border border-black/10 hover:border-black/20 transition-all duration-300 h-full flex flex-col shadow-sm hover:shadow-lg">
-                        <div className="flex items-center gap-1 mb-4">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                        <p className="text-gray-700 leading-relaxed mb-6 flex-1">
-                          "{review.content}"
-                        </p>
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-black/10 to-black/5 border border-black/20 flex items-center justify-center">
-                            <span className="text-lg font-bold text-black">
-                              {review.name.charAt(0)}
-                            </span>
-                          </div>
-                          <div>
-                            <div className="font-semibold text-black">{review.name}</div>
-                            <div className="text-sm text-gray-500">{review.role}</div>
-                          </div>
-                        </div>
-                      </div>
+            <div className="relative z-10 w-full">
+                <div className="relative overflow-hidden">
+                    <div className="pointer-events-none absolute inset-0 z-0">
+                        <Threads amplitude={2.5} distance={0.15} enableMouseInteraction={false} />
                     </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <div className="flex justify-center gap-2 mt-8">
-                <CarouselPrevious className="static translate-y-0" />
-                <CarouselNext className="static translate-y-0" />
-              </div>
-            </Carousel>
-          </motion.div>
-        </motion.section> */}
 
-        {/* Footer */}
-        <motion.footer
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="border-t border-black/10 pt-12 pb-8 relative z-10"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
-            {/* Logo & Description */}
-            <div className="md:col-span-4">
-              <h3 className="text-2xl font-bold text-black mb-4">Dozu</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6">
-                {t('footer.description')}
-              </p>
-              <div className="flex gap-3">
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-black/5 hover:bg-black hover:text-white border border-black/10 flex items-center justify-center transition-colors"
-                  aria-label="Twitter"
+                    {/* Hero Section */}
+                    <motion.section
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="relative z-10 mb-16 text-center lg:mb-24"
+                    >
+                        {/* Badge */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="mb-6 mt-10 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 shadow-sm"
+                        >
+                            <Star className="size-4 fill-blue-600 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-700">{t('badge')}</span>
+                        </motion.div>
+
+                        {/* Title with gradient */}
+                        <motion.h1
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.3 }}
+                            className="mb-8 text-5xl font-bold leading-tight sm:text-6xl lg:text-8xl"
+                        >
+                            <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+                                {t('title')}
+                            </span>
+                        </motion.h1>
+
+                        {/* Subtitle */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                            className="mx-auto mb-12 max-w-3xl text-lg leading-relaxed text-gray-600 sm:text-xl lg:text-2xl"
+                        >
+                            <TextType
+                                text={t('subtitle')}
+                                as="p"
+                                typingSpeed={50}
+                                initialDelay={800}
+                                showCursor={true}
+                                cursorCharacter="|"
+                                cursorBlinkDuration={0.5}
+                                className="text-center"
+                                loop={true}
+                            />
+                        </motion.div>
+
+                        {/* CTA Buttons */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.7 }}
+                            className="flex flex-col items-center justify-center gap-4 sm:flex-row"
+                        >
+                            <StarBorder
+                                as="button"
+                                color="#3B82F6"
+                                speed="5s"
+                                className="w-full rounded-3xl sm:w-auto"
+                                onClick={handleNavigateNextPage}
+                            >
+                                <div className="group flex items-center justify-center px-6 py-2.5 text-base font-semibold">
+                                    {t('cta.button')}
+                                    <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
+                                </div>
+                            </StarBorder>
+
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleLearnMore}
+                                className="w-full rounded-xl border-2 border-gray-200 bg-white px-8 py-4 text-lg font-semibold shadow-sm transition-all hover:bg-gray-50 hover:shadow-md dark:text-gray-700 sm:w-auto"
+                            >
+                                <span className="flex items-center justify-center gap-2">
+                                    <HelpCircle className="size-5" />
+                                    {t('cta.learn_more')}
+                                </span>
+                            </motion.button>
+                        </motion.div>
+
+                        {/* Trust indicators */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.8, delay: 0.9 }}
+                            className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500"
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="flex -space-x-2">
+                                    <div className="size-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-400 to-blue-600" />
+                                    <div className="size-8 rounded-full border-2 border-white bg-gradient-to-br from-purple-400 to-purple-600" />
+                                    <div className="size-8 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-pink-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">1000+ members</span>
+                            </div>
+                            <div className="h-4 w-px bg-gray-300" />
+                            <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className="size-4 fill-yellow-400 text-yellow-400" />
+                                ))}
+                                <span className="ml-1 font-medium text-gray-700">4.9/5</span>
+                            </div>
+                        </motion.div>
+                    </motion.section>
+                </div>
+
+                {/* Intro Video Section */}
+                <motion.section
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="relative z-10 mb-20 w-full overflow-hidden py-16 lg:mb-40 lg:py-32"
                 >
-                  <Twitter className="w-4 h-4" />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-black/5 hover:bg-black hover:text-white border border-black/10 flex items-center justify-center transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="w-4 h-4" />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-black/5 hover:bg-black hover:text-white border border-black/10 flex items-center justify-center transition-colors"
-                  aria-label="Github"
-                >
-                  <Github className="w-4 h-4" />
-                </a>
-                <a
-                  href="mailto:support@dozu.com"
-                  className="w-10 h-10 rounded-full bg-black/5 hover:bg-black hover:text-white border border-black/10 flex items-center justify-center transition-colors"
-                  aria-label="Email"
-                >
-                  <Mail className="w-4 h-4" />
-                </a>
-              </div>
+                    <div
+                        className="absolute inset-0 scale-110 rounded-2xl bg-cover bg-center blur-sm"
+                        style={{
+                            backgroundImage:
+                                'url(https://framerusercontent.com/images/n1CUtQNh6MFnf07jCSuDbqX5XIE.png?scale-down-to=1024)',
+                        }}
+                    />
+                    <div className="absolute inset-0 bg-black/5" />
+                    <div className="relative z-10 flex justify-center px-4 sm:px-6 lg:px-8">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8, delay: 0.4 }}
+                            className="relative"
+                        >
+                            {/* Glow effect */}
+                            <div className="absolute -inset-4 rounded-3xl bg-white/10 blur-2xl" />
+
+                            {/* Video card */}
+                            <div className="relative aspect-video w-full max-w-5xl overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl">
+                                <video autoPlay loop muted playsInline className="size-full object-cover">
+                                    <source
+                                        src="https://pub-4a3aef2ee7734e2d88f95beac2d17412.r2.dev/introduce%20video.mp4"
+                                        type="video/mp4"
+                                    />
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </motion.div>
+                    </div>
+                </motion.section>
+
+                {/* Features Section */}
+                <div className="px-4">
+                    <motion.section
+                        ref={featuresRef}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="relative z-20 mx-32 mb-10 mt-8 lg:mb-20 lg:mt-16"
+                    >
+                        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
+                            {/* Left Content */}
+                            <div className="space-y-8">
+                                <motion.div
+                                    initial={{ opacity: 0, x: -30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.3 }}
+                                >
+                                    <h2 className="mb-6 text-4xl font-bold text-black lg:text-5xl">
+                                        {t('sections.features.title') || 'Tính Năng Nổi Bật'}
+                                    </h2>
+                                    <p className="text-lg leading-relaxed text-gray-600">
+                                        {t('sections.features.description') ||
+                                            'Khám phá những tính năng độc đáo giúp bạn học tập hiệu quả hơn'}
+                                    </p>
+                                </motion.div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, x: -30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.4 }}
+                                    className="space-y-4"
+                                >
+                                    {features.map((feature, index) => {
+                                        const IconComponent = feature.icon;
+                                        return (
+                                            <motion.div
+                                                key={index}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                                                className="group flex cursor-pointer items-start gap-4 rounded-lg p-4 transition-colors duration-300 hover:bg-black/5"
+                                            >
+                                                <div className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-black/20 bg-black/10 transition-colors duration-300 group-hover:bg-black/20 dark:bg-black/20">
+                                                    <IconComponent className="size-6 text-black" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="mb-1 text-lg font-semibold text-black">
+                                                        {feature.title}
+                                                    </h3>
+                                                    <p className="text-sm text-gray-600 dark:text-white">
+                                                        {feature.description}
+                                                    </p>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </motion.div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.8 }}
+                                    className="flex flex-wrap gap-4 pt-6"
+                                >
+                                    <div className="rounded-lg border border-black/20 bg-gradient-to-br from-black/5 to-black/10 px-6 py-4">
+                                        <div className="text-3xl font-bold text-black">1000+</div>
+                                        <div className="mt-1 text-sm text-gray-600">Học viên đang sử dụng</div>
+                                    </div>
+                                    <div className="rounded-lg border border-black/20 bg-gradient-to-br from-black/5 to-black/10 px-6 py-4">
+                                        <div className="text-3xl font-bold text-black">95%</div>
+                                        <div className="mt-1 text-sm text-gray-600">Tỷ lệ hài lòng</div>
+                                    </div>
+                                    <div className="rounded-lg border border-black/20 bg-gradient-to-br from-black/5 to-black/10 px-6 py-4">
+                                        <div className="text-3xl font-bold text-black">24/7</div>
+                                        <div className="mt-1 text-sm text-gray-600">Hỗ trợ liên tục</div>
+                                    </div>
+                                </motion.div>
+                            </div>
+
+                            {/* Right Content - CardSwap */}
+                            <div className="relative flex h-[600px] items-center justify-center">
+                                <CardSwap
+                                    width={400}
+                                    height={500}
+                                    cardDistance={50}
+                                    verticalDistance={60}
+                                    delay={4000}
+                                    pauseOnHover={true}
+                                    skewAmount={5}
+                                    easing="elastic"
+                                >
+                                    {features.map((feature, index) => {
+                                        const IconComponent = feature.icon;
+                                        return (
+                                            <Card
+                                                key={index}
+                                                customClass="bg-white/95 backdrop-blur-md border-black/20 shadow-2xl cursor-pointer hover:shadow-3xl transition-shadow duration-300"
+                                            >
+                                                <div className="flex h-full flex-col p-8">
+                                                    <div className="mb-6">
+                                                        <div className="inline-flex size-14 items-center justify-center rounded-xl border border-black/20 bg-gradient-to-br from-black/10 to-black/5 shadow-inner">
+                                                            <IconComponent className="size-7 text-black" />
+                                                        </div>
+                                                    </div>
+                                                    <h3 className="mb-4 text-2xl font-bold text-black">
+                                                        {feature.title}
+                                                    </h3>
+                                                    <p className="flex-1 text-base leading-relaxed text-gray-700">
+                                                        {feature.description}
+                                                    </p>
+                                                    <div className="mt-6 border-t border-black/10 pt-4">
+                                                        <span className="text-sm font-medium text-gray-500">
+                                                            {t('sections.learnMore')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </Card>
+                                        );
+                                    })}
+                                </CardSwap>
+                            </div>
+                        </div>
+                    </motion.section>
+
+                    {/* FAQ Section */}
+                    <motion.section
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="relative z-10 mb-20 lg:mb-32"
+                    >
+                        <div className="mb-12 text-center">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, delay: 0.5 }}
+                            >
+                                <div className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500">
+                                    <HelpCircle className="size-4" />
+                                    <span className="font-medium uppercase tracking-wider">{t('faq.badge')}</span>
+                                </div>
+                                <h2 className="mb-4 text-4xl font-bold text-black lg:text-5xl">
+                                    {t('faq.title.normal')}{' '}
+                                    <span className="italic text-gray-400">{t('faq.title.italic')}</span>
+                                </h2>
+                                <p className="mx-auto max-w-2xl text-lg text-gray-600">{t('faq.subtitle')}</p>
+                            </motion.div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                            {/* Left - Contact Card */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.6, delay: 0.6 }}
+                                className="lg:col-span-1"
+                            >
+                                <div className="flex h-full flex-col items-center justify-center rounded-2xl border border-black/10 bg-gradient-to-br from-black/5 to-black/10 p-8 text-center">
+                                    <div className="mb-6 flex size-16 items-center justify-center rounded-full border border-black/20 bg-black/10">
+                                        <HelpCircle className="size-8 text-black" />
+                                    </div>
+                                    <h3 className="mb-3 text-2xl font-bold text-black">{t('faq.contact.title')}</h3>
+                                    <p className="mb-6 text-sm text-gray-600">{t('faq.contact.description')}</p>
+                                    <Button
+                                        variant="outline"
+                                        className="border-black/20 transition-colors hover:bg-black hover:text-white"
+                                    >
+                                        <ArrowRight className="mr-2 size-4" />
+                                        {t('faq.contact.button')}
+                                    </Button>
+                                </div>
+                            </motion.div>
+
+                            {/* Right - FAQ Accordion */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.6, delay: 0.7 }}
+                                className="lg:col-span-2"
+                            >
+                                <div className="space-y-4">
+                                    {[
+                                        {
+                                            id: 'q1',
+                                            question: t('faq.questions.q1.question'),
+                                            answer: t('faq.questions.q1.answer'),
+                                        },
+                                        {
+                                            id: 'q2',
+                                            question: t('faq.questions.q2.question'),
+                                            answer: t('faq.questions.q2.answer'),
+                                        },
+                                        {
+                                            id: 'q3',
+                                            question: t('faq.questions.q3.question'),
+                                            answer: t('faq.questions.q3.answer'),
+                                        },
+                                        {
+                                            id: 'q4',
+                                            question: t('faq.questions.q4.question'),
+                                            answer: t('faq.questions.q4.answer'),
+                                        },
+                                        {
+                                            id: 'q5',
+                                            question: t('faq.questions.q5.question'),
+                                            answer: t('faq.questions.q5.answer'),
+                                        },
+                                    ].map((faq, index) => (
+                                        <FAQItem key={faq.id} faq={faq} index={index} />
+                                    ))}
+                                </div>
+                            </motion.div>
+                        </div>
+                    </motion.section>
+
+                    {/* Footer */}
+                    <motion.footer
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.9 }}
+                        className="relative z-10 border-t border-black/10 pb-8 pt-12"
+                    >
+                        <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-12">
+                            {/* Logo & Description */}
+                            <div className="md:col-span-4">
+                                <h3 className="mb-4 text-2xl font-bold text-black">Dozu</h3>
+                                <p className="mb-6 text-sm leading-relaxed text-gray-600">{t('footer.description')}</p>
+                                <div className="flex gap-3">
+                                    <a
+                                        href="#"
+                                        className="flex size-10 items-center justify-center rounded-full border border-black/10 bg-black/5 transition-colors hover:bg-black hover:text-white"
+                                        aria-label="Twitter"
+                                    >
+                                        <Twitter className="size-4" />
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className="flex size-10 items-center justify-center rounded-full border border-black/10 bg-black/5 transition-colors hover:bg-black hover:text-white"
+                                        aria-label="LinkedIn"
+                                    >
+                                        <Linkedin className="size-4" />
+                                    </a>
+                                    <a
+                                        href="#"
+                                        className="flex size-10 items-center justify-center rounded-full border border-black/10 bg-black/5 transition-colors hover:bg-black hover:text-white"
+                                        aria-label="Github"
+                                    >
+                                        <Github className="size-4" />
+                                    </a>
+                                    <a
+                                        href="mailto:support@dozu.com"
+                                        className="flex size-10 items-center justify-center rounded-full border border-black/10 bg-black/5 transition-colors hover:bg-black hover:text-white"
+                                        aria-label="Email"
+                                    >
+                                        <Mail className="size-4" />
+                                    </a>
+                                </div>
+                            </div>
+
+                            {/* Quick Links */}
+                            <div className="md:col-span-2">
+                                <h4 className="mb-4 font-semibold text-black">{t('footer.quickLinks.title')}</h4>
+                                <ul className="space-y-3">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.quickLinks.features')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.quickLinks.pricing')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.quickLinks.about')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.quickLinks.blog')}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {/* Resources */}
+                            <div className="md:col-span-2">
+                                <h4 className="mb-4 font-semibold text-black">{t('footer.resources.title')}</h4>
+                                <ul className="space-y-3">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.resources.helpCenter')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.resources.tutorials')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.resources.community')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.resources.contact')}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {/* Legal */}
+                            <div className="md:col-span-2">
+                                <h4 className="mb-4 font-semibold text-black">{t('footer.legal.title')}</h4>
+                                <ul className="space-y-3">
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.legal.privacy')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.legal.terms')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.legal.cookies')}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="#"
+                                            className="text-sm text-gray-600 transition-colors hover:text-black"
+                                        >
+                                            {t('footer.legal.license')}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {/* Newsletter */}
+                            <div className="md:col-span-2">
+                                <h4 className="mb-4 font-semibold text-black">{t('footer.newsletter.title')}</h4>
+                                <p className="mb-4 text-sm text-gray-600">{t('footer.newsletter.description')}</p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="email"
+                                        placeholder={t('footer.newsletter.placeholder')}
+                                        className="flex-1 rounded-lg border border-black/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/20"
+                                    />
+                                    <Button size="sm" className="bg-black text-white hover:bg-black/90">
+                                        {t('footer.newsletter.button')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Bottom Bar */}
+                        <div className="flex flex-col items-center justify-between gap-4 border-t border-black/10 pt-8 md:flex-row">
+                            <p className="text-sm text-gray-600">{t('footer.copyright')}</p>
+                            <p className="text-sm text-gray-600">
+                                {t('footer.madeWith')} <span className="text-red-500">♥</span> {t('footer.by')}
+                            </p>
+                        </div>
+                    </motion.footer>
+                </div>
             </div>
-
-            {/* Quick Links */}
-            <div className="md:col-span-2">
-              <h4 className="font-semibold text-black mb-4">{t('footer.quickLinks.title')}</h4>
-              <ul className="space-y-3">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.quickLinks.features')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.quickLinks.pricing')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.quickLinks.about')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.quickLinks.blog')}
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div className="md:col-span-2">
-              <h4 className="font-semibold text-black mb-4">{t('footer.resources.title')}</h4>
-              <ul className="space-y-3">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.resources.helpCenter')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.resources.tutorials')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.resources.community')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.resources.contact')}
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div className="md:col-span-2">
-              <h4 className="font-semibold text-black mb-4">{t('footer.legal.title')}</h4>
-              <ul className="space-y-3">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.legal.privacy')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.legal.terms')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.legal.cookies')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-black text-sm transition-colors">
-                    {t('footer.legal.license')}
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div className="md:col-span-2">
-              <h4 className="font-semibold text-black mb-4">{t('footer.newsletter.title')}</h4>
-              <p className="text-gray-600 text-sm mb-4">
-                {t('footer.newsletter.description')}
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder={t('footer.newsletter.placeholder')}
-                  className="flex-1 px-3 py-2 text-sm border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/20"
-                />
-                <Button size="sm" className="bg-black hover:bg-black/90 text-white">
-                  {t('footer.newsletter.button')}
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="pt-8 border-t border-black/10 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-600">
-              {t('footer.copyright')}
-            </p>
-            <p className="text-sm text-gray-600">
-              {t('footer.madeWith')} <span className="text-red-500">♥</span> {t('footer.by')}
-            </p>
-          </div>
-        </motion.footer>
-
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 // FAQ Item Component
-const FAQItem: React.FC<{ faq: { id: string; question: string; answer: string }; index: number }> = ({ faq, index }) => {
-  const [isOpen, setIsOpen] = useState(index === 0);
+const FAQItem: React.FC<{ faq: { id: string; question: string; answer: string }; index: number }> = ({
+    faq,
+    index,
+}) => {
+    const [isOpen, setIsOpen] = useState(index === 0);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-      className="bg-white rounded-xl border border-black/10 overflow-hidden hover:border-black/20 transition-colors"
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-black/5 transition-colors"
-      >
-        <span className="text-lg font-semibold text-black pr-4">{faq.question}</span>
-        <ChevronDown
-          className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-300 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-        />
-      </button>
-      <div
-        className={`overflow-hidden transition-all duration-300 ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="px-6 pb-5 pt-2 text-gray-600 leading-relaxed">
-          {faq.answer}
-        </div>
-      </div>
-    </motion.div>
-  );
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
+            className="overflow-hidden rounded-xl border border-black/10 bg-white transition-colors hover:border-black/20"
+        >
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex w-full items-center justify-between px-6 py-5 text-left transition-colors hover:bg-black/5"
+            >
+                <span className="pr-4 text-lg font-semibold text-black">{faq.question}</span>
+                <ChevronDown
+                    className={`size-5 shrink-0 text-gray-500 transition-transform duration-300 ${
+                        isOpen ? 'rotate-180' : ''
+                    }`}
+                />
+            </button>
+            <div
+                className={`overflow-hidden transition-all duration-300 ${
+                    isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+            >
+                <div className="px-6 pb-5 pt-2 leading-relaxed text-gray-600">{faq.answer}</div>
+            </div>
+        </motion.div>
+    );
 };
 
 export default WelcomePage;
