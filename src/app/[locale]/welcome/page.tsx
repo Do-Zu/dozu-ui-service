@@ -25,6 +25,7 @@ import TextType from '@/components/react-bits/TextType';
 import StarBorder from '@/components/react-bits/StarBorder';
 import CardSwap, { Card } from '@/components/react-bits/CardSwap';
 import Particles from '@/components/react-bits/Particles';
+import SplitText from '@/components/react-bits/SplitText';
 
 const WelcomePage: React.FC = () => {
     const { updateUser } = useAuth();
@@ -100,10 +101,10 @@ const WelcomePage: React.FC = () => {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={viewportOnce}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="mb-6 mt-10 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 shadow-sm"
+                            className="mb-6 mt-10 inline-flex items-center gap-2 rounded-full border-2 dark:text-slate-400 px-4 py-2 shadow-sm"
                         >
-                            <Star className="size-4 fill-blue-600 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-700">{t('badge')}</span>
+                            <Star className="size-4" />
+                            <span className="text-sm font-medium ">{t('badge')}</span>
                         </motion.div>
 
                         {/* Title with gradient */}
@@ -114,9 +115,20 @@ const WelcomePage: React.FC = () => {
                             transition={{ duration: 0.8, delay: 0.3 }}
                             className="mb-8 text-5xl font-bold leading-tight sm:text-6xl lg:text-8xl"
                         >
-                            <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
-                                {t('title')}
-                            </span>
+                            <SplitText
+                                text={t('title')}
+                                className="text-center text-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text "
+                                delay={100}
+                                duration={0.6}
+                                ease="power3.out"
+                                splitType="chars"
+                                from={{ opacity: 0, y: 40 }}
+                                to={{ opacity: 1, y: 0 }}
+                                threshold={0.1}
+                                rootMargin="-100px"
+                                textAlign="center"
+                                tag="h1"
+                            />
                         </motion.h1>
 
                         {/* Subtitle */}
@@ -135,7 +147,7 @@ const WelcomePage: React.FC = () => {
                                 showCursor={true}
                                 cursorCharacter="|"
                                 cursorBlinkDuration={0.5}
-                                className="text-center"
+                                className="text-center h-52"
                                 loop={true}
                             />
                         </motion.div>
@@ -165,7 +177,7 @@ const WelcomePage: React.FC = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleLearnMore}
-                                className="w-full rounded-xl border-2 border-gray-200 bg-white px-8 py-4 text-lg font-semibold shadow-sm transition-all hover:bg-gray-50 hover:shadow-md dark:text-gray-700 sm:w-auto"
+                                className="w-full rounded-full border-2 border-gray-200 bg-white px-8 py-4 text-lg font-semibold shadow-sm transition-all hover:bg-gray-50 hover:shadow-md dark:text-gray-700 sm:w-auto"
                             >
                                 <span className="flex items-center justify-center gap-2">
                                     <HelpCircle className="size-5" />
@@ -379,7 +391,7 @@ const WelcomePage: React.FC = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={viewportOnce}
                         transition={{ duration: 0.8, delay: 0.4 }}
-                        className="relative z-10 mb-20 lg:mb-32"
+                        className="relative z-10 mb-20 lg:mb-32 px-20"
                     >
                         <div className="mb-12 text-center">
                             <motion.div
