@@ -47,9 +47,6 @@ const DeleteMindmapButton = ({ isPanelExpanded }: DeleteMindmapButtonProps) => {
         await deleteAsync(topicId as string);
     };
 
-    async function submit(topicId: string) {
-        await deleteAsync(topicId);
-    }
     return (
         // <Tooltip>
         //     <TooltipTrigger asChild>

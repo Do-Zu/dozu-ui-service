@@ -4,6 +4,7 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import { TopicWorkspaceProvider } from '@/app/[locale]/topics/[topicId]/(topic)/context/TopicWorkspaceContext';
 import TopicWorkspace from '@/app/[locale]/topics/[topicId]/(topic)/components/workspace/TopicWorkspace';
+import { MindMapProvider } from '@/app/[locale]/mindmap/context/MindMapContext';
 
 export default function TopicPage() {
     const params = useParams();
@@ -16,8 +17,10 @@ export default function TopicPage() {
     const topicId = Number(params.topicId);
 
     return (
-        <TopicWorkspaceProvider topicIdInit={topicId}>
-            <TopicWorkspace />
-        </TopicWorkspaceProvider>
+        <MindMapProvider>
+            <TopicWorkspaceProvider topicIdInit={topicId}>
+                <TopicWorkspace />
+            </TopicWorkspaceProvider>
+        </MindMapProvider>
     );
 }
