@@ -39,7 +39,7 @@ module.exports = {
                 'jsx-a11y/anchor-is-valid': 'off',
                 '@typescript-eslint/no-explicit-any': 'error',
                 '@typescript-eslint/no-empty-function': 'error',
-                '@typescript-eslint/explicit-function-return-type': 'warn',
+                '@typescript-eslint/explicit-function-return-type': 'off',
                 '@typescript-eslint/explicit-module-boundary-types': 'off',
                 '@typescript-eslint/no-unused-vars': ['error'],
                 'import/no-cycle': 'off',
