@@ -9,7 +9,18 @@ import { openSheet, setSelectedNodeData, toggleNodeSelection } from '@/stores/fe
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit2, Save, X, BookOpenIcon, FileText, Target, MessageCircle, Plus, CheckCircle, MoreHorizontal } from 'lucide-react';
+import {
+    Edit2,
+    Save,
+    X,
+    BookOpenIcon,
+    FileText,
+    Target,
+    MessageCircle,
+    Plus,
+    CheckCircle,
+    MoreHorizontal,
+} from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
@@ -135,7 +146,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // Animation variants
     const nodeVariants = {
         initial: { scale: 0.95, opacity: 0.8 },
-        animate: { scale: 1, opacity: 1 },
+        animate: {
+            scale: 1,
+            // If complete, fade to 70%. Otherwise, fully opaque.
+            opacity: isComplete ? 0.7 : 1,
+        },
         hover: { scale: 1.02, y: -2 },
         tap: { scale: 0.98 },
     };
@@ -210,6 +225,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             style={
                 {
                     // Border color fallback for inactive, incomplete, colored nodes
+
                     borderColor: !isActive && !isComplete && data.color ? data.color : undefined,
 
                     // If active, complete, and colored: override the CSS variable for ring color
