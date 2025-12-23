@@ -16,6 +16,7 @@ import {
     Linkedin,
     Twitter,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
@@ -200,12 +201,14 @@ const WelcomePage: React.FC = () => {
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="relative z-10 mb-20 w-full overflow-hidden py-16 lg:mb-40 lg:py-32"
                 >
-                    <div
-                        className="absolute inset-0 scale-110 rounded-2xl bg-cover bg-center blur-sm"
-                        style={{
-                            backgroundImage:
-                                'url(https://framerusercontent.com/images/n1CUtQNh6MFnf07jCSuDbqX5XIE.png?scale-down-to=1024)',
-                        }}
+                    <Image
+                        src="https://framerusercontent.com/images/n1CUtQNh6MFnf07jCSuDbqX5XIE.png?scale-down-to=1024"
+                        alt=""
+                        aria-hidden
+                        fill
+                        priority
+                        sizes="100vw"
+                        className="pointer-events-none absolute inset-0 scale-125 rounded-2xl object-cover object-center opacity-90 blur-sm"
                     />
                     <div className="absolute inset-0 bg-black/5" />
                     <div className="relative z-10 flex justify-center px-4 sm:px-6 lg:px-8">
