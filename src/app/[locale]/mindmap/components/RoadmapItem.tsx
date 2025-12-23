@@ -92,7 +92,7 @@ export function RoadmapItem({
 
                 {/* Complete */}
 
-                {mode === MODE_ACCESS_PAGE_ROLE.personal ? (
+                {mode === MODE_ACCESS_PAGE_ROLE.personal && role !== UserRoleEnum.TEACHER ? (
                     <>
                         <Button
                             variant={completeButtonVariant}
