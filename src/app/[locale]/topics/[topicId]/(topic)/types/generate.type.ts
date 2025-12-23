@@ -1,9 +1,10 @@
-import { CustomNodeData } from '@/types/mindmap/mindmap.type';
+import { CustomNodeData, IMindmapGenerateOptions } from '@/types/mindmap/mindmap.type';
 import { IResponseFlashCardGenerate } from '../hooks/useFlashCardWorkSpace';
 import { TypeMethodLearning } from '@/utils/constants/method';
 
 export interface ICustomOptions {
     nodesData?: NodesData;
+    mindmapGenerateOptions?: IMindmapGenerateOptions;
 }
 
 export type NodesData = (Pick<CustomNodeData, 'nodeId' | 'label' | 'description'> & {
@@ -24,4 +25,4 @@ export type IGenerateType =
     | Extract<TypeMethodLearning, 'flashcard' | 'quiz' | 'mindmap' | 'short_summary'>
     | IMultiNodeGenerateType;
 
-export type IStartGenerateFn = (content?: string, options?: ICustomOptions) => void;
+export type IStartGenerateFn = (content?: string, options?: ICustomOptions) => Promise<void>;

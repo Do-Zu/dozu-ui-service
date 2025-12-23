@@ -15,6 +15,7 @@ import { isNil } from '@/utils';
 import { TopicWorkspaceTabValue } from '../types';
 import toastHelper from '@/utils/toast.helper';
 import { IAnkiStatus } from '@/types/anki';
+import ankiUtils from '../utils/anki/anki.utils';
 
 export interface IResponseFlashCardGenerate {
     q: string;
@@ -93,7 +94,7 @@ export default function useFlashCardWorkSpace({
             const updatedLearningFlashcards = (learningFlashcards || []).filter(
                 (card) => card.flashcardId !== currentCard.flashcardId,
             );
-            if (reviewedCard) {
+            if (reviewedCard && ankiUtils.shouldReviewNow(reviewedCard)) {
                 // INSERT this card to a suitable position (to maintain ORDER by nextReview)
                 let inserted = false;
                 for (let i = 0; i < updatedLearningFlashcards.length; ++i) {
@@ -136,7 +137,12 @@ export default function useFlashCardWorkSpace({
     }
 
     function applyUpdate(flashcard: IFlashcard | IDueAnkiCard, updatedMap: Map<number, IFlashcard | IDueAnkiCard>) {
-        return updatedMap.get(flashcard.flashcardId) ?? flashcard;
+        const updatedFlashcard = updatedMap.get(flashcard.flashcardId);
+        const front = updatedFlashcard?.front ?? flashcard.front;
+        const back = updatedFlashcard?.back ?? flashcard.back;
+        const imageUrl = updatedFlashcard?.imageUrl ?? flashcard.imageUrl;
+        const nodeId = updatedFlashcard?.nodeId ?? flashcard.nodeId;
+        return { ...flashcard, front, back, imageUrl, nodeId };
     }
 
     function applyFilter(flashcard: IFlashcard | IDueAnkiCard, deletedSet: Set<number>) {

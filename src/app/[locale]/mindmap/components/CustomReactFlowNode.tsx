@@ -17,6 +17,7 @@ import { useAppSelector } from '@/stores/hooks';
 import AddChildNodeButton from './buttons/AddChildNodeButton';
 import DeleteNodeButton from './buttons/DeleteNodeButton';
 import PaletteButton from './buttons/PaletteButton';
+import { readableColor } from 'polished';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
@@ -214,6 +215,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                     // If active, complete, and colored: override the CSS variable for ring color
                     // We append '99' to the hex to create a ~60% opacity effect (Hex 8-digit notation)
                     '--tw-ring-color': shouldUseCustomRingColor ? `${data.color}99` : undefined,
+                    backgroundColor: data.color,
                 } as React.CSSProperties
             }
         >
@@ -317,7 +319,14 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                         onChange={onChangeLabel}
                                     />
                                 ) : (
-                                    data?.label || 'Untitled Node'
+                                    <span
+                                        className="text-xl"
+                                        style={{
+                                            color: data.color ? readableColor(data.color, 'white', 'black', true) : '',
+                                        }}
+                                    >
+                                        {data.label || 'Untitled Node'}
+                                    </span>
                                 )}
                             </motion.h3>
 
@@ -329,22 +338,13 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                     className={`text-xs text-muted-foreground mt-1 leading-relaxed ${isActive ? '' : 'truncate'}`}
                                     style={{ lineHeight: '1.4' }}
                                 >
-                                    {data.description}
+                                    <span style={{ color: data.color ? readableColor(data.color) : '' }}>
+                                        {data.description}
+                                    </span>
                                 </motion.p>
                             )}
                         </div>
                     </div>
-
-                    {/* Page Index Info */}
-                    {(data.pageStartIndex || data.pageEndIndex) && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex items-center gap-1 text-xs text-muted-foreground"
-                        >
-                            <FileText className="w-3 h-3" />
-                        </motion.div>
-                    )}
                 </motion.div>
 
                 {/* Action Buttons */}

@@ -1,4 +1,4 @@
-import { TimeUnit } from "@/utils";
+import { TimeUnit } from '@/utils';
 
 export enum IAnkiRating {
     AGAIN = 1,

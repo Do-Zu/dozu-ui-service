@@ -52,7 +52,7 @@ interface MindMapContextType {
     onEdgesChange: (changes: any) => void;
 
     // Mindmap Viewport method
-    fitView: FitView
+    fitView: FitView;
 
     // Loading States
     isLoading: boolean;
@@ -250,8 +250,8 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
                         ...node.data,
                         topicId: topicId,
                         router: router,
-                        pageStartIndex: parseInt(node.data.pageStartIndex),
-                        pageEndIndex: parseInt(node.data.pageEndIndex),
+                        pageStartIndex: node.data.pageStartIndex,
+                        pageEndIndex: node.data.pageEndIndex,
                     },
                 }));
                 setNodes(mindmapData.nodes);

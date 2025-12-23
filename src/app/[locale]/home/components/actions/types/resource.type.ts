@@ -12,10 +12,9 @@ interface IEmbedVideoInfo {
 }
 export interface VideoInfo {
     title: string;
-    thumbnailUrl: string;
-    videoId: string;
-    duration: number;
-    embed: IEmbedVideoInfo;
+    thumbnailUrl?: string;
+    videoId?: string;
+    embed?: IEmbedVideoInfo;
 }
 
 export interface ContentCreationResult {
@@ -67,6 +66,12 @@ export type YoutubeResourcePayload = {
     lengthContent: number;
     wordCount: number;
 };
+
+export interface IYoutubeResponse {
+    segments: IYoutubeCaptionSegment[];
+    transcript: string;
+    metadata: VideoInfo;
+}
 
 export type WebsiteResourcePayload = {
     url: string;

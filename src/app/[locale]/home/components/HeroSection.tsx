@@ -15,7 +15,7 @@ export default function HeroSection() {
     const { isAuthenticated } = useAuthStorage();
 
     return (
-        <div className={`relative isolate  ${isAuthenticated ? '' : 'min-h-full flex items-center justify-center'}`}>
+        <div className={`relative isolate  ${isAuthenticated ? '' : 'flex items-center justify-center'}`}>
             <div className="mx-auto max-w-6xl px-4 relative">
                 <div className="flex flex-col items-center text-center">
                     <motion.div
