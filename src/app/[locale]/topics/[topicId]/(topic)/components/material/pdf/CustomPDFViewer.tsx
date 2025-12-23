@@ -36,7 +36,7 @@ interface ToolbarProps {
     onScreenModeToogle: () => void;
 
     pageNumber: number;
-    setPageNumber: Dispatch<SetStateAction<number>>;
+    setPageNumber: (page: number) => void;
     numPages: number;
 }
 

@@ -8,12 +8,17 @@ export default function usePdfMaterial() {
     const [isPdfViewerFullscreen, setIsPdfViewerFullscreen] = useState<boolean>(false);
     const [pageNumber, setPageNumber] = useState<number>(1);
 
+    function onPageNumberChange(page: number) {
+        if (!totalPages || page > totalPages) return;
+        setPageNumber(page);
+    }
+
     return {
         pdfPageTexts,
         totalPages,
         setTotalPages,
         pageNumber,
-        setPageNumber,
+        setPageNumber: onPageNumberChange,
         isPdfViewerFullscreen,
         setIsPdfViewerFullscreen,
     };
