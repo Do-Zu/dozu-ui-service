@@ -112,22 +112,26 @@ export default function StudentClassLibrary() {
     }
 
     // Handle invitation code from URL
+    const codeFromUrl = searchParams.get('code');
     useEffect(() => {
-        const codeFromUrl = searchParams.get('code');
         if (codeFromUrl && classes) {
-            const existingClass = classes.find((c) => c.invitationCode === codeFromUrl);
-            if (existingClass) {
-                toastHelper.showSuccessMessage(tJoinClass('alreadyEnrolled'));
-                router.push(ROUTES.CLASS_BASED_ID(existingClass.classId));
-            } else {
-                handleJoinClick(codeFromUrl);
-            }
-
-            const url = new URL(window.location.href);
-            url.searchParams.delete('code');
-            window.history.replaceState({}, '', url.toString());
+            processJoin(codeFromUrl);
         }
-    }, [searchParams, classes, tJoinClass, router, handleJoinClick]);
+    }, [codeFromUrl, classes]);
+
+    function processJoin(code: string) {
+        const existingClass = classes?.find((c) => c.invitationCode === code);
+        if (existingClass) {
+            toastHelper.showSuccessMessage(tJoinClass('alreadyEnrolled'));
+            router.push(ROUTES.CLASS_BASED_ID(existingClass.classId));
+        } else {
+            handleJoinClick(code);
+        }
+
+        const url = new URL(window.location.href);
+        url.searchParams.delete('code');
+        window.history.replaceState({}, '', url.toString());
+    }
 
     // ... UI
     // button actions
