@@ -72,11 +72,10 @@ const WelcomePage: React.FC = () => {
         <div className="relative min-h-screen w-full overflow-hidden bg-white text-black">
             <Particles
                 className="absolute inset-0 z-0"
-                particleColors={['text-white']}
                 particleCount={500}
                 particleSpread={10}
-                speed={0.1}
-                particleBaseSize={100}
+                speed={0.05}
+                particleBaseSize={90}
                 moveParticlesOnHover={true}
                 alphaParticles={false}
                 disableRotation={false}
