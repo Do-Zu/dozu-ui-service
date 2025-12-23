@@ -31,6 +31,8 @@ const WelcomePage: React.FC = () => {
     const { handleWelcomeComplete } = useAuthNavigation();
     const featuresRef = React.useRef<HTMLElement>(null);
 
+    const viewportOnce = { once: true, amount: 0.2 } as const;
+
     const t = useTranslations('welcome');
 
     const handleNavigateNextPage = () => {
@@ -88,14 +90,16 @@ const WelcomePage: React.FC = () => {
                     {/* Hero Section */}
                     <motion.section
                         initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={viewportOnce}
                         transition={{ duration: 0.8 }}
                         className="relative z-10 mb-16 text-center lg:mb-24"
                     >
                         {/* Badge */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={viewportOnce}
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="mb-6 mt-10 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 shadow-sm"
                         >
@@ -106,7 +110,8 @@ const WelcomePage: React.FC = () => {
                         {/* Title with gradient */}
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={viewportOnce}
                             transition={{ duration: 0.8, delay: 0.3 }}
                             className="mb-8 text-5xl font-bold leading-tight sm:text-6xl lg:text-8xl"
                         >
@@ -118,7 +123,8 @@ const WelcomePage: React.FC = () => {
                         {/* Subtitle */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={viewportOnce}
                             transition={{ duration: 0.8, delay: 0.5 }}
                             className="mx-auto mb-12 max-w-3xl text-lg leading-relaxed text-gray-600 sm:text-xl lg:text-2xl"
                         >
@@ -138,7 +144,8 @@ const WelcomePage: React.FC = () => {
                         {/* CTA Buttons */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={viewportOnce}
                             transition={{ duration: 0.8, delay: 0.7 }}
                             className="flex flex-col items-center justify-center gap-4 sm:flex-row"
                         >
@@ -171,7 +178,8 @@ const WelcomePage: React.FC = () => {
                         {/* Trust indicators */}
                         <motion.div
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={viewportOnce}
                             transition={{ duration: 0.8, delay: 0.9 }}
                             className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500"
                         >
@@ -197,7 +205,8 @@ const WelcomePage: React.FC = () => {
                 {/* Intro Video Section */}
                 <motion.section
                     initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={viewportOnce}
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="relative z-10 mb-20 w-full overflow-hidden py-16 lg:mb-40 lg:py-32"
                 >
@@ -214,7 +223,8 @@ const WelcomePage: React.FC = () => {
                     <div className="relative z-10 flex justify-center px-4 sm:px-6 lg:px-8">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={viewportOnce}
                             transition={{ duration: 0.8, delay: 0.4 }}
                             className="relative"
                         >
@@ -240,7 +250,8 @@ const WelcomePage: React.FC = () => {
                     <motion.section
                         ref={featuresRef}
                         initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={viewportOnce}
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="relative z-20 mx-32 mb-10 mt-8 lg:mb-20 lg:mt-16"
                     >
@@ -249,7 +260,8 @@ const WelcomePage: React.FC = () => {
                             <div className="space-y-8">
                                 <motion.div
                                     initial={{ opacity: 0, x: -30 }}
-                                    animate={{ opacity: 1, x: 0 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={viewportOnce}
                                     transition={{ duration: 0.6, delay: 0.3 }}
                                 >
                                     <h2 className="mb-6 text-4xl font-bold text-black lg:text-5xl">
@@ -263,7 +275,8 @@ const WelcomePage: React.FC = () => {
 
                                 <motion.div
                                     initial={{ opacity: 0, x: -30 }}
-                                    animate={{ opacity: 1, x: 0 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={viewportOnce}
                                     transition={{ duration: 0.6, delay: 0.4 }}
                                     className="space-y-4"
                                 >
@@ -273,7 +286,8 @@ const WelcomePage: React.FC = () => {
                                             <motion.div
                                                 key={index}
                                                 initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
+                                                whileInView={{ opacity: 1, x: 0 }}
+                                                viewport={viewportOnce}
                                                 transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                                                 className="group flex cursor-pointer items-start gap-4 rounded-lg p-4 transition-colors duration-300 hover:bg-black/5"
                                             >
@@ -295,7 +309,8 @@ const WelcomePage: React.FC = () => {
 
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={viewportOnce}
                                     transition={{ duration: 0.6, delay: 0.8 }}
                                     className="flex flex-wrap gap-4 pt-6"
                                 >
@@ -362,14 +377,16 @@ const WelcomePage: React.FC = () => {
                     {/* FAQ Section */}
                     <motion.section
                         initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={viewportOnce}
                         transition={{ duration: 0.8, delay: 0.4 }}
                         className="relative z-10 mb-20 lg:mb-32"
                     >
                         <div className="mb-12 text-center">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={viewportOnce}
                                 transition={{ duration: 0.6, delay: 0.5 }}
                             >
                                 <div className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500">
@@ -388,7 +405,8 @@ const WelcomePage: React.FC = () => {
                             {/* Left - Contact Card */}
                             <motion.div
                                 initial={{ opacity: 0, x: -30 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={viewportOnce}
                                 transition={{ duration: 0.6, delay: 0.6 }}
                                 className="lg:col-span-1"
                             >
@@ -411,7 +429,8 @@ const WelcomePage: React.FC = () => {
                             {/* Right - FAQ Accordion */}
                             <motion.div
                                 initial={{ opacity: 0, x: 30 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={viewportOnce}
                                 transition={{ duration: 0.6, delay: 0.7 }}
                                 className="lg:col-span-2"
                             >
@@ -453,7 +472,8 @@ const WelcomePage: React.FC = () => {
                     {/* Footer */}
                     <motion.footer
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={viewportOnce}
                         transition={{ duration: 0.8, delay: 0.9 }}
                         className="relative z-10 border-t border-black/10 pb-8 pt-12"
                     >
@@ -652,7 +672,8 @@ const FAQItem: React.FC<{ faq: { id: string; question: string; answer: string };
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
             className="overflow-hidden rounded-xl border border-black/10 bg-white transition-colors hover:border-black/20"
         >
