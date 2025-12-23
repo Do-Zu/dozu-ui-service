@@ -1,10 +1,13 @@
 import { Button } from '@/components/ui/button';
-import { Waypoints } from 'lucide-react';
+import { ArrowRightFromLine, CircleDashed } from 'lucide-react';
 import React, { useCallback } from 'react';
+import ELK from 'elkjs/lib/elk.bundled.js';
 import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
-import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
+import { radialLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
+const elk = new ELK();
 
 // Elk has a *huge* amount of options to configure. To see everything you can
 // tweak check out:
@@ -21,10 +24,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 //     'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
 // };
 
-const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
+const RadialLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
-            const opts = { 'elk.direction': direction, ...mindmapLayoutElkOptions };
+            const opts = { 'elk.direction': direction, ...radialLayoutElkOptions };
             // const ns = useInitialNodes ? initialNodes : nodes;
             // const es = useInitialNodes ? initialEdges : edges;
 
@@ -47,12 +50,12 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
                         onLayout({ direction: 'DOWN' });
                     }}
                 >
-                    <Waypoints />
+                    <CircleDashed />
                 </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom"> {'Mindmap layout'}</TooltipContent>
+            <TooltipContent side="bottom"> {'Radial layout'}</TooltipContent>
         </Tooltip>
     );
 };
 
-export default MindmapLayoutButton;
+export default RadialLayoutButton;

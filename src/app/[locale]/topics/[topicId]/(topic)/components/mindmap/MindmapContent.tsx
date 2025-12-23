@@ -11,10 +11,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Generate from '../generate/Generate';
 import { v4 as uuidv4 } from 'uuid';
-import { getLayoutedElements, getUpdatedEdges } from '@/utils/mindmap/mindmapUtils';
-import { GeneratedNode } from '@/utils/mindmap/mindmapUtils';
-import { GeneratedEdge } from '@/utils/mindmap/mindmapUtils';
-import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
+import { getLayoutedElements, getUpdatedEdges, GeneratedNode, GeneratedEdge } from '@/utils/mindmap/mindmapUtils';
+
+import { radialLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
@@ -218,7 +217,7 @@ const MindmapContent = ({ mode, role }: Props) => {
         const layoutedMindmapData = await getLayoutedElements(
             updatedMindmapData.nodes,
             updatedMindmapData.edges,
-            mindmapLayoutElkOptions,
+            radialLayoutElkOptions,
         );
         setNodes(layoutedMindmapData.nodes);
         setEdges(layoutedMindmapData.edges);
@@ -267,7 +266,7 @@ const MindmapContent = ({ mode, role }: Props) => {
     }
 
     return (
-        <div className="relative w-full h-full">
+        <div className="relative size-full">
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={50} minSize={35} className={isFlashcardsPanelFullscreen ? 'hidden' : ''}>
                     <ReactFlow
@@ -295,16 +294,16 @@ const MindmapContent = ({ mode, role }: Props) => {
 
                     {/* Scoped Modal Overlay */}
                     {showGenerateModal && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                             <div
-                                className="pointer-events-auto bg-white dark:bg-slate-950 rounded-lg shadow-lg p-6 max-w-sm w-full"
+                                className="pointer-events-auto w-full max-w-sm rounded-lg bg-white p-6 shadow-lg dark:bg-slate-950"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <h2 className="text-lg font-semibold mb-2">Generate Mindmap</h2>
-                                <p className="text-sm text-muted-foreground mb-6">
+                                <h2 className="mb-2 text-lg font-semibold">Generate Mindmap</h2>
+                                <p className="mb-6 text-sm text-muted-foreground">
                                     Would you like to generate a mindmap for this topic, or create it manually?
                                 </p>
-                                <div className="flex gap-6 w-full">
+                                <div className="flex w-full gap-6">
                                     <div className="flex-1">
                                         <div className=" flex items-center justify-center py-4">
                                             <Button
