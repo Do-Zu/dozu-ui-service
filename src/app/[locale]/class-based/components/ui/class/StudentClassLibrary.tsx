@@ -117,7 +117,7 @@ export default function StudentClassLibrary() {
         if (codeFromUrl && classes) {
             processJoin(codeFromUrl);
         }
-    }, [codeFromUrl, classes]);
+    }, [codeFromUrl, classes, processJoin]);
 
     function processJoin(code: string) {
         const existingClass = classes?.find((c) => c.invitationCode === code);

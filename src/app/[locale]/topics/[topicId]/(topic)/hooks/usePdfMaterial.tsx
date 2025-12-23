@@ -9,6 +9,10 @@ export default function usePdfMaterial() {
     const [pageNumber, setPageNumber] = useState<number>(1);
 
     function onPageNumberChange(page: number) {
+        if (page === 1) {
+            setPageNumber(page);
+            return;
+        }
         if (!totalPages || page > totalPages) return;
         setPageNumber(page);
     }
