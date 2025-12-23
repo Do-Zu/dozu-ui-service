@@ -74,7 +74,7 @@ interface ContextType {
 
     setIsPdfViewerFullscreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
-    setPageNumber: Dispatch<SetStateAction<number>>;
+    setPageNumber: (page: number) => void;
 
     note: INote | null;
     setNote: Dispatch<SetStateAction<INote | null>>;

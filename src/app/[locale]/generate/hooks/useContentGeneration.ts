@@ -335,11 +335,12 @@ export const useContentGeneration = ({
                 dispatch(resetImportDialog());
                 handleRedirectAfterGenerateSuccess(result?.topicId);
             } else if (classProps.mode === MODE_ACCESS_PAGE_ROLE.classBased) {
+                const { classId } = classProps;
                 setIsTopicModalOpen(false);
                 const contentType = detectContentType(sseData);
                 if (contentType !== null && result.topicId) {
                     const contentTypeDisplayName = getContentTypeDisplayName(contentType);
-                    const link = feedHelper.getLink(result.topicId, contentType);
+                    const link = feedHelper.getLink(classId, result.topicId, contentType);
                     const defaultFeed: IDefaultFeed = {
                         title: tClassFeed('title', { contentType: contentTypeDisplayName }),
                         content: tClassFeed('content', {

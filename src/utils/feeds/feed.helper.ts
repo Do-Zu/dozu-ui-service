@@ -1,12 +1,6 @@
 import { ContentType } from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { ROUTES } from '../constants/routes';
-import {
-    differenceInHours,
-    differenceInMinutes,
-    isSameDay,
-    isSameMonth,
-    isSameWeek,
-} from 'date-fns';
+import { differenceInHours, differenceInMinutes, isSameDay, isSameMonth, isSameWeek } from 'date-fns';
 import { getCurrentSystemDateTime, TimeUnit } from '../date/date.util';
 import { IClassFeed } from '@/app/[locale]/class-based/types/classFeed.type';
 import { parseISOToLocalDate } from '../date/timezone';
@@ -24,14 +18,15 @@ export interface IFeedGroup {
 }
 
 class FeedHelper {
-    public getLink(topicId: string | number, contentType: ContentType) {
+    public getLink(classId: number, topicId: string | number, contentType: ContentType) {
+        const parsedTopicId = typeof topicId === 'string' ? parseInt(topicId) : topicId;
         let result = '';
         if (contentType === 'flashcard') {
-            result = ROUTES.FLASHCARDS_BROWSE(topicId);
+            result = ROUTES.CLASS_TOPIC_WORKSPACE({ classId, topicId: parsedTopicId, tab: 'flashcard' });
         } else if (contentType === 'mindmap') {
             result = ROUTES.MINDMAP_VIEW(topicId);
         } else if (contentType === 'quiz') {
-            result = ROUTES.QUIZ_START(topicId);
+            result = ROUTES.CLASS_TOPIC_WORKSPACE({ classId, topicId: parsedTopicId, tab: 'quiz' });
         }
         return result;
     }
