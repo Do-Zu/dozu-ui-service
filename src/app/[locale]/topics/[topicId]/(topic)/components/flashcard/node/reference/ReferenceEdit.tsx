@@ -6,20 +6,20 @@ import { ITranscriptSegment } from '../../../../types';
 interface PdfReference {
     type: 'pdf';
     pageStartIndex: number | undefined;
-    onPageStartIndexChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onPageStartIndexChange: (value: string) => void;
     pageEndIndex: number | undefined;
-    onPageEndIndexChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onPageClick: (page: number | undefined) => void;
+    onPageEndIndexChange: (value: string) => void;
+    onPageClick?: (page: number | undefined) => void;
 }
 
 interface MediaSegmentReference {
     type: 'youtube' | 'media';
-    segments: ITranscriptSegment[] | string;
+    segments: ITranscriptSegment[];
     startSegment: number | undefined;
     onStartSegmentChange: (value: string) => void;
     endSegment: number | undefined;
     onEndSegmentChange: (value: string) => void;
-    onSegmentClick: (segment: number | undefined) => void;
+    onSegmentClick?: (segment: number | undefined) => void;
 }
 
 type Props = { isEditing: boolean } & (PdfReference | MediaSegmentReference);

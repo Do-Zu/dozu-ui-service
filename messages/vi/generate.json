@@ -12,7 +12,7 @@
             },
             "toasts": {
                 "timeout": "Quá trình tạo nội dung đã hết thời gian. Vui lòng thử lại với tệp nhỏ hơn.",
-                "error": "Đã xảy ra lỗi trong quá trình tạo nội dung. Vui lòng thử lại.",
+                "error": "Server đang bận. Vui lòng thử lại.",
                 "success": "Nội dung của bạn đã được tạo thành công."
             }
         },

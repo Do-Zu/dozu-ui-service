@@ -132,9 +132,9 @@ const pagesPerDownload = 5;
 const pagesGap = 2;
 
 const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName }, ref) => {
-    const { pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
+    const { totalPages, setTotalPages, pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullscreen } =
+        useTopicWorkspace();
 
-    const [numPages, setNumPages] = useState<number | null>(null);
     const documentRef = useRef<HTMLDivElement>(null);
     const [documentSize, setDocumentSize] = useState<{ width: number; height: number }>();
     const [documentScale, setDocumentScale] = useState<number>(1);
@@ -168,7 +168,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
 
     async function onDocumentLoadSuccess(pdfObject: PDFDocumentProxy) {
         const { numPages } = pdfObject;
-        setNumPages(numPages);
+        setTotalPages(numPages);
         setPageNumber(1);
         if (numPages >= 1) {
             const page = await pdfObject.getPage(1);
@@ -236,7 +236,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
     }, [pdfSize?.width, pdfSize?.height, pageNumber, documentScale]);
 
     function onScreenModeToogle() {
-        setIsPdfViewerFullScreen((prev) => !prev);
+        setIsPdfViewerFullscreen((prev) => !prev);
     }
 
     function onPageLoading(pageNumber: number) {
@@ -259,7 +259,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
                 onScreenModeToogle={onScreenModeToogle}
                 pageNumber={pageNumber}
                 setPageNumber={setPageNumber}
-                numPages={numPages || 0}
+                numPages={totalPages || 0}
             />
             <div className="h-full border rounded-md p-2" ref={ref}>
                 <Document
@@ -270,7 +270,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
                     onScroll={handleDocumentScroll}
                     className="h-full overflow-y-auto"
                 >
-                    {Array.from({ length: Math.min(numPages || 0, visiblePages) }, (_, index) => {
+                    {Array.from({ length: Math.min(totalPages || 0, visiblePages) }, (_, index) => {
                         const pageNumber = index + 1;
                         return (
                             <Page

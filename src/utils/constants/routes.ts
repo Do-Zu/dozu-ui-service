@@ -65,7 +65,8 @@ export const ROUTES = Object.freeze({
 
     // LLM API Key-Model Relations
     LLM_API_KEY_MODELS: '/admin/llm-api-key-models',
-    LLM_API_KEY_MODELS_LIST: (query?: string) => (query ? `/admin/llm-api-key-models?${query}` : '/admin/llm-api-key-models'),
+    LLM_API_KEY_MODELS_LIST: (query?: string) =>
+        query ? `/admin/llm-api-key-models?${query}` : '/admin/llm-api-key-models',
     LLM_API_KEY_MODELS_CREATE: '/admin/llm-api-key-models',
     LLM_API_KEY_MODELS_UPDATE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
     LLM_API_KEY_MODELS_DELETE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
@@ -130,7 +131,7 @@ export const ROUTES = Object.freeze({
     STUDENT: {
         CLASS_BASED_ID_CLASS_QUIZ_START: (classId: number, classQuizId: number) =>
             `/class-based/${classId}/class-quiz/${classQuizId}/start`,
-        CLASS_BASED_ID_CLASS_QUIZ_SUBMIT: (classId: number, classQuizId: number, attemptId: number, ) =>
+        CLASS_BASED_ID_CLASS_QUIZ_SUBMIT: (classId: number, classQuizId: number, attemptId: number) =>
             `/class-based/${classId}/class-quiz/${classQuizId}/submit?attemptId=${attemptId}`,
     },
 });

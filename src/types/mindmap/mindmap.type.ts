@@ -68,6 +68,7 @@ export interface ILinkFlashcardsToNodePayload {
 }
 
 export interface IColorTheme {
+    type: 'light' | 'dark';
     name: string;
     colors: string[];
 }
@@ -79,3 +80,5 @@ export interface IMindmapGenerateOptions {
     colorTheme?: IColorTheme | null;
     instruction?: string;
 }
+
+export type IColorMode = 'branch' | 'depth';

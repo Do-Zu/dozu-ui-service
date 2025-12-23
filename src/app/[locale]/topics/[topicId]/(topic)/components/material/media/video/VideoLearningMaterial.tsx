@@ -6,6 +6,7 @@ import { isNilOrEmpty, safeDestructure } from '@/utils';
 import transcriptUtils from '../../../../utils/transcript.utils';
 import { useTopicWorkspace } from '../../../../context/TopicWorkspaceContext';
 import VideoPlayer from './VideoPlayer';
+import { VideoPlayerAdapter } from '../../../../media/core/video/VideoPlayerAdapter';
 
 interface IData {
     type: EnumLearningMaterial.media;
@@ -21,8 +22,12 @@ export default function VideoLearningMaterial({ data }: IProps) {
     const [videoUrl, setVideoUrl] = useState<string>('');
     const { blobUrl, content } = safeDestructure(data);
     const ref = useRef<HTMLDivElement | null>(null);
-    const { selectingContentText, contentTextOrigin } = useTopicWorkspace();
+    const { selectingContentText, contentTextOrigin, registerPlayer, seekTo } = useTopicWorkspace();
     const playerRef = useRef<HTMLVideoElement | null>(null);
+
+    useEffect(() => {
+        registerPlayer(new VideoPlayerAdapter(playerRef));
+    }, [registerPlayer]);
 
     useEffect(() => {
         const prevUrl = blobUrl;
@@ -34,6 +39,7 @@ export default function VideoLearningMaterial({ data }: IProps) {
             }
         };
     }, [blobUrl]);
+
     useEffect(() => {
         if (!isNilOrEmpty(content) && transcriptUtils.validateTranscript(content)) {
             contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
@@ -44,9 +50,7 @@ export default function VideoLearningMaterial({ data }: IProps) {
 
     function onSegmentClick(seconds: number) {
         if (selectingContentText) return;
-        if (playerRef.current) {
-            playerRef.current.currentTime = seconds;
-        }
+        seekTo(seconds);
     }
 
     return (
