@@ -77,7 +77,6 @@ const MindmapContent = ({ mode, role }: Props) => {
         saveMindmap,
         hasInitialized,
         fitView,
-        setIsNodeSheetOpen,
     } = useTopicWorkspace();
 
     const [showGenerateModal, setShowGenerateModal] = useState(false);
