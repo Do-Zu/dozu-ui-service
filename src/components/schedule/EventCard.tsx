@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
+import { METHOD_LEARNING } from '@/utils/constants/method';
 
 type EventCardProps = {
     event: CalendarEvent;
@@ -45,10 +46,10 @@ const EventCard = ({ event, isDragging = false }: EventCardProps) => {
     const handleRedirectLearningPage = () => {
         const { type } = event;
 
-        if (type === 'flashcard') {
-            router.push(ROUTES.TOPIC_WORKSPACE({ topicId: event?.topicId, tab: 'flashcard' }));
+        if (type === METHOD_LEARNING.FLASHCARD) {
+            router.push(ROUTES.TOPIC_WORKSPACE({ topicId: event?.topicId, tab: METHOD_LEARNING.FLASHCARD }));
         } else if (type === 'question') {
-            router.push(ROUTES.QUIZ_START(event?.topicId));
+            router.push(ROUTES.TOPIC_WORKSPACE({ topicId: event?.topicId, tab: METHOD_LEARNING.QUIZ }));
         }
     };
 
