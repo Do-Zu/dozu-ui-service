@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { setHours } from 'date-fns';
+import { isValid, setHours } from 'date-fns';
 import { CalendarEvent, useCalendar } from '../ui/full-calendar';
 import DayEventsContainer from './DayEventsContainer';
 import EventGroup from './EventGroup';
@@ -52,7 +52,14 @@ const CalendarDayView = () => {
         if (!currentActiveEvent) return;
 
         if (over.data.current?.type === 'timeslot') {
-            const newStartTime: Date = over.data.current.hour;
+            const rawHour = over?.data?.current?.hour;
+
+            if (rawHour == null) return;
+
+            const newStartTime = rawHour instanceof Date ? rawHour : new Date(rawHour as unknown as string | number);
+
+            if (!isValid(newStartTime)) return;
+
             const eventDuration = currentActiveEvent.end.getTime() - currentActiveEvent.start.getTime();
             const newEndTime = new Date(newStartTime.getTime() + eventDuration);
 
