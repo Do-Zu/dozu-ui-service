@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import QuizQuestion from '../../components/QuizQuestion';
 import { useQuizStreakTracking } from '@/hooks/useStreakProgress';
 import { toast } from '@/hooks/use-toast';
+import type { QuizType } from '@/app/[locale]/topics/[topicId]/(topic)/hooks/useQuizWorkspace';
 
 // Define types based on the response structure
 interface Question {
@@ -47,6 +48,13 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
     const quizId = searchParams.get('quizId');
     const type = searchParams.get('type');
     const { topicId } = params;
+    const rawType = searchParams.get('type');
+
+    const quizType = (
+  ['initial', 'new', 'learning', 'review', 'wrong', 'weak'] as QuizType[]
+).includes(rawType as QuizType)
+  ? (rawType as QuizType)
+  : null;
 
     // Derived values
     const answeredCount = quizData.filter((q) => q.selectedAnswer !== null && q.selectedAnswer !== undefined).length;
@@ -54,12 +62,12 @@ const QuizDoingPage = ({ params }: { params: { topicId: string } }) => {
 
     useEffect(() => {
         const fetchQuiz = async () => {
-            if (!quizId || !type) {
+            if (!quizId || !quizType) {
                 console.error('quizId or type is missing');
                 return;
             }
             try {
-                const response = await quizService.generateQuiz(topicId, type);
+                const response = await quizService.generateQuiz(topicId, quizType);
                 const data = response.data;
 
                 let formattedData: Question[] = [];

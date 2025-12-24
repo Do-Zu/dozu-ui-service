@@ -3,7 +3,7 @@ import { useRequireFlashcards } from '../../../context/useRequireFlashcardConten
 import FlashcardsBrowse from './FlashcardsBrowse';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 
-export default function TopicFlashcardsBrowse() {
+export default function TopicFlashcardsBrowse({ canGenerate = true }: { canGenerate?: boolean }) {
     const { topicId } = useTopicWorkspace();
     const { flashcards, setFlashcards } = useRequireFlashcards();
 
@@ -20,5 +20,5 @@ export default function TopicFlashcardsBrowse() {
         }
     }
 
-    return <FlashcardsBrowse flashcards={flashcards} onStarToggle={handleToggleStar} />;
+    return <FlashcardsBrowse flashcards={flashcards} onStarToggle={handleToggleStar} canGenerate={canGenerate} />;
 }

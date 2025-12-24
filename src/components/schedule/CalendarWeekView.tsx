@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { addDays, isToday, setHours, startOfWeek, format as formatDate } from 'date-fns';
-import { format } from 'date-fns';
+import { addDays, isToday, setHours, startOfWeek, format as formatDate, format } from 'date-fns';
+
 import { useCalendar, CalendarEvent } from '../ui/full-calendar';
 import DayEventsContainer from './DayEventsContainer';
 import EventGroup from './EventGroup';
@@ -159,7 +159,7 @@ const CalendarWeekView = () => {
                 },
             };
 
-            const response = await postRequest('/schedule/batch/session', batchUpdateData);
+            await postRequest('/schedule/batch/session', batchUpdateData);
 
             setHasUnsavedChanges(false);
             // Optionally refresh the calendar data
@@ -187,8 +187,8 @@ const CalendarWeekView = () => {
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
-                <div className="flex flex-col relative overflow-auto h-full">
-                    <div className="flex sticky top-0 bg-card border-b mb-3">
+                <div className="relative flex h-full flex-col overflow-auto">
+                    <div className="sticky top-0 mb-3 flex border-b bg-card">
                         <div className="w-12"></div>
                         {headerDays.map((date, i) => (
                             <div
@@ -214,7 +214,7 @@ const CalendarWeekView = () => {
                         <div className="w-fit">
                             <TimeTable />
                         </div>
-                        <div className="grid grid-cols-7 flex-1">
+                        <div className="grid flex-1 grid-cols-7">
                             {weekDates.map((hours, i) => {
                                 const dayDate = hours[0]; // First hour of the day represents the day
                                 return (
@@ -242,7 +242,7 @@ const CalendarWeekView = () => {
 
                 <DragOverlay>
                     {activeEvent && (
-                        <div className="bg-white shadow-lg rounded border p-2 opacity-90">
+                        <div className="rounded border bg-white p-2 opacity-90 shadow-lg">
                             <EventCard event={activeEvent} isDragging />
                         </div>
                     )}

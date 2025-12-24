@@ -21,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 //     'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
 // };
 
-const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
+const MindmapLayoutButton = ({ layoutNodes: nodes, layoutEdges: edges, onLayoutSuccess }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
             const opts = { 'elk.direction': direction, ...mindmapLayoutElkOptions };
@@ -29,12 +29,10 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
             // const es = useInitialNodes ? initialEdges : edges;
 
             getLayoutedElements(nodes, edges, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-                setNodes(layoutedNodes);
-                setEdges(layoutedEdges);
-                fitView();
+                onLayoutSuccess?.({ layoutedNodes, layoutedEdges });
             });
         },
-        [nodes, edges, setNodes, setEdges, fitView],
+        [nodes, edges, onLayoutSuccess],
     );
 
     return (

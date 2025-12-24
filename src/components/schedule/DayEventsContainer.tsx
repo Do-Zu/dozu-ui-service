@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { isSameDay } from 'date-fns';
 import EventCard from './EventCard';
 import { CalendarEvent } from '../ui/full-calendar';
-import { dayEventVariants } from './constant';
+import { dayEventVariants, HEIGHT_OF_EACH_SESSION_HOUR_PX, MIN_EVENT_HEIGHT } from './constant';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 const DayEventsContainer = ({
@@ -23,7 +23,7 @@ const DayEventsContainer = ({
     const sortedEvents = dayEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
 
     return (
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="pointer-events-none absolute inset-0">
             <SortableContext items={sortedEvents.map((e) => e.id)} strategy={verticalListSortingStrategy}>
                 {sortedEvents.map((event, index) => {
                     // Calculate position from start of day (0:00)
@@ -34,12 +34,12 @@ const DayEventsContainer = ({
                     const maxMinutes = 24 * 60; // 24 hours
                     const clampedEndMinutes = Math.min(eventEndMinutes, maxMinutes);
 
-                    // Each hour slot is 80px (h-20), so total day height is 24 * 80px = 1920px
-                    const hourHeight = 80; // 80px per hour (h-20 = 5rem = 80px)
-                    const topPosition = (eventStartMinutes / 60) * hourHeight;
-                    const eventHeight = Math.max(((clampedEndMinutes - eventStartMinutes) / 60) * hourHeight, 20); // Minimum 20px height
+                    const topPositionEm = (eventStartMinutes / 60) * HEIGHT_OF_EACH_SESSION_HOUR_PX;
+                    const eventHeightEm = Math.max(
+                        ((clampedEndMinutes - eventStartMinutes) / 60) * HEIGHT_OF_EACH_SESSION_HOUR_PX,
+                        MIN_EVENT_HEIGHT,
+                    );
 
-                    // Check for overlapping events to adjust width and position
                     let leftOffset = 0;
                     let widthReduction = 0;
 
@@ -60,8 +60,8 @@ const DayEventsContainer = ({
                             key={event.id}
                             className={cn('absolute pointer-events-auto', dayEventVariants({ variant: event.color }))}
                             style={{
-                                top: `${topPosition}px`,
-                                height: `${eventHeight}px`,
+                                top: `${topPositionEm}px`,
+                                height: `${eventHeightEm}px`,
                                 left: `${4 + leftOffset}%`,
                                 right: `${4 + widthReduction}%`,
                             }}

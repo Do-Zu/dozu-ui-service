@@ -1,55 +1,120 @@
 'use client';
-import { Button } from '@/components/ui/button';
+
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
 
 interface QuizTypeSelectorProps {
-    onSelectQuizType: (type: string) => void;
+  onSelectQuizType: (type: QuizType) => void;
+  disabledMap?: Partial<Record<QuizType, boolean>>;
+  counts?: Partial<Record<QuizType, number>>;
+  loading?: boolean;
 }
 
-const QuizTypeSelector = ({ onSelectQuizType }: QuizTypeSelectorProps) => {
-    const handleSelectQuizType = (type: string) => {
-        onSelectQuizType(type);
-    };
-
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Button
-                onClick={() => handleSelectQuizType('initial')}
-                className="w-full py-4 px-6 text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-                Initial
-            </Button>
-            <Button
-                onClick={() => handleSelectQuizType('review')}
-                className="w-full py-4 px-6 text-lg font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-                Review
-            </Button>
-            <Button
-                onClick={() => handleSelectQuizType('ef-low')}
-                className="w-full py-4 px-6 text-lg font-semibold text-white bg-yellow-600 hover:bg-yellow-700 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-                EF Low
-            </Button>
-            <Button
-                onClick={() => handleSelectQuizType('new')}
-                className="w-full py-4 px-6 text-lg font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-                New
-            </Button>
-            <Button
-                onClick={() => handleSelectQuizType('random')}
-                className="w-full py-4 px-6 text-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-                Random
-            </Button>
-            <Button
-                onClick={() => handleSelectQuizType('wrong')}
-                className="w-full py-4 px-6 text-lg font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-lg transition-all transform hover:scale-105"
-            >
-                Wrong
-            </Button>
-        </div>
-    );
+const LABEL_MAP: Record<QuizType, string> = {
+  initial: 'Initial',
+  new: 'New',
+  learning: 'Learning',
+  review: 'Review',
+  weak: 'Weak',
+  wrong: 'Wrong',
 };
 
-export default QuizTypeSelector;
+const TYPE_META: Record<
+  QuizType,
+  { description: string; accent: string }
+> = {
+  initial: {
+    description: 'All available questions',
+    accent: 'bg-blue-500',
+  },
+  new: {
+    description: 'Not practiced yet',
+    accent: 'bg-purple-500',
+  },
+  learning: {
+    description: 'In progress',
+    accent: 'bg-indigo-500',
+  },
+  review: {
+    description: 'Due for review',
+    accent: 'bg-green-500',
+  },
+  weak: {
+    description: 'Need more practice',
+    accent: 'bg-yellow-500',
+  },
+  wrong: {
+    description: 'Answered incorrectly',
+    accent: 'bg-red-500',
+  },
+};
+
+export default function QuizTypeSelector({
+  onSelectQuizType,
+  disabledMap = {},
+  counts = {},
+  loading = false,
+}: QuizTypeSelectorProps) {
+  return (
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={{
+        hidden: {},
+        show: {
+          transition: {
+            staggerChildren: 0.06,
+          },
+        },
+      }}
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      {(Object.keys(LABEL_MAP) as QuizType[]).map((type) => {
+        const disabled = Boolean(disabledMap[type]) || loading;
+        const count = counts[type] ?? 0;
+        const meta = TYPE_META[type];
+
+        return (
+          <motion.button
+            key={type}
+            variants={{
+              hidden: { opacity: 0, y: 12 },
+              show: { opacity: 1, y: 0 },
+            }}
+            whileHover={!disabled ? { y: -4 } : undefined}
+            whileTap={!disabled ? { scale: 0.98 } : undefined}
+            onClick={() => !disabled && onSelectQuizType(type)}
+            disabled={disabled}
+            className={cn(
+              'relative rounded-xl border bg-background p-4 text-left transition-all',
+              'hover:shadow-md focus:outline-none',
+              disabled
+                ? 'opacity-50 cursor-not-allowed'
+                : 'cursor-pointer'
+            )}
+          >
+            {/* accent bar */}
+            <div className={cn('absolute left-0 top-0 h-full w-1 rounded-l-xl', meta.accent)} />
+
+            <div className="pl-3">
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-base">
+                  {LABEL_MAP[type]}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {loading ? '…' : count}
+                </div>
+              </div>
+
+              <div className="mt-1 text-sm text-muted-foreground">
+                {meta.description}
+              </div>
+            </div>
+          </motion.button>
+        );
+      })}
+    </motion.div>
+  );
+}
