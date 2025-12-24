@@ -23,10 +23,17 @@ import Generate from '../../generate/Generate';
 import type { IGeneratedQuizItem, IQuestion } from '@/app/[locale]/question/types/question.type';
 import RecommendationCard from '../quiz-generate/RecommendationCard';
 import { useQuizRecommendation } from '../quiz-generate/hooks/useQuizRecommendation';
+import { stat } from 'fs';
 
 const DEFAULT_CHECK_TYPE = 'initial';
 type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
 const QUIZ_TYPES: QuizType[] = ['initial', 'new', 'learning', 'review', 'wrong', 'weak'];
+interface ApiResponse<T> {
+    code: number;
+    status: string;
+    message: string;
+    data: T;
+}
 
 export default function QuizGenerateTab() {
     const { tab, topicId, topic } = useTopicWorkspace();
@@ -65,7 +72,7 @@ export default function QuizGenerateTab() {
 
         setGeneratedQuestionsForEdit,
     } = useQuizWorkspace();
-
+    console.log({ statistics });
     // null = Haven't finished checking yet, true = have question, false = haven't question
     const { hasAnyQuestions, setHasAnyQuestions } = useQuizWorkspace();
 
@@ -108,12 +115,12 @@ export default function QuizGenerateTab() {
         data: statsData,
         loading: statsLoading,
         error: statsError,
-    } = useFetch<IQuizStatistics>(() => quizService.getStatistics(String(topicId)), {
+    } = useFetch<ApiResponse<IQuizStatistics>>(() => quizService.getStatistics(String(topicId)), {
         shouldRun: tab === METHOD_LEARNING.QUIZ,
     });
 
     useEffect(() => {
-        if (statsData) setStatistics(statsData);
+        if (statsData?.data) setStatistics(statsData.data);
     }, [statsData, setStatistics]);
 
     useEffect(() => {
