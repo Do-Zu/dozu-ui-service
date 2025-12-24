@@ -79,7 +79,9 @@ export default function FlashcardContent({ mode, role }: Props) {
             <div className="flex-1 min-h-0">
                 {flashcardTab === FlashcardTabEnum.BROWSE &&
                 availableFlashcardTabs.includes(FlashcardTabEnum.BROWSE) ? (
-                    <TopicFlashcardsBrowse />
+                    <TopicFlashcardsBrowse
+                        canGenerate={mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER}
+                    />
                 ) : null}
 
                 {flashcardTab === FlashcardTabEnum.LEARNING &&
