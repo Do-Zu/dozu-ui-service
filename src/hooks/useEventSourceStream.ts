@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { EventStreamContentType, fetchEventSource } from '@microsoft/fetch-event-source';
 import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 interface EventSourceOptions<TRes> {
@@ -13,7 +13,7 @@ interface EventSourceOptions<TRes> {
     endEvent?: () => void;
 }
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_STREAM_SSE_URL}/api`;
-const DEFAULT_TIMEOUT_MS = 5 * 60000; // 5 minutes
+// const DEFAULT_TIMEOUT_MS = 2 * 60000; // 5 minutes
 export type EventSourceStatus = 'idle' | 'connecting' | 'open' | 'closed' | 'timeout' | 'error' | 'completed';
 
 class RetirableError extends Error {}
@@ -29,33 +29,36 @@ export function useEventSourceStream<TReq, TRes>(
     const [data, setData] = useState<TRes | null>(null);
     const [status, setStatus] = useState<EventSourceStatus>('idle');
 
-    const timeoutMs = useMemo(() => {
-        return options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    }, [options?.timeoutMs]);
+    // const timeoutMs = useMemo(() => {
+    //     return options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    // }, [options?.timeoutMs]);
 
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    const handleEventMessage = (data: string) => {
-        try {
-            const parsedData = JSON.parse(data);
+    const handleEventMessage = useCallback(
+        (data: string) => {
+            try {
+                const parsedData = JSON.parse(data);
 
-            if (parsedData) {
-                setData(parsedData);
+                if (parsedData) {
+                    setData(parsedData);
+                }
+
+                if (parsedData?.status === 'completed') {
+                    setStatus('completed');
+                    abortControllerRef.current?.abort();
+                } else if (parsedData?.status === 'error') {
+                    setStatus('error');
+                    abortControllerRef.current?.abort();
+                }
+
+                if (options.onMessage) options.onMessage(parsedData);
+            } catch (error) {
+                console.error('Failed to parse SSE data:', error);
             }
-
-            if (parsedData?.status === 'completed') {
-                setStatus('completed');
-                abortControllerRef.current?.abort();
-            } else if (parsedData?.status === 'error') {
-                setStatus('error');
-                abortControllerRef.current?.abort();
-            }
-
-            if (options.onMessage) options.onMessage(parsedData);
-        } catch (error) {
-            console.error('Failed to parse SSE data:', error);
-        }
-    };
+        },
+        [abortControllerRef, options],
+    );
 
     const execute = useCallback(
         async (payload: TReq) => {
@@ -63,6 +66,7 @@ export function useEventSourceStream<TReq, TRes>(
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
+
             abortControllerRef.current = new AbortController();
 
             if (timeoutIdRef.current) {
@@ -80,7 +84,9 @@ export function useEventSourceStream<TReq, TRes>(
                 method: options.method,
                 body: JSON.stringify(payload),
                 headers: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     'Content-Type': 'application/json',
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     Authorization: `Bearer ${user?.accessToken}`,
                 },
 
@@ -93,7 +99,7 @@ export function useEventSourceStream<TReq, TRes>(
                         // client-side errors are usually non-retriable:
                         throw new FatalError();
                     } else {
-                        throw new RetirableError();
+                        return;
                     }
                 },
                 onmessage(msg) {
@@ -107,11 +113,7 @@ export function useEventSourceStream<TReq, TRes>(
                     }
                 },
                 onclose() {
-                    if (abortControllerRef.current?.signal.aborted) {
-                        return;
-                    }
-                    // if the server closes the connection unexpectedly, retry:
-                    throw new RetirableError();
+                    //TODO: Check onclose method
                 },
                 onerror(err) {
                     if (err instanceof FatalError) {
@@ -123,7 +125,7 @@ export function useEventSourceStream<TReq, TRes>(
                 },
             });
         },
-        [url, timeoutMs, options],
+        [url, options, user?.accessToken, handleEventMessage],
     );
 
     useEffect(() => {
