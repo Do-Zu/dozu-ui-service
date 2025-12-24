@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { withAuth } from '@/hoc/withAuth';
 import { ProfileHeader, SettingsTab, LoadingState } from './components';
 import { ProfileData, PasswordData, NotificationSettings, PrivacySettings } from '../../../types/profile';
@@ -13,14 +13,7 @@ import DataStatus from '@/components/errors/DataStatus';
 const ProfilePage: React.FC = () => {
     const { profile, loading, error, updateProfile, uploadAvatar, removeAvatar, changePassword } = useProfile();
 
-    const [isApiLoaded, setIsApiLoaded] = useState(false);
-
-    // Set API loaded status when profile loads
-    useEffect(() => {
-        if (profile) {
-            setIsApiLoaded(true);
-        }
-    }, [profile]);
+    const shouldShowApiWarning = Boolean(error) && !loading;
 
     // Handlers
     const handleProfileUpdate = async (updatedProfile: ProfileData) => {
@@ -71,12 +64,13 @@ const ProfilePage: React.FC = () => {
             });
         }
     };
+
     if (isEmpty(profile)) return <DataStatus variant="empty" />;
 
     return (
         <LoadingState loading={loading} error={error}>
             <div className="container mx-auto space-y-6 py-8">
-                {!isApiLoaded && !loading && (
+                {shouldShowApiWarning && (
                     <div className="mb-4 rounded-md border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">
                             ⚠️ Using demo data - API connection failed. {error && `Error: ${error}`}
