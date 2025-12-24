@@ -27,5 +27,9 @@ export default function FlashCardTab() {
 
     if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 
-    return <FlashcardContent mode={learningMode as ILearningMode} role={getRole()} />;
+    return (
+        <div className="h-full">
+            <FlashcardContent mode={learningMode as ILearningMode} role={getRole()} />
+        </div>
+    );
 }

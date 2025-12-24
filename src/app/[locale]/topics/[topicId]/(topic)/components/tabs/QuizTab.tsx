@@ -105,7 +105,9 @@ function QuizTabContent() {
 export default function QuizTab() {
     return (
         <QuizWorkspaceProvider>
-            <QuizTabContent />
+            <div className="h-full">
+                <QuizTabContent />
+            </div>
         </QuizWorkspaceProvider>
     );
 }

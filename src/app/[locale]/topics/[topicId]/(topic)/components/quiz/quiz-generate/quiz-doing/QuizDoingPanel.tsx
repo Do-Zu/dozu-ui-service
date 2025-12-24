@@ -85,7 +85,7 @@ export default function QuizDoingPanel() {
             <QuizHeaderProgress current={currentQuestionIndex + 1} total={doingQuestions.length} />
 
             {/* question */}
-            <div className="flex-1 flex flex-col justify-center pt-6 overflow-hidden">
+            <div className="flex-1 flex flex-col justify-center pt-6 overflow-y-auto">
                 <div
                     key={currentQuestionIndex}
                     className={`

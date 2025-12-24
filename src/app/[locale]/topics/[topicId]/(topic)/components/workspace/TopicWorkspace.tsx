@@ -89,9 +89,9 @@ export default function TopicWorkspace() {
     if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
     return (
-        <div className="relative w-full h-[100vh] border rounded-lg overflow-hidden bg-background">
-            <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={35} className={isLearningContentFullscreen ? 'hidden' : ''} minSize={35}>
+        <div className="w-full h-screen border rounded-lg overflow-hidden bg-background">
+            <ResizablePanelGroup direction="horizontal" className="h-full min-h-0">
+                <ResizablePanel defaultSize={35} minSize={35} className={isLearningContentFullscreen ? 'hidden' : ''}>
                     <div className="flex flex-col h-full p-4">
                         <LearningMaterial />
                     </div>
@@ -103,18 +103,18 @@ export default function TopicWorkspace() {
                 />
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
-                    <div className="flex flex-col h-full">
-                        <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
-                            <div className="flex items-center justify-between mt-6 w-full px-6">
+                    <div className="flex flex-col h-full min-h-0 overflow-hidden">
+                        <Tabs value={tab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0">
+                            <div className="flex items-center justify-between px-6 py-4 shrink-0">
                                 <div className="flex-1 flex justify-center">
                                     <TabsList className="grid grid-cols-5 w-[95%] rounded-2xl">
                                         {TOPIC_WORKSPACE_TABS.map((t) => (
                                             <TabsTrigger
-                                                className="rounded-2xl flex items-center justify-center gap-2 text-sm"
                                                 key={t.value}
                                                 value={t.value}
+                                                className="rounded-2xl flex items-center gap-2 text-sm"
                                             >
-                                                {tab === t.value ? <ActiveDot isActive={true} /> : null}
+                                                {tab === t.value && <ActiveDot isActive />}
                                                 {t.icon}
                                                 <span className="whitespace-nowrap">{t.label}</span>
                                             </TabsTrigger>
@@ -122,21 +122,22 @@ export default function TopicWorkspace() {
                                     </TabsList>
                                 </div>
 
-                                <div>
-                                    <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
-                                        {isLearningContentFullscreen ? (
-                                            <Minimize className="h-4 w-4" />
-                                        ) : (
-                                            <Maximize className="h-4 w-4" />
-                                        )}
-                                        <span className="sr-only">Toggle Fullscreen</span>
-                                    </Button>
-                                </div>
+                                <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
+                                    {isLearningContentFullscreen ? (
+                                        <Minimize className="h-4 w-4" />
+                                    ) : (
+                                        <Maximize className="h-4 w-4" />
+                                    )}
+                                </Button>
                             </div>
 
-                            <div className={cn('flex-1 h-full px-6 py-3')}>
+                            <div className="flex-1 min-h-0 px-6 pb-4 overflow-y-auto">
                                 {TOPIC_WORKSPACE_TABS.map((t) => (
-                                    <TabsContent key={t.value} value={t.value} className="h-full">
+                                    <TabsContent
+                                        key={t.value}
+                                        value={t.value}
+                                        className="m-0 focus-visible:ring-0 h-full"
+                                    >
                                         <t.component />
                                     </TabsContent>
                                 ))}
