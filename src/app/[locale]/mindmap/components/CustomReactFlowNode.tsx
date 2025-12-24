@@ -5,11 +5,17 @@ import { Handle, Node, NodeToolbar, Position, useEdges, useInternalNode, useReac
 import { useState, useRef, useEffect } from 'react';
 import { CustomNodeData } from '../../../../types/mindmap/mindmap.type';
 import { useDispatch } from 'react-redux';
-import { openSheet, setSelectedNodeData, toggleNodeSelection } from '@/stores/features/mindmap/selectedNodeSlice';
+import {
+    addHiddenNodes,
+    openSheet,
+    removeHiddenNodes,
+    setSelectedNodeData,
+    toggleNodeSelection,
+} from '@/stores/features/mindmap/selectedNodeSlice';
 import { getRouter } from '@/utils/routerService';
 import CommentThread from '../../class-based/components/comment/CommentThread';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpenIcon, Target, CheckCircle, MoreHorizontal } from 'lucide-react';
+import { BookOpenIcon, Target, CheckCircle, MoreHorizontal, Plus, Minus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { useTranslations } from 'next-intl';
@@ -18,6 +24,8 @@ import AddChildNodeButton from './buttons/AddChildNodeButton';
 import DeleteNodeButton from './buttons/DeleteNodeButton';
 import PaletteButton from './buttons/PaletteButton';
 import { readableColor } from 'polished';
+import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicWorkspaceContext';
+import { getAllChildNodeAndSelfIds } from '@/utils/mindmap/mindmapUtils';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
@@ -47,6 +55,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
 
     const isEditingMindmap = useAppSelector((state) => state.isEditingMindmapSlice.isEditingMindmap);
     const isMultiSelectMode = useAppSelector((state) => state.selectedNodeSlice.isMultiSelectMode);
+    const { nodes: appNodes, edges: appEdges } = useTopicWorkspace();
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -141,6 +150,18 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             handleCancel();
         }
     };
+
+    function handleExpandClick() {
+        const tmp = getAllChildNodeAndSelfIds({ nodes: appNodes, edges: appEdges, nodeId: data.nodeId });
+        const childNodeIds = tmp.filter((item) => item !== data.nodeId);
+        dispatch(removeHiddenNodes(childNodeIds));
+    }
+
+    function handleCollapseClick() {
+        const tmp = getAllChildNodeAndSelfIds({ nodes: appNodes, edges: appEdges, nodeId: data.nodeId });
+        const childNodeIds = tmp.filter((item) => item !== data.nodeId);
+        dispatch(addHiddenNodes(childNodeIds));
+    }
 
     // Animation variants
     const nodeVariants = {
@@ -284,6 +305,32 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 style={{ bottom: -6 }}
                 isConnectableStart={false}
             />
+
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-1 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-full bg-background shadow-md border-primary/20 hover:bg-primary hover:text-primary-foreground"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleExpandClick();
+                    }}
+                >
+                    <Plus className="h-3 w-3" />
+                </Button>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-full bg-background shadow-md border-primary/20 hover:bg-primary hover:text-primary-foreground"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleCollapseClick();
+                    }}
+                >
+                    <Minus className="h-3 w-3" />
+                </Button>
+            </div>
+
             <Handle
                 className="size-3 border-2 border-background bg-primary/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 position={Position.Top}

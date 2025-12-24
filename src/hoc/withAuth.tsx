@@ -61,7 +61,8 @@ export function withAuth<P extends object>(Component: React.ComponentType<P>, op
         }, [handleRedirect]);
 
         if (!hasAccess) {
-            return null;
+            router.push(DEFAULT_UNAUTHORIZED);
+            return;
         }
 
         return <Component {...props} />;

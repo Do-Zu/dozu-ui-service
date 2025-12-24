@@ -1,9 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { ILearningMode, setLearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { CircleUserRound, School } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants/routes';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
@@ -11,7 +10,7 @@ import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 function Personal() {
     return (
         <div className="flex items-center gap-2">
-            <CircleUserRound className="h-4 w-4" />
+            <CircleUserRound className="size-4" />
             <span>Personal</span>
         </div>
     );
@@ -20,14 +19,13 @@ function Personal() {
 function ClassBased() {
     return (
         <div className="flex items-center gap-2">
-            <School className="h-4 w-4" />
+            <School className="size-4" />
             <span>Class-based</span>
         </div>
     );
 }
 
 export function LearningModeSelect() {
-    const dispatch = useDispatch();
     const [storedValue, setValue] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const router = useRouter();
@@ -52,7 +50,7 @@ export function LearningModeSelect() {
     return (
         <Select value={storedValue} onValueChange={handleLearningModelSelect}>
             <SelectTrigger
-                className="ml-8 w-[150px] bg-background text-foreground border-border"
+                className="ml-8 w-[150px] rounded-3xl border-border bg-background text-foreground"
                 aria-label="Select theme"
             >
                 <SelectValue>

@@ -13,6 +13,7 @@ import {
     BarChart3,
     Crown,
     MessageCircle,
+    ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -32,7 +33,7 @@ import {
 import { AuthGuard } from '../permission/AuthGuard';
 import { ROUTES } from '@/utils/constants/routes';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import { ShieldCheck } from 'lucide-react';
+
 import ThemeToggle from '@/components/toolbar/ThemeToggle';
 import LanguageSwitcher from '@/components/toolbar/LanguageSwitcher';
 import AuthButton from '@/components/toolbar/AuthButton';
@@ -49,7 +50,7 @@ import { useState } from 'react';
 
 // Menu items.
 const items = [
-    {   
+    {
         title: 'Home',
         url: ROUTES.HOME,
         icon: Home,
@@ -81,12 +82,12 @@ const secondaryItems = [
         title: 'Feedback',
         url: '#', // Not used, will open dialog instead
         icon: MessageCircle,
-    }
+    },
 ];
 
 export function AppSidebar() {
     const pathname = usePathname();
-    const { hasRole, currentPlanUser,isAuthenticated } = useAuth();
+    const { hasRole, currentPlanUser, isAuthenticated } = useAuth();
     const { openUpgradeModal } = useUpgradeModal();
     const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
 
@@ -98,7 +99,7 @@ export function AppSidebar() {
         <Sidebar collapsible="icon">
             <SidebarHeader>
                 <div className="flex items-center gap-2 py-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground group-data-[collapsible=icon]:mx-auto">
+                    <div className="flex size-8 items-center justify-center rounded-lg group-data-[collapsible=icon]:mx-auto">
                         <SidebarTrigger />
                     </div>
                     <span className="font-semibold group-data-[collapsible=icon]:hidden">Dozu</span>
@@ -151,7 +152,7 @@ export function AppSidebar() {
                                     if (item.title === 'Feedback') {
                                         return (
                                             <SidebarMenuItem key={item.title}>
-                                                <SidebarMenuButton 
+                                                <SidebarMenuButton
                                                     tooltip={item.title}
                                                     onClick={() => setIsFeedbackDialogOpen(true)}
                                                 >
@@ -198,13 +199,12 @@ export function AppSidebar() {
                             </SidebarGroupContent>
                         </SidebarGroup>
                     )}
-
                 </ScrollArea>
             </SidebarContent>
 
             <SidebarGroup>
                 <SidebarGroupLabel></SidebarGroupLabel>
-                <SidebarGroupContent className="flex flex-col gap-4">
+                <SidebarGroupContent className="flex flex-col gap-4 ">
                     {!isAuthenticated && (
                         <div className="flex flex-col gap-4 group-data-[collapsible=icon]:hidden">
                             <ThemeToggle />
@@ -213,24 +213,23 @@ export function AppSidebar() {
                     )}
                     {/* Upgrade to Pro Button */}
                     {!isPro && isAuthenticated && (
-                        <div className="px-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                        <div className="px-2 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
                             <Button
                                 onClick={openUpgradeModal}
                                 variant="outline"
                                 size="sm"
-                                className="w-full justify-center gap-1.5 py-1.5 bg-gradient-to-r from-blue-100/80 via-indigo-100/80 to-purple-100/80 dark:from-blue-900/40 dark:via-indigo-900/40 dark:to-purple-900/40 border-blue-300/60 dark:border-blue-700/60 hover:from-blue-200/90 hover:via-indigo-200/90 hover:to-purple-200/90 dark:hover:from-blue-800/50 dark:hover:via-indigo-800/50 dark:hover:to-purple-800/50 text-blue-700 dark:text-blue-300 font-semibold shadow-sm hover:shadow-md transition-all duration-200 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:min-w-0"
+                                className="w-full justify-center gap-1.5 border-blue-300/60 bg-gradient-to-r from-blue-100/80 via-indigo-100/80 to-purple-100/80 py-1.5 font-semibold text-blue-700 shadow-sm transition-all duration-200 hover:from-blue-200/90 hover:via-indigo-200/90 hover:to-purple-200/90 hover:shadow-md group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:min-w-0 group-data-[collapsible=icon]:p-0 dark:border-blue-700/60 dark:from-blue-900/40 dark:via-indigo-900/40 dark:to-purple-900/40 dark:text-blue-300 dark:hover:from-blue-800/50 dark:hover:via-indigo-800/50 dark:hover:to-purple-800/50"
                             >
-                                <Crown className="h-3 w-3 flex-shrink-0" />
+                                <Crown className="size-3 shrink-0" />
                                 <span className="group-data-[collapsible=icon]:hidden">Upgrade to Pro</span>
                             </Button>
                         </div>
                     )}
                     {isAuthenticated ? <UserMenu /> : <AuthButton />}
-                    
                 </SidebarGroupContent>
             </SidebarGroup>
 
-            <div className="text-[10px] text-muted-foreground text-center w-full group-data-[collapsible=icon]:hidden">
+            <div className="w-full text-center text-[10px] text-muted-foreground group-data-[collapsible=icon]:hidden">
                 © Dozu
             </div>
 

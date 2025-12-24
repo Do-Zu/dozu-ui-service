@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
@@ -71,7 +71,6 @@ export default function PersonalTopicLibrary() {
     const {
         isOpen: isCreateTopicModalOpen,
         setIsOpen: setIsCreateTopicModalOpen,
-        open: handleCreateTopicModalOpen,
         loading: createTopicLoading,
         submit: handleCreateTopicSubmit,
     } = createTopic;
@@ -94,12 +93,7 @@ export default function PersonalTopicLibrary() {
         deletingTopic,
     } = deleteTopic;
 
-    const {
-        isOpen: isTopicDetailsModalOpen,
-        setIsOpen: setIsTopicDetailsModalOpen,
-        open: handleTopicDetailsModalOpen,
-        selectingTopic,
-    } = showTopicDetails;
+    const { isOpen: isTopicDetailsModalOpen, setIsOpen: setIsTopicDetailsModalOpen, selectingTopic } = showTopicDetails;
 
     const {
         isOpen: isOpenListPackage,
@@ -162,7 +156,7 @@ export default function PersonalTopicLibrary() {
                     onSelect={() => onSelectTopicForPackage(topic)}
                     className="cursor-pointer text-zinc-600 focus:text-zinc-900 dark:text-zinc-400 dark:focus:text-zinc-100"
                 >
-                    <Package className="mr-2 h-4 w-4" />
+                    <Package className="mr-2 size-4" />
                     <span>{tTopic('addPackage')}</span>
                 </DropdownMenuItem>
 
@@ -170,7 +164,7 @@ export default function PersonalTopicLibrary() {
                     onSelect={() => handleUpdateTopicModalOpen({ topicId, name, description, imageUrl })}
                     className="cursor-pointer text-zinc-600 focus:text-zinc-900 dark:text-zinc-400 dark:focus:text-zinc-100"
                 >
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Edit className="mr-2 size-4" />
                     <span>{tCommon('actions.edit')}</span>
                 </DropdownMenuItem>
 
@@ -178,9 +172,9 @@ export default function PersonalTopicLibrary() {
 
                 <DropdownMenuItem
                     onSelect={() => handleDeleteTopicModalOpen({ topicId, name })}
-                    className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20"
+                    className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-900/20"
                 >
-                    <Trash2 className="mr-2 h-4 w-4" />
+                    <Trash2 className="mr-2 size-4" />
                     <span>{tCommon('actions.delete')}</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
@@ -188,7 +182,6 @@ export default function PersonalTopicLibrary() {
     };
 
     const cardFooter = (topic: ITopic) => {
-        const { topicId } = topic;
         const newFlashcards = topic.flashcardCounts?.new || 0;
         const totalFlashcards = topic.flashcardCounts?.total || 0;
         const learningFlashcards = topic.flashcardCounts?.learning || 0;
@@ -204,14 +197,14 @@ export default function PersonalTopicLibrary() {
         }
 
         return (
-            <div className="w-full mt-2">
-                <div className="flex items-end justify-between mb-2">
+            <div className="mt-2 w-full">
+                <div className="mb-2 flex items-end justify-between">
                     <span className="text-xs font-medium text-zinc-500">Progress</span>
                     <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{progressValue}%</span>
                 </div>
                 <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
                     <div
-                        className="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-500 ease-out"
+                        className="h-full bg-zinc-900 transition-all duration-500 ease-out dark:bg-zinc-100"
                         style={{ width: `${progressValue}%` }}
                     />
                 </div>
@@ -221,9 +214,7 @@ export default function PersonalTopicLibrary() {
 
     const handleRenderTopicsSection = () => {
         if (topicsError) {
-            return (
-                <div className="p-6 text-red-500 border border-red-200 rounded-lg bg-red-50">Error: {topicsError} </div>
-            );
+            return <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-500"></div>;
         }
         if (topicsLoading || !topics || !topicsFiltered) {
             return <LoadingPage />;
@@ -232,8 +223,8 @@ export default function PersonalTopicLibrary() {
             return <div className="p-8 text-center text-zinc-500">No topics found.</div>;
         }
         return (
-            <div className="relative z-10 px-4 md:px-8 pb-12 pt-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="relative z-10 px-4 pb-12 pt-6 md:px-8">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                     {topicsFiltered?.map((topic) => (
                         <TopicCard
                             key={topic.topicId}
@@ -249,35 +240,35 @@ export default function PersonalTopicLibrary() {
     };
 
     const metricContent: ReactElement = (
-        <div className="relative z-10 px-4 md:px-8 pt-8">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="relative z-10 px-4 pt-8 md:px-8">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <Metric label="New" value={metrics.fresh} />
                 <Metric label="Learning" value={metrics.learning} />
                 <Metric label="Due Today" value={metrics.due} />
             </div>
 
-            <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6">
+            <div className="mt-8 flex flex-col gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800 md:flex-row md:items-center md:justify-between">
                 <div className="relative w-full md:max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
                     <Input
                         placeholder={t('searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-md border-zinc-200 bg-white text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-zinc-900 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-100 dark:focus:ring-zinc-100"
+                        className="h-10 rounded-full border-zinc-200 bg-white pl-9 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:ring-zinc-100"
                     />
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider hidden sm:block">
+                    <span className="hidden text-xs font-medium uppercase tracking-wider text-zinc-500 sm:block">
                         {t('sortBy')}
                     </span>
                     <Select value={sortBy} onValueChange={(value: TopicFilteringAction) => setSortBy(value)}>
-                        <SelectTrigger className="w-full md:w-[200px] h-10 rounded-md border-zinc-200 bg-white text-zinc-900 focus:ring-zinc-900 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-100">
+                        <SelectTrigger className="h-10 w-full rounded-full border-zinc-200 bg-white text-zinc-900 focus:ring-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 md:w-[200px]">
                             <div className="flex items-center gap-2">
-                                <Filter className="h-3.5 w-3.5 opacity-70" />
+                                <Filter className="size-3.5 opacity-70" />
                                 <SelectValue placeholder={t('sortBy')} />
                             </div>
                         </SelectTrigger>
-                        <SelectContent className="border-zinc-200 bg-white dark:bg-zinc-950 dark:border-zinc-800">
+                        <SelectContent className="border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
                             <SelectItem value="newest">{t('sortOptions.newest')}</SelectItem>
                             <SelectItem value="oldest">{t('sortOptions.oldest')}</SelectItem>
                             <SelectItem value="title-asc">{t('sortOptions.titleAsc')}</SelectItem>
@@ -335,12 +326,8 @@ export default function PersonalTopicLibrary() {
     );
 
     const mainActionButtons = (
-        <Button
-            onClick={handleOpenCreateModal}
-            className="h-10 rounded-2xl px-6 font-medium text-base"
-            variant="outline"
-        >
-            <Plus className="h-4 w-4" /> {t('createNewContent')}
+        <Button onClick={handleOpenCreateModal} className="h-10 px-6 font-medium" variant="outline">
+            <Plus className="size-4" /> {t('createNewContent')}
         </Button>
     );
 

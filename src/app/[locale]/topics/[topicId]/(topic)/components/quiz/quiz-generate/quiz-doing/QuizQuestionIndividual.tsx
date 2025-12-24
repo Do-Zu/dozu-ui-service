@@ -6,6 +6,7 @@ import { useTopicWorkspace } from '../../../../context/TopicWorkspaceContext';
 import { useQuizWorkspace } from '../../context/QuizWorkspaceContext';
 import { Button } from '@/components/ui/button';
 import QuizResultFeedback from './components/QuizResultFeedback';
+import QuizConfidenceSelector from './components/QuizConfidenceSelector';
 import { CornerDownRight, Loader2 } from 'lucide-react';
 import { isNilOrEmpty, safeDestructure } from '@/utils';
 import {
@@ -34,6 +35,14 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
     const isFreeResponse =
         rawType === 'free response' || rawType === 'free' || rawType === 'open-ended' || rawType === 'open_ended';
 
+    const isFillInBlank =
+        rawType === 'fill in the blank' ||
+        rawType === 'fill-in-the-blank' ||
+        rawType === 'fill_blank' ||
+        rawType === 'blank';
+
+    const isChoice = !isFreeResponse && !isFillInBlank;
+
     const questionText: string = question.questionText ?? '';
 
     // multiple choice data
@@ -52,11 +61,15 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
     );
     const [showExplanation, setShowExplanation] = useState<boolean>(Boolean(question.isShowExplain));
     const [showHint, setShowHint] = useState<boolean>(false);
+    const isTextAnswer = isFreeResponse || isFillInBlank;
+
 
     const isAnswered =
         question.selectedAnswer !== undefined &&
         question.selectedAnswer !== null &&
-        (isFreeResponse ? String(question.selectedAnswer).trim() !== '' : true);
+        (isTextAnswer ? String(question.selectedAnswer).trim() !== '' : true);
+
+    
 
     // multichoice
     const handleSelectChoice = (choiceIndex: number) => {
@@ -137,7 +150,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
             )}
 
             {/* multi choice*/}
-            {!isFreeResponse && Array.isArray(choices) && choices.length > 0 && (
+            {isChoice && Array.isArray(choices) && choices.length > 0 && (
                 <div className="space-y-3">
                     {(choices ?? [])
                         .filter((c) => typeof c === 'string' && c.trim() !== '')
@@ -210,10 +223,41 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                 </div>
             )}
 
+            {/* fill in blank */}
+            {isFillInBlank && (
+                <div className="space-y-4">
+                    <input
+                        type="text"
+                        disabled={isAnswered || isChecking}
+                        value={
+                            isAnswered && typeof question.selectedAnswer === 'string'
+                                ? question.selectedAnswer
+                                : freeText
+                        }
+                        onChange={(e) => setFreeText(e.target.value)}
+                        className="w-full border rounded-lg p-4 text-base bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                        placeholder="Type the missing word..."
+                    />
+
+                    {!isAnswered && (
+                        <Button
+                            className="mt-1 rounded-3xl"
+                            variant="default"
+                            disabled={isNilOrEmpty(freeText.trim()) || isChecking}
+                            onClick={handleSubmitFreeText}
+                        >
+                            {isChecking ? 'Evaluating...' : 'Submit'}
+                            {isChecking && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        </Button>
+                    )}
+                </div>
+            )}
+
             {/* feedback */}
             {(question.isShowExplain || showExplanation) && (
                 <QuizResultFeedback
                     isFreeResponse={isFreeResponse}
+                    isFillInBlank={isFillInBlank}
                     isCorrect={Boolean(question.isCorrect)}
                     userAnswer={question.selectedAnswer ?? freeText}
                     correctAnswerText={correctText}
@@ -221,6 +265,21 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                     score={question.score}
                     maxScore={question.maxScore}
                     questionText={question.questionText}
+                />
+            )}
+
+            {/* confidence */}
+            {question.isCorrect === true && (
+                <QuizConfidenceSelector
+                    value={question.confidence}
+                    onSelect={(v) => {
+                        const updated = [...doingQuestions];
+                        updated[index] = {
+                            ...updated[index],
+                            confidence: v,
+                        };
+                        setDoingQuestions(updated);
+                    }}
                 />
             )}
         </div>

@@ -18,7 +18,7 @@ export interface RedirectChain {
  */
 export class RedirectChainService {
     private static readonly REDIRECT_CHAIN_KEY = 'auth_redirect_chain';
-    private static readonly DEFAULT_FINAL_DESTINATION = ROUTES.HOME;
+    private static readonly DEFAULT_FINAL_DESTINATION = ROUTES.LANDING;
     private static readonly REDIRECT_DESTINATION_KEY = 'auth_redirect_destination';
     /**
      * Gets the required intermediate pages for a user type
@@ -43,7 +43,8 @@ export class RedirectChainService {
         const userType = getUserType(true, user);
         const requiredSteps = this.getRequiredSteps(userType);
         const originalDestinationFromStorage = sessionStorage.getItem(this.REDIRECT_DESTINATION_KEY);
-        const finalDestination = originalDestinationFromStorage ?? (originalDestination || ROUTES.HOME);
+        const finalDestination =
+            originalDestinationFromStorage ?? (originalDestination || this.DEFAULT_FINAL_DESTINATION);
 
         const chain: RedirectChain = {
             steps: requiredSteps,

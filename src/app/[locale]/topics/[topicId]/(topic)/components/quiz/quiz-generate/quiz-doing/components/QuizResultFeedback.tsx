@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface QuizResultFeedbackProps {
     isFreeResponse: boolean;
+    isFillInBlank?: boolean;
     isCorrect: boolean;
     userAnswer?: string | number;
     correctAnswerText?: string;
@@ -18,6 +19,7 @@ interface QuizResultFeedbackProps {
 
 export default function QuizResultFeedback({
     isFreeResponse,
+    isFillInBlank,
     isCorrect,
     userAnswer,
     correctAnswerText,
@@ -72,10 +74,10 @@ export default function QuizResultFeedback({
                 )}
 
                 {/* Suggested/Correct Answer */}
-                {(!isCorrect || isFreeResponse) && correctAnswerText && (
+                {(!isCorrect || isFreeResponse || isFillInBlank) && correctAnswerText && (
                     <div className="grid gap-1">
                         <p className={cn('font-medium', currentStyle.textMuted)}>
-                            {isFreeResponse ? 'Suggested answer' : 'Correct answer'}
+                            {isFreeResponse || isFillInBlank ? 'Suggested answer' : 'Correct answer'}
                         </p>
                         <div className="p-3 rounded-2xl border border-border/50 bg-background/50">
                             <p className="whitespace-pre-wrap text-foreground font-medium">{correctAnswerText}</p>
