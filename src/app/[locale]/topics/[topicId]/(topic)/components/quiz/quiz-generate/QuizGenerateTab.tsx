@@ -72,7 +72,6 @@ export default function QuizGenerateTab() {
 
         setGeneratedQuestionsForEdit,
     } = useQuizWorkspace();
-    console.log({ statistics });
     // null = Haven't finished checking yet, true = have question, false = haven't question
     const { hasAnyQuestions, setHasAnyQuestions } = useQuizWorkspace();
 

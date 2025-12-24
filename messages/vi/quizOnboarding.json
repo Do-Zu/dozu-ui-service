@@ -1,0 +1,130 @@
+{
+  "quizOnboarding": {
+    "title": "Hướng dẫn Quiz",
+    "description": "Giúp bạn hiểu khi nào nên sử dụng từng loại quiz và cách hệ thống đề xuất hoạt động (dựa trên tiến trình học lặp lại ngắt quãng của bạn).",
+
+    "about": {
+      "title": "Về đề xuất học tập",
+      "subtitle": "Luồng học từng bước"
+    },
+
+    "intro": {
+      "text": "Các đề xuất được thiết kế để giúp bạn chọn <b>hành động học tập tốt nhất tiếp theo</b>, chứ không nhằm giới hạn lựa chọn của bạn. Hệ thống sẽ xem xét <b>trạng thái câu hỏi</b> của bạn và nhóm các câu hỏi thành các loại quiz khác nhau. Sau đó, hệ thống đề xuất loại mang lại lợi ích học tập lớn nhất tại thời điểm hiện tại (ví dụ mức ưu tiên: <i>Sai → Yếu → Ôn tập → Đang học → Mới</i>)."
+    },
+
+    "sections": {
+      "steps": {
+        "title": "Cách “N câu hỏi cùng trạng thái” được học (từng bước)",
+        "items": [
+          {
+            "step": "Bước 1 — Bạn mở Quiz",
+            "text": "Hệ thống kiểm tra chủ đề của bạn và đếm số lượng câu hỏi thuộc từng nhóm học tập: <b>Sai, Yếu, Ôn tập, Đang học, Mới</b>. Các nhóm này được xác định dựa trên dữ liệu theo dõi học lặp lại ngắt quãng của bạn."
+          },
+          {
+            "step": "Bước 2 — Hệ thống chọn trọng tâm phù hợp nhất",
+            "text": "Nếu bạn có nhiều câu hỏi nằm trong cùng một trạng thái có mức ưu tiên cao (ví dụ <b>Sai</b>), loại quiz đó sẽ trở thành ứng viên mạnh cho đề xuất vì thường mang lại cải thiện nhanh nhất.<br /><span class=\"text-muted-foreground\">Ví dụ: Bạn có <b>5 câu Sai</b> → luyện tập ngay giúp tránh lặp lại lỗi sai.</span>"
+          },
+          {
+            "step": "Bước 3 — Hệ thống tạo quiz từ nhóm câu hỏi đó",
+            "text": "Khi bạn chọn một loại quiz (hoặc bấm <b>Bắt đầu ngay</b> từ phần Đề xuất), ứng dụng sẽ lấy các câu hỏi phù hợp với bộ lọc của loại đó (trạng thái / EF / điều kiện đến hạn).<br />Bạn sẽ nhận được một quiz có trọng tâm rõ ràng: tất cả câu hỏi đều phục vụ cùng một “mục tiêu” học tập."
+          },
+          {
+            "step": "Bước 4 — Bạn trả lời N câu hỏi",
+            "text": "Trong quá trình làm quiz, bạn trả lời một nhóm câu hỏi có cùng mục tiêu học tập:",
+            "list": [
+              "<b>Sai</b>: sửa lỗi (học lại)",
+              "<b>Yếu</b>: củng cố các câu hỏi khó (hệ số dễ thấp)",
+              "<b>Ôn tập</b>: làm mới các câu hỏi đến hạn (ôn theo lịch)",
+              "<b>Đang học</b>: ổn định kiến thức mới đang hình thành",
+              "<b>Mới</b>: làm quen lần đầu (chưa có dữ liệu theo dõi)"
+            ]
+          },
+          {
+            "step": "Bước 5 — Hệ thống cập nhật trạng thái sau khi nộp bài",
+            "text": "Sau khi bạn nộp bài, dữ liệu theo dõi của từng câu hỏi sẽ được cập nhật. Đây là lúc thuật toán học lặp lại ngắt quãng “di chuyển” câu hỏi giữa các trạng thái.",
+            "note": {
+              "title": "Luồng thay đổi điển hình (đơn giản hoá)",
+              "list": [
+                "Nếu bạn trả lời đúng và tự tin, câu hỏi có xu hướng chuyển sang <b>Ôn tập</b> với khoảng thời gian dài hơn.",
+                "Nếu bạn trả lời sai, câu hỏi sẽ trở thành <b>Sai</b> / <b>Học lại</b> để bạn gặp lại sớm hơn.",
+                "Nếu bạn liên tục gặp khó khăn, độ khó của câu hỏi vẫn cao, nên nó có thể ở lại trạng thái <b>Yếu</b> (EF thấp) và xuất hiện thường xuyên hơn."
+              ]
+            }
+          },
+          {
+            "step": "Bước 6 — Lần sau, đề xuất sẽ tự điều chỉnh",
+            "text": "Lần tiếp theo bạn mở Quiz, số lượng câu hỏi và đề xuất có thể thay đổi. Đó là lý do hệ thống mang lại cảm giác “cá nhân hoá”: nó phản ánh đúng những gì bạn đã làm trong các phiên học trước."
+          }
+        ]
+      },
+
+      "priority": {
+        "title": "Ý nghĩa của từng mức ưu tiên trong đề xuất",
+        "items": [
+          {
+            "title": "Sai (ưu tiên cao nhất)",
+            "text": "Những câu hỏi bạn vừa trả lời sai, thường được gắn nhãn <b>học lại</b>. Luyện tập ngay giúp giảm nhanh việc lặp lại lỗi sai."
+          },
+          {
+            "title": "Yếu",
+            "text": "Các câu hỏi có <b>hệ số dễ thấp</b> (bạn thường thấy khó). Luyện tập nhóm này giúp tăng độ ổn định ghi nhớ về lâu dài."
+          },
+          {
+            "title": "Ôn tập",
+            "text": "Các câu hỏi được lên lịch ôn và hiện <b>đã đến hạn</b>. Đây là hình thức luyện tập đúng thời điểm trong học lặp lại ngắt quãng."
+          },
+          {
+            "title": "Đang học",
+            "text": "Các câu hỏi vẫn đang trong giai đoạn học ban đầu. Làm nhóm này giúp chuyển câu hỏi sang trạng thái ôn tập ổn định hơn."
+          },
+          {
+            "title": "Mới (ưu tiên thấp nhất)",
+            "text": "Các câu hỏi hoàn toàn mới, chưa từng học. Phù hợp khi bạn muốn mở rộng phạm vi kiến thức, nhưng không phải lúc nào cũng là bước tiếp theo tối ưu nếu bạn còn nhiều câu sai hoặc yếu."
+          }
+        ]
+      },
+
+      "notes": {
+        "title": "Lưu ý quan trọng",
+        "items": [
+          "Đề xuất chỉ mang tính <b>gợi ý</b>, không phải quy tắc bắt buộc — bạn luôn có thể chọn bất kỳ loại quiz nào.",
+          "Số lượng câu hỏi giữa “Đề xuất” và “Tạo quiz” có thể chênh lệch nhẹ nếu dữ liệu theo dõi được cập nhật giữa các lần gọi (ví dụ sau khi bạn hoàn thành một quiz).",
+          "Thông thường chỉ loại <b>Ôn tập</b> yêu cầu câu hỏi phải đến hạn. Các loại khác thường dựa trên trạng thái hoặc EF, nên vẫn có thể xuất hiện ngay cả khi chưa đến thời điểm ôn."
+        ]
+      }
+    },
+
+    "types": {
+      "initial": {
+        "label": "Toàn bộ",
+        "summary": "Tất cả câu hỏi",
+        "detail": "Bao gồm toàn bộ câu hỏi trong chủ đề này, không phụ thuộc vào lịch sử học tập.<br /><br /><b>Dùng khi:</b><ul class=\"mt-1 list-disc pl-5\"><li>Bắt đầu học một chủ đề lần đầu</li><li>Luyện tập tự do, không giới hạn</li></ul>"
+      },
+      "new": {
+        "label": "Mới",
+        "summary": "Chưa học",
+        "detail": "Các câu hỏi chưa có bất kỳ dữ liệu học lặp lại ngắt quãng nào.<br /><br /><b>Dùng khi:</b><ul class=\"mt-1 list-disc pl-5\"><li>Bạn vừa thêm câu hỏi mới</li><li>Bạn muốn làm quen trước khi ôn tập</li></ul>"
+      },
+      "learning": {
+        "label": "Đang học",
+        "summary": "Đang tiến hành",
+        "detail": "Các câu hỏi hiện đang trong giai đoạn học của thuật toán SM-2.<br /><br /><b>Dùng khi:</b><ul class=\"mt-1 list-disc pl-5\"><li>Xây dựng trí nhớ</li><li>Mức độ tự tin còn chưa ổn định</li></ul>"
+      },
+      "review": {
+        "label": "Ôn tập",
+        "summary": "Đến hạn ôn",
+        "detail": "Các câu hỏi được lên lịch ôn dựa trên khoảng thời gian của SM-2.<br /><br />Phù hợp nhất cho ghi nhớ dài hạn và củng cố kiến thức."
+      },
+      "weak": {
+        "label": "Yếu",
+        "summary": "Cần luyện thêm",
+        "detail": "Các câu hỏi có hệ số dễ thấp.<br /><br />Tập trung vào những khái niệm bạn thường gặp khó khăn và giúp ổn định chúng."
+      },
+      "wrong": {
+        "label": "Sai",
+        "summary": "Trả lời sai",
+        "detail": "Các câu hỏi bạn đã trả lời sai và hiện đang trong trạng thái học lại.<br /><br />Lý tưởng để sửa lỗi sớm và tránh lặp lại sai lầm."
+      }
+    }
+  }
+}
