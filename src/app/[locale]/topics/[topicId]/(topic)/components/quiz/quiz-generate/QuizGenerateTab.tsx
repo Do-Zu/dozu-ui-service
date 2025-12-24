@@ -21,6 +21,8 @@ import { IQuizStatistics } from '../../../hooks/useQuizWorkspace';
 import QuizDoingPanel from '../quiz-generate/quiz-doing/QuizDoingPanel';
 import Generate from '../../generate/Generate';
 import type { IGeneratedQuizItem, IQuestion } from '@/app/[locale]/question/types/question.type';
+import RecommendationCard from '../quiz-generate/RecommendationCard';
+import { useQuizRecommendation } from '../quiz-generate/hooks/useQuizRecommendation';
 
 const DEFAULT_CHECK_TYPE = 'initial';
 type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
@@ -31,6 +33,7 @@ export default function QuizGenerateTab() {
     const [typeCounts, setTypeCounts] = useState<Partial<Record<QuizType, number>>>({});
     const [disabledMap, setDisabledMap] = useState<Partial<Record<QuizType, boolean>>>({});
     const [checkingTypes, setCheckingTypes] = useState(false);
+    const { data: recommendation } = useQuizRecommendation(topicId);
 
     const {
         statistics,
@@ -332,6 +335,13 @@ export default function QuizGenerateTab() {
                 </div>
             ) : (
                 <>
+                    {recommendation && (
+                        <RecommendationCard
+                            recommendation={recommendation}
+                            onStart={(type) => handleSelectQuizType(type)}
+                        />
+                    )}
+
                     <QuizTypeSelector
                         onSelectQuizType={handleSelectQuizType}
                         disabledMap={disabledMap}

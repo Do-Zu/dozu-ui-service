@@ -105,4 +105,9 @@ export const quizService = {
         const response = await getRequest(`/quiz/history/${quizResultId}`);
         return response;
     },
+
+    getRecommendation: async (topicId: string) => {
+        const res = await getRequest(`/quiz/recommend?topicId=${topicId}`);
+        return res.data;
+    },
 };
