@@ -52,13 +52,10 @@ class ActivityTrackingService {
 
             // Update streak if this is the first meaningful activity today and classId is provided
             if (this.isFirstMeaningfulActivityToday(today) && classId) {
-                console.log('🔥 First learning activity today - updating streak!');
                 await gamificationService.updateStreak(classId);
             } else if (this.isFirstMeaningfulActivityToday(today) && !classId) {
                 console.warn('⚠️ Cannot update streak: classId is required but not provided');
             }
-
-            console.log(`📚 Activity tracked: ${activity.type}`, activity.metadata);
         } catch (error) {
             console.error('Error tracking activity:', error);
         }
