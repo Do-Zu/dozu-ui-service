@@ -16,6 +16,14 @@ import { isEmpty } from '@/utils';
 import { cn } from '@/lib/utils';
 import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
+import { useDispatch } from 'react-redux';
+import {
+    clearHiddenNodes,
+    clearNodeSelection,
+    clearSelectedNodeData,
+    closeSheet,
+    turnOffMultiSelectMode,
+} from '@/stores/features/mindmap/selectedNodeSlice';
 
 export default function TopicWorkspace() {
     const {
@@ -44,6 +52,18 @@ export default function TopicWorkspace() {
         loading: topicContentLoading,
         error: topicContentError,
     } = useFetch<ITopic>(() => topicService.getTopicById(topicId));
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        return () => {
+            dispatch(clearNodeSelection());
+            dispatch(turnOffMultiSelectMode());
+            dispatch(closeSheet());
+            dispatch(clearSelectedNodeData());
+            dispatch(clearHiddenNodes());
+        };
+    }, []);
 
     useEffect(() => {
         setTopic(topicContent);

@@ -11,7 +11,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Generate from '../generate/Generate';
 import { v4 as uuidv4 } from 'uuid';
-import { getLayoutedElements, getUpdatedEdges } from '@/utils/mindmap/mindmapUtils';
+import { getFilteredEdges, getFilteredNodes, getLayoutedElements, getUpdatedEdges } from '@/utils/mindmap/mindmapUtils';
 import { GeneratedNode } from '@/utils/mindmap/mindmapUtils';
 import { GeneratedEdge } from '@/utils/mindmap/mindmapUtils';
 import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
@@ -19,12 +19,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import NodeFlashcardsBrowse from '../flashcard/node/NodeFlashcardsBrowse';
 import { useAppSelector } from '@/stores/hooks';
 import { useDispatch } from 'react-redux';
-import {
-    clearNodeSelection,
-    clearSelectedNodeData,
-    closeSheet,
-    turnOffMultiSelectMode,
-} from '@/stores/features/mindmap/selectedNodeSlice';
+import { closeSheet } from '@/stores/features/mindmap/selectedNodeSlice';
 import NodeFlashcardsEdit from '../flashcard/node/NodeFlashcardsEdit';
 import NodeFlashcardsLinker from '../flashcard/node/NodeFlashcardsLinker';
 import NodeFlashcardsLearning from '../flashcard/node/NodeFlashcardsLearning';
@@ -80,6 +75,7 @@ const MindmapContent = ({ mode, role }: Props) => {
     const dispatch = useDispatch();
     const selectedNodeData = useAppSelector((state) => state.selectedNodeSlice.selectedNodeData);
     const selectedNodeIds = useAppSelector((state) => state.selectedNodeSlice.selectedNodeIds);
+    const hiddenNodeIds = useAppSelector((state) => state.selectedNodeSlice.hiddenNodeIds);
 
     const isSheetOpen = useAppSelector((state) => state.selectedNodeSlice.isSheetOpen);
 
@@ -196,15 +192,6 @@ const MindmapContent = ({ mode, role }: Props) => {
         }
     }, [hasInitialized, hasShownModal, nodes.length]);
 
-    useEffect(() => {
-        return () => {
-            dispatch(clearNodeSelection());
-            dispatch(turnOffMultiSelectMode());
-            setIsNodeSheetOpen(false);
-            dispatch(clearSelectedNodeData());
-        };
-    }, []);
-
     const handleManualCreation = () => {
         setShowGenerateModal(false);
     };
@@ -266,13 +253,16 @@ const MindmapContent = ({ mode, role }: Props) => {
         return <Spinner />;
     }
 
+    const filteredNodes = getFilteredNodes(nodes, hiddenNodeIds);
+    const filteredEdges = getFilteredEdges(edges, hiddenNodeIds);
+
     return (
         <div className="relative w-full h-full">
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={50} minSize={35} className={isFlashcardsPanelFullscreen ? 'hidden' : ''}>
                     <ReactFlow
-                        nodes={nodes}
-                        edges={edges}
+                        nodes={filteredNodes}
+                        edges={filteredEdges}
                         nodeTypes={nodeTypes}
                         edgeTypes={edgeTypes}
                         onNodesChange={onNodesChange}

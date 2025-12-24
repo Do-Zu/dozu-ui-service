@@ -321,3 +321,17 @@ export const toggleCompleteWithoutItems = ({
         setNodes(updatedAllNodes);
     }
 };
+
+export const getFilteredNodes = (nodes: AppNode[], hiddenNodeIds: string[] = []) => {
+    if (hiddenNodeIds.length === 0) return nodes;
+    const filteredNodes = nodes.filter((item) => !hiddenNodeIds.includes(item.data.nodeId));
+    return filteredNodes;
+};
+
+export const getFilteredEdges = (edges: AppEdge[], hiddenNodeIds: string[] = []) => {
+    if (hiddenNodeIds.length === 0) return edges;
+    const filteredEdges = edges.filter(
+        (edge) => !hiddenNodeIds.includes(edge.source) && !hiddenNodeIds.includes(edge.target),
+    );
+    return filteredEdges;
+};

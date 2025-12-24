@@ -22,6 +22,8 @@ import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import SelectMultipleButton from '@/components/mindmap/button/SelectMultipleButton';
 import { useAppSelector } from '@/stores/hooks';
 import ChangeColorThemeButton from '@/components/mindmap/button/ChangeColorThemeButton';
+import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
+import { getFilteredEdges, getFilteredNodes } from '@/utils/mindmap/mindmapUtils';
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
@@ -57,6 +59,29 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
 
     const { fitView } = useReactFlow();
 
+    const hiddenNodeIds = useAppSelector((state) => state.selectedNodeSlice.hiddenNodeIds);
+
+    const filteredNodes = getFilteredNodes(nodes, hiddenNodeIds);
+    const filteredEdges = getFilteredEdges(edges, hiddenNodeIds);
+
+    function onLayoutSuccess({ layoutedNodes, layoutedEdges }: { layoutedNodes: AppNode[]; layoutedEdges: AppEdge[] }) {
+        setNodes((prev) => {
+            return prev.map((node) => {
+                const layoutedNode = layoutedNodes.find((item) => item.data.nodeId === node.data.nodeId);
+                return layoutedNode ? layoutedNode : node;
+            });
+        });
+        setEdges((prev) => {
+            return prev.map((edge) => {
+                const layoutedEdge = layoutedEdges.find(
+                    (item) => item.source === edge.source && item.target === edge.target,
+                );
+                return layoutedEdge ? layoutedEdge : edge;
+            });
+        });
+        fitView();
+    }
+
     return (
         <Panel position="top-center">
             <div className="flex gap-2 flex-row">
@@ -88,28 +113,22 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                 )}
                 <ExportToCSVButton isPanelExpanded={isPanelExpanded} />
                 <HorizontalLayoutButton
-                    nodes={nodes}
-                    edges={edges}
-                    setNodes={setNodes}
-                    setEdges={setEdges}
-                    fitView={fitView}
+                    layoutNodes={filteredNodes}
+                    layoutEdges={filteredEdges}
                     isPanelExpanded={isPanelExpanded}
+                    onLayoutSuccess={onLayoutSuccess}
                 />
                 <VerticalLayoutButton
-                    nodes={nodes}
-                    edges={edges}
-                    setNodes={setNodes}
-                    setEdges={setEdges}
-                    fitView={fitView}
+                    layoutNodes={filteredNodes}
+                    layoutEdges={filteredEdges}
                     isPanelExpanded={isPanelExpanded}
+                    onLayoutSuccess={onLayoutSuccess}
                 />
                 <MindmapLayoutButton
-                    nodes={nodes}
-                    edges={edges}
-                    setNodes={setNodes}
-                    setEdges={setEdges}
-                    fitView={fitView}
+                    layoutNodes={filteredNodes}
+                    layoutEdges={filteredEdges}
                     isPanelExpanded={isPanelExpanded}
+                    onLayoutSuccess={onLayoutSuccess}
                 />
 
                 <DeleteMindmapButton isPanelExpanded={isPanelExpanded} />
