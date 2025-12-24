@@ -5,7 +5,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ROUTES } from '@/utils/constants/routes';
 import { cn } from '@/lib/utils';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 import flashcardUtils from '../../../utils/flashcard.utils';
@@ -162,10 +161,6 @@ export default function FlashcardsBrowse({
     function setFlipInstantly(isFlipped: boolean) {
         setIsAnimating(false);
         setIsFlipped(isFlipped);
-    }
-
-    function handleEditFlashcardsClick() {
-        router.push(ROUTES.FLASHCARDS_EDIT(topicId));
     }
 
     function resetProgress() {
@@ -414,7 +409,6 @@ export default function FlashcardsBrowse({
                         handleAutoPlaySpeedChange={(value) => setAutoPlaySpeed(value[0])}
                         shuffleEnabled={shuffleEnabled}
                         handleShuffleToggle={() => setShuffleEnabled(!shuffleEnabled)}
-                        handleEditFlashcardsClick={handleEditFlashcardsClick}
                         isFullScreen={false}
                     />
                 </aside>

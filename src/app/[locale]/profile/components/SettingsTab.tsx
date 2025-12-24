@@ -50,7 +50,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             {!showPasswordForm && (
               <Button
                 onClick={() => setShowPasswordForm(true)}
-                variant="gradient"
+                variant="default"
                 className="gap-2"
               >
                 <Lock className="h-4 w-4" />
