@@ -1,9 +1,10 @@
 import { Modal } from '@/components/modal/Modal';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { IColorTheme } from '@/types/mindmap/mindmap.type';
+import { IColorMode, IColorTheme } from '@/types/mindmap/mindmap.type';
 import { ChevronRightIcon } from 'lucide-react';
-import React, { Dispatch, SetStateAction, useMemo } from 'react';
+import React, { Dispatch, ReactElement, SetStateAction, useMemo } from 'react';
 
 interface ThemeItemProps {
     theme: IColorTheme;
@@ -40,14 +41,26 @@ export function ThemeItem({ theme, isSelected, onSelect }: ThemeItemProps) {
 }
 
 interface Props {
+    trigger?: ReactElement;
+    colorMode?: IColorMode;
+    onColorModeChange?: (mode: IColorMode) => void;
     themes: IColorTheme[];
-    selectedTheme: IColorTheme;
+    selectedTheme?: IColorTheme;
     onThemeSelect: (theme: IColorTheme) => void;
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function ColorThemeSelection({ themes, selectedTheme, onThemeSelect, open, setOpen }: Props) {
+export default function ColorThemeSelection({
+    trigger,
+    colorMode,
+    onColorModeChange,
+    themes,
+    selectedTheme,
+    onThemeSelect,
+    open,
+    setOpen,
+}: Props) {
     const { lightThemes, darkThemes } = useMemo(() => {
         return {
             lightThemes: themes.filter((t) => t.type === 'light'),
@@ -58,19 +71,61 @@ export default function ColorThemeSelection({ themes, selectedTheme, onThemeSele
     return (
         <Modal
             trigger={
-                <Button
-                    variant="ghost"
-                    className="h-[68px] border-2 border-dashed flex flex-col items-center justify-center gap-1 px-4 hover:bg-accent"
-                >
-                    <ChevronRightIcon size={18} />
-                    <span className="text-[10px] font-medium">Show more</span>
-                </Button>
+                trigger ?? (
+                    <Button
+                        variant="ghost"
+                        className="h-[68px] border-2 border-dashed flex flex-col items-center justify-center gap-1 px-4 hover:bg-accent"
+                    >
+                        <ChevronRightIcon size={18} />
+                        <span className="text-[10px] font-medium">Show more</span>
+                    </Button>
+                )
             }
             isOpen={open}
             setIsOpen={setOpen}
             title="Select Color Theme"
             body={
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                    {colorMode ? (
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                Coloring Mode
+                            </h4>
+
+                            <div className="flex gap-2">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="sm"
+                                            variant={colorMode === 'branch' ? 'default' : 'outline'}
+                                            onClick={() => onColorModeChange?.('branch')}
+                                        >
+                                            By Branch
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                        <p className="text-xs max-w-[200px]">One color per branch.</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="sm"
+                                            variant={colorMode === 'depth' ? 'default' : 'outline'}
+                                            onClick={() => onColorModeChange?.('depth')}
+                                        >
+                                            By Depth
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                        <p className="text-xs max-w-[200px]">Same depth, same color.</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
+                        </div>
+                    ) : null}
+
                     <div className="space-y-3">
                         <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-1">
                             Light Themes

@@ -84,8 +84,15 @@ export const ROUTES = Object.freeze({
     CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
     ASSIGNMENT_DETAILS: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
         `/class-based/${classId}/assignments/${assignmentId}/details`,
-    CLASS_TOPIC_WORKSPACE: ({ classId, topicId }: { classId: number; topicId: number }) =>
-        `/class-based/${classId}/topics/${topicId}`,
+    CLASS_TOPIC_WORKSPACE: ({
+        classId,
+        topicId,
+        tab,
+    }: {
+        classId: number;
+        topicId: number;
+        tab?: ContentType | null;
+    }) => (tab ? `/class-based/${classId}/topics/${topicId}?tab=${tab}` : `/class-based/${classId}/topics/${topicId}`),
 
     MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
     MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,

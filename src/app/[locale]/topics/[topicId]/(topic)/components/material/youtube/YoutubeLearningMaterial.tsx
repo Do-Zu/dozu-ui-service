@@ -11,7 +11,7 @@ import { YoutubePlayerAdapter } from '../../../media/core/youtube/YoutubePlayerA
 
 interface Props {
     videoId: string;
-    content: string | ITranscriptSegment[];
+    content: ITranscriptSegment[];
 }
 
 export default function YoutubeLearningMaterial({ videoId, content }: Props) {
@@ -26,12 +26,8 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
 
     useEffect(() => {
         if (!isNilOrEmpty(content)) {
-            if (typeof content === 'string') {
-                contentTextOrigin.current = content;
-            } else {
-                if (transcriptUtils.validateTranscript(content)) {
-                    contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
-                }
+            if (transcriptUtils.validateTranscript(content)) {
+                contentTextOrigin.current = content.map((segment) => segment.text).join(' ');
             }
         }
     }, [content]);
@@ -44,14 +40,10 @@ export default function YoutubeLearningMaterial({ videoId, content }: Props) {
     return (
         <div className="flex flex-col p-4 h-full">
             <YoutubePlayer videoId={videoId} onPlayerReady={onPlayerReady} />
-            {typeof content === 'string' ? (
-                <p>{content}</p>
-            ) : (
-                <Fragment>
-                    <SelectMenu refNode={ref} />
-                    <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} ref={ref} />
-                </Fragment>
-            )}
+            <Fragment>
+                <SelectMenu refNode={ref} />
+                <TranscriptViewer transcript={content} onSegmentClick={onSegmentClick} ref={ref} />
+            </Fragment>
         </div>
     );
 }

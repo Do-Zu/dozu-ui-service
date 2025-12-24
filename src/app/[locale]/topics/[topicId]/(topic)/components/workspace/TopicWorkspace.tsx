@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useFetch from '@/hooks/useFetch';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
 
-export default function TopicWorkspace() {
+export default function TopicWorkspace(): JSX.Element {
     const {
         topic,
         topicId,
@@ -31,11 +31,11 @@ export default function TopicWorkspace() {
         setIsLearningContentFullscreen,
     } = useTopicWorkspace();
 
-    function handleScreenModeToggle() {
+    function handleScreenModeToggle(): void {
         setIsLearningContentFullscreen((prev) => !prev);
     }
 
-    function handleTabChange(value: string) {
+    function handleTabChange(value: string): void {
         setTab(value as TopicWorkspaceTabValue);
     }
 
@@ -69,10 +69,10 @@ export default function TopicWorkspace() {
     if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
     return (
-        <div className="relative w-full h-[100vh] border rounded-lg overflow-hidden bg-background">
+        <div className="relative h-screen w-full overflow-hidden rounded-lg border bg-background">
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={35} className={isLearningContentFullscreen ? 'hidden' : ''} minSize={35}>
-                    <div className="flex flex-col h-full p-4">
+                    <div className="flex h-full flex-col p-4">
                         <LearningMaterial />
                     </div>
                 </ResizablePanel>
@@ -83,14 +83,14 @@ export default function TopicWorkspace() {
                 />
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
-                    <div className="flex flex-col h-full">
-                        <Tabs value={tab} className="flex flex-col flex-1 h-full" onValueChange={handleTabChange}>
-                            <div className="flex items-center justify-between mt-6 w-full px-6">
-                                <div className="flex-1 flex justify-center">
-                                    <TabsList className="grid grid-cols-5 w-[95%] rounded-2xl">
+                    <div className="flex h-full flex-col">
+                        <Tabs value={tab} className="flex h-full flex-1 flex-col" onValueChange={handleTabChange}>
+                            <div className="mt-6 flex w-full items-center justify-between px-6">
+                                <div className="flex flex-1 justify-center">
+                                    <TabsList className="grid w-[95%] grid-cols-5 rounded-2xl">
                                         {TOPIC_WORKSPACE_TABS.map((t) => (
                                             <TabsTrigger
-                                                className="rounded-2xl flex items-center justify-center gap-2 text-sm"
+                                                className="flex items-center justify-center gap-2 rounded-2xl text-sm"
                                                 key={t.value}
                                                 value={t.value}
                                             >
@@ -105,9 +105,9 @@ export default function TopicWorkspace() {
                                 <div>
                                     <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
                                         {isLearningContentFullscreen ? (
-                                            <Minimize className="h-4 w-4" />
+                                            <Minimize className="size-4" />
                                         ) : (
-                                            <Maximize className="h-4 w-4" />
+                                            <Maximize className="size-4" />
                                         )}
                                         <span className="sr-only">Toggle Fullscreen</span>
                                     </Button>

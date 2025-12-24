@@ -80,3 +80,5 @@ export interface IMindmapGenerateOptions {
     colorTheme?: IColorTheme | null;
     instruction?: string;
 }
+
+export type IColorMode = 'branch' | 'depth';

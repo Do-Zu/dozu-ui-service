@@ -13,7 +13,7 @@ export type ILearningMaterial =
           type: EnumLearningMaterial.youtube;
           videoId: string;
           embedUrl: string;
-          content: string | ITranscriptSegment[];
+          content: ITranscriptSegment[];
       }
     | {
           type: EnumLearningMaterial.media;
@@ -103,7 +103,7 @@ class LearningMaterialService {
             case RESOURCE_CONTENT_TYPE.YOUTUBE: {
                 const youtubeContent = response.data as {
                     url?: string | null | undefined;
-                    content?: null | undefined | string | ITranscriptSegment[];
+                    content?: null | undefined | ITranscriptSegment[];
                     videoInfo?: { videoId: string } | null | undefined;
                 };
                 if (
