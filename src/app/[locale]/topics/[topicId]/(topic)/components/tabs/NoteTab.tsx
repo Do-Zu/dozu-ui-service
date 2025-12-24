@@ -79,11 +79,11 @@ export default function NoteTab() {
         },
     });
 
-    async function onGenerateClick() {
+    const onGenerateClick = async () => {
         reset();
         setGeneratedSummary('');
         await execute({ content: contentTextOrigin.current, method: 'POST', type: METHOD_LEARNING.SHORT_SUMMARY });
-    }
+    };
 
     if (fetchedNoteError) {
         return <DataStatus variant="error" />;
@@ -93,15 +93,15 @@ export default function NoteTab() {
     }
 
     return (
-        <div className="w-full h-full flex-col gap-4 pb-10 pr-6">
+        <div className="size-full flex-col gap-4 pb-10 pr-6">
             {generatedSummary.length > 0 ? null : (
                 <div className="flex flex-row items-center justify-center gap-4 pt-8">
-                    <div className="bg-white shadow-sm text-muted-foreground">
+                    <div className="bg-white text-muted-foreground shadow-sm">
                         Create a brief summary based on your inputted content
                     </div>
 
                     {isGenerating ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <Loader2 className="size-5 animate-spin" />
                     ) : (
                         <Button className="rounded-lg" onClick={onGenerateClick} disabled={isGenerating}>
                             Generate
@@ -111,7 +111,7 @@ export default function NoteTab() {
             )}
 
             {generatedSummary.length > 0 ? (
-                <div className="h-full flex flex-col gap-4">
+                <div className="flex h-full flex-col gap-4">
                     <div className="flex items-center justify-between">
                         <div className="text-xl font-bold">Summary Preview</div>
                         <Button
@@ -121,7 +121,7 @@ export default function NoteTab() {
                             hidden={isGenerating}
                             disabled={updateNoteLoading}
                         >
-                            {updateNoteLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save />}
+                            {updateNoteLoading ? <Loader2 className="size-5 animate-spin" /> : <Save />}
                         </Button>
                     </div>
                     <RichTextEditor
@@ -133,7 +133,7 @@ export default function NoteTab() {
                     />
                 </div>
             ) : (
-                <div className="h-full flex flex-col gap-4">
+                <div className="flex h-full flex-col gap-4">
                     <div className="flex justify-end">
                         <Button
                             variant="outline"
@@ -141,7 +141,7 @@ export default function NoteTab() {
                             onClick={() => onSubmit(content)}
                             disabled={updateNoteLoading}
                         >
-                            {updateNoteLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save />}
+                            {updateNoteLoading ? <Loader2 className="size-5 animate-spin" /> : <Save />}
                         </Button>
                     </div>
                     <RichTextEditor
