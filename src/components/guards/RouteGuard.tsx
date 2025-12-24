@@ -4,9 +4,7 @@ import { useAuth } from '@/contexts/auth/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, ReactNode, Suspense, useState, useMemo } from 'react';
 import { RedirectService } from '@/utils/auth/redirectService';
-import { RedirectChainService } from '@/utils/auth/redirectChainService';
 import LoadingPage from '@/app/loading';
-import { ROUTES } from '@/utils/constants/routes';
 
 interface RouteGuardProps {
     children: ReactNode;
@@ -18,7 +16,7 @@ interface RouteGuardProps {
  * based on their authentication status and onboarding completion
  */
 export function RouteGuard({ children, fallback }: RouteGuardProps) {
-    const { isLoading, isAuthenticated, userType, user } = useAuth();
+    const { isLoading, isAuthenticated, userType } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
     const [isHydrated, setIsHydrated] = useState(false);
@@ -66,6 +64,7 @@ export function RouteGuard({ children, fallback }: RouteGuardProps) {
 /**
  * HOC version of RouteGuard for wrapping components
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function withRouteGuard<P extends object>(Component: React.ComponentType<P>, fallback?: ReactNode) {
     return function GuardedComponent(props: P) {
         return (
