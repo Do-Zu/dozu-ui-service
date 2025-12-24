@@ -31,6 +31,7 @@ import MultiNodeGeneratePanel from '../flashcard/node/MultiNodeGeneratePanel';
 import MindmapGenerate from './components/MindmapGenerate';
 import RoadmapButtonPanel from '@/app/[locale]/mindmap/components/RoadmapButtonPanel';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import Roadmap from './components/Roadmap';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -49,7 +50,20 @@ interface TeacherProps {
 
 type Props = { mode: ILearningMode } & (StudentProps | TeacherProps);
 
-type FlashcardsViewMode = 'none' | 'browse' | 'edit' | 'link' | 'learning' | 'multiNodePreview';
+type FlashcardsViewMode = 'idle' | 'browse' | 'edit' | 'link' | 'learning' | 'multiNodePreview';
+
+type NodeFlashcardPanelMode = {
+    mode: 'flashcard';
+    data: {
+        viewMode: FlashcardsViewMode;
+    };
+};
+
+type NodeRoadmapPanelMode = {
+    mode: 'roadmap';
+};
+
+type NodePanelMode = NodeFlashcardPanelMode | NodeRoadmapPanelMode | { mode: 'idle' };
 
 const MindmapContent = ({ mode, role }: Props) => {
     const {
@@ -80,34 +94,24 @@ const MindmapContent = ({ mode, role }: Props) => {
     const isSheetOpen = useAppSelector((state) => state.selectedNodeSlice.isSheetOpen);
 
     const [isFlashcardsPanelFullscreen, setIsFlashcardsPanelFullscreen] = useState<boolean>(false);
-    const [flashcardsViewMode, setFlashcardsViewMode] = useState<FlashcardsViewMode>('none');
-
     const [generatedNodeFlashcards, setGeneratedNodeFlashcards] = useState<IGenerateNodeFlashcardsItem[]>([]);
 
-    const isNodeFlashcardsPanelOpen = flashcardsViewMode !== 'none';
+    const [nodePanelMode, setNodePanelMode] = useState<NodePanelMode>({ mode: 'idle' });
+    const isNodeFlashcardsPanelOpen = nodePanelMode.mode === 'flashcard' && nodePanelMode.data.viewMode !== 'idle';
+    const flashcardsViewMode = nodePanelMode.mode === 'flashcard' ? nodePanelMode.data.viewMode : 'idle';
 
-    function onViewNodeFlashcardsClick() {
+    const isRoadmapPanelOpen = nodePanelMode.mode === 'roadmap';
+
+    function onFlashcardsViewOpen(viewMode: FlashcardsViewMode) {
         dispatch(closeSheet());
-        setFlashcardsViewMode('browse');
+        setNodePanelMode({
+            mode: 'flashcard',
+            data: { viewMode },
+        });
     }
 
-    function onEditNodeFlashcardsClick() {
-        dispatch(closeSheet());
-        setFlashcardsViewMode('edit');
-    }
-
-    function onLinkNodeFlashcardsClick() {
-        dispatch(closeSheet());
-        setFlashcardsViewMode('link');
-    }
-
-    function onLearnNodeFlashcardsClick() {
-        dispatch(closeSheet());
-        setFlashcardsViewMode('learning');
-    }
-
-    function onViewFlashcardsClose() {
-        setFlashcardsViewMode('none');
+    function onFlashcardsViewClose() {
+        setNodePanelMode({ mode: 'idle' });
         setIsFlashcardsPanelFullscreen(false);
         requestAnimationFrame(() => {
             fitView({ duration: 800 });
@@ -116,19 +120,40 @@ const MindmapContent = ({ mode, role }: Props) => {
 
     function onNodeDetailsClose() {
         dispatch(closeSheet());
+        setNodePanelMode({ mode: 'idle' });
         requestAnimationFrame(() => {
             fitView({ duration: 800 });
         });
     }
 
     function onGenerateMultiNodeFlashcardsSuccess(data: IGenerateNodeFlashcardsItem[]) {
-        dispatch(closeSheet());
         setGeneratedNodeFlashcards(data);
-        setFlashcardsViewMode('multiNodePreview');
+        dispatch(closeSheet());
+        setNodePanelMode({
+            mode: 'flashcard',
+            data: {
+                viewMode: 'multiNodePreview',
+            },
+        });
     }
 
     function onFlashcardsPanelToggle() {
         setIsFlashcardsPanelFullscreen((prev) => !prev);
+    }
+
+    function onRoadmapOpen() {
+        dispatch(closeSheet());
+        setNodePanelMode({ mode: 'roadmap' });
+        requestAnimationFrame(() => {
+            fitView({ duration: 800 });
+        });
+    }
+
+    function onRoadmapClose() {
+        setNodePanelMode({ mode: 'idle' });
+        requestAnimationFrame(() => {
+            fitView({ duration: 800 });
+        });
     }
 
     const showNodeFlashcardsPanel = useCallback(() => {
@@ -137,7 +162,7 @@ const MindmapContent = ({ mode, role }: Props) => {
             return (
                 <NodeFlashcardsBrowse
                     nodeId={selectedNodeData.nodeId}
-                    onClose={onViewFlashcardsClose}
+                    onClose={onFlashcardsViewClose}
                     isFullscreen={isFlashcardsPanelFullscreen}
                     onPanelToggle={onFlashcardsPanelToggle}
                 />
@@ -147,7 +172,7 @@ const MindmapContent = ({ mode, role }: Props) => {
             return (
                 <NodeFlashcardsEdit
                     nodeId={selectedNodeData.nodeId}
-                    onClose={onViewFlashcardsClose}
+                    onClose={onFlashcardsViewClose}
                     isFullscreen={isFlashcardsPanelFullscreen}
                     onPanelToggle={onFlashcardsPanelToggle}
                 />
@@ -157,7 +182,7 @@ const MindmapContent = ({ mode, role }: Props) => {
             return (
                 <NodeFlashcardsLinker
                     nodeId={selectedNodeData.nodeId}
-                    onClose={onViewFlashcardsClose}
+                    onClose={onFlashcardsViewClose}
                     isFullscreen={isFlashcardsPanelFullscreen}
                     onPanelToggle={onFlashcardsPanelToggle}
                 />
@@ -167,7 +192,7 @@ const MindmapContent = ({ mode, role }: Props) => {
             return (
                 <NodeFlashcardsLearning
                     nodeId={selectedNodeData.nodeId}
-                    onClose={onViewFlashcardsClose}
+                    onClose={onFlashcardsViewClose}
                     isFullscreen={isFlashcardsPanelFullscreen}
                     onPanelToggle={onFlashcardsPanelToggle}
                 />
@@ -177,13 +202,19 @@ const MindmapContent = ({ mode, role }: Props) => {
             return (
                 <MultiNodeFlashcardsPreview
                     generatedNodeFlashcards={generatedNodeFlashcards}
-                    onClose={onViewFlashcardsClose}
+                    onClose={onFlashcardsViewClose}
                     isFullscreen={isFlashcardsPanelFullscreen}
                     onPanelToggle={onFlashcardsPanelToggle}
                 />
             );
         }
     }, [selectedNodeData?.nodeId, flashcardsViewMode]);
+
+    useEffect(() => {
+        if (isSheetOpen) {
+            setNodePanelMode({ mode: 'idle' });
+        }
+    }, [isSheetOpen]);
 
     useEffect(() => {
         if (hasInitialized && !hasShownModal && nodes.length === 1) {
@@ -273,7 +304,7 @@ const MindmapContent = ({ mode, role }: Props) => {
                         className={showGenerateModal ? 'blur-sm' : 'rounded-md'}
                     >
                         <MindmapButtonsPanel mode={mode} role={role} />
-                        <RoadmapButtonPanel mode={mode} role={role} />
+                        <RoadmapButtonPanel onClick={onRoadmapOpen} />
                         <MultiNodeGeneratePanel
                             nodes={nodes}
                             nodeIds={selectedNodeIds}
@@ -321,6 +352,26 @@ const MindmapContent = ({ mode, role }: Props) => {
                     )}
                 </ResizablePanel>
 
+                {isSheetOpen && (
+                    <>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel defaultSize={20} minSize={20}>
+                            <div className="h-full overflow-y-auto">
+                                <NodeDetails
+                                    onClose={onNodeDetailsClose}
+                                    onViewNodeFlashcardsClick={() => onFlashcardsViewOpen('browse')}
+                                    onLinkNodeFlashcardsClick={() => onFlashcardsViewOpen('link')}
+                                    onLearnNodeFlashcardsClick={() => onFlashcardsViewOpen('learning')}
+                                    onEditNodeFlashcardsClick={() => onFlashcardsViewOpen('edit')}
+                                    setIsNodeFlashcardsEditOpen={() => onFlashcardsViewOpen('edit')}
+                                    mode={mode}
+                                    role={role}
+                                />
+                            </div>
+                        </ResizablePanel>
+                    </>
+                )}
+
                 {!isSheetOpen && isNodeFlashcardsPanelOpen && (
                     <>
                         <ResizableHandle withHandle />
@@ -330,22 +381,11 @@ const MindmapContent = ({ mode, role }: Props) => {
                     </>
                 )}
 
-                {isSheetOpen && (
+                {!isSheetOpen && isRoadmapPanelOpen && (
                     <>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={20} minSize={20}>
-                            <div className="h-full overflow-y-auto">
-                                <NodeDetails
-                                    onClose={onNodeDetailsClose}
-                                    onViewNodeFlashcardsClick={onViewNodeFlashcardsClick}
-                                    onLinkNodeFlashcardsClick={onLinkNodeFlashcardsClick}
-                                    onLearnNodeFlashcardsClick={onLearnNodeFlashcardsClick}
-                                    onEditNodeFlashcardsClick={onEditNodeFlashcardsClick}
-                                    setIsNodeFlashcardsEditOpen={() => setFlashcardsViewMode('edit')}
-                                    mode={mode}
-                                    role={role}
-                                />
-                            </div>
+                            <Roadmap mode={mode} role={role} onClose={onRoadmapClose} />
                         </ResizablePanel>
                     </>
                 )}
