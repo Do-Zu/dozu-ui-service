@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRightFromLine, CircleDashed } from 'lucide-react';
+import { CircleDashed } from 'lucide-react';
 import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
@@ -24,7 +24,7 @@ const elk = new ELK();
 //     'elk.padding': '[top=10,left=10,bottom=10,right=10]', // margin around layout
 // };
 
-const RadialLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanelExpanded }: LayoutButtonProps) => {
+const RadialLayoutButton = ({ layoutNodes: nodes, layoutEdges: edges, onLayoutSuccess }: LayoutButtonProps) => {
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
             const opts = { 'elk.direction': direction, ...radialLayoutElkOptions };
@@ -32,12 +32,10 @@ const RadialLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanel
             // const es = useInitialNodes ? initialEdges : edges;
 
             getLayoutedElements(nodes, edges, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-                setNodes(layoutedNodes);
-                setEdges(layoutedEdges);
-                fitView();
+                onLayoutSuccess?.({ layoutedNodes, layoutedEdges });
             });
         },
-        [nodes, edges, setNodes, setEdges, fitView],
+        [nodes, edges, onLayoutSuccess],
     );
 
     return (
