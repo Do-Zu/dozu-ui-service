@@ -50,7 +50,7 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
                     <Waypoints />
                 </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom"> {'Mindmap layout'}</TooltipContent>
+            <TooltipContent side="right"> {'Mindmap layout'}</TooltipContent>
         </Tooltip>
     );
 };

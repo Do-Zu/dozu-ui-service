@@ -53,7 +53,7 @@ const RadialLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPanel
                     <CircleDashed />
                 </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom"> {'Radial layout'}</TooltipContent>
+            <TooltipContent side="right"> {'Radial layout'}</TooltipContent>
         </Tooltip>
     );
 };

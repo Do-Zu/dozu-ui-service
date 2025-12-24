@@ -44,7 +44,7 @@ const HorizontalLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isP
                     {isPanelExpanded ? 'Set horizontal layout' : ''}
                 </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom"> {'Horizontal layout'}</TooltipContent>
+            <TooltipContent side="right"> {'Horizontal layout'}</TooltipContent>
         </Tooltip>
     );
 };
