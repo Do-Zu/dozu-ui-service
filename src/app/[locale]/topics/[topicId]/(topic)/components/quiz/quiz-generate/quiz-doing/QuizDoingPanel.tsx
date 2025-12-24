@@ -38,6 +38,7 @@ export default function QuizDoingPanel() {
                 questionId: q.questionId,
                 correct: typeof q.isCorrect === 'boolean' ? q.isCorrect : q.selectedAnswer === q.correctIndex,
                 userAnswerIndex: typeof q.selectedAnswer === 'number' ? q.selectedAnswer : null,
+                confidence: q.isCorrect ? q.confidence : undefined,
             }));
 
             const response = await quizService.submitQuiz({

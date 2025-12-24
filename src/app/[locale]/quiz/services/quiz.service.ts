@@ -25,7 +25,6 @@ export const quizService = {
     },
 
     submitQuiz: async (quizData: any) => {
-        console.log('=== Quiz Submission Debug ===');
         console.log('Quiz data:', quizData);
         
         const response = await postRequest('/quiz/submit', quizData);
