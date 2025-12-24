@@ -2,7 +2,9 @@
   "EditLearningMaterial": {
     "header": "Learning material",
     "submitButtonLabel": "Submit",
-    "closeButtonAria": "Close"
-
+    "closeButtonAria": "Close",
+    "download": "Download",
+    "classComments": "Class Comments",
+    "addClassComment": "Add a class comment..."
   }
 }

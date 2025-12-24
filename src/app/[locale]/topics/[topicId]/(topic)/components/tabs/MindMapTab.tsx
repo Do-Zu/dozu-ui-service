@@ -1,18 +1,14 @@
 import { MindMapProvider } from '@/app/[locale]/mindmap/context/MindMapContext';
 import MindmapContent from '../mindmap/MindmapContent';
-import useFetch from '@/hooks/useFetch';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { isNil } from '@/utils';
-import { METHOD_LEARNING } from '@/utils/constants/method';
 import DataStatus from '@/components/errors/DataStatus';
-import Spinner from '@/components/ui/spinner';
-import { useEffect } from 'react';
-import flashcardContentService, { IFlashcardContent } from '../../service/flashcardContent.service';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import LoadingPage from '@/app/loading';
 
 interface StudentProps {
     role: UserRoleEnum.USER;
@@ -24,33 +20,8 @@ interface TeacherProps {
 type Props = StudentProps | TeacherProps;
 
 export default function MindmapTab({}: Props) {
-    const {
-        tab,
-        topicId,
-        flashcards,
-        setFlashcards,
-        learningFlashcards,
-        setLearningFlashcards,
-        ankiSettings,
-        setAnkiSettings,
-    } = useTopicWorkspace();
-
-    const {
-        data: flashcardContent,
-        loading: flashcardContentLoading,
-        error: flashcardContentError,
-    } = useFetch<IFlashcardContent>(() => flashcardContentService.getFlashcardContent({ topicId }), {
-        shouldRun:
-            (isNil(flashcards) || isNil(learningFlashcards) || isNil(ankiSettings)) && tab === METHOD_LEARNING.MINDMAP,
-    });
-
-    useEffect(() => {
-        if (flashcardContent) {
-            setFlashcards(flashcardContent.flashcards);
-            setLearningFlashcards(flashcardContent.learningFlashcards);
-            setAnkiSettings(flashcardContent.ankiSettings);
-        }
-    }, [flashcardContent]);
+    const { flashcards, learningFlashcards, ankiSettings, isFlashcardTabLoading, flashcardTabError } =
+        useTopicWorkspace();
 
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const { isStudent } = useRoleChecker();
@@ -60,15 +31,15 @@ export default function MindmapTab({}: Props) {
         // return UserRoleEnum.ADMIN;
     };
 
-    if (flashcardContentLoading) return <Spinner />;
+    if (isFlashcardTabLoading) return <LoadingPage />;
 
-    if (flashcardContentError) return <DataStatus variant="error" title={flashcardContentError} />;
+    if (flashcardTabError) return <DataStatus variant="error" title={flashcardTabError} />;
 
     if (isNil(learningFlashcards) || isNil(flashcards) || isNil(ankiSettings)) return <DataStatus variant="empty" />;
 
     return (
-        <MindMapProvider>
+        // <MindMapProvider>
             <MindmapContent mode={learningMode as ILearningMode} role={getRole()} />
-        </MindMapProvider>
+        // </MindMapProvider>
     );
 }

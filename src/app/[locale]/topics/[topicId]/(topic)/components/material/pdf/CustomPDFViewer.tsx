@@ -36,7 +36,7 @@ interface ToolbarProps {
     onScreenModeToogle: () => void;
 
     pageNumber: number;
-    setPageNumber: Dispatch<SetStateAction<number>>;
+    setPageNumber: (page: number) => void;
     numPages: number;
 }
 
@@ -128,10 +128,13 @@ interface Props {
     fileName: string;
 }
 
-const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName }, ref) => {
-    const { pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullScreen } = useTopicWorkspace();
+const pagesPerDownload = 5;
+const pagesGap = 2;
 
-    const [numPages, setNumPages] = useState<number | null>(null);
+const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName }, ref) => {
+    const { totalPages, setTotalPages, pageNumber, setPageNumber, isPdfViewerFullscreen, setIsPdfViewerFullscreen } =
+        useTopicWorkspace();
+
     const documentRef = useRef<HTMLDivElement>(null);
     const [documentSize, setDocumentSize] = useState<{ width: number; height: number }>();
     const [documentScale, setDocumentScale] = useState<number>(1);
@@ -139,6 +142,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
     const [pdfSize, setPdfSize] = useState<{ width: number; height: number }>();
     const [rotate, setRotate] = useState<number>(0);
     const [selectedScaleOption, setSelectedScaleOption] = useState<string>('fit');
+    const [visiblePages, setVisiblePages] = useState<number>(pagesPerDownload);
 
     // need to be verified
     useEffect(() => {
@@ -155,16 +159,16 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         return () => observer.disconnect();
     }, []);
 
-    // need to be used with debounce
+    // if user clicks page to view content in node (mindmap), then set visible pages so user can view content
     useEffect(() => {
-        if (documentSize && pdfSize) {
-            setDocumentScale(documentSize.width / pdfSize.width);
+        if (pageNumber > visiblePages) {
+            setVisiblePages(pageNumber + 1);
         }
-    }, [documentSize?.width, documentSize?.height, pdfSize?.width, pdfSize?.height]);
+    }, [pageNumber]);
 
     async function onDocumentLoadSuccess(pdfObject: PDFDocumentProxy) {
         const { numPages } = pdfObject;
-        setNumPages(numPages);
+        setTotalPages(numPages);
         setPageNumber(1);
         if (numPages >= 1) {
             const page = await pdfObject.getPage(1);
@@ -193,18 +197,28 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         const pdfHeightByScale = pdfSize.height * documentScale;
         const scrollTop = documentRef.current.scrollTop;
         const newPageNumber = Math.floor(scrollTop / pdfHeightByScale) + 1;
-        if (newPageNumber !== pageNumber) setPageNumber(newPageNumber);
+        if (visiblePages - newPageNumber <= pagesGap) {
+            setVisiblePages((prev) => prev + pagesPerDownload);
+        }
+        if (!isNaN(newPageNumber) && newPageNumber !== pageNumber) setPageNumber(newPageNumber);
     }
 
     useEffect(() => {
+        let timeout: NodeJS.Timeout;
         if (selectedScaleOption === 'fit') {
             if (documentSize && pdfSize) {
-                setDocumentScale(documentSize.width / pdfSize.width);
+                timeout = setTimeout(() => {
+                    const scale = pdfSize.width === 0 ? 1 : documentSize.width / pdfSize.width;
+                    setDocumentScale(scale);
+                }, 100);
             }
         } else {
             const numericScale = Number(selectedScaleOption);
             setDocumentScale(isNaN(numericScale) ? 1 : numericScale);
         }
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [selectedScaleOption, documentSize?.width, documentSize?.height, pdfSize?.width, pdfSize?.height]);
 
     useEffect(() => {
@@ -213,7 +227,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
         const scrollTop = documentRef.current.scrollTop;
         const currentPageNumber = Math.floor(scrollTop / pdfHeightByScale) + 1;
 
-        if (currentPageNumber === pageNumber) {
+        if (isNaN(currentPageNumber) || currentPageNumber === pageNumber) {
             return;
         }
 
@@ -222,14 +236,13 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
     }, [pdfSize?.width, pdfSize?.height, pageNumber, documentScale]);
 
     function onScreenModeToogle() {
-        setIsPdfViewerFullScreen((prev) => !prev);
+        setIsPdfViewerFullscreen((prev) => !prev);
     }
 
     function onPageLoading(pageNumber: number) {
         return (
             <div className="flex items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Loading page...</span>
             </div>
         );
     }
@@ -246,7 +259,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
                 onScreenModeToogle={onScreenModeToogle}
                 pageNumber={pageNumber}
                 setPageNumber={setPageNumber}
-                numPages={numPages || 0}
+                numPages={totalPages || 0}
             />
             <div className="h-full border rounded-md p-2" ref={ref}>
                 <Document
@@ -257,7 +270,7 @@ const CustomPDFViewer = forwardRef<HTMLDivElement, Props>(({ pdfUrl, fileName },
                     onScroll={handleDocumentScroll}
                     className="h-full overflow-y-auto"
                 >
-                    {Array.from({ length: numPages || 0 }, (_, index) => {
+                    {Array.from({ length: Math.min(totalPages || 0, visiblePages) }, (_, index) => {
                         const pageNumber = index + 1;
                         return (
                             <Page

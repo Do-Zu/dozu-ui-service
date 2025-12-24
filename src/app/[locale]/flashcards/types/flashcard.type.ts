@@ -6,7 +6,6 @@ import {
     INextReviewIntervalForRating,
 } from '@/types/anki';
 import { IFlashcardStatus, IItemSpacedRepetition, IQualityResponse } from '@/types/itemSpacedRepetitionTracking.type';
-import { TimeUnit } from '@/utils';
 
 export interface IFlashcard {
     flashcardId: number;
@@ -31,11 +30,6 @@ export type IFlashcardLearningState = Pick<
     IItemSpacedRepetition,
     'status' | 'lastReviewed' | 'nextReview' | 'repetitionNumber' | 'easinessFactor' | 'reviewInterval' | 'step'
 > & { flashcardId?: number };
-
-export interface IQualityResponseNextReviewInterval {
-    qualityResponse: IQualityResponse;
-    nextReviewInterval: number;
-}
 
 export type IFlashcardCreateInput = Pick<IFlashcard, 'front' | 'back'> & { image?: IImageSaveInput | null };
 export type IFlashcardUpdateInput = Pick<IFlashcard, 'flashcardId' | 'front' | 'back'> & {
@@ -74,11 +68,6 @@ export interface IUploadImageSaveInput {
 
 export type IImageSaveInput = IUnspashImageSaveInput | IUploadImageSaveInput;
 
-export type ICardNextReviewSchedule = {
-    flashcardId: number;
-    nextReviewIntervalsForRating: INextReviewIntervalForRating[];
-};
-
 export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'imageUrl' | 'topicName' | 'nodeId'> & {
     learningState: IFlashcardLearningState;
     nextReview: string;
@@ -88,6 +77,7 @@ export type IDueAnkiCard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | '
 export type IAnkiCardReviewed = Pick<IFlashcard, 'flashcardId'> & {
     learningState: IFlashcardLearningState;
     nextReview: string;
+    nextReviewInterval: INextReviewInterval;
     status: IAnkiStatus;
     rating: IAnkiRating;
 };
@@ -134,3 +124,45 @@ export interface IUnspashImage {
     width?: number;
     height?: number;
 }
+
+export type InsertFlashcardsBody = (Pick<IFlashcard, 'front' | 'back' | 'nodeId'> & {
+    image?: IImageSaveInput | null;
+})[];
+
+export type IUpdateFlashcard = Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'nodeId' | 'imageUrl'>;
+
+export type IUpdateFlashcardsBody = (Pick<IFlashcard, 'flashcardId' | 'front' | 'back' | 'nodeId'> & {
+    image?: IImageSaveInput | null;
+})[];
+
+export type ICreateFlashcardsForTopicPayload = {
+    topicId: number;
+    flashcards: InsertFlashcardsBody;
+};
+
+export type IUpdateFlashcardsInTopicPayload = {
+    topicId: number;
+    flashcards: IUpdateFlashcardsBody;
+};
+
+export type IDeleteFlashcardsInTopicPayload = {
+    topicId: number;
+    flashcards: number[];
+};
+
+export type IBatchFlashcardsInTopicData = {
+    createInputs: InsertFlashcardsBody;
+    updateInputs: IUpdateFlashcardsBody;
+    deleteIds: number[];
+};
+
+export type IBatchFlashcardsInTopicPayload = {
+    topicId: number;
+    data: IBatchFlashcardsInTopicData;
+};
+
+export type IBatchFlashcardsInTopicResult = {
+    createdFlashcards: IFlashcard[];
+    updatedFlashcards: IFlashcard[];
+    deletedFlashcards: number[];
+};

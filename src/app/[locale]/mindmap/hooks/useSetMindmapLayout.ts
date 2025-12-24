@@ -2,13 +2,15 @@ import { AppNode } from '@/types/mindmap/mindmap.type';
 import { useReactFlow } from '@xyflow/react';
 import { useCallback } from 'react';
 import { useMindMapContext } from '../context/MindMapContext';
-import { getLayoutedElements } from '../utils/mindmap.utils';
+import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
+import { mindmapLayoutElkOptions } from '../constants';
 
-const elkOptions = {
-    'elk.algorithm': 'radial',
-    // 'elk.layered.spacing.nodeNodeBetweenLayers': '100',
-    'elk.spacing.nodeNode': '80',
-};
+// const elkOptions = {
+//     'elk.algorithm': 'radial',
+//     // 'elk.layered.spacing.nodeNodeBetweenLayers': '100',
+//     'elk.spacing.nodeNode': '80',
+    
+// };
 
 export function useSetMindmapLayout() {
     const { fitView } = useReactFlow();
@@ -28,7 +30,7 @@ export function useSetMindmapLayout() {
     } = useMindMapContext();
     const onLayout = useCallback(
         ({ direction, useInitialNodes = false }: { direction: string; useInitialNodes?: boolean }) => {
-            const opts = { 'elk.direction': direction, ...elkOptions };
+            const opts = { 'elk.direction': direction, ...mindmapLayoutElkOptions };
             // const ns = useInitialNodes ? initialNodes : nodes;
             // const es = useInitialNodes ? initialEdges : edges;
 

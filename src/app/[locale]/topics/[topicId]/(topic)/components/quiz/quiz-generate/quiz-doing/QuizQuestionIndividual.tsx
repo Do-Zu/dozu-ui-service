@@ -139,41 +139,44 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
             {/* multi choice*/}
             {!isFreeResponse && Array.isArray(choices) && choices.length > 0 && (
                 <div className="space-y-3">
-                    {choices.map((choice: string, i: number) => {
-                        const isSelected =
-                            (typeof question.selectedAnswer === 'number'
-                                ? question.selectedAnswer
-                                : localChoiceAnswer) === i;
-                        const isCorrectChoice = correctIndex === i;
+                    {(choices ?? [])
+                        .filter((c) => typeof c === 'string' && c.trim() !== '')
+                        .map((choice: string, i: number) => {
+                            const isSelected =
+                                (typeof question.selectedAnswer === 'number'
+                                    ? question.selectedAnswer
+                                    : localChoiceAnswer) === i;
 
-                        let borderColor = 'border-border';
-                        let bgColor = 'bg-background';
+                            const isCorrectChoice = correctIndex === i;
 
-                        if (isAnswered) {
-                            if (isCorrectChoice) {
-                                borderColor = 'border-green-500';
-                                bgColor = 'bg-green-50 dark:bg-green-900/20';
-                            } else if (isSelected && !isCorrectChoice) {
-                                borderColor = 'border-red-500';
-                                bgColor = 'bg-red-50 dark:bg-red-900/20';
+                            let borderColor = 'border-border';
+                            let bgColor = 'bg-background';
+
+                            if (isAnswered) {
+                                if (isCorrectChoice) {
+                                    borderColor = 'border-green-500';
+                                    bgColor = 'bg-green-50 dark:bg-green-900/20';
+                                } else if (isSelected && !isCorrectChoice) {
+                                    borderColor = 'border-red-500';
+                                    bgColor = 'bg-red-50 dark:bg-red-900/20';
+                                }
                             }
-                        }
 
-                        return (
-                            <button
-                                key={i}
-                                type="button"
-                                onClick={() => handleSelectChoice(i)}
-                                disabled={isAnswered}
-                                className={`w-full text-left p-4 border rounded-lg transition 
-                                    ${borderColor} ${bgColor}
-                                    ${isAnswered ? 'cursor-default opacity-80' : 'hover:bg-muted'}
-                                `}
-                            >
-                                <span className="text-base">{choice}</span>
-                            </button>
-                        );
-                    })}
+                            return (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => handleSelectChoice(i)}
+                                    disabled={isAnswered}
+                                    className={`w-full text-left p-4 border rounded-lg transition 
+                            ${borderColor} ${bgColor}
+                            ${isAnswered ? 'cursor-default opacity-80' : 'hover:bg-muted'}
+                        `}
+                                >
+                                    <span className="text-base">{choice}</span>
+                                </button>
+                            );
+                        })}
                 </div>
             )}
 

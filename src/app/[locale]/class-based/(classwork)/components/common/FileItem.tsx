@@ -1,17 +1,50 @@
 import React from 'react';
-import { X, FileText, FileImage, FileSpreadsheet, FileArchive, File as FileIcon, FileCode, FileType } from 'lucide-react';
+import {
+    X,
+    FileText,
+    FileImage,
+    FileSpreadsheet,
+    FileArchive,
+    File as FileIcon,
+    FileCode,
+    FileType,
+    Link as LinkIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-interface AttachmentItemProps {
+interface FileAttachment {
     file: File;
-    onRemove?: () => void;
+    url?: never;
+    title?: never;
 }
 
-export default function FileItem({ file, onRemove }: AttachmentItemProps) {
-    const ext = file.name.split('.').pop()?.toLowerCase();
+interface UrlAttachment {
+    url: string;
+    title: string;
+    file?: never;
+}
+
+type AttachmentItemProps = (FileAttachment | UrlAttachment) & {
+    onRemove?: () => void;
+};
+
+export default function FileItem(props: AttachmentItemProps) {
+    const isFile = props.file instanceof File;
+    const isUrl = !isFile;
+
+    const file = isFile ? props.file : null;
+    const urlTitle = isUrl ? props.url : null;
+    const urlLink = isUrl ? props.url : null;
+
+    // ---- Extract extension for file icons ----
+    const ext = isFile ? file!.name.split('.').pop()?.toLowerCase() : null;
 
     function getIcon() {
+        if (isUrl) {
+            return <LinkIcon className="h-6 w-6 text-blue-500" />;
+        }
+
         if (!ext) return <FileIcon className="h-6 w-6 text-gray-500" />;
         if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return <FileImage className="h-6 w-6 text-blue-500" />;
         if (['pdf'].includes(ext)) return <FileText className="h-6 w-6 text-red-500" />;
@@ -29,17 +62,36 @@ export default function FileItem({ file, onRemove }: AttachmentItemProps) {
         >
             <div className="flex items-center space-x-3 overflow-hidden">
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">{getIcon()}</div>
+
                 <div className="flex flex-col min-w-0">
-                    <span className="truncate text-sm font-medium text-foreground max-w-[220px]">{file.name}</span>
-                    <span className="text-xs text-muted-foreground uppercase">{ext || 'file'}</span>
+                    {isFile ? (
+                        <>
+                            <span className="truncate text-sm font-medium text-foreground max-w-[220px]">
+                                {file!.name}
+                            </span>
+                            <span className="text-xs text-muted-foreground uppercase">{ext || 'file'}</span>
+                        </>
+                    ) : (
+                        <>
+                            <a
+                                href={urlLink!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="truncate text-sm font-medium text-blue-600 underline max-w-[220px]"
+                            >
+                                {urlTitle}
+                            </a>
+                            <span className="text-xs text-muted-foreground">LINK</span>
+                        </>
+                    )}
                 </div>
             </div>
 
-            {onRemove && (
+            {props.onRemove && (
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={onRemove}
+                    onClick={props.onRemove}
                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
                 >
                     <X className="h-4 w-4" />

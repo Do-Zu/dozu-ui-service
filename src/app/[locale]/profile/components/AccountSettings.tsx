@@ -191,7 +191,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
               />
               <span className="text-sm">Email notifications</span>
             </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
+            {/* <label className="flex items-center space-x-2 cursor-pointer">
               <input 
                 type="checkbox" 
                 checked={notifications.pushNotifications}
@@ -199,14 +199,14 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({
                 className="rounded" 
               />
               <span className="text-sm">Push notifications</span>
-            </label>
+            </label> */}
             </div>
 
             {/* Action Buttons */}
             <div className="pt-4 flex flex-col sm:flex-row gap-3 border-t border-border">
               <Button 
                 onClick={handleSaveSettings} 
-                variant="gradient"
+                variant="default"
                 className="flex-1 sm:flex-none"
                 disabled={saveLoading}
                 size="lg"

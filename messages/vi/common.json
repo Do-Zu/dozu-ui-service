@@ -48,6 +48,7 @@
         "date": "Ngày tháng"
     },
     "common": {
+        "all": "Tất cả",
         "actions": {
             "create": "Tạo",
             "view": "Xem",

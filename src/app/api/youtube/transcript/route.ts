@@ -1,5 +1,6 @@
+import { toNumber } from '@/utils';
 import { NextResponse } from 'next/server';
-import { Innertube } from 'youtubei.js/web';
+import { Innertube } from 'youtubei.js';
 
 export const maxDuration = 30; // Increase the duration limit for this API endpoint
 
@@ -45,8 +46,12 @@ export async function GET(request: Request) {
 
             const transcriptSegments = transcriptData.transcript.content.body.initial_segments.map((segment: any) => ({
                 text: segment.snippet.text,
-                startTime: segment.start_ms ? Math.floor(segment.start_ms / 1000) : 0,
-                duration: segment.duration_ms ? Math.floor(segment.duration_ms / 1000) : 0,
+                startMs: toNumber(segment?.start_ms, 0),
+                endMs: toNumber(segment?.end_ms, 0),
+                startSecond: toNumber(segment?.start_ms / 1000, 0),
+                endSecond: toNumber(segment?.end_ms / 1000, 0),
+                duration:
+                    segment?.start_ms && segment?.end_ms ? toNumber((segment?.end_ms - segment?.start_ms) / 1000) : 0,
             }));
 
             // Still provide a full transcript for backward compatibility

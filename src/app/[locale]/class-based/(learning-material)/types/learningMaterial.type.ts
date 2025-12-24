@@ -7,6 +7,7 @@ export type ILearningMaterial = {
     topicId: number | null;
     classId: number;
     createdAt: string;
+    urls: string[];
 };
 
 export type ILearningMaterialWithAttachments = {
@@ -22,9 +23,10 @@ export type InsertLearningMaterial = {
     createdAt?: Date | undefined;
     topicId?: number | null | undefined;
     content?: string | undefined;
+    urls?: string[];
 };
 
-export type IUpdateLearningMaterial = Pick<InsertLearningMaterial, 'topicId' | 'title' | 'content'>;
+export type IUpdateLearningMaterial = Pick<InsertLearningMaterial, 'topicId' | 'title' | 'content' | 'urls'>;
 
 export type IUpdateLearningMaterialBody = IUpdateLearningMaterial & {
     inputResources?: IInputResource[] | undefined;

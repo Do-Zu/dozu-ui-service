@@ -11,13 +11,18 @@ import LearningFlashcardsEmptyState from '../learning/LearningFlashcardsEmptySta
 import flashcardUtils from '../../../utils/flashcard.utils';
 import useAnkiSettings from '../../../hooks/useAnkiSettings';
 import DataStatus from '@/components/errors/DataStatus';
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 
 interface Props {
     nodeId: string;
     onClose: () => void;
+    isFullscreen: boolean;
+    onPanelToggle: () => void;
 }
 
-export default function NodeFlashcardsLearning({ nodeId, onClose }: Props) {
+export default function NodeFlashcardsLearning({ nodeId, onClose, isFullscreen, onPanelToggle }: Props) {
+    const { nodes } = useMindMapContext();
+    const nodeLabel = nodes.find((item) => item.data.nodeId === nodeId)?.data.label || 'Your selected node';
     const { topicId, onReviewCard } = useTopicWorkspace();
     const { learningFlashcards } = useRequireLearningFlashcards();
     const nodeLearningFlashcards = learningFlashcards.filter((card) => card.nodeId === nodeId);
@@ -92,6 +97,9 @@ export default function NodeFlashcardsLearning({ nodeId, onClose }: Props) {
                 handleRatingClick={handleReviewFlashcardClick}
                 flashcardStatusCounts={flashcardStatusCounts}
                 onClose={onClose}
+                isPanelFullscreen={isFullscreen}
+                onPanelToggle={onPanelToggle}
+                label={nodeLabel}
             />
         </div>
     );

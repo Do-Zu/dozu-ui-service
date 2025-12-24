@@ -3,9 +3,8 @@
 import type { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, PanelLeft, PanelRight, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ROUTES } from '@/utils/constants/routes';
 import { cn } from '@/lib/utils';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 import flashcardUtils from '../../../utils/flashcard.utils';
@@ -19,6 +18,7 @@ import ViewModeToggle from './ViewModeToggle';
 import { isListEmpty } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import FlashcardsPanelControls from '../node/FlashcardsPanelControls';
 
 const initialAutoPlaySpeed = 3;
 
@@ -32,6 +32,9 @@ interface Props {
     enableSidebar?: boolean;
     emptyComponent?: React.ReactNode;
     onClose?: () => void;
+    isPanelFullscreen?: boolean;
+    onPanelToggle?: () => void;
+    label?: string;
 }
 
 export default function FlashcardsBrowse({
@@ -41,6 +44,9 @@ export default function FlashcardsBrowse({
     onClose,
     enableFavouriteFlashcards = true,
     enableSidebar = true,
+    isPanelFullscreen,
+    onPanelToggle,
+    label,
 }: Props) {
     const { topic } = useRequireTopic();
     const { topicId } = topic;
@@ -157,10 +163,6 @@ export default function FlashcardsBrowse({
         setIsFlipped(isFlipped);
     }
 
-    function handleEditFlashcardsClick() {
-        router.push(ROUTES.FLASHCARDS_EDIT(topicId));
-    }
-
     function resetProgress() {
         setCurrentFlashcardIndex(0);
     }
@@ -268,10 +270,19 @@ export default function FlashcardsBrowse({
                         )}
                     >
                         <div className="w-full flex justify-end px-4">
-                            <Button className="hover:bg-background" size="icon" variant="ghost" onClick={onClose}>
-                                <X className="h-4 w-4" />
-                            </Button>
+                            <FlashcardsPanelControls
+                                onClose={onClose}
+                                isFullscreen={isPanelFullscreen}
+                                onPanelToggle={onPanelToggle}
+                            />
                         </div>
+                        {label ? (
+                            <div className="w-full max-w-xl text-center mb-4 mt-[-1rem]">
+                                <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                    {label}
+                                </span>
+                            </div>
+                        ) : null}
                         <Flashcard
                             front={currentFlashcard.front}
                             back={currentFlashcard.back}
@@ -398,7 +409,6 @@ export default function FlashcardsBrowse({
                         handleAutoPlaySpeedChange={(value) => setAutoPlaySpeed(value[0])}
                         shuffleEnabled={shuffleEnabled}
                         handleShuffleToggle={() => setShuffleEnabled(!shuffleEnabled)}
-                        handleEditFlashcardsClick={handleEditFlashcardsClick}
                         isFullScreen={false}
                     />
                 </aside>

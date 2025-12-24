@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Save, X } from 'lucide-react';
+import { RefreshCw, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckedState } from '@radix-ui/react-checkbox';
@@ -17,10 +17,13 @@ import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext
 import { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import GenerateFlashcards from '../browse/GenerateFlashcards';
 import { isListEmpty } from '@/utils';
+import FlashcardsPanelControls from './FlashcardsPanelControls';
 
 interface Props {
     nodeId: string;
     onClose: () => void;
+    isFullscreen: boolean;
+    onPanelToggle: () => void;
 }
 
 interface ILinkedFlashcard {
@@ -28,13 +31,14 @@ interface ILinkedFlashcard {
     isLinked: boolean;
 }
 
-export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
+export default function NodeFlashcardsLinker({ nodeId, onClose, isFullscreen, onPanelToggle }: Props) {
     const tFlashcardCommon = useTranslations('flashcard.common');
     const { flashcards, setFlashcards } = useRequireFlashcards();
     const { setLearningFlashcards } = useTopicWorkspace();
     const [linkedFlashcards, setLinkedFlashcards] = useState<ILinkedFlashcard[]>([]);
     const [linkingFlashcards, setLinkingFlashcards] = useState<number[]>([]);
     const { nodes } = useMindMapContext();
+    const nodeLabel = nodes.find((item) => item.data.nodeId === nodeId)?.data.label || 'Your selected node';
 
     useEffect(() => {
         const linkedFlashcards: ILinkedFlashcard[] = flashcards
@@ -137,16 +141,24 @@ export default function NodeFlashcardsLinker({ nodeId, onClose }: Props) {
                                 <Save size={18} />
                             )}
                         </Button>
-                        <Button
-                            className="text-muted-foreground hover:text-primary"
-                            size="icon"
-                            variant="ghost"
-                            onClick={onClose}
-                        >
-                            <X className="h-4 w-4" />
-                        </Button>
+
+                        <FlashcardsPanelControls
+                            onClose={onClose}
+                            isFullscreen={isFullscreen}
+                            onPanelToggle={onPanelToggle}
+                        />
                     </div>
                 </div>
+
+                {nodeLabel ? (
+                    <div className="flex justify-center w-full px-[4rem] pb-4">
+                        <div className="w-full max-w-xl text-center">
+                            <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                {nodeLabel}
+                            </span>
+                        </div>
+                    </div>
+                ) : null}
             </div>
 
             <ScrollArea>

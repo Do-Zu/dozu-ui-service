@@ -4,7 +4,7 @@ import { StreakData, PointsData, GamificationStats } from '@/types/streaks/gamif
 import { leaderboardService } from '@/services/gamification/leaderboard.service';
 import { LeaderboardEntry } from '@/types/streaks/leaderboard.types';
 
-export function useGamification(userId?: number) {
+export function useGamification(userId?: number, classId?: number) {
     const [streakData, setStreakData] = useState<StreakData | null>(null);
     const [pointsData, setPointsData] = useState<PointsData | null>(null);
     const [gamificationStats, setGamificationStats] = useState<GamificationStats | null>(null);
@@ -18,19 +18,79 @@ export function useGamification(userId?: number) {
             setLoading(true);
             setError(null);
 
-            // Only fetch streak and points data for current user
-            // Don't fetch getUserGamificationStats as it requires teacher role
-            const [streak, points] = await Promise.all([
-                gamificationService.getUserStreak(),
-                gamificationService.getUserPoints()
-            ]);
+            // Streak and points are now class-specific - require both userId and classId
+            if (!userId || !classId) {
+                // Return default data when userId or classId is not provided
+                const defaultStreak: StreakData = {
+                    currentStreak: 0,
+                    longestStreak: 0,
+                    lastStudyDate: null,
+                    streakFreezeActive: false,
+                    streakFreezeCount: 0
+                };
+                const defaultPoints: PointsData = {
+                    totalPoints: 0,
+                    availablePoints: 0,
+                    level: 1,
+                    experiencePoints: 0,
+                    nextLevelExperience: 200
+                };
+                setStreakData(defaultStreak);
+                setPointsData(defaultPoints);
+                setGamificationStats(null);
+                setFreeze(0);
+                setRank(null);
+                return;
+            }
 
-            setStreakData(streak);
-            setPointsData(points);
-            setGamificationStats(null); // Don't fetch stats for current user
+            // Fetch gamification stats which includes both streak and points data
+            const stats = await gamificationService.getUserGamificationStats(userId, classId);
             
-            // Set freeze count from streak data
-            setFreeze(streak?.streakFreezeCount || 0);
+            if (stats) {
+                // Extract streak data from stats
+                const streak: StreakData = {
+                    currentStreak: stats.currentStreak || 0,
+                    longestStreak: stats.longestStreak || 0,
+                    lastStudyDate: stats.lastStudyDate || null,
+                    streakFreezeActive: stats.streakFreezeActive || false,
+                    streakFreezeCount: stats.streakFreezeCount || 0
+                };
+                
+                // Extract points data from stats
+                // Note: GamificationStats doesn't have availablePoints, use totalPoints as availablePoints
+                const points: PointsData = {
+                    totalPoints: stats.totalPoints || 0,
+                    availablePoints: stats.totalPoints || 0, // Use totalPoints as availablePoints
+                    level: stats.level || 1,
+                    experiencePoints: stats.experiencePoints || 0,
+                    nextLevelExperience: stats.nextLevelExperience || 200
+                };
+
+                setStreakData(streak);
+                setPointsData(points);
+                setGamificationStats(stats);
+                setFreeze(stats.streakFreezeCount || 0);
+            } else {
+                // Return default data if stats not found
+                const defaultStreak: StreakData = {
+                    currentStreak: 0,
+                    longestStreak: 0,
+                    lastStudyDate: null,
+                    streakFreezeActive: false,
+                    streakFreezeCount: 0
+                };
+                const defaultPoints: PointsData = {
+                    totalPoints: 0,
+                    availablePoints: 0,
+                    level: 1,
+                    experiencePoints: 0,
+                    nextLevelExperience: 200
+                };
+                setStreakData(defaultStreak);
+                setPointsData(defaultPoints);
+                setGamificationStats(null);
+                setFreeze(0);
+            }
             
             // Set rank to null for now (can be fetched from leaderboard if needed)
             setRank(null);
@@ -40,11 +100,14 @@ export function useGamification(userId?: number) {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [userId, classId]);
 
     const updateStreak = useCallback(async () => {
+        if (!classId) {
+            throw new Error('classId is required to update streak');
+        }
         try {
-            const result = await gamificationService.updateStreak();
+            const result = await gamificationService.updateStreak(classId);
             if (result) {
                 await fetchAllData(); // Refresh all data
                 return result;
@@ -53,11 +116,14 @@ export function useGamification(userId?: number) {
             console.error('Error updating streak:', err);
             throw err;
         }
-    }, [fetchAllData]);
+    }, [fetchAllData, classId]);
 
     const buyStreakFreeze = useCallback(async (cost: number = 100) => {
+        if (!classId) {
+            throw new Error('classId is required to buy streak freeze');
+        }
         try {
-            const success = await gamificationService.buyStreakFreeze(cost);
+            const success = await gamificationService.buyStreakFreeze(classId, cost);
             if (success) {
                 // Update freeze count immediately
                 setFreeze(prev => prev + 1);
@@ -68,7 +134,7 @@ export function useGamification(userId?: number) {
             console.error('Error buying streak freeze:', err);
             throw err;
         }
-    }, [fetchAllData]);
+    }, [fetchAllData, classId]);
 
     const awardPoints = useCallback(async (activity: {
         action: 'lesson_completed' | 'quiz_high_score' | 'streak_maintained' | 'flashcard_reviewed' | 'daily_login';

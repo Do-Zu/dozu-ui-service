@@ -7,11 +7,12 @@ import { getAllFeatureBelongPlan, getCurrentPlanSubscription } from '@/services/
 import { ICurrentPlan } from '@/services/features/feature.type';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
-import { storeSessionData } from '@/utils/storage';
+import { useSessionStorage } from '@/hooks/useSessionStorage';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { NotificationSettings } from '@/types/profile';
 import { ProfileService } from '@/services/profile/profileService';
-import { isEmpty } from '@/utils';
+import { SESSION_STORAGE_KEY } from '@/utils/constants/storage';
+import { isEmpty, safeDestructure } from '@/utils';
 
 interface AuthContextType {
     user: User | null | undefined;
@@ -19,7 +20,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     hasCompletedOnboarding: boolean;
     userType: UserType;
-    currentPlanUser: ICurrentPlan | null;
+    currentPlanUser: ICurrentPlan | null | undefined;
     notificationSettings: NotificationSettings | null;
     setAuthData: (userData: User) => void;
     clearAuthData: () => void;
@@ -36,10 +37,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const { isLoggedIn, isAuthenticated, user, setAuthData, updateUser, clearAuthData, markOnboardingComplete } =
-        useAuthStorage();
+    const { isAuthenticated, user, setAuthData, updateUser, clearAuthData, markOnboardingComplete } = useAuthStorage();
 
-    const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null);
+    const [currentPlanUser, setCurrentPlanUser] = useSessionStorage<ICurrentPlan | null>(
+        SESSION_STORAGE_KEY.CURRENT_USER_PLAN,
+    );
+
     const [notificationSettings, setNotificationSettings] = useState<NotificationSettings | null>(null);
 
     // Load notification settings
@@ -109,10 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setCurrentPlanUser(null);
                 return;
             }
-
-            if (!user) {
-                //TODO: Refresh user data from API or session
-            }
         } catch (error) {
             console.error('Error checking authentication status:', error);
         } finally {
@@ -123,11 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const getUserCurrentPlan = useCallback(async () => {
         const { data } = await getCurrentPlanSubscription();
 
-        if (!isAuthenticated) {
-            return;
-        }
-
-        const { plan } = data;
+        const { plan, subscription } = data;
 
         if (!plan || !plan?.planId) {
             setCurrentPlanUser(null);
@@ -141,12 +136,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
+        const { createdAt, currentPeriodEnd, currentPeriodStart, updatedAt, status } = safeDestructure(subscription);
+
+        const subscriptionInfoCache = { createdAt, currentPeriodEnd, currentPeriodStart, updatedAt, status };
+
         const planWithFeatures = {
             plan,
             features,
+            subscription: subscriptionInfoCache,
         };
-
-        storeSessionData<ICurrentPlan>('currentPlanUser', planWithFeatures);
 
         setCurrentPlanUser(planWithFeatures);
     }, []);
@@ -156,7 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-        if (isAuthenticated && !currentPlanUser) {
+        if (isAuthenticated && isEmpty(currentPlanUser)) {
             getUserCurrentPlan();
         }
     }, [isAuthenticated]);

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRightFromLine } from 'lucide-react';
 import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
-import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
+import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import { FitView } from '@xyflow/react';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';

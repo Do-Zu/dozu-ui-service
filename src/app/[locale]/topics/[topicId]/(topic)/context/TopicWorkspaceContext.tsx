@@ -1,4 +1,9 @@
-import { IAnkiCardReviewed, IDueAnkiCard, IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
+import {
+    IAnkiCardReviewed,
+    IBatchFlashcardsInTopicResult,
+    IDueAnkiCard,
+    IFlashcard,
+} from '@/app/[locale]/flashcards/types/flashcard.type';
 import { ITopic } from '../../../types/topic.type';
 import React, {
     createContext,
@@ -13,18 +18,24 @@ import React, {
     useState,
 } from 'react';
 import { IAnkiSetting } from '@/types/anki-setting/ankiSetting.type';
-import { TopicWorkspaceTabValue } from '../types';
+import { EnumLearningMaterial, TopicWorkspaceTabValue } from '../types';
 import useFlashCardWorkSpace, { IResponseFlashCardGenerate } from '../hooks/useFlashCardWorkSpace';
 import useGamesWorkSpace, { GameType } from '../hooks/useGamesWorkSpace';
 import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
-import useYoutubePlayer from '../hooks/useYoutubePlayer';
-import usePdfToolBar from '../hooks/usePdfToolBar';
-import { YouTubePlayer } from 'react-youtube';
+import usePdfMaterial from '../hooks/usePdfMaterial';
 import { INote } from '../types/note.type';
 import useNoteWorkspace from '../hooks/useNoteWorkspace';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
+import { MindMapProvider, useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
+import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
+import { FitView } from '@xyflow/react';
+import { PdfPageText } from '@/hooks/usePdfReader';
+import useMediaPlayer from '../hooks/media/useMediaPlayer';
+import MediaPlayerController from '../media/core/MediaPlayerController';
+import pdfMaterialUtils from '../utils/material/pdfMaterial.utils';
+import mediaMaterialUtils from '../utils/material/mediaMaterial.utils';
 
 export type TypeTopicId = number;
 
@@ -39,7 +50,6 @@ interface ContextType {
     isPdfViewerFullscreen: boolean;
     pageNumber: number;
     contentTextOrigin: MutableRefObject<string>;
-    player: YouTubePlayer | null;
 
     setTab: Dispatch<SetStateAction<TopicWorkspaceTabValue>>;
     setTopicId: (topicId: TypeTopicId) => void;
@@ -62,17 +72,52 @@ interface ContextType {
     selectGame: (game: GameType) => void;
     resetGame: () => void;
 
-    setIsPdfViewerFullScreen: Dispatch<SetStateAction<boolean>>;
+    setIsPdfViewerFullscreen: Dispatch<SetStateAction<boolean>>;
     setLearningMaterial: Dispatch<SetStateAction<ILearningMaterial | null>>;
-    setPageNumber: Dispatch<SetStateAction<number>>;
-    setPlayer: Dispatch<SetStateAction<YouTubePlayer | null>>;
-    seekTo: (seconds: number) => void;
+    setPageNumber: (page: number) => void;
 
     note: INote | null;
     setNote: Dispatch<SetStateAction<INote | null>>;
 
     selectingContentText: string;
     setSelectingContentText: Dispatch<SetStateAction<string>>;
+
+    isFlashcardTabLoading: boolean;
+    flashcardTabError: string | null;
+    refetchFlashcards: () => Promise<void>;
+    refetchLearningFlashcards: () => Promise<void>;
+    refetchAnkiSetting: () => Promise<void>;
+    onBatchFlashcardsSuccess: (data: IBatchFlashcardsInTopicResult) => void;
+    onCreateFlashcardsSuccess: (data: IFlashcard[]) => void;
+
+    isLearningContentFullscreen: boolean;
+    setIsLearningContentFullscreen: Dispatch<SetStateAction<boolean>>;
+
+    //mindmap
+    isLoading: boolean;
+    nodes: AppNode[];
+    edges: AppEdge[];
+    setNodes: (nodes: AppNode[] | ((nodes: AppNode[]) => AppNode[])) => void;
+    setEdges: (edges: AppEdge[] | ((edges: AppEdge[]) => AppEdge[])) => void;
+    onNodesChange: (changes: any) => void;
+    onEdgesChange: (changes: any) => void;
+    saveMindmap: () => Promise<void>;
+    hasInitialized: boolean;
+    fitView: FitView;
+    setIsNodeSheetOpen: (open: boolean) => void;
+
+    // pdf
+    pdfPageTexts: MutableRefObject<PdfPageText[]>;
+    totalPages: number | null;
+    setTotalPages: Dispatch<SetStateAction<number | null>>;
+
+    // media
+    registerPlayer: (controller: MediaPlayerController) => void;
+    play: () => void;
+    seekTo: (seconds: number) => void;
+
+    // for all types of material
+    getLearningMaterialContent: (args: { start: number; end: number }) => string;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -104,8 +149,17 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const contentTextOrigin = useRef<string>('');
     const [selectingContentText, setSelectingContentText] = useState<string>('');
 
-    const { isPdfViewerFullscreen, pageNumber, setIsPdfViewerFullScreen, setPageNumber } = usePdfToolBar();
-    const { player, setPlayer, seekTo } = useYoutubePlayer();
+    const [isLearningContentFullscreen, setIsLearningContentFullscreen] = useState<boolean>(false);
+    const {
+        totalPages,
+        setTotalPages,
+        pdfPageTexts,
+        isPdfViewerFullscreen,
+        pageNumber,
+        setIsPdfViewerFullscreen,
+        setPageNumber,
+    } = usePdfMaterial();
+    const { registerPlayer, play, seekTo } = useMediaPlayer();
 
     const {
         flashcards,
@@ -119,7 +173,28 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         setGeneratingFlashcards,
         flashcardTab,
         setFlashcardTab,
-    } = useFlashCardWorkSpace();
+        isFlashcardTabLoading,
+        flashcardTabError,
+        refetchFlashcards,
+        refetchLearningFlashcards,
+        refetchAnkiSetting,
+        onBatchFlashcardsSuccess,
+        onCreateFlashcardsSuccess,
+    } = useFlashCardWorkSpace({ topicId: topicIdRef.current, currentTab: tab });
+
+    const {
+        isLoading,
+        nodes,
+        edges,
+        setNodes,
+        setEdges,
+        onNodesChange,
+        onEdgesChange,
+        saveMindmap,
+        hasInitialized,
+        fitView,
+        setIsNodeSheetOpen,
+    } = useMindMapContext();
 
     const { selectedGame, selectGame, resetGame } = useGamesWorkSpace();
 
@@ -128,6 +203,24 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const setTopicId = useCallback((topicIdArg: TypeTopicId) => {
         topicIdRef.current = topicIdArg;
     }, []);
+
+    function getLearningMaterialContent({ start, end }: { start: number; end: number }) {
+        if (start > end) throw new Error('Start section must not exceed end section.');
+        if (learningMaterial?.type === EnumLearningMaterial.file) {
+            return pdfMaterialUtils.getPdfContent({ pageTexts: pdfPageTexts.current, start, end });
+        }
+        if (
+            learningMaterial?.type === EnumLearningMaterial.youtube ||
+            learningMaterial?.type === EnumLearningMaterial.media
+        ) {
+            return mediaMaterialUtils.getMediaContent({
+                segments: learningMaterial.content,
+                start,
+                end,
+            });
+        }
+        throw new Error('Document type is not supported yet.');
+    }
 
     const value = useMemo(
         () => ({
@@ -141,7 +234,6 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             contentTextOrigin,
             learningMaterial,
             pageNumber,
-            player,
             setTab,
             setTopicId,
             setTopic,
@@ -149,11 +241,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setLearningFlashcards,
             onReviewCard,
             setAnkiSettings,
-            setIsPdfViewerFullScreen,
+            setIsPdfViewerFullscreen,
             setLearningMaterial,
             setPageNumber,
-            setPlayer,
-            seekTo,
             generatingFlashcards,
             setGeneratingFlashcards,
             flashcardTab,
@@ -165,6 +255,33 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             setNote,
             selectingContentText,
             setSelectingContentText,
+            isFlashcardTabLoading,
+            flashcardTabError,
+            refetchFlashcards,
+            refetchLearningFlashcards,
+            refetchAnkiSetting,
+            onBatchFlashcardsSuccess,
+            onCreateFlashcardsSuccess,
+            isLearningContentFullscreen,
+            setIsLearningContentFullscreen,
+            isLoading,
+            nodes,
+            edges,
+            setNodes,
+            setEdges,
+            onNodesChange,
+            onEdgesChange,
+            saveMindmap,
+            hasInitialized,
+            fitView,
+            setIsNodeSheetOpen,
+            pdfPageTexts,
+            totalPages,
+            setTotalPages,
+            registerPlayer,
+            play,
+            seekTo,
+            getLearningMaterialContent,
         }),
         [
             tab,
@@ -175,8 +292,6 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             isPdfViewerFullscreen,
             learningMaterial,
             pageNumber,
-            player,
-            seekTo,
             generatingFlashcards,
             flashcardTab,
             selectedGame,
@@ -184,6 +299,30 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             resetGame,
             note,
             selectingContentText,
+            isFlashcardTabLoading,
+            flashcardTabError,
+            refetchFlashcards,
+            refetchLearningFlashcards,
+            refetchAnkiSetting,
+            onBatchFlashcardsSuccess,
+            onCreateFlashcardsSuccess,
+            isLearningContentFullscreen,
+            isLoading,
+            nodes,
+            edges,
+            setNodes,
+            setEdges,
+            onNodesChange,
+            onEdgesChange,
+            saveMindmap,
+            hasInitialized,
+            fitView,
+            setIsNodeSheetOpen,
+            totalPages,
+            registerPlayer,
+            play,
+            seekTo,
+            getLearningMaterialContent,
         ],
     );
 

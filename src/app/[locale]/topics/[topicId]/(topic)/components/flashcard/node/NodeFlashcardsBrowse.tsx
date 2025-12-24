@@ -1,31 +1,20 @@
-import flashcardService from '@/services/flashcard/flashcard.service';
+import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
 import { useRequireFlashcards } from '../../../context/useRequireFlashcardContent';
 import FlashcardsBrowse from '../browse/FlashcardsBrowse';
-import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import EmptyNodeFlashcards from './EmptyNodeFlashcards';
 
 interface Props {
     nodeId: string;
     onClose: () => void;
+    isFullscreen: boolean;
+    onPanelToggle: () => void;
 }
 
-export default function NodeFlashcardsBrowse({ nodeId, onClose }: Props) {
-    const { topicId } = useTopicWorkspace();
-    const { flashcards, setFlashcards } = useRequireFlashcards();
+export default function NodeFlashcardsBrowse({ nodeId, onClose, isFullscreen, onPanelToggle }: Props) {
+    const { nodes } = useMindMapContext();
+    const { flashcards } = useRequireFlashcards();
     const nodeFlashcards = flashcards.filter((item) => item.nodeId === nodeId);
-
-    // Handle star toggle
-    async function handleToggleStar(flashcardId: number) {
-        try {
-            const { flashcardId: updatedFlashcardId, isStar } = await flashcardService.toggleStar(topicId, flashcardId);
-            // Update local flashcards state
-            setFlashcards(
-                (prev) => prev?.map((fc) => (fc.flashcardId === updatedFlashcardId ? { ...fc, isStar } : fc)) ?? [],
-            );
-        } catch (error) {
-            console.error('Error toggling star:', error);
-        }
-    }
+    const nodeLabel = nodes.find((item) => item.data.nodeId === nodeId)?.data.label || 'Your selected node';
 
     return (
         <FlashcardsBrowse
@@ -35,6 +24,9 @@ export default function NodeFlashcardsBrowse({ nodeId, onClose }: Props) {
             onClose={onClose}
             enableFavouriteFlashcards={false}
             enableSidebar={false}
+            isPanelFullscreen={isFullscreen}
+            onPanelToggle={onPanelToggle}
+            label={nodeLabel}
         />
     );
 }

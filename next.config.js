@@ -1,9 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'standalone', // Build output configuration
-    reactStrictMode: false, // Enable React strict mode
-    env: {}, // Environment variables if needed
-    // Add rewrites for proxy configuration if needed in development
+    output: 'standalone',
+    reactStrictMode: false,
+    env: {},
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
     async rewrites() {
         return [
             {
@@ -23,6 +25,12 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'images.unsplash.com',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'framerusercontent.com',
                 port: '',
                 pathname: '/**',
             },

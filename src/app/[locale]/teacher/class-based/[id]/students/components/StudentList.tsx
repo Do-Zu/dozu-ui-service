@@ -19,7 +19,7 @@ import { useTranslations } from 'next-intl';
 import AvatarWithStreak from '@/components/ui/AvatarWithStreak';
 import { useStreakListener, useGamification } from '@/contexts/gamification/GamificationContext';
 import { useGamification as useGamificationHook } from '@/hooks/useGamification';
-    import { GamificationStats } from '@/types/streaks/gamification.type';
+import { GamificationStats } from '@/types/streaks/gamification.type';
 import StreakStatusBadge from './StreakStatusBadge';
 import { InviteStudentsModal } from '@/components/class/InviteStudentsModal';
 

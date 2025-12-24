@@ -6,20 +6,38 @@ import { ApiResponsePubGenContent, ISseData } from '@/app/[locale]/generate';
 import { BASE_URL_STREAM_GENERATE, URL_API_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { compressContent } from '@/app/[locale]/generate/helper/compress';
 import { toast } from '../use-toast';
+import { NodesData } from '@/app/[locale]/topics/[topicId]/(topic)/types/generate.type';
+import { ICommonGenerateOptions } from '@/app/[locale]/topics/[topicId]/(topic)/context/GenerateContext';
+import { safeDestructure } from '@/utils';
+
+export interface IGenerateOptions {
+    commonGenerateOptions?: ICommonGenerateOptions;
+    nodesData?: NodesData;
+}
 
 export interface IGenerateRequest {
     content: string;
     method: string;
     type: string;
-    options?: {
-        numberOfItem: number;
-        difficulty: string;
-        focus: string;
-        listType: string[];
-    };
+    options?: IGenerateOptions;
 }
 
+interface ValidateDataSuccess<TRes> {
+    ok: true;
+    data: TRes;
+}
+
+interface ValidateDataError<TRes> {
+    ok: false;
+    error: unknown;
+    data?: TRes;
+}
+
+export type ValidateGeneratedDataResult<TRes> = ValidateDataSuccess<TRes> | ValidateDataError<TRes>;
+export type ValidateGeneratedDataFn<TRes> = (data: TRes) => ValidateGeneratedDataResult<TRes>;
+
 export interface UsePostOptions<TReq, TRes> {
+    validateGeneratedData?: ValidateGeneratedDataFn<TRes>;
     onSuccess?: (data: TRes) => void;
     onError?: (error?: unknown) => void;
 }
@@ -130,12 +148,22 @@ export default function useGenerate<TRes = unknown>(options?: UsePostOptions<IGe
             // });
 
             const dataGenerated = sseData?.data?.data as TRes;
-
-            if (options && options.onSuccess) {
-                options.onSuccess(dataGenerated);
+            const { validateGeneratedData, onError } = safeDestructure(options);
+            let dataValidated = dataGenerated;
+            if (validateGeneratedData) {
+                const validateResult = validateGeneratedData(dataGenerated);
+                if (!validateResult.ok) {
+                    onError?.(validateResult.error);
+                    return;
+                } 
+                dataValidated = validateResult.data;
             }
 
-            setDataGenerated(dataGenerated);
+            if (options && options.onSuccess) {
+                options.onSuccess(dataValidated);
+            }
+
+            setDataGenerated(dataValidated);
         }
     }, [sseData, sseStatus]);
 

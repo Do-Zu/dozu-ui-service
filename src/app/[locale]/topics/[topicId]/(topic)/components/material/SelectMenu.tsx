@@ -5,7 +5,6 @@ import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import useSelectMenu from '../../hooks/useSelectMenu';
 
 interface Props {
-    type: 'pdf' | 'youtube';
     refNode: RefObject<HTMLDivElement>;
 }
 
@@ -21,7 +20,7 @@ type SelectionDirection = 'forward' | 'backward';
 const selectMenuWidth = 200;
 const selectMenuHeight = 30;
 
-const SelectMenu = ({ refNode, type }: Props) => {
+const SelectMenu = ({ refNode }: Props) => {
     const { selectingContentText: selectingText, setSelectingContentText: setSelectingText } = useTopicWorkspace();
     const [position, setPosition] = useState<Position>();
     const [state, setState] = useState<State>();

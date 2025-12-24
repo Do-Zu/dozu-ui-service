@@ -4,6 +4,10 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { AppNode } from '@/types/mindmap/mindmap.type';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { useInternalNode } from '@xyflow/react';
+import { useMindMapContext } from '../context/MindMapContext';
 
 interface RoadmapItemProps {
     label: string;
@@ -16,6 +20,7 @@ interface RoadmapItemProps {
     onExpand?: () => void; // New prop for expand action
     node: AppNode;
     role?: UserRoleEnum.USER | UserRoleEnum.TEACHER;
+    mode?: ILearningMode;
 }
 export function RoadmapItem({
     label,
@@ -28,8 +33,20 @@ export function RoadmapItem({
     onExpand,
     node,
     role = UserRoleEnum.TEACHER,
+    mode,
 }: RoadmapItemProps) {
     const completeButtonVariant = completed ? 'secondary' : 'outline';
+
+    const internalNode = useInternalNode(node.data.nodeId);
+    const { fitView } = useMindMapContext();
+
+    const handleClickRoadmapItem = () => {
+        if (internalNode) {
+            requestAnimationFrame(() => {
+                fitView({ nodes: [internalNode], duration: 800, padding: 1 });
+            });
+        }
+    };
 
     return (
         <div
@@ -37,11 +54,12 @@ export function RoadmapItem({
                 'relative flex items-center w-full rounded-xl border bg-background shadow-sm transition-all px-3 py-2',
                 completed && 'bg-muted text-muted-foreground',
             )}
+            onClick={handleClickRoadmapItem}
         >
             {/* Left content (text truncates behind buttons) */}
-            <div className="flex items-center gap-3 flex-1 pr-20">
+            <div className="flex flex-1 items-center gap-3 pr-20">
                 {/* Reorder buttons */}
-                {role === UserRoleEnum.TEACHER ? (
+                {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                     <>
                         {' '}
                         <div className="flex flex-col gap-1.5">
@@ -50,9 +68,9 @@ export function RoadmapItem({
                                 size="icon"
                                 disabled={index === 0}
                                 onClick={onMoveUp}
-                                className="h-6 w-6 p-0"
+                                className="size-6 p-0"
                             >
-                                <ArrowUp className="h-4 w-4" />
+                                <ArrowUp className="size-4" />
                             </Button>
 
                             <Button
@@ -60,9 +78,9 @@ export function RoadmapItem({
                                 size="icon"
                                 disabled={index === total - 1}
                                 onClick={onMoveDown}
-                                className="h-6 w-6 p-0"
+                                className="size-6 p-0"
                             >
-                                <ArrowDown className="h-4 w-4" />
+                                <ArrowDown className="size-4" />
                             </Button>
                         </div>
                     </>
@@ -71,11 +89,11 @@ export function RoadmapItem({
                 )}
 
                 {/* Label */}
-                <div className="font-medium truncate text-base">{label}</div>
+                <div className="line-clamp-2 break-words text-base font-medium">{label}</div>
             </div>
 
             {/* Right side action buttons (floated on top) */}
-            <div className="absolute right-0 top-0 h-full flex border-l">
+            <div className="absolute right-0 top-0 flex h-full border-l">
                 {/* Expand */}
                 <Button
                     variant="outline"
@@ -83,12 +101,12 @@ export function RoadmapItem({
                     onClick={onExpand}
                     className="h-full w-9 rounded-none border-r text-muted-foreground hover:text-foreground"
                 >
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="size-4" />
                 </Button>
 
                 {/* Complete */}
 
-                {role === UserRoleEnum.TEACHER ? (
+                {mode === MODE_ACCESS_PAGE_ROLE.personal && role !== UserRoleEnum.TEACHER ? (
                     <>
                         <Button
                             variant={completeButtonVariant}
@@ -96,7 +114,7 @@ export function RoadmapItem({
                             onClick={onComplete}
                             className="h-full w-11 rounded-none"
                         >
-                            <Check className="h-4 w-4" />
+                            <Check className="size-4" />
                         </Button>
                     </>
                 ) : (

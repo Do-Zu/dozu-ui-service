@@ -1,13 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRightFromLine, CircleDashed } from 'lucide-react';
+import { Waypoints } from 'lucide-react';
 import React, { useCallback } from 'react';
-import ELK from 'elkjs/lib/elk.bundled.js';
-import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
+import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
 import { mindmapLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-const elk = new ELK();
 
 // Elk has a *huge* amount of options to configure. To see everything you can
 // tweak check out:
@@ -50,7 +47,7 @@ const MindmapLayoutButton = ({ nodes, edges, setNodes, setEdges, fitView, isPane
                         onLayout({ direction: 'DOWN' });
                     }}
                 >
-                    <CircleDashed />
+                    <Waypoints />
                 </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom"> {'Mindmap layout'}</TooltipContent>

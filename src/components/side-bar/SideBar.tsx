@@ -12,6 +12,7 @@ import {
     Brain,
     BarChart3,
     Crown,
+    MessageCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -43,10 +44,12 @@ import { getConfigLayoutPackageForSidebar } from '@/configs/layout/layoutConfig'
 import { safeDestructure } from '@/utils';
 import { useUpgradeModal } from '@/stores/features/subscription/useUpgradeModal';
 import { Button } from '@/components/ui/button';
+import { FeedbackDialog } from '../feedback/FeedbackDialog';
+import { useState } from 'react';
 
 // Menu items.
 const items = [
-    {
+    {   
         title: 'Home',
         url: ROUTES.HOME,
         icon: Home,
@@ -74,12 +77,18 @@ const secondaryItems = [
         url: ROUTES.SETTING_SCHEDULE_SETUP,
         icon: Settings,
     },
+    {
+        title: 'Feedback',
+        url: '#', // Not used, will open dialog instead
+        icon: MessageCircle,
+    }
 ];
 
 export function AppSidebar() {
     const pathname = usePathname();
     const { hasRole, currentPlanUser,isAuthenticated } = useAuth();
     const { openUpgradeModal } = useUpgradeModal();
+    const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
 
     const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
 
@@ -137,16 +146,33 @@ export function AppSidebar() {
                         <SidebarGroupLabel>Tools</SidebarGroupLabel>
                         <SidebarGroupContent>
                             <SidebarMenu>
-                                {secondaryItems.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild tooltip={item.title}>
-                                            <Link href={item.url}>
-                                                <item.icon />
-                                                <span>{item.title}</span>
-                                            </Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {secondaryItems.map((item) => {
+                                    // Feedback item should open dialog instead of navigating
+                                    if (item.title === 'Feedback') {
+                                        return (
+                                            <SidebarMenuItem key={item.title}>
+                                                <SidebarMenuButton 
+                                                    tooltip={item.title}
+                                                    onClick={() => setIsFeedbackDialogOpen(true)}
+                                                >
+                                                    <item.icon />
+                                                    <span>{item.title}</span>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        );
+                                    }
+                                    // Other items use Link navigation
+                                    return (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton asChild tooltip={item.title}>
+                                                <Link href={item.url}>
+                                                    <item.icon />
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    );
+                                })}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
@@ -172,6 +198,7 @@ export function AppSidebar() {
                             </SidebarGroupContent>
                         </SidebarGroup>
                     )}
+
                 </ScrollArea>
             </SidebarContent>
 
@@ -206,6 +233,9 @@ export function AppSidebar() {
             <div className="text-[10px] text-muted-foreground text-center w-full group-data-[collapsible=icon]:hidden">
                 © Dozu
             </div>
+
+            {/* Feedback Dialog */}
+            <FeedbackDialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen} />
         </Sidebar>
     );
 }

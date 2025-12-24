@@ -37,6 +37,7 @@ import EditImageModal from '../flashcard-image/EditImageModal';
 import FlashcardDetailsModal from '../FlashcardDetailsModal';
 import flashcardEditUtils from '../../../utils/flashcard/flashcardEdit.utils';
 import { isListEmpty } from '@/utils';
+import FlashcardsPanelControls from '../node/FlashcardsPanelControls';
 
 export interface ILocalFlashcard {
     id: number;
@@ -58,8 +59,8 @@ export interface IEditingFlashcard extends ILocalFlashcard {
     serverInfo?: IFlashcardServer;
 }
 
-const flashcardItemHeight = 300;
-const flashcardItemGap = 20;
+export const flashcardItemHeight = 300;
+export const flashcardItemGap = 20;
 
 interface Props {
     flashcards: IFlashcard[]; // flashcards of node or topic
@@ -69,6 +70,9 @@ interface Props {
     emptyComponent?: React.ReactNode;
     generateComponent?: React.ReactNode;
     onClose?: () => void;
+    isPanelFullscreen?: boolean;
+    onPanelToggle?: () => void;
+    label?: string;
 }
 
 export default function FlashcardsEdit({
@@ -79,6 +83,9 @@ export default function FlashcardsEdit({
     emptyComponent,
     generateComponent,
     onClose,
+    isPanelFullscreen,
+    onPanelToggle,
+    label,
 }: Props) {
     const tCommon = useTranslations('common');
     const tFlashcardCommon = useTranslations('flashcard.common');
@@ -240,7 +247,7 @@ export default function FlashcardsEdit({
         setIsAddImageModalOpen(false);
     }
 
-    function onUploadImageSuccess({ flashcard, imageUrl }: { flashcard: ILocalFlashcard; imageUrl: string }) {
+    function handleUploadImageSuccess({ flashcard, imageUrl }: { flashcard: ILocalFlashcard; imageUrl: string }) {
         setEditingFlashcards((prev) => {
             return prev.map((editingFlashcard) => {
                 return editingFlashcard.id === flashcard.id
@@ -323,7 +330,7 @@ export default function FlashcardsEdit({
     return (
         <div className="h-full flex flex-col">
             <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
-                <div className="flex justify-end items-center px-[4rem] py-4">
+                <div className="flex justify-end items-center px-[4rem] pt-4">
                     <div className="flex w-full items-center justify-between">
                         {generateComponent ? (
                             <div className="flex flex-row items-center gap-4">{generateComponent}</div>
@@ -355,19 +362,24 @@ export default function FlashcardsEdit({
                                 )}
                             </Button>
 
-                            {onClose ? (
-                                <Button
-                                    className="text-muted-foreground hover:text-primary"
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={onClose}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            ) : null}
+                            <FlashcardsPanelControls
+                                onClose={onClose}
+                                isFullscreen={isPanelFullscreen}
+                                onPanelToggle={onPanelToggle}
+                            />
                         </div>
                     </div>
                 </div>
+
+                {label ? (
+                    <div className="flex justify-center w-full px-[4rem] pb-4">
+                        <div className="w-full max-w-xl text-center">
+                            <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                                {label}
+                            </span>
+                        </div>
+                    </div>
+                ) : null}
             </div>
 
             <div className="h-full overflow-y-auto pb-8" ref={ref}>
@@ -519,7 +531,7 @@ export default function FlashcardsEdit({
                     setIsOpen={setIsAddImageModalOpen}
                     flashcard={selectingFlashcard}
                     onSaveImageClick={handleSaveImageClick}
-                    onUploadImageSuccess={onUploadImageSuccess}
+                    onUploadImageSuccess={handleUploadImageSuccess}
                 />
             ) : null}
 

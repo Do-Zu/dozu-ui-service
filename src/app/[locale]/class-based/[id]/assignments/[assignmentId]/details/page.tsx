@@ -1,7 +1,7 @@
 'use client';
 
 import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/details/ContentSection';
-import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
+import AttachmentsViewSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsViewSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
 import { IAssignment, IAssignmentWithAttachments } from '@/app/[locale]/class-based/(assignment)/types/assignment.type';
@@ -17,6 +17,7 @@ import {
 import { Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PrivateCommentsCard, SubmissionCard } from './components/SubmissionCard';
+import CommentSection from '@/app/[locale]/teacher/class-based/[id]/assignments/[assignmentId]/details/components/CommentSection';
 import {
     IAssignmentSubmission,
     IAssignmentSubmissionWithAttachments,
@@ -168,18 +169,23 @@ function ValidPage({ classId, assignmentId }: { classId: number; assignmentId: n
 
                 <Separator />
 
-                <AttachmentsSection attachments={assignmentAttachments} />
+                <AttachmentsViewSection attachments={assignmentAttachments} urls={assignment.urls} />
+
+                <CommentSection classId={classId} assignmentId={assignmentId} />
             </div>
 
             <div className="lg:col-span-2 space-y-6">
                 <SubmissionCard
                     submission={submission}
                     attachments={submissionAttachments}
+                    urlAttachments={submission.urls || []}
                     onSubmit={onSubmit}
                     loading={updateLoading}
+                    grade={submission.grade}
+                    totalGrade={assignment.totalGrades}
                 />
 
-                <PrivateCommentsCard />
+                <PrivateCommentsCard assignmentId={assignmentId} submissionId={submission.submissionId} />
             </div>
         </div>
     );

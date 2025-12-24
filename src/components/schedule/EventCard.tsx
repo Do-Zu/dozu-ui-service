@@ -54,7 +54,7 @@ const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps)
         const { type } = event;
 
         if (type === 'flashcard') {
-            router.push(ROUTES.FLASHCARDS_LEARNING(event?.topicId));
+            router.push(ROUTES.TOPIC_WORKSPACE({ topicId: event?.topicId, tab: 'flashcard' }));
         } else if (type === 'question') {
             router.push(ROUTES.QUIZ_START(event?.topicId));
         }

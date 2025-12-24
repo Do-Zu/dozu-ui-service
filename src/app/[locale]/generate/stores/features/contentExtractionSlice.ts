@@ -2,15 +2,17 @@ import axios from 'axios';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { EXTRACTION_TAB, ExtractionTab, ResourceContentType, RESOURCE_CONTENT_TYPE } from '../../constants/resource';
 import { STATUS_CODE } from '@/utils/constants/http';
+import { safeDestructure } from '@/utils';
 
-const BASE_API_YOUTUBE = '/api/youtube/transcript?videoId=';
-const BASE_API_EXTRACT_WEBSITE = '/api/website-content';
+export const BASE_API_YOUTUBE = '/api/youtube/transcript?videoId=';
+export const BASE_API_EXTRACT_WEBSITE = '/api/website-content';
+
 interface IEmbedVideoInfo {
     iframe_url: string;
     flash_url: string;
     flash_secure_url: string;
-    width: any;
-    height: any;
+    width: number;
+    height: number;
 }
 export interface VideoInfo {
     title: string;
@@ -106,13 +108,17 @@ export const extractWebsiteContent = createAsyncThunk(
         try {
             // Validate URL format
             let validUrl = url;
+
             if (!/^https?:\/\//i.test(url)) {
                 validUrl = `https://${url}`;
             }
 
             const response = await axios.post(BASE_API_EXTRACT_WEBSITE, { url: validUrl });
-            return response.data.content;
-        } catch (err: any) {
+
+            const { html } = safeDestructure(response.data, { html: '' });
+
+            return html;
+        } catch {
             return rejectWithValue('Failed to extract content. Please check the URL and try again.');
         }
     },
@@ -135,6 +141,9 @@ const contentExtractionSlice = createSlice({
         },
         setExtractionContent: (state, action: PayloadAction<string>) => {
             state.extractedContent = action.payload;
+        },
+        setContentType: (state, action: PayloadAction<ResourceContentType>) => {
+            state.contentType = action.payload;
         },
         resetExtractionState: (state) => {
             state.extractedContent = '';
@@ -160,7 +169,6 @@ const contentExtractionSlice = createSlice({
                 state.extractedContent = action.payload?.transcript;
                 state.videoInfo = action.payload.metadata;
                 state.contentType = RESOURCE_CONTENT_TYPE.YOUTUBE;
-                // state.textContent = action.payload.transcript;
                 state.transcriptSegments = action.payload.transcriptSegments || [];
             })
             .addCase(extractYouTubeTranscript.rejected, (state, action) => {
@@ -185,7 +193,7 @@ const contentExtractionSlice = createSlice({
     },
 });
 
-export const { setInputUrl, setActiveTab, setTextContent, resetExtractionState, setExtractionContent } =
+export const { setInputUrl, setActiveTab, setTextContent, resetExtractionState, setExtractionContent, setContentType } =
     contentExtractionSlice.actions;
 
 export default contentExtractionSlice.reducer;

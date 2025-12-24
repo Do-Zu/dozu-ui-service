@@ -1,7 +1,7 @@
 'use client';
 
 import ContentSection from '@/app/[locale]/class-based/(classwork)/components/common/details/ContentSection';
-import AttachmentsSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsSection';
+import AttachmentsViewSection from '@/app/[locale]/class-based/(classwork)/components/common/details/AttachmentsViewSection';
 import { Separator } from '@/components/ui/separator';
 import useFetch from '@/hooks/useFetch';
 import {
@@ -38,6 +38,7 @@ import assignmentSubmissionService from '@/app/[locale]/class-based/(assignment)
 import { ILearningMaterialWithAttachments } from '@/app/[locale]/class-based/(learning-material)/types/learningMaterial.type';
 import learningMaterialService from '@/app/[locale]/class-based/(learning-material)/service/learningMaterial.service';
 import DeleteLearningMaterialModal from '@/app/[locale]/class-based/(learning-material)/components/DeleteLearningMaterialModal';
+import LearningMaterialCommentSection from '@/app/[locale]/class-based/[id]/learning-material/[learningMaterialId]/details/components/LearningMaterialCommentSection';
 
 export default function Page() {
     const params = useParams();
@@ -172,7 +173,6 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
     return (
         <div className="p-6">
             <Tabs className="w-[100%]" defaultValue="details">
-
                 <TabsContent value="details" className="px-6 md:px-8 py-4">
                     <Separator />
                     <div className="max-w-3xl mx-auto p-6 space-y-6">
@@ -200,7 +200,9 @@ function ValidPage({ classId, learningMaterialId }: { classId: number; learningM
 
                         <Separator />
 
-                        <AttachmentsSection attachments={attachments} />
+                        <AttachmentsViewSection attachments={attachments} urls={learningMaterial.urls} />
+
+                        <LearningMaterialCommentSection classId={classId} learningMaterialId={learningMaterialId} />
 
                         <DeleteLearningMaterialModal
                             isOpen={isOpen}

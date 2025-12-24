@@ -1,8 +1,9 @@
-import { ICurrentPlan } from '@/services/features/feature.type';
 import { getSessionData } from '../storage';
+import { ICurrentPlan } from '@/services/features/feature.type';
+import { SESSION_STORAGE_KEY } from '../constants/storage';
 
 export const getCurrentPlanUser = () => {
-    return getSessionData<ICurrentPlan>('currentPlanUser');
+    return getSessionData<ICurrentPlan>(SESSION_STORAGE_KEY.CURRENT_USER_PLAN);
 };
 
 export const normalizeUrl = (url: string) => {

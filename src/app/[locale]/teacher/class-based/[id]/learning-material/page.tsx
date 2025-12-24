@@ -1,7 +1,6 @@
 'use client';
 
 // import { EditLearningMaterial } from '@/app/[locale]/teacher/class-based/[id]/learning-material/components/EditLearningMaterial';
-EditLearningMaterial;
 
 import { IClass } from '@/app/[locale]/class-based/types/class.type';
 import { useTopics } from '@/app/[locale]/topics/hooks/useTopics';
@@ -9,7 +8,7 @@ import LoadingPage from '@/app/loading';
 import useFetch from '@/hooks/useFetch';
 import teacherClassService from '@/services/class-based-learning/teacher/teacherClass.service';
 import { useParams } from 'next/navigation';
-import { EditLearningMaterial } from '@/app/[locale]/teacher/class-based/[id]/learning-material/components/EditLearningMaterial';
+import { CreateLearningMaterial } from '@/app/[locale]/teacher/class-based/[id]/learning-material/components/CreateLearningMaterial';
 
 export default function Page() {
     const params = useParams();
@@ -49,5 +48,5 @@ function ValidPage({ classId }: { classId: number }) {
         return <div>Data Not Found</div>;
     }
 
-    return <EditLearningMaterial myClass={myClass} topics={topics} />;
+    return <CreateLearningMaterial myClass={myClass} topics={topics} />;
 }

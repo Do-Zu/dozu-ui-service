@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEdgesState, useNodesState, Node, useReactFlow } from '@xyflow/react';
+import { useEdgesState, useNodesState, Node, useReactFlow, FitView } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
 import Axios from '@/api/axios';
 import { toast } from '@/hooks/use-toast';
@@ -50,6 +50,9 @@ interface MindMapContextType {
     setEdges: (edges: AppEdge[] | ((edges: AppEdge[]) => AppEdge[])) => void;
     onNodesChange: (changes: any) => void;
     onEdgesChange: (changes: any) => void;
+
+    // Mindmap Viewport method
+    fitView: FitView;
 
     // Loading States
     isLoading: boolean;
@@ -162,6 +165,9 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
     const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState<AppEdge>(initialEdges);
 
+    // Mindmap Viewport method
+    const { fitView } = useReactFlow();
+
     // Stats summary State
     const [nodeStats, setNodeStats] = useState<NodeStat[]>([]);
 
@@ -244,8 +250,8 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
                         ...node.data,
                         topicId: topicId,
                         router: router,
-                        pageStartIndex: parseInt(node.data.pageStartIndex),
-                        pageEndIndex: parseInt(node.data.pageEndIndex),
+                        pageStartIndex: node.data.pageStartIndex,
+                        pageEndIndex: node.data.pageEndIndex,
                     },
                 }));
                 setNodes(mindmapData.nodes);
@@ -483,6 +489,9 @@ export const MindMapProvider: React.FC<MindMapProviderProps> = ({ children }) =>
         setEdges,
         onNodesChange,
         onEdgesChange,
+
+        // Mindmap action
+        fitView,
 
         // Loading States
         isLoading,

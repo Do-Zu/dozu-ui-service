@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import AuthButton from '@/components/toolbar/AuthButton';
-import { Home, Users, BarChart3, Clock, ListChecks, CreditCard, Star, TrendingUp, DollarSign, Wallet, Brain, Server, Key, Link as LinkIcon } from 'lucide-react';
+import { Home, Users, BarChart3, TrendingUp, DollarSign, Wallet, MessageSquare } from 'lucide-react';
 
 interface SidebarProps {
     className?: string;
@@ -38,51 +38,18 @@ const navItems = [
         icon: Wallet,
         href: '/admin/payments',
     },
+
     {
-        label: 'Subscription Plans',
-        icon: CreditCard,
-        href: '/admin/plans',
+        label: 'Feedback',
+        icon: MessageSquare,
+        href: '/admin/feedback',
     },
-    {
-        label: 'Features',
-        icon: Star,
-        href: '/admin/features',
-    },
-    {
-        label: 'LLM Models',
-        icon: Brain,
-        href: '/admin/llm-models'
-    },
-    {
-        label: 'LLM Providers',
-        icon: Server,
-        href: '/admin/llm-providers'
-    },
-    {
-        label: 'LLM API Keys',
-        icon: Key,
-        href: '/admin/llm-api-keys'
-    },
-    {
-        label: 'LLM API Key-Models',
-        icon: LinkIcon,
-        href: '/admin/llm-api-key-models'
-    },
+
     {
         label: 'Stats',
         icon: BarChart3,
         href: '/admin/stats',
     },
-    // {
-    //     label: 'Pending Teacher Requests',
-    //     icon: Clock,
-    //     href: '/admin/teacher-requests/pending'
-    // },
-    // {
-    //     label: 'Teacher Requests',
-    //     icon: ListChecks,
-    //     href: '/admin/teacher-requests'
-    // }
 ];
 
 export function Sidebar({ className }: SidebarProps) {
@@ -90,11 +57,11 @@ export function Sidebar({ className }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
-        <aside 
+        <aside
             className={cn(
                 'bg-muted border-r min-h-screen sticky top-0 p-4 transition-all duration-300 ease-in-out flex flex-col group',
                 isCollapsed ? 'w-[70px]' : 'w-[240px]',
-                className
+                className,
             )}
             data-collapsible={isCollapsed ? 'icon' : undefined}
         >
@@ -139,18 +106,17 @@ export function Sidebar({ className }: SidebarProps) {
                                 className={cn(
                                     'w-full rounded-md px-3 py-2 transition-all',
                                     isActive && 'bg-accent text-accent-foreground hover:bg-accent',
-                                    isCollapsed ? 'justify-center' : 'justify-start'
+                                    isCollapsed ? 'justify-center' : 'justify-start',
                                 )}
                                 title={isCollapsed ? item.label : undefined}
                             >
-                                <Icon className={cn(
-                                    'w-4 h-4 transition-all',
-                                    !isCollapsed && 'mr-2'
-                                )} />
-                                <span className={cn(
-                                    'transition-all duration-200 whitespace-nowrap',
-                                    isCollapsed && 'opacity-0 w-0 overflow-hidden'
-                                )}>
+                                <Icon className={cn('w-4 h-4 transition-all', !isCollapsed && 'mr-2')} />
+                                <span
+                                    className={cn(
+                                        'transition-all duration-200 whitespace-nowrap',
+                                        isCollapsed && 'opacity-0 w-0 overflow-hidden',
+                                    )}
+                                >
                                     {item.label}
                                 </span>
                             </Button>

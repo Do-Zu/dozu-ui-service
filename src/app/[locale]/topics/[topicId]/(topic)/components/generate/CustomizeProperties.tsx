@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Modal } from '../../../../../../../components/modal/Modal';
 import { CheckSquare, Eye, FileText, Settings2Icon, Star, Type, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '../../../../../../../components/ui/button';
 import { Textarea } from '../../../../../../../components/ui/textarea';
-import { TypeMethodLearning } from '@/utils/constants/method';
 import { useGenerateContext } from '../../context/GenerateContext';
 import { isEmpty, toNumber } from '@/utils';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
+import { ICustomOptions, IGenerateType, IStartGenerateFn } from '../../types/generate.type';
+import toastHelper from '@/utils/toast.helper';
 
 interface IProps {
     className?: string;
     description?: string;
-    method: TypeMethodLearning;
-    onGenerate: () => void;
+    method: IGenerateType;
+    onGenerate: (content?: string, customOptions?: ICustomOptions) => void;
+    generateTrigger?: (startGenerate: IStartGenerateFn) => ReactNode;
 }
 
-export const CustomizeProperties = ({ className, description, method, onGenerate }: IProps) => {
+export const CustomizeProperties = ({ className, description, method, onGenerate, generateTrigger }: IProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const { options, updateOption } = useGenerateContext();
     const { listType, difficulty, numberOfItem, focus } = options;
@@ -175,15 +177,27 @@ export const CustomizeProperties = ({ className, description, method, onGenerate
         </Button>
     );
 
-    const footer = (
+    const startGenerate: IStartGenerateFn = async (content, customOptions) => {
+        if (isEmpty(listType)) {
+            toastHelper.showSuccessMessage('Select at least one type to generate content.');
+            return;
+        }
+        onGenerate(content, customOptions);
+    };
+
+    const footerTrigger = generateTrigger ? (
+        generateTrigger(startGenerate)
+    ) : (
         <Button
-            onClick={onGenerate}
+            onClick={() => startGenerate()}
             disabled={isEmpty(listType)}
             className="px-4 py-2 rounded-md hover:bg-opacity-60 transition-colors font-medium text-sm"
         >
             {t('buttons.generate')}
         </Button>
     );
+
+    const footer = <>{footerTrigger}</>;
 
     return (
         <Modal

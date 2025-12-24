@@ -262,6 +262,17 @@ const countWords = (text: string): number => {
     return matches ? matches.length : 0;
 };
 
+const sleepThread = (ms: number, isThrowError = false) =>
+    new Promise<void>((resolve, reject) => {
+        setTimeout(() => {
+            if (isThrowError) {
+                reject(new Error('Mock Error'));
+            } else {
+                resolve();
+            }
+        }, ms);
+    });
+
 export {
     deepClone,
     toTitleCase,
@@ -282,4 +293,5 @@ export {
     validateArray,
     isNil,
     countWords,
+    sleepThread,
 };

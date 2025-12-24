@@ -3,7 +3,7 @@ import { ArrowDownFromLine, ArrowRightFromLine } from 'lucide-react';
 import React, { useCallback } from 'react';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { LayoutButtonProps } from '@/app/[locale]/mindmap/types/layoutButton.types';
-import { getLayoutedElements } from '@/app/[locale]/mindmap/utils/mindmap.utils';
+import { getLayoutedElements } from '@/utils/mindmap/mindmapUtils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const elk = new ELK();

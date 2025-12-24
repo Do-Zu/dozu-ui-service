@@ -23,6 +23,12 @@ class ToastHelper {
             variant: 'default',
         });
     };
+
+    public showLog = (log?: unknown, ...optionalParams: unknown[]) => {
+        if (process.env.NODE_ENV === 'development') {
+            console.log(log, ...optionalParams);
+        }
+    };
 }
 
 export default new ToastHelper();

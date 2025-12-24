@@ -59,7 +59,8 @@ export default function QuizGenerateTab() {
     } = useQuizWorkspace();
 
     // null = Haven't finished checking yet, true = have question, false = haven't question
-    const [hasAnyQuestions, setHasAnyQuestions] = useState<boolean | null>(null);
+    const { hasAnyQuestions, setHasAnyQuestions } = useQuizWorkspace();
+
 
     // fetch statistic
     const {
@@ -77,7 +78,6 @@ export default function QuizGenerateTab() {
     useEffect(() => {
         if (tab !== METHOD_LEARNING.QUIZ) return;
         if (!topicId) return;
-        if (hasAnyQuestions !== null) return;
 
         const checkQuestions = async () => {
             try {

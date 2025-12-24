@@ -12,7 +12,7 @@
             },
             "toasts": {
                 "timeout": "The generation process timed out. Please try again with a smaller file.",
-                "error": "There was an error with the generation process. Please try again.",
+                "error": "Server  Busy. Please try again.",
                 "success": "Your content has been successfully generated."
             }
         },
@@ -32,10 +32,15 @@
                 "processing": {
                     "title": "Processing your content...",
                     "description": "Please wait while we extract the content"
+                },
+                "converting": {
+                    "title": "Converting",
+                    "description": "Please wait while we converting the format"
                 }
             },
             "toasts": {
-                "uploadFailed": "Failed to upload content. Please try again."
+                "uploadFailed": "Failed to upload content. Please try again.",
+                "convertFailed": "Convert format failed"
             },
             "validations": {
                 "fileRejected": "File rejected. Only {types} files up to {size}MB are allowed."

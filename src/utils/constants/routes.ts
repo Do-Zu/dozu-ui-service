@@ -65,10 +65,17 @@ export const ROUTES = Object.freeze({
 
     // LLM API Key-Model Relations
     LLM_API_KEY_MODELS: '/admin/llm-api-key-models',
-    LLM_API_KEY_MODELS_LIST: (query?: string) => (query ? `/admin/llm-api-key-models?${query}` : '/admin/llm-api-key-models'),
+    LLM_API_KEY_MODELS_LIST: (query?: string) =>
+        query ? `/admin/llm-api-key-models?${query}` : '/admin/llm-api-key-models',
     LLM_API_KEY_MODELS_CREATE: '/admin/llm-api-key-models',
     LLM_API_KEY_MODELS_UPDATE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
     LLM_API_KEY_MODELS_DELETE: (id: string | number) => `/admin/llm-api-key-models/${id}`,
+
+    // Feedback Dashboard
+    ADMIN_FEEDBACK: '/admin/feedback',
+    ADMIN_FEEDBACK_LIST: (query?: string) => (query ? `/admin/feedback?${query}` : '/admin/feedback'),
+    ADMIN_FEEDBACK_UPDATE: (id: string | number) => `/admin/feedback/${id}`,
+    ADMIN_FEEDBACK_AUTO_IGNORE: '/admin/feedback/ops/auto-ignore',
 
     // ======================= CLASS BASED ROUTES ========================
     CLASS_BASED: '/class-based',
@@ -77,8 +84,15 @@ export const ROUTES = Object.freeze({
     CLASS_BASED_ID_STUDENTS: (classId: string | number) => `/class-based/${classId}/students`,
     ASSIGNMENT_DETAILS: ({ classId, assignmentId }: { classId: number; assignmentId: number }) =>
         `/class-based/${classId}/assignments/${assignmentId}/details`,
-    CLASS_TOPIC_WORKSPACE: ({ classId, topicId }: { classId: number; topicId: number }) =>
-        `/class-based/${classId}/topics/${topicId}`,
+    CLASS_TOPIC_WORKSPACE: ({
+        classId,
+        topicId,
+        tab,
+    }: {
+        classId: number;
+        topicId: number;
+        tab?: ContentType | null;
+    }) => (tab ? `/class-based/${classId}/topics/${topicId}?tab=${tab}` : `/class-based/${classId}/topics/${topicId}`),
 
     MINDMAP_EDIT: (topicId: string | number) => `/mindmap/${topicId}`,
     MINDMAP_VIEW: (topicId: string | number) => `/mindmap/view/${topicId}`,
@@ -124,7 +138,7 @@ export const ROUTES = Object.freeze({
     STUDENT: {
         CLASS_BASED_ID_CLASS_QUIZ_START: (classId: number, classQuizId: number) =>
             `/class-based/${classId}/class-quiz/${classQuizId}/start`,
-        CLASS_BASED_ID_CLASS_QUIZ_SUBMIT: (classId: number, classQuizId: number, attemptId: number, ) =>
+        CLASS_BASED_ID_CLASS_QUIZ_SUBMIT: (classId: number, classQuizId: number, attemptId: number) =>
             `/class-based/${classId}/class-quiz/${classQuizId}/submit?attemptId=${attemptId}`,
     },
 });

@@ -1,11 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { ShowIf } from '@/components/ui/ShowIf';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { useRoleChecker } from '@/hooks/useRoleChecker';
-import { Clock, RotateCcw, Shuffle, SquarePen, Gamepad2, Brain, BookOpen } from 'lucide-react';
+import { Clock, RotateCcw, Shuffle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -21,7 +19,6 @@ interface Props {
     handleAutoPlaySpeedChange: (value: number[]) => void;
     shuffleEnabled: boolean;
     handleShuffleToggle: () => void;
-    handleEditFlashcardsClick: () => void;
     isFullScreen?: boolean;
 }
 
@@ -36,10 +33,8 @@ export default function StudyControls({
     handleAutoPlaySpeedChange,
     shuffleEnabled,
     handleShuffleToggle,
-    handleEditFlashcardsClick,
     isFullScreen = false,
 }: Props) {
-    const { isTeacher } = useRoleChecker();
     const t = useTranslations('flashcard.study');
     const progress =
         flashcardsLength <= 1
@@ -126,23 +121,6 @@ export default function StudyControls({
                             {t('reset')}
                         </Button>
                     </div>
-
-                    <ShowIf when={isTeacher}>
-                        <div className="flex items-center justify-between">
-                            <Label className={cn('flex items-center gap-2 font-medium')}>
-                                <SquarePen size={isFullScreen ? 16 : 12} />
-                                <span>{t('edit')}</span>
-                            </Label>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleEditFlashcardsClick}
-                                className={cn('h-7 px-2')}
-                            >
-                                {t('edit')}
-                            </Button>
-                        </div>
-                    </ShowIf>
                 </CardContent>
             </Card>
         </div>

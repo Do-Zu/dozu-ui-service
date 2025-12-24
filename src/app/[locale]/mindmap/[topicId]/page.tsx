@@ -13,7 +13,7 @@ import ViewFileButton from '../../../../components/mindmap/button/ViewFileButton
 import CustomReactFlowNode from '../components/CustomReactFlowNode';
 import FileSheet from '../components/FileSheet';
 import FloatingEdge from '../components/FloatingEdge';
-import NodeSheet from '../components/NodeSheet';
+// import NodeSheet from '../components/NodeSheet';
 import { useMindMapContext } from '../context/MindMapContext';
 
 import LoadingPage from '@/app/loading';
@@ -36,6 +36,7 @@ import { useTheme } from 'next-themes';
 import { useSetCenterOnRoot } from '../hooks/useSetCenterOnRoot';
 
 import MindmapButtonsPanel from '../components/MindmapButtonsPanel';
+import RoadmapButtonPanel from '../components/RoadmapButtonPanel';
 
 const defaultEdgeOptions = {
     type: 'floating',
@@ -231,8 +232,9 @@ export default function page() {
                 </Panel> */}
 
                 <MindmapButtonsPanel />
+                <RoadmapButtonPanel />
                 <FileSheet />
-                <NodeSheet />
+                {/* <NodeSheet /> */}
                 <Controls />
                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>

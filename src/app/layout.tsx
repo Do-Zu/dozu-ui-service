@@ -7,7 +7,8 @@ import { AuthProvider } from '@/contexts/auth/AuthContext';
 import { ThemeProvider } from '@/lib/providers/theme';
 import { ReactFlowProvider } from '@xyflow/react';
 import { Toaster } from '@/components/ui/toaster';
-import UpgradePlanModal from '@/components/upgrade-plan/UpgradePlanModal';
+import { Toaster as ToasterSooner } from '@/components/ui/sonner';
+
 import '../styles/globals.css';
 
 const inter = Inter({
@@ -75,12 +76,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <StoreProvider>
                     <ThemeProvider>
                         <ReactFlowProvider>
-                            <AuthProvider>
-                                {children}
-                                <UpgradePlanModal />
-                            </AuthProvider>
+                            <AuthProvider>{children}</AuthProvider>
                         </ReactFlowProvider>
                     </ThemeProvider>
+                    <ToasterSooner />
                     <Toaster />
                 </StoreProvider>
             </body>

@@ -17,8 +17,14 @@ export type CustomNodeData = {
     isRoot?: boolean;
     topicId?: string; // Add topicId here if it's part of your data
     forceToolbarVisible?: boolean;
+    // pdf fields
     pageStartIndex?: number;
     pageEndIndex?: number;
+
+    // youtube fields
+    startSegment?: number;
+    endSegment?: number;
+
     statistics?: NodeStat;
     color?: string;
     roadmapOrder?: number;
@@ -60,3 +66,19 @@ export interface ILinkFlashcardsToNodePayload {
     unlinkedFlashcards: number[];
     linkedFlashcards: number[];
 }
+
+export interface IColorTheme {
+    type: 'light' | 'dark';
+    name: string;
+    colors: string[];
+}
+
+export type IMindmapType = 'abstract' | 'detailed';
+
+export interface IMindmapGenerateOptions {
+    type?: IMindmapType;
+    colorTheme?: IColorTheme | null;
+    instruction?: string;
+}
+
+export type IColorMode = 'branch' | 'depth';

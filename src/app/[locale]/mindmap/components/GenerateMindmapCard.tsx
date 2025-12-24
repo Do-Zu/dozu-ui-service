@@ -4,8 +4,8 @@ import PreviewMindmap from './PreviewMindmap';
 
 import { v4 as uuidv4 } from 'uuid';
 import { CustomEdge, CustomNode } from '../../../../types/mindmap/mindmap.type';
-import { mindmapLayoutElkOptions } from '../constants';
-import { getLayoutedElements, getUpdatedEdges } from '../utils/mindmap.utils';
+import { radialLayoutElkOptions } from '../constants';
+import { getLayoutedElements, getUpdatedEdges } from '@/utils/mindmap/mindmapUtils';
 import toastHelper from '@/utils/toast.helper';
 import { useRouter } from 'next/navigation';
 
@@ -91,7 +91,7 @@ const GenerateMindmapCard = ({ mindmapData, topicName, setTopicName, setDataGene
                 const { nodes: layoutedNodes, edges: layoutedEdges } = await getLayoutedElements(
                     updatedMindmapData.nodes,
                     updatedMindmapData.edges,
-                    mindmapLayoutElkOptions,
+                    radialLayoutElkOptions,
                 );
 
                 setUpdatedMindmapData({
