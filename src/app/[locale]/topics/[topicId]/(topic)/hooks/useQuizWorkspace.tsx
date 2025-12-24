@@ -5,6 +5,7 @@ import { IQuestion } from '@/app/[locale]/question/types/question.type';
 
 export type QuizMode = 'generate' | 'history' | 'edit';
 export type QuizViewMode = 'list' | 'detail';
+export type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
 
 export interface IQuizStatistics {
     totalQuizzes: number;
@@ -35,8 +36,8 @@ export interface QuizWorkspaceState {
     quizDetail: any | null;
     setQuizDetail: Dispatch<SetStateAction<any | null>>;
 
-    selectedType: string;
-    setSelectedType: Dispatch<SetStateAction<string>>;
+    selectedType: QuizType;
+    setSelectedType: Dispatch<SetStateAction<QuizType>>;
 
     viewMode: QuizViewMode;
     setViewMode: Dispatch<SetStateAction<QuizViewMode>>;
@@ -88,7 +89,7 @@ export default function useQuizWorkspaceState(): QuizWorkspaceState {
     const [history, setHistory] = useState<QuizHistoryItem[]>([]);
     const [quizDetail, setQuizDetail] = useState<any | null>(null);
 
-    const [selectedType, setSelectedType] = useState<string>('');
+    const [selectedType, setSelectedType] = useState<QuizType>('initial');
     const [viewMode, setViewMode] = useState<QuizViewMode>('list');
     const [selectedQuizResultId, setSelectedQuizResultId] = useState<number | null>(null);
 

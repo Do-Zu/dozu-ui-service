@@ -21,11 +21,26 @@ import { IQuizStatistics } from '../../../hooks/useQuizWorkspace';
 import QuizDoingPanel from '../quiz-generate/quiz-doing/QuizDoingPanel';
 import Generate from '../../generate/Generate';
 import type { IGeneratedQuizItem, IQuestion } from '@/app/[locale]/question/types/question.type';
+import RecommendationCard from '../quiz-generate/RecommendationCard';
+import { useQuizRecommendation } from '../quiz-generate/hooks/useQuizRecommendation';
+import { stat } from 'fs';
 
 const DEFAULT_CHECK_TYPE = 'initial';
+type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
+const QUIZ_TYPES: QuizType[] = ['initial', 'new', 'learning', 'review', 'wrong', 'weak'];
+interface ApiResponse<T> {
+    code: number;
+    status: string;
+    message: string;
+    data: T;
+}
 
 export default function QuizGenerateTab() {
     const { tab, topicId, topic } = useTopicWorkspace();
+    const [typeCounts, setTypeCounts] = useState<Partial<Record<QuizType, number>>>({});
+    const [disabledMap, setDisabledMap] = useState<Partial<Record<QuizType, boolean>>>({});
+    const [checkingTypes, setCheckingTypes] = useState(false);
+    const { data: recommendation } = useQuizRecommendation(topicId);
 
     const {
         statistics,
@@ -57,22 +72,55 @@ export default function QuizGenerateTab() {
 
         setGeneratedQuestionsForEdit,
     } = useQuizWorkspace();
-
+    console.log({ statistics });
     // null = Haven't finished checking yet, true = have question, false = haven't question
     const { hasAnyQuestions, setHasAnyQuestions } = useQuizWorkspace();
 
+    const checkQuizTypeAvailability = async () => {
+        if (!topicId) return;
+
+        setCheckingTypes(true);
+
+        try {
+            const results = await Promise.all(
+                QUIZ_TYPES.map(async (t) => {
+                    try {
+                        const res = await quizService.generateQuiz(String(topicId), t);
+                        const data = res?.data;
+                        const count = Array.isArray(data) ? data.length : 0;
+                        return { t, count };
+                    } catch {
+                        return { t, count: 0 };
+                    }
+                }),
+            );
+
+            const nextCounts: Partial<Record<QuizType, number>> = {};
+            const nextDisabled: Partial<Record<QuizType, boolean>> = {};
+
+            for (const r of results) {
+                nextCounts[r.t] = r.count;
+                nextDisabled[r.t] = r.count === 0;
+            }
+
+            setTypeCounts(nextCounts);
+            setDisabledMap(nextDisabled);
+        } finally {
+            setCheckingTypes(false);
+        }
+    };
 
     // fetch statistic
     const {
         data: statsData,
         loading: statsLoading,
         error: statsError,
-    } = useFetch<IQuizStatistics>(() => quizService.getStatistics(String(topicId)), {
+    } = useFetch<ApiResponse<IQuizStatistics>>(() => quizService.getStatistics(String(topicId)), {
         shouldRun: tab === METHOD_LEARNING.QUIZ,
     });
 
     useEffect(() => {
-        if (statsData) setStatistics(statsData);
+        if (statsData?.data) setStatistics(statsData.data);
     }, [statsData, setStatistics]);
 
     useEffect(() => {
@@ -95,12 +143,13 @@ export default function QuizGenerateTab() {
         };
 
         void checkQuestions();
+        void checkQuizTypeAvailability();
     }, [tab, topicId, hasAnyQuestions]);
 
     // select quiz type
     const handleSelectQuizType = async (type: string) => {
         try {
-            const { data } = await quizService.generateQuiz(String(topicId), type);
+            const { data } = await quizService.generateQuiz(String(topicId), type as QuizType);
 
             if (!Array.isArray(data) || data.length === 0) {
                 toast({
@@ -123,11 +172,11 @@ export default function QuizGenerateTab() {
 
             const labelMap: Record<string, string> = {
                 initial: 'Initial',
-                review: 'Review',
-                ef_low: 'EF Low',
                 new: 'New',
-                random: 'Random',
+                learning: 'Learning',
+                review: 'Review',
                 wrong: 'Wrong',
+                weak: 'Weak',
             };
 
             const now = new Date();
@@ -140,7 +189,7 @@ export default function QuizGenerateTab() {
 
             setDefaultName(`${labelMap[type] || type} Quiz - ${ts}`);
             setDefaultDescription(`Auto-generated (${data.length} questions).`);
-            setSelectedType(type);
+            setSelectedType(type as QuizType);
             setIsCreateModalOpen(true);
         } catch (err) {
             console.error(err);
@@ -148,7 +197,15 @@ export default function QuizGenerateTab() {
     };
 
     // create quiz + start doing mode
-    const handleCreateQuiz = async ({ name, description }: { name: string; description?: string }) => {
+    const handleCreateQuiz = async ({
+        name,
+        description,
+        initialConfig,
+    }: {
+        name: string;
+        description?: string;
+        initialConfig?: { limit?: number; shuffle?: boolean };
+    }) => {
         try {
             setLoadingOverlay(true);
 
@@ -164,7 +221,12 @@ export default function QuizGenerateTab() {
             if (!quizId) throw new Error('Quiz creation failed');
 
             //generate questions again for doing mode
-            const gen = await quizService.generateQuiz(String(topicId), selectedType);
+            if (!selectedType) throw new Error('Quiz type is not selected');
+            const gen = await quizService.generateQuiz(
+                String(topicId),
+                selectedType as QuizType,
+                selectedType === 'initial' ? initialConfig : undefined,
+            );
 
             if (!gen?.data || !Array.isArray(gen.data)) {
                 throw new Error('Failed to load quiz questions.');
@@ -280,7 +342,19 @@ export default function QuizGenerateTab() {
                 </div>
             ) : (
                 <>
-                    <QuizTypeSelector onSelectQuizType={handleSelectQuizType} />
+                    {recommendation && (
+                        <RecommendationCard
+                            recommendation={recommendation}
+                            onStart={(type) => handleSelectQuizType(type)}
+                        />
+                    )}
+
+                    <QuizTypeSelector
+                        onSelectQuizType={handleSelectQuizType}
+                        disabledMap={disabledMap}
+                        counts={typeCounts}
+                        loading={checkingTypes}
+                    />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8 mt-6">
                         <QuizStatisticsChart statistics={statistics} />
@@ -293,6 +367,7 @@ export default function QuizGenerateTab() {
                 onClose={() => setIsCreateModalOpen(false)}
                 onSubmit={handleCreateQuiz}
                 quizType={selectedType}
+                maxQuestions={selectedType === 'initial' ? typeCounts.initial : undefined}
                 defaultName={defaultName}
                 defaultDescription={defaultDescription}
                 setGlobalLoading={setLoadingOverlay}
