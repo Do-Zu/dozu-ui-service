@@ -20,10 +20,6 @@ function SettingProfilePage() {
         <h1 className="text-2xl font-bold">Profile Settings</h1>
         <p className="text-muted-foreground">Manage your profile information and preferences</p>
       </div>
-
-      <div className="mb-2">
-        <Button onClick={handleTeacherRequestClick}>Teacher Request</Button>
-      </div>
       
       {/* Render the main ProfilePage component */}
       <ProfilePage />

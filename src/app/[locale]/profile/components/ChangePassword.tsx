@@ -385,7 +385,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ onPasswordChange, onClo
       <div className="pt-4">
         <Button 
           onClick={handleSubmit}
-          variant="gradient"
+          variant="default"
           className="w-full h-12 gap-2 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
           disabled={!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
           size="lg"
