@@ -3,13 +3,13 @@ import ColorThemeSelection from '@/app/[locale]/topics/[topicId]/(topic)/compone
 import { COLOR_THEMES } from '@/app/[locale]/topics/[topicId]/(topic)/constants/mindmap/colorTheme.constant';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { IColorMode, IColorTheme } from '@/types/mindmap/mindmap.type';
+import { AppEdge, IColorMode, IColorTheme } from '@/types/mindmap/mindmap.type';
 import colorThemeUtils from '@/utils/mindmap/colorThemeUtils';
 import { Palette } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ChangeColorThemeButton() {
-    const { nodes, edges, setNodes } = useMindMapContext();
+    const { nodes, edges, setNodes, setEdges } = useMindMapContext();
     const [open, setOpen] = useState<boolean>(false);
     const [colorMode, setColorMode] = useState<IColorMode>('branch');
 
@@ -21,9 +21,16 @@ export default function ChangeColorThemeButton() {
         }
         setNodes((prev) => {
             return prev.map((item) => {
-                if (item.data.isRoot) return item;
-                return { ...item, data: { ...item.data, color: colorMap.get(item.data.nodeId) } };
+                const nodeColor = item.data.isRoot ? '' : colorMap.get(item.data.nodeId);
+                return { ...item, data: { ...item.data, color: nodeColor } };
             });
+        });
+
+        setEdges((prev) => {
+            return prev.map((edge) => {
+                const edgeColor = colorMap.get(edge.target) ?? '';
+                return { ...edge, data: { ...edge.data, color: edgeColor } };
+            }) as AppEdge[];
         });
         setOpen(false);
     }
