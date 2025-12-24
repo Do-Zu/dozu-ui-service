@@ -38,6 +38,7 @@ export default function QuizEditTab() {
     } = useFetch<IQuestionsWithTopicName>(`/questions?topicId=${topicId}`);
 
     const [questions, setQuestions] = useState<IQuestionWithServer[]>();
+    console.log({questions})
 
     useEffect(() => {
         if (!questionsExisted) return;

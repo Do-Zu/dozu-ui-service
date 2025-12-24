@@ -20,6 +20,7 @@ export interface IQuestionBasic {
     questionId: number;
     topicId: number;
     questionText: string;
+    questionType: string;
     choices: string[];
     correctIndex: number;
 }
