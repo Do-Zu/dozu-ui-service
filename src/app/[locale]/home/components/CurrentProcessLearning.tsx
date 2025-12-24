@@ -4,7 +4,6 @@ import React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Target, Calendar, Play, AlignEndHorizontal } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import useFetch from '@/hooks/useFetch';
@@ -13,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { ROUTES } from '@/utils/constants/routes';
 import { METHOD_LEARNING } from '../../generate/constants/resource';
-import { truncate } from '@/utils';
+import { isNilOrEmpty, truncate } from '@/utils';
 
 interface CurrentLearning {
     topicName?: string;
@@ -46,7 +45,7 @@ interface ICurrentLearningProgressResponse {
     };
 }
 
-const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
+const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = () => {
     const t = useTranslations('home.currentProcessLearning');
     const router = useRouter();
     const isMobile = useIsMobile();
@@ -78,6 +77,8 @@ const CurrentProcessLearning: React.FC<CurrentProcessLearningProps> = ({}) => {
     const currentLearning = adapterDataCurrentLearning(data);
 
     const onContinueLearning = (type: 'current' | 'next') => {
+        if (isNilOrEmpty(type)) return;
+
         const topicId = data?.topic?.topicId;
 
         if (!topicId) {
