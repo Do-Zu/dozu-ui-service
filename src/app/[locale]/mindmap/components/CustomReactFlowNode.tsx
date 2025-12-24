@@ -119,13 +119,23 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
         e.preventDefault();
         if (internalNode) {
             requestAnimationFrame(() => {
-                fitView({ nodes: [internalNode], duration: 800, padding: 0.2 });
+                fitView({ nodes: [internalNode], duration: 800, padding: 1 });
             });
         }
         setIsClickedOn(true);
 
         dispatch(setSelectedNodeData(data));
         dispatch(openSheet());
+    };
+
+    const handleDoubleClickNode = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        if (internalNode) {
+            requestAnimationFrame(() => {
+                fitView({ nodes: [internalNode], duration: 800, padding: 1 });
+            });
+        }
+        setIsClickedOn(true);
     };
 
     const handleGhostIconClick = (e: React.MouseEvent) => {
@@ -156,7 +166,11 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // Animation variants
     const nodeVariants = {
         initial: { scale: 0.95, opacity: 0.8 },
-        animate: { scale: 1, opacity: 1 },
+        animate: {
+            scale: 1,
+            // If complete, fade to 70%. Otherwise, fully opaque.
+            opacity: isComplete ? 0.7 : 1,
+        },
         hover: { scale: 1.02, y: -2 },
         tap: { scale: 0.98 },
     };
@@ -218,12 +232,13 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             ref={wrapperRef}
             onClick={handleClickNode}
             onContextMenu={handleRightClickNode}
+            onDoubleClick={handleDoubleClickNode}
             className={`
-                relative group min-w-[180px] max-w-[280px]
-                bg-card/95 backdrop-blur-sm
-                rounded-xl shadow-sm hover:shadow-md
+                group relative min-w-[180px] max-w-[280px]
+                rounded-xl border
+                bg-card/95 shadow-sm backdrop-blur-sm
                 transition-all duration-200 ease-out
-                border
+                hover:shadow-md
                 ${getBorderClass()}
                 ${getRingClass()}
                 ${getBackgroundClass()}
@@ -231,6 +246,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             style={
                 {
                     // Border color fallback for inactive, incomplete, colored nodes
+
                     borderColor: !isActive && !isComplete && data.color ? data.color : undefined,
 
                     // If active, complete, and colored: override the CSS variable for ring color
@@ -245,15 +261,15 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: isHovered ? 1 : 0 }}
-                    className="absolute top-2 right-2 z-30"
+                    className="absolute right-2 top-2 z-30"
                 >
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 rounded-md hover:bg-muted bg-card/50 backdrop-blur-sm border shadow-sm"
+                        className="size-6 rounded-md border bg-card/50 shadow-sm backdrop-blur-sm hover:bg-muted"
                         onClick={handleGhostIconClick}
                     >
-                        <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                        <MoreHorizontal className="size-4 text-muted-foreground" />
                     </Button>
                 </motion.div>
             )}
@@ -262,28 +278,28 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 <motion.div
                     initial={{ scale: 0, rotate: -45 }}
                     animate={{ scale: 1, rotate: 0 }}
-                    className="absolute -top-2 -right-2 z-20 bg-card rounded-full shadow-sm ring-1 ring-green-100 dark:ring-green-900"
+                    className="absolute -right-2 -top-2 z-20 rounded-full bg-card shadow-sm ring-1 ring-green-100 dark:ring-green-900"
                 >
-                    <CheckCircle className="w-5 h-5 text-green-500 fill-green-100 dark:fill-green-900/30" />
+                    <CheckCircle className="size-5 fill-green-100 text-green-500 dark:fill-green-900/30" />
                 </motion.div>
             )}
 
             {/* Connection Handles */}
             <Handle
-                className="w-3 h-3 bg-primary/60 border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                className="size-3 border-2 border-background bg-primary/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 position={Position.Right}
                 type="source"
                 style={{ right: -6 }}
             />
             <Handle
-                className="w-3 h-3 bg-primary/60 border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                className="size-3 border-2 border-background bg-primary/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 position={Position.Left}
                 type="target"
                 style={{ left: -6 }}
                 isConnectableStart={false}
             />
             <Handle
-                className="w-3 h-3 bg-primary/60 border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                className="size-3 border-2 border-background bg-primary/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 position={Position.Bottom}
                 type="target"
                 style={{ bottom: -6 }}
@@ -316,7 +332,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             </div>
 
             <Handle
-                className="w-3 h-3 bg-primary/60 border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                className="size-3 border-2 border-background bg-primary/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 position={Position.Top}
                 type="target"
                 style={{ top: -6 }}
@@ -330,10 +346,10 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center justify-center mb-2"
+                        className="mb-2 flex items-center justify-center"
                     >
-                        <Badge variant="secondary" className="text-xs font-medium bg-primary/10 text-primary">
-                            <Target className="w-3 h-3 mr-1" />
+                        <Badge variant="secondary" className="bg-primary/10 text-xs font-medium text-primary">
+                            <Target className="mr-1 size-3" />
                             Root Topic
                         </Badge>
                     </motion.div>
@@ -348,9 +364,9 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                 >
                     {/* Title Section */}
                     <div className="space-y-2">
-                        <div className="cursor-pointer group/title">
+                        <div className="group/title cursor-pointer">
                             <motion.h3
-                                className={`text-sm font-medium text-foreground leading-relaxed line-height-[1.5] group-hover/title:text-primary transition-colors duration-200 ${isComplete ? 'text-muted-foreground' : ''}`}
+                                className={`line-height-[1.5] text-sm font-medium leading-relaxed text-foreground transition-colors duration-200 group-hover/title:text-primary ${isComplete ? 'text-muted-foreground' : ''}`}
                                 style={{
                                     fontSize: '14px',
                                     lineHeight: '1.5',
@@ -361,7 +377,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                             >
                                 {isEditingMindmap ? (
                                     <Input
-                                        className="h-7 px-2 py-1 text-sm border border-neutral-300 dark:border-neutral-600"
+                                        className="h-7 border border-neutral-300 px-2 py-1 text-sm dark:border-neutral-600"
                                         value={label}
                                         onChange={onChangeLabel}
                                     />
@@ -382,7 +398,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                 <motion.p
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
-                                    className={`text-xs text-muted-foreground mt-1 leading-relaxed ${isActive ? '' : 'hidden'}`}
+                                    className={`mt-1 text-xs leading-relaxed text-muted-foreground ${isActive ? '' : 'hidden'}`}
                                     style={{ lineHeight: '1.4' }}
                                 >
                                     <span style={{ color: data.color ? readableColor(data.color) : '' }}>
@@ -403,7 +419,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                             animate="visible"
                             exit="hidden"
                             transition={{ duration: 0.2, delay: 0.1 }}
-                            className="mt-3 pt-3 border-t border-border/40 space-y-3"
+                            className="mt-3 space-y-3 border-t border-border/40 pt-3"
                         >
                             <div className="flex items-center justify-between">
                                 <Button
@@ -417,7 +433,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
                                     }}
                                     className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                                 >
-                                    <BookOpenIcon className="w-3 h-3 mr-1" />
+                                    <BookOpenIcon className="mr-1 size-3" />
                                     Learn
                                 </Button>
 
@@ -439,7 +455,7 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             </div>
 
             <div
-                className="absolute inset-0 rounded-xl ring-2 ring-primary/0 group-focus-within:ring-primary/40 transition-all duration-200 pointer-events-none"
+                className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-primary/0 transition-all duration-200 group-focus-within:ring-primary/40"
                 aria-hidden="true"
             />
             <NodeToolbar isVisible={isEditingMindmap} position={Position.Top}>

@@ -225,7 +225,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             {!isEditing ? (
               <Button 
                 onClick={handleEdit} 
-                variant="gradient"
+                variant="default"
                 size="lg"
               >
                 <Edit3 className="h-4 w-4" />
@@ -235,7 +235,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               <div className="flex gap-3 w-full lg:w-auto items-center">
                 <Button 
                   onClick={handleSave} 
-                  variant="gradient"
+                  variant="default"
                   className="flex-1 lg:flex-none"
                   size="lg"
                 >

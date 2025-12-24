@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useFetch from '@/hooks/useFetch';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ import {
     turnOffMultiSelectMode,
 } from '@/stores/features/mindmap/selectedNodeSlice';
 
-export default function TopicWorkspace() {
+export default function TopicWorkspace(): JSX.Element {
     const {
         topic,
         topicId,
@@ -39,11 +39,11 @@ export default function TopicWorkspace() {
         setIsLearningContentFullscreen,
     } = useTopicWorkspace();
 
-    function handleScreenModeToggle() {
+    function handleScreenModeToggle(): void {
         setIsLearningContentFullscreen((prev) => !prev);
     }
 
-    function handleTabChange(value: string) {
+    function handleTabChange(value: string): void {
         setTab(value as TopicWorkspaceTabValue);
     }
 
@@ -124,9 +124,9 @@ export default function TopicWorkspace() {
 
                                 <Button variant="ghost" size="icon" onClick={handleScreenModeToggle}>
                                     {isLearningContentFullscreen ? (
-                                        <Minimize className="h-4 w-4" />
+                                        <Minimize className="size-4" />
                                     ) : (
-                                        <Maximize className="h-4 w-4" />
+                                        <Maximize className="size-4" />
                                     )}
                                 </Button>
                             </div>

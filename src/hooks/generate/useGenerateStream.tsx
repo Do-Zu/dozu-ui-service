@@ -3,7 +3,6 @@ import { useTranslations } from 'next-intl';
 import { useEventSourceStream } from '../useEventSourceStream';
 import { BASE_URL_STREAMING_CHUNK_CONTENT_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { toast } from '../use-toast';
-import { useAuthStorage } from '@/app/[locale]/auth/hooks/useAuthStorage';
 
 export interface IGenerateRequest {
     content: string;
@@ -45,7 +44,7 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
     });
 
     const executeGenerate = async ({ content, method, type }: IGenerateRequest) => {
-        execute({ content, method, type });
+        await execute({ content, method, type });
     };
 
     const isGenerating: boolean = useMemo(() => {

@@ -1,20 +1,16 @@
 import DownloadButton from '@/components/mindmap/button/DownloadButton';
 import EditMindmapButton from '@/components/mindmap/button/EditMindmapButton';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Panel, useReactFlow } from '@xyflow/react';
 import React, { useState } from 'react';
 import ExportToCSVButton from '@/app/[locale]/mindmap/components/buttons/ExportToCSVButton';
-import HorizontalLayoutButton from '@/components/mindmap/button/HorizontalLayoutButton';
-import VerticalLayoutButton from '@/components/mindmap/button/VerticalLayoutButton';
-import MindmapLayoutButton from '@/components/mindmap/button/MindmapLayoutButton';
+
 import DeleteMindmapButton from '@/components/mindmap/button/DeleteMindmapButton';
 import { useMindMapContext } from '../context/MindMapContext';
 import { Save } from 'lucide-react';
-import { Toggle } from '@/components/ui/toggle';
+
 // import ImportMindmapButton from './buttons/ImportMindmapButton';
 import ImportButton from './buttons/ImportButton';
-import RoadmapButton from './buttons/RoadmapButton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
@@ -24,6 +20,8 @@ import { useAppSelector } from '@/stores/hooks';
 import ChangeColorThemeButton from '@/components/mindmap/button/ChangeColorThemeButton';
 import { AppEdge, AppNode } from '@/types/mindmap/mindmap.type';
 import { getFilteredEdges, getFilteredNodes } from '@/utils/mindmap/mindmapUtils';
+import CustomizeMindmapLayoutOptionsButton from '@/components/mindmap/button/CustomizeMindmapLayoutOptionsButton';
+
 // import ImportMindmapButton from '@/app/[locale]/mindmap/components/buttons/ImportMindmapButton';
 
 // import { Toggle } from "@/components/ui/toggle"
@@ -84,7 +82,7 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
 
     return (
         <Panel position="top-center">
-            <div className="flex gap-2 flex-row">
+            <div className="flex flex-row gap-2">
                 {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                     <>
                         <Tooltip>
@@ -112,19 +110,8 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                     ''
                 )}
                 <ExportToCSVButton isPanelExpanded={isPanelExpanded} />
-                <HorizontalLayoutButton
-                    layoutNodes={filteredNodes}
-                    layoutEdges={filteredEdges}
-                    isPanelExpanded={isPanelExpanded}
-                    onLayoutSuccess={onLayoutSuccess}
-                />
-                <VerticalLayoutButton
-                    layoutNodes={filteredNodes}
-                    layoutEdges={filteredEdges}
-                    isPanelExpanded={isPanelExpanded}
-                    onLayoutSuccess={onLayoutSuccess}
-                />
-                <MindmapLayoutButton
+
+                <CustomizeMindmapLayoutOptionsButton
                     layoutNodes={filteredNodes}
                     layoutEdges={filteredEdges}
                     isPanelExpanded={isPanelExpanded}
