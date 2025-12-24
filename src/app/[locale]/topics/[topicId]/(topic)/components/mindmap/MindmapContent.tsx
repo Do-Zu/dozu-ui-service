@@ -224,6 +224,11 @@ const MindmapContent = ({ mode, role }: Props) => {
         setSavePending(true);
         setShowGenerateModal(false);
         setIsGenerating(false);
+        setTimeout(function () {
+            requestAnimationFrame(() => {
+                fitView({ duration: 800 });
+            });
+        }, 100);
     }
 
     const getUpdatedMindmapData = (nodes: GeneratedNode[], edges: GeneratedEdge[]) => {
