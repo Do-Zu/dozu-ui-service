@@ -33,12 +33,14 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onSettingsChange }) =
     const loadCurrentSettings = async () => {
         try {
             setLoading(true);
+
             const profile = await ProfileService.getProfile();
 
-            // If backend has settings, use them
             if (profile.notificationSettings) {
                 setNotifications(profile.notificationSettings);
             }
+        } catch (error) {
+            toastHelper.showErrorMessage(error);
         } finally {
             setLoading(false);
         }
@@ -62,7 +64,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onSettingsChange }) =
     };
 
     const allNotificationsEnabled = Object.values(notifications).every((v) => v);
-    const someNotificationsEnabled = Object.values(notifications).some((v) => v);
 
     const handleSaveSettings = async () => {
         setSaveLoading(true);
@@ -130,11 +131,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onSettingsChange }) =
                                     />
                                     <label
                                         htmlFor="toggle-all"
-                                        className={`absolute inset-0 cursor-pointer rounded-full transition-colors duration-200 ${
-                                            allNotificationsEnabled || someNotificationsEnabled
-                                                ? 'bg-gradient-to-r from-blue-500 to-purple-500'
-                                                : 'bg-muted'
-                                        }`}
+                                        className={`absolute inset-0 cursor-pointer rounded-full transition-colors duration-200 `}
                                     >
                                         <span
                                             className={`absolute left-0.5 top-0.5 size-5 rounded-full bg-background shadow-md transition-transform duration-200 ${
@@ -186,15 +183,6 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onSettingsChange }) =
                                 />
                                 <span className="text-sm">Email notifications</span>
                             </label>
-                            {/* <label className="flex items-center space-x-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={notifications.pushNotifications}
-                onChange={(e) => handleNotificationChange('pushNotifications', e.target.checked)}
-                className="rounded" 
-              />
-              <span className="text-sm">Push notifications</span>
-            </label> */}
                         </div>
 
                         {/* Action Buttons */}
