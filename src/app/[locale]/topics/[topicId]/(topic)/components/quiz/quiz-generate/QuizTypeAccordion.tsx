@@ -23,8 +23,6 @@ interface QuizTypeItem {
 export default function QuizTypeAccordion() {
     const t = useTranslations('quizOnboarding');
     const [openKey, setOpenKey] = useState<string | null>(null);
-
-    // ✅ ĐÚNG: lấy object "types"
     const types = t.raw('types') as Record<string, QuizTypeItem>;
 
     return (
