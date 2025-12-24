@@ -37,7 +37,7 @@ export default function Roadmap({ mode, role, onClose }: Props) {
     // Get root level children
     const rootChildren = useMemo(() => {
         return rootNode ? getImmediateChildNodes(rootNode.data.nodeId) : []; //default empty if root node is not found
-    }, [rootNode, nodes, edges]);
+    }, [rootNode, nodes, edges, getImmediateChildNodes]);
 
     function normalizeRoadmapOrder(baseNodes: AppNode[]) {
         const total = baseNodes.length;
