@@ -2,7 +2,7 @@ import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import LoadingPage from '@/app/loading';
 import FlashcardContent from '../flashcard/FlashcardContent';
 import DataStatus from '@/components/errors/DataStatus';
-import { isEmpty, isNil } from '@/utils';
+import { isNil } from '@/utils';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';

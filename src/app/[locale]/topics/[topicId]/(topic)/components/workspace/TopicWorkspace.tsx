@@ -7,13 +7,11 @@ import { Maximize, Minimize } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TopicWorkspaceTabValue } from '../../types';
 import LearningMaterial from '../material/LearningMaterial';
-import { TOPIC_WORKSPACE_TABS } from '../../layout/config.layout';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
 import LoadingPage from '@/app/loading';
 import DataStatus from '@/components/errors/DataStatus';
 import topicService from '@/services/topic/topic.service';
 import { isEmpty } from '@/utils';
-import { cn } from '@/lib/utils';
 import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
 import { useDispatch } from 'react-redux';
@@ -34,16 +32,16 @@ import topicWorkspaceUtils from '../../utils/topicWorkspace.utils';
 export default function TopicWorkspace(): JSX.Element {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
     const { isStudent, isTeacher } = useRoleChecker();
-    const getRole = () => {
-        if (isStudent) return UserRoleEnum.USER;
-        if (isTeacher) return UserRoleEnum.TEACHER;
-        return UserRoleEnum.ADMIN;
-    };
 
     const tabs = useMemo(() => {
+        const getRole = () => {
+            if (isStudent) return UserRoleEnum.USER;
+            if (isTeacher) return UserRoleEnum.TEACHER;
+            return UserRoleEnum.ADMIN;
+        };
         const role = getRole();
         return topicWorkspaceUtils.getWorkspaceTabs(learningMode ?? MODE_ACCESS_PAGE_ROLE.personal, role);
-    }, [learningMode, getRole]);
+    }, [learningMode, isStudent, isTeacher]);
 
     const {
         topic,
