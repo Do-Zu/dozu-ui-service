@@ -56,3 +56,27 @@ export interface IGeneratedQuizItem {
     hint: string;
     explain: string;
 }
+
+export type QuizConfidence = 1 | 2 | 3;
+
+export interface IQuizDoingQuestion {
+  questionId: number;
+  quizId: number;
+
+  questionText: string;
+  choices: string[];
+  correctIndex: number;
+  questionType?: string;
+
+  hint?: string;
+  explain?: string;
+
+  // user interaction
+  selectedAnswer: number | string | null;
+  isCorrect?: boolean;
+  confidence?: QuizConfidence;
+  showExplanation?: boolean;
+  score?: number;
+  maxScore?: number;
+}
+

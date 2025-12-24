@@ -7,9 +7,7 @@ import CalendarView from './components/CalendarView';
 const SchedulePage = () => {
     return (
         <Calendar>
-            <div className="mx-auto p-2 space-y-10">
-                <CalendarView />
-            </div>
+            <CalendarView />
         </Calendar>
     );
 };

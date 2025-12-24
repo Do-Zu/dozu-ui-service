@@ -1,16 +1,33 @@
 import { getRequest, postRequest } from '@/api/api';
+import qs from 'qs';
 import { activityTrackingService } from '@/services/gamification/activityTracking.service';
 import { streakProgressService } from '@/services/progress/streakProgress.service';
 
-export const quizService = {
+type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
 
+type InitialConfig = {
+    limit?: number;
+    shuffle?: boolean;
+};
+
+export const quizService = {
     getStatistics: async (topicId: string) => {
         const response = await getRequest(`/quiz/statistics?topicId=${topicId}`);
         return response;
     },
 
-    generateQuiz: async (topicId: string, type: string) => {
-        const response = await getRequest(`/quiz/generate?type=${type}&topicId=${topicId}`);
+    generateQuiz: async (topicId: string, type: QuizType, initialConfig?: InitialConfig) => {
+        const query = {
+            topicId,
+            type,
+            ...(type === 'initial' && initialConfig ? { initialConfig } : {}),
+        };
+
+        const queryString = qs.stringify(query, {
+            allowDots: false, // create initialConfig[limit]
+            encode: true,
+        });
+        const response = await getRequest(`/quiz/generate?${queryString}`);
         return response;
     },
 
@@ -25,12 +42,11 @@ export const quizService = {
     },
 
     submitQuiz: async (quizData: any) => {
-        console.log('=== Quiz Submission Debug ===');
         console.log('Quiz data:', quizData);
-        
+
         const response = await postRequest('/quiz/submit', quizData);
         console.log('Quiz submit response:', response);
-        
+
         // Track quiz completion for both activity and progress
         if ((response.status === 'success' || response.status === 'created') && response.data) {
             try {
@@ -38,17 +54,17 @@ export const quizService = {
                 const score = quizData.score || responseData.score || 0;
                 const quizId = quizData.quizId || responseData.quizId;
                 const duration = quizData.duration || 0;
-                
+
                 console.log('Quiz completion data:', { score, quizId, duration });
-                
+
                 // Get userId from localStorage for progress tracking
                 const userString = localStorage.getItem('user');
                 if (userString) {
                     const user = JSON.parse(userString);
                     const userId = user?.userId;
-                    
+
                     console.log('User ID for tracking:', userId);
-                    
+
                     if (userId) {
                         // Track progress for streak calculation
                         console.log('Tracking quiz progress...');
@@ -57,20 +73,16 @@ export const quizService = {
                             quizId.toString(),
                             score,
                             duration,
-                            quizData.topicId?.toString()
+                            quizData.topicId?.toString(),
                         );
                         console.log('Quiz progress tracking result:', progressResult);
                     }
                 }
-                
+
                 // Also track activity for gamification
                 console.log('Tracking quiz activity...');
                 const quizIdNum = Number(quizId);
-                await activityTrackingService.trackQuizCompletion(
-                    quizIdNum,
-                    score,
-                    duration
-                );
+                await activityTrackingService.trackQuizCompletion(quizIdNum, score, duration);
                 console.log('Quiz activity tracked successfully');
             } catch (error) {
                 console.error('Error tracking quiz completion:', error);
@@ -80,7 +92,7 @@ export const quizService = {
         } else {
             console.log('Quiz submission failed or no data:', response);
         }
-        
+
         return response;
     },
 
@@ -92,5 +104,10 @@ export const quizService = {
     getQuizResultDetail: async (quizResultId: string) => {
         const response = await getRequest(`/quiz/history/${quizResultId}`);
         return response;
+    },
+
+    getRecommendation: async (topicId: string) => {
+        const res = await getRequest(`/quiz/recommend?topicId=${topicId}`);
+        return res.data;
     },
 };

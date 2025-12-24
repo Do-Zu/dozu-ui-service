@@ -27,9 +27,9 @@ export default function CalendarView() {
     }, []);
 
     return (
-        <div className="h-dvh flex flex-col">
+        <div className=" flex flex-col">
             {isLoading && <LoadingPage isOverlay={true} />}
-            <div className="flex px-6 items-center gap-2 mb-6">
+            <div className="mt-6 flex items-center gap-2 px-6">
                 <CalendarViewTrigger className="aria-[current=true]:bg-accent" view="day">
                     {t('view.day')}
                 </CalendarViewTrigger>
@@ -54,7 +54,7 @@ export default function CalendarView() {
                 </CalendarNextTrigger>
             </div>
 
-            <div className="flex-1 px-6 overflow-hidden">
+            <div className=" flex-1 overflow-hidden px-6">
                 <CalendarDayView />
                 <CalendarWeekView />
             </div>

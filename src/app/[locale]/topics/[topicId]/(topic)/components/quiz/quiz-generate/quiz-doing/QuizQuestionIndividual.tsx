@@ -6,6 +6,7 @@ import { useTopicWorkspace } from '../../../../context/TopicWorkspaceContext';
 import { useQuizWorkspace } from '../../context/QuizWorkspaceContext';
 import { Button } from '@/components/ui/button';
 import QuizResultFeedback from './components/QuizResultFeedback';
+import QuizConfidenceSelector from './components/QuizConfidenceSelector';
 import { CornerDownRight, Loader2 } from 'lucide-react';
 import { isNilOrEmpty, safeDestructure } from '@/utils';
 import {
@@ -221,6 +222,21 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                     score={question.score}
                     maxScore={question.maxScore}
                     questionText={question.questionText}
+                />
+            )}
+
+            {/* confidence */}
+            {question.isCorrect === true && (
+                <QuizConfidenceSelector
+                    value={question.confidence}
+                    onSelect={(v) => {
+                        const updated = [...doingQuestions];
+                        updated[index] = {
+                            ...updated[index],
+                            confidence: v,
+                        };
+                        setDoingQuestions(updated);
+                    }}
                 />
             )}
         </div>

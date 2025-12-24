@@ -1,16 +1,16 @@
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarEvent } from '../ui/full-calendar';
 import { ROUTES } from '@/utils/constants/routes';
 import { useTranslations } from 'next-intl';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
+import { METHOD_LEARNING } from '@/utils/constants/method';
 
 type EventCardProps = {
     event: CalendarEvent;
@@ -18,11 +18,9 @@ type EventCardProps = {
     onEventChange?: (event: CalendarEvent) => void;
 };
 
-const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps) => {
+const EventCard = ({ event, isDragging = false }: EventCardProps) => {
     const router = useRouter();
     const t = useTranslations('schedule.eventCard.actions');
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [editingEvent, setEditingEvent] = useState(event);
 
     const {
         attributes,
@@ -45,26 +43,13 @@ const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps)
         opacity: isSortableDragging ? 0.5 : 1,
     };
 
-    const handleEditClick = () => {
-        setEditingEvent(event);
-        setEditDialogOpen(true);
-    };
-
     const handleRedirectLearningPage = () => {
         const { type } = event;
 
-        if (type === 'flashcard') {
-            router.push(ROUTES.TOPIC_WORKSPACE({ topicId: event?.topicId, tab: 'flashcard' }));
+        if (type === METHOD_LEARNING.FLASHCARD) {
+            router.push(ROUTES.TOPIC_WORKSPACE({ topicId: event?.topicId, tab: METHOD_LEARNING.FLASHCARD }));
         } else if (type === 'question') {
-            router.push(ROUTES.QUIZ_START(event?.topicId));
-        }
-    };
-
-    const handleSaveEvent = (updatedEvent: CalendarEvent) => {
-        setEditingEvent(updatedEvent);
-        setEditDialogOpen(false);
-        if (onEventChange) {
-            onEventChange(updatedEvent);
+            router.push(ROUTES.TOPIC_WORKSPACE({ topicId: event?.topicId, tab: METHOD_LEARNING.QUIZ }));
         }
     };
 
@@ -72,28 +57,31 @@ const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps)
         <div
             ref={setNodeRef}
             style={style}
-            className={cn('group relative', isSortableDragging && 'z-50', isDragging && 'cursor-grabbing')}
+            className={cn('group relative top-[-0.5em]', isSortableDragging && 'z-50', isDragging && 'cursor-grabbing')}
         >
-            <HoverCard>
-                <HoverCardTrigger asChild>
-                    <div className="flex items-center gap-1">
-                        <div
-                            {...attributes}
-                            {...listeners}
-                            className="cursor-grab hover:bg-gray-100 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                            <GripVertical size={12} />
-                        </div>
-                        <span
+            <Popover>
+                <div className="flex items-center gap-1">
+                    <div
+                        {...attributes}
+                        {...listeners}
+                        className="cursor-grab rounded  opacity-0 transition-opacity hover:bg-gray-100 group-hover:opacity-100"
+                    >
+                        <GripVertical size={12} />
+                    </div>
+
+                    <PopoverTrigger asChild>
+                        <button
+                            type="button"
                             className={cn(
                                 'flex-1 min-w-0 text-xs text-left truncate text-slate-800 dark:text-slate-50',
                             )}
                         >
                             {event?.title}
-                        </span>
-                    </div>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-80">
+                        </button>
+                    </PopoverTrigger>
+                </div>
+
+                <PopoverContent className="w-80">
                     <div className="space-y-1">
                         <h4 className="text-sm font-semibold">{event?.title}</h4>
                         <p className="text-xs">
@@ -102,15 +90,14 @@ const EventCard = ({ event, isDragging = false, onEventChange }: EventCardProps)
                         <DialogFooter>
                             <Button
                                 onClick={handleRedirectLearningPage}
-                                variant="outline"
-                                className="text-sm rounded-xl bg-blue-500/80 text-white hover:opacity-70"
+                                className="rounded-2xl text-sm hover:opacity-70"
                             >
                                 {t('learn')}
                             </Button>
                         </DialogFooter>
                     </div>
-                </HoverCardContent>
-            </HoverCard>
+                </PopoverContent>
+            </Popover>
         </div>
     );
 };
