@@ -65,34 +65,36 @@ const ProfilePage: React.FC = () => {
         }
     };
 
-    if (isEmpty(profile)) return <DataStatus variant="empty" />;
-
     return (
         <LoadingState loading={loading} error={error}>
-            <div className="container mx-auto space-y-6 py-8">
-                {shouldShowApiWarning && (
-                    <div className="mb-4 rounded-md border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
-                        <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                            ⚠️ Using demo data - API connection failed. {error && `Error: ${error}`}
-                        </p>
-                    </div>
-                )}
+            {isEmpty(profile) ? (
+                <DataStatus variant="empty" />
+            ) : (
+                <div className="container mx-auto space-y-6 py-8">
+                    {shouldShowApiWarning && (
+                        <div className="mb-4 rounded-md border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+                            <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                                ⚠️ Using demo data - API connection failed. {error && `Error: ${error}`}
+                            </p>
+                        </div>
+                    )}
 
-                <ProfileHeader
-                    profileData={profile!}
-                    onProfileUpdate={handleProfileUpdate}
-                    onAvatarUpdate={handleAvatarUpdate}
-                    onAvatarRemove={handleAvatarRemove}
-                />
-
-                <div className="space-y-6">
-                    <SettingsTab
-                        onPasswordChange={handlePasswordChange}
-                        onSettingsChange={handleSettingsChange}
-                        onDeleteAccount={handleDeleteAccount}
+                    <ProfileHeader
+                        profileData={profile!}
+                        onProfileUpdate={handleProfileUpdate}
+                        onAvatarUpdate={handleAvatarUpdate}
+                        onAvatarRemove={handleAvatarRemove}
                     />
+
+                    <div className="space-y-6">
+                        <SettingsTab
+                            onPasswordChange={handlePasswordChange}
+                            onSettingsChange={handleSettingsChange}
+                            onDeleteAccount={handleDeleteAccount}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
         </LoadingState>
     );
 };
