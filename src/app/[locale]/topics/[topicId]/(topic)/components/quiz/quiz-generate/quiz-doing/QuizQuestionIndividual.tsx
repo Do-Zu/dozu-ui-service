@@ -37,6 +37,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
 
     const isFillInBlank =
         rawType === 'fill in the blank' ||
+        rawType === 'Fill in the blank' ||
         rawType === 'fill-in-the-blank' ||
         rawType === 'fill_blank' ||
         rawType === 'blank';
