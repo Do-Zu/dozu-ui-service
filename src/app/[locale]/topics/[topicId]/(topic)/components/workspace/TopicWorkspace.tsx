@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import useFetch from '@/hooks/useFetch';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { Button } from '@/components/ui/button';
@@ -24,8 +24,27 @@ import {
     closeSheet,
     turnOffMultiSelectMode,
 } from '@/stores/features/mindmap/selectedNodeSlice';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
+import { useRoleChecker } from '@/hooks/useRoleChecker';
+import { UserRoleEnum } from '@/utils/constants/roles';
+import topicWorkspaceUtils from '../../utils/topicWorkspace.utils';
 
 export default function TopicWorkspace(): JSX.Element {
+    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const { isStudent, isTeacher } = useRoleChecker();
+    const getRole = () => {
+        if (isStudent) return UserRoleEnum.USER;
+        if (isTeacher) return UserRoleEnum.TEACHER;
+        return UserRoleEnum.ADMIN;
+    };
+
+    const tabs = useMemo(() => {
+        const role = getRole();
+        return topicWorkspaceUtils.getWorkspaceTabs(learningMode ?? MODE_ACCESS_PAGE_ROLE.personal, role);
+    }, [learningMode, getRole]);
+
     const {
         topic,
         topicId,
@@ -107,8 +126,14 @@ export default function TopicWorkspace(): JSX.Element {
                         <Tabs value={tab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0">
                             <div className="flex items-center justify-between px-6 py-4 shrink-0">
                                 <div className="flex-1 flex justify-center">
-                                    <TabsList className="grid grid-cols-5 w-[95%] rounded-2xl">
-                                        {TOPIC_WORKSPACE_TABS.map((t) => (
+                                    <TabsList
+                                        className="w-[95%] rounded-2xl"
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
+                                        }}
+                                    >
+                                        {tabs.map((t) => (
                                             <TabsTrigger
                                                 key={t.value}
                                                 value={t.value}
@@ -132,7 +157,7 @@ export default function TopicWorkspace(): JSX.Element {
                             </div>
 
                             <div className="flex-1 min-h-0 px-6 pb-4 overflow-y-auto">
-                                {TOPIC_WORKSPACE_TABS.map((t) => (
+                                {tabs.map((t) => (
                                     <TabsContent
                                         key={t.value}
                                         value={t.value}
