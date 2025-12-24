@@ -113,7 +113,7 @@ export function useEventSourceStream<TReq, TRes>(
                     }
                 },
                 onclose() {
-                    //TODO: Check onclose method
+                    setStatus((prev) => (prev === 'connecting' ? 'closed' : prev));
                 },
                 onerror(err) {
                     if (err instanceof FatalError) {
