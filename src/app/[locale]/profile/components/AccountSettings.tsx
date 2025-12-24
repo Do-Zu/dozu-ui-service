@@ -106,7 +106,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ onSettingsChange }) =
                                 Email Notifications
                             </Label>
                             <p className="mb-4 text-sm text-muted-foreground">
-                                Select which notifications you'd like to receive. Stay updated with your learning
+                                Select which notifications you&apos;d like to receive. Stay updated with your learning
                                 progress and achievements.
                             </p>
 
