@@ -36,23 +36,23 @@ export default function ChangeColorThemeButton() {
     }
 
     return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <ColorThemeSelection
-                    trigger={
+        <ColorThemeSelection
+            trigger={
+                <Tooltip>
+                    <TooltipTrigger asChild>
                         <Button variant="outline" size="icon-sm">
                             <Palette />
                         </Button>
-                    }
-                    open={open}
-                    setOpen={setOpen}
-                    themes={COLOR_THEMES}
-                    onThemeSelect={handleThemeSelect}
-                    colorMode={colorMode}
-                    onColorModeChange={(mode) => setColorMode(mode)}
-                />
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Change color theme</TooltipContent>
-        </Tooltip>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Change color theme</TooltipContent>
+                </Tooltip>
+            }
+            open={open}
+            setOpen={setOpen}
+            themes={COLOR_THEMES}
+            onThemeSelect={handleThemeSelect}
+            colorMode={colorMode}
+            onColorModeChange={(mode) => setColorMode(mode)}
+        />
     );
 }

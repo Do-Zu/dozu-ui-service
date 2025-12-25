@@ -26,6 +26,7 @@ import PaletteButton from './buttons/PaletteButton';
 import { readableColor } from 'polished';
 import { useTopicWorkspace } from '../../topics/[topicId]/(topic)/context/TopicWorkspaceContext';
 import { getAllChildNodeAndSelfIds } from '@/utils/mindmap/mindmapUtils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
     // stats;
@@ -307,28 +308,39 @@ const CustomReactFlowNode = ({ data }: { data: CustomNodeData }) => {
             />
 
             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-1 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 rounded-full bg-background shadow-md border-primary/20 hover:bg-primary hover:text-primary-foreground"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleExpandClick();
-                    }}
-                >
-                    <Plus className="h-3 w-3" />
-                </Button>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 rounded-full bg-background shadow-md border-primary/20 hover:bg-primary hover:text-primary-foreground"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleCollapseClick();
-                    }}
-                >
-                    <Minus className="h-3 w-3" />
-                </Button>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 rounded-full bg-background shadow-md border-primary/20 hover:bg-primary hover:text-primary-foreground"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleExpandClick();
+                            }}
+                        >
+                            <Plus className="h-3 w-3" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Expand</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 rounded-full bg-background shadow-md border-primary/20 hover:bg-primary hover:text-primary-foreground"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCollapseClick();
+                            }}
+                        >
+                            <Minus className="h-3 w-3" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Collapse</TooltipContent>
+                </Tooltip>
             </div>
 
             <Handle

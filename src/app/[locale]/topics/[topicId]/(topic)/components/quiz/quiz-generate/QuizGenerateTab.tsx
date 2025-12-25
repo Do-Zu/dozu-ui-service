@@ -35,7 +35,7 @@ interface ApiResponse<T> {
     data: T;
 }
 
-export default function QuizGenerateTab() {
+export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerateByAI?: boolean }) {
     const { tab, topicId, topic } = useTopicWorkspace();
     const [typeCounts, setTypeCounts] = useState<Partial<Record<QuizType, number>>>({});
     const [disabledMap, setDisabledMap] = useState<Partial<Record<QuizType, boolean>>>({});
@@ -320,24 +320,26 @@ export default function QuizGenerateTab() {
                         </p>
                     </div>
 
-                    <Generate<IGeneratedQuizItem[]>
-                        type="quiz"
-                        onSuccess={(generated) => {
-                            if (!Array.isArray(generated) || generated.length === 0) {
-                                toast({
-                                    description: 'No questions generated from AI.',
-                                    variant: 'destructive',
-                                });
-                                return;
-                            }
+                    {canGenerateByAI && (
+                        <Generate<IGeneratedQuizItem[]>
+                            type="quiz"
+                            onSuccess={(generated) => {
+                                if (!Array.isArray(generated) || generated.length === 0) {
+                                    toast({
+                                        description: 'No questions generated from AI.',
+                                        variant: 'destructive',
+                                    });
+                                    return;
+                                }
 
-                            const mapped = mapGeneratedToQuestions(generated);
+                                const mapped = mapGeneratedToQuestions(generated);
 
-                            setGeneratedQuestionsForEdit(mapped);
-                            setQuizMode('edit');
-                            setHasAnyQuestions(true);
-                        }}
-                    />
+                                setGeneratedQuestionsForEdit(mapped);
+                                setQuizMode('edit');
+                                setHasAnyQuestions(true);
+                            }}
+                        />
+                    )}
                 </div>
             ) : (
                 <>
