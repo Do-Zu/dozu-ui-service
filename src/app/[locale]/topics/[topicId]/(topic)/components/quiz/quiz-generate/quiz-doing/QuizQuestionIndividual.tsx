@@ -64,13 +64,10 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
     const [showHint, setShowHint] = useState<boolean>(false);
     const isTextAnswer = isFreeResponse || isFillInBlank;
 
-
     const isAnswered =
         question.selectedAnswer !== undefined &&
         question.selectedAnswer !== null &&
         (isTextAnswer ? String(question.selectedAnswer).trim() !== '' : true);
-
-    
 
     // multichoice
     const handleSelectChoice = (choiceIndex: number) => {
@@ -131,19 +128,19 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
     };
 
     return (
-        <div className="w-full max-w-3xl mx-auto">
+        <div className="mx-auto w-full max-w-3xl">
             {/* Question text */}
-            <h2 className="text-xl font-semibold mb-6 whitespace-pre-wrap">{questionText}</h2>
+            <h2 className="mb-6 whitespace-pre-wrap text-xl font-semibold">{questionText}</h2>
 
             {question.hint && (
                 <div className="mb-6">
                     {!showHint ? (
                         <Button variant="outline" onClick={() => setShowHint(true)} className="gap-2">
-                            <CornerDownRight className="w-4 h-4" />
+                            <CornerDownRight className="size-4" />
                             Give me a hint
                         </Button>
                     ) : (
-                        <div className="p-4 bg-muted/50 rounded-3xl border border-border/50 animate-in fade-in slide-in-from-top-2">
+                        <div className="rounded-3xl border border-border/50 bg-muted/50 p-4 animate-in fade-in slide-in-from-top-2">
                             <p className="font-medium">{question.hint}</p>
                         </div>
                     )}
@@ -182,7 +179,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                                     type="button"
                                     onClick={() => handleSelectChoice(i)}
                                     disabled={isAnswered}
-                                    className={`w-full text-left p-4 border rounded-lg transition 
+                                    className={`w-full rounded-lg border p-4 text-left transition 
                             ${borderColor} ${bgColor}
                             ${isAnswered ? 'cursor-default opacity-80' : 'hover:bg-muted'}
                         `}
@@ -205,7 +202,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                                 : freeText
                         }
                         onChange={(e) => setFreeText(e.target.value)}
-                        className="w-full border rounded-lg p-4 text-base bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                        className="w-full rounded-lg border bg-background p-4 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                         rows={4}
                         placeholder="Enter your answer..."
                     />
@@ -218,7 +215,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                             onClick={handleSubmitFreeText}
                         >
                             {isChecking ? 'Evaluating...' : 'Submit'}
-                            {isChecking && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            {isChecking && <Loader2 className="mr-2 size-4 animate-spin" />}
                         </Button>
                     )}
                 </div>
@@ -236,7 +233,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                                 : freeText
                         }
                         onChange={(e) => setFreeText(e.target.value)}
-                        className="w-full border rounded-lg p-4 text-base bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                        className="w-full rounded-lg border bg-background p-4 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                         placeholder="Type the missing word..."
                     />
 
@@ -248,7 +245,7 @@ export default function QuizQuestionIndividual({ question, index }: QuizQuestion
                             onClick={handleSubmitFreeText}
                         >
                             {isChecking ? 'Evaluating...' : 'Submit'}
-                            {isChecking && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            {isChecking && <Loader2 className="mr-2 size-4 animate-spin" />}
                         </Button>
                     )}
                 </div>
