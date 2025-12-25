@@ -31,6 +31,20 @@ export default function QuizDoingPanel() {
     const question = doingQuestions[currentQuestionIndex];
     const isLast = currentQuestionIndex === doingQuestions.length - 1;
 
+    const validateConfidenceIfNeeded = () => {
+        const q = doingQuestions[currentQuestionIndex];
+
+        if (q?.isCorrect === true && (q.confidence === undefined || q.confidence === null)) {
+            toast({
+                title: 'Select your confidence',
+                description: 'Because you answered correctly, please choose how confident you are before continuing.',
+            });
+            return false;
+        }
+
+        return true;
+    };
+
     // submit quiz
     const handleSubmitQuiz = async () => {
         try {
@@ -109,11 +123,20 @@ export default function QuizDoingPanel() {
                     setCurrentQuestionIndex((i) => Math.max(0, i - 1));
                 }}
                 onNext={() => {
+                    if (!validateConfidenceIfNeeded()) return;
+
                     setAnimDirection('left');
-                    if (!isLast) setCurrentQuestionIndex((i) => i + 1);
-                    else setShowSubmitDialog(true);
+
+                    if (!isLast) {
+                        setCurrentQuestionIndex((i) => i + 1);
+                    } else {
+                        setShowSubmitDialog(true);
+                    }
                 }}
-                onSubmit={() => setShowSubmitDialog(true)}
+                onSubmit={() => {
+                    if (!validateConfidenceIfNeeded()) return;
+                    setShowSubmitDialog(true);
+                }}
             />
 
             {/* submit confirm */}

@@ -88,8 +88,7 @@ export default function FlashcardContent({ mode, role }: Props) {
                         <UserTrackingProvider
                             autoStartTracking={true}
                             enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
-                            minSessionTime={5000} // 5 seconds minimum session
-                            apiEndpoint="/tracking/active-learning" // Behavioral tracking
+                            minSessionTime={5000} // 5 seconds minimum session// Behavioral tracking
                             learningApiEndpoint="/progress/learning-tracking" // Learning progress tracking
                         >
                             <LearningFlashcards />

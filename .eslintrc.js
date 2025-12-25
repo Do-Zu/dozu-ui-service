@@ -43,6 +43,7 @@ module.exports = {
                 '@typescript-eslint/explicit-module-boundary-types': 'off',
                 '@typescript-eslint/no-unused-vars': ['error'],
                 'import/no-cycle': 'off',
+                'import/no-duplicates': 'off',
                 'import/default': 'off',
                 'import/no-named-as-default-member': 'off',
                 'import/no-named-as-default': 'off',

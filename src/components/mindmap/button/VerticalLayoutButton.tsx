@@ -47,7 +47,7 @@ const VerticalLayoutButton = ({
                     {isPanelExpanded ? 'Set vertical layout' : ''}
                 </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom"> {'Vertical layout'}</TooltipContent>
+            <TooltipContent side="right"> {'Vertical layout'}</TooltipContent>
         </Tooltip>
     );
 };

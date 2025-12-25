@@ -131,7 +131,6 @@ export function UserTrackingProvider({
     autoStartTracking = false,
     enableAutoSend = true,
     minSessionTime = 1000,
-    apiEndpoint = '/tracking/active-learning',
     learningApiEndpoint = '/progress/learning-tracking',
 }: UserTrackingProviderProps) {
     const {
@@ -213,13 +212,6 @@ export function UserTrackingProvider({
         setMouseDistance(newMouseDistance);
     }, [activity]);
 
-    const postRequestTracking = async (data: TrackingData): Promise<void> => {
-        try {
-            await postRequest(apiEndpoint, data);
-        } catch (error) {
-            throw error;
-        }
-    };
 
     const sendTrackingData = async (): Promise<void> => {
         const latestActivity = activityRef.current;
@@ -249,7 +241,6 @@ export function UserTrackingProvider({
             url: window.location.href, // Keep URL for page identification
         };
 
-        await postRequestTracking(data);
     };
 
     // Send learning tracking data to progress API
