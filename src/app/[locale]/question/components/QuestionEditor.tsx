@@ -17,6 +17,7 @@ import QuestionImportModal from '@/app/[locale]/topics/[topicId]/(topic)/compone
 import { IQuestionPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionPreview';
 import Generate from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/Generate';
 import type { IGeneratedQuizItem } from '@/app/[locale]/question/types/question.type';
+import { Input } from '@/components/ui/input';
 
 const questionsJump = 3;
 
@@ -68,7 +69,7 @@ const QuestionEditor = ({
 }: Props) => {
     const router = useRouter();
     const [isImportOpen, setIsImportOpen] = useState(false);
-
+    const [searchText, setSearchText] = useState('');
     const quizWorkspace = useOptionalQuizWorkspace();
     const setGeneratedQuestionsForEdit = quizWorkspace?.setGeneratedQuestionsForEdit;
     const isPreviewMode = Boolean(quizWorkspace?.generatedQuestionsForEdit);
@@ -317,6 +318,14 @@ const QuestionEditor = ({
         });
     };
 
+    const filteredQuestions = questions.filter((q) => {
+        if (q.serverInfo?.isDeleted) return false;
+
+        if (!searchText.trim()) return true;
+
+        return q.questionText?.toLowerCase().includes(searchText.trim().toLowerCase());
+    });
+
     const totalRealQuestions = questions.filter((q) => {
         if (q.serverInfo?.isDeleted) return false;
 
@@ -340,6 +349,13 @@ const QuestionEditor = ({
                     </div>
 
                     <div className="flex items-center gap-3">
+                        <Input
+                            placeholder="Search question..."
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            className="w-[240px]"
+                        />
+
                         {/* Generate AI */}
                         {!isPreviewMode && (
                             <Generate<IGeneratedQuizItem[]>
@@ -381,22 +397,20 @@ const QuestionEditor = ({
             <div className="h-full overflow-y-auto pb-8">
                 <div className="px-16 py-7">
                     <div className="grid grid-cols-12 gap-6">
-                        {questions
-                            .filter((q) => !q.serverInfo?.isDeleted)
-                            .map((question, index) => (
-                                <QuestionCard
-                                    key={question.id}
-                                    question={question}
-                                    index={index}
-                                    allQuestions={questions}
-                                    onChangeText={handleChangeQuestionText}
-                                    onChangeChoice={handleChangeChoice}
-                                    onChangeCorrectIndex={handleChangeCorrectIndex}
-                                    onChangeQuestionType={handleChangeQuestionType}
-                                    onChangeSingleAnswer={handleChangeSingleAnswer}
-                                    onDelete={handleDeleteQuestion}
-                                />
-                            ))}
+                        {filteredQuestions.map((question, index) => (
+                            <QuestionCard
+                                key={question.id}
+                                question={question}
+                                index={index}
+                                allQuestions={questions}
+                                onChangeText={handleChangeQuestionText}
+                                onChangeChoice={handleChangeChoice}
+                                onChangeCorrectIndex={handleChangeCorrectIndex}
+                                onChangeQuestionType={handleChangeQuestionType}
+                                onChangeSingleAnswer={handleChangeSingleAnswer}
+                                onDelete={handleDeleteQuestion}
+                            />
+                        ))}
 
                         <div className="col-span-12 mt-2">
                             <Button
