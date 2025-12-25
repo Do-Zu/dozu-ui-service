@@ -11,18 +11,13 @@ import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import { handleConvertToQuestionsSubmitted } from '@/app/[locale]/question/utils/handleConvertToQuestionsSubmitted';
 import { ROUTES } from '@/utils/constants/routes';
 import QuestionCard from '../components/QuestionCard';
-import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
-import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
-import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
 import { CONTENT_TYPE_GENERATE } from '@/app/[locale]/generate/types';
-import {
-    handleConvertToFlashcardsSubmitted,
-    IFlashcardWithServer,
-} from '@/app/[locale]/flashcards/components/FlashcardEditor';
-import flashcardService from '@/services/flashcard/flashcard.service';
 import { useOptionalQuizWorkspace } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/context/QuizWorkspaceContext';
 import QuestionImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionImportModal';
 import { IQuestionPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionPreview';
+import Generate from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/Generate';
+import type { IGeneratedQuizItem } from '@/app/[locale]/question/types/question.type';
+import { Input } from '@/components/ui/input';
 
 const questionsJump = 3;
 
@@ -77,13 +72,7 @@ const QuestionEditor = ({
 
     const quizWorkspace = useOptionalQuizWorkspace();
     const setGeneratedQuestionsForEdit = quizWorkspace?.setGeneratedQuestionsForEdit;
-
-    const { previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
-
-    const { contentType, dataGenerated, setDataGenerated } = useContentGeneration({
-        sseData,
-        sseStatus,
-    });
+    const isPreviewMode = Boolean(quizWorkspace?.generatedQuestionsForEdit);
 
     useEffect(() => {
         if (questions.length === 0) {
@@ -275,16 +264,6 @@ const QuestionEditor = ({
         }
     };
 
-    // const hasAnyValidQuestion = (list: IQuestion[]) => {
-    //     return list.some(
-    //         (q) =>
-    //             !q.serverInfo?.isDeleted &&
-    //             q.questionText.trim().length > 0 &&
-    //             Array.isArray(q.choices) &&
-    //             q.choices.some((c) => (c ?? '').trim().length > 0),
-    //     );
-    // };
-
     const hasAllValidQuestions = (list: IQuestion[]): boolean => {
         if (!Array.isArray(list) || list.length === 0) return false;
 
@@ -317,22 +296,26 @@ const QuestionEditor = ({
         });
     };
 
-    const handleSaveGeneratedToThisTopic = async () => {
-        if (!topic) return;
-        if (!dataGenerated) {
-            toast({ description: 'No data to save', variant: 'destructive' });
-            return;
-        }
+    const mapGeneratedToQuestions = (generated: IGeneratedQuizItem[]): IQuestion[] => {
+        return generated.map((item, index) => {
+            const options: string[] = Array.isArray(item.o) ? [...item.o] : [];
 
-        if (contentType === CONTENT_TYPE_GENERATE.FLASH_CARD) {
-            const batchFlashcards = handleConvertToFlashcardsSubmitted(dataGenerated as IFlashcardWithServer[]);
-            if (!batchFlashcards) {
-                toast({ description: 'No valid flashcards to save', variant: 'destructive' });
-                return;
+            const normalizedOptions = options.slice(0, 4);
+            while (normalizedOptions.length < 4) {
+                normalizedOptions.push('');
             }
-            await flashcardService.batchFlashcardsForTopic({ topicId: topic.topicId, flashcards: batchFlashcards });
-            toast({ description: 'Saved Flashcards to topic', variant: 'default' });
-        }
+
+            return {
+                id: index,
+                questionText: item.q ?? '',
+                choices: normalizedOptions,
+                correctIndex:
+                    typeof item.idx === 'number' && item.idx >= 0 && item.idx < normalizedOptions.length ? item.idx : 0,
+                questionType: item.type,
+                hint: item.hint,
+                explain: item.explain,
+            } as IQuestion;
+        });
     };
 
     const totalRealQuestions = questions.filter((q) => {
@@ -344,43 +327,10 @@ const QuestionEditor = ({
         return hasText || hasChoice;
     }).length;
 
-    const canSaveGenerated =
-        contentType === CONTENT_TYPE_GENERATE.FLASH_CARD && Array.isArray(dataGenerated) && dataGenerated.length > 0;
-
-    //PREVIEW KHI ĐANG GENERATE FLASHCARDS
-    if (previewOpen) {
-        return (
-            <div className="min-h-screen bg-muted px-16 py-7">
-                <ContentGenerationPreview
-                    shouldCreateTopic={false}
-                    shouldCreateFeed={false}
-                    sseData={sseData}
-                    dataGenerated={dataGenerated}
-                    setDataGenerated={setDataGenerated}
-                    onSave={handleSaveGeneratedToThisTopic}
-                />
-                <div className="mt-4 flex gap-3">
-                    <Button onClick={handleSaveGeneratedToThisTopic} disabled={!canSaveGenerated}>
-                        Save to this topic
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => {
-                            setPreviewOpen(false);
-                            setDataGenerated(null);
-                        }}
-                    >
-                        Close
-                    </Button>
-                </div>
-            </div>
-        );
-    }
-
     //MAIN UI
     return (
         <div className="flex h-full flex-col bg-muted">
-            {/* HEADER STICKY giống FlashcardsEdit */}
+            {/* HEADER */}
             <div className="sticky top-0 z-40 w-full border-b bg-background shadow-sm">
                 <div className="flex items-center justify-between px-16 py-4">
                     <div className="flex items-center gap-4">
@@ -391,6 +341,26 @@ const QuestionEditor = ({
                     </div>
 
                     <div className="flex items-center gap-3">
+                        {/* Generate AI */}
+                        {!isPreviewMode && (
+                            <Generate<IGeneratedQuizItem[]>
+                                type="quiz"
+                                onSuccess={(generated) => {
+                                    if (!Array.isArray(generated) || generated.length === 0) {
+                                        toast({
+                                            description: 'No questions generated from AI.',
+                                            variant: 'destructive',
+                                        });
+                                        return;
+                                    }
+
+                                    const mapped = mapGeneratedToQuestions(generated);
+
+                                    setGeneratedQuestionsForEdit?.(mapped);
+                                }}
+                            />
+                        )}
+
                         {/* Import questions */}
                         <Button onClick={() => setIsImportOpen(true)} className="hover:opacity-80">
                             <Import size={18} />
@@ -448,17 +418,6 @@ const QuestionEditor = ({
                 setIsOpen={setIsImportOpen}
                 onSubmit={handleAddQuestionsImported}
             />
-
-            {loading && (
-                <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
-                    <div className="flex flex-col items-center rounded-xl border border-border bg-background px-6 py-5 shadow-lg">
-                        <div className="mb-3 size-6 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                            Generating flashcards from your questions...
-                        </p>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

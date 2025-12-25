@@ -66,7 +66,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
         const current = question.questionText.trim().toLowerCase();
         const duplicates = allQuestions.filter(
-            (q, i) => i !== index && q.questionText?.trim().toLowerCase() === current,
+            (q) => q.id !== question.id && q.questionText?.trim().toLowerCase() === current,
         );
 
         setIsDuplicateQuestion(duplicates.length > 0);
