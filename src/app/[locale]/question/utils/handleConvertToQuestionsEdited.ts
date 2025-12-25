@@ -44,6 +44,7 @@ export function handleConvertToQuestionsEdited(
                 questionText: q.questionText,
                 choices: q.choices,
                 correctIndex: q.correctIndex,
+                questionType: q.questionType,
                 serverInfo: {
                     questionId: q.questionId,
                     topicId: q.topicId,
