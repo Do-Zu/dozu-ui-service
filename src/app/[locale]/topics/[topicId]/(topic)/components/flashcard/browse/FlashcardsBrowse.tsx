@@ -2,14 +2,12 @@
 
 import type { IFlashcard } from '@/app/[locale]/flashcards/types/flashcard.type';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import useActivePomodoro from '@/hooks/useActivePomodoro';
 import flashcardUtils from '../../../utils/flashcard.utils';
 import Flashcard from '../Flashcard';
-import { useRequireTopic } from '../../../context/useRequireTopic';
 import GenerateFlashcards from './GenerateFlashcards';
 import StudyControls from './StudyControls';
 import StarButton from '@/components/flashcard/StarButton';
@@ -51,10 +49,6 @@ export default function FlashcardsBrowse({
     label,
     canGenerate = true,
 }: Props) {
-    const { topic } = useRequireTopic();
-    const { topicId } = topic;
-    const router = useRouter();
-
     const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState<number>(0);
 
     const [autoPlayEnabled, setAutoPlayEnabled] = useState<boolean>(false);
@@ -183,7 +177,7 @@ export default function FlashcardsBrowse({
                 />
                 <VolumeButton
                     text={isFlipped ? currentFlashcard?.back || '' : currentFlashcard?.front || ''}
-                    className="h-10 w-10"
+                    className="size-10"
                 />
             </div>
         );
@@ -232,16 +226,16 @@ export default function FlashcardsBrowse({
     }
 
     return (
-        <div className="flex bg-background w-full h-full">
-            <div className="relative flex-1 p-5 overflow-hidden">
+        <div className="flex size-full bg-background">
+            <div className="relative flex-1 overflow-hidden p-5">
                 {/* Header with tabs and view mode controls */}
                 {enableFavouriteFlashcards ? (
-                    <div className="absolute top-8 left-4 right-4 z-30 flex items-center gap-3 mb-4">
+                    <div className="absolute inset-x-4 top-8 z-30 mb-4 ml-4 flex items-center gap-3">
                         <Tabs value={filterType} onValueChange={(value) => setFilterType(value as FilterType)}>
                             <TabsList>
-                                <TabsTrigger value="all">Tất cả ({flashcards.length})</TabsTrigger>
+                                <TabsTrigger value="all">All ({flashcards.length})</TabsTrigger>
                                 {starredFlashcards.size > 0 && (
-                                    <TabsTrigger value="starred">Gắn dấu sao ({starredFlashcards.size})</TabsTrigger>
+                                    <TabsTrigger value="starred">Mark ({starredFlashcards.size})</TabsTrigger>
                                 )}
                             </TabsList>
                         </Tabs>
@@ -277,7 +271,7 @@ export default function FlashcardsBrowse({
                             isSidebarOpen ? 'w-[70%]' : 'w-full',
                         )}
                     >
-                        <div className="w-full flex justify-end px-4">
+                        <div className="flex w-full justify-end px-4">
                             <FlashcardsPanelControls
                                 onClose={onClose}
                                 isFullscreen={isPanelFullscreen}
@@ -285,7 +279,7 @@ export default function FlashcardsBrowse({
                             />
                         </div>
                         {label ? (
-                            <div className="w-full max-w-xl text-center mb-4 mt-[-1rem]">
+                            <div className="-mt-4 mb-4 w-full max-w-xl text-center">
                                 <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
                                     {label}
                                 </span>
@@ -301,16 +295,16 @@ export default function FlashcardsBrowse({
                             topRightActions={renderCardActions()}
                         />
 
-                        <div className="grid grid-cols-3 mt-4 gap-4">
-                            <div className="col-start-2 col-end-3 flex flex-row gap-4 items-center">
+                        <div className="mt-4 grid grid-cols-3 gap-4">
+                            <div className="col-start-2 col-end-3 flex flex-row items-center gap-4">
                                 <Button
                                     variant="outline"
                                     size="icon"
-                                    className="h-12 w-12 rounded-full"
+                                    className="size-12 rounded-full"
                                     onClick={handleBackFlashcardClick}
                                     aria-label="Previous flashcard"
                                 >
-                                    <ArrowLeft className="h-5 w-5" />
+                                    <ArrowLeft className="size-5" />
                                 </Button>
 
                                 <div className="text-base text-foreground">
@@ -320,11 +314,11 @@ export default function FlashcardsBrowse({
                                 <Button
                                     variant="outline"
                                     size="icon"
-                                    className="h-12 w-12 rounded-full"
+                                    className="size-12 rounded-full"
                                     onClick={handleNextFlashcardClick}
                                     aria-label="Next flashcard"
                                 >
-                                    <ArrowRight className="h-5 w-5" />
+                                    <ArrowRight className="size-5" />
                                 </Button>
                             </div>
                         </div>
@@ -341,11 +335,11 @@ export default function FlashcardsBrowse({
                         )}
                         style={{ paddingTop: '70px' }}
                     >
-                        <div className="p-6 space-y-4">
+                        <div className="space-y-4 p-6">
                             {flashcardsToDisplay.map((flashcard, index) => (
-                                <Card key={flashcard.flashcardId} className="overflow-hidden relative">
+                                <Card key={flashcard.flashcardId} className="relative overflow-hidden">
                                     {/* Star button and Volume button - Top right corner of the card */}
-                                    <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+                                    <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
                                         <StarButton
                                             isStarred={flashcard.isStar === true}
                                             onToggle={() => onStarToggle?.(flashcard.flashcardId)}
@@ -354,26 +348,26 @@ export default function FlashcardsBrowse({
                                         />
                                         <VolumeButton
                                             text={flashcard.back || flashcard.front || ''}
-                                            className="h-8 w-8"
+                                            className="size-8"
                                         />
                                     </div>
                                     <CardContent className="p-0">
                                         <div className="grid grid-cols-2 divide-x divide-border">
                                             {/* Front Side - Left */}
-                                            <div className="p-6 bg-background">
+                                            <div className="bg-background p-6">
                                                 <div className="mb-2">
                                                     <span className="text-sm font-medium text-muted-foreground">
                                                         {index + 1} Front
                                                     </span>
                                                 </div>
-                                                <div className="text-base text-foreground whitespace-pre-wrap">
+                                                <div className="whitespace-pre-wrap text-base text-foreground">
                                                     {flashcard.front}
                                                 </div>
                                             </div>
 
                                             {/* Back Side - Right */}
-                                            <div className="p-6 bg-muted">
-                                                <div className="text-sm font-medium text-muted-foreground mb-2">
+                                            <div className="bg-muted p-6">
+                                                <div className="mb-2 text-sm font-medium text-muted-foreground">
                                                     Back
                                                 </div>
                                                 {flashcard.imageUrl && (
@@ -381,11 +375,11 @@ export default function FlashcardsBrowse({
                                                         <img
                                                             src={flashcard.imageUrl}
                                                             alt="Flashcard"
-                                                            className="w-full h-auto max-h-48 object-contain rounded"
+                                                            className="h-auto max-h-48 w-full rounded object-contain"
                                                         />
                                                     </div>
                                                 )}
-                                                <div className="text-base text-foreground whitespace-pre-wrap">
+                                                <div className="whitespace-pre-wrap text-base text-foreground">
                                                     {flashcard.back}
                                                 </div>
                                             </div>

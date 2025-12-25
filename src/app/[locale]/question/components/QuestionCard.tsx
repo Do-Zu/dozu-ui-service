@@ -6,6 +6,7 @@ import { Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export interface QuestionCardProps {
     question: IQuestion;
@@ -19,12 +20,7 @@ export interface QuestionCardProps {
     allQuestions: IQuestion[];
 }
 
-const QUESTION_TYPES = [
-    'Multiple Choice',
-    'True or False',
-    'Free Response',
-    'Fill in the blank',
-] as const;
+const QUESTION_TYPES = ['Multiple Choice', 'True or False', 'Free Response', 'Fill in the blank'] as const;
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
     question,
@@ -37,9 +33,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     onDelete,
     allQuestions,
 }) => {
-    const isSingleAnswer =
-        question.questionType === 'Free Response' ||
-        question.questionType === 'Fill in the blank';
+    const isSingleAnswer = question.questionType === 'Free Response' || question.questionType === 'Fill in the blank';
 
     const [duplicateIndexes, setDuplicateIndexes] = useState<number[]>([]);
     const [isDuplicateQuestion, setIsDuplicateQuestion] = useState(false);
@@ -86,29 +80,35 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             )}
         >
             {/* HEADER */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="mb-3 flex items-center justify-between">
                 {/* Question type */}
                 <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground font-medium">
-                        Question type
-                    </span>
-                    <select
+                    <span className="text-xs font-medium text-muted-foreground">Question type</span>
+                    <Select
                         value={question.questionType ?? 'Multiple Choice'}
-                        onChange={(e) => onChangeQuestionType?.(index, e.target.value)}
-                        className="text-xs rounded-md border bg-background px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                        onValueChange={(value) => onChangeQuestionType?.(index, value)}
                     >
-                        {QUESTION_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                                {type}
-                            </option>
-                        ))}
-                    </select>
+                        <SelectTrigger className="h-8 w-[150px] rounded-3xl text-xs">
+                            <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {QUESTION_TYPES.map((type) => (
+                                <SelectItem
+                                    className="border-border text-sm hover:cursor-pointer hover:bg-muted"
+                                    key={type}
+                                    value={type}
+                                >
+                                    {type}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 {/* Delete */}
                 <Trash2
-                    size={18}
-                    className="cursor-pointer text-muted-foreground hover:text-destructive"
+                    size={15}
+                    className="cursor-pointer text-muted-foreground hover:text-rose-400"
                     onClick={() => onDelete(question.id)}
                 />
             </div>
@@ -128,11 +128,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                     <Input
                         value={question.choices[0] ?? ''}
                         placeholder={
-                            question.questionType === 'Fill in the blank'
-                                ? 'Correct word / phrase'
-                                : 'Suggested answer'
+                            question.questionType === 'Fill in the blank' ? 'Correct word / phrase' : 'Suggested answer'
                         }
-                        onChange={(e) => {onChangeSingleAnswer?.(index, e.target.value)
+                        onChange={(e) => {
+                            onChangeSingleAnswer?.(index, e.target.value);
                         }}
                     />
                 ) : (
@@ -151,11 +150,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                                     value={choice}
                                     placeholder={`Choice ${i + 1}`}
                                     onChange={(e) => onChangeChoice(index, i, e.target.value)}
-                                    className={
-                                        isDuplicateChoice
-                                            ? 'border-red-500 focus-visible:ring-red-500'
-                                            : ''
-                                    }
+                                    className={isDuplicateChoice ? 'border-red-500 focus-visible:ring-red-500' : ''}
                                 />
                             </div>
                         );

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, Import, Sparkles } from 'lucide-react';
+import { Save, Import } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { postRequest } from '@/api/api';
@@ -12,7 +12,6 @@ import { handleConvertToQuestionsSubmitted } from '@/app/[locale]/question/utils
 import { ROUTES } from '@/utils/constants/routes';
 import QuestionCard from '../components/QuestionCard';
 import { useGenerateFromExisting } from '@/app/[locale]/generate/hooks/useGenerateFromExisting';
-import { buildContentFromQuestionsForFlashcards } from '@/app/[locale]/question/utils/buildGenPayload';
 import ContentGenerationPreview from '@/app/[locale]/generate/components/ContentGenerationPreview';
 import { useContentGeneration } from '@/app/[locale]/generate/hooks/useContentGeneration';
 import { CONTENT_TYPE_GENERATE } from '@/app/[locale]/generate/types';
@@ -79,13 +78,13 @@ const QuestionEditor = ({
     const quizWorkspace = useOptionalQuizWorkspace();
     const setGeneratedQuestionsForEdit = quizWorkspace?.setGeneratedQuestionsForEdit;
 
-    const { regenerate, previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
+    const { previewOpen, setPreviewOpen, sseData, sseStatus, loading } = useGenerateFromExisting();
+
     const { contentType, dataGenerated, setDataGenerated } = useContentGeneration({
         sseData,
         sseStatus,
     });
 
-    // khởi tạo 3 câu rỗng khi lần đầu mở editor
     useEffect(() => {
         if (questions.length === 0) {
             const initial = Array.from({ length: questionsJump }, (_, i) => createInitialQuestion(i));
@@ -100,8 +99,7 @@ const QuestionEditor = ({
     };
 
     const handleAddQuestionsImported = (imported: IQuestionPreview[]) => {
-        // remove các câu rỗng trước khi append (giống flashcards)
-        let cleaned = [...questions].filter(
+        const cleaned = [...questions].filter(
             (q) => q.questionText.trim() !== '' || q.choices.some((c) => (c ?? '').trim() !== ''),
         );
 
@@ -166,7 +164,6 @@ const QuestionEditor = ({
                     };
                 }
 
-                // chuyển từ FR/FIB → Multiple Choice
                 if (q.questionType === 'Free Response' || q.questionType === 'Fill in the blank') {
                     return {
                         ...q,
@@ -278,15 +275,15 @@ const QuestionEditor = ({
         }
     };
 
-    const hasAnyValidQuestion = (list: IQuestion[]) => {
-        return list.some(
-            (q) =>
-                !q.serverInfo?.isDeleted &&
-                q.questionText.trim().length > 0 &&
-                Array.isArray(q.choices) &&
-                q.choices.some((c) => (c ?? '').trim().length > 0),
-        );
-    };
+    // const hasAnyValidQuestion = (list: IQuestion[]) => {
+    //     return list.some(
+    //         (q) =>
+    //             !q.serverInfo?.isDeleted &&
+    //             q.questionText.trim().length > 0 &&
+    //             Array.isArray(q.choices) &&
+    //             q.choices.some((c) => (c ?? '').trim().length > 0),
+    //     );
+    // };
 
     const hasAllValidQuestions = (list: IQuestion[]): boolean => {
         if (!Array.isArray(list) || list.length === 0) return false;
@@ -318,18 +315,6 @@ const QuestionEditor = ({
 
             return true;
         });
-    };
-
-    const handleGenerateFlashcards = async () => {
-        if (!topic) return;
-
-        if (!hasAnyValidQuestion(questions)) {
-            toast({ description: 'There are no questions to create flashcards', variant: 'destructive' });
-            return;
-        }
-
-        const payload = buildContentFromQuestionsForFlashcards(topic.topicId, questions);
-        await regenerate(payload, 'flashcard');
     };
 
     const handleSaveGeneratedToThisTopic = async () => {
@@ -365,7 +350,7 @@ const QuestionEditor = ({
     //PREVIEW KHI ĐANG GENERATE FLASHCARDS
     if (previewOpen) {
         return (
-            <div className="px-[4rem] py-7 bg-muted min-h-screen">
+            <div className="min-h-screen bg-muted px-16 py-7">
                 <ContentGenerationPreview
                     shouldCreateTopic={false}
                     shouldCreateFeed={false}
@@ -394,51 +379,27 @@ const QuestionEditor = ({
 
     //MAIN UI
     return (
-        <div className="h-full flex flex-col bg-muted">
+        <div className="flex h-full flex-col bg-muted">
             {/* HEADER STICKY giống FlashcardsEdit */}
-            <div className="sticky top-0 z-40 w-full bg-background border-b shadow-sm">
-                <div className="flex items-center justify-between px-[4rem] py-4">
+            <div className="sticky top-0 z-40 w-full border-b bg-background shadow-sm">
+                <div className="flex items-center justify-between px-16 py-4">
                     <div className="flex items-center gap-4">
                         {shouldShowBackButton && <BackButton />}
                         <div className="flex flex-col">
-                            <h1 className="text-[1.6rem] font-bold text-primary leading-none">
-                                {topic ? topic.name : 'Questions'}
-                            </h1>
-                            <span className="text-xs text-muted-foreground mt-1">{totalRealQuestions} questions</span>
+                            <span className="mt-1 text-xs text-muted-foreground">{totalRealQuestions} questions</span>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Generate flashcards từ questions */}
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleGenerateFlashcards}
-                            disabled={!hasAnyValidQuestion(questions) || loading}
-                            className="hidden md:inline-flex border-primary/30 text-primary hover:bg-primary/5"
-                        >
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Generate Flashcards
-                        </Button>
-
                         {/* Import questions */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setIsImportOpen(true)}
-                            className="text-muted-foreground hover:text-primary"
-                        >
+                        <Button onClick={() => setIsImportOpen(true)} className="hover:opacity-80">
                             <Import size={18} />
+                            <p>Import</p>
                         </Button>
 
                         {/* Save */}
                         {shouldShowSaveButton && (
-                            <Button
-                                variant="default"
-                                size="sm"
-                                onClick={handleOnClickSave}
-                                className="flex items-center gap-2"
-                            >
+                            <Button onClick={handleOnClickSave} className="flex items-center gap-2 hover:opacity-80">
                                 <Save size={16} />
                                 <span className="hidden sm:inline">Save</span>
                             </Button>
@@ -449,7 +410,7 @@ const QuestionEditor = ({
 
             {/* BODY SCROLLABLE */}
             <div className="h-full overflow-y-auto pb-8">
-                <div className="px-[4rem] py-7">
+                <div className="px-16 py-7">
                     <div className="grid grid-cols-12 gap-6">
                         {questions
                             .filter((q) => !q.serverInfo?.isDeleted)
@@ -472,7 +433,7 @@ const QuestionEditor = ({
                             <Button
                                 onClick={handleAddQuestions}
                                 variant="outline"
-                                className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
+                                className="w-full border-2 border-dashed py-6 font-semibold text-muted-foreground hover:border-solid hover:border-primary hover:text-primary"
                             >
                                 + Add more questions
                             </Button>
@@ -489,10 +450,10 @@ const QuestionEditor = ({
             />
 
             {loading && (
-                <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center">
-                    <div className="flex flex-col items-center bg-background px-6 py-5 rounded-xl shadow-lg border border-border">
-                        <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
-                        <p className="text-sm text-muted-foreground font-medium">
+                <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="flex flex-col items-center rounded-xl border border-border bg-background px-6 py-5 shadow-lg">
+                        <div className="mb-3 size-6 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                        <p className="text-sm font-medium text-muted-foreground">
                             Generating flashcards from your questions...
                         </p>
                     </div>

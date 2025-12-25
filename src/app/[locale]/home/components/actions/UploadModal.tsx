@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useActionStore } from './context/ActionContext';
 import { useTranslations } from 'next-intl';
 import uploadService from '@/services/upload';
@@ -22,7 +22,7 @@ import { useUploadConvertFile } from './hooks/useUploadConvertFileFormat';
 import { compareIgnoreCapitalization, truncate } from '@/utils';
 import { blobToFile, getFileNameWithoutExtension } from './helper/helper';
 import { RESOURCE_CONTENT_TYPE, IMPORT_METHOD } from './constants/resource';
-import { UploadCloud, Loader } from 'lucide-react';
+import { UploadCloud } from 'lucide-react';
 import LoadingOverlay from '@/components/loading/LoadingOverLay';
 
 import { toast } from 'sonner';
@@ -175,7 +175,7 @@ export const UploadModal: React.FC = () => {
             setIsOpen={setIsOpen}
             body={
                 <div
-                    className={`mt-4 rounded-3xl p-8 flex flex-col items-center justify-center transition-colors hover:opacity-70 cursor-pointer ${
+                    className={`mt-4 flex cursor-pointer flex-col items-center justify-center rounded-3xl p-8 transition-colors hover:opacity-70 ${
                         isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                     }`}
                     onDragOver={handleDragOver}
@@ -186,11 +186,11 @@ export const UploadModal: React.FC = () => {
                 >
                     {isProcessing() && <LoadingOverlay />}
 
-                    <div className="p-4 rounded-full bg-muted mb-4">
-                        <UploadCloud className="w-8 h-8 text-muted-foreground" />
+                    <div className="mb-4 rounded-full bg-muted p-4">
+                        <UploadCloud className="size-8 text-muted-foreground" />
                     </div>
-                    <p className="text-sm font-medium text-center mb-1">Click to upload or drag and drop</p>
-                    <p className="text-xs text-muted-foreground text-center mb-4">PDF, Doc, Txt</p>
+                    <p className="mb-1 text-center text-sm font-medium">Click to upload or drag and drop</p>
+                    <p className="mb-4 text-center text-xs text-muted-foreground">PDF, Doc, Txt</p>
 
                     <input
                         id="file-upload"
