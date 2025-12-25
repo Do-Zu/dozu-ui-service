@@ -108,7 +108,7 @@ const WelcomePage: React.FC = () => {
                         </motion.div>
 
                         {/* Title with gradient */}
-                        <motion.h1
+                        <motion.h3
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={viewportOnce}
@@ -129,7 +129,7 @@ const WelcomePage: React.FC = () => {
                                 textAlign="center"
                                 tag="h1"
                             />
-                        </motion.h1>
+                        </motion.h3>
 
                         {/* Subtitle */}
                         <motion.div
@@ -194,21 +194,6 @@ const WelcomePage: React.FC = () => {
                             transition={{ duration: 0.8, delay: 0.9 }}
                             className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500"
                         >
-                            <div className="flex items-center gap-2">
-                                <div className="flex -space-x-2">
-                                    <div className="size-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-400 to-blue-600" />
-                                    <div className="size-8 rounded-full border-2 border-white bg-gradient-to-br from-purple-400 to-purple-600" />
-                                    <div className="size-8 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-pink-600" />
-                                </div>
-                                <span className="font-medium text-gray-700">1000+ members</span>
-                            </div>
-                            <div className="h-4 w-px bg-gray-300" />
-                            <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className="size-4 fill-yellow-400 text-yellow-400" />
-                                ))}
-                                <span className="ml-1 font-medium text-gray-700">4.9/5</span>
-                            </div>
                         </motion.div>
                     </motion.section>
                 </div>
@@ -325,18 +310,6 @@ const WelcomePage: React.FC = () => {
                                     transition={{ duration: 0.6, delay: 0.8 }}
                                     className="flex flex-wrap gap-4 pt-6"
                                 >
-                                    <div className="rounded-lg border border-black/20 bg-gradient-to-br from-black/5 to-black/10 px-6 py-4">
-                                        <div className="text-3xl font-bold text-black">1000+</div>
-                                        <div className="mt-1 text-sm text-gray-600">Học viên đang sử dụng</div>
-                                    </div>
-                                    <div className="rounded-lg border border-black/20 bg-gradient-to-br from-black/5 to-black/10 px-6 py-4">
-                                        <div className="text-3xl font-bold text-black">95%</div>
-                                        <div className="mt-1 text-sm text-gray-600">Tỷ lệ hài lòng</div>
-                                    </div>
-                                    <div className="rounded-lg border border-black/20 bg-gradient-to-br from-black/5 to-black/10 px-6 py-4">
-                                        <div className="text-3xl font-bold text-black">24/7</div>
-                                        <div className="mt-1 text-sm text-gray-600">Hỗ trợ liên tục</div>
-                                    </div>
                                 </motion.div>
                             </div>
 
