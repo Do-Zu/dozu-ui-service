@@ -1,16 +1,15 @@
 'use client';
 
 import { Edit, Gamepad2, GraduationCap, LayoutGrid, Settings } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import LearningFlashcards from './learning/LearningFlashcards';
-import { useRequireFlashcards } from '../../context/useRequireFlashcardContent';
 import { UserTrackingProvider } from '@/contexts/tracking/UserTrackingContext';
 import flashcardUtils from '../../utils/flashcard.utils';
 import FlashcardSettings from './settings/FlashcardSettings';
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import TopicFlashcardsEdit from './edit/TopicFlashcardsEdit';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GamesContent from '../games/GamesContent';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ILearningMode } from '@/stores/features/class-based-learning/learningModeSlice';
@@ -55,66 +54,60 @@ export default function FlashcardContent({ mode, role }: Props) {
 
     return (
         <div className="w-full h-full flex flex-col">
-            <Tabs value={flashcardTab} onValueChange={handleModeSelect} className="w-full flex justify-center">
-                <TabsList
-                    className="w-[70%] rounded-2xl p-1"
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: `repeat(${availableFlashcardTabs.length}, minmax(0, 1fr))`,
-                    }}
-                >
-                    {availableFlashcardTabs.map((item) => (
-                        <TabsTrigger
-                            key={item}
-                            value={item}
-                            className="flex items-center justify-center gap-2 rounded-2xl"
-                        >
-                            {itemIcons.find((e) => e.item === item)?.icon}
-                            <span className="whitespace-nowrap">{flashcardUtils.getDisplayModeName(item)}</span>
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
-
-            <div className="flex-1 min-h-0">
-                {flashcardTab === FlashcardTabEnum.BROWSE &&
-                availableFlashcardTabs.includes(FlashcardTabEnum.BROWSE) ? (
-                    <TopicFlashcardsBrowse />
-                ) : null}
-
-                {flashcardTab === FlashcardTabEnum.LEARNING &&
-                availableFlashcardTabs.includes(FlashcardTabEnum.LEARNING) ? (
-                    <UserTrackingProvider
-                        autoStartTracking={true}
-                        enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
-                        minSessionTime={5000} // 5 seconds minimum session
-                        learningApiEndpoint="/progress/learning-tracking" // Learning progress tracking
+            <Tabs value={flashcardTab} onValueChange={handleModeSelect} className="w-full h-full flex flex-col">
+                {/* Tabs header */}
+                <div className="flex justify-center">
+                    <TabsList
+                        className="w-[70%] rounded-2xl p-1 grid"
+                        style={{
+                            gridTemplateColumns: `repeat(${availableFlashcardTabs.length}, minmax(0, 1fr))`,
+                        }}
                     >
-                        <LearningFlashcards />
-                    </UserTrackingProvider>
-                ) : null}
+                        {availableFlashcardTabs.map((item) => (
+                            <TabsTrigger
+                                key={item}
+                                value={item}
+                                className="flex items-center justify-center gap-2 rounded-2xl"
+                            >
+                                {itemIcons.find((e) => e.item === item)?.icon}
+                                <span className="whitespace-nowrap">{flashcardUtils.getDisplayModeName(item)}</span>
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </div>
 
-                {flashcardTab === FlashcardTabEnum.EDIT && availableFlashcardTabs.includes(FlashcardTabEnum.EDIT) && (
-                    <div className="h-full">
+                {/* Content wrapper */}
+                <div className="flex-1 min-h-0">
+                    <TabsContent value={FlashcardTabEnum.BROWSE} className="h-full">
+                        <TopicFlashcardsBrowse
+                            canGenerate={mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER}
+                        />
+                    </TabsContent>
+
+                    <TabsContent value={FlashcardTabEnum.LEARNING} className="h-full">
+                        <UserTrackingProvider
+                            autoStartTracking={true}
+                            enableAutoSend={true} // Disable auto-send to prevent duplicate API calls - handleSaveTrackingProgressLearning() handles this
+                            minSessionTime={5000} // 5 seconds minimum session// Behavioral tracking
+                            learningApiEndpoint="/progress/learning-tracking" // Learning progress tracking
+                        >
+                            <LearningFlashcards />
+                        </UserTrackingProvider>
+                    </TabsContent>
+
+                    <TabsContent value={FlashcardTabEnum.EDIT} className="h-full">
                         <TopicFlashcardsEdit />
-                    </div>
-                )}
+                    </TabsContent>
 
-                {flashcardTab === FlashcardTabEnum.SETTINGS &&
-                availableFlashcardTabs.includes(FlashcardTabEnum.SETTINGS) ? (
-                    <div className="h-full overflow-y-scroll">
+                    <TabsContent value={FlashcardTabEnum.SETTINGS} className="h-full overflow-y-auto">
                         <FlashcardSettings />
-                    </div>
-                ) : null}
+                    </TabsContent>
 
-                {flashcardTab === FlashcardTabEnum.GAMES && availableFlashcardTabs.includes(FlashcardTabEnum.GAMES) ? (
-                    mode === MODE_ACCESS_PAGE_ROLE.personal ? (
+                    <TabsContent value={FlashcardTabEnum.GAMES} className="h-full">
                         <GamesContent />
-                    ) : (
-                        <GamesContent />
-                    )
-                ) : null}
-            </div>
+                    </TabsContent>
+                </div>
+            </Tabs>
         </div>
     );
 }

@@ -39,7 +39,9 @@ export default function MindmapTab({}: Props) {
 
     return (
         // <MindMapProvider>
+        <div className="h-full">
             <MindmapContent mode={learningMode as ILearningMode} role={getRole()} />
+        </div>
         // </MindMapProvider>
     );
 }

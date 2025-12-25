@@ -24,7 +24,7 @@ class FeedHelper {
         if (contentType === 'flashcard') {
             result = ROUTES.CLASS_TOPIC_WORKSPACE({ classId, topicId: parsedTopicId, tab: 'flashcard' });
         } else if (contentType === 'mindmap') {
-            result = ROUTES.MINDMAP_VIEW(topicId);
+            result = ROUTES.CLASS_TOPIC_WORKSPACE({ classId, topicId: parsedTopicId, tab: 'mindmap' });
         } else if (contentType === 'quiz') {
             result = ROUTES.CLASS_TOPIC_WORKSPACE({ classId, topicId: parsedTopicId, tab: 'quiz' });
         }

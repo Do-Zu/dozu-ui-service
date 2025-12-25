@@ -1,3 +1,5 @@
+export type QuizConfidence = 1 | 2 | 3;
+
 interface IQuestionIndividual {
     questionId: number;
     topicId: number;
@@ -14,7 +16,9 @@ interface IQuestionIndividual {
     maxScore?: number;
     isShowExplain: boolean;
     isCorrect: boolean;
+    confidence?: QuizConfidence;
 }
+
 
 interface ICompareAnswerResponse {
     similarityAnswer: number;

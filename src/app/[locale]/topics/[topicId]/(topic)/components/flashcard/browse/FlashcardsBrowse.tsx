@@ -19,6 +19,7 @@ import { isListEmpty } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import FlashcardsPanelControls from '../node/FlashcardsPanelControls';
+import DataStatus from '@/components/errors/DataStatus';
 
 const initialAutoPlaySpeed = 3;
 
@@ -35,6 +36,7 @@ interface Props {
     isPanelFullscreen?: boolean;
     onPanelToggle?: () => void;
     label?: string;
+    canGenerate?: boolean;
 }
 
 export default function FlashcardsBrowse({
@@ -47,6 +49,7 @@ export default function FlashcardsBrowse({
     isPanelFullscreen,
     onPanelToggle,
     label,
+    canGenerate = true,
 }: Props) {
     const { topic } = useRequireTopic();
     const { topicId } = topic;
@@ -220,7 +223,12 @@ export default function FlashcardsBrowse({
     }, [autoPlayEnabled, autoPlaySpeed, flashcardsToDisplay.length]);
 
     if (isListEmpty(flashcards) || !currentFlashcard) {
-        return emptyComponent ? <>{emptyComponent}</> : <GenerateFlashcards />;
+        const defaultComp = canGenerate ? (
+            <GenerateFlashcards />
+        ) : (
+            <DataStatus variant="empty" title="No flashcards found." />
+        );
+        return emptyComponent ? <>{emptyComponent}</> : defaultComp;
     }
 
     return (

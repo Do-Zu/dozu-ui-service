@@ -186,6 +186,14 @@ const config: Config = {
                         opacity: '0',
                     },
                 },
+                'collapsible-down': {
+                    from: { height: '0' },
+                    to: { height: 'var(--radix-collapsible-content-height)' },
+                },
+                'collapsible-up': {
+                    from: { height: 'var(--radix-collapsible-content-height)' },
+                    to: { height: '0' },
+                },
             },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',
@@ -195,6 +203,8 @@ const config: Config = {
                 'fade-out-down': 'fade-out-down 0.5s ease-out forwards',
                 'slide-in-right': 'slide-in-right 0.5s ease-out forwards',
                 'slide-out-left': 'slide-out-left 0.5s ease-out forwards',
+                'collapsible-down': 'collapsible-down 0.2s ease-out',
+                'collapsible-up': 'collapsible-up 0.2s ease-out',
             },
         },
     },

@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { LayoutOptions, ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk-api';
 // import { GeneratedEdge } from './mindmapUtils';
 import ELK from 'elkjs/lib/elk.bundled.js';
+import { radialLayoutElkOptions } from '@/app/[locale]/mindmap/constants';
 
 export const elk = new ELK();
 
@@ -129,7 +130,7 @@ export const addChildNode = ({
     if (!parent) return;
 
     const distance = 300;
-    let newPos = { x: parent.position.x, y: parent.position.y };
+    const newPos = { x: parent.position.x, y: parent.position.y };
 
     newPos.y += distance;
 
@@ -148,7 +149,11 @@ export const addChildNode = ({
         eds.concat({ id: `${id}-${currentNodeId}`, source: currentNodeId, target: id, type: 'floating' }),
     );
 };
-export const getLayoutedElements = async (nodes: AppNode[], edges: AppEdge[], options: LayoutOptions = {}) => {
+export const getLayoutedElements = async (
+    nodes: AppNode[],
+    edges: AppEdge[],
+    options: LayoutOptions = radialLayoutElkOptions,
+) => {
     const isHorizontal = options?.['elk.direction'] === 'RIGHT';
 
     const graph: ElkNode = {
@@ -182,10 +187,20 @@ export const getLayoutedElements = async (nodes: AppNode[], edges: AppEdge[], op
                 };
             }) ?? [];
 
-        //Shrink layout vertically
-        layoutedNodes.forEach((node) => {
-            node.position.y *= 0.5;
-        });
+        //expand layout due to algorithm not adjusting for node size
+        console.log('type', options['elk.algorithm']);
+        if (options['elk.algorithm'] == 'org.eclipse.elk.stress') {
+            console.log('is mindmap layout');
+
+            layoutedNodes.forEach((node) => {
+                node.position.x *= 1.2;
+            });
+        } else if (options['elk.algorithm'] == 'radial') {
+            //or Shrink layout vertically
+            layoutedNodes.forEach((node) => {
+                node.position.y *= 0.7;
+            });
+        }
 
         const layoutedEdges: AppEdge[] = edges.map((edge) => ({
             ...edge,
@@ -320,4 +335,18 @@ export const toggleCompleteWithoutItems = ({
     if (setNodes && updatedAllNodes) {
         setNodes(updatedAllNodes);
     }
+};
+
+export const getFilteredNodes = (nodes: AppNode[], hiddenNodeIds: string[] = []) => {
+    if (hiddenNodeIds.length === 0) return nodes;
+    const filteredNodes = nodes.filter((item) => !hiddenNodeIds.includes(item.data.nodeId));
+    return filteredNodes;
+};
+
+export const getFilteredEdges = (edges: AppEdge[], hiddenNodeIds: string[] = []) => {
+    if (hiddenNodeIds.length === 0) return edges;
+    const filteredEdges = edges.filter(
+        (edge) => !hiddenNodeIds.includes(edge.source) && !hiddenNodeIds.includes(edge.target),
+    );
+    return filteredEdges;
 };

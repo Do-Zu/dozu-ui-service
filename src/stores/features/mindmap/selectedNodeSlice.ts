@@ -6,6 +6,7 @@ interface SelectedNodeState {
     selectedNodeData: CustomNodeData | undefined;
     selectedNodeIds: string[];
     isMultiSelectMode: boolean;
+    hiddenNodeIds: string[];
 }
 
 const initialState: SelectedNodeState = {
@@ -13,6 +14,7 @@ const initialState: SelectedNodeState = {
     selectedNodeData: undefined,
     selectedNodeIds: [],
     isMultiSelectMode: false,
+    hiddenNodeIds: [],
 };
 
 export const selectedNodeSlice = createSlice({
@@ -56,6 +58,20 @@ export const selectedNodeSlice = createSlice({
         turnOffMultiSelectMode: (state) => {
             state.isMultiSelectMode = false;
         },
+        clearHiddenNodes: (state) => {
+            state.hiddenNodeIds = [];
+        },
+        addHiddenNodes: (state, action: PayloadAction<string[]>) => {
+            for (const nodeId of action.payload) {
+                if (state.hiddenNodeIds.includes(nodeId)) continue;
+                state.hiddenNodeIds.push(nodeId);
+            }
+        },
+        removeHiddenNodes: (state, action: PayloadAction<string[]>) => {
+            state.hiddenNodeIds = state.hiddenNodeIds.filter((item) => {
+                return !action.payload.includes(item);
+            });
+        },
     },
 });
 
@@ -69,6 +85,9 @@ export const {
     clearNodeSelection,
     setMultiSelectMode,
     turnOffMultiSelectMode,
+    clearHiddenNodes,
+    addHiddenNodes,
+    removeHiddenNodes,
 } = selectedNodeSlice.actions;
 
 export default selectedNodeSlice.reducer;
