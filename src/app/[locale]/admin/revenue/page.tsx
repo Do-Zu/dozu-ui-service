@@ -22,33 +22,6 @@ function RevenueDashboardPage() {
     const [filters, setFilters] = useState<RevenueFilterData>({
         period: 'month',
     });
-    const [subscriptionPlans, setSubscriptionPlans] = useState<{ value: string; label: string }[]>([]);
-    const [paymentGateways, setPaymentGateways] = useState<{ value: string; label: string }[]>([]);
-
-    // Fetch subscription plans and payment gateways
-    useEffect(() => {
-        const fetchFilterOptions = async () => {
-            try {
-                // Fetch plans
-                const plansResponse: ApiResponse<any[]> = await getRequest('/admin/subscription/plans');
-                if (plansResponse.data) {
-                    setSubscriptionPlans(
-                        plansResponse.data.map((plan) => ({
-                            value: plan.planId?.toString() || plan.name,
-                            label: plan.name || plan.planName || 'Unknown',
-                        }))
-                    );
-                }
-
-                // Extract payment gateways from stats if available
-                // This will be populated after first stats fetch
-            } catch (err) {
-                console.error('Failed to fetch filter options:', err);
-            }
-        };
-
-        fetchFilterOptions();
-    }, []);
 
     const fetchStats = useCallback(async (filterData: RevenueFilterData) => {
         try {
@@ -63,36 +36,9 @@ function RevenueDashboardPage() {
                 params.append('endDate', format(filterData.dateRange.to, 'yyyy-MM-dd'));
             }
 
-            // Add subscription plan filter
-            if (filterData.subscriptionPlan) {
-                params.append('subscriptionPlan', filterData.subscriptionPlan);
-            }
-
-            // Add payment gateway filter
-            if (filterData.paymentGateway) {
-                params.append('paymentGateway', filterData.paymentGateway);
-            }
-
-            // Add revenue range filters
-            if (filterData.minRevenue !== undefined) {
-                params.append('minRevenue', filterData.minRevenue.toString());
-            }
-            if (filterData.maxRevenue !== undefined) {
-                params.append('maxRevenue', filterData.maxRevenue.toString());
-            }
-
             const query = params.toString();
             const response: ApiResponse<RevenueStats> = await getRequest(`/admin/revenue/stats?${query}`);
             setStats(response.data || null);
-
-            // Extract payment gateways from response for filter options
-            if (response.data?.revenueByGateway) {
-                const gateways = response.data.revenueByGateway.map((item) => ({
-                    value: item.gateway,
-                    label: item.gateway,
-                }));
-                setPaymentGateways(gateways);
-            }
         } catch (err: any) {
             setError(err.message || 'An error occurred while retrieving revenue statistics.');
         } finally {
@@ -105,16 +51,6 @@ function RevenueDashboardPage() {
     };
 
     const handleSearch = () => {
-        // Validate revenue range
-        if (
-            filters.minRevenue !== undefined &&
-            filters.maxRevenue !== undefined &&
-            filters.minRevenue > filters.maxRevenue
-        ) {
-            setError('Min revenue must be less than max revenue');
-            return;
-        }
-
         // Validate date range
         if (filters.dateRange?.from && filters.dateRange?.to && filters.dateRange.from > filters.dateRange.to) {
             setError('Start date must be before end date');
@@ -159,8 +95,6 @@ function RevenueDashboardPage() {
                 filters={filters}
                 onFiltersChange={handleFiltersChange}
                 onSearch={handleSearch}
-                subscriptionPlans={subscriptionPlans}
-                paymentGateways={paymentGateways}
             />
 
             {/* Key KPIs */}
