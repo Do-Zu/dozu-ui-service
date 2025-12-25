@@ -2,6 +2,8 @@ import { getRequest, postRequest } from '@/api/api';
 import qs from 'qs';
 import { activityTrackingService } from '@/services/gamification/activityTracking.service';
 import { streakProgressService } from '@/services/progress/streakProgress.service';
+import { QuestionHealthData } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/types/questionHealth.type';
+import { ApiResponse } from '@/api/type';
 
 type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
 
@@ -109,5 +111,9 @@ export const quizService = {
     getRecommendation: async (topicId: string) => {
         const res = await getRequest(`/quiz/recommend?topicId=${topicId}`);
         return res.data;
+    },
+
+    getQuestionHealth: async (topicId: number | string): Promise<ApiResponse<QuestionHealthData>> => {
+        return getRequest<ApiResponse<QuestionHealthData>, QuestionHealthData>(`/questions/health?topicId=${topicId}`);
     },
 };
