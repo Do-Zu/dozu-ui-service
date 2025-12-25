@@ -87,28 +87,11 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   useEffect(() => {
     // Get userId once to avoid checking user object repeatedly
     const userId = user?.userId ? String(user.userId) : null;
-    
-    // Debug logging (only log when actual values change)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[WebSocket] Hook triggered:', {
-        enabled,
-        isAuthenticated,
-        hasUser: !!user,
-        userId,
-      });
-    }
-
     // Only connect if enabled, user is authenticated, and userId exists
     if (!enabled || !isAuthenticated || !userId) {
       // Only disconnect if we have an active connection
       if (socketRef.current?.connected) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[WebSocket] Conditions not met, disconnecting:', {
-            enabled,
-            isAuthenticated,
-            hasUserId: !!userId,
-          });
-        }
+
         socketRef.current.disconnect();
         socketRef.current = null;
         setIsConnected(false);
@@ -118,17 +101,14 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     // Prevent reconnection if already connected with same userId
     if (socketRef.current?.connected && currentUserIdRef.current === userId) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[WebSocket] Already connected with same userId, skipping reconnection');
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   console.log('[WebSocket] Already connected with same userId, skipping reconnection');
+      // }
       return;
     }
 
     // Disconnect existing connection if userId changed
     if (socketRef.current) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[WebSocket] Disconnecting existing connection before new connection');
-      }
       socketRef.current.disconnect();
       socketRef.current = null;
       setIsConnected(false);
@@ -136,9 +116,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[WebSocket] Initializing connection:', { apiUrl, userId });
-    }
 
     // Create socket connection
     const socket = io(apiUrl, {
@@ -183,15 +160,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     });
 
     socket.on('connect_error', (error: Error) => {
-      console.error('[WebSocket] Connection error:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-      });
       setIsConnected(false);
 
       if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
-        console.error('[WebSocket] Max reconnection attempts reached');
         toast({
           title: 'Connection Error',
           description: `Unable to connect to notification service: ${error.message}. Please refresh the page.`,
@@ -199,7 +170,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         });
       } else {
         reconnectAttemptsRef.current++;
-        console.log(`[WebSocket] Retrying connection (${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`);
       }
     });
 

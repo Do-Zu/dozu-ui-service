@@ -53,7 +53,6 @@ const ProgressDashboard: React.FC = () => {
   useEffect(() => {
     const handleProgressUpdate = async () => {
       // Refetch all dashboard data instead of reloading the page
-      try {
         await Promise.all([
           refetchStats(),
           refetchDashboard(),
@@ -62,9 +61,6 @@ const ProgressDashboard: React.FC = () => {
           refetchWeeklyComparison(),
           refetchCompletedTopics()
         ]);
-      } catch (error) {
-        console.error('Failed to refresh dashboard data:', error);
-      }
     };
     
     // Test manual trigger (temporary for debugging)
@@ -236,10 +232,13 @@ const ProgressDashboard: React.FC = () => {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              {t('reportGenerated')} {new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              {t('reportGenerated', {
+                date: new Date().toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }),
+                defaultMessage: 'Report generated on {date}'
               })}
             </div>
             
