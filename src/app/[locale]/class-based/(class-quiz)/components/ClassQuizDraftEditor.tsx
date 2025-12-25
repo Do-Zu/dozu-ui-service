@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Save, CalendarClock, Send } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import QuestionCard from '@/app/[locale]/question/components/QuestionCard';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 import { toDraftJsonFromQuestions, toQuestionsFromDraftJson } from '../utils/draftJson.mapper';
 import classQuizTeacherService from '../services/classQuizTeacher.service';
@@ -16,6 +15,7 @@ import { useUserSession } from '@/app/[locale]/auth/hooks/useUserSession';
 import QuestionImportModal from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionImportModal';
 import { IQuestionPreview } from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/import/QuestionPreview';
 import { Import } from 'lucide-react';
+import QuestionCardClass from '@/app/[locale]/class-based/(class-quiz)/components/QuestionCardClass';
 
 const questionsJump = 3;
 const createInitialQuestion = (id: number): IQuestion => ({
@@ -469,7 +469,7 @@ export default function ClassQuizDraftEditor({
                 {questions
                     .filter((q) => !q.serverInfo?.isDeleted)
                     .map((q, idx) => (
-                        <QuestionCard
+                        <QuestionCardClass
                             key={q.id}
                             question={q}
                             index={idx}
