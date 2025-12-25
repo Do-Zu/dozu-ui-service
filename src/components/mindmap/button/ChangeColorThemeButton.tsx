@@ -40,7 +40,7 @@ export default function ChangeColorThemeButton() {
             trigger={
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon-sm">
+                        <Button variant="outline" size="icon-sm" onClick={() => setOpen(true)}>
                             <Palette />
                         </Button>
                     </TooltipTrigger>
