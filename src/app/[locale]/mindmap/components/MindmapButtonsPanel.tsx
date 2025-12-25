@@ -118,7 +118,9 @@ const MindmapButtonsPanel = ({ mode, role = UserRoleEnum.TEACHER }: Props) => {
                     onLayoutSuccess={onLayoutSuccess}
                 />
 
-                <DeleteMindmapButton isPanelExpanded={isPanelExpanded} />
+                {(mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER) && (
+                    <DeleteMindmapButton isPanelExpanded={isPanelExpanded} />
+                )}
             </div>
             {/* </Card> */}
         </Panel>

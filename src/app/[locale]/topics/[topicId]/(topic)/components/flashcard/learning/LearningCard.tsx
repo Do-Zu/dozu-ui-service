@@ -194,12 +194,9 @@ export default function LearningCard({
                             </div>
 
                             <div className="w-full flex justify-center">
-                                <Button
-                                    onClick={onFlip}
-                                    className="flex flex-row items-center bg-white dark:bg-gray-700 text-black dark:text-white"
-                                >
-                                    <Eye className="text-foreground w-4 h-4 mr-2" />
-                                    <div className="text-foreground">{tFlashcard('showAnswer')}</div>
+                                <Button onClick={onFlip} className="flex flex-row items-center">
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    <div>{tFlashcard('showAnswer')}</div>
                                 </Button>
                             </div>
                         </div>

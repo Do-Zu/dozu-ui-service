@@ -23,6 +23,7 @@ function QuizTabContent() {
     const { isStudent, isTeacher } = useRoleChecker();
 
     const role = isTeacher ? UserRoleEnum.TEACHER : isStudent ? UserRoleEnum.USER : UserRoleEnum.ADMIN;
+    const canGenerateByAI = learningMode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER;
 
     const availableQuizTabs: QuizMode[] = useMemo(() => {
         // Teacher & personal user → full permission (generate + history + edit)
@@ -94,7 +95,7 @@ function QuizTabContent() {
 
             {/* CONTENT */}
             <div className="flex-1 min-h-0 px-6 pb-4">
-                {quizMode === 'generate' && <QuizGenerateTab />}
+                {quizMode === 'generate' && <QuizGenerateTab canGenerateByAI={canGenerateByAI} />}
                 {quizMode === 'history' && <QuizHistoryTab />}
                 {quizMode === 'edit' && availableQuizTabs.includes('edit') && <QuizEditTab />}
             </div>

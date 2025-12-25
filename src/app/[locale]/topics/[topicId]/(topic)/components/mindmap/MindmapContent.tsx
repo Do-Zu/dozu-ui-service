@@ -38,6 +38,7 @@ import MindmapGenerate from './components/MindmapGenerate';
 import RoadmapButtonPanel from '@/app/[locale]/mindmap/components/RoadmapButtonPanel';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import Roadmap from './components/Roadmap';
+import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 
 //set react flow to use custom nodes & edges
 const nodeTypes = {
@@ -325,41 +326,42 @@ const MindmapContent = ({ mode, role }: Props) => {
                     </ReactFlow>
 
                     {/* Scoped Modal Overlay */}
-                    {showGenerateModal && (
-                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                            <div
-                                className="pointer-events-auto w-full max-w-sm rounded-lg bg-white p-6 shadow-lg dark:bg-slate-950"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <h2 className="mb-2 text-lg font-semibold">Generate Mindmap</h2>
-                                <p className="mb-6 text-sm text-muted-foreground">
-                                    Would you like to generate a mindmap for this topic, or create it manually?
-                                </p>
-                                <div className="flex w-full gap-6">
-                                    <div className="flex-1">
-                                        <div className=" flex items-center justify-center py-4">
-                                            <Button
-                                                disabled={isGenerating}
-                                                variant="outline"
-                                                onClick={handleManualCreation}
-                                                className="w-full"
-                                            >
-                                                Manual Creation
-                                            </Button>
+                    {showGenerateModal &&
+                        (mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER) && (
+                            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                <div
+                                    className="pointer-events-auto w-full max-w-sm rounded-lg bg-white p-6 shadow-lg dark:bg-slate-950"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <h2 className="mb-2 text-lg font-semibold">Generate Mindmap</h2>
+                                    <p className="mb-6 text-sm text-muted-foreground">
+                                        Would you like to generate a mindmap for this topic, or create it manually?
+                                    </p>
+                                    <div className="flex w-full gap-6">
+                                        <div className="flex-1">
+                                            <div className=" flex items-center justify-center py-4">
+                                                <Button
+                                                    disabled={isGenerating}
+                                                    variant="outline"
+                                                    onClick={handleManualCreation}
+                                                    className="w-full"
+                                                >
+                                                    Manual Creation
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex-1">
-                                        <MindmapGenerate
-                                            onHandleBeforeGenerate={() => {
-                                                setIsGenerating(true);
-                                            }}
-                                            onSuccess={onGenerateSuccess}
-                                        />
+                                        <div className="flex-1">
+                                            <MindmapGenerate
+                                                onHandleBeforeGenerate={() => {
+                                                    setIsGenerating(true);
+                                                }}
+                                                onSuccess={onGenerateSuccess}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
                 </ResizablePanel>
 
                 {isSheetOpen && (
