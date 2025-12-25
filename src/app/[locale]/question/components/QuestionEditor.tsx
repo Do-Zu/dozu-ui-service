@@ -33,8 +33,26 @@ function createInitialQuestion(id: number): IQuestion {
         questionText: '',
         choices: ['', '', '', ''],
         correctIndex: 0,
-        questionType: 'MULTIPLE_CHOICE',
+        questionType: 'Multiple Choice',
     } as IQuestion;
+}
+
+function isValidByType(q: IQuestion): boolean {
+    const textOk = q.questionText.trim().length > 0;
+    if (!textOk) return false;
+
+    const nonEmptyChoices = q.choices.filter((c) => c?.trim().length > 0);
+
+    switch (q.questionType) {
+        case 'Free Response':
+        case 'Fill in the blank':
+            return nonEmptyChoices.length >= 1;
+
+        case 'True or False':
+        case 'Multiple Choice':
+        default:
+            return nonEmptyChoices.length >= 2;
+    }
 }
 
 interface Props {
@@ -94,7 +112,7 @@ const QuestionEditor = ({
             questionText: item.questionText,
             choices: item.choices,
             correctIndex: item.correctIndex,
-            questionType: 'MULTIPLE_CHOICE',
+            questionType: 'Multiple Choice',
         }));
 
         setQuestions([...cleaned, ...newItems]);
@@ -130,6 +148,44 @@ const QuestionEditor = ({
         );
     };
 
+    const handleChangeQuestionType = (questionIdx: number, questionType: string) => {
+        setQuestions(
+            questions.map((q, i) => {
+                if (i !== questionIdx) return q;
+
+                if (questionType === 'Free Response' || questionType === 'Fill in the blank') {
+                    const safeAnswer =
+                        q.correctIndex >= 0 && q.correctIndex < q.choices.length ? q.choices[q.correctIndex] : '';
+
+                    return {
+                        ...q,
+                        questionType,
+                        choices: [safeAnswer],
+                        correctIndex: 0,
+                        serverInfo: q.serverInfo ? { ...q.serverInfo, isUpdated: true } : q.serverInfo,
+                    };
+                }
+
+                // chuyển từ FR/FIB → Multiple Choice
+                if (q.questionType === 'Free Response' || q.questionType === 'Fill in the blank') {
+                    return {
+                        ...q,
+                        questionType,
+                        choices: ['', '', '', ''],
+                        correctIndex: 0,
+                        serverInfo: q.serverInfo ? { ...q.serverInfo, isUpdated: true } : q.serverInfo,
+                    };
+                }
+
+                return {
+                    ...q,
+                    questionType,
+                    serverInfo: q.serverInfo ? { ...q.serverInfo, isUpdated: true } : q.serverInfo,
+                };
+            }),
+        );
+    };
+
     const handleChangeCorrectIndex = (questionIdx: number, correctIdx: number) => {
         setQuestions(
             questions.map((q, i) =>
@@ -137,6 +193,21 @@ const QuestionEditor = ({
                     ? {
                           ...q,
                           correctIndex: correctIdx,
+                          serverInfo: q.serverInfo ? { ...q.serverInfo, isUpdated: true } : q.serverInfo,
+                      }
+                    : q,
+            ),
+        );
+    };
+
+    const handleChangeSingleAnswer = (questionIdx: number, text: string) => {
+        setQuestions(
+            questions.map((q, i) =>
+                i === questionIdx
+                    ? {
+                          ...q,
+                          choices: [text],
+                          correctIndex: 0,
                           serverInfo: q.serverInfo ? { ...q.serverInfo, isUpdated: true } : q.serverInfo,
                       }
                     : q,
@@ -221,12 +292,11 @@ const QuestionEditor = ({
         if (!Array.isArray(list) || list.length === 0) return false;
 
         return list.every((q) => {
-            const hasValidText = q.questionText?.trim().length > 0;
-            const nonEmptyChoices = Array.isArray(q.choices) ? q.choices.filter((c) => c?.trim().length > 0) : [];
-            const hasEnoughChoices = nonEmptyChoices.length >= 2;
+            if (q.serverInfo?.isDeleted) return true;
 
-            const lowerChoices = nonEmptyChoices.map((c) => c.toLowerCase());
-            const hasDuplicateChoices = new Set(lowerChoices).size !== lowerChoices.length;
+            // điều kiện chung cho tất cả các loại câu hỏi
+            if (!q.questionText?.trim()) return false;
+            if (!Array.isArray(q.choices)) return false;
 
             const hasValidCorrectIndex =
                 typeof q.correctIndex === 'number' &&
@@ -234,7 +304,19 @@ const QuestionEditor = ({
                 q.correctIndex < q.choices.length &&
                 q.choices[q.correctIndex]?.trim().length > 0;
 
-            return hasValidText && hasEnoughChoices && !hasDuplicateChoices && hasValidCorrectIndex;
+            if (!hasValidCorrectIndex) return false;
+
+            // điều kiện theo type
+            if (!isValidByType(q)) return false;
+
+            // điều kiện duplicate (BLOCK SAVE)
+            const nonEmptyChoices = q.choices.filter((c) => c?.trim().length > 0);
+            const lowerChoices = nonEmptyChoices.map((c) => c.toLowerCase());
+            const hasDuplicateChoices = new Set(lowerChoices).size !== lowerChoices.length;
+
+            if (hasDuplicateChoices) return false;
+
+            return true;
         });
     };
 
@@ -380,6 +462,8 @@ const QuestionEditor = ({
                                     onChangeText={handleChangeQuestionText}
                                     onChangeChoice={handleChangeChoice}
                                     onChangeCorrectIndex={handleChangeCorrectIndex}
+                                    onChangeQuestionType={handleChangeQuestionType}
+                                    onChangeSingleAnswer={handleChangeSingleAnswer}
                                     onDelete={handleDeleteQuestion}
                                 />
                             ))}
