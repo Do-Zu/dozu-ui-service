@@ -44,7 +44,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     const [duplicateIndexes, setDuplicateIndexes] = useState<number[]>([]);
     const [isDuplicateQuestion, setIsDuplicateQuestion] = useState(false);
 
-    /* ---------- Duplicate choices (MC / TF only) ---------- */
+    /* uplicate choices (MC / TF only) */
     useEffect(() => {
         if (isSingleAnswer) {
             setDuplicateIndexes([]);
@@ -63,7 +63,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         setDuplicateIndexes(dups);
     }, [question.choices, isSingleAnswer]);
 
-    /* ---------- Duplicate question text ---------- */
+    /* Duplicate question text  */
     useEffect(() => {
         if (!question.questionText?.trim()) {
             setIsDuplicateQuestion(false);
@@ -85,7 +85,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                 isDuplicateQuestion && 'border-red-500',
             )}
         >
-            {/* ===== HEADER ===== */}
+            {/* HEADER */}
             <div className="flex items-center justify-between mb-3">
                 {/* Question type */}
                 <div className="flex items-center gap-2">
@@ -113,7 +113,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                 />
             </div>
 
-            {/* ===== QUESTION TEXT ===== */}
+            {/* QUESTION TEXT */}
             <Textarea
                 placeholder="Question Text"
                 value={question.questionText}
@@ -121,7 +121,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                 className={isDuplicateQuestion ? 'border-red-500 focus-visible:ring-red-500' : ''}
             />
 
-            {/* ===== ANSWERS ===== */}
+            {/* ANSWERS */}
             <div className="mt-4 space-y-2">
                 {/* Free Response / Fill in the blank */}
                 {isSingleAnswer ? (
