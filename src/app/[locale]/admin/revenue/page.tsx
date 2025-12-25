@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { withAuth } from '@/hoc/withAuth';
 import { getRequest } from '@/api/api';
 import { ApiResponse } from '@/api/type';
@@ -30,10 +30,17 @@ function RevenueDashboardPage() {
 
             const params = new URLSearchParams({ period: filterData.period });
 
-            // Add date range
-            if (filterData.dateRange?.from && filterData.dateRange?.to) {
-                params.append('startDate', format(filterData.dateRange.from, 'yyyy-MM-dd'));
-                params.append('endDate', format(filterData.dateRange.to, 'yyyy-MM-dd'));
+            // Add date range or year range based on period
+            if (filterData.period === 'year') {
+                if (filterData.yearRange?.from && filterData.yearRange?.to) {
+                    params.append('startDate', `${filterData.yearRange.from}-01-01`);
+                    params.append('endDate', `${filterData.yearRange.to}-12-31`);
+                }
+            } else {
+                if (filterData.dateRange?.from && filterData.dateRange?.to) {
+                    params.append('startDate', format(filterData.dateRange.from, 'yyyy-MM-dd'));
+                    params.append('endDate', format(filterData.dateRange.to, 'yyyy-MM-dd'));
+                }
             }
 
             const query = params.toString();
@@ -46,11 +53,11 @@ function RevenueDashboardPage() {
         }
     }, []);
 
-    const handleFiltersChange = (newFilters: RevenueFilterData) => {
+    const handleFiltersChange = useCallback((newFilters: RevenueFilterData) => {
         setFilters(newFilters);
-    };
+    }, []);
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         // Validate date range
         if (filters.dateRange?.from && filters.dateRange?.to && filters.dateRange.from > filters.dateRange.to) {
             setError('Start date must be before end date');
@@ -58,7 +65,7 @@ function RevenueDashboardPage() {
         }
 
         fetchStats(filters);
-    };
+    }, [filters, fetchStats]);
 
     // Initial fetch on mount
     useEffect(() => {
