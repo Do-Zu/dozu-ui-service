@@ -13,7 +13,20 @@ export function MonthlyTrendChart({ data }: MonthlyTrendProps) {
         return <div className="text-center text-muted-foreground py-8">No data available</div>;
     }
 
-    const maxCount = Math.max(...data.map((d) => d.count), 1);
+    const maxCount = Math.max(...data.map((d) => d.count), 0);
+    const minCount = Math.min(...data.map((d) => d.count), 0);
+    
+    // Dynamic visualMax based on data spread
+    // When data values are close together (spread <= 2), amplify the difference
+    // When data values are far apart, keep the real proportion
+    const visualMax = maxCount - minCount <= 2
+        ? maxCount + 1
+        : maxCount;
+    
+    // Generate Y-axis labels without duplicates
+    const yLabels = Array.from({ length: 5 }, (_, i) =>
+        Math.round((visualMax / 4) * (4 - i))
+    );
 
     return (
         <div className="space-y-6">
@@ -28,7 +41,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendProps) {
 
                 {/* Y-axis labels */}
                 <div className="absolute -left-8 inset-y-0 flex flex-col justify-between text-xs text-muted-foreground">
-                    {[maxCount, Math.floor(maxCount * 0.75), Math.floor(maxCount * 0.5), Math.floor(maxCount * 0.25), 0].map((value, i) => (
+                    {yLabels.map((value, i) => (
                         <span key={i}>{value}</span>
                     ))}
                 </div>
@@ -36,7 +49,8 @@ export function MonthlyTrendChart({ data }: MonthlyTrendProps) {
                 {/* Bar Chart */}
                 <div className="flex items-end justify-between gap-3 h-64 pt-4 pl-2">
                     {data.map((item, index) => {
-                        const height = (item.count / maxCount) * 100;
+                        // Calculate height based on visualMax for better scaling
+                        const height = (item.count / visualMax) * 100;
                         const monthLabel = new Date(item.month + '-01').toLocaleDateString('en-US', {
                             month: 'short',
                             year: '2-digit',
@@ -52,7 +66,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendProps) {
                             >
                                 <div className="relative w-full flex flex-col items-center justify-end h-full">
                                     {/* Value Label - Show on hover */}
-                                    {isHovered && item.count > 0 && (
+                                    {isHovered && (
                                         <div className="absolute -top-8 bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded shadow-lg z-10 animate-in fade-in slide-in-from-bottom-2 duration-200">
                                             {item.count}
                                             <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-primary" />
@@ -63,10 +77,10 @@ export function MonthlyTrendChart({ data }: MonthlyTrendProps) {
                                     <div
                                         className={`w-full rounded-t-lg bg-gradient-to-t from-blue-600 via-blue-500 to-purple-500 shadow-lg transition-all duration-300 ${
                                             isHovered ? 'opacity-100 scale-105' : 'opacity-90'
-                                        }`}
+                                        } ${item.count === 0 ? 'opacity-30' : ''}`}
                                         style={{
-                                            height: `${Math.max(height, 3)}%`,
-                                            minHeight: item.count > 0 ? '12px' : '4px',
+                                            height: `${height}%`,
+                                            minHeight: item.count > 0 ? '32px' : '8px',
                                         }}
                                     >
                                         {/* Shine effect */}

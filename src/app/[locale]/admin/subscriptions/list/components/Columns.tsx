@@ -109,26 +109,6 @@ export const getSubscriptionColumns = (): ColumnDef<UserSubscription>[] => [
         },
     },
     {
-        id: 'trial',
-        header: 'Trial',
-        cell: ({ row }) => {
-            if (row.original.trialStart && row.original.trialEnd) {
-                const trialDaysRemaining = getDaysRemaining(row.original.trialEnd);
-                return (
-                    <div className="text-sm">
-                        <Badge variant="outline" className="mb-1">
-                            Trial
-                        </Badge>
-                        <div className="text-xs text-muted-foreground">
-                            {trialDaysRemaining > 0 ? `${trialDaysRemaining} days left` : 'Ended'}
-                        </div>
-                    </div>
-                );
-            }
-            return <span className="text-muted-foreground">—</span>;
-        },
-    },
-    {
         accessorKey: 'autoRenew',
         header: 'Auto Renew',
         cell: ({ row }) => (
