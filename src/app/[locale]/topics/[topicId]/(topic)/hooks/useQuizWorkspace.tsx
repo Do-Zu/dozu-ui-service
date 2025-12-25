@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { IQuestion } from '@/app/[locale]/question/types/question.type';
 
-export type QuizMode = 'generate' | 'history' | 'edit';
+export type QuizMode = 'generate' | 'history' | 'edit' | 'healthy';
 export type QuizViewMode = 'list' | 'detail';
 export type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
 

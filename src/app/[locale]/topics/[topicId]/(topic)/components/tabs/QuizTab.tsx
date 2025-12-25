@@ -1,6 +1,6 @@
 'use client';
 
-import { LayoutGrid, History as HistoryIcon, Edit as EditIcon } from 'lucide-react';
+import { LayoutGrid, History as HistoryIcon, Edit as EditIcon, HeartPulse } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMemo, useEffect } from 'react';
 
@@ -17,6 +17,7 @@ import { ILearningMode } from '@/stores/features/class-based-learning/learningMo
 import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { UserRoleEnum } from '@/utils/constants/roles';
+import QuizHealthyTab from '@/app/[locale]/topics/[topicId]/(topic)/components/quiz/quiz-healthy/QuizHealthyTab';
 
 function QuizTabContent() {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
@@ -28,15 +29,15 @@ function QuizTabContent() {
     const availableQuizTabs: QuizMode[] = useMemo(() => {
         // Teacher & personal user → full permission (generate + history + edit)
         if (learningMode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER) {
-            return ['generate', 'history', 'edit'];
+            return ['generate', 'history', 'edit', 'healthy'];
         }
 
         // Student user → cannot see Edit
         if (role === UserRoleEnum.USER) {
-            return ['generate', 'history'];
+            return ['generate', 'history', 'healthy'];
         }
 
-        return ['generate', 'history', 'edit'];
+        return ['generate', 'history', 'edit', 'healthy'];
     }, [learningMode, role]);
 
     const { quizMode, setQuizMode, doingMode } = useQuizWorkspace();
@@ -90,6 +91,13 @@ function QuizTabContent() {
                             <span>Edit Questions</span>
                         </TabsTrigger>
                     )}
+
+                    {availableQuizTabs.includes('healthy') && (
+                        <TabsTrigger value="healthy" className="flex items-center justify-center gap-2 rounded-2xl">
+                            <HeartPulse className="h-4 w-4" />
+                            <span>Health</span>
+                        </TabsTrigger>
+                    )}
                 </TabsList>
             </Tabs>
 
@@ -98,6 +106,7 @@ function QuizTabContent() {
                 {quizMode === 'generate' && <QuizGenerateTab canGenerateByAI={canGenerateByAI} />}
                 {quizMode === 'history' && <QuizHistoryTab />}
                 {quizMode === 'edit' && availableQuizTabs.includes('edit') && <QuizEditTab />}
+                {quizMode === 'healthy' && <QuizHealthyTab />}
             </div>
         </div>
     );
