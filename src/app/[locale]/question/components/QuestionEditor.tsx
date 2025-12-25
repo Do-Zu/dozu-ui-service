@@ -154,10 +154,13 @@ const QuestionEditor = ({
                 if (i !== questionIdx) return q;
 
                 if (questionType === 'Free Response' || questionType === 'Fill in the blank') {
+                    const safeAnswer =
+                        q.correctIndex >= 0 && q.correctIndex < q.choices.length ? q.choices[q.correctIndex] : '';
+
                     return {
                         ...q,
                         questionType,
-                        choices: [q.choices[q.correctIndex] ?? ''],
+                        choices: [safeAnswer],
                         correctIndex: 0,
                         serverInfo: q.serverInfo ? { ...q.serverInfo, isUpdated: true } : q.serverInfo,
                     };
@@ -198,22 +201,19 @@ const QuestionEditor = ({
     };
 
     const handleChangeSingleAnswer = (questionIdx: number, text: string) => {
-    setQuestions(
-        questions.map((q, i) =>
-            i === questionIdx
-                ? {
-                      ...q,
-                      choices: [text],
-                      correctIndex: 0,
-                      serverInfo: q.serverInfo
-                          ? { ...q.serverInfo, isUpdated: true }
-                          : q.serverInfo,
-                  }
-                : q,
-        ),
-    );
-};
-
+        setQuestions(
+            questions.map((q, i) =>
+                i === questionIdx
+                    ? {
+                          ...q,
+                          choices: [text],
+                          correctIndex: 0,
+                          serverInfo: q.serverInfo ? { ...q.serverInfo, isUpdated: true } : q.serverInfo,
+                      }
+                    : q,
+            ),
+        );
+    };
 
     const handleDeleteQuestion = (id: number) => {
         const updatedQuestions = questions

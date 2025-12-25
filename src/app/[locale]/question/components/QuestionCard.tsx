@@ -94,7 +94,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                     </span>
                     <select
                         value={question.questionType ?? 'Multiple Choice'}
-                        onChange={(e) => onChangeQuestionType(index, e.target.value)}
+                        onChange={(e) => onChangeQuestionType?.(index, e.target.value)}
                         className="text-xs rounded-md border bg-background px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                         {QUESTION_TYPES.map((type) => (
@@ -132,7 +132,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                                 ? 'Correct word / phrase'
                                 : 'Suggested answer'
                         }
-                        onChange={(e) => {onChangeSingleAnswer(index, e.target.value)
+                        onChange={(e) => {onChangeSingleAnswer?.(index, e.target.value)
                         }}
                     />
                 ) : (
