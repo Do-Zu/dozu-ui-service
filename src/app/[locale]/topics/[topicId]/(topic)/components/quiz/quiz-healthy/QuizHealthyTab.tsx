@@ -8,110 +8,99 @@ import LoadingPage from '@/app/loading';
 import { useTopicWorkspace } from '@/app/[locale]/topics/[topicId]/(topic)/context/TopicWorkspaceContext';
 import { quizService } from '@/app/[locale]/quiz/services/quiz.service';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
-const FILTERS: Array<'all' | 'critical' | 'weak' | 'healthy'> = [
-  'all',
-  'critical',
-  'weak',
-  'healthy',
-];
+const FILTERS: Array<'all' | 'critical' | 'weak' | 'healthy'> = ['all', 'critical', 'weak', 'healthy'];
 
 export default function QuizHealthyTab() {
-  const { topicId, topic } = useTopicWorkspace();
+    const { topicId, topic } = useTopicWorkspace();
 
-  const [items, setItems] = useState<QuestionHealthDTO[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'critical' | 'weak' | 'healthy'>(
-    'all'
-  );
+    const [items, setItems] = useState<QuestionHealthDTO[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState<'all' | 'critical' | 'weak' | 'healthy'>('all');
 
-  useEffect(() => {
-    if (!topicId) return;
+    useEffect(() => {
+        if (!topicId) return;
 
-    setLoading(true);
+        setLoading(true);
 
-    quizService
-      .getQuestionHealth(topicId)
-      .then((res) => {
-        if (res.status === 'success') {
-          setItems(res.data.items);
+        quizService
+            .getQuestionHealth(topicId)
+            .then((res) => {
+                if (res.status === 'success') {
+                    setItems(res.data.items);
+                }
+            })
+            .finally(() => setLoading(false));
+    }, [topicId]);
+
+    const filteredItems = useMemo(() => {
+        let data = [...items].sort(sortByHealthAsc);
+
+        if (filter !== 'all') {
+            data = data.filter((q) => q.healthLevel === filter);
         }
-      })
-      .finally(() => setLoading(false));
-  }, [topicId]);
 
-  const filteredItems = useMemo(() => {
-    let data = [...items].sort(sortByHealthAsc);
+        return data;
+    }, [items, filter]);
 
-    if (filter !== 'all') {
-      data = data.filter((q) => q.healthLevel === filter);
-    }
+    const handleCopyHealthReport = async () => {
+        const text = buildHealthPrompt(topic?.name ?? '', items);
 
-    return data;
-  }, [items, filter]);
+        await navigator.clipboard.writeText(text);
 
-  const handleCopyHealthReport = async () => {
-    const text = buildHealthPrompt(topic?.name ?? '', items);
+        toast({
+            description: 'Question health report copied. Paste into your LLMs .',
+        });
+    };
 
-    await navigator.clipboard.writeText(text);
+    if (loading) return <LoadingPage />;
 
-    toast({
-      title: 'Copied for AI',
-      description:
-        'Question health report copied. Paste into ChatGPT or any AI tool.',
-    });
-  };
+    return (
+        <div className="space-y-6">
+            {/* HEADER */}
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h2 className="text-lg font-semibold">Question Health</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Analyze learning stability and spaced-repetition performance
+                    </p>
+                </div>
 
-  if (loading) return <LoadingPage />;
+                <Button
+                    onClick={handleCopyHealthReport}
+                    className="flex items-center gap-2 border px-3 py-2 text-sm transition "
+                >
+                    Copy for AI
+                </Button>
+            </div>
 
-  return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold">Question Health</h2>
-          <p className="text-sm text-muted-foreground">
-            Analyze learning stability and spaced-repetition performance
-          </p>
+            <div className="flex gap-2">
+                {FILTERS.map((f) => (
+                    <Button
+                        key={f}
+                        onClick={() => setFilter(f)}
+                        className={`rounded-3xl border px-3 py-1 text-sm transition ${
+                            filter === f ? 'bg-primary text-white' : 'bg-background  text-slate-800 hover:bg-muted'
+                        }`}
+                    >
+                        {f}
+                    </Button>
+                ))}
+            </div>
+
+            {/* LIST */}
+            <div className="space-y-3">
+                {filteredItems.map((item) => (
+                    <QuestionHealthCard key={item.questionId} item={item} />
+                ))}
+
+                {filteredItems.length === 0 && (
+                    <div className="py-10 text-center text-sm text-muted-foreground">
+                        No questions match this filter.
+                    </div>
+                )}
+            </div>
         </div>
-
-        <button
-          onClick={handleCopyHealthReport}
-          className="flex items-center gap-2 px-3 py-2 text-sm border rounded-md hover:bg-muted transition"
-        >
-           Copy for AI
-        </button>
-      </div>
-
-        
-      <div className="flex gap-2">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3 py-1 text-sm rounded border transition ${
-              filter === f
-                ? 'bg-primary text-white'
-                : 'bg-background hover:bg-muted'
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {/* LIST */}
-      <div className="space-y-3">
-        {filteredItems.map((item) => (
-          <QuestionHealthCard key={item.questionId} item={item} />
-        ))}
-
-        {filteredItems.length === 0 && (
-          <div className="text-sm text-muted-foreground text-center py-10">
-            No questions match this filter.
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
 }
