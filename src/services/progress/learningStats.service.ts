@@ -2,6 +2,7 @@ import { progressService } from './progress.service';
 import { ContentType, ProgressStatus } from '@/types/progress';
 import studentTopicService from '@/services/class-based-learning/student/studentTopic.service';
 import { ITopic } from '@/app/[locale]/topics/types/topic.type';
+import type { IProgress } from '@/types/progress';
 
 export interface LearningStats {
     totalLessonsCompleted: number;
@@ -18,14 +19,12 @@ class LearningStatsService {
      */
     async getUserLearningStats(userId: string): Promise<LearningStats> {
         try {
-            // Get all progress records for the user
+         
             const allProgress = await progressService.getAllProgress({
                 userId: userId
             });
 
-            // Calculate statistics
             const stats = this.calculateLearningStats(allProgress);
-            
             return stats;
         } catch (error) {
             throw new Error(`Failed to get learning statistics: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -68,7 +67,7 @@ class LearningStatsService {
     /**
      * Calculate learning statistics from progress data
      */
-    private calculateLearningStats(progressData: any[]): LearningStats {
+    private calculateLearningStats(progressData: IProgress[]): LearningStats {
         let totalLessonsCompleted = 0;
         let totalQuizzesCompleted = 0;
         let totalFlashcardsCompleted = 0;
