@@ -71,6 +71,7 @@ const QuestionEditor = ({
 
     const quizWorkspace = useOptionalQuizWorkspace();
     const setGeneratedQuestionsForEdit = quizWorkspace?.setGeneratedQuestionsForEdit;
+    const isPreviewMode = Boolean(quizWorkspace?.generatedQuestionsForEdit);
 
     useEffect(() => {
         if (questions.length === 0) {
@@ -340,22 +341,25 @@ const QuestionEditor = ({
 
                     <div className="flex items-center gap-3">
                         {/* Generate AI */}
-                        <Generate<IGeneratedQuizItem[]>
-                            type="quiz"
-                            onSuccess={(generated) => {
-                                if (!Array.isArray(generated) || generated.length === 0) {
-                                    toast({
-                                        description: 'No questions generated from AI.',
-                                        variant: 'destructive',
-                                    });
-                                    return;
-                                }
+                        {!isPreviewMode && (
+                            <Generate<IGeneratedQuizItem[]>
+                                type="quiz"
+                                onSuccess={(generated) => {
+                                    if (!Array.isArray(generated) || generated.length === 0) {
+                                        toast({
+                                            description: 'No questions generated from AI.',
+                                            variant: 'destructive',
+                                        });
+                                        return;
+                                    }
 
-                                const mapped = mapGeneratedToQuestions(generated);
+                                    const mapped = mapGeneratedToQuestions(generated);
 
-                                setQuestions(mapped);
-                            }}
-                        />
+                                    setGeneratedQuestionsForEdit?.(mapped);
+                                }}
+                            />
+                        )}
+
                         {/* Import questions */}
                         <Button onClick={() => setIsImportOpen(true)} className="hover:opacity-80">
                             <Import size={18} />
