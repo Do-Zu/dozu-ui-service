@@ -1,6 +1,6 @@
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { parse, format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -53,6 +53,16 @@ const EventCard = ({ event, isDragging = false }: EventCardProps) => {
         }
     };
 
+    const start =
+        typeof event?.start === 'string'
+            ? parse((event.start as string).replace('Z', ''), "yyyy-MM-dd'T'HH:mm:ss.SSS", new Date())
+            : event?.start;
+
+    const end =
+        typeof event?.end === 'string'
+            ? parse((event.end as string).replace('Z', ''), "yyyy-MM-dd'T'HH:mm:ss.SSS", new Date())
+            : event?.end;
+
     return (
         <div
             ref={setNodeRef}
@@ -85,7 +95,7 @@ const EventCard = ({ event, isDragging = false }: EventCardProps) => {
                     <div className="space-y-1">
                         <h4 className="text-sm font-semibold">{event?.title}</h4>
                         <p className="text-xs">
-                            {format(event?.start, 'HH:mm')} - {format(event?.end, 'HH:mm')}
+                            {format(start, 'HH:mm')} - {format(end, 'HH:mm')}
                         </p>
                         <DialogFooter>
                             <Button
