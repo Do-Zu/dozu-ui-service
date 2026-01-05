@@ -4,12 +4,11 @@ Dozu is a comprehensive learning platform that empowers users to build personali
 
 ## Features
 
-- **📚 Learning Roadmaps**: Create and follow structured learning paths tailored to your goals
-- **🎯 Multi-Method Learning**: Combine flashcards, reading materials, interactive content, and more
-- **📊 Progress Tracking**: Monitor your learning journey with detailed analytics and statistics
-- **⏰ Scheduled Learning**: Plan and manage your study sessions with intelligent scheduling
-- **🔄 Adaptive Learning**: AI-powered recommendations based on your learning patterns
-- **🌐 Multi-language Support**: Available in multiple languages for global accessibility
+- ** Learning Roadmaps**: Create and follow structured learning paths tailored to your goals
+- ** Multi-Method Learning**: Combine flashcards, quiz, mindmap , reading materials, interactive content, and more
+- ** Progress Tracking**: Monitor your learning journey with detailed analytics and statistics
+- ** Scheduled Learning**: Plan and manage your study sessions with intelligent scheduling
+- ** Adaptive Learning**: AI-powered recommendations based on your learning patterns
 
 ## Learning Methods
 
@@ -25,7 +24,7 @@ Our platform integrates multiple proven learning methodologies:
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - npm, yarn, pnpm, or bun package manager
 
 ### Installation
@@ -55,17 +54,6 @@ bun dev
 
 4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-## Technology Stack
-
-This project is built with modern web technologies:
-
-- **Frontend**: Next.js 14+ with TypeScript
-- **Styling**: Tailwind CSS for responsive design
-- **UI Components**: Custom component library with shadcn/ui
-- **State Management**: Redux Toolkit for application state
-- **Internationalization**: Multi-language support with next-intl
-- **Authentication**: Secure user authentication and authorization
-- **API Integration**: RESTful API integration with OpenAPI specifications
 
 ## Project Structure
 
