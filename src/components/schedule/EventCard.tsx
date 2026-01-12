@@ -55,12 +55,11 @@ const EventCard = ({ event, isDragging = false }: EventCardProps) => {
 
     const start =
         typeof event?.start === 'string'
-            ? parse((event.start as string).replace('Z', ''), "yyyy-MM-dd'T'HH:mm:ss.SSS", new Date())
+            ? parse(event.start, "yyyy-MM-dd'T'HH:mm:ss", new Date())
             : event?.start;
-
     const end =
         typeof event?.end === 'string'
-            ? parse((event.end as string).replace('Z', ''), "yyyy-MM-dd'T'HH:mm:ss.SSS", new Date())
+            ? parse(event.end, "yyyy-MM-dd'T'HH:mm:ss", new Date())
             : event?.end;
 
     return (
