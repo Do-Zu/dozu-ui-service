@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { openUpgradeModal } from '@/stores/features/subscription/subscriptionUtils';
-import { getTimestampWithClientOffset, isEmpty } from '@/utils';
-import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
+import { getTimestampWithClientOffset } from '@/utils';
 import { ROUTES } from '@/utils/constants/routes';
 import toastHelper from '@/utils/toast.helper';
 
