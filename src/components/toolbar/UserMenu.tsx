@@ -31,15 +31,12 @@ export function UserMenu() {
     const t = useTranslations('userMenu');
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const { user, isAuthenticated, clearAuthData, currentPlanUser } = useAuth();
+    const { user, isAuthenticated, clearAuthData } = useAuth();
     const { setTheme, theme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [showThemeOptions, setShowThemeOptions] = useState(false);
     const [showLanguageOptions, setShowLanguageOptions] = useState(false);
     const { current: currentLang, isPending, changeLocale, LANGS } = useLanguageSwitcher();
-
-    const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
-    const userPlan = isPro ? t('planPro') : t('planFree');
     const displayName = user?.fullName || user?.username || 'User';
 
     useEffect(() => setMounted(true), []);
@@ -90,7 +87,7 @@ export function UserMenu() {
     const selectedLang = LANGS.find((l) => l.code === currentLang);
 
     return (
-        <div className="flex flex-col gap-2 w-full ">
+        <div className="flex flex-col gap-2 w-full p-4">
             <DropdownMenu
                 onOpenChange={(open) => {
                     if (!open) {
@@ -127,11 +124,7 @@ export function UserMenu() {
                             className="w-full text-left flex flex-col space-y-1 hover:opacity-80 transition-opacity cursor-pointer"
                         >
                             <p className="text-sm font-medium leading-none">{displayName}</p>
-                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                         </button>
-                    </DropdownMenuLabel>
-                    <DropdownMenuLabel className="text-xs text-muted-foreground">
-                        {t('plan')}: {userPlan}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem

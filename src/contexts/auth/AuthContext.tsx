@@ -7,8 +7,6 @@ import { getAllFeatureBelongPlan, getCurrentPlanSubscription } from '@/services/
 import { ICurrentPlan } from '@/services/features/feature.type';
 import { User, UserType } from '@/types/auth';
 import { getUserType } from '@/utils/auth/redirectService';
-import { useSessionStorage } from '@/hooks/useSessionStorage';
-import { SESSION_STORAGE_KEY } from '@/utils/constants/storage';
 import { isEmpty, safeDestructure } from '@/utils';
 
 interface AuthContextType {
@@ -17,7 +15,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     hasCompletedOnboarding: boolean;
     userType: UserType;
-    currentPlanUser: ICurrentPlan | null | undefined;
+    currentPlanUser: ICurrentPlan | null;
     setAuthData: (userData: User) => void;
     clearAuthData: () => void;
     hasRole: (role: string) => boolean;
@@ -34,9 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { isAuthenticated, user, setAuthData, updateUser, clearAuthData, markOnboardingComplete } = useAuthStorage();
 
-    const [currentPlanUser, setCurrentPlanUser] = useSessionStorage<ICurrentPlan | null>(
-        SESSION_STORAGE_KEY.CURRENT_USER_PLAN,
-    );
+    const [currentPlanUser, setCurrentPlanUser] = useState<ICurrentPlan | null>(null)
 
     const checkAuthStatus = useCallback(async () => {
         try {

@@ -48,7 +48,6 @@ import { Button } from '@/components/ui/button';
 import { FeedbackDialog } from '../feedback/FeedbackDialog';
 import { useState } from 'react';
 
-// Menu items.
 const items = [
     {
         title: 'Home',
@@ -80,10 +79,12 @@ const secondaryItems = [
     },
     {
         title: 'Feedback',
-        url: '#', // Not used, will open dialog instead
+        url: '#',
         icon: MessageCircle,
     },
 ];
+
+const NAME_CONVERSION_PLAN_UPGRADE = 'free';
 
 export function AppSidebar() {
     const pathname = usePathname();
@@ -91,7 +92,7 @@ export function AppSidebar() {
     const { openUpgradeModal } = useUpgradeModal();
     const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
 
-    const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
+    const isUpgradeButtonVisible = isAuthenticated && currentPlanUser?.plan?.name?.toLocaleLowerCase().includes(NAME_CONVERSION_PLAN_UPGRADE);
 
     const { isDisplayPackages } = safeDestructure(getConfigLayoutPackageForSidebar(pathname));
 
@@ -126,7 +127,7 @@ export function AppSidebar() {
                                 {items.map((item) => {
                                     const isActive = pathname
                                         ? pathname === item.url ||
-                                          (item.url !== ROUTES.HOME && pathname.startsWith(item.url))
+                                        (item.url !== ROUTES.HOME && pathname.startsWith(item.url))
                                         : false;
                                     return (
                                         <SidebarMenuItem key={item.title}>
@@ -211,17 +212,16 @@ export function AppSidebar() {
                             <LanguageSwitcher />
                         </div>
                     )}
-                    {/* Upgrade to Pro Button */}
-                    {!isPro && isAuthenticated && (
+                    {isUpgradeButtonVisible && (
                         <div className="px-2 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
                             <Button
                                 onClick={openUpgradeModal}
                                 variant="outline"
-                                size="sm"
-                                className="w-full justify-center gap-1.5 border-blue-300/60 bg-gradient-to-r from-blue-100/80 via-indigo-100/80 to-purple-100/80 py-1.5 font-semibold text-blue-700 shadow-sm transition-all duration-200 hover:from-blue-200/90 hover:via-indigo-200/90 hover:to-purple-200/90 hover:shadow-md group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:min-w-0 group-data-[collapsible=icon]:p-0 dark:border-blue-700/60 dark:from-blue-900/40 dark:via-indigo-900/40 dark:to-purple-900/40 dark:text-blue-300 dark:hover:from-blue-800/50 dark:hover:via-indigo-800/50 dark:hover:to-purple-800/50"
+
+                                className="w-full justify-center gap-1.5 py-1.5 font-semibold  shadow-sm transition-all duration-200 hover:shadow-md group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:min-w-0 group-data-[collapsible=icon]:p-0 "
                             >
                                 <Crown className="size-3 shrink-0" />
-                                <span className="group-data-[collapsible=icon]:hidden">Upgrade to Pro</span>
+                                <span className="group-data-[collapsible=icon]:hidden">Upgrade Plan</span>
                             </Button>
                         </div>
                     )}

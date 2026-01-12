@@ -3,9 +3,11 @@ export interface IPlanResponse {
     name: string;
     description: string;
     isActive: boolean;
+    planType: string;
+    tier: number
 }
 
-export interface IPlan extends IPlanResponse {}
+export interface IPlan extends IPlanResponse { }
 
 export interface ISuccessResponse {
     subscriptionId: number;

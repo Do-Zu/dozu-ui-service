@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { openUpgradeModal } from '@/stores/features/subscription/subscriptionUtils';
-import { getTimestampWithClientOffset, isEmpty } from '@/utils';
-import { getCurrentPlanUser, normalizeUrl } from '@/utils/auth/subscription';
+import { getTimestampWithClientOffset } from '@/utils';
 import { ROUTES } from '@/utils/constants/routes';
 import toastHelper from '@/utils/toast.helper';
 
@@ -51,35 +50,6 @@ const requestInterceptor = Axios.interceptors.request.use(
 
         config.headers['X-Timestamp'] = timestamp;
         config.headers['X-Timezone'] = timezone;
-
-        const { method, url } = config;
-
-        if (['POST', 'PUT', 'PATCH'].includes(method?.toUpperCase() || '')) {
-            const currentPlanUser = getCurrentPlanUser();
-
-            if (currentPlanUser && currentPlanUser.features && url) {
-                const matchingFeature = currentPlanUser?.features.find(
-                    (feature) => feature?.apiUrl && normalizeUrl(url) === normalizeUrl(feature.apiUrl),
-                );
-
-                if (config.data && matchingFeature) {
-                    if (config.data instanceof FormData) {
-                        config.data.append('featureId', matchingFeature.featureId.toString());
-                        config.data.append('planId', currentPlanUser.plan.planId.toString());
-                        config.data.append('featureType', matchingFeature.featureType);
-                        config.data.append('url', url);
-                    } else {
-                        config.data = {
-                            ...config.data,
-                            featureId: matchingFeature.featureId,
-                            planId: currentPlanUser.plan.planId,
-                            featureType: matchingFeature.featureType,
-                            url,
-                        };
-                    }
-                }
-            }
-        }
 
         return config;
     },

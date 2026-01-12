@@ -65,10 +65,8 @@ export function Sidebar({ className }: SidebarProps) {
             )}
             data-collapsible={isCollapsed ? 'icon' : undefined}
         >
-            {/* Header with Logo - Click logo to toggle */}
             <div className="mb-6">
                 {isCollapsed ? (
-                    // Collapsed: Show large "D" logo centered - clickable
                     <button
                         onClick={() => setIsCollapsed(false)}
                         className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold text-xl shadow-lg hover:shadow-xl transition-all hover:scale-105 mx-auto cursor-pointer"
@@ -77,7 +75,6 @@ export function Sidebar({ className }: SidebarProps) {
                         D
                     </button>
                 ) : (
-                    // Expanded: Show full "Dozu" text - clickable
                     <button
                         onClick={() => setIsCollapsed(true)}
                         className="flex items-center gap-2 px-2 w-full hover:opacity-80 transition-opacity cursor-pointer group"
@@ -93,7 +90,6 @@ export function Sidebar({ className }: SidebarProps) {
                 )}
             </div>
 
-            {/* Navigation Items */}
             <div className="flex flex-col gap-1 flex-1 overflow-y-auto scrollbar-hide">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
@@ -125,7 +121,6 @@ export function Sidebar({ className }: SidebarProps) {
                 })}
             </div>
 
-            {/* Auth Button at bottom */}
             <div className="mt-auto pt-2">
                 <AuthButton />
             </div>

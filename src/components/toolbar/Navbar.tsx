@@ -16,8 +16,6 @@ export default function Navbar() {
     const { isStudent } = useRoleChecker();
     const { isDisplay: isDisplayPomodoro } = useSelector((state: RootState) => state.pomodoro);
 
-    const isPro = currentPlanUser?.plan?.name?.toLowerCase().includes('pro') ?? false;
-
     return (
         <Fragment>
             <div className="mx-auto flex px-4 py-2 justify-between items-center h-full border-b border-transparent bg-gradient-to-r from-background/70 via-background/40 to-background/70 dark:from-slate-950/60 dark:via-slate-900/40 dark:to-slate-950/60 backdrop-blur-md supports-[backdrop-filter]:bg-background/40">
@@ -31,11 +29,10 @@ export default function Navbar() {
                     <Link href="/" className="text-lg font-bold ">
                         Dozu
                     </Link>
-                    {isPro && (
-                        <span className="px-2 py-1 text-xs font-bold dark:bg-[#1d2721] text-[#3cb371] border border-[#3cb37199] rounded-3xl shadow-md">
-                            PRO
-                        </span>
-                    )}
+
+                    <span className="px-2 py-1 text-xs font-bold dark:bg-[#1d2721] text-[#3cb371] border border-[#3cb37199] rounded-3xl shadow-md">
+                        {currentPlanUser?.plan?.name?.toUpperCase()}
+                    </span>
                     <ShowIf when={isStudent}>
                         <LearningModeSelect />
                     </ShowIf>
