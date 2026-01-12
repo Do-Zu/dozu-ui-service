@@ -92,7 +92,7 @@ export function AppSidebar() {
     const { openUpgradeModal } = useUpgradeModal();
     const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
 
-    const isUpgradeButtonVisible = isAuthenticated && currentPlanUser?.plan?.name.toLocaleLowerCase().includes(NAME_CONVERSION_PLAN_UPGRADE);
+    const isUpgradeButtonVisible = isAuthenticated && currentPlanUser?.plan?.name?.toLocaleLowerCase().includes(NAME_CONVERSION_PLAN_UPGRADE);
 
     const { isDisplayPackages } = safeDestructure(getConfigLayoutPackageForSidebar(pathname));
 
