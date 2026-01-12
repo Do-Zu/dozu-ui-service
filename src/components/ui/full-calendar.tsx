@@ -81,8 +81,8 @@ export type CalendarEvent = {
     id: string;
     type?: string;
     topicId: number;
-    start: Date | string;
-    end: Date | string;
+    start: Date ;
+    end: Date;
     title: string;
     color?: VariantProps<typeof monthEventVariants>['variant'];
     priority?: number;
