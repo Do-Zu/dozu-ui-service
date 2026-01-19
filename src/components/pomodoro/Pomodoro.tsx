@@ -30,7 +30,7 @@ import useClickOutSide from '@/hooks/useClickOutSide';
 export type TypePosition = 'top-center' | 'bottom-center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type TypeMode = 'countdown' | 'stopwatch';
 export interface IPropPomodoro {
-    position: TypePosition;
+    position?: TypePosition;
     positionX?: number;
     positionY?: number;
     defaultMode?: TypeMode;
@@ -71,27 +71,48 @@ function pad2(n: number) {
     return String(Math.floor(Math.max(0, n))).padStart(2, '0');
 }
 
-function positionClass(pos: TypePosition) {
-    switch (pos) {
-        case 'top-left':
-            return 'top-4 left-4';
-        case 'top-right':
-            return 'top-4 right-4';
-        case 'bottom-left':
-            return 'bottom-4 left-4';
-        case 'bottom-right':
-            return 'bottom-4 right-4';
-        case 'top-center':
-            return 'top-4 left-1/2 -translate-x-1/2';
-        case 'bottom-center':
-            return 'bottom-4 left-1/2 -translate-x-1/2';
-        default:
-            return 'bottom-4 right-4';
-    }
-}
+type AmbientSound = { id: string; name: string; src: string; builtin: boolean };
+
+// function positionClass(pos: TypePosition) {
+//     switch (pos) {
+//         case 'top-left':
+//             return 'top-4 left-4';
+//         case 'top-right':
+//             return 'top-4 right-4';
+//         case 'bottom-left':
+//             return 'bottom-4 left-4';
+//         case 'bottom-right':
+//             return 'bottom-4 right-4';
+//         case 'top-center':
+//             return 'top-4 left-1/2 -translate-x-1/2';
+//         case 'bottom-center':
+//             return 'bottom-4 left-1/2 -translate-x-1/2';
+//         default:
+//             return 'bottom-4 right-4';
+//     }
+// }
+const defaultAmbient: AmbientSound[] = [
+    {
+        id: 'rain',
+        name: 'Raining',
+        src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/45%20Minutes%20of%20Light%20Rain%20Sounds%20for%20Focus,%20Relaxing%20and%20Sleep%20%20Epidemic%20Ambience%20-%20YouTube.mp3',
+        builtin: true,
+    },
+    {
+        id: 'white-noise',
+        name: 'White Noise',
+        src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/White-Noise-Dozu-Pomodoro.mp3',
+        builtin: true,
+    },
+    {
+        id: 'lofi',
+        name: 'Lofi',
+        src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/Lofi-Timer-Dozo-Pomodoro-Deep-Focus.mp3',
+        builtin: true,
+    },
+];
 
 export default function Pomodoro({
-    position = 'bottom-right',
     positionX = 0,
     positionY = 0,
     defaultMode = 'countdown',
@@ -108,7 +129,7 @@ export default function Pomodoro({
     const [isBreakTime, setIsBreakTime] = useState<boolean>(false);
 
     // Sound / audio related state
-    type AmbientSound = { id: string; name: string; src: string; builtin: boolean };
+
     const LS_SOUNDS_KEY = 'POMODORO_AMBIENT_SOUNDS';
     const LS_SELECTED_SOUND_KEY = 'POMODORO_SELECTED_AMBIENT';
     const LS_VOLUME_KEY = 'POMODORO_VOLUME';
@@ -116,28 +137,6 @@ export default function Pomodoro({
     const LS_DEFAULT_TIME_COUNT_DOWN = 'POMODORO_DEFAULT_TIME_COUNT_DOWN';
     const LS_BREAK_SPECIFIC_ENABLED = 'POMODORO_BREAK_SPECIFIC_ENABLED';
     const LS_BREAK_AMBIENT_ID = 'POMODORO_BREAK_AMBIENT_ID';
-
-    //DEFAULT SOUNDs
-    const defaultAmbient: AmbientSound[] = [
-        {
-            id: 'rain',
-            name: 'Raining',
-            src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/45%20Minutes%20of%20Light%20Rain%20Sounds%20for%20Focus,%20Relaxing%20and%20Sleep%20%20Epidemic%20Ambience%20-%20YouTube.mp3',
-            builtin: true,
-        },
-        {
-            id: 'white-noise',
-            name: 'White Noise',
-            src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/White-Noise-Dozu-Pomodoro.mp3',
-            builtin: true,
-        },
-        {
-            id: 'lofi',
-            name: 'Lofi',
-            src: 'https://pub-1ec2ebb25bae4e50bd19e6b7b25829cc.r2.dev/Lofi-Timer-Dozo-Pomodoro-Deep-Focus.mp3',
-            builtin: true,
-        },
-    ];
 
     const [ambientSoundsLS, setAmbientSoundsLS] = useLocalStorage<AmbientSound[]>(LS_SOUNDS_KEY, []);
     const [selectedAmbientId, setSelectedAmbientId] = useLocalStorage<string | null>(LS_SELECTED_SOUND_KEY, null);
@@ -166,7 +165,6 @@ export default function Pomodoro({
     const [showSettingsPanel, setShowSettingsPanel] = useState<boolean>(false);
     const [hasWarnedFiveSec, setHasWarnedFiveSec] = useState<boolean>(false);
 
-    //---------- Click outside container ---------- //
     const handleClickOutSideCBoxContainer = () => {
         setIsOpen(false);
     };
@@ -253,7 +251,6 @@ export default function Pomodoro({
     };
 
     const handleCompleteSession = () => {
-        // Break time mode
         if (isBreakTime) {
             setIsActive(false);
             setIsBreakTime(false);
@@ -294,7 +291,9 @@ export default function Pomodoro({
 
     const isCountdown = mode === 'countdown';
 
-    //---------- UI Element in Box  ---------- //
+    const renderTime =
+        hours > 0 ? `${pad2(hours)}: ${pad2(minutes)} : ${pad2(seconds)}` : `${pad2(minutes)} : ${pad2(seconds)}`;
+
     const renderClock = () => {
         if (isOpen) {
             return (
@@ -303,13 +302,13 @@ export default function Pomodoro({
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsOpen((v) => !v)}
-                        className="h-12 w-12 rounded-full border dark:border-white/10 dark:bg-slate-900/70 backdrop-blur "
+                        className="size-12 rounded-full border backdrop-blur dark:border-white/10 dark:bg-slate-900/70 "
                         aria-label="Open Pomodoro"
                     >
                         {isCountdown ? (
-                            <Timer className="h-4 w-4 text-amber-300" />
+                            <Timer className="size-4 text-amber-300" />
                         ) : (
-                            <Clock className="h-4 w-4 text-sky-300" />
+                            <Clock className="size-4 text-sky-300" />
                         )}
                     </Button>
                 </motion.div>
@@ -318,7 +317,7 @@ export default function Pomodoro({
 
         return (
             <motion.div
-                className="flex justify-center items-center rounded-md border dark:border-white/10 dark:bg-slate-900  p-2"
+                className="flex items-center justify-center rounded-2xl border p-2 dark:border-white/10  dark:bg-slate-900"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
             >
@@ -330,10 +329,8 @@ export default function Pomodoro({
                     variants={panelVariants}
                     style={{ willChange: 'clip-path, transform, opacity' }}
                 >
-                    <div className="flex justify-center items-center gap-2 text-center ">
-                        <div className="text-sm font-semibold  text-center tracking-tight">
-                            {pad2(hours)}: {pad2(minutes)} : {pad2(seconds)}
-                        </div>
+                    <div className="flex items-center justify-center gap-2 text-center ">
+                        <div className="text-center text-sm  font-semibold tracking-tight">{renderTime}</div>
                         <div className="text-xl font-semibold tracking-tight"> </div>
                     </div>
                 </motion.div>
@@ -346,13 +343,13 @@ export default function Pomodoro({
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsOpen((v) => !v)}
-                        className="h-9 w-9 rounded-full border dark:border-white/10 dark:bg-slate-800/70 backdrop-blur dark:hover:bg-slate-600/70"
+                        className="size-9 rounded-full border backdrop-blur dark:border-white/10 dark:bg-slate-800/70 dark:hover:bg-slate-600/70"
                         aria-label="Open Pomodoro"
                     >
                         {isCountdown ? (
-                            <Timer className="h-4 w-4 text-amber-300" />
+                            <Timer className="size-4 text-amber-300" />
                         ) : (
-                            <Clock className="h-4 w-4 text-sky-300" />
+                            <Clock className="size-4 text-sky-300" />
                         )}
                     </Button>
                 </motion.div>
@@ -386,29 +383,38 @@ export default function Pomodoro({
                 ambientAudioRef.current.pause();
                 ambientAudioRef.current.src = '';
                 ambientAudioRef.current.load();
-            } catch {}
+            } catch {
+                /* empty */
+            }
         }
         if (bellAudioRef.current) {
             try {
                 bellAudioRef.current.pause();
                 bellAudioRef.current.src = '';
                 bellAudioRef.current.load();
-            } catch {}
+            } catch {
+                /* empty */
+            }
         }
         // Revoke any blob: object URLs we created (legacy approach)
         customBlobUrlsRef.current.forEach((url) => {
             try {
                 URL.revokeObjectURL(url);
-            } catch {}
+            } catch {
+                /* empty */
+            }
         });
         customBlobUrlsRef.current = [];
         if (idbObjectUrlRef.current) {
             try {
                 URL.revokeObjectURL(idbObjectUrlRef.current);
-            } catch {}
+            } catch {
+                //
+            }
             idbObjectUrlRef.current = null;
         }
     };
+
     //        ---------- Audio logic ---------- //
 
     // Initialize defaults merge & bell audio
@@ -451,7 +457,9 @@ export default function Pomodoro({
                 if (idbObjectUrlRef.current) {
                     try {
                         URL.revokeObjectURL(idbObjectUrlRef.current);
-                    } catch {}
+                    } catch {
+                        /* empty */
+                    }
                     idbObjectUrlRef.current = null;
                 }
                 try {
@@ -512,6 +520,7 @@ export default function Pomodoro({
             if (countTimer === 5 && !hasWarnedFiveSec) {
                 if (bellAudioRef.current) {
                     bellAudioRef.current.currentTime = 0;
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                     bellAudioRef.current.play().catch(() => {});
                 }
                 setHasWarnedFiveSec(true);
@@ -597,9 +606,12 @@ export default function Pomodoro({
             if (target && !target.builtin && target.src.startsWith('blob:')) {
                 try {
                     URL.revokeObjectURL(target.src);
-                } catch {}
+                } catch {
+                    /* empty */
+                }
             }
             if (target && target.src.startsWith('indexeddb:')) {
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 idbDeleteAudio(id).catch(() => {});
             }
             const next = list.filter((s) => s.id !== id);
@@ -649,10 +661,10 @@ export default function Pomodoro({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
                 transition={{ duration: 0.18 }}
-                className="absolute top-12 left-0 w-60 z-[100]"
+                className="absolute left-0 top-12 z-[100] w-60"
             >
-                <Card className="p-2 rounded-lg border dark:border-white/10 dark:bg-slate-900/95 backdrop-blur">
-                    <div className="flex items-center justify-between mb-1 px-1">
+                <Card className="rounded-lg border p-2 backdrop-blur dark:border-white/10 dark:bg-slate-900/95">
+                    <div className="mb-1 flex items-center justify-between px-1">
                         <span className="text-xs font-semibold text-slate-300">
                             {isBreakTime && breakSpecificEnabled
                                 ? tPomodoro('ambient.panelTitleBreak')
@@ -660,10 +672,10 @@ export default function Pomodoro({
                         </span>
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="p-1 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-700/40"
+                            className="rounded-md p-1 text-slate-400 hover:bg-slate-700/40 hover:text-slate-100"
                             aria-label="Upload sound"
                         >
-                            <Upload className="h-3.5 w-3.5" />
+                            <Upload className="size-3.5" />
                         </button>
                         <input
                             ref={fileInputRef}
@@ -673,7 +685,7 @@ export default function Pomodoro({
                             onChange={handleUploadSound}
                         />
                     </div>
-                    <div className="max-h-48 overflow-y-auto pr-1 space-y-1">
+                    <div className="max-h-48 space-y-1 overflow-y-auto pr-1">
                         {ambientSounds.map((s) => {
                             const activeId = isBreakTime && breakSpecificEnabled ? breakAmbientId : selectedAmbientId;
                             const isSel = s.id === activeId;
@@ -691,14 +703,14 @@ export default function Pomodoro({
                                     <div className="flex items-center gap-2 truncate">
                                         {isSel ? (
                                             isAmbientPlaying ? (
-                                                <CirclePause className="h-3.5 w-3.5" />
+                                                <CirclePause className="size-3.5" />
                                             ) : (
-                                                <CirclePlay className="h-3.5 w-3.5" />
+                                                <CirclePlay className="size-3.5" />
                                             )
                                         ) : (
-                                            <Music2 className="h-3.5 w-3.5 opacity-60" />
+                                            <Music2 className="size-3.5 opacity-60" />
                                         )}
-                                        <span className="truncate max-w-[120px]">{s.name}</span>
+                                        <span className="max-w-[120px] truncate">{s.name}</span>
                                     </div>
                                     {!s.builtin && (
                                         <button
@@ -706,17 +718,17 @@ export default function Pomodoro({
                                                 e.stopPropagation();
                                                 handleRemoveCustomSound(s.id);
                                             }}
-                                            className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-red-300"
+                                            className="rounded p-1 text-red-300 opacity-0 hover:bg-red-500/20 group-hover:opacity-100"
                                             aria-label="Remove sound"
                                         >
-                                            <Trash2 className="h-3 w-3" />
+                                            <Trash2 className="size-3" />
                                         </button>
                                     )}
                                 </div>
                             );
                         })}
                         {ambientSounds.length === 0 && (
-                            <div className="text-[10px] text-slate-400 px-2 py-2">{tPomodoro('ambient.noSounds')}</div>
+                            <div className="p-2 text-[10px] text-slate-400">{tPomodoro('ambient.noSounds')}</div>
                         )}
                     </div>
                 </Card>
@@ -733,11 +745,11 @@ export default function Pomodoro({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
                 transition={{ duration: 0.18 }}
-                className="absolute top-12 right-0 w-60 z-[100]"
+                className="absolute right-0 top-12 z-[100] w-60"
             >
-                <Card className="p-3 rounded-lg border dark:border-white/10 dark:bg-slate-900/95 backdrop-blur space-y-3">
+                <Card className="space-y-3 rounded-lg border p-3 backdrop-blur dark:border-white/10 dark:bg-slate-900/95">
                     <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-300 font-semibold">{tPomodoro('settings.title')}</span>
+                        <span className="font-semibold text-slate-300">{tPomodoro('settings.title')}</span>
                         <span className="text-[10px] text-slate-500">{tPomodoro('settings.version')}</span>
                     </div>
                     <div className="space-y-1">
@@ -752,11 +764,11 @@ export default function Pomodoro({
                             step={0.01}
                             value={volume}
                             onChange={(e) => setVolumeLS(parseFloat(e.target.value))}
-                            className="w-full accent-amber-400 cursor-pointer"
+                            className="w-full cursor-pointer accent-amber-400"
                             aria-label="Ambient volume"
                         />
                     </div>
-                    <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer select-none">
+                    <label className="flex cursor-pointer select-none items-center gap-2 text-[11px] text-slate-300">
                         <input
                             type="checkbox"
                             checked={playDuringBreak}
@@ -765,7 +777,7 @@ export default function Pomodoro({
                         />
                         <span>{tPomodoro('settings.playDuringBreak')}</span>
                     </label>
-                    <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer select-none">
+                    <label className="flex cursor-pointer select-none items-center gap-2 text-[11px] text-slate-300">
                         <input
                             type="checkbox"
                             checked={breakSpecificEnabled}
@@ -786,7 +798,7 @@ export default function Pomodoro({
                             setBreakSpecificEnabled(false);
                             setIsAmbientPlaying(false);
                         }}
-                        className="w-full text-[11px] mt-1 rounded-md bg-slate-800/60 hover:bg-slate-700/60 py-1 text-slate-300 hover:text-white"
+                        className="mt-1 w-full rounded-md bg-slate-800/60 py-1 text-[11px] text-slate-300 hover:bg-slate-700/60 hover:text-white"
                     >
                         {tPomodoro('settings.resetDefaults')}
                     </button>
@@ -846,7 +858,7 @@ export default function Pomodoro({
                         inputMode="numeric"
                         pattern="[0-9]*"
                         aria-label={type === 'hour' ? 'Edit hours' : 'Edit minutes'}
-                        className="w-full bg-transparent text-center focus:outline-none focus:ring-0 border-none p-0 m-0 text-2xl font-semibold tracking-tight caret-amber-300"
+                        className="m-0 w-full border-none bg-transparent p-0 text-center text-2xl font-semibold tracking-tight caret-amber-300 focus:outline-none focus:ring-0"
                         value={times}
                         onChange={(e) => handleOnChangeTimer(type, e.target.value)}
                         onBlur={() => setEditTimer((prev) => ({ ...prev, [type]: false }))}
@@ -881,10 +893,10 @@ export default function Pomodoro({
                 )}
                 style={{ minHeight: '70px' }}
             >
-                <div className="text-2xl font-semibold tracking-tight leading-none h-8 flex items-center justify-center w-full">
+                <div className="flex h-8 w-full items-center justify-center text-2xl font-semibold leading-none tracking-tight">
                     {renderEditMode()}
                 </div>
-                <div className="text-[10px] uppercase text-slate-400 mt-1">{prefix}</div>
+                <div className="mt-1 text-[10px] uppercase text-slate-400">{prefix}</div>
             </div>
         );
     };
@@ -898,7 +910,7 @@ export default function Pomodoro({
                         {renderStatusTimer('minute')}
                     </div>
 
-                    <div className="mt-1 text-center font-semibold text-sm text-[10px] text-slate-400">
+                    <div className="mt-1 text-center text-sm font-semibold text-slate-400">
                         {pad2(seconds)} {tPomodoro('timer.secSuffix')}
                     </div>
                 </>
@@ -906,11 +918,11 @@ export default function Pomodoro({
 
         return (
             <div className="mt-3 grid grid-cols-2 gap-2 text-center">
-                <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
+                <div className="rounded-md border py-2 dark:border-white/10 dark:bg-slate-800/60">
                     <div className="text-2xl font-semibold tracking-tight">{pad2(minutes)}</div>
                     <div className="text-[10px] uppercase text-slate-400">{tPomodoro('timer.minLabel')}</div>
                 </div>
-                <div className="rounded-md border dark:border-white/10 dark:bg-slate-800/60 py-2">
+                <div className="rounded-md border py-2 dark:border-white/10 dark:bg-slate-800/60">
                     <div className="text-2xl font-semibold tracking-tight">{pad2(seconds)}</div>
                     <div className="text-[10px] uppercase text-slate-400">{tPomodoro('timer.secSuffix')}</div>
                 </div>
@@ -926,7 +938,7 @@ export default function Pomodoro({
                     className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-transparent py-1.5 text-xs dark:text-slate-300 dark:hover:text-slate-100"
                     aria-label="Reset"
                 >
-                    <RotateCcw className="h-3.5 w-3.5" />
+                    <RotateCcw className="size-3.5" />
                     {isCountdown ? tPomodoro('timer.resetTimer') : tPomodoro('timer.resetStopwatch')}
                 </button>
             );
@@ -937,7 +949,7 @@ export default function Pomodoro({
                 className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-transparent py-1.5 text-xs dark:text-slate-300 dark:hover:text-slate-100"
                 aria-label="Skip"
             >
-                <LucideSkipForward className="h-3.5 w-3.5" />
+                <LucideSkipForward className="size-3.5" />
                 {tPomodoro('timer.skip')}
             </button>
         );
@@ -999,25 +1011,14 @@ export default function Pomodoro({
 
     return (
         <motion.div
-            className={cn(
-                `max-w-[140px] transform absolute z-[99999] ${positionClass(position)} select-none`,
-                isDragging && 'cursor-grabbing',
-                !isDragging && 'cursor-grab',
-                className,
-            )}
+            className={cn(`select-none mx-2`, isDragging && 'cursor-grabbing', !isDragging && 'cursor-grab', className)}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             ref={dragRef}
             onPointerDown={handlePointerDown}
             style={{ touchAction: 'none' }}
         >
-            <div
-                style={{
-                    transform: `translate(${dragPos.x}px, ${dragPos.y}px)`,
-                    willChange: 'transform',
-                    userSelect: isDragging ? 'none' : undefined,
-                }}
-            >
+            <div>
                 {renderClock()}
                 <AnimatePresence>
                     {isOpen && (
@@ -1027,33 +1028,33 @@ export default function Pomodoro({
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.98, y: 6 }}
                             transition={{ duration: 0.25 }}
-                            className="absolute z-50 mt-2 w-64 left-[-6em]"
+                            className="absolute z-50 mt-2 w-64 "
                         >
-                            <Card className="rounded-xl border dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-100 backdrop-blur p-3 shadow-xl">
-                                <div className="flex items-center justify-between relative" ref={panelContainerRef}>
+                            <Card className="rounded-3xl border p-3 shadow-xl backdrop-blur dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-100">
+                                <div className="relative flex items-center justify-between" ref={panelContainerRef}>
                                     {!isBreakTime && (
-                                        <div className="inline-flex items-center rounded-lg dark:bg-slate-800/60 p-0.5">
+                                        <div className="inline-flex items-center rounded-lg p-0.5 dark:bg-slate-800/60">
                                             <button
                                                 onClick={() => mode !== 'stopwatch' && handleToggleMode()}
                                                 className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition ${
                                                     !isCountdown
-                                                        ? 'dark:bg-sky-500/20 text-sky-300'
+                                                        ? 'text-sky-300 dark:bg-sky-500/20'
                                                         : 'text-slate-300 hover:text-white'
                                                 }`}
                                                 aria-label="Stopwatch mode"
                                             >
-                                                <Clock className="h-3.5 w-3.5" />
+                                                <Clock className="size-3.5" />
                                             </button>
                                             <button
                                                 onClick={() => isCountdown || handleToggleMode()}
                                                 className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition ${
                                                     isCountdown
                                                         ? 'bg-amber-500/20 text-amber-300'
-                                                        : 'dark:text-slate-300 dark:hover:text-white hover:bg-gray-600'
+                                                        : 'hover:bg-gray-600 dark:text-slate-300 dark:hover:text-white'
                                                 }`}
                                                 aria-label="Timer mode"
                                             >
-                                                <Timer className="h-3.5 w-3.5" />
+                                                <Timer className="size-3.5" />
                                             </button>
                                         </div>
                                     )}
@@ -1063,13 +1064,13 @@ export default function Pomodoro({
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={handleProcessRunTimer}
-                                                className="h-8 w-8 rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70"
+                                                className="size-8 rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70"
                                                 aria-label={isActive && !isPause ? 'Pause' : 'Start'}
                                             >
                                                 {isActive && !isPause ? (
-                                                    <Pause className="h-4 w-4 text-slate-100" />
+                                                    <Pause className="size-4 text-slate-100" />
                                                 ) : (
-                                                    <Play className="h-4 w-4 text-slate-100" />
+                                                    <Play className="size-4 text-slate-100" />
                                                 )}
                                             </Button>
                                         )}
@@ -1084,7 +1085,7 @@ export default function Pomodoro({
                                                 showSoundPanel && 'ring-1 ring-amber-300/40',
                                             )}
                                         >
-                                            <Music2 className="h-4 w-4 text-slate-100" />
+                                            <Music2 className="size-4 text-slate-100" />
                                         </button>
                                         <button
                                             onClick={() => {
@@ -1097,18 +1098,18 @@ export default function Pomodoro({
                                                 showSettingsPanel && 'ring-1 ring-amber-300/40',
                                             )}
                                         >
-                                            <Settings2 className="h-4 w-4 text-slate-100" />
+                                            <Settings2 className="size-4 text-slate-100" />
                                         </button>
                                         {selectedAmbientId && (
                                             <button
                                                 onClick={toggleAmbientPlay}
                                                 aria-label={isAmbientPlaying ? 'Pause ambient' : 'Play ambient'}
-                                                className="h-8 w-8 flex items-center justify-center rounded-full border border-white/10 bg-slate-800/70 hover:bg-slate-700/70 transition"
+                                                className="flex size-8 items-center justify-center rounded-full border border-white/10 bg-slate-800/70 transition hover:bg-slate-700/70"
                                             >
                                                 {isAmbientPlaying ? (
-                                                    <CirclePause className="h-4 w-4 text-slate-100" />
+                                                    <CirclePause className="size-4 text-slate-100" />
                                                 ) : (
-                                                    <CirclePlay className="h-4 w-4 text-slate-100" />
+                                                    <CirclePlay className="size-4 text-slate-100" />
                                                 )}
                                             </button>
                                         )}
