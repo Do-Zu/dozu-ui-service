@@ -125,11 +125,14 @@ export default function TopicWorkspace(): JSX.Element {
                     <div className="flex h-full min-h-0 flex-col overflow-hidden">
                         <Tabs value={tab} onValueChange={handleTabChange} className="flex min-h-0 flex-1 flex-col">
                             <div className="flex shrink-0 items-center justify-between px-6 py-4">
-                                <div className="flex flex-1 justify-center">
+                                <div className="flex items-center gap-2">
                                     <ScheduleDialog />
-                                    <Pomodoro position="top-center" />
+                                    <Pomodoro position="top-center" className="mx-0" />
+                                </div>
+
+                                <div className="flex flex-1 justify-center px-4">
                                     <TabsList
-                                        className="w-4/5 rounded-2xl"
+                                        className="w-full max-w-4xl rounded-2xl"
                                         style={{
                                             display: 'grid',
                                             gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
