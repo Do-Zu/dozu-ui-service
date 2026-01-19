@@ -1,20 +1,6 @@
 'use client';
 
-import {
-    Calendar,
-    Home,
-    Inbox,
-    Search,
-    Settings,
-    BookOpen,
-    Gamepad2,
-    FileQuestion,
-    Brain,
-    BarChart3,
-    Crown,
-    MessageCircle,
-    ShieldCheck,
-} from 'lucide-react';
+import { Calendar, Home, Settings, BookOpen, BarChart3, Crown, MessageCircle, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -92,7 +78,8 @@ export function AppSidebar() {
     const { openUpgradeModal } = useUpgradeModal();
     const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
 
-    const isUpgradeButtonVisible = isAuthenticated && currentPlanUser?.plan?.name?.toLocaleLowerCase().includes(NAME_CONVERSION_PLAN_UPGRADE);
+    const isUpgradeButtonVisible =
+        isAuthenticated && currentPlanUser?.plan?.name?.toLocaleLowerCase().includes(NAME_CONVERSION_PLAN_UPGRADE);
 
     const { isDisplayPackages } = safeDestructure(getConfigLayoutPackageForSidebar(pathname));
 
@@ -127,7 +114,7 @@ export function AppSidebar() {
                                 {items.map((item) => {
                                     const isActive = pathname
                                         ? pathname === item.url ||
-                                        (item.url !== ROUTES.HOME && pathname.startsWith(item.url))
+                                          (item.url !== ROUTES.HOME && pathname.startsWith(item.url))
                                         : false;
                                     return (
                                         <SidebarMenuItem key={item.title}>
@@ -217,7 +204,6 @@ export function AppSidebar() {
                             <Button
                                 onClick={openUpgradeModal}
                                 variant="outline"
-
                                 className="w-full justify-center gap-1.5 py-1.5 font-semibold  shadow-sm transition-all duration-200 hover:shadow-md group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:min-w-0 group-data-[collapsible=icon]:p-0 "
                             >
                                 <Crown className="size-3 shrink-0" />

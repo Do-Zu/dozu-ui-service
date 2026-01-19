@@ -24,4 +24,6 @@ class TopicWorkspaceUtils {
     }
 }
 
-export default new TopicWorkspaceUtils();
+const topicWorkSpaceUtil = new TopicWorkspaceUtils();
+
+export default topicWorkSpaceUtil;

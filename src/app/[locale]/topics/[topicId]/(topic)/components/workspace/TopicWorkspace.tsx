@@ -14,7 +14,6 @@ import topicService from '@/services/topic/topic.service';
 import { isEmpty } from '@/utils';
 import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
-import { useDispatch } from 'react-redux';
 import {
     clearHiddenNodes,
     clearNodeSelection,
@@ -28,6 +27,9 @@ import { MODE_ACCESS_PAGE_ROLE } from '@/utils/constants/common.constant';
 import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import topicWorkspaceUtils from '../../utils/topicWorkspace.utils';
+import Pomodoro from '@/components/pomodoro/Pomodoro';
+import { useAppDispatch } from '@/stores/hooks';
+import ScheduleDialog from '../schedule/ScheduleDialog';
 
 export default function TopicWorkspace(): JSX.Element {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
@@ -70,7 +72,7 @@ export default function TopicWorkspace(): JSX.Element {
         error: topicContentError,
     } = useFetch<ITopic>(() => topicService.getTopicById(topicId));
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         return () => {
@@ -106,10 +108,10 @@ export default function TopicWorkspace(): JSX.Element {
     if (isEmpty(topic)) return <DataStatus variant="empty" />;
 
     return (
-        <div className="w-full h-screen border rounded-lg overflow-hidden bg-background">
+        <div className="h-screen w-full overflow-hidden rounded-lg border bg-background">
             <ResizablePanelGroup direction="horizontal" className="h-full min-h-0">
                 <ResizablePanel defaultSize={35} minSize={35} className={isLearningContentFullscreen ? 'hidden' : ''}>
-                    <div className="flex flex-col h-full p-4">
+                    <div className="flex h-full flex-col p-4">
                         <LearningMaterial />
                     </div>
                 </ResizablePanel>
@@ -120,12 +122,17 @@ export default function TopicWorkspace(): JSX.Element {
                 />
 
                 <ResizablePanel defaultSize={65} minSize={35} className={isPdfViewerFullscreen ? 'hidden' : ''}>
-                    <div className="flex flex-col h-full min-h-0 overflow-hidden">
-                        <Tabs value={tab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0">
-                            <div className="flex items-center justify-between px-6 py-4 shrink-0">
-                                <div className="flex-1 flex justify-center">
+                    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                        <Tabs value={tab} onValueChange={handleTabChange} className="flex min-h-0 flex-1 flex-col">
+                            <div className="flex shrink-0 items-center justify-between px-6 py-4">
+                                <div className="flex items-center gap-2">
+                                    <ScheduleDialog />
+                                    <Pomodoro className="mx-0" />
+                                </div>
+
+                                <div className="flex flex-1 justify-center px-4">
                                     <TabsList
-                                        className="w-[95%] rounded-2xl"
+                                        className="w-full max-w-4xl rounded-2xl"
                                         style={{
                                             display: 'grid',
                                             gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
@@ -135,7 +142,7 @@ export default function TopicWorkspace(): JSX.Element {
                                             <TabsTrigger
                                                 key={t.value}
                                                 value={t.value}
-                                                className="rounded-2xl flex items-center gap-2 text-sm"
+                                                className="flex items-center gap-2 rounded-2xl text-sm"
                                             >
                                                 {tab === t.value && <ActiveDot isActive />}
                                                 {t.icon}
@@ -154,12 +161,12 @@ export default function TopicWorkspace(): JSX.Element {
                                 </Button>
                             </div>
 
-                            <div className="flex-1 min-h-0 px-6 pb-4 overflow-y-auto">
+                            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4">
                                 {tabs.map((t) => (
                                     <TabsContent
                                         key={t.value}
                                         value={t.value}
-                                        className="m-0 focus-visible:ring-0 h-full"
+                                        className="m-0 h-full focus-visible:ring-0"
                                     >
                                         <t.component />
                                     </TabsContent>
