@@ -127,7 +127,7 @@ export default function TopicWorkspace(): JSX.Element {
                             <div className="flex shrink-0 items-center justify-between px-6 py-4">
                                 <div className="flex items-center gap-2">
                                     <ScheduleDialog />
-                                    <Pomodoro position="top-center" className="mx-0" />
+                                    <Pomodoro className="mx-0" />
                                 </div>
 
                                 <div className="flex flex-1 justify-center px-4">
