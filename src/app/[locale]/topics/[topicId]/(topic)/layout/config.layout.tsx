@@ -12,20 +12,21 @@ export const TOPIC_WORKSPACE_TABS: TabConfig[] = [
         value: 'overview',
         label: 'Overview',
         component: OverViewTab,
-        icon: <FileSpreadsheet className="h-4 w-4" />,
+        icon: <FileSpreadsheet className="size-4" />,
     },
     {
         value: METHOD_LEARNING.MINDMAP,
         label: 'Mindmap',
         component: MindMapTab,
-        icon: <Network className="h-4 w-4" />,
+        icon: <Network className="size-4" />,
     },
     {
         value: METHOD_LEARNING.FLASHCARD,
         label: 'Flashcards',
         component: FlashCardTab,
-        icon: <Layers className="h-4 w-4" />,
+        icon: <Layers className="size-4" />,
     },
-    { value: METHOD_LEARNING.QUIZ, label: 'Quiz', component: QuizTab, icon: <ListChecks className="h-4 w-4" /> },
-    { value: 'note', label: 'Note', component: NoteTab, icon: <NotebookText className="h-4 w-4" /> },
+    { value: METHOD_LEARNING.QUIZ, label: 'Quiz', component: QuizTab, icon: <ListChecks className="size-4" /> },
+
+    { value: 'note', label: 'Note', component: NoteTab, icon: <NotebookText className="size-4" /> },
 ];
