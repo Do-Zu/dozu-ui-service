@@ -14,7 +14,6 @@ import topicService from '@/services/topic/topic.service';
 import { isEmpty } from '@/utils';
 import flashcardUtils from '../../utils/flashcard.utils';
 import { ActiveDot } from '../ui/ActiveDot';
-import { useDispatch } from 'react-redux';
 import {
     clearHiddenNodes,
     clearNodeSelection,
@@ -29,6 +28,8 @@ import { useRoleChecker } from '@/hooks/useRoleChecker';
 import { UserRoleEnum } from '@/utils/constants/roles';
 import topicWorkspaceUtils from '../../utils/topicWorkspace.utils';
 import Pomodoro from '@/components/pomodoro/Pomodoro';
+import { useAppDispatch } from '@/stores/hooks';
+import ScheduleDialog from '../schedule/ScheduleDialog';
 
 export default function TopicWorkspace(): JSX.Element {
     const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
@@ -71,7 +72,7 @@ export default function TopicWorkspace(): JSX.Element {
         error: topicContentError,
     } = useFetch<ITopic>(() => topicService.getTopicById(topicId));
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         return () => {
@@ -125,6 +126,7 @@ export default function TopicWorkspace(): JSX.Element {
                         <Tabs value={tab} onValueChange={handleTabChange} className="flex min-h-0 flex-1 flex-col">
                             <div className="flex shrink-0 items-center justify-between px-6 py-4">
                                 <div className="flex flex-1 justify-center">
+                                    <ScheduleDialog />
                                     <Pomodoro position="top-center" />
                                     <TabsList
                                         className="w-4/5 rounded-2xl"
