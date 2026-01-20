@@ -1,11 +1,5 @@
+import { ICommonGenerateOptions } from '@/hooks/generate/type';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-export interface ICommonGenerateOptions {
-    numberOfItem: number;
-    difficulty: string;
-    focus: string;
-    listType: string[];
-}
 
 interface IGenerateContext {
     options: ICommonGenerateOptions;

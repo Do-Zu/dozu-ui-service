@@ -3,21 +3,18 @@ import { useTranslations } from 'next-intl';
 import { useEventSourceStream } from '../useEventSourceStream';
 import { BASE_URL_STREAMING_CHUNK_CONTENT_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { toast } from '../use-toast';
-
-export interface IGenerateRequest {
-    content: string;
-    method: string;
-    type: string;
-}
+import { IGenerateRequest, ValidateGeneratedDataFn } from './type';
 
 export interface ISseDataStream {
     data: unknown;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface UsePostOptions<TReq, TRes> {
     onSuccess?: (data: TRes) => void;
     onError?: (error?: unknown) => void;
     onChunk?: (data: ISseDataStream) => void;
+    validateGeneratedData?: ValidateGeneratedDataFn<TRes>;
 }
 
 /**
@@ -43,8 +40,8 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
         },
     });
 
-    const executeGenerate = async ({ content, method, type }: IGenerateRequest) => {
-        await execute({ content, method, type });
+    const executeGenerate = async (payload: IGenerateRequest) => {
+        await execute({ ...payload });
     };
 
     const isGenerating: boolean = useMemo(() => {

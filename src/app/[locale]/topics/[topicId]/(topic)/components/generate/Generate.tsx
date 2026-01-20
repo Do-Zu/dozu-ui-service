@@ -1,17 +1,16 @@
-import { Button } from '@/components/ui/button';
-import useGenerate, { IGenerateOptions, ValidateGeneratedDataFn } from '@/hooks/generate/useGenerate';
-import { ReactNode, useMemo } from 'react';
+import { ReactNode } from 'react';
+import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
+import { Loader2 } from 'lucide-react';
 import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
 import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
-import DataStatus from '@/components/errors/DataStatus';
-import { isNilOrEmpty } from '@/utils';
+import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
-import { TypeMethodLearning } from '@/utils/constants/method';
-import { GenerateProvider, useGenerateContext } from '../../context/GenerateContext';
+import { isEmpty, isNilOrEmpty } from '@/utils';
+import DataStatus from '@/components/errors/DataStatus';
 import { ICustomOptions, IGenerateType, IStartGenerateFn, MultiNodeGenerateEnum } from '../../types/generate.type';
-import toastHelper from '@/utils/toast.helper';
+import useGenerateStream from '@/hooks/generate/useGenerateStream';
+import { IGenerateOptions, ValidateGeneratedDataFn } from '@/hooks/generate/type';
 
 /**
  * Props for the reusable Generate<TRes> component.
@@ -56,6 +55,7 @@ function GenerateContent<TRes>({
     trigger,
     customGenerateTrigger,
     generateNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registerNode,
     onHandleBeforeGenerate,
     validateGeneratedData,
@@ -67,7 +67,7 @@ function GenerateContent<TRes>({
     const { contentTextOrigin } = useTopicWorkspace();
     const { options } = useGenerateContext();
 
-    const { isGenerating, isRegisterGenerate, apiPostContentError, dataGenerated, execute } = useGenerate<TRes>({
+    const { isGenerating, chunkData, execute } = useGenerateStream<TRes>({
         onSuccess,
         onError,
         validateGeneratedData,
@@ -104,9 +104,9 @@ function GenerateContent<TRes>({
     };
 
     const LoadingDefault = ({ title }: { title: string }) => (
-        <div className="w-full flex items-center justify-center min-h-24 py-4">
+        <div className="flex min-h-24 w-full items-center justify-center py-4">
             <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
                 <span>{title}</span>
             </div>
         </div>
@@ -116,13 +116,9 @@ function GenerateContent<TRes>({
         return generateNode ? generateNode : <LoadingDefault title="Generating..." />;
     }
 
-    if (isRegisterGenerate) {
-        return registerNode ? registerNode : <LoadingDefault title="Processing..." />;
-    }
-
-    if (!isRegisterGenerate && !isGenerating && apiPostContentError) {
+    if (!isGenerating && isEmpty(chunkData)) {
         return (
-            <div className="w-full flex items-center justify-center min-h-24 py-4">
+            <div className="flex min-h-24 w-full items-center justify-center py-4">
                 <DataStatus variant="error" />
             </div>
         );
