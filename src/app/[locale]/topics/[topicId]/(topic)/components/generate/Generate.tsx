@@ -11,7 +11,6 @@ import DataStatus from '@/components/errors/DataStatus';
 import { ICustomOptions, IGenerateType, IStartGenerateFn, MultiNodeGenerateEnum } from '../../types/generate.type';
 import useGenerateStream from '@/hooks/generate/useGenerateStream';
 import { IGenerateOptions, ValidateGeneratedDataFn } from '@/hooks/generate/type';
-import { normalizeStreamedList } from '@/hooks/generate/normalizeStreamedList';
 
 /**
  * Props for the reusable Generate<TRes> component.
@@ -28,7 +27,7 @@ interface IProps<TRes> {
     /** Optional custom UI when "generating" (after request sent). Overrides the default spinner. */
     generateNode?: ReactNode;
     /** Optional preview renderer for streaming chunks (normalized list). */
-    previewComponent?: (items: string[]) => ReactNode;
+    previewComponent?: (rawData: string) => ReactNode;
     /** Optional custom UI while "registering" (pre-flight/queueing). Overrides the default spinner. */
     registerNode?: ReactNode;
     /**
@@ -78,8 +77,6 @@ function GenerateContent<TRes>({
         validateGeneratedData,
     });
 
-    const previewItems = normalizeStreamedList(finalData);
-
     // Entry point: validates input and kicks off the generate call.
     const handleStartGenerate = async (content: string = contentTextOrigin.current, customOptions?: ICustomOptions) => {
         try {
@@ -121,7 +118,7 @@ function GenerateContent<TRes>({
 
     if (isGenerating) {
         if (previewComponent) {
-            return <>{previewComponent(previewItems)}</>;
+            return <>{previewComponent(finalData)}</>;
         }
 
         return generateNode ? generateNode : <LoadingDefault title="Generating..." />;
