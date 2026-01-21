@@ -6,11 +6,12 @@ import { ImportMethod } from '@/app/[locale]/generate/constants/resource';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { CustomizeProperties } from '@/app/[locale]/topics/[topicId]/(topic)/components/generate/CustomizeProperties';
-import { isEmpty, isNilOrEmpty } from '@/utils';
+import { isNilOrEmpty } from '@/utils';
 import DataStatus from '@/components/errors/DataStatus';
 import { ICustomOptions, IGenerateType, IStartGenerateFn, MultiNodeGenerateEnum } from '../../types/generate.type';
 import useGenerateStream from '@/hooks/generate/useGenerateStream';
 import { IGenerateOptions, ValidateGeneratedDataFn } from '@/hooks/generate/type';
+import { normalizeStreamedList } from '@/hooks/generate/normalizeStreamedList';
 
 /**
  * Props for the reusable Generate<TRes> component.
@@ -26,6 +27,8 @@ interface IProps<TRes> {
     type: IGenerateType;
     /** Optional custom UI when "generating" (after request sent). Overrides the default spinner. */
     generateNode?: ReactNode;
+    /** Optional preview renderer for streaming chunks (normalized list). */
+    previewComponent?: (items: string[]) => ReactNode;
     /** Optional custom UI while "registering" (pre-flight/queueing). Overrides the default spinner. */
     registerNode?: ReactNode;
     /**
@@ -55,6 +58,7 @@ function GenerateContent<TRes>({
     trigger,
     customGenerateTrigger,
     generateNode,
+    previewComponent,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registerNode,
     onHandleBeforeGenerate,
@@ -65,13 +69,16 @@ function GenerateContent<TRes>({
     onFinally,
 }: IProps<TRes>) {
     const { contentTextOrigin } = useTopicWorkspace();
+
     const { options } = useGenerateContext();
 
-    const { isGenerating, chunkData, execute } = useGenerateStream<TRes>({
+    const { isGenerating, finalData, error, execute } = useGenerateStream<TRes>({
         onSuccess,
         onError,
         validateGeneratedData,
     });
+
+    const previewItems = normalizeStreamedList(finalData);
 
     // Entry point: validates input and kicks off the generate call.
     const handleStartGenerate = async (content: string = contentTextOrigin.current, customOptions?: ICustomOptions) => {
@@ -113,10 +120,14 @@ function GenerateContent<TRes>({
     );
 
     if (isGenerating) {
+        if (previewComponent) {
+            return <>{previewComponent(previewItems)}</>;
+        }
+
         return generateNode ? generateNode : <LoadingDefault title="Generating..." />;
     }
 
-    if (!isGenerating && isEmpty(chunkData)) {
+    if (!isGenerating && error) {
         return (
             <div className="flex min-h-24 w-full items-center justify-center py-4">
                 <DataStatus variant="error" />

@@ -4,6 +4,7 @@ import { useEventSourceStream } from '../useEventSourceStream';
 import { BASE_URL_STREAMING_CHUNK_CONTENT_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { toast } from '../use-toast';
 import { IGenerateRequest, ValidateGeneratedDataFn } from './type';
+import { safeDestructure, safeJsonParse } from '@/utils';
 
 export interface ISseDataStream {
     data: unknown;
@@ -26,7 +27,8 @@ export interface UsePostOptions<TReq, TRes> {
 export default function useGenerateStream<TRes = unknown>(options?: UsePostOptions<IGenerateRequest, TRes>) {
     const t = useTranslations('generate.cardImport');
     const [chunkData, setChunkData] = useState<TRes | null>(null);
-
+    const [finalData, setFinalData] = useState<string>('');
+    const [error, setError] = useState<unknown>(null);
     const {
         execute,
         data: sseData,
@@ -34,6 +36,12 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
     } = useEventSourceStream<IGenerateRequest, ISseDataStream>(BASE_URL_STREAMING_CHUNK_CONTENT_GENERATE, {
         method: 'POST',
         onMessage: (data) => {
+            const chunkText = typeof data?.data === 'string' ? data.data : '';
+
+            if (chunkText) {
+                setFinalData((prev) => prev + chunkText);
+            }
+
             if (options?.onChunk) {
                 options.onChunk(data);
             }
@@ -41,6 +49,7 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
     });
 
     const executeGenerate = async (payload: IGenerateRequest) => {
+        setFinalData('');
         await execute({ ...payload });
     };
 
@@ -50,6 +59,7 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
 
     const reset = useCallback(() => {
         setChunkData(null);
+        setFinalData('');
     }, []);
 
     useEffect(() => {
@@ -60,15 +70,12 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
 
             if (sseStatus === 'error' && options && options.onError) {
                 options.onError();
+                setError(sseData);
             }
         } else if (sseData && sseStatus === 'completed') {
-            const dataResponse = sseData?.data as TRes;
+            const { onSuccess } = safeDestructure(options);
 
-            if (options && options.onSuccess) {
-                options.onSuccess(dataResponse);
-            }
-
-            setChunkData(dataResponse);
+            onSuccess?.(safeJsonParse(finalData));
         }
     }, [sseData, sseStatus]);
 
@@ -77,5 +84,7 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
         execute: executeGenerate,
         reset,
         chunkData,
+        finalData,
+        error,
     };
 }
