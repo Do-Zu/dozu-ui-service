@@ -3,6 +3,7 @@ import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { IResponseFlashCardGenerate } from '../../../hooks/useFlashCardWorkSpace';
 import { FlashcardTabEnum } from '../FlashcardContent';
 import { METHOD_LEARNING } from '@/utils/constants/method';
+import FlashcardStreamPreview from './FlashcardStreamPreview';
 
 export default function GenerateFlashcards({ message }: { message?: string }) {
     const { setGeneratingFlashcards, setFlashcardTab, setTab } = useTopicWorkspace();
@@ -11,13 +12,14 @@ export default function GenerateFlashcards({ message }: { message?: string }) {
         <div className="flex flex-col gap-2">
             <Generate
                 type="flashcard"
+                previewComponent={(items) => <FlashcardStreamPreview items={items} />}
                 onSuccess={(data: IResponseFlashCardGenerate[]) => {
                     setTab(METHOD_LEARNING.FLASHCARD);
                     setFlashcardTab(FlashcardTabEnum.EDIT);
                     setGeneratingFlashcards(data);
                 }}
             />
-            {message ? <div className="px-8 text-center flex items-center justify-center">{message}</div> : null}
+            {message ? <div className="flex items-center justify-center px-8 text-center">{message}</div> : null}
         </div>
     );
 }
