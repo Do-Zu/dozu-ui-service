@@ -296,7 +296,7 @@ export default function FlashcardsEdit({
 
     if (previewOpen) {
         return (
-            <div className="px-[4rem] py-7 bg-muted min-h-screen">
+            <div className="min-h-screen bg-muted px-16 py-7">
                 <ContentGenerationPreview
                     shouldCreateTopic={false}
                     shouldCreateFeed={false}
@@ -328,9 +328,9 @@ export default function FlashcardsEdit({
     }
 
     return (
-        <div className="h-full flex flex-col">
-            <div className="sticky top-0 z-50 w-full bg-background border-b shadow-sm">
-                <div className="flex justify-end items-center px-[4rem] pt-4">
+        <div className="flex h-full flex-col">
+            <div className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
+                <div className="flex items-center justify-end px-16 pt-4">
                     <div className="flex w-full items-center justify-between">
                         {generateComponent ? (
                             <div className="flex flex-row items-center gap-4">{generateComponent}</div>
@@ -372,7 +372,7 @@ export default function FlashcardsEdit({
                 </div>
 
                 {label ? (
-                    <div className="flex justify-center w-full px-[4rem] pb-4">
+                    <div className="flex w-full justify-center px-16 pb-4">
                         <div className="w-full max-w-xl text-center">
                             <span className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-sm font-medium text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
                                 {label}
@@ -383,22 +383,22 @@ export default function FlashcardsEdit({
             </div>
 
             <div className="h-full overflow-y-auto pb-8" ref={ref}>
-                <div className="px-[4rem] py-7 bg-background">
+                <div className="bg-background px-16 py-7">
                     <div className="mt-7 flex flex-col bg-background">
                         {editingFlashcards?.map((flashcard, index) => {
                             if (flashcardEditUtils.isFlashcardDeleted(flashcard))
                                 return (
                                     <div
                                         key={flashcard.id}
-                                        className="rounded-xl border border-dashed shadow-sm p-4 flex justify-between items-center bg-card/50 text-card-foreground"
+                                        className="flex items-center justify-between rounded-xl border border-dashed bg-card/50 p-4 text-card-foreground shadow-sm"
                                     >
-                                        <span className="text-lg font-bold text-muted-foreground/80 select-none">
+                                        <span className="select-none text-lg font-bold text-muted-foreground/80">
                                             {index + 1}
                                         </span>
                                         <Button
                                             variant="ghost"
                                             onClick={() => handleUndoDelete(index)}
-                                            className="text-muted-foreground font-semibold hover:text-primary"
+                                            className="font-semibold text-muted-foreground hover:text-primary"
                                         >
                                             <Undo2 size={16} className="mr-2" />
                                             Undo
@@ -409,12 +409,12 @@ export default function FlashcardsEdit({
                             return (
                                 <div
                                     key={flashcard.id}
-                                    className="rounded-xl border shadow-sm p-6 flex flex-col bg-muted/60 dark:bg-muted/40 text-card-foreground"
+                                    className="flex flex-col rounded-xl border bg-muted/60 p-6 text-card-foreground shadow-sm dark:bg-muted/40"
                                     style={{ height: flashcardItemHeight, marginBottom: flashcardItemGap }}
                                 >
-                                    <div className="flex justify-between items-center mb-4">
+                                    <div className="mb-4 flex items-center justify-between">
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-xl font-bold text-muted-foreground select-none">
+                                            <span className="select-none text-xl font-bold text-muted-foreground">
                                                 {index + 1}
                                             </span>
                                             {flashcard.serverInfo?.isUpdated &&
@@ -430,7 +430,7 @@ export default function FlashcardsEdit({
                                                 variant="outline"
                                                 size="icon"
                                                 onClick={() => handleFlashcardDetailsModalOpen(flashcard)}
-                                                className="text-muted-foreground hover:text-primary hover:border-primary/50"
+                                                className="text-muted-foreground hover:border-primary/50 hover:text-primary"
                                             >
                                                 <FileSearch size={18} />
                                             </Button>
@@ -438,7 +438,7 @@ export default function FlashcardsEdit({
                                                 variant="outline"
                                                 size="icon"
                                                 onClick={() => handleAddImageModalOpen(flashcard)}
-                                                className="text-muted-foreground hover:text-primary hover:border-primary/50"
+                                                className="text-muted-foreground hover:border-primary/50 hover:text-primary"
                                             >
                                                 <ImagePlus size={18} />
                                             </Button>
@@ -447,7 +447,7 @@ export default function FlashcardsEdit({
                                                 variant="outline"
                                                 size="icon"
                                                 onClick={() => handleFlashcardDeleteClick(index)}
-                                                className="text-muted-foreground hover:text-red-500 dark:hover:text-red-600 hover:border-destructive/50"
+                                                className="text-muted-foreground hover:border-destructive/50 hover:text-red-500 dark:hover:text-red-600"
                                             >
                                                 <Trash2 size={18} />
                                             </Button>
@@ -463,13 +463,13 @@ export default function FlashcardsEdit({
                                                 id={`front-${flashcard.id}`}
                                                 placeholder={tFlashcardCommon('front')}
                                                 className="
-                                                resize-none min-h-[70px]
-                                                bg-input dark:bg-muted
-                                                border border-border
-                                                focus-visible:ring-1 focus-visible:ring-primary/60
-                                                rounded-lg
-                                                text-card-foreground
-                                                placeholder:text-muted-foreground/60
+                                                min-h-[70px] resize-none
+                                                rounded-lg border
+                                                border-border bg-input
+                                                text-card-foreground placeholder:text-muted-foreground/60
+                                                focus-visible:ring-1
+                                                focus-visible:ring-primary/60
+                                                dark:bg-muted
                                         "
                                                 value={flashcard.front}
                                                 onChange={(event) =>
@@ -486,13 +486,13 @@ export default function FlashcardsEdit({
                                                 id={`back-${flashcard.id}`}
                                                 placeholder={tFlashcardCommon('back')}
                                                 className="
-                                                resize-none min-h-[70px]
-                                                bg-input dark:bg-muted
-                                                border border-border
-                                                focus-visible:ring-1 focus-visible:ring-primary/60
-                                                rounded-lg
-                                                text-card-foreground
-                                                placeholder:text-muted-foreground/60
+                                                min-h-[70px] resize-none
+                                                rounded-lg border
+                                                border-border bg-input
+                                                text-card-foreground placeholder:text-muted-foreground/60
+                                                focus-visible:ring-1
+                                                focus-visible:ring-primary/60
+                                                dark:bg-muted
                                         "
                                                 value={flashcard.back}
                                                 onChange={(event) =>
@@ -509,7 +509,7 @@ export default function FlashcardsEdit({
                             <Button
                                 onClick={handleAddBelowClick}
                                 variant="outline"
-                                className="w-full border-dashed border-2 py-6 text-muted-foreground font-semibold hover:text-primary hover:border-primary hover:border-solid"
+                                className="w-full border-2 border-dashed py-6 font-semibold text-muted-foreground hover:border-solid hover:border-primary hover:text-primary"
                             >
                                 <Plus size={16} className="mr-2" />
                                 Add below
@@ -544,10 +544,10 @@ export default function FlashcardsEdit({
             ) : null}
 
             {loading && (
-                <div className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex flex-col items-center justify-center">
-                    <div className="flex flex-col items-center bg-white px-6 py-5 rounded-xl shadow-lg">
-                        <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                        <p className="text-gray-800 font-medium">Generating quiz...</p>
+                <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm">
+                    <div className="flex flex-col items-center rounded-xl bg-white px-6 py-5 shadow-lg">
+                        <div className="mb-3 size-6 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                        <p className="font-medium text-gray-800">Generating quiz...</p>
                     </div>
                 </div>
             )}

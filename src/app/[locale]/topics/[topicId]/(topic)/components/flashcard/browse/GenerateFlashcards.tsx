@@ -12,7 +12,7 @@ export default function GenerateFlashcards({ message }: { message?: string }) {
         <div className="flex flex-col gap-2">
             <Generate
                 type="flashcard"
-                previewComponent={(items) => <FlashcardStreamPreview items={items} />}
+                previewComponent={(raw) => <FlashcardStreamPreview raw={raw} />}
                 onSuccess={(data: IResponseFlashCardGenerate[]) => {
                     setTab(METHOD_LEARNING.FLASHCARD);
                     setFlashcardTab(FlashcardTabEnum.EDIT);
