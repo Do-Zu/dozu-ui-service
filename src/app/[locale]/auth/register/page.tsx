@@ -1,50 +1,27 @@
 'use client';
 
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
 import usePost from '@/hooks/usePost';
-
-import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { withRouteGuard } from '@/components/guards/RouteGuard';
 import { useGoogleAuth } from '../hooks/useGoogleAuth';
-import { useAuth } from '@/contexts/auth/AuthContext';
-import { useAuthNavigation } from '@/hooks/useAuthNavigation';
-import { User } from '@/types/auth';
 import CentralCard from '@/components/auth/CentralCard';
 import { Mail, UserPlus } from 'lucide-react';
 import toastHelper from '@/utils/toast.helper';
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { ROUTES } from '@/utils/constants/routes';
+
+const ROLE_DEFAULT = 'user';
+const API_END_POINT = '/auth/register';
 
 const RegisterPage = () => {
-    const { setAuthData } = useAuth();
-    const { handlePostLogin } = useAuthNavigation();
-    const searchParams = useSearchParams();
-
-    const handleSuccessfulLogin = (user: User) => {
-        // setAuthData(user);
-        // const redirectTo = searchParams?.get('redirect');
-        // if (redirectTo) {
-        // const decodedPath = decodeURIComponent(redirectTo);
-        // handlePostLogin(user, decodedPath);
-        // } else {
-        // handlePostLogin(user);
-        // }
-    };
-
+    const t = useTranslations('RegisterPage');
     const router = useRouter();
 
     const { googleAuthUrl } = useGoogleAuth();
@@ -56,35 +33,23 @@ const RegisterPage = () => {
         window.location.href = googleAuthUrl;
     };
 
-    const t = useTranslations('RegisterPage');
-
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('user');
 
-    const handleRoleValueChange = (role: string) => {
-        setRole(role);
-    };
-
-    const body = { username: username, email: email, password: password, role: role };
-    const {
-        loading,
-        data: apiResponse,
-        error: apiPostContentError,
-        execute,
-    } = usePost<any, any>('/auth/register', 'POST');
+    const body = { username: username, email: email, password: password, role: ROLE_DEFAULT };
+    const { loading, error: apiPostContentError, execute } = usePost<unknown, unknown>(API_END_POINT);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const result = await execute(body);
+            await execute(body);
             toastHelper.showSuccessMessage(t('registerSuccessMessage'));
-            router.push('/auth/login');
-
-            // handleSuccessfulLogin(result.data);
+            router.push(ROUTES.LOGIN);
         } catch (err) {
-            console.error('Login error:', err);
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Login error:', err);
+            }
         }
     };
 
@@ -99,11 +64,11 @@ const RegisterPage = () => {
 
     return (
         <CentralCard>
-            <CardHeader className="text-center space-y-2">
+            <CardHeader className="space-y-2 text-center">
                 <CardTitle className="text-3xl font-bold">{t('title')}</CardTitle>
                 <CardDescription className="text-base text-muted-foreground">{t('subtitle')}</CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="space-y-6 p-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="username">{t('username')}</Label>
@@ -147,25 +112,9 @@ const RegisterPage = () => {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label>{t('registerAsLabel')}</Label>
-                        <Select onValueChange={handleRoleValueChange} value={role}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>{t('selectRoleLabel')}</SelectLabel>
-                                    <SelectItem value="user">User</SelectItem>
-                                    <SelectItem value="teacher">Teacher</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
                     <Button
                         disabled={loading}
-                        className="w-full h-12 text-base font-medium flex items-center justify-center gap-2"
+                        className="flex h-12 w-full items-center justify-center gap-2 text-base font-medium"
                     >
                         <UserPlus />
                         {loading ? t('registerButtonTextLoading') : t('registerButtonText')}
@@ -173,17 +122,17 @@ const RegisterPage = () => {
                     <Button
                         variant="outline"
                         disabled={loading}
-                        className="w-full h-12 text-base font-medium flex items-center justify-center gap-2"
+                        className="flex h-12 w-full items-center justify-center gap-2 text-base font-medium"
                         onClick={handleGoogleLogin}
                     >
-                        <Mail className="h-5 w-5" />
+                        <Mail className="size-5" />
                         {t('registerGoogleButtonText')}
                     </Button>
                 </form>
 
                 <div className="text-center text-sm text-muted-foreground">
                     {t('haveAccountPrompt')}{' '}
-                    <Link href="/auth/login" className="underline">
+                    <Link href={ROUTES.LOGIN} className="underline">
                         {t('loginButtonText')}
                     </Link>
                 </div>
