@@ -247,10 +247,33 @@ const validateArray = <T>(value: unknown, isItem?: (v: unknown) => v is T): T[] 
     return value as T[];
 };
 
+/**
+ *
+ * @param value
+ * @returns
+ */
+const safeJsonParse: <T>(value: string) => T = <T>(value: string): T => {
+    try {
+        return JSON.parse(value) as T;
+    } catch {
+        return {} as T;
+    }
+};
+
+/**
+ *
+ * @param val
+ * @returns
+ */
 const isNil = (val: unknown) => {
     return val === null || val === undefined;
 };
 
+/**
+ *
+ * @param text
+ * @returns
+ */
 const countWords = (text: string): number => {
     if (!text || typeof text !== 'string') {
         return 0;
@@ -262,6 +285,12 @@ const countWords = (text: string): number => {
     return matches ? matches.length : 0;
 };
 
+/**
+ *
+ * @param ms
+ * @param isThrowError
+ * @returns
+ */
 const sleepThread = (ms: number, isThrowError = false) =>
     new Promise<void>((resolve, reject) => {
         setTimeout(() => {
@@ -293,5 +322,6 @@ export {
     validateArray,
     isNil,
     countWords,
+    safeJsonParse,
     sleepThread,
 };
