@@ -1,4 +1,4 @@
-import { ValidateGeneratedDataResult } from '@/hooks/generate/useGenerate';
+import { ValidateGeneratedDataResult } from '@/hooks/generate/type';
 import { MultiNodeGeneratedFlashcardsSchema } from '../../schemas/mindmap.schema';
 import { IGenerateNodeFlashcardsItem } from '../../types/generate.type';
 

@@ -16,6 +16,7 @@ const BASE_URL = `${process.env.NEXT_PUBLIC_API_STREAM_SSE_URL}/api`;
 // const DEFAULT_TIMEOUT_MS = 2 * 60000; // 5 minutes
 export type EventSourceStatus = 'idle' | 'connecting' | 'open' | 'closed' | 'timeout' | 'error' | 'completed';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class RetirableError extends Error {}
 class FatalError extends Error {}
 

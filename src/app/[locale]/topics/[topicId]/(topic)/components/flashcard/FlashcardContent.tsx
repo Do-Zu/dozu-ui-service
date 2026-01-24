@@ -38,11 +38,11 @@ export default function FlashcardContent({ mode, role }: Props) {
     }, [mode, role]);
 
     const itemIcons: { item: FlashcardTab; icon: JSX.Element }[] = [
-        { item: 'browse', icon: <LayoutGrid className="mr-2 h-4 w-4" /> },
-        { item: 'learning', icon: <GraduationCap className="mr-2 h-4 w-4" /> },
-        { item: 'edit', icon: <Edit className="mr-2 h-4 w-4" /> },
-        { item: 'settings', icon: <Settings className="mr-2 h-4 w-4" /> },
-        { item: 'games', icon: <Gamepad2 className="mr-2 h-4 w-4" /> },
+        { item: 'browse', icon: <LayoutGrid className="mr-2 size-4" /> },
+        { item: 'learning', icon: <GraduationCap className="mr-2 size-4" /> },
+        { item: 'edit', icon: <Edit className="mr-2 size-4" /> },
+        { item: 'settings', icon: <Settings className="mr-2 size-4" /> },
+        { item: 'games', icon: <Gamepad2 className="mr-2 size-4" /> },
     ];
 
     const { flashcardTab, setFlashcardTab } = useTopicWorkspace();
@@ -53,12 +53,11 @@ export default function FlashcardContent({ mode, role }: Props) {
     }
 
     return (
-        <div className="w-full h-full flex flex-col">
-            <Tabs value={flashcardTab} onValueChange={handleModeSelect} className="w-full h-full flex flex-col">
-                {/* Tabs header */}
+        <div className="flex size-full flex-col">
+            <Tabs value={flashcardTab} onValueChange={handleModeSelect} className="flex size-full flex-col">
                 <div className="flex justify-center">
                     <TabsList
-                        className="w-[70%] rounded-2xl p-1 grid"
+                        className="grid w-[70%] rounded-2xl p-1"
                         style={{
                             gridTemplateColumns: `repeat(${availableFlashcardTabs.length}, minmax(0, 1fr))`,
                         }}
@@ -76,8 +75,7 @@ export default function FlashcardContent({ mode, role }: Props) {
                     </TabsList>
                 </div>
 
-                {/* Content wrapper */}
-                <div className="flex-1 min-h-0">
+                <div className="min-h-0 flex-1">
                     <TabsContent value={FlashcardTabEnum.BROWSE} className="h-full">
                         <TopicFlashcardsBrowse
                             canGenerate={mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER}
