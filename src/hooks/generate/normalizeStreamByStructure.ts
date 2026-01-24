@@ -171,7 +171,7 @@ export function createObjectExtractor<T>(requiredFields: (keyof T)[]): ItemExtra
     return (rawItem: string) => {
         const parsed = safeJsonParse(rawItem);
 
-        if (parsed == null || typeof parsed !== 'object') {
+        if (parsed == null || typeof parsed !== 'object' || Array.isArray(parsed)) {
             return null;
         }
 
