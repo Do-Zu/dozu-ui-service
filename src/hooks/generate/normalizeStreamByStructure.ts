@@ -223,10 +223,64 @@ function sanitizeList(input: unknown[]): string[] {
 }
 
 function splitByLogicalDelimiters(text: string): string[] {
-    return text
-        .split(/\n+|•|- |\d+\.\s+/g)
-        .map((t) => t.trim())
-        .filter(Boolean);
+    const items: string[] = [];
+    let buffer = '';
+    const pushBuffer = () => {
+        const trimmed = buffer.trim();
+        if (trimmed) {
+            items.push(trimmed);
+        }
+        buffer = '';
+    };
+
+    let i = 0;
+    while (i < text.length) {
+        const char = text[i];
+
+        if (char === '\n') {
+            while (i < text.length && text[i] === '\n') {
+                i++;
+            }
+            pushBuffer();
+            continue;
+        }
+
+        if (char === '•') {
+            i++;
+            pushBuffer();
+            continue;
+        }
+
+        if (char === '-' && text[i + 1] === ' ') {
+            i += 2;
+            pushBuffer();
+            continue;
+        }
+
+        if (char >= '0' && char <= '9') {
+            let j = i;
+            while (j < text.length && text[j] >= '0' && text[j] <= '9') {
+                j++;
+            }
+            if (text[j] === '.') {
+                let k = j + 1;
+                while (k < text.length && /\s/.test(text[k])) {
+                    k++;
+                }
+                if (k > j + 1) {
+                    i = k;
+                    pushBuffer();
+                    continue;
+                }
+            }
+        }
+
+        buffer += char;
+        i++;
+    }
+
+    pushBuffer();
+    return items;
 }
 
 function looksLikeJsonArray(text: string): boolean {
