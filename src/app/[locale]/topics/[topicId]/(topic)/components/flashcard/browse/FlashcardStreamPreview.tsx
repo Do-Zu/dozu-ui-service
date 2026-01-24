@@ -45,11 +45,11 @@ const FlashcardStreamPreview = ({ raw }: { raw: string }) => {
 
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <Label htmlFor={`front-${flashcard.q.slice(0, 20)}`} className="font-semibold">
+                                        <Label htmlFor={`front-${index}`} className="font-semibold">
                                             {tFlashcardCommon('front')}
                                         </Label>
                                         <Textarea
-                                            id={`front-${flashcard.q.slice(0, 20)}`}
+                                            id={`front-${index}`}
                                             placeholder={tFlashcardCommon('front')}
                                             className="
                                                 min-h-[70px] resize-none
@@ -65,11 +65,11 @@ const FlashcardStreamPreview = ({ raw }: { raw: string }) => {
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <Label htmlFor={`back-${flashcard.a}`} className="font-semibold">
+                                        <Label htmlFor={`back-${index}`} className="font-semibold">
                                             {tFlashcardCommon('back')}
                                         </Label>
                                         <Textarea
-                                            id={`back-${flashcard.a}`}
+                                            id={`back-${index}`}
                                             placeholder={tFlashcardCommon('back')}
                                             className="
                                                 min-h-[70px] resize-none
