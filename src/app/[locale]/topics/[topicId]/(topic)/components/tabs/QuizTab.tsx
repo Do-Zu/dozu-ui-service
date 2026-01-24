@@ -50,7 +50,7 @@ function QuizTabContent() {
 
     if (doingMode) {
         return (
-            <div className="relative w-full h-full flex flex-col px-4">
+            <div className="relative flex size-full flex-col px-4">
                 <QuizDoingPanel />
             </div>
         );
@@ -61,9 +61,8 @@ function QuizTabContent() {
     };
 
     return (
-        <div className="relative w-full h-full flex flex-col min-h-0">
-            {/* TABS */}
-            <Tabs value={quizMode} onValueChange={handleModeChange} className="w-full flex justify-center mb-4">
+        <div className="relative flex size-full min-h-0 flex-col">
+            <Tabs value={quizMode} onValueChange={handleModeChange} className="mb-4 flex w-full justify-center">
                 <TabsList
                     className="w-[70%] rounded-2xl p-1"
                     style={{
@@ -73,36 +72,35 @@ function QuizTabContent() {
                 >
                     {availableQuizTabs.includes('generate') && (
                         <TabsTrigger value="generate" className="flex items-center justify-center gap-2 rounded-2xl">
-                            <LayoutGrid className="h-4 w-4" />
+                            <LayoutGrid className="size-4" />
                             <span>Generate Quiz</span>
                         </TabsTrigger>
                     )}
 
                     {availableQuizTabs.includes('history') && (
                         <TabsTrigger value="history" className="flex items-center justify-center gap-2 rounded-2xl">
-                            <HistoryIcon className="h-4 w-4" />
+                            <HistoryIcon className="size-4" />
                             <span>History</span>
                         </TabsTrigger>
                     )}
 
                     {availableQuizTabs.includes('edit') && (
                         <TabsTrigger value="edit" className="flex items-center justify-center gap-2 rounded-2xl">
-                            <EditIcon className="h-4 w-4" />
+                            <EditIcon className="size-4" />
                             <span>Edit Questions</span>
                         </TabsTrigger>
                     )}
 
                     {availableQuizTabs.includes('healthy') && (
                         <TabsTrigger value="healthy" className="flex items-center justify-center gap-2 rounded-2xl">
-                            <HeartPulse className="h-4 w-4" />
+                            <HeartPulse className="size-4" />
                             <span>Health</span>
                         </TabsTrigger>
                     )}
                 </TabsList>
             </Tabs>
 
-            {/* CONTENT */}
-            <div className="flex-1 min-h-0 px-6 pb-4">
+            <div className="min-h-0 flex-1 px-6 pb-4">
                 {quizMode === 'generate' && <QuizGenerateTab canGenerateByAI={canGenerateByAI} />}
                 {quizMode === 'history' && <QuizHistoryTab />}
                 {quizMode === 'edit' && availableQuizTabs.includes('edit') && <QuizEditTab />}
