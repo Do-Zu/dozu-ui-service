@@ -252,11 +252,11 @@ const validateArray = <T>(value: unknown, isItem?: (v: unknown) => v is T): T[] 
  * @param value
  * @returns
  */
-const safeJsonParse: <T>(value: string) => T = <T>(value: string): T => {
+const safeJsonParse = <T>(value: string): T | null => {
     try {
         return JSON.parse(value) as T;
     } catch {
-        return {} as T;
+        return null;
     }
 };
 

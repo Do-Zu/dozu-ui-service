@@ -4,7 +4,8 @@ import { useEventSourceStream } from '../useEventSourceStream';
 import { BASE_URL_STREAMING_CHUNK_CONTENT_GENERATE } from '@/app/[locale]/generate/utils/constant';
 import { toast } from '../use-toast';
 import { IGenerateRequest, ValidateGeneratedDataFn } from './type';
-import { safeDestructure, safeJsonParse } from '@/utils';
+import { isNilOrEmpty, safeDestructure, safeJsonParse } from '@/utils';
+import toastHelper from '@/utils/toast.helper';
 
 export interface ISseDataStream {
     data: unknown;
@@ -75,7 +76,14 @@ export default function useGenerateStream<TRes = unknown>(options?: UsePostOptio
         } else if (sseData && sseStatus === 'completed') {
             const { onSuccess } = safeDestructure(options);
 
-            onSuccess?.(safeJsonParse(finalData));
+            const parsed = safeJsonParse<TRes>(finalData);
+
+            if (isNilOrEmpty(parsed)) {
+                options?.onError?.(new Error('Try again'));
+                toastHelper.showLog('Failed to parse response when stream generate');
+            } else {
+                onSuccess?.(parsed!);
+            }
         }
     }, [sseData, sseStatus]);
 
