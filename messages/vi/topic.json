@@ -31,7 +31,9 @@
             "items": "mục",
             "days": "ngày",
             "memorizationPercent": "Ghi nhớ {value}%",
-            "asOf": "Tính đến {date}"
+            "asOf": "Tính đến {date}",
+            "readyToReviewFlashcards": "Flashcard ({count})",
+            "readyToReviewQuizzes": "Questions ({count})"
         },
         "reference": {
             "trigger": "Nội dung gốc",

@@ -31,7 +31,9 @@
             "items": "items",
             "days": "days",
             "memorizationPercent": "Memorization {value}%",
-            "asOf": "As of {date}"
+            "asOf": "As of {date}",
+            "readyToReviewFlashcards": "Review flashcards ({count})",
+            "readyToReviewQuizzes": "Review quizzes ({count})"
         },
         "reference": {
             "trigger": "View references",

@@ -5,9 +5,12 @@ import { useTranslations } from 'next-intl';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Award, BookCheck, Layers3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { formatDate } from '@/utils';
 import { useRequireTopic } from '../../context/useRequireTopic';
+import { useTopicWorkspace } from '../../context/TopicWorkspaceContext';
+import { METHOD_LEARNING } from '@/utils/constants/method';
 import { differenceInCalendarDays } from 'date-fns';
 
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -239,6 +242,7 @@ function MemorizationTooltip({ active, payload }: MemorizationTooltipProps) {
 export default function TopicStatistic() {
     const tTopic = useTranslations('topic');
     const { topic } = useRequireTopic();
+    const { setTab } = useTopicWorkspace();
 
     const statistics = useMemo(() => {
         const now = new Date();
@@ -252,6 +256,11 @@ export default function TopicStatistic() {
             masteredCount: 0,
             readyToReviewCount: 0,
             reviewedCount: 0,
+        };
+
+        const readyToReviewByType = {
+            flashcard: 0,
+            quiz: 0,
         };
 
         const upcomingReviewDayCounts: Record<number, number> = {};
@@ -287,6 +296,14 @@ export default function TopicStatistic() {
 
                 if (nextReviewDate <= now) {
                     statusCounts.readyToReviewCount += 1;
+                    const itemType = String(item.type);
+                    if (itemType === METHOD_LEARNING.FLASHCARD) {
+                        readyToReviewByType.flashcard += 1;
+                    }
+
+                    if (itemType === METHOD_LEARNING.QUIZ || itemType === 'question') {
+                        readyToReviewByType.quiz += 1;
+                    }
                 }
             }
         });
@@ -305,10 +322,11 @@ export default function TopicStatistic() {
             averageReviewInterval,
             estimatedMasteryDate,
             chartData,
+            readyToReviewByType,
         };
     }, [topic.itemTrackings]);
 
-    const { statusCounts, averageReviewInterval, estimatedMasteryDate, chartData } = statistics;
+    const { statusCounts, averageReviewInterval, estimatedMasteryDate, chartData, readyToReviewByType } = statistics;
     const totalItems = statusCounts.total;
     const chartSeries = useMemo<ChartDatum[]>(() => {
         if (!chartData.hasData) {
@@ -325,7 +343,7 @@ export default function TopicStatistic() {
     return (
         <div className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                <Card className="border-border/60">
+                <Card className="border-none">
                     <CardHeader className="space-y-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <div>
@@ -409,6 +427,29 @@ export default function TopicStatistic() {
                             </span>
                             <span className="text-sm text-muted-foreground">{tTopic('overview.items')}</span>
                         </CardContent>
+                        <div className="px-6 pb-4">
+                            <div className="grid gap-2">
+                                <Button
+                                    className="w-full"
+                                    onClick={() => setTab(METHOD_LEARNING.FLASHCARD)}
+                                    disabled={readyToReviewByType.flashcard === 0}
+                                >
+                                    {tTopic('overview.readyToReviewFlashcards', {
+                                        count: readyToReviewByType.flashcard,
+                                    })}
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() => setTab(METHOD_LEARNING.QUIZ)}
+                                    disabled={readyToReviewByType.quiz === 0}
+                                >
+                                    {tTopic('overview.readyToReviewQuizzes', {
+                                        count: readyToReviewByType.quiz,
+                                    })}
+                                </Button>
+                            </div>
+                        </div>
                     </Card>
 
                     <Card className="border-border/60">

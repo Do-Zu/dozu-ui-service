@@ -71,7 +71,7 @@ export default function TopicOverview({ mode, role }: Props) {
             <div className="rounded-xl  bg-card p-6 shadow-sm">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-2">
-                        <h1 className="text-2xl font-extrabold tracking-tight text-foreground lg:text-4xl">
+                        <h1 className="text-sm font-extrabold tracking-tight text-foreground lg:text-4xl">
                             {topic?.name}
                         </h1>
                         <p className="text-base text-muted-foreground">{topic?.description}</p>
