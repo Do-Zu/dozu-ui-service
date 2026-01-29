@@ -70,30 +70,21 @@ export default function TopicOverview({ mode, role }: Props) {
     }
 
     return (
-        <div className="container mx-auto max-w-6xl space-y-8 py-10">
-            <div className="rounded-xl border border-border/60 bg-card p-6 shadow-sm">
+        <div className="container mx-auto max-w-6xl space-y-8 ">
+            <div className="rounded-xl  bg-card p-6 shadow-sm">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                            {tTopic('overview.title')}
-                        </p>
                         <h1 className="text-2xl font-extrabold tracking-tight text-foreground lg:text-4xl">
-                            {topic.name}
+                            {topic?.name}
                         </h1>
-                        <p className="text-base text-muted-foreground">
-                            {topic.description || tCommon('labels.noDescription')}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                            {tCommon('labels.createdAt')}: {formatDate(topic.createdAt)}
-                        </p>
+                        <p className="text-base text-muted-foreground">{topic?.description}</p>
                     </div>
 
                     {mode === MODE_ACCESS_PAGE_ROLE.personal || role === UserRoleEnum.TEACHER ? (
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={handleUpdateModalOpen}>
+                            <div className="cursor-pointer" onClick={handleUpdateModalOpen}>
                                 <SquarePen className="mr-2 size-4" />
-                                {tTopic('overview.editTopic')}
-                            </Button>
+                            </div>
                             <UpdateTopicModal
                                 isOpen={isEditOpen}
                                 setIsOpen={setIsEditOpen}
@@ -104,8 +95,6 @@ export default function TopicOverview({ mode, role }: Props) {
                         </div>
                     ) : null}
                 </div>
-                <Separator className="my-4" />
-                <p className="text-sm text-muted-foreground">{tTopic('overview.subtitle')}</p>
             </div>
 
             <TopicStatistic />
