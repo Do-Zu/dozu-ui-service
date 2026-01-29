@@ -27,7 +27,9 @@ const buttonVariants = cva(
                 sm: 'h-9 rounded-md px-3',
                 lg: 'h-11 rounded-md px-8',
                 icon: 'size-10',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 'icon-sm': 'size-8',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 'icon-lg': 'size-10',
             },
         },
