@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { formatDate } from '@/utils';
 import { useRequireTopic } from '../../context/useRequireTopic';
+import { differenceInCalendarDays } from 'date-fns';
 
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 const CHART_VIEWBOX_WIDTH = 100;
@@ -295,6 +296,7 @@ export default function TopicStatistic() {
             .map((value) => Number(value))
             .filter((timestamp) => !Number.isNaN(timestamp))
             .sort((a, b) => b - a);
+
         const estimatedMasteryDate = upcomingReviewDates.length > 0 ? new Date(upcomingReviewDates[0]) : null;
         const chartData = buildRetentionChartData(upcomingReviewDayCounts, itemTrackings, statusCounts.total);
 
@@ -328,7 +330,6 @@ export default function TopicStatistic() {
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <CardTitle>{tTopic('overview.retentionTitle')}</CardTitle>
-                                <p className="text-sm text-muted-foreground">{tTopic('overview.retentionSubtitle')}</p>
                             </div>
                             <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-2">
@@ -401,7 +402,6 @@ export default function TopicStatistic() {
                     <Card className="border-border/60 bg-primary/10">
                         <CardHeader className="space-y-1">
                             <CardTitle className="text-base">{tTopic('overview.readyToReview')}</CardTitle>
-                            <p className="text-xs text-muted-foreground">{tTopic('overview.scheduledByAlgorithm')}</p>
                         </CardHeader>
                         <CardContent className="flex items-baseline gap-2">
                             <span className="text-3xl font-semibold text-primary">
@@ -432,7 +432,7 @@ export default function TopicStatistic() {
                                 <span className="text-muted-foreground">{tTopic('overview.estimatedMastery')}</span>
                                 <span className="font-semibold text-foreground">
                                     {estimatedMasteryDate
-                                        ? formatDate(estimatedMasteryDate)
+                                        ? differenceInCalendarDays(estimatedMasteryDate, new Date())
                                         : tTopic('overview.notAvailable')}
                                 </span>
                             </div>

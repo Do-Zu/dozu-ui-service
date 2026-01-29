@@ -1,10 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { formatDate } from '@/utils';
-import { Separator } from '@/components/ui/separator';
 import { SquarePen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { IUpdatingTopic, UpdateTopicModal } from '@/app/[locale]/topics/components/modals/UpdateTopicModal';
 import usePost from '@/hooks/usePost';
