@@ -31,7 +31,9 @@
             "noTracking": "No tracking data yet",
             "notAvailable": "Not available",
             "items": "items",
-            "days": "days"
+            "days": "days",
+            "memorizationPercent": "Memorization {value}%",
+            "asOf": "As of {date}"
         },
         "reference": {
             "trigger": "View references",

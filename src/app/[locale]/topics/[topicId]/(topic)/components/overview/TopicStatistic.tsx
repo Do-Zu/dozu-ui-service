@@ -2,10 +2,10 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Award, BookCheck, Layers3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
 import { formatDate } from '@/utils';
 import { useRequireTopic } from '../../context/useRequireTopic';
 
@@ -18,6 +18,8 @@ type ChartPoint = {
     x: number;
     y: number;
     reviewCount: number;
+    memorizationPercent: number;
+    timestamp: number;
 };
 
 type ChartData = {
@@ -25,12 +27,18 @@ type ChartData = {
     hasData: boolean;
 };
 
+type ChartDatum = {
+    date: string;
+    memorizationPercent: number;
+    reviewCount: number;
+};
+
 const defaultChartPoints: ChartPoint[] = [
-    { x: 6, y: 12, reviewCount: 0 },
-    { x: 30, y: 22, reviewCount: 0 },
-    { x: 54, y: 30, reviewCount: 0 },
-    { x: 78, y: 38, reviewCount: 0 },
-    { x: 94, y: 44, reviewCount: 0 },
+    { x: 6, y: 12, reviewCount: 0, memorizationPercent: 0, timestamp: 0 },
+    { x: 30, y: 22, reviewCount: 0, memorizationPercent: 0, timestamp: 0 },
+    { x: 54, y: 30, reviewCount: 0, memorizationPercent: 0, timestamp: 0 },
+    { x: 78, y: 38, reviewCount: 0, memorizationPercent: 0, timestamp: 0 },
+    { x: 94, y: 44, reviewCount: 0, memorizationPercent: 0, timestamp: 0 },
 ];
 
 function toValidDate(value?: string | Date | null) {
@@ -50,35 +58,79 @@ function startOfDay(date: Date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function buildChartPath(points: ChartPoint[]) {
-    if (points.length === 0) {
-        return '';
+function toNumber(value: unknown, fallback: number) {
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) {
+        return fallback;
     }
 
-    return points.reduce((path, point, index) => {
-        if (index === 0) {
-            return `M ${point.x} ${point.y}`;
+    return parsed;
+}
+
+function calculateMemorizationPercent(
+    itemTrackings: Array<{
+        lastReviewed?: string | null;
+        easinessFactor?: unknown;
+        reviewInterval?: number;
+        repetitionNumber?: number;
+        status?: string;
+    }>,
+    targetDate: Date,
+) {
+    if (itemTrackings.length === 0) {
+        return 0;
+    }
+
+    const targetTimestamp = targetDate.getTime();
+    let memorizationSum = 0;
+
+    itemTrackings.forEach((item) => {
+        const statusValue = item.status?.toLowerCase?.() ?? '';
+
+        const lastReviewed = toValidDate(item.lastReviewed ?? null);
+
+        if (!lastReviewed || statusValue === 'new') {
+            memorizationSum += 0;
+            return;
         }
 
-        return `${path} L ${point.x} ${point.y}`;
-    }, '');
+        const daysSinceReview = Math.max(
+            0,
+            Math.round((targetTimestamp - lastReviewed.getTime()) / MILLISECONDS_PER_DAY),
+        );
+
+        const reviewInterval = Math.max(1, item.reviewInterval ?? 1);
+        const easinessFactor = Math.max(1.3, toNumber(item.easinessFactor, 2.5));
+        const repetitionNumber = Math.max(0, item.repetitionNumber ?? 0);
+        const stability = reviewInterval * (easinessFactor / 2.5) * (1 + repetitionNumber * 0.15);
+        const recallProbability = Math.exp(-daysSinceReview / Math.max(1, stability));
+
+        memorizationSum += Math.min(1, Math.max(0, recallProbability));
+    });
+
+    return Math.round((memorizationSum / itemTrackings.length) * 100);
 }
 
-function buildAreaPath(points: ChartPoint[]) {
-    if (points.length === 0) {
-        return '';
+function formatAxisDate(value: string) {
+    const parsedDate = new Date(value);
+    if (Number.isNaN(parsedDate.getTime())) {
+        return value;
     }
 
-    const linePath = buildChartPath(points);
-    const lastPoint = points[points.length - 1];
-    const firstPoint = points[0];
-
-    return `${linePath} L ${lastPoint.x} ${CHART_VIEWBOX_HEIGHT - CHART_PADDING} L ${firstPoint.x} ${
-        CHART_VIEWBOX_HEIGHT - CHART_PADDING
-    } Z`;
+    return parsedDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-function buildRetentionChartData(upcomingReviewDayCounts: Record<number, number>, totalItems: number): ChartData {
+function buildRetentionChartData(
+    upcomingReviewDayCounts: Record<number, number>,
+    itemTrackings: Array<{
+        lastReviewed?: string | null;
+        easinessFactor?: unknown;
+        reviewInterval?: number;
+        repetitionNumber?: number;
+        status?: string;
+    }>,
+    totalItems: number,
+): ChartData {
     if (totalItems === 0) {
         return { points: defaultChartPoints, hasData: false };
     }
@@ -99,32 +151,24 @@ function buildRetentionChartData(upcomingReviewDayCounts: Record<number, number>
         trimmedDayTimestamps.push(todayTimestamp + MILLISECONDS_PER_DAY * 10);
     }
 
-    const strengthValues = trimmedDayTimestamps.map((timestamp, index) => {
-        if (index === 0) {
-            return 100;
-        }
-
-        const dayOffset = Math.max(1, Math.round((timestamp - todayTimestamp) / MILLISECONDS_PER_DAY));
-        const baseDecay = Math.min(55, dayOffset * 8);
-        const baseStrength = Math.max(32, 100 - baseDecay);
-        const reviewCount = upcomingReviewDayCounts[timestamp] ?? 0;
-        const reviewRatio = reviewCount / totalItems;
-        const reviewBoost = Math.min(35, reviewRatio * 60);
-
-        return Math.min(100, baseStrength + reviewBoost);
+    const memorizationValues = trimmedDayTimestamps.map((timestamp) => {
+        return calculateMemorizationPercent(itemTrackings, new Date(timestamp));
     });
 
-    const xStep = (CHART_VIEWBOX_WIDTH - CHART_PADDING * 2) / (strengthValues.length - 1 || 1);
+    const xStep = (CHART_VIEWBOX_WIDTH - CHART_PADDING * 2) / (memorizationValues.length - 1 || 1);
 
-    const points = strengthValues.map((strength, index) => {
+    const points = memorizationValues.map((memorizationPercent, index) => {
         const xValue = CHART_PADDING + xStep * index;
-        const normalizedStrength = Math.min(100, Math.max(0, strength));
-        const yValue = CHART_PADDING + (1 - normalizedStrength / 100) * (CHART_VIEWBOX_HEIGHT - CHART_PADDING * 2);
+        const normalizedPercent = Math.min(100, Math.max(0, memorizationPercent));
+        const yValue = CHART_PADDING + (1 - normalizedPercent / 100) * (CHART_VIEWBOX_HEIGHT - CHART_PADDING * 2);
+        const timestamp = trimmedDayTimestamps[index];
 
         return {
             x: Number(xValue.toFixed(2)),
             y: Number(yValue.toFixed(2)),
-            reviewCount: upcomingReviewDayCounts[trimmedDayTimestamps[index]] ?? 0,
+            reviewCount: upcomingReviewDayCounts[timestamp] ?? 0,
+            memorizationPercent: normalizedPercent,
+            timestamp,
         } satisfies ChartPoint;
     });
 
@@ -161,6 +205,32 @@ function AchievementItem({ icon, label, value }: AchievementItemProps) {
                 <span>{label}</span>
             </div>
             <span className="text-sm font-semibold text-foreground">{value}</span>
+        </div>
+    );
+}
+
+interface MemorizationTooltipProps {
+    active?: boolean;
+    payload?: Array<{ payload?: ChartDatum }>;
+}
+
+function MemorizationTooltip({ active, payload }: MemorizationTooltipProps) {
+    const tTopic = useTranslations('topic');
+
+    if (!active || !payload || payload.length === 0 || !payload[0].payload) {
+        return null;
+    }
+
+    const { memorizationPercent, date } = payload[0].payload;
+
+    return (
+        <div className="rounded-md border border-border/60 bg-background/95 px-3 py-2 text-xs shadow-sm">
+            <p className="font-semibold text-foreground">
+                {tTopic('overview.memorizationPercent', { value: Math.round(memorizationPercent) })}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+                {tTopic('overview.asOf', { date: formatDate(new Date(date)) })}
+            </p>
         </div>
     );
 }
@@ -226,7 +296,7 @@ export default function TopicStatistic() {
             .filter((timestamp) => !Number.isNaN(timestamp))
             .sort((a, b) => b - a);
         const estimatedMasteryDate = upcomingReviewDates.length > 0 ? new Date(upcomingReviewDates[0]) : null;
-        const chartData = buildRetentionChartData(upcomingReviewDayCounts, statusCounts.total);
+        const chartData = buildRetentionChartData(upcomingReviewDayCounts, itemTrackings, statusCounts.total);
 
         return {
             statusCounts,
@@ -238,8 +308,17 @@ export default function TopicStatistic() {
 
     const { statusCounts, averageReviewInterval, estimatedMasteryDate, chartData } = statistics;
     const totalItems = statusCounts.total;
-    const chartLinePath = buildChartPath(chartData.points);
-    const chartAreaPath = buildAreaPath(chartData.points);
+    const chartSeries = useMemo<ChartDatum[]>(() => {
+        if (!chartData.hasData) {
+            return [];
+        }
+
+        return chartData.points.map((point) => ({
+            date: new Date(point.timestamp).toISOString(),
+            memorizationPercent: point.memorizationPercent,
+            reviewCount: point.reviewCount,
+        }));
+    }, [chartData]);
 
     return (
         <div className="space-y-6">
@@ -269,30 +348,50 @@ export default function TopicStatistic() {
                                 {tTopic('overview.noTracking')}
                             </div>
                         ) : (
-                            <div className="relative h-56 w-full rounded-lg border border-border/60 bg-muted/20">
-                                <svg
-                                    className="absolute inset-0 size-full"
-                                    viewBox={`0 0 ${CHART_VIEWBOX_WIDTH} ${CHART_VIEWBOX_HEIGHT}`}
-                                    preserveAspectRatio="none"
-                                >
-                                    <defs>
-                                        <linearGradient id="retentionArea" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.35" />
-                                            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-                                        </linearGradient>
-                                    </defs>
-                                    <path d={chartAreaPath} fill="url(#retentionArea)" />
-                                    <path d={chartLinePath} className="stroke-primary" strokeWidth="2" fill="none" />
-                                    {chartData.points.map((point, index) => (
-                                        <circle
-                                            key={`${point.x}-${index}`}
-                                            cx={point.x}
-                                            cy={point.y}
-                                            r={point.reviewCount > 0 ? 2.4 : 1.6}
-                                            className={cn('fill-primary', point.reviewCount === 0 && 'opacity-60')}
+                            <div className="h-56 w-full rounded-lg border border-border/60 bg-muted/20 px-2 pt-4">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartSeries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="memorizationFill" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.55} />
+                                                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid
+                                            vertical={false}
+                                            strokeDasharray="3 3"
+                                            className="stroke-border"
                                         />
-                                    ))}
-                                </svg>
+                                        <XAxis
+                                            dataKey="date"
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickMargin={8}
+                                            minTickGap={24}
+                                            tickFormatter={formatAxisDate}
+                                        />
+                                        <YAxis
+                                            domain={[0, 100]}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickMargin={8}
+                                            tickFormatter={(value) => `${value}%`}
+                                        />
+                                        <Tooltip
+                                            cursor={{ stroke: 'hsl(var(--primary))', strokeDasharray: '3 3' }}
+                                            content={<MemorizationTooltip />}
+                                        />
+                                        <Area
+                                            type="natural"
+                                            dataKey="memorizationPercent"
+                                            stroke="hsl(var(--primary))"
+                                            fill="url(#memorizationFill)"
+                                            strokeWidth={2}
+                                            dot={{ r: 3, strokeWidth: 2, fill: 'hsl(var(--primary))' }}
+                                            activeDot={{ r: 4 }}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
                             </div>
                         )}
                     </CardContent>

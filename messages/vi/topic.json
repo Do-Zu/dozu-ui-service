@@ -31,7 +31,9 @@
             "noTracking": "Chưa có dữ liệu theo dõi",
             "notAvailable": "Không khả dụng",
             "items": "mục",
-            "days": "ngày"
+            "days": "ngày",
+            "memorizationPercent": "Ghi nhớ {value}%",
+            "asOf": "Tính đến {date}"
         },
         "reference": {
             "trigger": "Nội dung gốc",
