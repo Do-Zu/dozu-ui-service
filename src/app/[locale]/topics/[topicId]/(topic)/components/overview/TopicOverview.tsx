@@ -93,7 +93,7 @@ export default function TopicOverview({ mode, role }: Props) {
     }
 
     return (
-        <div className="container mx-auto py-10 max-w-4xl space-y-8">
+        <div className="container mx-auto max-w-4xl space-y-8 py-10">
             {/* --- GROUP 1: HEADER --- */}
             <div>
                 <div className="flex items-center gap-4">
@@ -101,7 +101,7 @@ export default function TopicOverview({ mode, role }: Props) {
                     {mode === MODE_ACCESS_PAGE_ROLE.personal || role === 'teacher' ? (
                         <>
                             <Button variant="ghost" size="icon" onClick={handleUpdateModalOpen}>
-                                <SquarePen className="h-6 w-6 text-muted-foreground" />
+                                <SquarePen className="size-6 text-muted-foreground" />
                                 <span className="sr-only">Edit Topic</span>
                             </Button>
 
@@ -116,10 +116,10 @@ export default function TopicOverview({ mode, role }: Props) {
                     ) : null}
                 </div>
 
-                <p className="text-lg text-muted-foreground mt-2">
+                <p className="mt-2 text-lg text-muted-foreground">
                     {topic.description || tCommon('labels.noDescription')}
                 </p>
-                <p className="text-sm text-muted-foreground mt-4">Created on {formatDate(topic.createdAt)}</p>
+                <p className="mt-4 text-sm text-muted-foreground">Created on {formatDate(topic.createdAt)}</p>
             </div>
 
             <Separator />
@@ -130,7 +130,7 @@ export default function TopicOverview({ mode, role }: Props) {
                     <CardTitle>Flashcard Stats</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-32">
+                    <div className="grid h-32 grid-cols-2 gap-4 md:grid-cols-4">
                         <StatCard
                             icon={<Sparkles size={20} />}
                             value={topic.flashcardCounts?.new || 0}
