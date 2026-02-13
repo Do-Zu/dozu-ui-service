@@ -22,4 +22,8 @@ export class AudioPlayerAdapter implements MediaPlayerController {
             audio.play();
         }
     }
+
+    getCurrentTime(): number {
+        return this.audioRef.current?.audio.current?.currentTime || 0;
+    }
 }

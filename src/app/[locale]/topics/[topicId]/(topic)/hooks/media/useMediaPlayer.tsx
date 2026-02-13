@@ -16,5 +16,5 @@ export default function useMediaPlayer() {
         controllerRef.current?.play();
     }
 
-    return { registerPlayer, seekTo, play };
+    return { registerPlayer, seekTo, play, controllerRef };
 }

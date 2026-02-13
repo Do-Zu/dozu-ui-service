@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { useUpdateNoteAsync } from '../../hooks/useNote';
 import { Loader2, Save } from 'lucide-react';
 import useGenerateStream from '@/hooks/generate/useGenerateStream';
-import '@/styles/_variables.scss';
 
 export default function NoteTab() {
     const { topicId, tab, note, setNote } = useTopicWorkspace();
@@ -30,7 +29,7 @@ export default function NoteTab() {
         if (fetchedNote) {
             setNote(fetchedNote);
         }
-    }, [fetchedNote]);
+    }, [fetchedNote, setNote]);
 
     const [content, setContent] = useState<string>('');
     const [generatedSummary, setGeneratedSummary] = useState<string>('');
@@ -39,7 +38,7 @@ export default function NoteTab() {
         if (note) {
             setContent(note.content);
         }
-    }, [note?.content]);
+    }, [note]);
 
     const { updateNoteAsync, updateNoteLoading } = useUpdateNoteAsync();
 

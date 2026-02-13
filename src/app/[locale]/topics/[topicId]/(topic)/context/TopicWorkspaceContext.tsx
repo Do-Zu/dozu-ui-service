@@ -25,7 +25,7 @@ import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 import usePdfMaterial from '../hooks/usePdfMaterial';
-import { INote } from '../types/note.type';
+import { INote, IContentReference } from '../types/note.type';
 import useNoteWorkspace from '../hooks/useNoteWorkspace';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
@@ -118,6 +118,10 @@ interface ContextType {
 
     // for all types of material
     getLearningMaterialContent: (args: { start: number; end: number }) => string;
+
+    // reference tracking
+    getContentReference: () => IContentReference | null;
+    getCurrentPosition: () => number | null;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -159,7 +163,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         setIsPdfViewerFullscreen,
         setPageNumber,
     } = usePdfMaterial();
-    const { registerPlayer, play, seekTo } = useMediaPlayer();
+    const { registerPlayer, play, seekTo, controllerRef } = useMediaPlayer();
 
     const {
         flashcards,
@@ -222,6 +226,42 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         throw new Error('Document type is not supported yet.');
     }
 
+    const getContentReference = useCallback((): IContentReference | null => {
+        if (!learningMaterial) return null;
+
+        const reference: IContentReference = {
+            type: learningMaterial.type as any,
+        };
+
+        if (learningMaterial.type === EnumLearningMaterial.youtube) {
+            reference.timestamp = Math.floor(controllerRef.current?.getCurrentTime() || 0);
+            reference.videoId = learningMaterial.videoId;
+        } else if (learningMaterial.type === EnumLearningMaterial.file) {
+            reference.page = pageNumber;
+        } else if (learningMaterial.type === EnumLearningMaterial.media) {
+            reference.timestamp = Math.floor(controllerRef.current?.getCurrentTime() || 0);
+        }
+
+        return reference;
+    }, [learningMaterial, pageNumber, controllerRef]);
+
+    const getCurrentPosition = useCallback((): number | null => {
+        if (!learningMaterial) return null;
+
+        if (
+            learningMaterial.type === EnumLearningMaterial.youtube ||
+            learningMaterial.type === EnumLearningMaterial.media
+        ) {
+            // Get current time from media player
+            return controllerRef.current?.getCurrentTime() ?? null;
+        }
+        if (learningMaterial.type === EnumLearningMaterial.file) {
+            return pageNumber;
+        }
+
+        return null;
+    }, [learningMaterial, pageNumber, controllerRef]);
+
     const value = useMemo(
         () => ({
             tab,
@@ -282,6 +322,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             play,
             seekTo,
             getLearningMaterialContent,
+            getContentReference,
+            getCurrentPosition,
         }),
         [
             tab,
@@ -323,6 +365,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             play,
             seekTo,
             getLearningMaterialContent,
+            getContentReference,
+            getCurrentPosition,
         ],
     );
 

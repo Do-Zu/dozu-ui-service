@@ -18,9 +18,9 @@ import VideoLearningMaterial from './media/video/VideoLearningMaterial';
 import { EnumLearningMaterial } from '../../types';
 
 export default function LearningMaterial() {
-    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
-    const { isStudent, isTeacher } = useRoleChecker();
     const router = useRouter();
+    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const { isTeacher } = useRoleChecker();
     const { topicId, setLearningMaterial } = useTopicWorkspace();
     const [isNotFound, setIsNotFound] = useState<boolean>(false);
 

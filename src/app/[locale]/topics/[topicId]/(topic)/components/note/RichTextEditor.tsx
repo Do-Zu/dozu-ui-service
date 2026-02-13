@@ -31,6 +31,7 @@ import useCommandOptions, { CommandOptionProps } from '../../hooks/tiptap/useCom
 import { TaskItem, TaskList } from '@tiptap/extension-list';
 import createCommandsPlugin from '../../utils/tiptap/createCommandsPlugin';
 import { MAX_IMAGE_SIZE } from '@/services/image/image.service';
+import { ParagraphWithReference } from './ParagraphWithReference';
 
 interface Props {
     content: string;
@@ -54,6 +55,7 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
+                paragraph: false, // Disable default paragraph
                 bulletList: {
                     HTMLAttributes: {
                         class: 'list-disc ml-4',
@@ -65,6 +67,7 @@ export default function RichTextEditor({ content, onContentChange, isGenerating,
                     },
                 },
             }),
+            ParagraphWithReference, // Use custom paragraph with reference support
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
             }),

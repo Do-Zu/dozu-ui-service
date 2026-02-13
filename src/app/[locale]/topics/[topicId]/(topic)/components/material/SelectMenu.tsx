@@ -77,7 +77,7 @@ const SelectMenu = ({ refNode }: Props) => {
         };
     }, [refNode]);
 
-    const { GenerateFlashcards, GenerateQuiz, AddToNote } = useSelectMenu();
+    const { generateFlashcards, generateQuiz, addToNote } = useSelectMenu();
 
     const styleForYoutubeSegment: CSSProperties = useMemo(
         () => ({
@@ -98,12 +98,12 @@ const SelectMenu = ({ refNode }: Props) => {
 
     return (
         <div
-            className="rounded-lg shadow-lg bg-white/95 backdrop-blur-sm border border-gray-200 flex flex-row gap-2 p-2 "
+            className="flex flex-row gap-2 rounded-lg border border-gray-200 bg-white/95 p-2 shadow-lg backdrop-blur-sm "
             style={styleForYoutubeSegment}
         >
-            {GenerateFlashcards}
-            {GenerateQuiz}
-            {AddToNote}
+            {generateFlashcards}
+            {generateQuiz}
+            {addToNote}
         </div>
     );
 };
