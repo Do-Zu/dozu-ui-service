@@ -1,7 +1,7 @@
 ---
 description: Core orchestration agent that analyzes requests and delegates to specialized sub-agents
 mode: primary
-model: anthropic/claude-sonnet-4
+model: anthropic/claude-haiku-4-5-20251001
 tools:
     write: true
     edit: true
