@@ -1,6 +1,6 @@
 ---
 description: Reviews code for quality and best practices
-mode: subagent
+mode: primary
 model: anthropic/claude-sonnet-4.6
 tools:
     write: false

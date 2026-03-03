@@ -1,7 +1,7 @@
 ---
 description: Creates and maintains documentation — concepts, JSDoc, README, and architecture notes
 mode: subagent
-model: anthropic/claude-sonnet-4
+model: anthropic/claude-sonnet-4-20250514
 temperature: 0.3
 tools:
     write: true
