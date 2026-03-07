@@ -15,7 +15,7 @@ Use the `run_command` tool to execute the dev script in the root directory (`d:\
 npm run dev
 ```
 
-*   **Note:** Use a long-running process approach (e.g., `WaitMsBeforeAsync: 2000`) since this command will not exit. 
+*   **Note:** Use a long-running process approach (e.g., `WaitMsBeforeAsync: 5000`) since this command will not exit. 
 *   After the command goes into the background, use `command_status` to wait for the server to be ready. You should look for output similar to `Ready in Xms` or `Local: http://localhost:3000`.
 
 ## 2. Access the Application
