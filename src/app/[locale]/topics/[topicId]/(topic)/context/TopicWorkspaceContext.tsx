@@ -25,7 +25,7 @@ import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 import usePdfMaterial from '../hooks/usePdfMaterial';
-import { INote, IContentReference } from '../types/note.type';
+import { INote, IContentReference, ContentReferenceType } from '../types/note.type';
 import useNoteWorkspace from '../hooks/useNoteWorkspace';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
@@ -122,6 +122,7 @@ interface ContextType {
     // reference tracking
     getContentReference: () => IContentReference | null;
     getCurrentPosition: () => number | null;
+    setSelectionContentTimestamp: (timestamp: number | null) => void;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -164,6 +165,10 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         setPageNumber,
     } = usePdfMaterial();
     const { registerPlayer, play, seekTo, controllerRef } = useMediaPlayer();
+    const selectionContentTimestampRef = useRef<number | null>(null);
+    const setSelectionContentTimestamp = useCallback((timestamp: number | null) => {
+        selectionContentTimestampRef.current = timestamp;
+    }, []);
 
     const {
         flashcards,
@@ -230,16 +235,19 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         if (!learningMaterial) return null;
 
         const reference: IContentReference = {
-            type: learningMaterial.type as any,
+            type: learningMaterial.type as ContentReferenceType,
         };
 
         if (learningMaterial.type === EnumLearningMaterial.youtube) {
-            reference.timestamp = Math.floor(controllerRef.current?.getCurrentTime() || 0);
+            // Prefer the transcript segment's startTime captured at selection time
+            const timestamp = selectionContentTimestampRef.current ?? controllerRef.current?.getCurrentTime() ?? 0;
+            reference.timestamp = Math.floor(timestamp);
             reference.videoId = learningMaterial.videoId;
         } else if (learningMaterial.type === EnumLearningMaterial.file) {
             reference.page = pageNumber;
         } else if (learningMaterial.type === EnumLearningMaterial.media) {
-            reference.timestamp = Math.floor(controllerRef.current?.getCurrentTime() || 0);
+            const timestamp = selectionContentTimestampRef.current ?? controllerRef.current?.getCurrentTime() ?? 0;
+            reference.timestamp = Math.floor(timestamp);
         }
 
         return reference;
@@ -324,6 +332,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             getLearningMaterialContent,
             getContentReference,
             getCurrentPosition,
+            setSelectionContentTimestamp,
         }),
         [
             tab,

@@ -1,46 +1,49 @@
 .tiptap h1 {
     @apply text-2xl font-bold;
 }
+
 .tiptap h2 {
     @apply text-xl font-bold;
 }
+
 .tiptap h3 {
     @apply text-lg font-bold;
 }
 
 .tiptap p.is-editor-empty:first-child::before {
     @apply text-muted-foreground;
-    content: attr(data-placeholder);
-    float: left;
-    height: 0;
+    content       : attr(data-placeholder);
+    float         : left;
+    height        : 0;
     pointer-events: none;
 }
 
 .tiptap blockquote {
     border-left: 3px solid #000;
     @apply bg-muted text-foreground border-border;
-    margin: 1rem 1rem;
+    margin : 1rem 1rem;
     padding: 0rem 1rem;
 }
 
 .tiptap table {
     border-collapse: collapse;
-    width: 100%;
-    table-layout: fixed;
-    overflow: hidden;
-    margin: 0;
+    width          : 100%;
+    table-layout   : fixed;
+    overflow       : hidden;
+    margin         : 0;
 }
 
 .tiptap th,
 .tiptap td {
-    border: 1px solid #ccc;
-    padding: 6px 8px;
+    border        : 1px solid #ccc;
+    padding       : 6px 8px;
     vertical-align: top;
-    position: relative;
+    position      : relative;
 }
 
 /* Code styling */
 .tiptap {
+
     .hljs-comment,
     .hljs-quote {
         color: #616161;
@@ -95,18 +98,18 @@
 
 .tiptap pre {
     background-color: #1e1e2f;
-    color: #f8f8f2;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-    font-family: 'Fira Code', monospace;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin: 1rem 0;
+    color           : #f8f8f2;
+    padding         : 1rem;
+    border-radius   : 0.5rem;
+    overflow-x      : auto;
+    font-family     : 'Fira Code', monospace;
+    font-size       : 0.875rem;
+    line-height     : 1.5;
+    margin          : 1rem 0;
 }
 
 .tiptap pre code {
-    display: block;
+    display    : block;
     white-space: pre;
 }
 
@@ -119,38 +122,38 @@
     ul,
     ol {
         padding: 0 1rem;
-        margin: 1.25rem 1rem 1.25rem 0.4rem;
+        margin : 1.25rem 1rem 1.25rem 0.4rem;
 
         li p {
-            margin-top: 0.25em;
+            margin-top   : 0.25em;
             margin-bottom: 0.25em;
         }
     }
 
     /* Task list specific styles */
     ul[data-type='taskList'] {
-        list-style: none;
+        list-style : none;
         margin-left: 0;
-        padding: 0;
+        padding    : 0;
 
         li {
             align-items: flex-start;
-            display: flex;
+            display    : flex;
 
-            > label {
-                flex: 0 0 auto;
+            >label {
+                flex        : 0 0 auto;
                 margin-right: 0.5rem;
-                user-select: none;
+                user-select : none;
             }
 
-            > div {
+            >div {
                 flex: 1 1 auto;
             }
         }
 
-        li[data-checked='true'] > div > p:first-of-type {
+        li[data-checked='true']>div>p:first-of-type {
             text-decoration: line-through;
-            color: #888;
+            color          : #888;
         }
 
         input[type='checkbox'] {
@@ -164,12 +167,49 @@
 }
 
 .tiptap hr {
-    border: none;
+    border    : none;
     border-top: 2px solid hsl(var(--border));
-    cursor: pointer;
-    margin: 1rem 0;
+    cursor    : pointer;
+    margin    : 1rem 0;
 
     &.ProseMirror-selectednode {
         border-top: 2px solid hsl(var(--foreground));
     }
+}
+
+/* Reference segment styles */
+.tiptap p[data-reference],
+.tiptap .reference-paragraph {
+    position        : relative;
+    border-left     : 3px solid #eab308;
+    padding-left    : 0.75rem;
+    padding-right   : 2rem;
+    margin          : 0.5rem 0;
+    border-radius   : 0 4px 4px 0;
+    background-color: rgba(234, 179, 8, 0.06);
+    transition      : background-color 0.2s ease;
+    cursor          : pointer;
+}
+
+.tiptap p[data-reference]:hover,
+.tiptap .reference-paragraph:hover {
+    background-color: rgba(234, 179, 8, 0.15);
+}
+
+.tiptap p[data-reference]::after,
+.tiptap .reference-paragraph::after {
+    content       : '\01F4CC';
+    position      : absolute;
+    right         : 8px;
+    top           : 50%;
+    transform     : translateY(-50%);
+    font-size     : 0.75rem;
+    opacity       : 0.4;
+    transition    : opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.tiptap p[data-reference]:hover::after,
+.tiptap .reference-paragraph:hover::after {
+    opacity: 1;
 }

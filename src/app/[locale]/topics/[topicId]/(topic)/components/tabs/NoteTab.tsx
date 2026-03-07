@@ -15,9 +15,13 @@ import { Button } from '@/components/ui/button';
 import { useUpdateNoteAsync } from '../../hooks/useNote';
 import { Loader2, Save } from 'lucide-react';
 import useGenerateStream from '@/hooks/generate/useGenerateStream';
+import { useNoteReferences } from '../../hooks/useNoteReferences';
+
+import '@/styles/_variables.scss';
 
 export default function NoteTab() {
     const { topicId, tab, note, setNote } = useTopicWorkspace();
+    useNoteReferences();
 
     const {
         data: fetchedNote,

@@ -19,6 +19,7 @@ const TranscriptViewer = forwardRef<HTMLDivElement, Props>(({ transcript, onSegm
                     {transcript?.map((segment, index) => (
                         <div
                             key={index}
+                            data-start-time={segment.startTime}
                             className="flex items-start gap-4 rounded-lg py-1 pr-2 transition-all duration-150 hover:bg-muted/50"
                             role="button"
                             onClick={() => onSegmentClick(segment.startTime)}

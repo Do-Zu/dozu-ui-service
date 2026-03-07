@@ -1,7 +1,10 @@
 import { Paragraph } from '@tiptap/extension-paragraph';
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import ReferenceNodeView from './ReferenceNodeView';
 
 /**
  * Custom Paragraph extension that preserves data-reference attribute
+ * and renders a React NodeView with tooltip for referenced paragraphs.
  */
 export const ParagraphWithReference = Paragraph.extend({
     addAttributes() {
@@ -19,5 +22,9 @@ export const ParagraphWithReference = Paragraph.extend({
                 },
             },
         };
+    },
+
+    addNodeView() {
+        return ReactNodeViewRenderer(ReferenceNodeView);
     },
 });

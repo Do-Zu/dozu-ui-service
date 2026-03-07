@@ -8,10 +8,15 @@ import noteReferenceUtils from '../utils/note-reference.utils';
 export function useNoteReferences() {
     const { seekTo } = useTopicWorkspace();
 
+    const REFERENCE_STYLE_ID = 'note-reference-styles';
+
     useEffect(() => {
-        // Add styles for reference segments
-        const style = document.createElement('style');
-        style.textContent = `
+        // Add styles for reference segments — deduplicated to avoid double injection in React StrictMode
+        let addedStyle = false;
+        if (!document.getElementById(REFERENCE_STYLE_ID)) {
+            const style = document.createElement('style');
+            style.id = REFERENCE_STYLE_ID;
+            style.textContent = `
             [data-reference] {
                 position: relative;
                 transition: background-color 0.2s ease;
@@ -35,7 +40,9 @@ export function useNoteReferences() {
                 opacity: 1;
             }
         `;
-        document.head.appendChild(style);
+            document.head.appendChild(style);
+            addedStyle = true;
+        }
 
         // Add click handlers to reference segments
         const addReferenceClickHandlers = () => {
@@ -51,7 +58,10 @@ export function useNoteReferences() {
                     // Add click handler
                     element.addEventListener('click', (e: Event) => {
                         e.stopPropagation();
-                        if (reference.type === 'youtube' && reference.timestamp) {
+                        if (
+                            (reference.type === 'youtube' || reference.type === 'media') &&
+                            reference.timestamp != null
+                        ) {
                             seekTo(reference.timestamp);
                         }
                     });
@@ -59,7 +69,11 @@ export function useNoteReferences() {
                     // Add keyboard support
                     element.addEventListener('keydown', (e: Event) => {
                         const keyboardEvent = e as KeyboardEvent;
-                        if (keyboardEvent.key === 'Enter' && reference.type === 'youtube' && reference.timestamp) {
+                        if (
+                            keyboardEvent.key === 'Enter' &&
+                            (reference.type === 'youtube' || reference.type === 'media') &&
+                            reference.timestamp != null
+                        ) {
                             seekTo(reference.timestamp);
                         }
                     });
@@ -87,7 +101,9 @@ export function useNoteReferences() {
         });
 
         return () => {
-            style.remove();
+            if (addedStyle) {
+                document.getElementById(REFERENCE_STYLE_ID)?.remove();
+            }
             observer.disconnect();
         };
     }, [seekTo]);

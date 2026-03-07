@@ -1,9 +1,9 @@
-export type ContentReferenceType = 'youtube' | 'pdf' | 'audio' | 'video';
+export type ContentReferenceType = 'youtube' | 'file' | 'media';
 
 export interface IContentReference {
     type: ContentReferenceType;
-    timestamp?: number; // For video/audio/youtube (seconds)
-    page?: number; // For PDF
+    timestamp?: number; // For media/youtube (seconds)
+    page?: number; // For file (PDF)
     videoId?: string; // For YouTube
 }
 

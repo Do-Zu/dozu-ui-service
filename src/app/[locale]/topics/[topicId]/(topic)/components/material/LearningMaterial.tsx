@@ -45,11 +45,13 @@ export default function LearningMaterial() {
             if (data.type === EnumLearningMaterial.youtube || data.type === EnumLearningMaterial.media) {
                 setLearningMaterial({
                     ...data,
-                    content: data.content.map((segment) => ({
-                        ...segment,
-                        startTime: Math.floor(segment.startTime),
-                        endTime: Math.floor(segment.endTime),
-                    })),
+                    content: Array.isArray(data.content)
+                        ? data.content.map((segment) => ({
+                              ...segment,
+                              startTime: Math.floor(segment.startTime),
+                              endTime: Math.floor(segment.endTime),
+                          }))
+                        : [],
                 });
                 return;
             }

@@ -40,22 +40,26 @@ class NoteReferenceUtils {
 
         const parts: string[] = [];
 
-        if (reference.type === 'youtube' || reference.type === 'video' || reference.type === 'audio') {
-            if (reference.timestamp) {
+        if (reference.type === 'youtube' || reference.type === 'media') {
+            if (reference.timestamp != null) {
                 const minutes = Math.floor(reference.timestamp / 60);
                 const seconds = Math.floor(reference.timestamp % 60);
-                parts.push(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+                parts.push(`⏱ ${minutes}:${seconds.toString().padStart(2, '0')}`);
             }
         }
 
-        if (reference.type === 'pdf') {
+        if (reference.type === 'file') {
             if (reference.page) {
                 parts.push(`Page ${reference.page}`);
             }
         }
 
-        if (reference.type === 'youtube' && reference.videoId) {
+        if (reference.type === 'youtube') {
             parts.push('YouTube');
+        } else if (reference.type === 'media') {
+            parts.push('Media');
+        } else if (reference.type === 'file') {
+            parts.push('PDF');
         }
 
         return parts.join(' • ');

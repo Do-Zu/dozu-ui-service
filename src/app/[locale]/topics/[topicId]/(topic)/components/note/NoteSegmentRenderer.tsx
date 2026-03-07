@@ -42,7 +42,7 @@ export default function NoteSegmentRenderer({ htmlContent }: NoteSegmentRenderer
 
     const handleSegmentClick = useCallback(
         (reference: IContentReference) => {
-            if (reference?.type === 'youtube' && reference?.timestamp) {
+            if ((reference?.type === 'youtube' || reference?.type === 'media') && reference?.timestamp) {
                 seekTo(reference.timestamp);
             }
         },
@@ -76,10 +76,14 @@ export default function NoteSegmentRenderer({ htmlContent }: NoteSegmentRenderer
                             </TooltipTrigger>
                             <TooltipContent className="border border-slate-700 bg-slate-900 text-white">
                                 <div className="text-sm">
-                                    <p className="mb-1 font-semibold">Reference</p>
+                                    <p className="mb-1 font-semibold">📌 Reference</p>
                                     <p className="text-xs">{noteReferenceUtils.formatReference(segment.reference)}</p>
-                                    {segment.reference?.type === 'youtube' && segment.reference?.timestamp && (
-                                        <p className="mt-1 text-xs">Click to go to timestamp</p>
+                                    {(segment.reference?.type === 'youtube' || segment.reference?.type === 'media') &&
+                                        segment.reference?.timestamp && (
+                                            <p className="mt-1 text-xs">Click to jump to this position</p>
+                                        )}
+                                    {segment.reference?.type === 'file' && segment.reference?.page && (
+                                        <p className="mt-1 text-xs">Source: Page {segment.reference.page}</p>
                                     )}
                                 </div>
                             </TooltipContent>
