@@ -1,5 +1,12 @@
 # Dozu- Personalized learning roadmaps and master topics through multiple learning method
 
+# Server Maintenance Notice  
+We are currently performing scheduled infrastructure upgrades.
+During this time, all services will be temporarily unavailable.
+
+⏳ Downtime: In progress
+⚙️ Status: Pending completion of maintenance tasks
+
 Dozu is a comprehensive learning platform that empowers users to build personalized learning roadmaps and master topics through multiple learning methodologies. Our web application combines various learning approaches including flashcards, progress tracking, scheduled learning sessions, and interactive content to create an effective and engaging educational experience.
 
 ## Features
