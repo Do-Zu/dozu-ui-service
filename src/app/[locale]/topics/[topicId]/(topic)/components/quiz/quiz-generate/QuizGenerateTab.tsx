@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useTopicWorkspace } from '../../../context/TopicWorkspaceContext';
 import { METHOD_LEARNING } from '@/utils/constants/method';
-import useFetch from '@/hooks/useFetch';
 import LoadingPage from '@/app/loading';
 import DataStatus from '@/components/errors/DataStatus';
 import { quizService } from '@/app/[locale]/quiz/services/quiz.service';
@@ -14,26 +13,17 @@ import { toast } from '@/hooks/use-toast';
 import QuizTypeSelector from './QuizTypeSelector';
 import QuizCreateModal from './QuizCreateModal';
 import QuizOnboarding from './QuizOnboarding';
-import QuizStatisticsChart from './QuizStatisticsChart';
 
 import { useQuizWorkspace } from '../context/QuizWorkspaceContext';
-import { IQuizStatistics } from '../../../hooks/useQuizWorkspace';
 import QuizDoingPanel from '../quiz-generate/quiz-doing/QuizDoingPanel';
 import Generate from '../../generate/Generate';
 import type { IGeneratedQuizItem, IQuestion } from '@/app/[locale]/question/types/question.type';
 import RecommendationCard from '../quiz-generate/RecommendationCard';
 import { useQuizRecommendation } from '../quiz-generate/hooks/useQuizRecommendation';
-import { stat } from 'fs';
 
 const DEFAULT_CHECK_TYPE = 'initial';
 type QuizType = 'initial' | 'new' | 'learning' | 'review' | 'wrong' | 'weak';
 const QUIZ_TYPES: QuizType[] = ['initial', 'new', 'learning', 'review', 'wrong', 'weak'];
-interface ApiResponse<T> {
-    code: number;
-    status: string;
-    message: string;
-    data: T;
-}
 
 export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerateByAI?: boolean }) {
     const { tab, topicId, topic } = useTopicWorkspace();
@@ -43,9 +33,6 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
     const { data: recommendation } = useQuizRecommendation(topicId);
 
     const {
-        statistics,
-        setStatistics,
-
         selectedType,
         setSelectedType,
 
@@ -110,17 +97,13 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
     };
 
     // fetch statistic
-    const {
-        data: statsData,
-        loading: statsLoading,
-        error: statsError,
-    } = useFetch<ApiResponse<IQuizStatistics>>(() => quizService.getStatistics(String(topicId)), {
-        shouldRun: tab === METHOD_LEARNING.QUIZ,
-    });
-
-    useEffect(() => {
-        if (statsData?.data) setStatistics(statsData.data);
-    }, [statsData, setStatistics]);
+    // const {
+    //     data: statsData,
+    //     loading: statsLoading,
+    //     error: statsError,
+    // } = useFetch<ApiResponse<IQuizStatistics>>(() => quizService.getStatistics(String(topicId)), {
+    //     shouldRun: tab === METHOD_LEARNING.QUIZ,
+    // });
 
     useEffect(() => {
         if (tab !== METHOD_LEARNING.QUIZ) return;
@@ -158,7 +141,7 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
                             No questions available.{'  '}
                             <span
                                 onClick={() => setShowOnboarding(true)}
-                                className="underline cursor-pointer font-medium"
+                                className="cursor-pointer font-medium underline"
                             >
                                 View quiz guide
                             </span>
@@ -232,7 +215,7 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
             }
 
             // add quizId to each question (needed for submission)
-            const formatted = gen.data.map((q: any) => ({
+            const formatted = gen?.data?.map((q: any) => ({
                 ...q,
                 quizId,
                 selectedAnswer: null,
@@ -257,14 +240,9 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
         }
     };
 
-    //show doing mode
     if (doingMode) {
         return <QuizDoingPanel />;
     }
-
-    // loading
-    if (statsLoading || hasAnyQuestions === null) return <LoadingPage />;
-    if (statsError) return <DataStatus variant="error" title={statsError} />;
 
     const showOnlyGenerator = hasAnyQuestions === false;
 
@@ -292,15 +270,15 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
     };
 
     return (
-        <div className="relative w-full h-full">
+        <div className="relative size-full">
             {loadingOverlay && (
-                <div className="absolute inset-0 bg-black/40 z-50 flex flex-col items-center justify-center text-white">
-                    <div className="animate-spin h-10 w-10 border-4 border-t-transparent border-white rounded-full mb-3" />
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/40 text-white">
+                    <div className="mb-3 size-10 animate-spin rounded-full border-4 border-white border-t-transparent" />
                     <span className="text-lg font-semibold">Creating your quiz...</span>
                 </div>
             )}
 
-            <header className="flex justify-between items-center mb-4">
+            <header className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold">{topic?.name ? `Quiz for "${topic.name}"` : 'Quiz'}</h2>
 
                 <Button variant="outline" onClick={() => setShowOnboarding(true)}>
@@ -312,7 +290,7 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
 
             {showOnlyGenerator ? (
                 <div className="mt-4 rounded-xl border bg-muted p-4">
-                    <div className="flex flex-col gap-1 mb-3">
+                    <div className="mb-3 flex flex-col gap-1">
                         <h3 className="text-base font-semibold">No questions in this topic yet</h3>
                         <p className="text-sm text-muted-foreground">
                             Use AI to generate a set of quiz questions from this topic&apos;s content, then review them
@@ -357,9 +335,9 @@ export default function QuizGenerateTab({ canGenerateByAI = true }: { canGenerat
                         loading={checkingTypes}
                     />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8 mt-6">
+                    {/* <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-1">
                         <QuizStatisticsChart statistics={statistics} />
-                    </div>
+                    </div> */}
                 </>
             )}
 

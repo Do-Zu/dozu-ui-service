@@ -9,6 +9,20 @@ export interface ITopic {
     flashcardCounts?: IFlashcardCounts;
     hasProgress?: boolean;
     inputSetId?: number;
+    itemTrackings: ItemTracking[];
+}
+
+export interface ItemTracking {
+    itemId: number;
+    type: string;
+    createdAt: string;
+    repetitionNumber: number;
+    easinessFactor: number;
+    reviewInterval: number;
+    lastReviewed: string;
+    nextReview: string;
+    status: string;
+    step: number;
 }
 
 export type IFlashcardCounts = {

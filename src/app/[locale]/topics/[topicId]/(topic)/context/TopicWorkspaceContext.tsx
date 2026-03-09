@@ -150,6 +150,7 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
     const [selectingContentText, setSelectingContentText] = useState<string>('');
 
     const [isLearningContentFullscreen, setIsLearningContentFullscreen] = useState<boolean>(false);
+
     const {
         totalPages,
         setTotalPages,
