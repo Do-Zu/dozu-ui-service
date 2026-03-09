@@ -15,4 +15,8 @@ export class YoutubePlayerAdapter implements MediaPlayerController {
     play(): void {
         this.player.playVideo();
     }
+
+    getCurrentTime(): number {
+        return this.player.getCurrentTime() || 0;
+    }
 }

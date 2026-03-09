@@ -25,7 +25,7 @@ import { useSearchParams } from 'next/navigation';
 import { ILearningMaterial } from '../service/learningMaterial.service';
 import { METHOD_LEARNING } from '@/utils/constants/method';
 import usePdfMaterial from '../hooks/usePdfMaterial';
-import { INote } from '../types/note.type';
+import { INote, IContentReference, ContentReferenceType } from '../types/note.type';
 import useNoteWorkspace from '../hooks/useNoteWorkspace';
 import { FlashcardTab } from '../components/flashcard/FlashcardContent';
 import { useMindMapContext } from '@/app/[locale]/mindmap/context/MindMapContext';
@@ -118,6 +118,11 @@ interface ContextType {
 
     // for all types of material
     getLearningMaterialContent: (args: { start: number; end: number }) => string;
+
+    // reference tracking
+    getContentReference: () => IContentReference | null;
+    getCurrentPosition: () => number | null;
+    setSelectionContentTimestamp: (timestamp: number | null) => void;
 }
 
 const TopicWorkspaceContext = createContext<ContextType | null>(null);
@@ -159,7 +164,11 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         setIsPdfViewerFullscreen,
         setPageNumber,
     } = usePdfMaterial();
-    const { registerPlayer, play, seekTo } = useMediaPlayer();
+    const { registerPlayer, play, seekTo, controllerRef } = useMediaPlayer();
+    const selectionContentTimestampRef = useRef<number | null>(null);
+    const setSelectionContentTimestamp = useCallback((timestamp: number | null) => {
+        selectionContentTimestampRef.current = timestamp;
+    }, []);
 
     const {
         flashcards,
@@ -222,6 +231,45 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
         throw new Error('Document type is not supported yet.');
     }
 
+    const getContentReference = useCallback((): IContentReference | null => {
+        if (!learningMaterial) return null;
+
+        const reference: IContentReference = {
+            type: learningMaterial.type as ContentReferenceType,
+        };
+
+        if (learningMaterial.type === EnumLearningMaterial.youtube) {
+            // Prefer the transcript segment's startTime captured at selection time
+            const timestamp = selectionContentTimestampRef.current ?? controllerRef.current?.getCurrentTime() ?? 0;
+            reference.timestamp = Math.floor(timestamp);
+            reference.videoId = learningMaterial.videoId;
+        } else if (learningMaterial.type === EnumLearningMaterial.file) {
+            reference.page = pageNumber;
+        } else if (learningMaterial.type === EnumLearningMaterial.media) {
+            const timestamp = selectionContentTimestampRef.current ?? controllerRef.current?.getCurrentTime() ?? 0;
+            reference.timestamp = Math.floor(timestamp);
+        }
+
+        return reference;
+    }, [learningMaterial, pageNumber, controllerRef]);
+
+    const getCurrentPosition = useCallback((): number | null => {
+        if (!learningMaterial) return null;
+
+        if (
+            learningMaterial.type === EnumLearningMaterial.youtube ||
+            learningMaterial.type === EnumLearningMaterial.media
+        ) {
+            // Get current time from media player
+            return controllerRef.current?.getCurrentTime() ?? null;
+        }
+        if (learningMaterial.type === EnumLearningMaterial.file) {
+            return pageNumber;
+        }
+
+        return null;
+    }, [learningMaterial, pageNumber, controllerRef]);
+
     const value = useMemo(
         () => ({
             tab,
@@ -282,6 +330,9 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             play,
             seekTo,
             getLearningMaterialContent,
+            getContentReference,
+            getCurrentPosition,
+            setSelectionContentTimestamp,
         }),
         [
             tab,
@@ -323,6 +374,8 @@ export function TopicWorkspaceProvider({ children, topicIdInit }: IProviderProps
             play,
             seekTo,
             getLearningMaterialContent,
+            getContentReference,
+            getCurrentPosition,
         ],
     );
 

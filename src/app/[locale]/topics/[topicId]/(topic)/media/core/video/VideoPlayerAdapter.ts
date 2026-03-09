@@ -19,4 +19,8 @@ export class VideoPlayerAdapter implements MediaPlayerController {
             this.playerRef.current.play();
         }
     }
+
+    getCurrentTime(): number {
+        return this.playerRef.current?.currentTime || 0;
+    }
 }

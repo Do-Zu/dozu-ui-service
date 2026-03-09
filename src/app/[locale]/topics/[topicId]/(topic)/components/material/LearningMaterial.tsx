@@ -18,9 +18,9 @@ import VideoLearningMaterial from './media/video/VideoLearningMaterial';
 import { EnumLearningMaterial } from '../../types';
 
 export default function LearningMaterial() {
-    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
-    const { isStudent, isTeacher } = useRoleChecker();
     const router = useRouter();
+    const [learningMode] = useLocalStorage<ILearningMode>('learningMode', MODE_ACCESS_PAGE_ROLE.personal);
+    const { isTeacher } = useRoleChecker();
     const { topicId, setLearningMaterial } = useTopicWorkspace();
     const [isNotFound, setIsNotFound] = useState<boolean>(false);
 
@@ -45,11 +45,13 @@ export default function LearningMaterial() {
             if (data.type === EnumLearningMaterial.youtube || data.type === EnumLearningMaterial.media) {
                 setLearningMaterial({
                     ...data,
-                    content: data.content.map((segment) => ({
-                        ...segment,
-                        startTime: Math.floor(segment.startTime),
-                        endTime: Math.floor(segment.endTime),
-                    })),
+                    content: Array.isArray(data.content)
+                        ? data.content.map((segment) => ({
+                              ...segment,
+                              startTime: Math.floor(segment.startTime),
+                              endTime: Math.floor(segment.endTime),
+                          }))
+                        : [],
                 });
                 return;
             }

@@ -21,7 +21,11 @@ const selectMenuWidth = 200;
 const selectMenuHeight = 30;
 
 const SelectMenu = ({ refNode }: Props) => {
-    const { selectingContentText: selectingText, setSelectingContentText: setSelectingText } = useTopicWorkspace();
+    const {
+        selectingContentText: selectingText,
+        setSelectingContentText: setSelectingText,
+        setSelectionContentTimestamp,
+    } = useTopicWorkspace();
     const [position, setPosition] = useState<Position>();
     const [state, setState] = useState<State>();
 
@@ -50,8 +54,24 @@ const SelectMenu = ({ refNode }: Props) => {
             if (!text) {
                 setState('idle');
                 setSelectingText('');
+                setSelectionContentTimestamp(null);
                 return;
             }
+
+            // Traverse DOM upward from the anchor node to find a [data-start-time] segment
+            let traverseNode: Node | null = anchorNode;
+            let capturedStartTime: number | null = null;
+            while (traverseNode && traverseNode !== node) {
+                if (traverseNode instanceof HTMLElement && traverseNode.hasAttribute('data-start-time')) {
+                    const parsed = parseFloat(traverseNode.getAttribute('data-start-time') ?? '');
+                    if (!isNaN(parsed)) {
+                        capturedStartTime = parsed;
+                    }
+                    break;
+                }
+                traverseNode = traverseNode.parentElement;
+            }
+            setSelectionContentTimestamp(capturedStartTime);
 
             setState('selected');
             setSelectingText(text);
@@ -75,9 +95,9 @@ const SelectMenu = ({ refNode }: Props) => {
             document.removeEventListener('selectstart', onSelectStart);
             document.removeEventListener('mouseup', onMouseUp);
         };
-    }, [refNode]);
+    }, [refNode, setSelectingText, setSelectionContentTimestamp]);
 
-    const { GenerateFlashcards, GenerateQuiz, AddToNote } = useSelectMenu();
+    const { generateFlashcards, generateQuiz, addToNote } = useSelectMenu();
 
     const styleForYoutubeSegment: CSSProperties = useMemo(
         () => ({
@@ -98,12 +118,12 @@ const SelectMenu = ({ refNode }: Props) => {
 
     return (
         <div
-            className="rounded-lg shadow-lg bg-white/95 backdrop-blur-sm border border-gray-200 flex flex-row gap-2 p-2 "
+            className="flex flex-row gap-2 rounded-lg border border-gray-200 bg-white/95 p-2 shadow-lg backdrop-blur-sm "
             style={styleForYoutubeSegment}
         >
-            {GenerateFlashcards}
-            {GenerateQuiz}
-            {AddToNote}
+            {generateFlashcards}
+            {generateQuiz}
+            {addToNote}
         </div>
     );
 };
